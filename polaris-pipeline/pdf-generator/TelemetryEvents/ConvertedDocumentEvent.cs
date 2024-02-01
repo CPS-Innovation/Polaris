@@ -7,6 +7,7 @@ namespace pdf_generator.TelemetryEvents
     public class ConvertedDocumentEvent : BaseTelemetryEvent
     {
         public Guid CorrelationId { get; set; }
+        public string CaseUrn { get; set; }
         public string CaseId { get; set; }
         public string DocumentId { get; set; }
         public string VersionId { get; set; }
@@ -27,6 +28,7 @@ namespace pdf_generator.TelemetryEvents
                 new Dictionary<string, string>
                 {
                     { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseUrn), CaseUrn},
                     { nameof(CaseId), CaseId },
                     { nameof(DocumentId), EnsureNumericId(DocumentId) },
                     { nameof(VersionId), VersionId },

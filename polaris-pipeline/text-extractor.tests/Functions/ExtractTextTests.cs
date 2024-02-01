@@ -44,7 +44,10 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Guid _correlationId;
-
+        private readonly string _caseUrn;
+        private readonly long _caseId;
+        private readonly long _versionId;
+        private readonly string _documentId;
         private readonly ExtractText _extractText;
 
         private List<ValidationResult> _validationResults;
@@ -68,6 +71,10 @@ namespace text_extractor.tests.Functions
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
 
             _correlationId = _fixture.Create<Guid>();
+            _caseUrn = _fixture.Create<string>();
+            _caseId = _fixture.Create<long>();
+            _versionId = _fixture.Create<long>();
+            _documentId = _fixture.Create<string>();
 
             _validationResults = new List<ValidationResult>();
             _mockValidatorWrapper
@@ -109,7 +116,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -123,7 +130,7 @@ namespace text_extractor.tests.Functions
 
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
             _validationResults.Add(new ValidationResult("Invalid"));
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -136,7 +143,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -149,7 +156,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -158,10 +165,10 @@ namespace text_extractor.tests.Functions
         public async Task Run_StoresOcrResults()
         {
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-            await _extractText.Run(_httpRequestMessage);
+            await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
-            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CaseId, _extractTextRequest.DocumentId,
-                _extractTextRequest.VersionId, _extractTextRequest.BlobName, _correlationId));
+            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _caseId, _documentId,
+                _versionId, _extractTextRequest.BlobName, _correlationId));
         }
 
         [Fact]
@@ -171,7 +178,7 @@ namespace text_extractor.tests.Functions
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
 
             // Act
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -187,7 +194,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }

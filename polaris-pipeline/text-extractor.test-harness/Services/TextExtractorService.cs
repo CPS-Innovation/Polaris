@@ -37,6 +37,7 @@ namespace TextExtractor.TestHarness.Services
             {
                 using (var documentStream = File.Open(filePath, FileMode.Open))
                     await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+                        payload.CmsCaseUrn,
                         payload.CmsCaseId,
                         payload.CmsDocumentId,
                         payload.CmsVersionId,

@@ -7,6 +7,6 @@ namespace pdf_generator.Services.DocumentRedaction
 {
     public interface IDocumentRedactionService
     {
-        public Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId);
+        public Task<RedactPdfResponse> RedactPdfAsync(string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId);
     }
 }

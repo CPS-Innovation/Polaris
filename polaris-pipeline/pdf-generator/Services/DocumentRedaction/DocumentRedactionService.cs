@@ -27,20 +27,20 @@ namespace pdf_generator.Services.DocumentRedaction
             _logger = logger;
         }
 
-        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        public async Task<RedactPdfResponse> RedactPdfAsync(string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             try
             {
                 var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
 
-                var redactedDocumentStream = _redactionProvider.Redact(documentStream, redactPdfRequest, correlationId);
+                var redactedDocumentStream = _redactionProvider.Redact(documentStream, caseId, documentId, redactPdfRequest, correlationId);
 
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactPdfRequest.FileName);
                 await _polarisBlobStorageService.UploadDocumentAsync(
                     redactedDocumentStream,
                     uploadFileName,
-                    redactPdfRequest.CaseId.ToString(),
-                    redactPdfRequest.PolarisDocumentId,
+                    caseId,
+                    documentId,
                     redactPdfRequest.VersionId.ToString(),
                     correlationId);
 

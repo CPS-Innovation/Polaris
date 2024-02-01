@@ -30,14 +30,14 @@ namespace coordinator.Factories
         }
 
         public HttpRequestMessage Create(
-          long cmsCaseId,
+            string caseUrn,
+            long cmsCaseId,
             string searchTerm, Guid correlationId,
             IEnumerable<SearchFilterDocument> documents)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Search}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetSearchPath(caseUrn, cmsCaseId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
             var searchDto = new SearchRequestDto
             {
-                CaseId = cmsCaseId,
                 SearchTerm = searchTerm,
                 Documents = documents.ToList().Select(doc => new SearchRequestDocumentDto
                 {

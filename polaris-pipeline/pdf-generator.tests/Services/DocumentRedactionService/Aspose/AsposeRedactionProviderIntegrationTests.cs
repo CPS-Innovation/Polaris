@@ -18,12 +18,16 @@ namespace pdf_generator.tests.Services.DocumentRedaction.Aspose;
 public class AsposeRedactionProviderIntegrationTests
 {
   private readonly Guid _correlationId;
+  private readonly string _caseId;
+  private readonly string _documentId;
   private readonly AsposeRedactionProvider _asposeRedactionProvider;
 
   public AsposeRedactionProviderIntegrationTests()
   {
     var fixture = new Fixture();
     _correlationId = fixture.Create<Guid>();
+    _caseId = fixture.Create<string>();
+    _documentId = fixture.Create<string>();
 
     var redactionImplementation = new ImageConversionImplementation(
       Options.Create(new ImageConversionOptions
@@ -89,7 +93,7 @@ public class AsposeRedactionProviderIntegrationTests
     };
 
     // Act
-    using var outputStream = _asposeRedactionProvider.Redact(inputStream, redactPdfRequestDto, _correlationId);
+    using var outputStream = _asposeRedactionProvider.Redact(inputStream, _caseId, _documentId, redactPdfRequestDto, _correlationId);
     using var redactedDocument = new Document(outputStream);
 
     // Assert

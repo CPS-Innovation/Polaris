@@ -34,17 +34,14 @@ namespace coordinator.Clients
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
+        public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
             documentStream.Seek(0, SeekOrigin.Begin);
 
             var pdfStream = new MemoryStream();
 
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.ConvertToPdf}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
-            request.Headers.Add(HttpHeaderKeys.CaseId, caseId);
-            request.Headers.Add(HttpHeaderKeys.DocumentId, documentId);
-            request.Headers.Add(HttpHeaderKeys.VersionId, versionId);
             request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
             using (var requestContent = new StreamContent(documentStream))
@@ -62,14 +59,14 @@ namespace coordinator.Clients
             return pdfStream;
         }
 
-        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        public async Task<RedactPdfResponse> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             HttpResponseMessage response;
             try
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.RedactPdf}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
                 request.Content = requestMessage;
 
                 response = await _httpClient.SendAsync(request);

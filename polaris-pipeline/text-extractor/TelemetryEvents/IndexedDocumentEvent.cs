@@ -12,6 +12,7 @@ namespace text_extractor.TelemetryEvents
         private const string indexSettledDurationSeconds = nameof(indexSettledDurationSeconds);
 
         public Guid CorrelationId { get; set; }
+        public string CaseUrn { get; set; }
         public long CaseId { get; set; }
         public string DocumentId { get; set; }
         public long VersionId { get; set; }
@@ -37,6 +38,7 @@ namespace text_extractor.TelemetryEvents
                 new Dictionary<string, string>
                 {
                     { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseUrn), CaseUrn },
                     { nameof(CaseId), CaseId.ToString() },
                     { nameof(DocumentId), DocumentId.ToString() },
                     { nameof(VersionId), VersionId.ToString() },

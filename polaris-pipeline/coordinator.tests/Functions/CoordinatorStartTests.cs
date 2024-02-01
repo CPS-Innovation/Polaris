@@ -71,7 +71,7 @@ namespace coordinator.tests.Functions
                     It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequestMessage))
                 .ReturnsAsync(_httpResponseMessage);
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<int>(), false, true));
+                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), false, true));
 
             _coordinatorStart = new CaseClient(mockLogger.Object, _mockOrchestrationProvider.Object);
         }
