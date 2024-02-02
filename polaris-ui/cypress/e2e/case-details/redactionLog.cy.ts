@@ -300,7 +300,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal")
         .should("exist")
         .contains(
-          "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually."
+          "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually. Don't worry the redacted document has saved into CMS successfully."
         );
     });
 
@@ -730,6 +730,48 @@ describe("Redaction Log", () => {
           JSON.stringify(expectedOverUnderRedactionLogPayload)
         );
       });
+    });
+    it("Should throw error with correct error message, if failed to save redaction under over log successfully", () => {
+      cy.overrideRoute(
+        SAVE_REDACTION_LOG_ROUTE,
+        {
+          type: "break",
+          httpStatusCode: 500,
+          timeMs: 500,
+        },
+        "post",
+        Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
+      );
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+      cy.findByTestId("rl-under-over-redaction-content").should("be.visible");
+
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+
+      cy.get(`#checkbox-over-redaction`).click();
+      cy.get(`#checkbox-overRedaction-type-2`).click();
+      cy.get(`#checkbox-overRedaction-type-6`).click();
+      cy.findByTestId("redaction-log-notes").type("hello notes");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("rl-under-over-redaction-content").should("not.exist");
+
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(
+          "The entries into the Redaction Log have failed. Please try again in the Casework App, or go to the Redaction Log app and enter manually."
+        );
     });
   });
 
