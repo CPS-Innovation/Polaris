@@ -82,15 +82,27 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     tracker =>
                     tracker.SetDocumentStatus
                     (
-                        It.Is<(string, DocumentStatus, string)>
+                        It.Is<(string, DocumentStatus)>
                         (
                             a =>
                                 a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() &&
-                                a.Item2 == DocumentStatus.PdfUploadedToBlob &&
-                                a.Item3 == _payload.BlobName
+                                a.Item2 == DocumentStatus.PdfUploadedToBlob
                         )
                     )
                 );
+            _mockCaseEntity.Verify
+            (
+                tracker =>
+                tracker.SetDocumentPdfBlobName
+                (
+                    It.Is<(string, string)>
+                    (
+                        a =>
+                            a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() &&
+                            a.Item2 == _payload.BlobName
+                    )
+                )
+            );
         }
 
         [Fact]
@@ -107,12 +119,11 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     tracker =>
                     tracker.SetDocumentStatus
                     (
-                        It.Is<(string, DocumentStatus, string)>
+                        It.Is<(string, DocumentStatus)>
                         (
                             a =>
                                 a.Item1 == _payload.PolarisDocumentId.ToString() &&
-                                a.Item2 == DocumentStatus.Indexed &&
-                                a.Item3 == _payload.BlobName
+                                a.Item2 == DocumentStatus.Indexed
                         )
                     )
                 );
@@ -140,7 +151,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                         tracker =>
                         tracker.SetDocumentStatus
                         (
-                            It.Is<(string, DocumentStatus, string)>
+                            It.Is<(string, DocumentStatus)>
                             (
                                 a =>
                                     a.Item1 == _payload.PolarisDocumentId.ToString() &&

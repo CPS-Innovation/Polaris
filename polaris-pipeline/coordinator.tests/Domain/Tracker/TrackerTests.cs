@@ -138,7 +138,6 @@ namespace coordinator.tests.Domain.Tracker
 
         [Theory]
         [InlineData(DocumentStatus.Indexed)]
-        [InlineData(DocumentStatus.DocumentAlreadyProcessed)]
         [InlineData(DocumentStatus.UnableToConvertToPdf)]
         [InlineData(DocumentStatus.PdfUploadedToBlob)]
         [InlineData(DocumentStatus.OcrAndIndexFailure)]
@@ -151,7 +150,7 @@ namespace coordinator.tests.Domain.Tracker
             var cmsDocumentId = _caseEntity.CmsDocuments.First().CmsDocumentId;
 
             // Act
-            _caseEntity.SetDocumentStatus((polarisDocumentId, status, _pdfBlobName));
+            _caseEntity.SetDocumentStatus((polarisDocumentId, status));
 
             // Assert
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == cmsDocumentId);

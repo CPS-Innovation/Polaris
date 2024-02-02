@@ -15,15 +15,11 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
         Task<int?> GetVersion();
         void SetVersion(int value);
         void Reset(string TransactionId);
-        void SetValue(CaseDurableEntity tracker);
         Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
-        void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
+        void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status) args);
+        void SetDocumentPdfBlobName((string PolarisDocumentId, string PdfBlobName) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
-        void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
         Task<bool> AllDocumentsFailed();
-        Task<string[]> GetPolarisDocumentIds();
-
         Task<DateTime> GetStartTime();
-        Task<float> GetDurationToCompleted();
     }
 }

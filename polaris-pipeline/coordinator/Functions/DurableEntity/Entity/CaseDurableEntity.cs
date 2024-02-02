@@ -103,7 +103,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
             var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges) = GetDeltaDefendantsAndCharges(defendantsAndCharges);
 
-            CaseDeltasEntity deltas = new CaseDeltasEntity
+            var deltas = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = CreateTrackerCmsDocuments(createdDocuments),
                 UpdatedCmsDocuments = UpdateTrackerCmsDocuments(updatedDocuments),
@@ -149,6 +149,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                      (
                          cmsDocument.Status != DocumentStatus.Indexed ||
                          cmsDocument.CmsVersionId != incomingDocument.VersionId ||
+                         cmsDocument.IsDispatched != incomingDocument.IsDispatched ||
                          cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
                          cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId
                      )
@@ -374,10 +375,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 return pcdRequest;
             }
 
-            if (DefendantsAndCharges != null)
-                return DefendantsAndCharges;
-
-            return null;
+            return DefendantsAndCharges;
         }
 
         public void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args)
@@ -412,65 +410,26 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
         }
 
-        public Task<string[]> GetPolarisDocumentIds()
+        public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status) args)
         {
-            var polarisDocumentIds =
-                CmsDocuments?.Select(doc => doc.PolarisDocumentId.ToString())
-                    .Union(PcdRequests?.Select(pcd => pcd.PolarisDocumentId.ToString())
-                    .Union(new string[] { DefendantsAndCharges?.PolarisDocumentId.ToString() }))
-                    .ToArray();
-
-            return Task.FromResult(polarisDocumentIds);
-        }
-
-        public void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args)
-        {
-            var (polarisDocumentId, isOcrProcessed, isDispatched) = args;
-
-            var document = GetDocument(polarisDocumentId) as CmsDocumentEntity;
-            document.IsOcrProcessed = isOcrProcessed;
-            document.IsDispatched = isDispatched;
-        }
-
-        public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
-        {
-            var (polarisDocumentId, status, pdfBlobName) = args;
-
+            var (polarisDocumentId, status) = args;
             var document = GetDocument(polarisDocumentId);
-            document.Status = status;
 
-            if (status == DocumentStatus.PdfUploadedToBlob)
-            {
-                document.IsPdfAvailable = true;
-            }
-            if (status == DocumentStatus.PdfUploadedToBlob || status == DocumentStatus.DocumentAlreadyProcessed)
-            {
-                document.PdfBlobName = pdfBlobName;
-            }
+            document.Status = status;
         }
 
-        // Only required when debugging to manually set the Tracker state
-        public void SetValue(CaseDurableEntity tracker)
+        public void SetDocumentPdfBlobName((string PolarisDocumentId, string PdfBlobName) args)
         {
-            Status = tracker.Status;
-            Running = tracker.Running;
-            Retrieved = tracker.Retrieved;
-            Completed = tracker.Completed;
-            Failed = tracker.Failed;
-            FailedReason = tracker.FailedReason;
-            CmsDocuments = tracker.CmsDocuments;
-            PcdRequests = tracker.PcdRequests;
-            DefendantsAndCharges = tracker.DefendantsAndCharges;
+            var (polarisDocumentId, pdfBlobName) = args;
+            var document = GetDocument(polarisDocumentId);
+
+            document.IsPdfAvailable = true;
+            document.PdfBlobName = pdfBlobName;
         }
 
         public Task<DateTime> GetStartTime()
         {
             return Task.FromResult(Running.GetValueOrDefault());
-        }
-
-        public Task<float> GetDurationToCompleted()
-        {
-            return Task.FromResult(Completed.GetValueOrDefault());
         }
 
         [FunctionName(nameof(CaseDurableEntity))]
