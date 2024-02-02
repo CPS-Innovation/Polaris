@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.SearchIndex;
-using Common.Dto.Request;
 using Common.Factories.Contracts;
 using coordinator.Factories;
 using Common.Dto.Response;
@@ -23,21 +21,21 @@ namespace coordinator.Clients
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
-        private readonly IPipelineClientSearchRequestFactory _pipelineClientSearchRequestFactory;
+        private readonly ITextExtractorClientRequestFactory _textExtractorClientRequestFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         public TextExtractorClient(
             HttpClient httpClient,
             IConfiguration configuration,
             IPipelineClientRequestFactory pipelineClientRequestFactory,
-            IPipelineClientSearchRequestFactory pipelineClientSearchRequestFactory,
+            ITextExtractorClientRequestFactory textExtractorClientRequestFactory,
             IJsonConvertWrapper jsonConvertWrapper
             )
         {
             _httpClient = httpClient;
             _configuration = configuration;
             _pipelineClientRequestFactory = pipelineClientRequestFactory;
-            _pipelineClientSearchRequestFactory = pipelineClientSearchRequestFactory;
+            _textExtractorClientRequestFactory = textExtractorClientRequestFactory;
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
@@ -68,7 +66,7 @@ namespace coordinator.Clients
             IEnumerable<SearchFilterDocument> documents
             )
         {
-            var request = _pipelineClientSearchRequestFactory.Create(caseUrn, cmsCaseId, searchTerm, correlationId, documents);
+            var request = _textExtractorClientRequestFactory.Create(caseUrn, cmsCaseId, searchTerm, correlationId, documents);
             using (var response = await _httpClient.SendAsync(request))
             {
                 response.EnsureSuccessStatusCode();

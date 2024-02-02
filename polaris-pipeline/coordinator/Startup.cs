@@ -35,6 +35,7 @@ using coordinator.Providers;
 using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
 using Common.Streaming;
+using coordinator.Mappers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -47,13 +48,11 @@ namespace coordinator
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
-            services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
@@ -71,7 +70,7 @@ namespace coordinator
             });
 
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();

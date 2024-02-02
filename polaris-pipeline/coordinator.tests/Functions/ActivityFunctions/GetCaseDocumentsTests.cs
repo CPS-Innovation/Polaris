@@ -7,14 +7,13 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using coordinator.Functions.ActivityFunctions.Case;
+using coordinator.Functions.ActivityFunctions;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using DdeiClient.Services.Contracts;
 using coordinator.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
-using Microsoft.Extensions.Configuration;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
@@ -26,7 +25,6 @@ namespace coordinator.tests.Functions.ActivityFunctions
         private readonly GetCaseDocumentsActivityPayload _payload;
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
         private readonly GetCaseDocuments _getCaseDocuments;
-        private readonly Mock<IConfiguration> _mockConfiguration;
 
         public GetCaseDocumentsTests()
         {
@@ -45,8 +43,6 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             var mockDocumentExtractionService = new Mock<IDdeiClient>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();
-
-            _mockConfiguration = new Mock<IConfiguration>();
 
             _mockDurableActivityContext
                 .Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
@@ -67,13 +63,10 @@ namespace coordinator.tests.Functions.ActivityFunctions
               .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[1]))
               .Returns(_presentationFlags[1]);
 
-            var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
 
             _getCaseDocuments = new GetCaseDocuments(
                 mockDocumentExtractionService.Object,
-                mockDocumentToggleService.Object,
-                mockLogger.Object,
-                _mockConfiguration.Object);
+                mockDocumentToggleService.Object);
         }
 
         [Fact]

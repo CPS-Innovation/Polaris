@@ -118,7 +118,7 @@ namespace TextExtractor.TestHarness
             services.AddSingleton<ITextExtractorService, TextExtractorService>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
             services.AddSingleton<ITestOcrService, TestOcrService>();
             services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddSingleton<IOcrService, OcrService>();

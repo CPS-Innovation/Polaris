@@ -4,8 +4,7 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
-using coordinator.Functions.DurableEntity.Entity.Contract;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Functions.Orchestration;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -24,7 +23,17 @@ namespace coordinator.Functions.DurableEntity.Entity
     {
         public static string GetInstanceId(string caseId)
         {
-            return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
+            var caseEntityId = new EntityId(
+                nameof(CaseDurableEntity),
+                RefreshCaseOrchestrator.GetKey(caseId.ToString())
+            );
+            return caseEntityId.ToString();
+        }
+
+        public static ICaseDurableEntity GetCaseDurableEntity(IDurableOrchestrationContext context, long caseId)
+        {
+            var entityId = GetInstanceId(caseId.ToString());
+            return context.CreateEntityProxy<ICaseDurableEntity>(entityId);
         }
 
         [JsonProperty("transactionId")]

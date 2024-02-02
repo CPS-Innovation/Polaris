@@ -1,7 +1,6 @@
 ﻿using Common.Telemetry.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
@@ -17,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
 using coordinator.Clients.Contracts;
+using coordinator.Functions.Orchestration;
 
 namespace coordinator.Providers;
 
