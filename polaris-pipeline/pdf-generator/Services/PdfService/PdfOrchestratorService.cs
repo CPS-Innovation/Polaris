@@ -66,6 +66,13 @@ namespace pdf_generator.Services.PdfService
                     case FileType.DOTX:
                     case FileType.RTF:
                     case FileType.TXT:
+                    case FileType.HTML:
+                    case FileType.HTM:
+                    case FileType.MHT:
+                    case FileType.MHTML:
+                    // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
+                    // But Aspose seems forgiving enough to convert it, so treat it as HTML
+                    case FileType.HTE:    
                         converterType = PdfConverterType.AsposeWords;
                         conversionResult = _wordsPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
                         break;
@@ -100,22 +107,6 @@ namespace pdf_generator.Services.PdfService
                     case FileType.VSD:
                         converterType = PdfConverterType.AsposeDiagrams;
                         conversionResult = _diagramPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
-                        break;
-
-                    case FileType.HTML:
-                    case FileType.HTM:
-                    case FileType.MHT:
-                    case FileType.MHTML:
-                        converterType = PdfConverterType.AsposeWords;
-                        conversionResult = _wordsPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
-                        break;
-
-                    // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
-                    // But Aspose seems forgiving enough to convert it, so treat it as HTML
-                    case FileType.HTE:
-                        //send to Word converter and the Word HTML renderer instead, much faster (33 -> 50% faster, reduces file size by up to 78% with no loss in quality)
-                        converterType = PdfConverterType.AsposeWords;
-                        conversionResult = _wordsPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
                         break;
 
                     case FileType.EML:
