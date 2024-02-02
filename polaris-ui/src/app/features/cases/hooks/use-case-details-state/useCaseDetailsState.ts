@@ -305,11 +305,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleSavedRedactionLog = useCallback(
-    (redactionLogRequestData: RedactionLogRequestData) =>
+  const handleSaveRedactionLog = useCallback(
+    (
+      redactionLogRequestData: RedactionLogRequestData,
+      redactionLogType: RedactionLogTypes
+    ) =>
       dispatch({
         type: "SAVE_REDACTION_LOG",
-        payload: { redactionLogRequestData },
+        payload: { redactionLogRequestData, redactionLogType },
       }),
     [dispatch]
   );
@@ -379,6 +382,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
-    handleSavedRedactionLog,
+    handleSaveRedactionLog,
   };
 };

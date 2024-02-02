@@ -72,7 +72,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveRedaction,
     handleRemoveAllRedactions,
     handleSavedRedactions,
-    handleSavedRedactionLog,
+    handleSaveRedactionLog,
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
@@ -242,7 +242,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             savedRedactionTypes={redactionLog.savedRedactionTypes}
             saveStatus={getActiveTabDocument.saveStatus}
             redactionLogLookUpsData={redactionLog.redactionLogLookUpsData.data}
-            saveRedactionLog={handleSavedRedactionLog}
+            handleSaveRedactionLog={handleSaveRedactionLog}
             redactionLogMappingsData={
               redactionLog.redactionLogMappingData.status === "succeeded"
                 ? redactionLog.redactionLogMappingData.data

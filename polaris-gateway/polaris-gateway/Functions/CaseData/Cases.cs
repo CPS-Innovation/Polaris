@@ -64,7 +64,7 @@ namespace PolarisGateway.Functions.CaseData
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{caseUrn}'");
                 var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, caseUrn);
-                caseInformation = await _caseDataService.ListCases(urnArg);
+                caseInformation = await _caseDataService.ListCasesAsync(urnArg);
 
                 if (caseInformation != null && caseInformation.Any())
                 {

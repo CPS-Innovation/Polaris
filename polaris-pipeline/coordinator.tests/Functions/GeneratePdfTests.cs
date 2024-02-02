@@ -106,6 +106,7 @@ namespace pdf_generator.tests.Functions
                 .Setup(client => client.ConvertToPdfAsync(
                     _generatePdfRequest.CorrelationId,
                     _generatePdfRequest.CmsAuthValues,
+                    _generatePdfRequest.CmsCaseUrn,
                     _generatePdfRequest.CmsCaseId.ToString(),
                     _generatePdfRequest.CmsDocumentId,
                     _generatePdfRequest.CmsVersionId.ToString(),

@@ -92,6 +92,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                     case "DELETE":
                         await _orchestrationProvider.DeleteCaseAsync(orchestrationClient,
                                                                      currentCorrelationId,
+                                                                     caseUrn,
                                                                      caseIdNum,
                                                                      checkForBlobProtection: false,
                                                                      waitForIndexToSettle: true);
