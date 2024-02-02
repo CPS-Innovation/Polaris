@@ -162,7 +162,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             {
                 var partialCmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{req.GetClientIpAddress()}\"}}";
 
-                var fullCmsAuthValues = await _ddeiClient.GetFullCmsAuthValues(new DdeiCmsCaseDataArgDto
+                var fullCmsAuthValues = await _ddeiClient.GetFullCmsAuthValuesAsync(new DdeiCmsCaseDataArgDto
                 {
                     CorrelationId = currentCorrelationId,
                     CmsAuthValues = partialCmsAuthValues
@@ -235,7 +235,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
             try
             {
-                var urnLookupResponse = await _ddeiClient.GetUrnFromCaseId(new DdeiCmsCaseIdArgDto
+                var urnLookupResponse = await _ddeiClient.GetUrnFromCaseIdAsync(new DdeiCmsCaseIdArgDto
                 {
                     CorrelationId = currentCorrelationId,
                     CmsAuthValues = polarisCmsAuthValues,

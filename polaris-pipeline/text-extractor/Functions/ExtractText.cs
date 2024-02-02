@@ -19,6 +19,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using text_extractor.TelemetryEvents;
 using text_extractor.Services.OcrService;
+using Common.Streaming;
 
 namespace text_extractor.Functions
 {
@@ -114,9 +115,9 @@ namespace text_extractor.Functions
 
                 await Task.Delay(2000);
                 var result = await _searchIndexService.WaitForStoreResultsAsync(caseId,
-                                                                                    documentId,
-                                                                                    versionId,
-                                                                                    ocrResults.ReadResults.Sum(r => r.Lines.Count));
+                                                                                documentId,
+                                                                                versionId,
+                                                                                ocrResults.ReadResults.Sum(r => r.Lines.Count));
 
                 telemetryEvent.DidIndexSettle = result.IsSuccess;
                 telemetryEvent.WaitRecordCounts = result.RecordCounts;

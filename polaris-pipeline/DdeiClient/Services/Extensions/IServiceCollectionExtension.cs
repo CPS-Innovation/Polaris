@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using System.Net;
+using Common.Streaming;
 
 namespace Ddei.Services.Extensions
 {
@@ -34,8 +35,12 @@ namespace Ddei.Services.Extensions
               .AddPolicyHandler(GetRetryPolicy());
 
             services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
-            services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
+            services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
+            services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
             services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
+            services.AddTransient<ICaseIdentifiersMapper, CaseIdentifiersMapper>();
+            services.AddTransient<ICmsAuthValuesMapper, CmsAuthValuesMapper>();
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()

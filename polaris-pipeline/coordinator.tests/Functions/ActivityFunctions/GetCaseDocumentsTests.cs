@@ -53,7 +53,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
                 .Returns(_payload);
 
             mockDocumentExtractionService
-                .Setup(client => client.GetCase(It.IsAny<DdeiCmsCaseArgDto>()))
+                .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCmsCaseArgDto>()))
                 .ReturnsAsync(_case);
             mockDocumentExtractionService
                 .Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(), _payload.CmsAuthValues, _payload.CorrelationId))

@@ -34,6 +34,7 @@ using Common.Telemetry;
 using coordinator.Providers;
 using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
+using Common.Streaming;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -55,6 +56,7 @@ namespace coordinator
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>

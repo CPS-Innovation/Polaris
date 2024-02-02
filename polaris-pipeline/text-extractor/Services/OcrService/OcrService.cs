@@ -1,19 +1,25 @@
 ﻿using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using Common.Domain.Exceptions;
 using Common.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
-using Common.Domain.Exceptions;
+using Microsoft.Rest;
+using Polly;
+using Polly.Retry;
 using text_extractor.Factories.Contracts;
-using System.IO;
 
 namespace text_extractor.Services.OcrService
 {
     public class OcrService : IOcrService
     {
+        private const int RetryDelayInMilliseconds = 500;
         private readonly ComputerVisionClient _computerVisionClient;
-
         private readonly ILogger<OcrService> _log;
 
         public OcrService(IComputerVisionClientFactory computerVisionClientFactory,
@@ -27,8 +33,13 @@ namespace text_extractor.Services.OcrService
         {
             try
             {
-                var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream);
+                var streamPipeline = GetReadInStreamComputerVisionResiliencePipeline(correlationId);
 
+                var streamResponse = await streamPipeline.ExecuteAsync(async token =>
+                    await _computerVisionClient.ReadInStreamWithHttpMessagesAsync(stream),
+                    CancellationToken.None);
+
+                var textHeaders = streamResponse.Headers;
                 var operationLocation = textHeaders.OperationLocation;
                 await Task.Delay(500);
 
@@ -39,7 +50,13 @@ namespace text_extractor.Services.OcrService
 
                 while (true)
                 {
-                    results = await _computerVisionClient.GetReadResultAsync(Guid.Parse(operationId));
+                    var readPipeline = GetReadResultsComputerVisionResiliencePipeline(correlationId);
+
+                    var readResponse = await readPipeline.ExecuteAsync(async token =>
+                        await _computerVisionClient.GetReadResultWithHttpMessagesAsync(Guid.Parse(operationId)),
+                        CancellationToken.None);
+
+                    results = readResponse.Body;
 
                     if (results.Status is OperationStatusCodes.Running or OperationStatusCodes.NotStarted)
                     {
@@ -63,6 +80,46 @@ namespace text_extractor.Services.OcrService
             {
                 _log.LogMethodExit(correlationId, nameof(GetOcrResultsAsync), string.Empty);
             }
+        }
+
+        internal ResiliencePipeline<HttpOperationHeaderResponse<ReadInStreamHeaders>> GetReadInStreamComputerVisionResiliencePipeline(Guid correlationId)
+        {
+            return new ResiliencePipelineBuilder<HttpOperationHeaderResponse<ReadInStreamHeaders>>()
+                .AddRetry(new RetryStrategyOptions<HttpOperationHeaderResponse<ReadInStreamHeaders>>
+                {
+                    MaxRetryAttempts = 3,
+                    BackoffType = DelayBackoffType.Exponential,
+                    Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
+                    ShouldHandle = new PredicateBuilder<HttpOperationHeaderResponse<ReadInStreamHeaders>>()
+                        .Handle<HttpRequestException>()
+                        .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
+                    OnRetry = retryArguments =>
+                    {
+                        _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Read in stream OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
+                        return ValueTask.CompletedTask;
+                    }
+                })
+                .Build();
+        }
+
+        internal ResiliencePipeline<HttpOperationResponse<ReadOperationResult>> GetReadResultsComputerVisionResiliencePipeline(Guid correlationId)
+        {
+            return new ResiliencePipelineBuilder<HttpOperationResponse<ReadOperationResult>>()
+                .AddRetry(new RetryStrategyOptions<HttpOperationResponse<ReadOperationResult>>
+                {
+                    MaxRetryAttempts = 3,
+                    BackoffType = DelayBackoffType.Exponential,
+                    Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
+                    ShouldHandle = new PredicateBuilder<HttpOperationResponse<ReadOperationResult>>()
+                        .Handle<HttpRequestException>()
+                        .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
+                    OnRetry = retryArguments =>
+                    {
+                        _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Read OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
+                        return ValueTask.CompletedTask;
+                    }
+                })
+                .Build();
         }
     }
 }
