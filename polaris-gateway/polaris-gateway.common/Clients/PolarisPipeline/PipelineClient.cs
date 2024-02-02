@@ -100,13 +100,11 @@ namespace Gateway.Clients.PolarisPipeline
 
         public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Acquiring the PDF with Polaris Document Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
-
-            HttpResponseMessage response;
             try
             {
                 var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
+                // do not dispose of the response here
+                var response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
                 return await _httpResponseMessageStreamFactory.Create(response);
             }
             catch (HttpRequestException exception)
@@ -183,7 +181,7 @@ namespace Gateway.Clients.PolarisPipeline
 
             var content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
             var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-            var response = await SendRequestAsync(HttpMethod.Put, url, cmsAuthValues, correlationId, content);
+            using var response = await SendRequestAsync(HttpMethod.Put, url, cmsAuthValues, correlationId, content);
             var stringContent = await response.Content.ReadAsStringAsync();
 
             _logger.LogMethodExit(correlationId, nameof(SaveRedactionsAsync), stringContent);

@@ -19,6 +19,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using text_extractor.TelemetryEvents;
 using text_extractor.Services.OcrService;
+using Common.Streaming;
 
 namespace text_extractor.Functions
 {
