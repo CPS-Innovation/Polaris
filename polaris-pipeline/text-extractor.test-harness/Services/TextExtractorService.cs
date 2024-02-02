@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using coordinator.Clients.Contracts;
@@ -9,6 +8,7 @@ using Common.Dto.Document;
 using Common.ValueObjects;
 using coordinator.Domain;
 using TextExtractor.TestHarness.Constants;
+using TextExtractor.TestHarness.Extensions;
 
 namespace TextExtractor.TestHarness.Services
 {
@@ -23,7 +23,7 @@ namespace TextExtractor.TestHarness.Services
 
         public async Task ExtractAndStoreDocument(string filename)
         {
-            var filePath = GetFilePath(filename);
+            var filePath = filename.GetFilePath();
             var documentRef = $"TEST-{filename.Split(".")[0].ToUpperInvariant()}";
             var fileExtension = Path.GetExtension(filePath);
 
@@ -49,12 +49,6 @@ namespace TextExtractor.TestHarness.Services
             {
                 Console.WriteLine(ex.Message);
             }
-        }
-
-        private string GetFilePath(string filename)
-        {
-            var fileInfo = new FileInfo(Assembly.GetExecutingAssembly().Location);
-            return $"{fileInfo.Directory.FullName}/SourceFiles/{filename}";
         }
 
         private string SerializedCmsDocumentDto(

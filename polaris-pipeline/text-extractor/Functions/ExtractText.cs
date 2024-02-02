@@ -114,9 +114,9 @@ namespace text_extractor.Functions
 
                 await Task.Delay(2000);
                 var result = await _searchIndexService.WaitForStoreResultsAsync(caseId,
-                                                                                    documentId,
-                                                                                    versionId,
-                                                                                    ocrResults.ReadResults.Sum(r => r.Lines.Count));
+                                                                                documentId,
+                                                                                versionId,
+                                                                                ocrResults.ReadResults.Sum(r => r.Lines.Count));
 
                 telemetryEvent.DidIndexSettle = result.IsSuccess;
                 telemetryEvent.WaitRecordCounts = result.RecordCounts;
