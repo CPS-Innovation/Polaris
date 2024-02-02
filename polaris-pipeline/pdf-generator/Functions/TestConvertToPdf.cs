@@ -1,34 +1,33 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using Common.Configuration;
 using Common.Domain.Document;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using pdf_generator.Services.PdfService;
-using pdf_generator.TelemetryEvents;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
 using Common.Extensions;
 using Common.Logging;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
+using pdf_generator.TelemetryEvents;
 
 namespace pdf_generator.Functions
 {
-    public class ConvertToPdf
+    public class TestConvertToPdf
     {
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
-        private readonly ILogger<ConvertToPdf> _logger;
+        private readonly ILogger<TestConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
-        private const string LoggingName = nameof(ConvertToPdf);
+        private const string LoggingName = nameof(TestConvertToPdf);
 
-        public ConvertToPdf(
+        public TestConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
-             ILogger<ConvertToPdf> logger,
+             ILogger<TestConvertToPdf> logger,
              ITelemetryClient telemetryClient,
              ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
@@ -38,8 +37,8 @@ namespace pdf_generator.Functions
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
-        [Function(nameof(ConvertToPdf))]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request, 
+        [Function(nameof(TestConvertToPdf))]
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "test-convert-to-pdf")] HttpRequest request, 
             FunctionContext executionContext)
         {
             Guid currentCorrelationId = default;
@@ -53,7 +52,7 @@ namespace pdf_generator.Functions
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
                 _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
 
-                request.Headers.CheckForCmsAuthValues();
+                //request.Headers.CheckForCmsAuthValues();
 
                 var fileType = request.Headers.GetFileType();
                 telemetryEvent.FileType = fileType.ToString();
@@ -118,7 +117,7 @@ namespace pdf_generator.Functions
             catch (Exception exception)
             {
                 _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
-
+                
                 if (telemetryEvent != null)
                 {
                     telemetryEvent.FailureReason = exception.Message;

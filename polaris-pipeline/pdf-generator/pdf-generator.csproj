@@ -84,9 +84,9 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Domain\Telemetry\" />
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+    <Folder Include="Domain\Messaging\" />
   </ItemGroup>
 </Project>
