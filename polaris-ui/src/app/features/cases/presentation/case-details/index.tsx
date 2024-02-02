@@ -361,9 +361,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   correlationId: pipelineState?.correlationId,
                 }}
                 showOverRedactionLog={
-                  featureFlags.status === "succeeded"
-                    ? featureFlags.data.redactionLog &&
-                      FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
+                  redactionLog.redactionLogLookUpsData.status === "succeeded"
+                    ? FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
                     : false
                 }
               />
