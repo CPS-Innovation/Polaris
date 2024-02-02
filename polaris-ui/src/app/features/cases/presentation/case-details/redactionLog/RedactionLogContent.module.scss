@@ -16,6 +16,9 @@
     justify-content: space-between;
     border-bottom: 3px dashed #b1b4b6;
   }
+  .modalTitleWrapperTypeOver {
+    padding-right: 2rem;
+  }
   .modalContentHeading {
     margin: 0;
     display: block;
@@ -59,9 +62,19 @@
   .btnWrapper {
     display: flex;
     justify-content: flex-start;
+    align-items: baseline;
     width: 100%;
     margin-top: 1.875rem;
     padding: 0 1.875rem;
+  }
+  .cancelBtn {
+    margin-left: 1rem;
+    padding: 0.625rem;
+    &:hover:not(:disabled):not(:focus) {
+      color: #003078;
+      text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+      background: transparent;
+    }
   }
   .modalHeadWrapper {
     padding: 1.875rem 1.875rem 0px 1.875rem;
@@ -78,7 +91,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-width: 12.5rem;
+  min-width: 8rem;
   :global(.govuk-select) {
     width: 100%;
   }
@@ -90,9 +103,10 @@
 .selectSection {
   display: flex;
   flex-direction: column;
-  margin-right: 1.875rem;
+  margin-right: 1.5rem;
   margin-top: 1.25rem;
   font-size: 1rem;
+  width: 18%;
   :global(.govuk-error-message) {
     margin-bottom: 0;
     font-size: 1rem;
@@ -101,6 +115,9 @@
   :global(.govuk-label) {
     font-size: 1rem;
     color: #505a5f;
+  }
+  &:last-child {
+    margin-right: 0;
   }
 }
 .selectInputWrapper {
@@ -114,6 +131,7 @@
 }
 .underRedactionForm {
   width: 100%;
+  overflow: hidden;
 }
 .textAreaSection {
   width: 100%;
@@ -128,7 +146,6 @@
   color: red;
 }
 .errorSummary {
-  margin-top: 1.5rem;
   width: 100%;
   max-width: 34.375rem;
 }
@@ -176,6 +193,16 @@
   width: 2.25rem;
   fill: #fff;
 }
+.docIcon {
+  position: relative;
+  width: 20px;
+  margin-right: 10px;
+  top: 2px;
+}
+.headingWrapper {
+  display: flex;
+  align-items: baseline;
+}
 
 @keyframes reduceHeight {
   0% {
@@ -184,5 +211,13 @@
   100% {
     height: 0;
     display: none;
+  }
+}
+
+.errorSummaryWrapper {
+  display: inline-flex;
+  margin-top: 1.5rem;
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
   }
 }

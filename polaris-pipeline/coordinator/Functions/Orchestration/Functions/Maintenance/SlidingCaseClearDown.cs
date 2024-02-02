@@ -37,8 +37,10 @@ public class SlidingCaseClearDown
             // first pass: lets do the cases in sequence rather than parallel, until we are sure of search index characteristics
             foreach (var caseId in caseIds)
             {
+                // pass an explicit string for the caseUrn for logging purposes as we don't have access to the caseUrn here
                 await _orchestrationProvider.DeleteCaseAsync(client,
                  correlationId,
+                 "sliding-clear-down",
                  caseId,
                  checkForBlobProtection: true,
                  waitForIndexToSettle: false);

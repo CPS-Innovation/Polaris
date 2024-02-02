@@ -2,12 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
-using Common.Services.RenderHtmlService.Contract;
+using coordinator.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using DdeiClient.Services.Contracts;
@@ -92,6 +92,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                 pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
                     payload.CorrelationId,
                     payload.CmsAuthValues,
+                    payload.CmsCaseUrn,
                     payload.CmsCaseId.ToString(),
                     payload.CmsDocumentId,
                     payload.CmsVersionId.ToString(),

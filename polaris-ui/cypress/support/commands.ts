@@ -104,4 +104,15 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add("trackRequestBody", (requestObject, method, pathname) => {
+  cy.window().then((win) => {
+    const worker = (window as any).msw.worker;
+    worker.events.on("request:start", (req: any) => {
+      if (req.method === method && req.url.pathname === pathname) {
+        requestObject.body = req.body;
+      }
+    });
+  });
+});
+
 export {};

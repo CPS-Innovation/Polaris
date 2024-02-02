@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain;
 using Microsoft.Azure.WebJobs;
@@ -27,6 +27,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
 
             await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+                payload.CmsCaseUrn,
                 payload.CmsCaseId,
                 payload.CmsDocumentId,
                 payload.CmsVersionId,

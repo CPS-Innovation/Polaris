@@ -21,6 +21,7 @@ public interface IOrchestrationProvider
 
     Task DeleteCaseAsync(IDurableOrchestrationClient client,
                          Guid correlationId,
+                         string caseUrn,
                          int caseId,
                          bool checkForBlobProtection = true,
                          bool waitForIndexToSettle = true);

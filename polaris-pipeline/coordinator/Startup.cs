@@ -12,13 +12,13 @@ using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
 using coordinator.Factories;
+using coordinator.Clients.Contracts;
+using coordinator.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Health;
 using Common.Wrappers.Contracts;
-using Common.Clients.Contracts;
-using Common.Clients;
 using FluentValidation;
 using Common.Domain.Validators;
 using Common.Dto.Request;
@@ -26,13 +26,14 @@ using Ddei.Services.Extensions;
 using Common.Handlers.Contracts;
 using Common.Handlers;
 using coordinator.Domain;
-using RenderPcd;
+using coordinator.Services.RenderHtmlService;
 using coordinator.Domain.Mapper;
-using Common.Services.RenderHtmlService.Contract;
+using coordinator.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using coordinator.Providers;
 using coordinator.Validators;
+using coordinator.Services.DocumentToggle;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -68,7 +69,6 @@ namespace coordinator
             });
 
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
@@ -76,6 +76,10 @@ namespace coordinator
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
+            services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+            services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder, Configuration);
@@ -113,10 +117,6 @@ namespace coordinator
                 .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI")
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
                 .AddCheck<PolarisBlobStorageServiceHealthCheck>("PolarisBlobStorageService");
-
-            healthChecks
-                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction });
 
             healthChecks
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction });

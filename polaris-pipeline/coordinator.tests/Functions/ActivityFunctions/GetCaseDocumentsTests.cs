@@ -11,7 +11,7 @@ using coordinator.Functions.ActivityFunctions.Case;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using DdeiClient.Services.Contracts;
-using Common.Services.DocumentToggle;
+using coordinator.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;
@@ -53,7 +53,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
                 .Returns(_payload);
 
             mockDocumentExtractionService
-                .Setup(client => client.GetCase(It.IsAny<DdeiCmsCaseArgDto>()))
+                .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCmsCaseArgDto>()))
                 .ReturnsAsync(_case);
             mockDocumentExtractionService
                 .Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(), _payload.CmsAuthValues, _payload.CorrelationId))

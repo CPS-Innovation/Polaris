@@ -11,7 +11,7 @@ using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
-using Common.Mappers.Contracts;
+using PolarisGateway.common.Mappers.Contracts;
 using Gateway.Common.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Request;

@@ -13,6 +13,7 @@ import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -280,9 +281,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: { documentId, saveStatus: "saving" },
         });
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+          type: "SHOW_REDACTION_LOG_MODAL",
           payload: {
-            show: true,
+            type: RedactionLogTypes.UNDER,
             savedRedactionTypes: savedRedactionTypes,
           },
         });
@@ -319,8 +320,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: { documentId, saveStatus: "error" },
         });
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, savedRedactionTypes: [] },
+          type: "HIDE_REDACTION_LOG_MODAL",
         });
       }
 
@@ -358,13 +358,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         await saveRedactionLog(redactionLogRequestData);
 
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, savedRedactionTypes: [] },
+          type: "HIDE_REDACTION_LOG_MODAL",
         });
       } catch (e) {
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, savedRedactionTypes: [] },
+          type: "HIDE_REDACTION_LOG_MODAL",
         });
         dispatch({
           type: "SHOW_ERROR_MODAL",

@@ -29,7 +29,10 @@ type AppInsightsTrackEventNames =
   | "Categorised Documents Count"
   | "Open Documents Count"
   | "Failed Default Mapping Redaction Log"
-  | "Save Redaction Log";
+  | "Save Redaction Log"
+  | "Save Redaction Log Under Over"
+  | "Open Under Over Redaction Log"
+  | "Close Under Over Redaction Log";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -84,7 +87,13 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Failed Default Mapping Redaction Log":
     "Reporting if default mapping failed to find correct default value for at least one of the fields",
   "Save Redaction Log":
-    "User has clicked save and close button in the redaction log",
+    "User has clicked save and close button in the under redaction log form",
+  "Save Redaction Log Under Over":
+    "User has clicked save and close button in the under over redaction log form",
+  "Open Under Over Redaction Log":
+    "User has clicked on the Log an Under/Over redaction button in the action drop down menu",
+  "Close Under Over Redaction Log":
+    "User has clicked on the close button of the under over redaction log modal button",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

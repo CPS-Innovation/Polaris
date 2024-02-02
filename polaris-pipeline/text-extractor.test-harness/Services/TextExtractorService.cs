@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Domain.Entity;
 using Common.Dto.Document;
 using Common.ValueObjects;
@@ -37,6 +37,7 @@ namespace TextExtractor.TestHarness.Services
             {
                 using (var documentStream = File.Open(filePath, FileMode.Open))
                     await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+                        payload.CmsCaseUrn,
                         payload.CmsCaseId,
                         payload.CmsDocumentId,
                         payload.CmsVersionId,

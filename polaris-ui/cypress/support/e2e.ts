@@ -48,6 +48,7 @@ declare global {
        * Custom command to select first span element matching the given string
        */
       selectPDFTextElement(matchString: string): void;
+
       overrideRoute(
         apiRoute: string,
         response:
@@ -62,10 +63,17 @@ declare global {
         method?: "get" | "post" | "put",
         baseUrl?: string
       ): Chainable<AUTWindow>;
+
       trackRequestCount(
         counter: { count: number },
         method: "POST" | "GET" | "PUT",
         pathname?: string
+      ): void;
+
+      trackRequestBody(
+        requestObject: { body: string },
+        method: "POST" | "PUT",
+        pathname: string
       ): void;
     }
   }

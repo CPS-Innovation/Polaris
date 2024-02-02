@@ -1,173 +1,253 @@
 ﻿using Common.Constants;
 using Common.Domain.Document;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using Common.Telemetry.Contracts;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
-using pdf_generator.test_harness;
 using AppInsights = Microsoft.ApplicationInsights;
 
-var builder = Host.CreateApplicationBuilder(args);
+namespace pdf_generator.test_harness;
 
-SetAsposeLicence();
-
-builder.Configuration.AddEnvironmentVariables();
-builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
-builder.Configuration.AddJsonFile("local.settings.json", optional: false, reloadOnChange: true);
-
-//builder.Services.AddLogging(logging => logging.AddConsole());
-builder.Services.AddSingleton<AppInsights.TelemetryClient>();
-builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
-
-builder.Services.AddPdfGenerator(builder.Configuration);
-builder.Services.AddRedactionServices(builder.Configuration);
-builder.Services.AddHttpClient(
-  "testClient",
-  client =>
-  {
-    client.BaseAddress = new Uri("http://localhost:7073/api/");
-  });
-builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-using var host = builder.Build();
-
-var mode = args[0];
-
-Enum.TryParse(mode, out Mode modeEnum);
-using var serviceScope = host.Services.CreateScope();
-switch (modeEnum)
+internal static class Program
 {
-  case Mode.LibraryCallRedactPdf:
-    RedactPdfFile(serviceScope.ServiceProvider);
-    break;
-  case Mode.LibraryCallConvertToPdf:
-    ConvertFileToPdf(serviceScope.ServiceProvider);
-    break;
-  case Mode.FunctionCallConvertToPdf:
-    //await ConvertFileToPdfUsingFunctionCall(serviceScope.ServiceProvider);
-    break;
-  default:
-    throw new Exception("Unknown mode");
-}
-
-static void SetAsposeLicence()
-{
-  try
+  public static async Task Main(string[] args)
   {
-    const string licenceFileName = "Aspose.Total.NET.lic";
-    new Aspose.Cells.License().SetLicense(licenceFileName);
-    new Aspose.Diagram.License().SetLicense(licenceFileName);
-    new Aspose.Email.License().SetLicense(licenceFileName);
-    new Aspose.Imaging.License().SetLicense(licenceFileName);
-    new Aspose.Pdf.License().SetLicense(licenceFileName);
-    new Aspose.Slides.License().SetLicense(licenceFileName);
-    new Aspose.Words.License().SetLicense(licenceFileName);
-  }
-  catch (Exception exception)
-  {
-    throw new Exception(exception.Message);
-  }
-}
+    var builder = Host.CreateApplicationBuilder(args);
 
-static void RedactPdfFile(IServiceProvider serviceProvider)
-{
-  var redactionService = serviceProvider.GetRequiredService<IRedactionProvider>();
+    SetAsposeLicence();
 
-  Console.WriteLine("Enter the input file path:");
-  string? filePath = Console.ReadLine();
-  Console.WriteLine("Enter the output file path:");
-  string? outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
+    builder.Configuration.AddEnvironmentVariables();
+    builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
+    builder.Configuration.AddJsonFile("local.settings.json", optional: false, reloadOnChange: true);
 
-  Console.WriteLine("Enter the number of pages to redact:");
-  if (!int.TryParse(Console.ReadLine(), out int numberOfPagesToRedact) || numberOfPagesToRedact <= 0)
-  {
-    Console.WriteLine("Invalid input for the number of pages. Exiting.");
-    return;
-  }
+    builder.Services.AddSingleton<AppInsights.TelemetryClient>();
+    builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
-
-  if (File.Exists(filePath))
-  {
-    try
-    {
-      using var fileStream = File.OpenRead(filePath);
-
-      Guid currentCorrelationId = default;
-      var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
-
-      var fileType = Enum.Parse<FileType>(extension);
-
-      var redactionDefinitions = new List<RedactionDefinitionDto>();
-      for (int pageIndex = 1; pageIndex <= numberOfPagesToRedact; pageIndex++)
+    builder.Services.AddPdfGenerator(builder.Configuration);
+    builder.Services.AddRedactionServices(builder.Configuration);
+    builder.Services.AddHttpClient(
+      "testClient",
+      client =>
       {
-        redactionDefinitions.Add(new RedactionDefinitionDto
+        client.BaseAddress = new Uri("http://localhost:7073/api/");
+      });
+    builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+    using var host = builder.Build();
+
+    var mode = args[0];
+
+    if (!Enum.TryParse(mode, out Mode modeEnum))
+      throw new Exception("Unknown mode");
+
+    using var serviceScope = host.Services.CreateScope();
+    switch (modeEnum)
+    {
+      case Mode.LibraryCallRedactPdf:
+        RedactPdfFile(serviceScope.ServiceProvider);
+        break;
+      case Mode.LibraryCallConvertToPdf:
+        ConvertFileToPdf(serviceScope.ServiceProvider);
+        break;
+      case Mode.FunctionCallConvertToPdf:
+        await ConvertFileToPdfUsingFunctionCall(serviceScope.ServiceProvider);
+        break;
+      default:
+        throw new Exception("Unknown mode");
+    }
+
+    return;
+
+    static void SetAsposeLicence()
+    {
+      try
+      {
+        const string licenceFileName = "Aspose.Total.NET.lic";
+        new Aspose.Cells.License().SetLicense(licenceFileName);
+        new Aspose.Diagram.License().SetLicense(licenceFileName);
+        new Aspose.Email.License().SetLicense(licenceFileName);
+        new Aspose.Imaging.License().SetLicense(licenceFileName);
+        new Aspose.Pdf.License().SetLicense(licenceFileName);
+        new Aspose.Slides.License().SetLicense(licenceFileName);
+        new Aspose.Words.License().SetLicense(licenceFileName);
+      }
+      catch (Exception exception)
+      {
+        throw new Exception(exception.Message);
+      }
+    }
+
+    static void RedactPdfFile(IServiceProvider serviceProvider)
+    {
+      var redactionService = serviceProvider.GetRequiredService<IRedactionProvider>();
+
+      Console.WriteLine("Enter the input file path:");
+      var filePath = Console.ReadLine();
+      Console.WriteLine("Enter the output file path:");
+      var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
+
+      Console.WriteLine("Enter the number of pages to redact:");
+      if (!int.TryParse(Console.ReadLine(), out int numberOfPagesToRedact) || numberOfPagesToRedact <= 0)
+      {
+        Console.WriteLine("Invalid input for the number of pages. Exiting.");
+        return;
+      }
+
+      if (File.Exists(filePath))
+      {
+        try
         {
-          PageIndex = pageIndex,
-          Width = 842,
-          Height = 595,
-          RedactionCoordinates = new List<RedactionCoordinatesDto>
+          using var fileStream = File.OpenRead(filePath);
+
+          Guid currentCorrelationId = default;
+          var redactionDefinitions = new List<RedactionDefinitionDto>();
+          for (var pageIndex = 1; pageIndex <= numberOfPagesToRedact; pageIndex++)
+          {
+            redactionDefinitions.Add(new RedactionDefinitionDto
             {
+              PageIndex = pageIndex,
+              Width = 842,
+              Height = 595,
+              RedactionCoordinates =
+              [
                 new RedactionCoordinatesDto
                 {
-                    X1 = 228.5,
-                    Y1 = 241.5,
-                    X2 = 475.71,
-                    Y2 = 441.5
+                  X1 = 228.5,
+                  Y1 = 241.5,
+                  X2 = 475.71,
+                  Y2 = 441.5
                 }
-            }
-        });
+              ]
+            });
+          }
+
+          var redactPdf = new RedactPdfRequestDto
+          {
+            FileName = filePath,
+            VersionId = 1,
+            RedactionDefinitions = redactionDefinitions
+          };
+
+          var pdfStream = redactionService.Redact(fileStream, "1234", "123", redactPdf, currentCorrelationId);
+
+          // Write the PDF stream to the file system
+          byte[] pdfBytes;
+          using (var ms = new MemoryStream())
+          {
+            pdfStream.CopyTo(ms);
+            pdfBytes = ms.ToArray();
+          }
+
+          File.WriteAllBytes(outputFilePath, pdfBytes);
+
+          Console.WriteLine("PDF conversion successful.");
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine($"PDF conversion failed: {e.Message}");
+        }
       }
-
-      RedactPdfRequestDto redactPdf = new RedactPdfRequestDto
+      else
       {
-        FileName = filePath,
-        CaseId = 1234,
-        VersionId = 1,
-        RedactionDefinitions = redactionDefinitions
-      };
-
-      var pdfStream = redactionService.Redact(fileStream, redactPdf, currentCorrelationId);
-
-      // Write the PDF stream to the file system
-      byte[] pdfBytes;
-      using (MemoryStream ms = new MemoryStream())
-      {
-        pdfStream.CopyTo(ms);
-        pdfBytes = ms.ToArray();
+        throw new Exception("File does not exist, check path");
       }
-
-      File.WriteAllBytes(outputFilePath, pdfBytes);
-
-      Console.WriteLine("PDF conversion successful.");
     }
-    catch (Exception e)
+
+    static void ConvertFileToPdf(IServiceProvider serviceProvider)
     {
-      Console.WriteLine($"PDF conversion failed: {e.Message}");
+      var orchestratorService = serviceProvider.GetRequiredService<IPdfOrchestratorService>();
+
+      Console.WriteLine("Enter the input file path:");
+      var filePath = Console.ReadLine();
+      Console.WriteLine("Enter the output file path:");
+      var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
+
+      if (File.Exists(filePath))
+      {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        PdfManager.BeginConversion(filePath, orchestratorService, outputFilePath);
+        watch.Stop();
+        Console.WriteLine($"Conversion time: {watch.ElapsedMilliseconds} ms");
+      }
+      else
+      {
+        throw new Exception("File does not exist, check path");
+      }
     }
-  }
-  else
-  {
-    throw new Exception("File does not exist, check path");
+
+    static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
+    {
+      var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IPipelineClientRequestFactory>();
+      var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+
+      Console.WriteLine("Enter the input file path:");
+      var filePath = Console.ReadLine();
+      Console.WriteLine("Enter the output file path:");
+      var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
+
+      if (File.Exists(filePath))
+      {
+        try
+        {
+          await using var fileStream = File.OpenRead(filePath);
+
+          Guid currentCorrelationId = default;
+          var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
+
+          var fileType = Enum.Parse<FileType>(extension);
+
+          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, $"test-convert-to-pdf", currentCorrelationId);
+          request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
+
+          using (var requestContent = new StreamContent(fileStream))
+          {
+            request.Content = requestContent;
+
+            using var client = httpClientFactory.CreateClient("testClient");
+            using var pdfStream = new MemoryStream();
+            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+            {
+              response.EnsureSuccessStatusCode();
+              await response.Content.CopyToAsync(pdfStream);
+              pdfStream.Seek(0, SeekOrigin.Begin);
+            }
+
+            // Write the PDF stream to the file system
+            byte[] pdfBytes;
+            using (var ms = new MemoryStream())
+            {
+              await pdfStream.CopyToAsync(ms);
+              pdfBytes = ms.ToArray();
+            }
+
+            await File.WriteAllBytesAsync(outputFilePath, pdfBytes);
+          }
+
+          Console.WriteLine("PDF conversion successful.");
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine($"PDF conversion failed: {e.Message}");
+        }
+      }
+      else
+      {
+        throw new Exception("File does not exist, check path");
+      }
+    }
   }
 }
 
-static void ConvertFileToPdf(IServiceProvider serviceProvider)
+internal static class PdfManager
 {
-  var orchestratorService = serviceProvider.GetRequiredService<IPdfOrchestratorService>();
-
-  Console.WriteLine("Enter the input file path:");
-  string? filePath = Console.ReadLine();
-  Console.WriteLine("Enter the output file path:");
-  string? outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
-
-  if (File.Exists(filePath))
+  internal static void BeginConversion(string filePath, IPdfOrchestratorService orchestratorService, string outputFilePath)
   {
     try
     {
@@ -175,7 +255,7 @@ static void ConvertFileToPdf(IServiceProvider serviceProvider)
 
       Guid currentCorrelationId = default;
       var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
-      var documentId = "test-doc-1";
+      const string documentId = "test-doc-1";
 
       var fileType = Enum.Parse<FileType>(extension);
 
@@ -197,9 +277,5 @@ static void ConvertFileToPdf(IServiceProvider serviceProvider)
     {
       Console.WriteLine($"PDF conversion failed: {e.Message}");
     }
-  }
-  else
-  {
-    throw new Exception("File does not exist, check path");
   }
 }

@@ -8,16 +8,7 @@
     <DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <!-- 
-      Include document-toggle.config as well as embeddeding (see below) 
-      because the tests are interested in it 
-    -->
-    <None Update="document-toggle.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Remove="Health\HealthCheck.pdf" />
-    <None Remove="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
-    <None Remove="Services\RenderHtmlService\PcdRequest.cshtml" />
     <None Remove="Wrappers\" />
     <None Remove="Newtonsoft.Json" />
     <None Remove="Domain\" />
@@ -30,11 +21,6 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="document-toggle.config" />
-    <EmbeddedResource Include="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
-    <EmbeddedResource Include="Services\RenderHtmlService\PcdRequest.cshtml" />
-  </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\Exceptions\" />
   </ItemGroup>
@@ -64,7 +50,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.32.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RazorLight" Version="2.3.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 </Project>

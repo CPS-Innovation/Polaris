@@ -8,7 +8,7 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Handlers.Contracts;
 using Common.Logging;
-using Common.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
@@ -36,7 +36,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(RemoveCaseIndexes))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequestMessage request, long caseId)
         {
             Guid correlationId = default;
 
@@ -45,19 +45,12 @@ namespace text_extractor.Functions
                 correlationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-                if (request.Content == null)
-                {
-                    throw new BadRequestException("Request body has no content", nameof(request));
-                }
 
-                var content = await request.Content.ReadAsStringAsync();
-                var requestDto = _jsonConvertWrapper.DeserializeObject<RemoveCaseIndexesRequestDto>(content);
+                _log.LogMethodFlow(correlationId, loggingName, $"Begin removing case indexes for case ID {caseId}");
 
-                _log.LogMethodFlow(correlationId, loggingName, $"Begin removing case indexes for case ID {requestDto.CaseId}");
+                var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);
 
-                var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(requestDto.CaseId);
-
-                _log.LogMethodFlow(correlationId, loggingName, $"Case indexes removed for case ID {requestDto.CaseId}");
+                _log.LogMethodFlow(correlationId, loggingName, $"Case indexes removed for case ID {caseId}");
 
                 return new HttpResponseMessage
                 {

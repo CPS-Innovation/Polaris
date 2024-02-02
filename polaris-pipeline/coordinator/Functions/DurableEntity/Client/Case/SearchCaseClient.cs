@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Entity;
@@ -79,7 +79,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
                         .ToList();
 
-                var searchResults = await _textExtractorClient.SearchTextAsync(caseId, searchTerm, currentCorrelationId, documents);
+                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId, documents);
 
                 return new OkObjectResult(searchResults);
             }

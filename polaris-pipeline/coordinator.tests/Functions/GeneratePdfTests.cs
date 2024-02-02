@@ -9,12 +9,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Dto.Tracker;
 using Common.Services.BlobStorageService.Contracts;
-using Common.Services.RenderHtmlService.Contract;
+using coordinator.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
@@ -106,6 +106,7 @@ namespace pdf_generator.tests.Functions
                 .Setup(client => client.ConvertToPdfAsync(
                     _generatePdfRequest.CorrelationId,
                     _generatePdfRequest.CmsAuthValues,
+                    _generatePdfRequest.CmsCaseUrn,
                     _generatePdfRequest.CmsCaseId.ToString(),
                     _generatePdfRequest.CmsDocumentId,
                     _generatePdfRequest.CmsVersionId.ToString(),

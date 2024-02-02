@@ -8,8 +8,8 @@ using AutoFixture;
 using Common.Domain.Exceptions;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
-using Common.Services.CaseSearchService;
-using Common.Services.CaseSearchService.Contracts;
+using Common.Dto.Response;
+using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using FluentAssertions;
@@ -33,6 +33,7 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
+        private readonly long _caseId;
         private readonly WaitForCaseEmptyResults _waitForCaseEmptyResults;
 
         public WaitForCaseEmptyResultsTests()
@@ -50,7 +51,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
             _mockLogger = new Mock<ILogger<WaitForCaseEmptyResults>>();
-
+            _caseId = _fixture.Create<long>();
             _mockSearchIndexService
                 .Setup(service => service.WaitForCaseEmptyResultsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new IndexSettledResult
@@ -106,7 +107,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
-            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -119,7 +120,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
-            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -132,7 +133,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
-            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -147,7 +148,7 @@ namespace text_extractor.tests.Functions
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<IndexSettledResult>()))
                 .Returns(string.Empty);
 
-            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage, _caseId);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -160,7 +161,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
 
-            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }

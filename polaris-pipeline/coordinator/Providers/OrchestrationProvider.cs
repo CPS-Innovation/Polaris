@@ -16,7 +16,7 @@ using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 
 namespace coordinator.Providers;
 
@@ -96,6 +96,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
     public async Task DeleteCaseAsync(IDurableOrchestrationClient client,
                                       Guid correlationId,
+                                      string caseUrn,
                                       int caseId,
                                       bool checkForBlobProtection = true,
                                       bool waitForIndexToSettle = true)
@@ -108,7 +109,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         try
         {
-            var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseId, correlationId);
+            var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseUrn, caseId, correlationId);
             telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
             telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
             telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
@@ -116,7 +117,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             if (waitForIndexToSettle)
             {
-                var waitResult = await _textExtractorClient.WaitForCaseEmptyResultsAsync(caseId, correlationId);
+                var waitResult = await _textExtractorClient.WaitForCaseEmptyResultsAsync(caseUrn, caseId, correlationId);
                 telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
                 telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
                 telemetryEvent.IndexSettledTime = DateTime.UtcNow;

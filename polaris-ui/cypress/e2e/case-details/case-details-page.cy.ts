@@ -166,44 +166,6 @@ describe("case details page", () => {
     });
   });
 
-  // describe("pdf viewing", () => {
-  //   it("can open a pdf", () => {
-  //     cy.visit("/case-search-results?urn=12AB1111111");
-  //     cy.visit("/case-details/12AB1111111/13401");
-  //     cy.findByTestId("btn-accordion-open-close-all").click();
-
-  //     cy.findByTestId("div-pdfviewer-0").should("not.exist");
-
-  //     cy.findByTestId("link-document-1").click();
-
-  //     cy.findByTestId("div-pdfviewer-0")
-  //       .should("exist")
-  //       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-  //   });
-
-  //   it("can open a pdf in a new tab", () => {
-  //     cy.visit("/case-details/12AB1111111/13401", {
-  //       onBeforeLoad(window) {
-  //         cy.stub(window, "open");
-  //       },
-  //     });
-
-  //     cy.findByTestId("btn-accordion-open-close-all").click();
-
-  //     cy.findByTestId("link-document-1").click();
-
-  //     cy.findByTestId("btn-open-pdf").click();
-
-  //     cy.window()
-  //       .its("open")
-  //       .should(
-  //         "be.calledWith",
-  //         "https://mocked-out-api/api/some-complicated-sas-url/MCLOVEMG3",
-  //         "_blank"
-  //       );
-  //   });
-  // });
-
   describe("Document navigation away alert modal", () => {
     it("Should show an alert modal when closing a document with active redactions", () => {
       cy.visit("/case-details/12AB1111111/13401");
@@ -450,17 +412,19 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("btn-report-issue-0").should("exist");
-      cy.findByTestId("btn-report-issue-0").contains("Report an issue");
-      cy.findByTestId("btn-report-issue-0").click();
+      cy.findByTestId("document-actions-dropdown-0").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
       cy.findByTestId("div-modal")
         .should("exist")
         .contains(`Report a problem with: "MCLOVEMG3"`);
       cy.findByTestId("btn-report-issue-save").should("be.disabled");
       cy.findByTestId("btn-report-issue-close").click();
       cy.findByTestId("div-modal").should("not.exist");
-      cy.findByTestId("btn-report-issue-0").contains("Report an issue");
-      cy.findByTestId("btn-report-issue-0").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
       cy.findByTestId("div-modal")
         .should("exist")
         .contains(`Report a problem with: "MCLOVEMG3"`);
@@ -473,16 +437,26 @@ describe("case details page", () => {
         .should("exist")
         .contains("Thanks for reporting an issue with this document.");
       cy.findByTestId("btn-feedback-modal-ok").click();
-      cy.findByTestId("btn-report-issue-0").contains("Issue reported");
-      cy.findByTestId("btn-report-issue-0").should("be.disabled");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Report an issue")
+        .should("not.exist");
+      cy.findByTestId("dropdown-panel")
+        .contains("Issue reported")
+        .should("be.disabled");
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("tab-remove").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("btn-report-issue-0").contains("Issue reported");
-      cy.findByTestId("btn-report-issue-0").should("be.disabled");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Report an issue")
+        .should("not.exist");
+      cy.findByTestId("dropdown-panel")
+        .contains("Issue reported")
+        .should("be.disabled");
     });
   });
 
@@ -504,7 +478,7 @@ describe("case details page", () => {
 
       cy.selectPDFTextElement("NORTH MARSH");
       cy.findByTestId("btn-redact").click();
-      cy.findByTestId("btn-report-issue-0").focus();
+      cy.findByTestId("document-actions-dropdown-0").focus();
 
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").click();
@@ -524,7 +498,8 @@ describe("case details page", () => {
       cy.selectPDFTextElement("POCA case");
       cy.findByTestId("btn-redact").click();
 
-      cy.get("#btn-report-issue-0").focus();
+      cy.get("#document-actions-dropdown-0").focus();
+      cy.wait(5000);
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress("Tab");
@@ -613,7 +588,7 @@ describe("case details page", () => {
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
 
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "btn-report-issue-0");
+      cy.focused().should("have.id", "document-actions-dropdown-0");
       cy.findByTestId("btn-link-removeAll-0").click();
     });
 
@@ -643,7 +618,7 @@ describe("case details page", () => {
       cy.selectPDFTextElement("PC JONES");
       cy.findByTestId("btn-redact").click();
 
-      cy.get("#btn-report-issue-0").focus();
+      cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
@@ -669,43 +644,6 @@ describe("case details page", () => {
       cy.findByTestId("btn-link-removeAll-0").click();
     });
 
-    it("Should be able to tab forward and backward skipping the `Report an issue` btn, if it is disabled ", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("btn-report-issue-0").click();
-      cy.findByTestId("div-modal")
-        .should("exist")
-        .contains(`Report a problem with: "MCLOVEMG3"`);
-      cy.findByTestId("btn-report-issue-save").should("be.disabled");
-      cy.findByTestId("report-issue-more-details").type("hello");
-      cy.findByTestId("btn-report-issue-save").should("not.be.disabled");
-      cy.findByTestId("btn-report-issue-save").click();
-
-      cy.findByTestId("div-modal")
-        .should("exist")
-        .contains("Thanks for reporting an issue with this document.");
-      cy.findByTestId("btn-feedback-modal-ok").click();
-      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").click();
-      cy.findByTestId("tab-remove").focus();
-      cy.realPress(["Tab"]);
-      cy.realPress(["Tab"]);
-      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
-      cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "remove-btn");
-      cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "btn-link-removeAll-0");
-      cy.realPress(["Shift", "Tab"]);
-      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
-      cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "active-tab-panel");
-      cy.findByTestId("btn-link-removeAll-0").click();
-    });
-
     it("When tabbing from an unsaved redaction button, it should move the focus to remove redaction button and (shift +tab ) from remove redaction button should focus corresponding unsaved redaction button", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -715,7 +653,7 @@ describe("case details page", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").click();
-      cy.get("#btn-report-issue-0").focus();
+      cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
@@ -727,7 +665,7 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "btn-report-issue-0");
+      cy.focused().should("have.id", "document-actions-dropdown-0");
       cy.findByTestId("btn-link-removeAll-0").click();
     });
   });
@@ -811,7 +749,7 @@ describe("case details page", () => {
       cy.realPress("Escape");
       cy.focused().should("have.id", "active-tab-panel");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "btn-report-issue-0");
+      cy.focused().should("have.id", "document-actions-dropdown-0");
     });
 
     it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key ',' and 'Shift'+','", () => {
@@ -894,7 +832,7 @@ describe("case details page", () => {
       cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "active-tab-panel");
       cy.realPress("Tab");
-      cy.focused().should("have.id", "btn-report-issue-0");
+      cy.focused().should("have.id", "document-actions-dropdown-0");
       cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "active-tab-panel");
       cy.realPress(["Control", "."]);
@@ -945,11 +883,11 @@ describe("case details page", () => {
       cy.findByTestId("tabs-dropdown").should("be.disabled");
       cy.findByTestId("link-document-2").click();
       cy.findByTestId("tabs-dropdown").should("not.be.disabled");
-      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
       cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").should("exist");
       cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
     });
 
     it("Should be able make a tab active, by clicking on the open document link buttons from the dropdown panel and link button for current active tab should be disabled", () => {
@@ -959,21 +897,19 @@ describe("case details page", () => {
       cy.findByTestId("link-document-2").click();
       cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
       cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("tabs-dropdown-panel").should("exist");
-      cy.findByTestId("tabs-dropdown-panel")
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel")
         .contains("MCLOVEMG3")
         .should("not.be.disabled");
-      cy.findByTestId("tabs-dropdown-panel")
-        .contains("CM01")
-        .should("be.disabled");
-      cy.findByTestId("tabs-dropdown-panel").contains("MCLOVEMG3").click();
+      cy.findByTestId("dropdown-panel").contains("CM01").should("be.disabled");
+      cy.findByTestId("dropdown-panel").contains("MCLOVEMG3").click();
       cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
-      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
       cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("tabs-dropdown-panel")
+      cy.findByTestId("dropdown-panel")
         .contains("MCLOVEMG3")
         .should("be.disabled");
-      cy.findByTestId("tabs-dropdown-panel")
+      cy.findByTestId("dropdown-panel")
         .contains("CM01")
         .should("not.be.disabled");
     });
@@ -985,19 +921,17 @@ describe("case details page", () => {
       cy.findByTestId("link-document-2").click();
       cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
       cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("tabs-dropdown-panel").should("exist");
-      cy.findByTestId("tabs-dropdown-panel")
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel")
         .contains("MCLOVEMG3")
         .should("not.be.disabled");
-      cy.findByTestId("tabs-dropdown-panel")
-        .contains("CM01")
-        .should("be.disabled");
+      cy.findByTestId("dropdown-panel").contains("CM01").should("be.disabled");
       cy.realPress("Escape");
-      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
       cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").should("exist");
       cy.findByTestId("link-document-2").click();
-      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
     });
   });
 
