@@ -89,7 +89,4 @@
   <ItemGroup>
     <Folder Include="Domain\Messaging\" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Functions\TestConvertToPdf.cs" />
-  </ItemGroup>
 </Project>
