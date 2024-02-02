@@ -18,6 +18,7 @@ using Common.Factories.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Configuration;
+using Common.Streaming;
 
 namespace coordinator.Clients.Tests.Clients
 {
@@ -48,6 +49,7 @@ namespace coordinator.Clients.Tests.Clients
             _polarisPipelineRedactPdfFunctionAppKey = _fixture.Create<string>();
             var mockConfiguration = new Mock<IConfiguration>();
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
+            var mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 
             mockConfiguration.Setup(config => config[PipelineSettings.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
 
@@ -80,6 +82,7 @@ namespace coordinator.Clients.Tests.Clients
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
+                mockHttpResponseMessageStreamFactory.Object,
                 mockJsonConvertWrapper.Object);
         }
 

@@ -88,7 +88,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new ArgumentException(error);
                 }
 
-                var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
+                using var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
