@@ -16,7 +16,6 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   
 
   app_settings = {
-    "AzureWebJobs.TestConvertToPdf.Disabled"          = "1"
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_generator.primary_connection_string
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
