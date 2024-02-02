@@ -43,7 +43,7 @@ namespace pdf_generator.Functions
         }
 
         [Function(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequestMessage request,
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
             string caseUrn, string caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
@@ -52,28 +52,17 @@ namespace pdf_generator.Functions
             {
                 #region Validate-Inputs
 
-                currentCorrelationId = request.Headers.GetCorrelationId();
+                currentCorrelationId = request.Headers.GetCorrelation();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
 
-                request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
-                if (cmsAuthValuesValues == null)
-                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
-                var cmsAuthValues = cmsAuthValuesValues.First();
-                if (string.IsNullOrWhiteSpace(cmsAuthValues))
-                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
+                request.Headers.CheckForCmsAuthValues();
 
 
-                request.Headers.TryGetValues(HttpHeaderKeys.Filetype, out var filetypes);
-                if (filetypes == null)
-                    throw new BadRequestException("Missing Filetype Value", nameof(request));
-                var filetypeValue = filetypes.First();
-                if (string.IsNullOrEmpty(filetypeValue))
-                    throw new BadRequestException("Null Filetype Value", filetypeValue);
-                if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
-                    throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
-                telemetryEvent.FileType = filetype.ToString();
+                var fileType = request.Headers.GetFileType();
+
+                telemetryEvent.FileType = fileType.ToString();
 
                 telemetryEvent.CaseId = caseId;
                 telemetryEvent.CaseUrn = caseUrn;
@@ -89,20 +78,19 @@ namespace pdf_generator.Functions
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
 
-                if (request.Content == null)
+                if (request.Body == null)
                 {
                     throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
                 }
 
-                var inputStream = await request.Content
-                    .ReadAsStreamAsync()
+                var inputStream = await request.Body
                     // Aspose demands a seekable stream, and as we want to record the size of the stream, we need to ensure it is seekable also.
                     .EnsureSeekableAsync();
 
                 var originalBytes = inputStream.Length;
                 telemetryEvent.OriginalBytes = originalBytes;
 
-                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
+                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
                 var bytes = pdfStream.Length;
 
                 telemetryEvent.Bytes = bytes;

@@ -14,6 +14,16 @@ public static class StreamExtensions
     }
     var stream = await task;
 
+    return await stream.EnsureSeekableAsync();
+  }
+
+  public static async Task<Stream> EnsureSeekableAsync(this Stream stream)
+  {
+    if (stream == null)
+    {
+      throw new ArgumentNullException(nameof(stream));
+    }
+
     if (stream.CanSeek)
     {
       return stream;
