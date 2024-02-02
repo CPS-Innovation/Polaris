@@ -33,12 +33,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-        const string loggingName = $"{nameof(RefreshCaseOrchestrator)} - {nameof(Run)}";
 
-        public static string GetKey(string caseId)
-        {
-            return $"[{caseId}]";
-        }
+        public static string GetKey(string caseId) => $"[{caseId}]";
 
         public RefreshCaseOrchestrator(
             ILogger<RefreshCaseOrchestrator> log,
@@ -62,7 +58,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             var log = context.CreateReplaySafeLogger(_log);
 
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
+            var caseEntity = await GetOrCreateCaseDurableEntity(context, payload.CmsCaseId, true);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             RefreshedCaseEvent telemetryEvent = default;
@@ -96,7 +92,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             {
                 caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed, exception.Message));
 
-                log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshCaseOrchestrator), $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;
             }
@@ -140,7 +136,6 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
             var deltaLogMessage = deltas.GetLogMessage();
-            log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, deltaLogMessage);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
             var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();

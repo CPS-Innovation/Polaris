@@ -361,15 +361,15 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deletedDefendantsAndCharges;
         }
 
-        private BaseDocumentEntity GetDocument(string polarisDocumentId)
+        private BaseDocumentEntity GetDocument(PolarisDocumentId polarisDocumentId)
         {
-            var cmsDocument = CmsDocuments.Find(doc => doc.PolarisDocumentId.ToString().Equals(polarisDocumentId, StringComparison.OrdinalIgnoreCase));
+            var cmsDocument = CmsDocuments.Find(doc => doc.PolarisDocumentId.ToString().Equals(polarisDocumentId.ToString(), StringComparison.OrdinalIgnoreCase));
             if (cmsDocument != null)
             {
                 return cmsDocument;
             }
 
-            var pcdRequest = PcdRequests.Find(pcd => pcd.PolarisDocumentId.ToString().Equals(polarisDocumentId, StringComparison.OrdinalIgnoreCase));
+            var pcdRequest = PcdRequests.Find(pcd => pcd.PolarisDocumentId.ToString().Equals(polarisDocumentId.ToString(), StringComparison.OrdinalIgnoreCase));
             if (pcdRequest != null)
             {
                 return pcdRequest;
@@ -410,7 +410,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
         }
 
-        public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status) args)
+        public void SetDocumentStatus((PolarisDocumentId PolarisDocumentId, DocumentStatus Status) args)
         {
             var (polarisDocumentId, status) = args;
             var document = GetDocument(polarisDocumentId);
@@ -418,7 +418,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             document.Status = status;
         }
 
-        public void SetDocumentPdfBlobName((string PolarisDocumentId, string PdfBlobName) args)
+        public void SetDocumentPdfBlobName((PolarisDocumentId PolarisDocumentId, string PdfBlobName) args)
         {
             var (polarisDocumentId, pdfBlobName) = args;
             var document = GetDocument(polarisDocumentId);

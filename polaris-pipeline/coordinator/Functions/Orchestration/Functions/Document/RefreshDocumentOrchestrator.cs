@@ -15,12 +15,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
     {
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
 
-        const string loggingName = $"{nameof(RefreshDocumentOrchestrator)} - {nameof(Run)}";
-
-        public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
-        {
-            return $"[{caseId}]-{polarisDocumentId}";
-        }
+        public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId) => $"[{caseId}]-{polarisDocumentId}";
 
         public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log)
         {
@@ -30,39 +25,31 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         [FunctionName(nameof(RefreshDocumentOrchestrator))]
         public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
-            if (payload == null)
-                throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
+            var payload = context.GetInput<CaseDocumentOrchestrationPayload>()
+                ?? throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, false, payload.CorrelationId, log);
+            var caseEntity = await GetOrCreateCaseDurableEntity(context, payload.CmsCaseId, false);
 
-            try
+            async Task tryCallActivityAsync(string name, DocumentStatus successStatus, DocumentStatus failStatus)
             {
-                await context.CallActivityAsync(nameof(GeneratePdf), payload);
-            }
-            catch (Exception exception)
-            {
-                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf));
-                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(GeneratePdf)}: {exception.Message}", exception);
-                throw;
-            }
-
-            caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob));
-            caseEntity.SetDocumentPdfBlobName((payload.PolarisDocumentId.ToString(), payload.BlobName));
-
-            try
-            {
-                await context.CallActivityAsync(nameof(ExtractText), payload);
-            }
-            catch (Exception exception)
-            {
-                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.OcrAndIndexFailure));
-                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(ExtractText)}: {exception.Message}", exception);
-                throw;
+                try
+                {
+                    await context.CallActivityAsync(name, payload);
+                    caseEntity.SetDocumentStatus((payload.PolarisDocumentId, successStatus));
+                }
+                catch (Exception exception)
+                {
+                    caseEntity.SetDocumentStatus((payload.PolarisDocumentId, failStatus));
+                    log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {name}: {exception.Message}", exception);
+                    throw;
+                }
             }
 
-            caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed));
+            await tryCallActivityAsync(nameof(GeneratePdf), DocumentStatus.PdfUploadedToBlob, DocumentStatus.UnableToConvertToPdf);
+            caseEntity.SetDocumentPdfBlobName((payload.PolarisDocumentId, payload.BlobName));
+
+            await tryCallActivityAsync(nameof(ExtractText), DocumentStatus.Indexed, DocumentStatus.OcrAndIndexFailure);
         }
     }
 }

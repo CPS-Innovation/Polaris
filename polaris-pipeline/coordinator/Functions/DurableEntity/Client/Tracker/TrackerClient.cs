@@ -18,7 +18,6 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 {
     public class TrackerClient : BaseClient
     {
-        const string loggingName = $"{nameof(TrackerClient)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
@@ -40,7 +39,6 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 
             try
             {
-                #region Validate-Inputs
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
@@ -53,7 +51,6 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                     {
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
-                #endregion
 
                 var (caseEntity, errorMessage) = await GetCaseTrackerForEntity(client, caseId);
 
@@ -74,7 +71,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                log.LogMethodError(currentCorrelationId, nameof(TrackerClient), ex.Message, ex);
                 return new StatusCodeResult(500);
             }
         }

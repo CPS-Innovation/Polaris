@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.Entity;
 using Common.Dto.Tracker;
+using Common.ValueObjects;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Entity.Contract;
@@ -82,10 +83,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     tracker =>
                     tracker.SetDocumentStatus
                     (
-                        It.Is<(string, DocumentStatus)>
+                        It.Is<(PolarisDocumentId, DocumentStatus)>
                         (
                             a =>
-                                a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() &&
+                                a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId &&
                                 a.Item2 == DocumentStatus.PdfUploadedToBlob
                         )
                     )
@@ -95,10 +96,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
                 tracker =>
                 tracker.SetDocumentPdfBlobName
                 (
-                    It.Is<(string, string)>
+                    It.Is<(PolarisDocumentId, string)>
                     (
                         a =>
-                            a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() &&
+                            a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId &&
                             a.Item2 == _payload.BlobName
                     )
                 )
@@ -119,10 +120,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     tracker =>
                     tracker.SetDocumentStatus
                     (
-                        It.Is<(string, DocumentStatus)>
+                        It.Is<(PolarisDocumentId, DocumentStatus)>
                         (
                             a =>
-                                a.Item1 == _payload.PolarisDocumentId.ToString() &&
+                                a.Item1 == _payload.PolarisDocumentId &&
                                 a.Item2 == DocumentStatus.Indexed
                         )
                     )
@@ -151,10 +152,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
                         tracker =>
                         tracker.SetDocumentStatus
                         (
-                            It.Is<(string, DocumentStatus)>
+                            It.Is<(PolarisDocumentId, DocumentStatus)>
                             (
                                 a =>
-                                    a.Item1 == _payload.PolarisDocumentId.ToString() &&
+                                    a.Item1 == _payload.PolarisDocumentId &&
                                     a.Item2 == DocumentStatus.UnableToConvertToPdf
                             )
                         )

@@ -3,6 +3,7 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
+using Common.ValueObjects;
 using System;
 using System.Threading.Tasks;
 
@@ -16,8 +17,8 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
         void SetVersion(int value);
         void Reset(string TransactionId);
         Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
-        void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status) args);
-        void SetDocumentPdfBlobName((string PolarisDocumentId, string PdfBlobName) args);
+        void SetDocumentStatus((PolarisDocumentId PolarisDocumentId, DocumentStatus Status) args);
+        void SetDocumentPdfBlobName((PolarisDocumentId PolarisDocumentId, string PdfBlobName) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
         Task<bool> AllDocumentsFailed();
         Task<DateTime> GetStartTime();
