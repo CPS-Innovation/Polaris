@@ -62,7 +62,10 @@ type RedactionLogContentProps = {
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
-  saveRedactionLog: (data: RedactionLogRequestData) => void;
+  handleSaveRedactionLog: (
+    data: RedactionLogRequestData,
+    redactionLogType: RedactionLogTypes
+  ) => void;
   message?: string;
   handleCloseRedactionLog?: () => void;
 };
@@ -78,7 +81,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   additionalData,
   saveStatus,
   redactionLogType,
-  saveRedactionLog,
+  handleSaveRedactionLog,
   savedRedactionTypes,
   redactionLogLookUpsData,
   redactionLogMappingsData,
@@ -487,7 +490,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   return (
     <div
       className={classes.modalContent}
-      data-testid="rl-under-redaction-content"
+      data-testid={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? "rl-under-over-redaction-content"
+          : "rl-under-redaction-content"
+      }
     >
       {saveStatus === "saving" && (
         <div
@@ -562,7 +569,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               event.preventDefault();
               const redactionLogRequestData = getRedactionLogRequestData(data);
               setSavingRedactionLog(true);
-              saveRedactionLog(redactionLogRequestData);
+              handleSaveRedactionLog(redactionLogRequestData, redactionLogType);
               handleAppInsightReporting(
                 data,
                 defaultValues,

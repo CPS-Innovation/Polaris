@@ -55,6 +55,7 @@ type AsyncActions =
       type: "SAVE_REDACTION_LOG";
       payload: {
         redactionLogRequestData: RedactionLogRequestData;
+        redactionLogType: RedactionLogTypes;
       };
     }
   | {
@@ -352,7 +353,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch }) =>
     async (action) => {
       const {
-        payload: { redactionLogRequestData },
+        payload: { redactionLogRequestData, redactionLogType },
       } = action;
       try {
         await saveRedactionLog(redactionLogRequestData);
@@ -369,7 +370,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             title: "Something went wrong!",
             message:
-              "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually.<p> Don't worry the redacted document has saved into CMS successfully.",
+              redactionLogType === RedactionLogTypes.UNDER_OVER
+                ? "The entries into the Redaction Log have failed. Please try again in the Casework App, or go to the Redaction Log app and enter manually."
+                : "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually.<p> Don't worry the redacted document has saved into CMS successfully.",
           },
         });
       }
