@@ -204,7 +204,7 @@ internal static class Program
 
           var fileType = Enum.Parse<FileType>(extension);
 
-          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, $"test-convert-to-pdf", currentCorrelationId);
+          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, "urns/test-case-urn/cases/test-case-id/documents/test-document-id/versions/test-version-id/test-convert-to-pdf", currentCorrelationId);
           request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
           using (var requestContent = new StreamContent(fileStream))

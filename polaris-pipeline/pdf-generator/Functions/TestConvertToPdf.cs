@@ -38,8 +38,8 @@ namespace pdf_generator.Functions
         }
 
         [Function(nameof(TestConvertToPdf))]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "test-convert-to-pdf")] HttpRequest request, 
-            FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/test-convert-to-pdf")] HttpRequest request, 
+            string caseUrn, string caseId, string documentId, string versionId, FunctionContext executionContext)
         {
             Guid currentCorrelationId = default;
             ConvertedDocumentEvent telemetryEvent = default;
@@ -56,13 +56,11 @@ namespace pdf_generator.Functions
 
                 var fileType = request.Headers.GetFileType();
                 telemetryEvent.FileType = fileType.ToString();
-                telemetryEvent.CaseId = request.Headers.GetCaseId();
+                telemetryEvent.CaseId = caseId;
 
-                var documentId = request.Headers.GetDocumentId();
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 telemetryEvent.DocumentId = documentId;
 
-                var versionId = request.Headers.GetVersionId();
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 telemetryEvent.VersionId = versionId;
 
