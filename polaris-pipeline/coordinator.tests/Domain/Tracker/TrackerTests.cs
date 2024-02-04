@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Domain.Mapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -14,18 +13,16 @@ using Moq;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Wrappers;
-using coordinator.Functions.Durable.Entity;
-using coordinator.Functions.Durable;
 using Common.Dto.Tracker;
 using Common.Dto.Document;
-using Common.Dto.FeatureFlags;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
-using Common.ValueObjects;
 using Newtonsoft.Json;
-using Common.Domain.Entity;
 using coordinator.Mappers;
+using coordinator.Durable.Payloads.Domain;
+using coordinator.Durable.Entity;
+using coordinator.Functions;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -52,7 +49,7 @@ namespace coordinator.tests.Domain.Tracker
 
         private readonly CaseDurableEntity _caseEntity;
         private readonly EntityStateResponse<CaseDurableEntity> _entityStateResponse;
-        private readonly TrackerClient _trackerStatus;
+        private readonly GetTracker _trackerStatus;
 
         public TrackerTests()
         {
@@ -98,14 +95,15 @@ namespace coordinator.tests.Domain.Tracker
                 )
                 .ReturnsAsync(_entityStateResponse);
 
-            _caseEntity = new CaseDurableEntity();
             _caseEntity.TransactionId = _transactionId;
             _caseEntity.CmsDocuments = _trackerCmsDocuments;
             _caseEntity.PcdRequests = _trackerPcdRequests;
 
             var mockCaseDurableEntityMapper = new Mock<ICaseDurableEntityMapper>();
-            _trackerStatus = new TrackerClient(
-                _jsonConvertWrapper,
+            mockCaseDurableEntityMapper
+                .Setup(mapper => mapper.MapCase(It.Is<CaseDurableEntity>(e => e == _caseEntity)))
+                .Returns(_fixture.Create<TrackerDto>());
+            _trackerStatus = new GetTracker(
                 mockCaseDurableEntityMapper.Object);
         }
 
@@ -267,7 +265,7 @@ namespace coordinator.tests.Domain.Tracker
             var message = new HttpRequestMessage();
             var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(500);
         }
 
         #region SynchroniseDocument

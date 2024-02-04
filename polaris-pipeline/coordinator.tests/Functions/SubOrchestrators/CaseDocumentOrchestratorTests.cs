@@ -2,12 +2,12 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.Entity;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
-using coordinator.Domain;
-using coordinator.Functions.Durable.Entity;
-using coordinator.Functions.Durable.Orchestration;
+using coordinator.Durable.Entity;
+using coordinator.Durable.Orchestration;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Payloads.Domain;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;

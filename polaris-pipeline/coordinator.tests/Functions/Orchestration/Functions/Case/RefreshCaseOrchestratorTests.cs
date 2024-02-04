@@ -12,7 +12,6 @@ using Common.Dto.Case;
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
-using coordinator.Domain;
 using coordinator.Durable.Entity;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -21,11 +20,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Common.ValueObjects;
-using Common.Domain.Entity;
 using Common.Telemetry.Contracts;
 using coordinator.Validators;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.ActivityFunctions;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.tests.Functions.Orchestration.Functions.Case
 {
@@ -41,7 +41,6 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
         private readonly string _transactionId;
         private readonly List<CmsDocumentEntity> _trackerCmsDocuments;
         private readonly CaseDeltasEntity _deltaDocuments;
-
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
         private readonly Mock<ICmsDocumentsResponseValidator> _mockCmsDocumentsResponseValidator;

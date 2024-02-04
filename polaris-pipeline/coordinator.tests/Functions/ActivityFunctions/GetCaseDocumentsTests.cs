@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Domain;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Moq;
@@ -12,7 +11,8 @@ using DdeiClient.Services.Contracts;
 using coordinator.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
-using coordinator.Functions.Durable.ActivityFunctions;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.ActivityFunctions;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {

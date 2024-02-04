@@ -9,21 +9,21 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Clients.Contracts;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Dto.Tracker;
 using Common.Services.BlobStorageService.Contracts;
-using coordinator.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
-using coordinator.Domain;
+using coordinator.Clients;
+using coordinator.Durable.ActivityFunctions;
+using coordinator.Durable.Payloads;
+using coordinator.Services.RenderHtmlService;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
-using coordinator.Functions.Durable.ActivityFunctions;
 
 
 namespace pdf_generator.tests.Functions

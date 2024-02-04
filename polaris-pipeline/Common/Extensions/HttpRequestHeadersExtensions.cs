@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Common.Extensions
 {
+    // todo: DRY on header extraction and processing
     public static class HttpRequestHeadersExtensions
     {
         private const string CorrelationErrorMessage = $"Invalid {HttpHeaderKeys.CorrelationId} header. A valid GUID is required.";
@@ -50,11 +51,11 @@ namespace Common.Extensions
                 throw new ArgumentNullException(nameof(headers));
 
             if (!headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values))
-                throw new BadRequestException(CorrelationErrorMessage, nameof(headers));
+                throw new BadRequestException(CmsAuthValuesErrorMessage, nameof(headers));
 
             var value = values.First();
             if (string.IsNullOrWhiteSpace(value))
-                throw new BadRequestException(CorrelationErrorMessage, value);
+                throw new BadRequestException(CmsAuthValuesErrorMessage, value);
 
             return value;
         }

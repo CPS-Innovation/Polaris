@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using Common.Domain.Entity;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Common.ValueObjects;
+using coordinator.Durable.Payloads.Domain;
 using coordinator.Services.DocumentToggle;
 using FluentAssertions;
 using Xunit;

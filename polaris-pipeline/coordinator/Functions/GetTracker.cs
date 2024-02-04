@@ -55,7 +55,7 @@ namespace coordinator.Functions
                 }
 
                 // todo: we should be confident that caseEntity is not null here and remove the ?? clause.
-                var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity ?? new CaseDurableEntity());
+                var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity);
                 return new OkObjectResult(trackerDto);
             }
             catch (Exception ex)

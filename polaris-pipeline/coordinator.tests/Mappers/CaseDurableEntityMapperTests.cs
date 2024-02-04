@@ -1,11 +1,10 @@
 ﻿using System.Linq;
 using AutoFixture;
-using coordinator.Domain.Mapper;
 using FluentAssertions;
 using Xunit;
-using coordinator.Functions.Durable.Entity;
 using Common.Dto.Tracker;
 using Microsoft.Extensions.DependencyInjection;
+using coordinator.Durable.Entity;
 
 namespace coordinator.Mappers
 {
