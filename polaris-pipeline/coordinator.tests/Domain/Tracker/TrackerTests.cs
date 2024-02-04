@@ -14,8 +14,8 @@ using Moq;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Wrappers;
-using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.DurableEntity;
+using coordinator.Functions.Durable.Entity;
+using coordinator.Functions.Durable;
 using Common.Dto.Tracker;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
@@ -195,37 +195,6 @@ namespace coordinator.tests.Domain.Tracker
 
         //    documents.Should().BeEquivalentTo(_trackerDocuments);
         //}
-
-        [Fact]
-        public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
-        {
-            _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf}
-            };
-            _caseEntity.PcdRequests = new List<PcdRequestEntity>();
-            _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.UnableToConvertToPdf };
-
-            var output = await _caseEntity.AllDocumentsFailed();
-
-            output.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
-        {
-            _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), null,  _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),_fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.PdfUploadedToBlob},
-            };
-            _caseEntity.PcdRequests = new List<PcdRequestEntity>();
-            _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.Indexed };
-
-            var output = await _caseEntity.AllDocumentsFailed();
-
-            output.Should().BeFalse();
-        }
 
         [Fact]
         public async Task Run_Tracker_Dispatches()

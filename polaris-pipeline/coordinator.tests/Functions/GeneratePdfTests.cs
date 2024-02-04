@@ -23,7 +23,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
-using coordinator.Functions.Orchestration.ActivityFunctions;
+using coordinator.Functions.Durable.ActivityFunctions;
+
 
 namespace pdf_generator.tests.Functions
 {

@@ -1,5 +1,5 @@
 ﻿using Common.Dto.Tracker;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Durable.Entity;
 
 namespace coordinator.Mappers
 {

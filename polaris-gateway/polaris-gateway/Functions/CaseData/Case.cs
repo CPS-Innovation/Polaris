@@ -21,7 +21,7 @@ namespace PolarisGateway.Functions.CaseData
     public class Case : BasePolarisFunction
     {
         private readonly IDdeiClient _ddeiClient;
-        private readonly ICaseDataArgFactory _caseDataArgFactory;
+        private readonly IDdeiArgFactory _caseDataArgFactory;
         private readonly ILogger<Case> _logger;
 
         const string loggingName = $"{nameof(Case)} - {nameof(Run)}";
@@ -29,7 +29,7 @@ namespace PolarisGateway.Functions.CaseData
         public Case(ILogger<Case> logger,
                     IDdeiClient ddeiService,
                     IAuthorizationValidator tokenValidator,
-                    ICaseDataArgFactory caseDataArgFactory,
+                    IDdeiArgFactory caseDataArgFactory,
                     ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
             : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {

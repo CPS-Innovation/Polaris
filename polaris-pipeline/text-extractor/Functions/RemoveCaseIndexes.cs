@@ -45,7 +45,6 @@ namespace text_extractor.Functions
                 correlationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-
                 _log.LogMethodFlow(correlationId, loggingName, $"Begin removing case indexes for case ID {caseId}");
 
                 var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);

@@ -10,53 +10,63 @@ namespace Common.Extensions
 {
     public static class HttpRequestHeadersExtensions
     {
+        private const string CorrelationErrorMessage = $"Invalid {HttpHeaderKeys.CorrelationId} header. A valid GUID is required.";
+
+        private const string CmsAuthValuesErrorMessage = $"A valid {HttpHeaderKeys.CmsAuthValues} header is required.";
+
         public static Guid GetCorrelationId(this HttpRequestHeaders headers)
         {
-            headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-            if (correlationIdValues == null)
-                throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(headers));
+            if (headers == null)
+                throw new ArgumentNullException(nameof(headers));
 
-            var correlationId = correlationIdValues.First();
-            if (!Guid.TryParse(correlationId, out var currentCorrelationId) || currentCorrelationId == Guid.Empty)
-                throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
+            if (!headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var values))
+                throw new BadRequestException(CorrelationErrorMessage, nameof(headers));
 
-            return currentCorrelationId;
+            var firstValue = values.First();
+            if (!Guid.TryParse(firstValue, out var value) || value == Guid.Empty)
+                throw new BadRequestException(CorrelationErrorMessage, firstValue);
+
+            return value;
         }
-        
-        public static Guid GetCorrelation(this IHeaderDictionary headers)
+
+        public static Guid GetCorrelationId(this IHeaderDictionary headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
-            if (!headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var value))
-                throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(headers));
-            
-            if (!Guid.TryParse(value[0], out var correlationId))
-                throw new BadRequestException("Invalid correlationId. A valid GUID is required.", value);
 
-            return correlationId;
+            if (!headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var values))
+                throw new BadRequestException(CorrelationErrorMessage, nameof(headers));
+
+            var firstValue = values.First();
+            if (!Guid.TryParse(firstValue, out var value) || value == Guid.Empty)
+                throw new BadRequestException(CorrelationErrorMessage, firstValue);
+
+            return value;
         }
-        
-        public static void CheckForCmsAuthValues(this IHeaderDictionary headers)
+
+        public static string GetCmsAuthValues(this HttpRequestHeaders headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
-            if (!headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var value))
-                throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(headers));
 
-            if (string.IsNullOrWhiteSpace(value[0]))
-                throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", value);
+            if (!headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values))
+                throw new BadRequestException(CorrelationErrorMessage, nameof(headers));
+
+            var value = values.First();
+            if (string.IsNullOrWhiteSpace(value))
+                throw new BadRequestException(CorrelationErrorMessage, value);
+
+            return value;
         }
 
         public static FileType GetFileType(this IHeaderDictionary headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
+
             if (!headers.TryGetValue(HttpHeaderKeys.Filetype, out var value))
                 throw new BadRequestException("Missing Filetype Value", nameof(headers));
-            
+
             var filetypeValue = value[0];
             if (string.IsNullOrEmpty(filetypeValue))
                 throw new BadRequestException("Null Filetype Value", filetypeValue);
@@ -64,51 +74,6 @@ namespace Common.Extensions
                 throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
 
             return filetype;
-        }
-
-        public static string GetCaseId(this IHeaderDictionary headers)
-        {
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-            
-            if (!headers.TryGetValue(HttpHeaderKeys.CaseId, out var value))
-                throw new BadRequestException("Missing CaseIds", nameof(headers));
-            
-            var caseId = value[0];
-            if (string.IsNullOrEmpty(caseId))
-                throw new BadRequestException("Invalid CaseId", caseId);
-
-            return caseId;
-        }
-
-        public static string GetDocumentId(this IHeaderDictionary headers)
-        {
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-            
-            if (!headers.TryGetValue(HttpHeaderKeys.DocumentId, out var value))
-                throw new BadRequestException("Missing DocumentIds", nameof(headers));
-
-            var documentId = value[0];
-            if (string.IsNullOrEmpty(documentId))
-                throw new BadRequestException("Invalid DocumentId", documentId);
-
-            return documentId;
-        }
-
-        public static string GetVersionId(this IHeaderDictionary headers)
-        {
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-            
-            if (!headers.TryGetValue(HttpHeaderKeys.VersionId, out var value))
-                throw new BadRequestException("Missing VersionIds", nameof(headers));
-
-            var versionId = value[0];
-            if (string.IsNullOrEmpty(versionId))
-                throw new BadRequestException("Invalid VersionId", versionId);
-
-            return versionId;
         }
     }
 }

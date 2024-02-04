@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.SearchIndex;

@@ -13,10 +13,7 @@ using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using coordinator.Domain;
-using coordinator.Domain.Exceptions;
-using coordinator.Functions.ActivityFunctions;
-using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.Orchestration;
+using coordinator.Durable.Entity;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +24,8 @@ using Common.ValueObjects;
 using Common.Domain.Entity;
 using Common.Telemetry.Contracts;
 using coordinator.Validators;
+using coordinator.Durable.Orchestration;
+using coordinator.Durable.ActivityFunctions;
 
 namespace coordinator.tests.Functions.Orchestration.Functions.Case
 {
@@ -109,9 +108,6 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
 
-            _mockCaseEntity
-                .Setup(t => t.AllDocumentsFailed())
-                .ReturnsAsync(false);
 
             _mockDurableOrchestrationContext
                 .Setup(context => context.GetInput<CaseOrchestrationPayload>())
@@ -225,16 +221,6 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
             {
                 Assert.True(false);
             }
-        }
-
-        [Fact]
-        public async Task Run_ThrowsCoordinatorOrchestrationExceptionWhenAllDocumentsHaveFailed()
-        {
-            // Arrange
-            _mockCaseEntity.Setup(t => t.AllDocumentsFailed()).ReturnsAsync(true);
-
-            // Act + Assert
-            await Assert.ThrowsAsync<CaseOrchestrationException>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
         }
 
         [Fact]

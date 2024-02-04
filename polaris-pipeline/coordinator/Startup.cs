@@ -6,13 +6,10 @@ using Common.Constants;
 using Common.Domain.Extensions;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Mappers;
-using Common.Mappers.Contracts;
 using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
 using coordinator.Factories;
-using coordinator.Clients.Contracts;
 using coordinator.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -25,17 +22,17 @@ using Common.Dto.Request;
 using Ddei.Services.Extensions;
 using Common.Handlers.Contracts;
 using Common.Handlers;
-using coordinator.Domain;
+using coordinator.Durable.Payloads;
 using coordinator.Services.RenderHtmlService;
-using coordinator.Domain.Mapper;
-using coordinator.Services.RenderHtmlService.Contract;
+using coordinator.Mappers;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using coordinator.Providers;
 using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
 using Common.Streaming;
-using coordinator.Mappers;
+using Ddei.Factories.Contracts;
+using Ddei.Factories;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -54,8 +51,9 @@ namespace coordinator
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
-            services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
+            services.AddSingleton<IDdeiArgFactory, DdeiArgFactory>();
+            services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>

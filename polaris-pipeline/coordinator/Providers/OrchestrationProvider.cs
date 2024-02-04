@@ -1,6 +1,6 @@
 ﻿using Common.Telemetry.Contracts;
-using coordinator.Domain;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Entity;
 using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
@@ -15,8 +15,8 @@ using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
-using coordinator.Clients.Contracts;
-using coordinator.Functions.Orchestration;
+using coordinator.Clients;
+using coordinator.Durable.Orchestration;
 
 namespace coordinator.Providers;
 
@@ -152,9 +152,10 @@ public class OrchestrationProvider : IOrchestrationProvider
                  _queryConditionFactory.Create(_completedStatuses, RefreshCaseOrchestrator.GetKey(caseId.ToString()))
             );
             var entityPurgeInstanceIds = await GetInstanceIdsAsync(client,
-                 _queryConditionFactory.Create(_entityStatuses, CaseDurableEntity.GetInstanceId(caseId.ToString()))
+                 _queryConditionFactory.Create(_entityStatuses, CaseDurableEntity.GetInstanceId(caseId.ToString()).ToString())
             );
             telemetryEvent.GotPurgeInstancesTime = DateTime.UtcNow;
+
             var instancesToPurge = Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds);
             telemetryEvent.PurgeInstancesCount = instancesToPurge.Count();
 
@@ -171,7 +172,10 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
     }
 
-    private static async Task<List<string>> GetInstanceIdsAsync(IDurableOrchestrationClient client, OrchestrationStatusQueryCondition condition, bool shouldFollowContinuation = true)
+    private static async Task<List<string>> GetInstanceIdsAsync(IDurableOrchestrationClient client,
+        OrchestrationStatusQueryCondition condition,
+        // if we want to only retrieve the first page of results, we must set ths to false
+        bool shouldFollowContinuation = true)
     {
         var instanceIds = new List<string>();
         do

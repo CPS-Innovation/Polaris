@@ -8,7 +8,7 @@ using AutoFixture;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain;
 using coordinator.Functions;
-using coordinator.Functions.Orchestration;
+using coordinator.Functions.Durable.Orchestration;
 using coordinator.Providers;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

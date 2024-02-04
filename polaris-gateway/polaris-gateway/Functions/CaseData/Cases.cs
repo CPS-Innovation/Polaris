@@ -24,14 +24,14 @@ namespace PolarisGateway.Functions.CaseData
     public class Cases : BasePolarisFunction
     {
         private readonly IDdeiClient _caseDataService;
-        private readonly ICaseDataArgFactory _caseDataArgFactory;
+        private readonly IDdeiArgFactory _caseDataArgFactory;
         private readonly ILogger<Cases> _logger;
         const string loggingName = $"{nameof(Cases)} - {nameof(Run)}";
 
         public Cases(ILogger<Cases> logger,
                         IDdeiClient caseDataService,
                         IAuthorizationValidator tokenValidator,
-                        ICaseDataArgFactory caseDataArgFactory,
+                        IDdeiArgFactory caseDataArgFactory,
                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {

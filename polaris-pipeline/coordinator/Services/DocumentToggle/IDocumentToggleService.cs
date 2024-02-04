@@ -1,4 +1,4 @@
-using Common.Domain.Entity;
+using coordinator.Durable.Payloads.Domain;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;

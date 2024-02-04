@@ -17,7 +17,7 @@ namespace Ddei.Services
 {
     public class DdeiClient : IDdeiClient
     {
-        private readonly ICaseDataArgFactory _caseDataServiceArgFactory;
+        private readonly IDdeiArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
         private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _caseDocumentMapper;
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
@@ -30,7 +30,7 @@ namespace Ddei.Services
         public DdeiClient(
             HttpClient httpClient,
             IDdeiClientRequestFactory ddeiClientRequestFactory,
-            ICaseDataArgFactory caseDataServiceArgFactory,
+            IDdeiArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
             ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper,
             ICaseIdentifiersMapper caseIdentifiersMapper,

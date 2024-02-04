@@ -78,7 +78,7 @@ public class DdeiClientTests
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
-        var mockCaseDataArgFactory = new Mock<ICaseDataArgFactory>();
+        var mockCaseDataArgFactory = new Mock<IDdeiArgFactory>();
         var mockCaseDetailsMapper = new Mock<ICaseDetailsMapper>();
         var mockCaseIdentifiersMapper = new Mock<ICaseIdentifiersMapper>();
         var mockCmsAuthValuesMapper = new Mock<ICmsAuthValuesMapper>();

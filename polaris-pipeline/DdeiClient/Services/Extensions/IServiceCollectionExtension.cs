@@ -24,7 +24,7 @@ namespace Ddei.Services.Extensions
 
         public static void AddDdeiClient(this IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
+            services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
 
             services.AddHttpClient<IDdeiClient, DdeiClient>((service, client) =>
             {

@@ -4,16 +4,15 @@ using AutoFixture;
 using coordinator.Domain;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using coordinator.Functions.ActivityFunctions;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using DdeiClient.Services.Contracts;
 using coordinator.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
+using coordinator.Functions.Durable.ActivityFunctions;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {

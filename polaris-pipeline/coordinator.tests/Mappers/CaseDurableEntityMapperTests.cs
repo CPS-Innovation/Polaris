@@ -3,7 +3,7 @@ using AutoFixture;
 using coordinator.Domain.Mapper;
 using FluentAssertions;
 using Xunit;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Functions.Durable.Entity;
 using Common.Dto.Tracker;
 using Microsoft.Extensions.DependencyInjection;
 

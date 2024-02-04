@@ -6,12 +6,12 @@ namespace Common.Health
 {
     public class DdeiClientHealthCheck : AuthenticatedHealthCheck, IHealthCheck
     {
-        private readonly ICaseDataArgFactory _caseDataArgFactory;
+        private readonly IDdeiArgFactory _caseDataArgFactory;
         private readonly IDdeiClient _ddeiClient;
 
         static readonly string _testCaseUrn = "14XD1000422";
 
-        public DdeiClientHealthCheck(IDdeiClient ddeiClient, ICaseDataArgFactory caseDataArgFactory)
+        public DdeiClientHealthCheck(IDdeiClient ddeiClient, IDdeiArgFactory caseDataArgFactory)
         {
             _ddeiClient = ddeiClient;
             _caseDataArgFactory = caseDataArgFactory;
