@@ -38,19 +38,18 @@ namespace text_extractor.tests.Functions
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly AnalyzeResults _mockAnalyzeResults;
         private readonly Mock<IValidatorWrapper<ExtractTextRequestDto>> _mockValidatorWrapper;
-
         private readonly Mock<ILogger<ExtractText>> _mockLogger;
-
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
+        private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Guid _correlationId;
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly long _versionId;
         private readonly string _documentId;
         private readonly ExtractText _extractText;
-
         private List<ValidationResult> _validationResults;
+
         public ExtractTextTests()
         {
             _fixture = new Fixture();
@@ -69,6 +68,7 @@ namespace text_extractor.tests.Functions
             _mockAnalyzeResults = Mock.Of<AnalyzeResults>(ctx => ctx.ReadResults == new List<ReadResult>());
             _mockTelemetryClient = new Mock<ITelemetryClient>();
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
+            _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
 
             _correlationId = _fixture.Create<Guid>();
             _caseUrn = _fixture.Create<string>();
@@ -105,7 +105,8 @@ namespace text_extractor.tests.Functions
                                 mockDtoHttpRequestHeadersMapper.Object,
                                 _mockLogger.Object,
                                 _mockTelemetryClient.Object,
-                                _mockTelemetryAugmentationWrapper.Object);
+                                _mockTelemetryAugmentationWrapper.Object,
+                                _mockJsonConvertWrapper.Object);
         }
 
         [Fact]
@@ -176,6 +177,8 @@ namespace text_extractor.tests.Functions
         {
             // Arrange
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
+            _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<ExtractTextResponse>()))
+                .Returns(string.Empty);
 
             // Act
             var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);

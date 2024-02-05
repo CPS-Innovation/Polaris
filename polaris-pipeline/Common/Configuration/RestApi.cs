@@ -33,6 +33,7 @@ namespace Common.Configuration
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
         public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
+        public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId}/case-index-count";
 
 #if SCALABILITY_TEST
         public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";
