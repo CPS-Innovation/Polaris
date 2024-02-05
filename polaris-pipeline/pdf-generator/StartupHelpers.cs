@@ -1,22 +1,10 @@
 ﻿using System;
-using Common.Health;
-using Microsoft.Extensions.DependencyInjection;
 using pdf_generator.Domain.Exceptions;
 
 namespace pdf_generator
 {
     internal static class StartupHelpers
     {
-        /// <summary>
-        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
-        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work.
-        /// </summary>
-        /// <param name="services"></param>
-        internal static void BuildHealthChecks(IServiceCollection services)
-        {
-            services.AddHealthChecks()
-                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client");
-        }
 
         internal static void SetAsposeLicence()
         {
