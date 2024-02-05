@@ -109,7 +109,7 @@ stages:
             inputs:
               command: publish
               publishWebProjects: false
-              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              projects: "polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Gateway package to publish"

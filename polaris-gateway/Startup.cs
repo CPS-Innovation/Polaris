@@ -1,8 +1,6 @@
 ﻿using Common.Constants;
-using Common.Domain.Extensions;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Health;
 using Common.Validators;
 using Common.Validators.Contracts;
 using Common.Wrappers;
@@ -74,38 +72,6 @@ namespace PolarisGateway
             services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
-            BuildHealthChecks(services);
-        }
-
-        // see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
-        // Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
-        private static void BuildHealthChecks(IServiceCollection services)
-        {
-            services.AddHttpClient();
-
-            var pipelineCoordinator = "pipelineCoordinator";
-            Uri uri = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
-            services.AddHttpClient(pipelineCoordinator, client =>
-            {
-                string url = Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl");
-                client.BaseAddress = new Uri(url.GetBaseUrl());
-                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
-                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
-            });
-
-            var pdfFunctions = "pdfFunctions";
-            services.AddHttpClient(pdfFunctions, client =>
-            {
-                string url = Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl");
-                client.BaseAddress = new Uri(url.GetBaseUrl());
-                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
-                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
-            });
-
-            var ddeiClient = "ddeiClient";
-            services.AddHealthChecks()
-                .AddCheck<DdeiClientHealthCheck>(ddeiClient)
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator });
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)
