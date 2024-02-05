@@ -48,7 +48,7 @@ var host = new HostBuilder()
         });
 
         services.AddSingleton(context.Configuration);
-        services.AddPdfGenerator(context.Configuration);
+        services.AddPdfGenerator();
         services.AddRedactionServices(context.Configuration);
 
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);

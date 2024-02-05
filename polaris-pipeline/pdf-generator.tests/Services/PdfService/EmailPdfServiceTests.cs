@@ -40,17 +40,17 @@ namespace pdf_generator.tests.Services.PdfService
         [Fact]
         public void ReadToPdfStream_CallsCorrectMethodSequence()
         {
-            using var pdfStream = new MemoryStream();
             using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
 
-            _pdfService.ReadToPdfStream(inputStream, pdfStream, Guid.NewGuid());
+            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
             using (new AssertionScope())
             {
                 _asposeItemFactory.Verify(x => x.CreateMailMessage(It.IsAny<Stream>(), It.IsAny<Guid>()));
                 _asposeItemFactory.Verify(x => x.CreateMhtmlDocument(It.IsAny<Stream>(), It.IsAny<Guid>()));
-                pdfStream.Should().NotBeNull();
-                pdfStream.Length.Should().BeGreaterThan(0);
+                conversionResult.Should().NotBeNull();
+                conversionResult.ConvertedDocument.Should().NotBeNull();
+                conversionResult.ConvertedDocument.Length.Should().BeGreaterThan(0);
             }
         }
     }

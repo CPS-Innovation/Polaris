@@ -1,5 +1,6 @@
 ﻿using Common.Constants;
 using Common.Domain.Document;
+using Common.Domain.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Factories;
@@ -31,7 +32,7 @@ internal static class Program
     builder.Services.AddSingleton<AppInsights.TelemetryClient>();
     builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
-    builder.Services.AddPdfGenerator(builder.Configuration);
+    builder.Services.AddPdfGenerator();
     builder.Services.AddRedactionServices(builder.Configuration);
     builder.Services.AddHttpClient(
       "testClient",
@@ -198,12 +199,12 @@ internal static class Program
         {
           await using var fileStream = File.OpenRead(filePath);
 
-          Guid currentCorrelationId = default;
+          Guid currentCorrelationId = Guid.NewGuid();
           var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
 
           var fileType = Enum.Parse<FileType>(extension);
 
-          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, $"test-convert-to-pdf", currentCorrelationId);
+          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, "urns/test-case-urn/cases/test-case-id/documents/test-document-id/versions/test-version-id/test-convert-to-pdf", currentCorrelationId);
           request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
           using (var requestContent = new StreamContent(fileStream))
@@ -259,19 +260,26 @@ internal static class PdfManager
 
       var fileType = Enum.Parse<FileType>(extension);
 
-      var pdfStream = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
+      var conversionResult = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
 
-      // Write the PDF stream to the file system
-      byte[] pdfBytes;
-      using (var ms = new MemoryStream())
+      if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
       {
-        pdfStream.CopyTo(ms);
-        pdfBytes = ms.ToArray();
+        // Write the PDF stream to the file system
+        byte[] pdfBytes;
+        using (var ms = new MemoryStream())
+        {
+          conversionResult.ConvertedDocument.CopyTo(ms);
+          pdfBytes = ms.ToArray();
+        }
+
+        File.WriteAllBytes(outputFilePath, pdfBytes);
+
+        Console.WriteLine("PDF conversion successful.");
       }
-
-      File.WriteAllBytes(outputFilePath, pdfBytes);
-
-      Console.WriteLine("PDF conversion successful.");
+      else
+      {
+        Console.WriteLine($"PDF conversion Failed - Status: {conversionResult.ConversionStatus.GetEnumValue()}, Feedback: {conversionResult.Feedback}");
+      }
     }
     catch (Exception e)
     {
