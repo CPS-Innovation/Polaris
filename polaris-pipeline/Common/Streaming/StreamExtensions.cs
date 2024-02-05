@@ -31,7 +31,7 @@ public static class StreamExtensions
 
     var seekableStream = new MemoryStream();
     await stream.CopyToAsync(seekableStream);
-    stream.Dispose();
+    await stream.DisposeAsync();
 
     seekableStream.Position = 0;
     return seekableStream;

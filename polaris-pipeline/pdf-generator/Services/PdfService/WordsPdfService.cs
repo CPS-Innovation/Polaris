@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using Aspose.Words;
+using Common.Domain.Document;
+using Common.Extensions;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
@@ -14,11 +16,33 @@ namespace pdf_generator.Services.PdfService
             _asposeItemFactory = asposeItemFactory;
         }
 
-        public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
+        public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
         {
-            var doc = _asposeItemFactory.CreateWordsDocument(inputStream, correlationId);
-            doc.Save(pdfStream, SaveFormat.Pdf);
-            pdfStream.Seek(0, SeekOrigin.Begin);
+            var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeWords);
+            var pdfStream = new MemoryStream();
+
+            try
+            {
+                var doc = _asposeItemFactory.CreateWordsDocument(inputStream, correlationId);
+                doc.Save(pdfStream, SaveFormat.Pdf);
+                pdfStream.Seek(0, SeekOrigin.Begin);
+            
+                conversionResult.RecordConversionSuccess(pdfStream);
+            }
+            catch (UnsupportedFileFormatException ex)
+            {
+                inputStream?.Dispose();
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeWordsUnsupportedFileFormat,
+                    ex.ToFormattedString());
+            }
+            catch (IncorrectPasswordException ex)
+            {
+                inputStream?.Dispose();
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeWordsPasswordProtected,
+                    ex.ToFormattedString());
+            }
+            
+            return conversionResult;
         }
     }
 }

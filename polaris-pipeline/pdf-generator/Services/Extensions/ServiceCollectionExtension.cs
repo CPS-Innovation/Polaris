@@ -15,14 +15,13 @@ namespace pdf_generator.Services.Extensions
 {
     public static class ServiceCollectionExtension
     {
-        public static void AddPdfGenerator(this IServiceCollection services, IConfiguration configuration)
+        public static void AddPdfGenerator(this IServiceCollection services)
         {
             services.AddSingleton<IPdfService, WordsPdfService>();
             services.AddSingleton<IPdfService, CellsPdfService>();
             services.AddSingleton<IPdfService, SlidesPdfService>();
             services.AddSingleton<IPdfService, ImagingPdfService>();
             services.AddSingleton<IPdfService, DiagramPdfService>();
-            services.AddSingleton<IPdfService, HtmlPdfService>();
             services.AddSingleton<IPdfService, EmailPdfService>();
             services.AddSingleton<IPdfService, PdfRendererService>();
             services.AddSingleton<IPdfService, XpsPdfRendererService>();
@@ -35,14 +34,13 @@ namespace pdf_generator.Services.Extensions
                 var slidesPdfService = servicesList.First(s => s.GetType() == typeof(SlidesPdfService));
                 var imagingPdfService = servicesList.First(s => s.GetType() == typeof(ImagingPdfService));
                 var diagramPdfService = servicesList.First(s => s.GetType() == typeof(DiagramPdfService));
-                var htmlPdfService = servicesList.First(s => s.GetType() == typeof(HtmlPdfService));
                 var emailPdfService = servicesList.First(s => s.GetType() == typeof(EmailPdfService));
                 var pdfRendererService = servicesList.First(s => s.GetType() == typeof(PdfRendererService));
                 var xpsPdfRendererService = servicesList.First(s => s.GetType() == typeof(XpsPdfRendererService));
                 var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
 
                 return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
-                    diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, xpsPdfRendererService, loggingService, configuration);
+                    diagramPdfService, emailPdfService, pdfRendererService, xpsPdfRendererService, loggingService);
             });
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();

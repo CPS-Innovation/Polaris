@@ -1,8 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Net;
-using System.Net.Http;
 using Common.Configuration;
+using Common.Domain.Document;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
@@ -10,14 +9,12 @@ using Microsoft.AspNetCore.Http;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
 using Common.Domain.Exceptions;
+using Common.Domain.Extensions;
 using Common.Extensions;
 using Common.Logging;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Streaming;
-using Common.Constants;
-using System.Linq;
-using Common.Domain.Document;
 using System.Threading.Tasks;
 
 namespace pdf_generator.Functions
@@ -59,7 +56,6 @@ namespace pdf_generator.Functions
 
                 request.Headers.CheckForCmsAuthValues();
 
-
                 var fileType = request.Headers.GetFileType();
 
                 telemetryEvent.FileType = fileType.ToString();
@@ -90,25 +86,50 @@ namespace pdf_generator.Functions
                 var originalBytes = inputStream.Length;
                 telemetryEvent.OriginalBytes = originalBytes;
 
-                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
-                var bytes = pdfStream.Length;
-
-                telemetryEvent.Bytes = bytes;
-                telemetryEvent.EndTime = DateTime.UtcNow;
-
-                _telemetryClient.TrackEvent(telemetryEvent);
-
-                return new FileStreamResult(pdfStream, "application/pdf")
+                var conversionResult = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
+                if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
                 {
-                    FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
+                    var bytes = conversionResult.ConvertedDocument.Length;
+
+                    telemetryEvent.Bytes = bytes;
+                    telemetryEvent.EndTime = DateTime.UtcNow;
+                    telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
+
+                    _telemetryClient.TrackEvent(telemetryEvent);
+
+                    return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
+                    {
+                        FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
+                    };
+                }
+
+                var failureReason = conversionResult.GetFailureReason();
+                telemetryEvent.FailureReason = failureReason;
+                telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
+                _telemetryClient.TrackEventFailure(telemetryEvent);
+                    
+                return new ObjectResult(failureReason)
+                {
+                    StatusCode = (int) HttpStatusCode.InternalServerError
                 };
             }
             catch (Exception exception)
             {
-                _logger.LogMethodError(currentCorrelationId, nameof(ConvertToPdf), exception.Message, exception);
+                _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
+
+                if (telemetryEvent == null)
+                    return new ObjectResult(exception.ToFormattedString())
+                    {
+                        StatusCode = (int) HttpStatusCode.InternalServerError
+                    };
+                
+                telemetryEvent.FailureReason = exception.Message;
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+                return new ObjectResult(exception.ToFormattedString())
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
             }
         }
     }
