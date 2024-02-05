@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
 using Common.Domain.Document;
-using Common.Exceptions;
 using Common.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
@@ -53,9 +51,6 @@ namespace pdf_generator.Services.PdfService
             {
                 _logger.LogMethodFlow(correlationId, nameof(ReadToPdfStream),
                     "Analysing file type and matching to a converter");
-                var serviceInputStream = new MemoryStream();
-                inputStream.CopyTo(serviceInputStream);
-                serviceInputStream.Seek(0, SeekOrigin.Begin);
                 switch (fileType)
                 {
                     case FileType.DOC:
@@ -74,7 +69,7 @@ namespace pdf_generator.Services.PdfService
                     // But Aspose seems forgiving enough to convert it, so treat it as HTML
                     case FileType.HTE:    
                         converterType = PdfConverterType.AsposeWords;
-                        conversionResult = _wordsPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _wordsPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.CSV:
@@ -83,13 +78,13 @@ namespace pdf_generator.Services.PdfService
                     case FileType.XLSM:
                     case FileType.XLT:
                         converterType = PdfConverterType.AsposeCells;
-                        conversionResult = _cellsPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _cellsPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.PPT:
                     case FileType.PPTX:
                         converterType = PdfConverterType.AsposeSlides;
-                        conversionResult = _slidesPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _slidesPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.BMP:
@@ -101,28 +96,28 @@ namespace pdf_generator.Services.PdfService
                     case FileType.TIFF:
                     case FileType.PNG:
                         converterType = PdfConverterType.AsposeImaging;
-                        conversionResult = _imagingPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _imagingPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.VSD:
                         converterType = PdfConverterType.AsposeDiagrams;
-                        conversionResult = _diagramPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _diagramPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.EML:
                     case FileType.MSG:
                         converterType = PdfConverterType.AsposeEmail;
-                        conversionResult = _emailPdfService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _emailPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.PDF:
                         converterType = PdfConverterType.AsposePdf;
-                        conversionResult = _pdfRendererService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _pdfRendererService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.XPS:
                         converterType = PdfConverterType.AsposePdf;
-                        conversionResult = _xpsPdfRendererService.ReadToPdfStream(serviceInputStream, documentId, correlationId);
+                        conversionResult = _xpsPdfRendererService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     default:

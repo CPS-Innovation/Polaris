@@ -1,35 +1,37 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net;
-using Common.Configuration;
+using System.Threading.Tasks;
 using Common.Domain.Document;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using pdf_generator.Services.PdfService;
-using pdf_generator.TelemetryEvents;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
 using Common.Extensions;
 using Common.Logging;
+using Common.Streaming;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
-using Common.Streaming;
-using System.Threading.Tasks;
+using pdf_generator.TelemetryEvents;
 
 namespace pdf_generator.Functions
 {
-    public class ConvertToPdf
+    [ExcludeFromCodeCoverage]
+    public class TestConvertToPdf
     {
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
-        private readonly ILogger<ConvertToPdf> _logger;
+        private readonly ILogger<TestConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
-        private const string LoggingName = nameof(ConvertToPdf);
+        private const string LoggingName = nameof(TestConvertToPdf);
 
-        public ConvertToPdf(
+        public TestConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
-             ILogger<ConvertToPdf> logger,
+             ILogger<TestConvertToPdf> logger,
              ITelemetryClient telemetryClient,
              ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
@@ -39,29 +41,26 @@ namespace pdf_generator.Functions
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
-        [Function(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
-            string caseUrn, string caseId, string documentId, string versionId)
+        [Function(nameof(TestConvertToPdf))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/test-convert-to-pdf")] HttpRequest request, 
+            string caseUrn, string caseId, string documentId, string versionId, FunctionContext executionContext)
         {
             Guid currentCorrelationId = default;
             ConvertedDocumentEvent telemetryEvent = default;
             try
             {
                 #region Validate-Inputs
-
+                
                 currentCorrelationId = request.Headers.GetCorrelation();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
-
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
+                _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
 
-                request.Headers.CheckForCmsAuthValues();
+                //request.Headers.CheckForCmsAuthValues();
 
                 var fileType = request.Headers.GetFileType();
-
                 telemetryEvent.FileType = fileType.ToString();
-
                 telemetryEvent.CaseId = caseId;
-                telemetryEvent.CaseUrn = caseUrn;
 
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 telemetryEvent.DocumentId = documentId;
@@ -70,10 +69,10 @@ namespace pdf_generator.Functions
                 telemetryEvent.VersionId = versionId;
 
                 #endregion
-
+                
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
-
+                
                 if (request.Body == null)
                 {
                     throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
