@@ -103,23 +103,6 @@ stages:
               artifact: "polaris-text-extractor-drop"
             displayName: "Publish Text-Extractor codebase artifact"
 
-      - job: Build_Auth_Handover_Artifact
-        steps:
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Auth Handover package to publish"
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
-              artifact: "polaris-auth-handover-drop"
-            displayName: "Publish Auth Handover codebase artifact"
-
       - job: Build_Gateway_Artifact
         steps:
           - task: DotNetCoreCLI@2

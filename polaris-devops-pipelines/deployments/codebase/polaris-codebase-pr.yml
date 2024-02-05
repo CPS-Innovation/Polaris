@@ -68,11 +68,6 @@ stages:
                     echo "run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
                   }
-                  if ($name -like 'polaris-gateway/polaris-auth-handover/*' -Or $name -like 'polaris-gateway/polaris-auth-handover.tests/*')
-                  {
-                    echo "run auth handover..."
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
-                  }
                   if ($name -like 'polaris-ui/*')
                   {
                     echo "run ui codebase..."
@@ -83,7 +78,6 @@ stages:
                     echo "changes to DdeiClient detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/Common/*')
                   {
@@ -99,7 +93,6 @@ stages:
                     echo "changes to the Gateway's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
                   }
                 }
@@ -112,34 +105,12 @@ stages:
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
     variables:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
-      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
     jobs:
       - job:
         displayName: Build, Test, Report - Gateway
         pool:
           name: $(dev-build-agent)
         steps:
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "build"
-              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
-              arguments: "--configuration Release"
-            displayName: "Build Auth Handover"
-            condition: eq(variables.runAuthHandover, 'true')
-            
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
-              projects: "polaris-gateway/polaris-auth-handover.tests/polaris-auth-handover.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run Auth Handover tests"
-            condition: eq(variables.runAuthHandover, 'true')
-
-          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-auth-handover.tests/coverage.cobertura.xml
-            artifact: AuthHandoverTestResults
-            displayName: Publish Auth Handover Test Results
-            condition: eq(variables.runAuthHandover, 'true')
-
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
