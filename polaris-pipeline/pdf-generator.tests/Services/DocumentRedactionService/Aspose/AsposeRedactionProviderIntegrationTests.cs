@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Aspose.Pdf;
 using AutoFixture;
 using Common.Dto.Request;
@@ -46,7 +47,7 @@ public class AsposeRedactionProviderIntegrationTests
   }
 
   [Fact]
-  public void AsposeRedactionProvider_Redact_OnlyConvertsPagesWhereRedactionsOccur()
+  public async Task AsposeRedactionProvider_Redact_OnlyConvertsPagesWhereRedactionsOccurAsync()
   {
     // Arrange
     var assertPageImageCount = (Page page, int expectedImagesCount) =>
@@ -93,7 +94,7 @@ public class AsposeRedactionProviderIntegrationTests
     };
 
     // Act
-    using var outputStream = _asposeRedactionProvider.Redact(inputStream, _caseId, _documentId, redactPdfRequestDto, _correlationId);
+    using var outputStream = await _asposeRedactionProvider.Redact(inputStream, _caseId, _documentId, redactPdfRequestDto, _correlationId);
     using var redactedDocument = new Document(outputStream);
 
     // Assert

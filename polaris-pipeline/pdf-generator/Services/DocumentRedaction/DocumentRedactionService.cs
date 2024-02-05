@@ -33,7 +33,7 @@ namespace pdf_generator.Services.DocumentRedaction
             {
                 using var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
 
-                using var redactedDocumentStream = _redactionProvider.Redact(documentStream, caseId, documentId, redactPdfRequest, correlationId);
+                using var redactedDocumentStream = await _redactionProvider.Redact(documentStream, caseId, documentId, redactPdfRequest, correlationId);
 
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactPdfRequest.FileName);
                 await _polarisBlobStorageService.UploadDocumentAsync(
