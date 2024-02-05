@@ -32,6 +32,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
