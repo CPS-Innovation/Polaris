@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using Common.Configuration;
 using Common.Domain.Document;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,11 @@ using Common.Extensions;
 using Common.Logging;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
+using Common.Streaming;
+using Common.Constants;
+using System.Linq;
+using Common.Domain.Document;
+using System.Threading.Tasks;
 
 namespace pdf_generator.Functions
 {
@@ -39,7 +45,7 @@ namespace pdf_generator.Functions
         }
 
         [Function(nameof(ConvertToPdf))]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
             string caseUrn, string caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
@@ -50,13 +56,16 @@ namespace pdf_generator.Functions
 
                 currentCorrelationId = request.Headers.GetCorrelation();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
+
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
-                _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
 
                 request.Headers.CheckForCmsAuthValues();
 
+
                 var fileType = request.Headers.GetFileType();
+
                 telemetryEvent.FileType = fileType.ToString();
+
                 telemetryEvent.CaseId = caseId;
                 telemetryEvent.CaseUrn = caseUrn;
 
@@ -71,12 +80,20 @@ namespace pdf_generator.Functions
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
 
-                request.EnableBuffering();
-                if (request.ContentLength != null && request.Body.CanSeek)
+                if (request.Body == null)
                 {
-                    var originalBytes = request.ContentLength;
-                    telemetryEvent.OriginalBytes = originalBytes.Value;
+                    throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
+                }
 
+                var inputStream = await request.Body
+                    // Aspose demands a seekable stream, and as we want to record the size of the stream, we need to ensure it is seekable also.
+                    .EnsureSeekableAsync();
+
+                var originalBytes = inputStream.Length;
+                telemetryEvent.OriginalBytes = originalBytes;
+
+                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
+                var bytes = pdfStream.Length;
                     request.Body.Seek(0, SeekOrigin.Begin);
                     
                     var conversionResult = _pdfOrchestratorService.ReadToPdfStream(request.Body, fileType, documentId, currentCorrelationId);

@@ -52,7 +52,7 @@ internal static class Program
     switch (modeEnum)
     {
       case Mode.LibraryCallRedactPdf:
-        RedactPdfFile(serviceScope.ServiceProvider);
+        await RedactPdfFileAsync(serviceScope.ServiceProvider);
         break;
       case Mode.LibraryCallConvertToPdf:
         ConvertFileToPdf(serviceScope.ServiceProvider);
@@ -85,7 +85,7 @@ internal static class Program
       }
     }
 
-    static void RedactPdfFile(IServiceProvider serviceProvider)
+    static async Task RedactPdfFileAsync(IServiceProvider serviceProvider)
     {
       var redactionService = serviceProvider.GetRequiredService<IRedactionProvider>();
 
@@ -136,7 +136,7 @@ internal static class Program
             RedactionDefinitions = redactionDefinitions
           };
 
-          var pdfStream = redactionService.Redact(fileStream, "1234", "123", redactPdf, currentCorrelationId);
+          var pdfStream = await redactionService.Redact(fileStream, "1234", "123", redactPdf, currentCorrelationId);
 
           // Write the PDF stream to the file system
           byte[] pdfBytes;

@@ -7,6 +7,8 @@ using Common.Telemetry.Contracts;
 using pdf_generator.TelemetryEvents;
 using Aspose.Pdf.Text;
 using System.Linq;
+using Common.Streaming;
+using System.Threading.Tasks;
 
 namespace pdf_generator.Services.DocumentRedaction.Aspose
 {
@@ -26,11 +28,12 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
             _telemetryClient = telemetryClient;
         }
 
-        public Stream Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        public async Task<Stream> Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             RedactedDocumentEvent telemetryEvent = default;
             try
             {
+                var inputStream = await stream.EnsureSeekableAsync();
                 var (providerType, providerDetails) = _redactionImplementation.GetProviderType();
                 telemetryEvent = new RedactedDocumentEvent(correlationId: correlationId,
                     caseId: caseId,
@@ -39,9 +42,9 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
                     providerType: providerType,
                     providerDetails: providerDetails,
                     startTime: DateTime.UtcNow,
-                    originalBytes: stream.Length);
+                    originalBytes: inputStream.Length);
 
-                var document = new Document(stream);
+                var document = new Document(inputStream);
 
                 telemetryEvent.PdfFormat = document.PdfFormat.ToString();
                 telemetryEvent.PageCount = document.Pages.Count;
