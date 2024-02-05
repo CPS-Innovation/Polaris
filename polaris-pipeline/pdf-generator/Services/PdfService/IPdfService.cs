@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
+using Common.Domain.Document;
 
 namespace pdf_generator.Services.PdfService
 {
     public interface IPdfService
     {
-        void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId);
+        PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId);
     }
 }

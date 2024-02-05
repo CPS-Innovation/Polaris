@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using Aspose.Imaging.CoreExceptions;
 using Aspose.Imaging.FileFormats.Pdf;
 using Aspose.Imaging.ImageOptions;
+using Common.Domain.Document;
+using Common.Extensions;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
@@ -15,11 +18,27 @@ namespace pdf_generator.Services.PdfService
             _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
         }
 
-        public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
+        public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
         {
-            using var image = _asposeItemFactory.CreateImage(inputStream, correlationId);
-            image.Save(pdfStream, new PdfOptions { PdfDocumentInfo = new PdfDocumentInfo() });
-            pdfStream.Seek(0, System.IO.SeekOrigin.Begin);
+            var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeImaging);
+            var pdfStream = new MemoryStream();
+
+            try
+            {
+                using var image = _asposeItemFactory.CreateImage(inputStream, correlationId);
+                image.Save(pdfStream, new PdfOptions { PdfDocumentInfo = new PdfDocumentInfo() });
+                pdfStream.Seek(0, System.IO.SeekOrigin.Begin);
+            
+                conversionResult.RecordConversionSuccess(pdfStream);
+            }
+            catch (ImageLoadException ex)
+            {
+                inputStream?.Dispose();
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeImagingCannotLoad,
+                    ex.ToFormattedString());
+            }
+            
+            return conversionResult;
         }
     }
 }
