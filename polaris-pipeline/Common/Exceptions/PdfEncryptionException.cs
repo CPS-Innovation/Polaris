@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace Common.Exceptions
 {
@@ -8,6 +9,12 @@ namespace Common.Exceptions
 		public PdfEncryptionException() :
 			base("Pdf is encrypted.")
 		{
+		}
+		
+		protected PdfEncryptionException(SerializationInfo info, StreamingContext context) 
+			: base(info, context)
+		{
+
 		}
 	}
 }
