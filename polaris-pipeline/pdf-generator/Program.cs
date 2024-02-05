@@ -56,8 +56,6 @@ var host = new HostBuilder()
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-
-        StartupHelpers.BuildHealthChecks(services);
     })
     .ConfigureLogging(logging =>
     {
