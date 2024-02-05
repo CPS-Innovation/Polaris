@@ -301,7 +301,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal")
         .should("exist")
         .contains(
-          "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually. Don't worry the redacted document has saved into CMS successfully."
+          "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually."
         );
     });
     it("Should fallback and handle redaction without any redaction log if the redaction logger is down", () => {
