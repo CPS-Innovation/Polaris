@@ -43,6 +43,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/polaris-ui/build-version.txt"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
   }
 
   sticky_settings {
