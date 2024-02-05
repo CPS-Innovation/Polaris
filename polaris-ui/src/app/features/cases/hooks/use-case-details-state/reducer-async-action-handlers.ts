@@ -372,7 +372,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             message:
               redactionLogType === RedactionLogTypes.UNDER_OVER
                 ? "The entries into the Redaction Log have failed. Please try again in the Casework App, or go to the Redaction Log app and enter manually."
-                : "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually.<p> Don't worry the redacted document has saved into CMS successfully.",
+                : "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually.",
           },
         });
       }
