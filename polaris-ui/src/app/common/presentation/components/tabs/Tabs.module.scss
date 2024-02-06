@@ -3,31 +3,35 @@
 :global(.govuk-tabs > .govuk-tabs__panel) {
   padding: 0 !important;
   &:focus {
-    outline: #ffdd00 auto 1px;
+    outline: 0.2rem solid #ffdd00;
   }
 }
+
 .tabsWrapper {
   display: flex;
-  padding-top: 5px;
-  overflow-y: hidden;
-  overflow-x: auto;
-  border-bottom: 1px solid $govuk-border-colour;
+  position: relative;
+  padding-top: 0.3125rem;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 0.0625rem solid $govuk-border-colour;
 }
 .tabsList {
   display: flex;
-  align-items: flex-end;
-  align-content: baseline;
-  margin-bottom: 0px;
+  justify-content: flex-start;
+  align-items: baseline;
   padding: 0;
+  width: 100%;
+  margin: 0 2.8rem 0 3.4rem;
+  overflow-y: hidden;
+  overflow-x: auto;
 }
 
 .activeTab {
   background-color: white;
-  border: 1px solid $govuk-border-colour;
+  border: 0.0625rem solid $govuk-border-colour;
   border-bottom: none;
   .tabButton {
-    padding-right: 50px;
-    padding-top: 30px;
+    padding-right: 2.5rem;
   }
 }
 .inactiveTab {
@@ -39,49 +43,49 @@
 .tabListItem {
   display: flex;
   position: relative;
-  max-width: 250px;
-  margin-right: 5px;
+  max-width: 15.625rem;
+  margin-right: 0.3125rem;
 }
 .tabButton {
-  font-family: "TransportNew", "Arial", sans-serif;
+  font-family: "Helvetica", "Arial", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
   width: 100%;
   white-space: nowrap;
-  padding: 20px;
+  padding: 1.25rem 1rem;
   font-size: 1.1875rem;
   border: none;
   background-color: transparent;
   cursor: pointer;
-  margin-bottom: 3px;
+  margin-bottom: 0.1875rem;
 
   &:focus {
-    outline: 3px solid rgba(0, 0, 0, 0);
+    outline: 0.1875rem solid rgba(0, 0, 0, 0);
     color: #0b0c0c;
     background-color: #fd0;
-    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    box-shadow: 0 -0.125rem #fd0, 0 0.25rem #0b0c0c;
   }
 }
 .tabLabel {
-  max-width: 180px;
+  max-width: 11.25rem;
   text-overflow: ellipsis;
   overflow: hidden;
 }
 
 .inactiveTab:hover {
   text-decoration: underline;
-  text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+  text-decoration-thickness: max(0.1875rem, 0.1875rem, 0.12em);
 }
 
 .tabCloseButton {
-  width: 25px;
-  height: 25px;
+  width: 1.5625rem;
+  height: 1.5625rem;
   background-color: transparent;
   position: absolute;
   border: none;
-  right: 15px;
-  top: 25px;
+  right: 0.5rem;
+  top: 1rem;
   padding: 0;
   color: white;
   cursor: pointer;
@@ -92,4 +96,63 @@
     background-color: #ffdd00;
     color: #0b0c0c;
   }
+}
+
+.arrowBtnsWrapper {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 1.22rem;
+  left: 0.3125rem;
+}
+
+.tabNextButton,
+.tabPreviousButton {
+  padding: 0.3125rem 0;
+  margin: 0;
+  width: 100%;
+  svg {
+    fill: #1d70b8;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    svg {
+      fill: #b1b4b6;
+    }
+  }
+  &:hover:not(:disabled) {
+    svg {
+      fill: #fff;
+    }
+  }
+}
+
+.tabPreviousButton {
+  svg {
+    transform: rotate(90deg);
+  }
+}
+.tabNextButton {
+  svg {
+    transform: rotate(-90deg);
+  }
+}
+
+.contentArea {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+}
+
+.tabsDropDownWrapper {
+  position: absolute;
+  top: 1.1rem;
+  right: 0.3125rem;
+}
+
+.tabsRegionLabel,
+.tabPanelRegionLabel {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
 using Aspose.Cells;
-using pdf_generator.Domain.Exceptions;
+using Common.Domain.Document;
+using Common.Extensions;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
@@ -12,24 +13,30 @@ namespace pdf_generator.Services.PdfService
 
         public CellsPdfService(IAsposeItemFactory asposeItemFactory)
         {
-            try
-            {
-                var license = new License();
-                license.SetLicense("Aspose.Total.NET.lic");
-            }
-            catch (Exception exception)
-            {
-                throw new AsposeLicenseException(exception.Message);
-            }
-
             _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
         }
 
-        public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
+        public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
         {
-            using var workbook = _asposeItemFactory.CreateWorkbook(inputStream, correlationId);
-            workbook.Save(pdfStream, new PdfSaveOptions { OnePagePerSheet = true });
-            pdfStream.Seek(0, SeekOrigin.Begin);
+            var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeCells);
+            var pdfStream = new MemoryStream();
+
+            try
+            {
+                using var workbook = _asposeItemFactory.CreateWorkbook(inputStream, correlationId);
+                workbook.Save(pdfStream, new PdfSaveOptions { OnePagePerSheet = true });
+                pdfStream.Seek(0, SeekOrigin.Begin);
+            
+                conversionResult.RecordConversionSuccess(pdfStream);
+            }
+            catch (CellsException ex)
+            {
+                inputStream?.Dispose();
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeCellsGeneralError,
+                    ex.ToFormattedString());
+            }
+            
+            return conversionResult;
         }
     }
 }

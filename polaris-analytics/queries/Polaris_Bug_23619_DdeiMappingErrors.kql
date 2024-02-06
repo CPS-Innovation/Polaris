@@ -1,0 +1,26 @@
+AppExceptions
+| where ExceptionType == "polaris_ddei.Domain.Exceptions.MappingException"
+| where OperationId in
+(
+    (
+        Polaris_Exceptions_List
+            | where IsKnownBug startswith "23498"
+            | project parse_json(OperationId)[0]
+    )
+)
+| extend ParsedStack = Details[0].parsedStack[0]
+| project
+TimeGenerated,
+OperationId,
+FileName = ParsedStack.fileName,
+Line = ParsedStack.line,
+MappingErrors = parse_json(tostring(parse_json(Properties.prop__ErrorMessage))).__meta.MappingErrors
+| mv-expand MappingError = MappingErrors
+| project
+TimeGenerated,
+OperationId,
+FileName,
+Line,
+EntityId = MappingError.EntityId,
+MessageStack= MappingError.MessageStack
+| mv-expand MessageStack

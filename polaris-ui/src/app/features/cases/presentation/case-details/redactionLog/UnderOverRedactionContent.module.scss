@@ -1,0 +1,25 @@
+.redactionTypes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  :global(.govuk-checkboxes__item) {
+    padding-right: 2.5%;
+    width: 18%;
+  }
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+}
+.underOverRedactionContent {
+  margin-bottom: 1.5625rem;
+  :global(.govuk-radios) {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.underOverCheckBoxes {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+}

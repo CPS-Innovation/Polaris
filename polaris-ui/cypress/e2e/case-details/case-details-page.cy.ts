@@ -1,4 +1,8 @@
 import { CASE_ROUTE } from "../../../src/mock-api/routes";
+import { parseISO, differenceInYears } from "date-fns";
+
+export const getAgeFromIsoDate = (isoDateString: string) =>
+  isoDateString && differenceInYears(new Date(), parseISO(isoDateString));
 
 describe("case details page", () => {
   describe("case page navigation", () => {
@@ -27,7 +31,7 @@ describe("case details page", () => {
       cy.location("search").should("eq", "?urn=12AB1111111");
     });
 
-    it("shows the unhandled error page if an unexpected error occurrs with the api", () => {
+    it("shows the unhandled error page if an unexpected error occurs with the api", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.overrideRoute(CASE_ROUTE, {
         type: "break",
@@ -57,7 +61,9 @@ describe("case details page", () => {
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
       cy.findByTestId("defendant-details").then(($details) => {
         cy.wrap($details).contains("Walsh, Steve");
-        cy.wrap($details).contains("DOB: 28 Nov 1977. Age: 45");
+        cy.wrap($details).contains(
+          `DOB: 28 Nov 1977. Age: ${getAgeFromIsoDate("1977-11-28")}`
+        );
         cy.wrap($details).contains("Youth Offender");
       });
 
@@ -150,7 +156,7 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("CASE OUTLINE");
-
+      cy.wait(500);
       cy.selectPDFTextElement("This is a DV case.");
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-warning").should("have.length", 1);
@@ -159,44 +165,6 @@ describe("case details page", () => {
       );
     });
   });
-
-  // describe("pdf viewing", () => {
-  //   it("can open a pdf", () => {
-  //     cy.visit("/case-search-results?urn=12AB1111111");
-  //     cy.visit("/case-details/12AB1111111/13401");
-  //     cy.findByTestId("btn-accordion-open-close-all").click();
-
-  //     cy.findByTestId("div-pdfviewer-0").should("not.exist");
-
-  //     cy.findByTestId("link-document-1").click();
-
-  //     cy.findByTestId("div-pdfviewer-0")
-  //       .should("exist")
-  //       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-  //   });
-
-  //   it("can open a pdf in a new tab", () => {
-  //     cy.visit("/case-details/12AB1111111/13401", {
-  //       onBeforeLoad(window) {
-  //         cy.stub(window, "open");
-  //       },
-  //     });
-
-  //     cy.findByTestId("btn-accordion-open-close-all").click();
-
-  //     cy.findByTestId("link-document-1").click();
-
-  //     cy.findByTestId("btn-open-pdf").click();
-
-  //     cy.window()
-  //       .its("open")
-  //       .should(
-  //         "be.calledWith",
-  //         "https://mocked-out-api/api/some-complicated-sas-url/MCLOVEMG3",
-  //         "_blank"
-  //       );
-  //   });
-  // });
 
   describe("Document navigation away alert modal", () => {
     it("Should show an alert modal when closing a document with active redactions", () => {
@@ -404,6 +372,13 @@ describe("case details page", () => {
       );
     });
 
+    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsDispatched`", () => {
+      openAndRedactDocument("link-document-9");
+      cy.findByTestId("redaction-warning").contains(
+        "This is a dispatched document."
+      );
+    });
+
     it("User shouldn't be allowed to view document and there should be document view warnings, if presentationFlags read status is not 'Ok'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -437,23 +412,51 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("btn-report-issue").should("exist");
-      cy.findByTestId("btn-report-issue").contains("Report an issue");
-      cy.findByTestId("btn-report-issue").click();
-      cy.findByTestId("btn-report-issue").contains("Issue reported");
-      cy.findByTestId("btn-report-issue").should("be.disabled");
+      cy.findByTestId("document-actions-dropdown-0").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "MCLOVEMG3"`);
+      cy.findByTestId("btn-report-issue-save").should("be.disabled");
+      cy.findByTestId("btn-report-issue-close").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "MCLOVEMG3"`);
+      cy.findByTestId("btn-report-issue-save").should("be.disabled");
+      cy.findByTestId("report-issue-more-details").type("hello");
+      cy.findByTestId("btn-report-issue-save").should("not.be.disabled");
+      cy.findByTestId("btn-report-issue-save").click();
+
       cy.findByTestId("div-modal")
         .should("exist")
         .contains("Thanks for reporting an issue with this document.");
-      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("btn-feedback-modal-ok").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Report an issue")
+        .should("not.exist");
+      cy.findByTestId("dropdown-panel")
+        .contains("Issue reported")
+        .should("be.disabled");
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("tab-remove").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("btn-report-issue").contains("Issue reported");
-      cy.findByTestId("btn-report-issue").should("be.disabled");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Report an issue")
+        .should("not.exist");
+      cy.findByTestId("dropdown-panel")
+        .contains("Issue reported")
+        .should("be.disabled");
     });
   });
 
@@ -475,7 +478,7 @@ describe("case details page", () => {
 
       cy.selectPDFTextElement("NORTH MARSH");
       cy.findByTestId("btn-redact").click();
-      cy.findByTestId("btn-report-issue").focus();
+      cy.findByTestId("document-actions-dropdown-0").focus();
 
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").click();
@@ -495,7 +498,8 @@ describe("case details page", () => {
       cy.selectPDFTextElement("POCA case");
       cy.findByTestId("btn-redact").click();
 
-      cy.get("#btn-report-issue").focus();
+      cy.get("#document-actions-dropdown-0").focus();
+      cy.wait(5000);
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress("Tab");
@@ -525,8 +529,8 @@ describe("case details page", () => {
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
-      cy.focused().should("have.id", "btn-link-removeAll");
-      cy.findByTestId("link-removeAll").click();
+      cy.focused().should("have.id", "btn-link-removeAll-0");
+      cy.findByTestId("btn-link-removeAll-0").click();
     });
 
     it("Should be able to tab + shift backward through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
@@ -558,7 +562,7 @@ describe("case details page", () => {
       cy.selectPDFTextElement("POCA case");
       cy.findByTestId("btn-redact").click();
 
-      cy.get("#btn-link-removeAll").focus();
+      cy.get("#btn-link-removeAll-0").focus();
       cy.realPress("Tab");
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
@@ -584,8 +588,8 @@ describe("case details page", () => {
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
 
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "btn-report-issue");
-      cy.findByTestId("link-removeAll").click();
+      cy.focused().should("have.id", "document-actions-dropdown-0");
+      cy.findByTestId("btn-link-removeAll-0").click();
     });
 
     it("Should be able to tab through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
@@ -614,7 +618,7 @@ describe("case details page", () => {
       cy.selectPDFTextElement("PC JONES");
       cy.findByTestId("btn-redact").click();
 
-      cy.get("#btn-report-issue").focus();
+      cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
@@ -637,33 +641,7 @@ describe("case details page", () => {
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("NORTH MARSH");
-      cy.findByTestId("link-removeAll").click();
-    });
-
-    it("Should be able to tab forward and backward skipping the `Report an issue` btn, if it is disabled ", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("btn-report-issue").click();
-      cy.findByTestId("btn-modal-close").click();
-      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").click();
-      cy.findByTestId("tab-remove").focus();
-      cy.realPress(["Tab"]);
-      cy.realPress(["Tab"]);
-      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
-      cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "remove-btn");
-      cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "btn-link-removeAll");
-      cy.realPress(["Shift", "Tab"]);
-      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
-      cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "panel-0");
-      cy.findByTestId("link-removeAll").click();
+      cy.findByTestId("btn-link-removeAll-0").click();
     });
 
     it("When tabbing from an unsaved redaction button, it should move the focus to remove redaction button and (shift +tab ) from remove redaction button should focus corresponding unsaved redaction button", () => {
@@ -675,7 +653,7 @@ describe("case details page", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").click();
-      cy.get("#btn-report-issue").focus();
+      cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
@@ -687,8 +665,8 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "btn-report-issue");
-      cy.findByTestId("link-removeAll").click();
+      cy.focused().should("have.id", "document-actions-dropdown-0");
+      cy.findByTestId("btn-link-removeAll-0").click();
     });
   });
 
@@ -698,10 +676,10 @@ describe("case details page", () => {
       text: string
     ) => {
       if (direction === "forward") {
-        cy.realPress(",");
+        cy.realPress(["Control", ","]);
       }
       if (direction === "backward") {
-        cy.realPress(["Shift", ","]);
+        cy.realPress(["Alt", "Control", ","]);
       }
 
       cy.window().then((win) => {
@@ -719,9 +697,9 @@ describe("case details page", () => {
       keyPressAndVerifySelection("forward", "W");
       keyPressAndVerifySelection("forward", "Y");
       keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "M");
-      keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("forward", "R");
+      keyPressAndVerifySelection("forward", "(");
+      keyPressAndVerifySelection("backward", "R");
       keyPressAndVerifySelection("backward", "P");
       keyPressAndVerifySelection("backward", "Y");
       keyPressAndVerifySelection("backward", "W");
@@ -751,7 +729,7 @@ describe("case details page", () => {
       cy.findByTestId("redaction-count-text").contains(
         "There are 2 redactions"
       );
-      cy.findByTestId("link-removeAll").click();
+      cy.findByTestId("btn-link-removeAll-0").click();
     });
 
     it("Should lock the focus on the redact btn if the btn is present, when pressing both 'shift+tab' and 'tab' and release if the redact btn is not present", () => {
@@ -761,15 +739,17 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION ");
-      cy.realPress(",");
+      cy.wait(500);
+      cy.realPress(["Control", ","]);
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Escape");
-      cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "btn-report-issue");
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "document-actions-dropdown-0");
     });
 
     it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key ',' and 'Shift'+','", () => {
@@ -780,28 +760,223 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       keyPressAndVerifySelection("forward", "W");
-      cy.realPress(",");
+      cy.realPress(["Control", ","]);
       keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
       //open the next document
       cy.findByTestId("link-document-4").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
-      cy.realPress(",");
-      cy.realPress(",");
-      cy.realPress(",");
-      cy.realPress(",");
-      keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "1");
-      keyPressAndVerifySelection("forward", "o");
-      keyPressAndVerifySelection("forward", "3");
+      cy.wait(500);
+      cy.realPress(["Control", ","]);
+      cy.realPress(["Control", ","]);
+      cy.realPress(["Control", ","]);
+      cy.realPress(["Control", ","]);
       keyPressAndVerifySelection("forward", "R");
-      keyPressAndVerifySelection("backward", "3");
-      keyPressAndVerifySelection("backward", "o");
-      keyPressAndVerifySelection("backward", "1");
+      keyPressAndVerifySelection("forward", "w");
+      keyPressAndVerifySelection("forward", "c");
+      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "6");
+      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("backward", "c");
+      keyPressAndVerifySelection("backward", "w");
+      keyPressAndVerifySelection("backward", "R");
+      //switch back to the first document
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      keyPressAndVerifySelection("forward", "W");
+      cy.realPress(["Control", ","]);
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
+    });
+  });
+
+  describe("Switch main content areas using the Period '.' key press", () => {
+    it("Should be able switch between main content areas using the Period '.' Key Press", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "document-tabs");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "side-panel");
+    });
+
+    it("Should continue from the last active content if the focus has been changed to the inner element", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "document-tabs");
+      cy.findAllByTestId("btn-tab-0").click();
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "document-tabs");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "document-actions-dropdown-0");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "side-panel");
+    });
+
+    it("Should keep the focus on side-panel, if there are no documents open  while pressing the Period '.' Key", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(["Control", "."]);
+      cy.focused().should("have.id", "side-panel");
+    });
+  });
+
+  describe("Document Tabs", () => {
+    it("The previous and next tab btn should be disabled,when there no more tabs to go on their side ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("btn-tab-previous").should("be.disabled");
+      cy.findByTestId("btn-tab-next").should("be.disabled");
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("btn-tab-previous").should("not.be.disabled");
+      cy.findByTestId("btn-tab-next").should("be.disabled");
+      cy.findByTestId("btn-tab-previous").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("btn-tab-previous").should("be.disabled");
+      cy.findByTestId("btn-tab-next").should("not.be.disabled");
+    });
+
+    it("Should disable the tabsDropdown button, if there is only one tab opened and enable if more than one tab is opened", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tabs-dropdown").should("be.disabled");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown").should("not.be.disabled");
+    });
+
+    it("Should open and close the dropdown panel, when the  dropdown button is clicked ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tabs-dropdown").should("be.disabled");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown").should("not.be.disabled");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("dropdown-panel").should("not.exist");
+    });
+
+    it("Should be able make a tab active, by clicking on the open document link buttons from the dropdown panel and link button for current active tab should be disabled", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("not.be.disabled");
+      cy.findByTestId("dropdown-panel").contains("CM01").should("be.disabled");
+      cy.findByTestId("dropdown-panel").contains("MCLOVEMG3").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("be.disabled");
+      cy.findByTestId("dropdown-panel")
+        .contains("CM01")
+        .should("not.be.disabled");
+    });
+
+    it("Should be able close the dropdown panel when you press 'escape' key  or click outside of the panel", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("not.be.disabled");
+      cy.findByTestId("dropdown-panel").contains("CM01").should("be.disabled");
+      cy.realPress("Escape");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("dropdown-panel").should("not.exist");
+    });
+  });
+
+  describe("Hte emails", () => {
+    it("Should show communication sub categories", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h2").contains("Communications").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h3").contains("Communication files").should("be.visible");
+      cy.get("h3").contains("Emails").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("h3").contains("Communication files").should("not.be.visible");
+      cy.get("h3").contains("Emails").should("not.be.visible");
+    });
+    it("Should show number of attachments in the accordion, list attachment document name  in the document attachment head and clicking on it should open the corresponding documents", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h2").contains("Communications").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h3").contains("Communication files").should("be.visible");
+      cy.get("h3").contains("Emails").should("be.visible");
+      cy.findByTestId("attachment-text-4").should("have.text", "2 attachments");
+      cy.findByTestId("link-document-4").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.findByTestId("doc-attach-btn-1").should("have.text", "MCLOVEMG3,");
+      cy.findByTestId("doc-attach-btn-2").should("have.text", "CM01");
+      cy.findByTestId("doc-attach-btn-1").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("tab-active").should("contain", "MCLOVEMG3");
+      cy.findByTestId("btn-tab-0").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.findByTestId("doc-attach-btn-2").click();
+      cy.findByTestId("tab-active").should("contain", "CM01");
+      cy.findByTestId("div-pdfviewer-2")
+        .should("exist")
+        .contains("CASE OUTLINE");
     });
   });
 });

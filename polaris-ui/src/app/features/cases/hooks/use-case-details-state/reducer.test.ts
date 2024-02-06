@@ -626,31 +626,6 @@ describe("useCaseDetailsState reducer", () => {
     });
   });
 
-  describe("OPEN_PDF_IN_NEW_TAB", () => {
-    it("can set the sasUrl of the expected document", () => {
-      const nextState = reducer(
-        {
-          tabsState: {
-            items: [{ documentId: "1" }, { documentId: "bar" }],
-          },
-        } as CombinedState,
-        {
-          type: "OPEN_PDF_IN_NEW_TAB",
-          payload: {
-            documentId: "1",
-            sasUrl: "baz",
-          },
-        }
-      );
-
-      expect(nextState).toEqual({
-        tabsState: {
-          items: [{ documentId: "1", sasUrl: "baz" }, { documentId: "bar" }],
-        },
-      });
-    });
-  });
-
   describe("OPEN_PDF", () => {
     it("can try to open a tab when the documents are unknown", () => {
       const nextState = reducer(
@@ -753,6 +728,8 @@ describe("useCaseDetailsState reducer", () => {
             pdfBlobName: "foo",
             redactionHighlights: [],
             url: "baz",
+            isDeleted: false,
+            saveStatus: "initial",
           },
         ],
         activeTabId: "",
@@ -807,7 +784,8 @@ describe("useCaseDetailsState reducer", () => {
             documentId: "1",
             clientLockedState: "unlocked",
             url: undefined,
-
+            isDeleted: false,
+            saveStatus: "initial",
             redactionHighlights: [],
             mode: "read",
           },
@@ -999,7 +977,10 @@ describe("useCaseDetailsState reducer", () => {
               "Correlation-Id": "bar1",
             } as HeadersInit,
             items: [
-              { documentId: "0", mode: "read" },
+              {
+                documentId: "0",
+                mode: "read",
+              },
               {
                 documentId: "1",
                 mode: "search",
@@ -1034,8 +1015,13 @@ describe("useCaseDetailsState reducer", () => {
                     },
                   },
                 ],
+                isDeleted: false,
+                saveStatus: "initial",
               },
-              { documentId: "2", mode: "read" },
+              {
+                documentId: "2",
+                mode: "read",
+              },
             ],
           },
           pipelineState: {},
@@ -1105,6 +1091,8 @@ describe("useCaseDetailsState reducer", () => {
                 clientLockedState: "unlocked",
                 mode: "read",
                 url: undefined,
+                isDeleted: false,
+                saveStatus: "initial",
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1248,6 +1236,8 @@ describe("useCaseDetailsState reducer", () => {
                 documentId: "1",
                 mode: "search",
                 searchTerm: "bar",
+                isDeleted: false,
+                saveStatus: "initial",
                 occurrencesInDocumentCount: 4,
                 pageOccurrences: [
                   {

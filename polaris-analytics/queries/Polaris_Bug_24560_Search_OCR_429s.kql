@@ -1,0 +1,25 @@
+Polaris_Metrics_Indexing
+
+| summarize count() by AppRoleInstance
+
+| summarize count() by bin(TimeGenerated, 5m)
+
+
+AppRequests
+| where OperationId == "4b1c4597d1df92417454fae513746951"
+
+
+AppExceptions
+| where ExceptionType contains "OcrServiceException"
+
+AppDependencies
+| where AppRoleName == "fa-polaris-text-extractor"
+| where Target == "polarisprod.cognitiveservices.azure.com"
+| summarize count(), max(ResultCode) by Name
+| summarize count(), countif(max_ResultCode == 429)
+
+
+//| where Name == "GET //vision/v3.2/read/analyzeResults/8b2ddce3-94c1-49db-a0e2-2590962fdf56"
+
+
+

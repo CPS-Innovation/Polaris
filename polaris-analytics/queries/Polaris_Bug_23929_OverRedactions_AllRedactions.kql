@@ -1,0 +1,25 @@
+let ConversionEvents = AppEvents
+| where Name == "ConvertedDocument"
+| where TimeGenerated > todatetime('2023-01-01') 
+| distinct 
+    CaseId = tolong(Properties.caseId), 
+    DocumentId = tolong(Properties.documentId), 
+    OriginalFileType = tostring(Properties.fileType)
+| where DocumentId != ""
+;
+
+let RedactionEvents = AppEvents
+| where Name == "RedactedDocument"
+| where Properties.correlationId !startswith "e2e"
+| project CaseId = tolong(Properties.caseId), DocumentId = tolong(Properties.documentId),TimeGenerated
+;
+RedactionEvents
+| join kind = leftouter ConversionEvents on DocumentId 
+| join kind = leftouter Polaris_Bug_23929_OverRedactions_DocIds on DocumentId
+| project 
+    TimeGenerated, 
+    CaseId, 
+    DocumentId, 
+    OriginalFileType = coalesce(OriginalFileType, "PDF"),
+    IsOverRedactions = DocumentId2 != "", 
+    CorruptTextLayer

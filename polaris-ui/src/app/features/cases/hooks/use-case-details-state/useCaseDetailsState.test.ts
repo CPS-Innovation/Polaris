@@ -12,11 +12,20 @@ import { act } from "react-dom/test-utils";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { CaseDetails } from "../../domain/gateway/CaseDetails";
+import {
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
+} from "../../domain/redactionLog/RedactionLogData";
 import { MemoryRouter } from "react-router-dom";
 
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
 }));
+
+jest.mock(".../../../../auth/msal/useUserGroupsFeatureFlag", () => ({
+  useUserGroupsFeatureFlag: () => jest.fn(),
+}));
+
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;
 
@@ -30,6 +39,24 @@ describe("useCaseDetailsState", () => {
         () =>
           new Promise((resolve) =>
             setTimeout(() => resolve({} as CaseDetails), 100)
+          )
+      );
+
+    const mockGetRedactionLogLookUpsData = jest
+      .spyOn(api, "getRedactionLogLookUpsData")
+      .mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({} as RedactionLogLookUpsData), 100)
+          )
+      );
+
+    const mockGetRedactionLogMappingData = jest
+      .spyOn(api, "getRedactionLogMappingData")
+      .mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({} as RedactionLogMappingData), 100)
           )
       );
 
@@ -47,6 +74,13 @@ describe("useCaseDetailsState", () => {
         return { status: "succeeded", data: "getCaseDetails" };
       }
 
+      if (isSameRef(del, mockGetRedactionLogLookUpsData)) {
+        return { status: "succeeded", data: "getRedactionLogLooksUpData" };
+      }
+
+      if (isSameRef(del, mockGetRedactionLogMappingData)) {
+        return { status: "succeeded", data: "getRedactionLogMappingData" };
+      }
       if (isSameRef(del, mockSearchCase)) {
         return {
           status: "succeeded",
@@ -85,10 +119,13 @@ describe("useCaseDetailsState", () => {
         handleRemoveRedaction,
         handleRemoveAllRedactions,
         handleSavedRedactions,
-        handleOpenPdfInNewTab,
         handleTabSelection,
         handleCloseErrorModal,
         handleUnLockDocuments,
+        handleShowHideDocumentIssueModal,
+        handleShowRedactionLogModal,
+        handleSaveRedactionLog,
+        handleHideRedactionLogModal,
         ...stateProperties
       } = result.current;
 
@@ -278,29 +315,6 @@ describe("useCaseDetailsState", () => {
     });
   });
   describe("async action handlers", () => {
-    it("can open a pdf in a new tab", () => {
-      const mockHandler = jest.fn();
-
-      jest
-        .spyOn(reducerAsyncActionHandlers, "REQUEST_OPEN_PDF_IN_NEW_TAB")
-        .mockImplementation(() => mockHandler);
-
-      const {
-        result: {
-          current: { handleOpenPdfInNewTab },
-        },
-      } = renderHook(() => useCaseDetailsState("bar", 1), {
-        wrapper: MemoryRouter,
-      });
-
-      act(() => handleOpenPdfInNewTab("2"));
-
-      expect(mockHandler).toBeCalledWith({
-        type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: { documentId: "2" },
-      });
-    });
-
     it("can open a pdf", () => {
       const mockHandler = jest.fn();
 

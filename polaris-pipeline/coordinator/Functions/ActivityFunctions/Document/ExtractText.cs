@@ -1,11 +1,9 @@
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain;
-using coordinator.Functions.ActivityFunctions.Document;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Document
 {
@@ -15,8 +13,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         private readonly ITextExtractorClient _textExtractorClient;
 
         public ExtractText(IPolarisBlobStorageService blobStorageService,
-            ITextExtractorClient textExtractorClient,
-            ILogger<GeneratePdf> logger)
+            ITextExtractorClient textExtractorClient)
         {
             _blobStorageService = blobStorageService;
             _textExtractorClient = textExtractorClient;
@@ -27,9 +24,10 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
-            var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
+            using var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
 
             await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+                payload.CmsCaseUrn,
                 payload.CmsCaseId,
                 payload.CmsDocumentId,
                 payload.CmsVersionId,

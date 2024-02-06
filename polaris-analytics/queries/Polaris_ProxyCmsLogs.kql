@@ -1,0 +1,20 @@
+
+Polaris_ProxyCmsLogs_Core
+| where PolarisOrCmsProxy == "Polaris"
+| where PolarisOperationName != "Ping"
+| project 
+    TimeGenerated, 
+    StatusCode,
+    PolarisCorrelationId,
+    PolarisOperationName,
+    CmsUserId,
+    Verb,
+    Url,
+    RequestBytes,
+    ResponseBytes,
+    RequestTimeMs,
+    ClassicModernUiOrGraphQL,
+    _ResourceId
+
+
+

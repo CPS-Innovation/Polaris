@@ -1,10 +1,6 @@
 ﻿using Common.Constants;
-using Common.Domain.Extensions;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Health;
-using Common.Mappers;
-using Common.Mappers.Contracts;
 using Common.Validators;
 using Common.Validators.Contracts;
 using Common.Wrappers;
@@ -23,18 +19,21 @@ using Common.Telemetry.Wrappers;
 using Common.Telemetry.Wrappers.Contracts;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Net.Http.Headers;
 using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Common.Configuration;
+using Common.Telemetry.Contracts;
+using Common.Telemetry;
+using Common.Streaming;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
 namespace PolarisGateway
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : FunctionsStartup
+    internal class Startup : BaseDependencyInjectionStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
@@ -42,17 +41,12 @@ namespace PolarisGateway
             // https://stackoverflow.com/questions/54435551/invalidoperationexception-idx20803-unable-to-obtain-configuration-from-pii
             IdentityModelEventSource.ShowPII = true;
 #endif
+            var services = builder.Services;
 
-            var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-#if DEBUG
-                .SetBasePath(Directory.GetCurrentDirectory())
-#endif
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .Build();
-            builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            builder.Services.AddSingleton(_ =>
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
+            services.AddSingleton(_ =>
             {
                 // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
                 return new ConfigurationManager<OpenIdConnectConfiguration>(
@@ -60,63 +54,23 @@ namespace PolarisGateway
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
-            builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
-            builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
-            builder.Services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            builder.Services.AddTransient<IPipelineClient, PipelineClient>();
+            services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
+            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
+            services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
+            services.AddTransient<IPipelineClient, PipelineClient>();
 
-            var pipelineCoordinatorBaseUrl = GetValueFromConfig(configuration, PipelineSettings.PipelineCoordinatorBaseUrl);
-            var pipelineCoordinatorLowlevelBaseUrl = pipelineCoordinatorBaseUrl.Replace("/api", string.Empty);
-            builder.Services.AddHttpClient(nameof(PipelineClient), client =>
+            services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
-                client.BaseAddress = new Uri(pipelineCoordinatorBaseUrl);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
-            builder.Services.AddHttpClient($"Lowlevel{nameof(PipelineClient)}", client =>
-            {
-                client.BaseAddress = new Uri(pipelineCoordinatorLowlevelBaseUrl);
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, PipelineSettings.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
-            builder.Services.AddDdeiClient(configuration);
-            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-
-            BuildHealthChecks(builder);
-
-        }
-
-        // see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
-        // Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
-        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
-        {
-            builder.Services.AddHttpClient();
-
-            var pipelineCoordinator = "pipelineCoordinator";
-            Uri uri = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
-            builder.Services.AddHttpClient(pipelineCoordinator, client =>
-            {
-                string url = Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl");
-                client.BaseAddress = new Uri(url.GetBaseUrl());
-                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
-                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
-            });
-
-            var pdfFunctions = "pdfFunctions";
-            builder.Services.AddHttpClient(pdfFunctions, client =>
-            {
-                string url = Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl");
-                client.BaseAddress = new Uri(url.GetBaseUrl());
-                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
-                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
-            });
-
-            var ddeiClient = "ddeiClient";
-            builder.Services.AddHealthChecks()
-                .AddCheck<DdeiClientHealthCheck>(ddeiClient)
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator });
+            services.AddDdeiClient(Configuration);
+            services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

@@ -9,12 +9,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Dto.Tracker;
 using Common.Services.BlobStorageService.Contracts;
-using Common.Services.RenderHtmlService.Contract;
+using coordinator.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
@@ -60,7 +60,7 @@ namespace pdf_generator.tests.Functions
                     null
                 );
             _generatePdfRequest.CmsCaseId = 123456;
-            _generatePdfRequest.CmsDocumentTracker.FileExtension = ".doc";
+            _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileExtension = ".doc";
             _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test document";
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
             _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
@@ -89,8 +89,12 @@ namespace pdf_generator.tests.Functions
 
             _mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_generatePdfRequest)).Returns(new List<ValidationResult>());
             _mockDDeiClient
-                .Setup(service => service.GetDocumentAsync(_generatePdfRequest.CmsCaseUrn, _generatePdfRequest.CmsCaseId.ToString(),
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocType.DocumentCategory, _generatePdfRequest.CmsDocumentTracker.CmsDocumentId, It.IsAny<string>(), It.IsAny<Guid>()))
+                .Setup(service => service.GetDocumentFromFileStoreAsync
+                (
+                    _generatePdfRequest.CmsDocumentTracker.Path,
+                    It.IsAny<string>(),
+                    It.IsAny<Guid>())
+                )
                 .ReturnsAsync(_documentStream);
 
             _mockDurableActivityContext
@@ -102,6 +106,7 @@ namespace pdf_generator.tests.Functions
                 .Setup(client => client.ConvertToPdfAsync(
                     _generatePdfRequest.CorrelationId,
                     _generatePdfRequest.CmsAuthValues,
+                    _generatePdfRequest.CmsCaseUrn,
                     _generatePdfRequest.CmsCaseId.ToString(),
                     _generatePdfRequest.CmsDocumentId,
                     _generatePdfRequest.CmsVersionId.ToString(),
@@ -144,18 +149,6 @@ namespace pdf_generator.tests.Functions
         public async Task Run_UploadsDocumentStreamWhenFileTypeIsPdf()
         {
             _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test.pdf";
-            _mockDDeiClient
-                .Setup(service => service.GetDocumentAsync
-                (
-                    _generatePdfRequest.CmsCaseUrn,
-                    _generatePdfRequest.CmsCaseId.ToString(),
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocType.DocumentCategory,
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
-                    It.IsAny<string>(),
-                    It.IsAny<Guid>())
-                )
-                .ReturnsAsync(_documentStream);
-
             await _generatePdf.Run(_mockDurableActivityContext.Object);
 
             _mockBlobStorageService.Verify

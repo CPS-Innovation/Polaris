@@ -5,6 +5,7 @@ using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Functions.Orchestration.Functions.Case;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -21,15 +22,9 @@ namespace coordinator.Functions.DurableEntity.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
-        public static string GetOrchestrationKey(string caseId)
-        {
-            // Avoid ambiguity of name collisions between e.g "123" and "1234", as delete operation uses a prefix, e.g. "123..."
-            return $"[{caseId}]";
-        }
-
         public static string GetInstanceId(string caseId)
         {
-            return $"@{nameof(CaseDurableEntity).ToLower()}@{GetOrchestrationKey(caseId)}";
+            return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
         }
 
         [JsonProperty("transactionId")]
@@ -63,12 +58,6 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         [JsonProperty("Retrieved")]
         public float? Retrieved { get; set; }
-
-        [JsonProperty("pdfsGenerated")]
-        public float? PdfsGenerated { get; set; }
-
-        [JsonProperty("indexed")]
-        public float? Indexed { get; set; }
 
         [JsonProperty("completed")]
         public float? Completed { get; set; }
@@ -160,7 +149,8 @@ namespace coordinator.Functions.DurableEntity.Entity
                      (
                          cmsDocument.Status != DocumentStatus.Indexed ||
                          cmsDocument.CmsVersionId != incomingDocument.VersionId ||
-                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed
+                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
+                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId
                      )
                  )
                  select incomingDocument).ToList();
@@ -206,7 +196,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                     updatedDefendantsAndCharges = incomingDefendantsAndCharges;
             }
 
-            var deletedDefendantsAndCharges = (DefendantsAndCharges != null && incomingDefendantsAndCharges == null);
+            var deletedDefendantsAndCharges = DefendantsAndCharges != null && incomingDefendantsAndCharges == null;
 
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
@@ -220,18 +210,23 @@ namespace coordinator.Functions.DurableEntity.Entity
                 var trackerDocument
                     = new CmsDocumentEntity
                     (
-                        new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
-                        1,
-                        newDocument.DocumentId,
-                        newDocument.VersionId,
-                        newDocument.CmsDocType,
-                        newDocument.FileExtension,
-                        newDocument.DocumentDate,
-                        newDocument.FileName,
-                        newDocument.PresentationTitle,
-                        newDocument.IsOcrProcessed,
-                        newDocument.CategoryListOrder,
-                        newDocument.PresentationFlags
+                        polarisDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
+                        polarisDocumentVersionId: 1,
+                        cmsDocumentId: newDocument.DocumentId,
+                        cmsVersionId: newDocument.VersionId,
+                        cmsDocType: newDocument.CmsDocType,
+                        path: newDocument.Path,
+                        fileExtension: newDocument.FileExtension,
+                        cmsFileCreatedDate: newDocument.DocumentDate,
+                        cmsOriginalFileName: newDocument.FileName,
+                        presentationTitle: newDocument.PresentationTitle,
+                        isOcrProcessed: newDocument.IsOcrProcessed,
+                        isDispatched: newDocument.IsDispatched,
+                        categoryListOrder: newDocument.CategoryListOrder,
+                        polarisParentDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
+                        cmsParentDocumentId: newDocument.ParentDocumentId,
+                        witnessId: newDocument.WitnessId,
+                        presentationFlags: newDocument.PresentationFlags
                     );
 
                 CmsDocuments.Add(trackerDocument);
@@ -252,11 +247,15 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.PolarisDocumentVersionId++;
                 trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
-                trackerDocument.FileExtension = updatedDocument.FileExtension;
+                trackerDocument.Path = updatedDocument.Path;
+                trackerDocument.CmsOriginalFileExtension = updatedDocument.FileExtension;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
                 trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
+                trackerDocument.IsDispatched = updatedDocument.IsDispatched;
+                trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
+                trackerDocument.WitnessId = updatedDocument.WitnessId;
                 changedDocuments.Add(trackerDocument);
             }
 
@@ -424,12 +423,13 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.FromResult(polarisDocumentIds);
         }
 
-        public void SetOcrProcessed((string PolarisDocumentId, bool IsOcrProcessed) args)
+        public void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args)
         {
-            var (polarisDocumentId, isOcrProcessed) = args;
+            var (polarisDocumentId, isOcrProcessed, isDispatched) = args;
 
             var document = GetDocument(polarisDocumentId) as CmsDocumentEntity;
             document.IsOcrProcessed = isOcrProcessed;
+            document.IsDispatched = isDispatched;
         }
 
         public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
@@ -449,23 +449,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
         }
 
-        public void SetCaseTiming((DocumentLogType LogType, float? T) args)
-        {
-            var (logType, t) = args;
-
-            switch (logType)
-            {
-                case DocumentLogType.PdfGenerated:
-                    PdfsGenerated = t;
-                    break;
-
-                case DocumentLogType.Indexed:
-                    Indexed = t;
-                    break;
-            }
-        }
-
-
         // Only required when debugging to manually set the Tracker state
         public void SetValue(CaseDurableEntity tracker)
         {
@@ -480,20 +463,20 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = tracker.DefendantsAndCharges;
         }
 
-        [FunctionName(nameof(CaseDurableEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext context)
-        {
-            return context.DispatchAsync<CaseDurableEntity>();
-        }
-
         public Task<DateTime> GetStartTime()
         {
-            return Task.FromResult<DateTime>(Running.GetValueOrDefault());
+            return Task.FromResult(Running.GetValueOrDefault());
         }
 
         public Task<float> GetDurationToCompleted()
         {
-            return Task.FromResult<float>(Completed.GetValueOrDefault());
+            return Task.FromResult(Completed.GetValueOrDefault());
+        }
+
+        [FunctionName(nameof(CaseDurableEntity))]
+        public static Task Run([EntityTrigger] IDurableEntityContext context)
+        {
+            return context.DispatchAsync<CaseDurableEntity>();
         }
     }
 }

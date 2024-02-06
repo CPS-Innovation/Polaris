@@ -21,50 +21,6 @@ namespace pdf_generator.tests.Validators
         }
 
         [Theory]
-        [InlineData(0, false)]
-        [InlineData(12345, true)]
-        public void Validate_CaseId(long caseId, bool isValid)
-        {
-            var testRequest = _fixture.Build<RedactPdfRequestDto>()
-                .With(x => x.CaseId, caseId)
-                .Create();
-
-            var result = RedactPdfRequestValidator.TestValidate(testRequest);
-            if (isValid)
-            {
-                result.ShouldNotHaveValidationErrorFor(x => x.CaseId);
-            }
-            else
-            {
-                result.ShouldHaveValidationErrorFor(x => x.CaseId);
-            }
-        }
-
-        [Theory]
-        [InlineData(null, false)]
-        [InlineData("", false)]
-        [InlineData(" ", false)]
-        [InlineData("DAC-12345", true)]
-        [InlineData("PCD-12345", true)]
-        [InlineData("CMS-12345", true)]
-        public void Validate_DocumentId(string polarisDocumentId, bool isValid)
-        {
-            var testRequest = _fixture.Build<RedactPdfRequestDto>()
-                .With(x => x.PolarisDocumentId, new PolarisDocumentId(polarisDocumentId))
-                .Create();
-
-            var result = RedactPdfRequestValidator.TestValidate(testRequest);
-            if (isValid)
-            {
-                result.ShouldNotHaveValidationErrorFor(x => x.PolarisDocumentId.Value);
-            }
-            else
-            {
-                result.ShouldHaveValidationErrorFor(x => x.PolarisDocumentId.Value);
-            }
-        }
-
-        [Theory]
         [InlineData(null, false)]
         [InlineData("", false)]
         [InlineData(" ", false)]

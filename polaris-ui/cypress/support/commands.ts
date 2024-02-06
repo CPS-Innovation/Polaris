@@ -26,36 +26,45 @@
 import "@testing-library/cypress/add-commands";
 import { rest as mswRest } from "msw";
 
-const apiPath = (path: string) =>
-  new URL(path, Cypress.env("REACT_APP_GATEWAY_BASE_URL")).toString();
+const apiPath = (path: string, baseUrl: string) =>
+  new URL(path, baseUrl).toString();
 
-Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
-  return cy.window().then((/*window*/) => {
-    // the `window` object passed into the function does not have `msw`
-    //  attached to it - so god knows what's happening.  The ambient
-    //  `window` does have msw, so just use that.
-    const msw = (window as any).msw;
+Cypress.Commands.add(
+  "overrideRoute",
+  (
+    apiRoute,
+    response,
+    method = "get",
+    baseUrl = Cypress.env("REACT_APP_GATEWAY_BASE_URL")
+  ) => {
+    return cy.window().then((/*window*/) => {
+      // the `window` object passed into the function does not have `msw`
+      //  attached to it - so god knows what's happening.  The ambient
+      //  `window` does have msw, so just use that.
+      const msw = (window as any).msw;
 
-    msw.worker.use(
-      (msw.rest as typeof mswRest)[`${method}`](
-        apiPath(apiRoute),
-        (req, res, ctx) => {
-          switch (response.type) {
-            case "break":
-              return res.once(
-                ctx.status(response.httpStatusCode),
-                ctx.body(response.body)
-              );
-            case "delay":
-              return res.once(ctx.delay(response.timeMs));
-            default:
-              return res.once(ctx.json(response.body));
+      msw.worker.use(
+        (msw.rest as typeof mswRest)[`${method}`](
+          apiPath(apiRoute, baseUrl),
+          (req, res, ctx) => {
+            switch (response.type) {
+              case "break":
+                return res.once(
+                  ctx.delay(response.timeMs || 0),
+                  ctx.status(response.httpStatusCode),
+                  ctx.body(response.body)
+                );
+              case "delay":
+                return res.once(ctx.delay(response.timeMs));
+              default:
+                return res.once(ctx.json(response.body));
+            }
           }
-        }
-      )
-    );
-  });
-});
+        )
+      );
+    });
+  }
+);
 Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
   cy.wait(100);
   cy.get(`.textLayer span:contains(${matchString})`)
@@ -94,5 +103,16 @@ Cypress.Commands.add(
     });
   }
 );
+
+Cypress.Commands.add("trackRequestBody", (requestObject, method, pathname) => {
+  cy.window().then((win) => {
+    const worker = (window as any).msw.worker;
+    worker.events.on("request:start", (req: any) => {
+      if (req.method === method && req.url.pathname === pathname) {
+        requestObject.body = req.body;
+      }
+    });
+  });
+});
 
 export {};

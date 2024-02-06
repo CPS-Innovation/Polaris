@@ -1,0 +1,15 @@
+
+Polaris_ProxyCmsLogs_Core
+| where PolarisOperationName != "Ping"
+| summarize 
+    Total = count(),
+    Ok_200s = countif(StatusCode <=299),
+    AuthFail_302 = countif(StatusCode == 302),
+    DocTooLarge_413 = countif(StatusCode == 413),
+    ClientQuit_499 = countif(StatusCode == 499),
+    GatewayTimeout_504 = countif(StatusCode == 504),
+    _300s = countif(StatusCode >= 300 and StatusCode < 400 and StatusCode != 302), 
+    _400s = countif(StatusCode >= 400 and StatusCode < 500 and StatusCode != 413 and StatusCode != 499), 
+    _500s = countif(StatusCode >= 500 and StatusCode < 600 and StatusCode != 504)
+    by PolarisOrCmsProxy, ClassicModernUiOrGraphQL, bin(TimeGenerated, ts)
+

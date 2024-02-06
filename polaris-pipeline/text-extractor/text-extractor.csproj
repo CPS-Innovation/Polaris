@@ -9,6 +9,8 @@
     <PackageReference Include="Azure.Messaging.EventGrid" Version="4.17.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventGrid" Version="3.3.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Polly.Core" Version="8.2.1" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Handlers\" />
@@ -30,4 +32,9 @@
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+        <_Parameter1>$(MSBuildProjectName).tests</_Parameter1>
+    </AssemblyAttribute>
+</ItemGroup>
 </Project>

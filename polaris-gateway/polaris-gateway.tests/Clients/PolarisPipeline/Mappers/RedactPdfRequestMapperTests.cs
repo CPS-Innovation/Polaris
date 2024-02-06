@@ -6,8 +6,8 @@ using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.Mappers;
-using Common.Mappers.Contracts;
+using PolarisGateway.common.Mappers.Contracts;
+using PolarisGateway.Mappers;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.ValueObjects;
@@ -40,8 +40,6 @@ namespace PolarisGateway.Tests.Mappers
 
             using (new AssertionScope())
             {
-                result.CaseId.Should().Be(testCaseId);
-                result.PolarisDocumentId.Should().Be(testPolarisDocumentId);
                 result.FileName.Should().BeNullOrEmpty();
                 result.RedactionDefinitions.Should().NotBeNull();
                 result.RedactionDefinitions.Count.Should().Be(5);

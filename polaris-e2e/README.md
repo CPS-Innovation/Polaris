@@ -22,3 +22,6 @@ file e.g. `env.dev.json`. The settings in the environment-specific file are then
 - `CYPRESS_PASSWORD` - the password of the AD account, get this from someone who knows!
 
 - `CYPRESS_ENVIRONMENT` - `local`, `dev` or `qa`
+
+# CI tests
+Tests marked with the tag `@ci` will be ran as part of the CI pipeline

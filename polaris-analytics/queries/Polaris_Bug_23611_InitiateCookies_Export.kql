@@ -1,0 +1,10 @@
+Polaris_Bug_23611_InitiateCookies_All
+| where not(HasQ) or not(HasAuthCookie)
+| project 
+    TimeGenerated,
+    IsMissingAuthCookie = not(HasAuthCookie),
+    IsMissingQParameter = not(HasQ),
+    CmsUserId = UID,
+    WindowID,
+    Message
+    

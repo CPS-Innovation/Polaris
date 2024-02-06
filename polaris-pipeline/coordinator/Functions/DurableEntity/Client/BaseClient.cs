@@ -10,6 +10,8 @@ using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.ValueObjects;
 using Common.Domain.Entity;
+using Microsoft.WindowsAzure.Storage;
+using coordinator.Functions.Orchestration.Functions.Case;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -32,37 +34,40 @@ namespace coordinator.Functions.DurableEntity.Client
     {
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        protected async Task<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity CaseRefreshLogsEntity, string errorMessage)> GetCaseTrackersForEntity
+        protected async Task<(CaseDurableEntity CaseEntity, string errorMessage)> GetCaseTrackerForEntity
             (
                 IDurableEntityClient client,
-                string caseId,
-                Guid correlationId, 
-                string loggingName,
-                ILogger log
+                string caseId
             )
         {
-            var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId);
+            var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
-            var caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
+
+            EntityStateResponse<CaseDurableEntity> caseEntity = default;
+            try
+            {
+                caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
+            }
+            catch (Exception ex)
+            {
+                // #23618 - Race condition: if a case orchestrator has just been kicked off then there is a possibility that 
+                //  the entity calls that create (or reset) the entity are still queued up by the time the UI calls
+                //  this endpoint. In this scenario, a StorageException is thrown and we are told the blob does not exist.
+                //  AppInsights so far shows the orchestrator eventually executes and the entity becomes available, so
+                //  lets just let the caller have the same experience as `!caseEntity.EntityExists`.
+                // Note: the first implementation for the fix was to catch StorageException (which was what was in the App Insights logs).
+                //  Falling back to catch Exception as we are not sure if the StorageException is the only exception that can be thrown.
+                var errorMessage = $"No Case Entity found with id '{caseId}' with exception '{ex.GetType().Name}: {ex.Message}";
+                return (null, errorMessage);
+            }
 
             if (!caseEntity.EntityExists)
             {
                 var errorMessage = $"No Case Entity found with id '{caseId}'";
-                log.LogMethodFlow(correlationId, loggingName, errorMessage);
-                return (null, null, errorMessage);
+                return (null, errorMessage);
             }
 
-            var caseRefreshLogsEntityKey = CaseRefreshLogsDurableEntity.GetOrchestrationKey(caseId, caseEntity.EntityState.Version);
-            if (caseRefreshLogsEntityKey == null)
-                return (caseEntity.EntityState, null, null);
-
-            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), caseRefreshLogsEntityKey);
-            var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsDurableEntity>(caseRefreshLogsEntityId);
-
-            if(!caseRefreshLogsEntity.EntityExists)
-                return (caseEntity.EntityState, null, null);
-
-            return (caseEntity.EntityState, caseRefreshLogsEntity.EntityState, null);
+            return (caseEntity.EntityState, null);
         }
 
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
@@ -81,7 +86,6 @@ namespace coordinator.Functions.DurableEntity.Client
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
-                log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                 response.Error = new BadRequestObjectResult(correlationErrorMessage);
                 return response;
             }
@@ -90,40 +94,35 @@ namespace coordinator.Functions.DurableEntity.Client
             if (!Guid.TryParse(correlationId, out response.CorrelationId))
                 if (response.CorrelationId == Guid.Empty)
                 {
-                    log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                     response.Error = new BadRequestObjectResult(correlationErrorMessage);
                     return response;
                 }
-
-            log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
             #endregion
 
-            var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId));
+            var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
             if (!stateResponse.EntityExists)
             {
                 var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
                 response.Error = new NotFoundObjectResult(baseMessage);
                 return response;
             }
 
             CaseDurableEntity entityState = stateResponse.EntityState;
             response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
-            if(response.CmsDocument == null )
+            if (response.CmsDocument == null)
             {
                 response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId.Equals(polarisDocumentId));
 
                 if (response.PcdRequest == null)
                 {
-                    if(polarisDocumentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
+                    if (polarisDocumentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
                     {
                         response.DefendantsAndCharges = entityState.DefendantsAndCharges;
                     }
                     else
                     {
                         var baseMessage = $"No Document found with id '{polarisDocumentId}'";
-                        log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
                         response.Error = new NotFoundObjectResult(baseMessage);
                         return response;
                     }

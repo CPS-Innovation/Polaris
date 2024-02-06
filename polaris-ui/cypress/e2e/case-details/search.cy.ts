@@ -421,6 +421,9 @@ describe("Case Details Search", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("input-search-case").type("drink{enter}");
         cy.findByTestId("link-result-document-3").click();
+        cy.findByTestId("div-pdfviewer-0")
+          .should("exist")
+          .contains("Officer’s certification");
 
         // first highlight is focussed
         cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
@@ -445,6 +448,7 @@ describe("Case Details Search", () => {
 
         // focus second highlight
         cy.findByTestId("btn-focus-highlight-next").click();
+        cy.wait(500);
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
         cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
         cy.findByTestId("btn-focus-highlight-next").should("exist");
@@ -467,6 +471,7 @@ describe("Case Details Search", () => {
 
         // focus third highlight
         cy.findByTestId("btn-focus-highlight-next").click();
+        cy.wait(500);
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
         cy.findByTestId("txt-focus-highlight-numbers").contains("3/3");
         cy.findByTestId("btn-focus-highlight-next").should("not.exist");

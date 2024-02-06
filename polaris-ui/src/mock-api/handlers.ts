@@ -8,6 +8,9 @@ import devpipelinePdfResultsDataSource from "./data/pipelinePdfResults.dev";
 import cypresspipelinePdfResultsDataSource from "./data/pipelinePdfResults.cypress";
 import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
+import redactionLogDataSource from "./data/redactionLogData.dev";
+import cypressRedactionLogDataSource from "./data/redactionLogData.cypress";
+import { RedactionLogDataSource } from "./data/types/RedactionLogDataSource";
 import { SearchDataSource } from "./data/types/SearchDataSource";
 import {
   CaseDetailsDataSource,
@@ -32,6 +35,11 @@ const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
   cypress: cypressDetailsDataSource,
 };
 
+const redactionLogDataSources: { [key: string]: RedactionLogDataSource } = {
+  dev: redactionLogDataSource,
+  cypress: cypressRedactionLogDataSource,
+};
+
 const pipelinePdfResultsDataSources: {
   [key: string]: PipelinePdfResultsDataSource;
 } = {
@@ -48,6 +56,7 @@ export const setupHandlers = ({
   sourceName,
   maxDelayMs,
   baseUrl,
+  redactionLogUrl,
 }: MockApiConfig) => {
   // make sure we are reading a number not string from config
   //  also msw will not accept a delay of 0, so if 0 is passed then just set to 1ms
@@ -55,6 +64,8 @@ export const setupHandlers = ({
   const callStack = { TRACKER_ROUTE: 0, INITIATE_PIPELINE_ROUTE: 0 };
 
   const makeApiPath = (path: string) => new URL(path, baseUrl).toString();
+  const makeRedactionLogApiPath = (path: string) =>
+    new URL(path, redactionLogUrl).toString();
 
   const delay = (ctx: RestContext) =>
     ctx.delay(Math.random() * sanitisedMaxDelay);
@@ -91,8 +102,7 @@ export const setupHandlers = ({
     }),
 
     rest.put(makeApiPath(routes.SAVE_REDACTION_ROUTE), (req, res, ctx) => {
-      return res(ctx.json({}));
-      // return res(ctx.status(500));
+      return res(delay(ctx), ctx.json({}));
     }),
 
     rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
@@ -130,21 +140,28 @@ export const setupHandlers = ({
       return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
     }),
 
-    rest.get(makeApiPath(routes.GET_SAS_URL_ROUTE), (req, res, ctx) => {
-      const { documentId } = req.params;
+    rest.get(
+      makeRedactionLogApiPath(routes.REDACTION_LOG_LOOKUP_ROUTE),
+      (req, res, ctx) => {
+        const results = redactionLogDataSources[sourceName].lookUpsData;
+        return res(delay(ctx), ctx.json(results));
+      }
+    ),
 
-      const blobName = pipelinePdfResultsDataSources[
-        sourceName
-      ]()[0].documents.find(
-        (document) => document.documentId === documentId
-      )?.pdfBlobName;
+    rest.get(
+      makeRedactionLogApiPath(routes.REDACTION_LOG_MAPPING_ROUTE),
+      (req, res, ctx) => {
+        const results = redactionLogDataSources[sourceName].mappingData;
+        return res(delay(ctx), ctx.json(results));
+      }
+    ),
 
-      return res(
-        ctx.text(
-          makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName!)
-        )
-      );
-    }),
+    rest.post(
+      makeRedactionLogApiPath(routes.SAVE_REDACTION_LOG_ROUTE),
+      (req, res, ctx) => {
+        return res(delay(ctx), ctx.json({}));
+      }
+    ),
 
     rest.post(makeApiPath(routes.DOCUMENT_CHECKOUT_ROUTE), (req, res, ctx) => {
       return res(ctx.json({ successful: true, documentStatus: "CheckedOut" }));

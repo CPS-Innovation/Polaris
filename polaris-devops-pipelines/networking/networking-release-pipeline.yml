@@ -1,3 +1,4 @@
+---
 # Unified Build and Release Azure DevOps networking for the Networking and Networking-Events Terraform
 
 trigger: none
@@ -25,7 +26,7 @@ stages:
   - stage: Apply_DEV
     displayName: DEV Deployment
     pool:
-      vmImage: ubuntu-latest
+      name: $(dev-build-agent)
     jobs:
       - deployment: Networking_Terraform_Deployment
         environment: "Dev"
@@ -33,36 +34,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download dev cert
-                - task: DownloadSecureFile@1
-                  name: devVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_dev.ovpn'
-                  displayName: 'Download DEV VPN certificate for OVPN'
-
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get update
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(devVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
-                    sleep 5
-                    ifconfig
-                    echo "connected"
-                  displayName: Creating DEV VPN tunnel
-                  
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                
-                #download networking terraform build artifact
+                # download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
-                
+
                 # Terraform Init
                 - bash: |
                     terraform init \
@@ -78,7 +54,7 @@ stages:
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
                     TF_LOG: $(dev-log-level)
-                
+
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -90,7 +66,7 @@ stages:
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
-                
+
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
@@ -102,11 +78,11 @@ stages:
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
-                    
+
   - stage: Apply_QA
     displayName: QA Deployment
     pool:
-      vmImage: ubuntu-latest
+      name: $(qa-build-agent)
     jobs:
       - deployment: Networking_Terraform_Deployment
         environment: "QA"
@@ -114,36 +90,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download qa cert
-                - task: DownloadSecureFile@1
-                  name: qaVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_qa.ovpn'
-                  displayName: 'Download QA VPN certificate for OVPN'
-
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get update
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(qaVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(qaVpnCertificate.secureFilePath) --daemon
-                    sleep 5
-                    ifconfig
-                    echo "connected"
-                  displayName: Creating QA VPN tunnel
-                  
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                
-                #download networking terraform build artifact
+                # download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
-                
+
                 # Terraform Init
                 - bash: |
                     terraform init \
@@ -159,7 +110,7 @@ stages:
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
                     TF_LOG: $(qa-log-level)
-                
+
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
@@ -171,7 +122,7 @@ stages:
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
-                
+
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve qa.tfplan
@@ -187,7 +138,7 @@ stages:
   - stage: Apply_PROD
     displayName: PROD Deployment
     pool:
-      vmImage: ubuntu-latest
+      name: $(prod-build-agent)
     jobs:
       - deployment: Networking_Terraform_Deployment
         environment: "Prod"
@@ -195,36 +146,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download prod cert
-                - task: DownloadSecureFile@1
-                  name: prodVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_prod.ovpn'
-                  displayName: 'Download PROD VPN certificate for OVPN'
-
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get update
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(prodVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(prodVpnCertificate.secureFilePath) --daemon
-                    sleep 5
-                    ifconfig
-                    echo "connected"
-                  displayName: Creating PROD VPN tunnel
-                  
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                
-                #download networking terraform build artifact
+                # download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
-                
+
                 # Terraform Init
                 - bash: |
                     terraform init \
@@ -240,7 +166,7 @@ stages:
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
                     TF_LOG: $(prod-log-level)
-                
+
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
@@ -252,7 +178,7 @@ stages:
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
-                
+
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve prod.tfplan

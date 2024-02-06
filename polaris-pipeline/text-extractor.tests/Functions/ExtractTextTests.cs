@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Common.Domain.Exceptions;
-using Common.Services.CaseSearchService.Contracts;
+using Common.Dto.Response;
+using text_extractor.Services.CaseSearchService.Contracts;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Functions;
-using Common.Services.OcrService;
+using text_extractor.Services.OcrService;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Dto.Request;
@@ -22,6 +23,7 @@ using Common.Handlers.Contracts;
 using Common.Telemetry.Contracts;
 using System.IO;
 using Common.Mappers.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
 
 namespace text_extractor.tests.Functions
 {
@@ -40,8 +42,12 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ILogger<ExtractText>> _mockLogger;
 
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;
+        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Guid _correlationId;
-
+        private readonly string _caseUrn;
+        private readonly long _caseId;
+        private readonly long _versionId;
+        private readonly string _documentId;
         private readonly ExtractText _extractText;
 
         private List<ValidationResult> _validationResults;
@@ -62,8 +68,13 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockAnalyzeResults = Mock.Of<AnalyzeResults>(ctx => ctx.ReadResults == new List<ReadResult>());
             _mockTelemetryClient = new Mock<ITelemetryClient>();
+            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
 
             _correlationId = _fixture.Create<Guid>();
+            _caseUrn = _fixture.Create<string>();
+            _caseId = _fixture.Create<long>();
+            _versionId = _fixture.Create<long>();
+            _documentId = _fixture.Create<string>();
 
             _validationResults = new List<ValidationResult>();
             _mockValidatorWrapper
@@ -75,8 +86,11 @@ namespace text_extractor.tests.Functions
             _mockLogger = new Mock<ILogger<ExtractText>>();
 
             _mockSearchIndexService
-                .Setup(service => service.WaitForStoreResultsAsync(It.IsAny<AnalyzeResults>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
-                .Returns(Task.FromResult(true));
+                .Setup(service => service.WaitForStoreResultsAsync(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), _mockAnalyzeResults.ReadResults.Count))
+                .ReturnsAsync(new IndexSettledResult
+                {
+                    IsSuccess = true
+                });
 
             var mockDtoHttpRequestHeadersMapper = new Mock<IDtoHttpRequestHeadersMapper>();
 
@@ -90,7 +104,8 @@ namespace text_extractor.tests.Functions
                                 _mockExceptionHandler.Object,
                                 mockDtoHttpRequestHeadersMapper.Object,
                                 _mockLogger.Object,
-                                _mockTelemetryClient.Object);
+                                _mockTelemetryClient.Object,
+                                _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
@@ -101,7 +116,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -115,7 +130,7 @@ namespace text_extractor.tests.Functions
 
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
             _validationResults.Add(new ValidationResult("Invalid"));
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -128,7 +143,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -141,7 +156,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -150,10 +165,10 @@ namespace text_extractor.tests.Functions
         public async Task Run_StoresOcrResults()
         {
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-            await _extractText.Run(_httpRequestMessage);
+            await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
-            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CaseId, _extractTextRequest.DocumentId,
-                _extractTextRequest.VersionId, _extractTextRequest.BlobName, _correlationId));
+            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _caseId, _documentId,
+                _versionId, _extractTextRequest.BlobName, _correlationId));
         }
 
         [Fact]
@@ -163,7 +178,7 @@ namespace text_extractor.tests.Functions
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
 
             // Act
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -179,7 +194,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
 
-            var response = await _extractText.Run(_httpRequestMessage);
+            var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }

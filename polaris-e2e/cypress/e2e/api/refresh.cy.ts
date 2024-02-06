@@ -10,7 +10,7 @@ const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, PRE_SEARCH_DELAY_MS } =
 
 let routes: ApiRoutes
 
-describe("Refresh", () => {
+describe("Refresh", { tags: '@ci' }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)
@@ -77,7 +77,7 @@ describe("Refresh", () => {
           documents.some(
             ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
           ),
-          "MG 5 is presen in PHASE_1"
+          "MG 5 is present in PHASE_1"
         ).to.be.true
         expect(
           documents.some(({ cmsDocType }) => cmsDocType.documentType === "PCD"),

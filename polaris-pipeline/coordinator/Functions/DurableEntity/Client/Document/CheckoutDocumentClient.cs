@@ -40,14 +40,11 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                #region Validate-Inputs
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
                 {
-                    log.LogMethodFlow(currentCorrelationId, loggingName, $"No authentication header values specified");
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
-                #endregion
 
                 var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
 
@@ -73,20 +70,12 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                var result = await _ddeiClient.CheckoutDocument(arg);
+                var result = await _ddeiClient.CheckoutDocumentAsync(arg);
 
-                switch (result.StatusCode)
-                {
-                    case System.Net.HttpStatusCode.OK:
-                        return new OkResult();
+                return result.IsSuccess
+                    ? new OkResult()
+                    : new ConflictObjectResult(result.LockingUserName);
 
-                    case System.Net.HttpStatusCode.Conflict:
-                        var lockingUser = await result.Content.ReadAsStringAsync();
-                        return new ConflictObjectResult(lockingUser);
-
-                    default:
-                        return new StatusCodeResult(500);
-                };
             }
             catch (Exception ex)
             {

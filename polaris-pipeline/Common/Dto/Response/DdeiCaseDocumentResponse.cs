@@ -13,6 +13,9 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("presentationTitle")]
     public string PresentationTitle { get; set; }
 
+    [JsonProperty("path")]
+    public string Path { get; set; }
+
     [JsonProperty("originalFileName")]
     public string OriginalFileName { get; set; }
 
@@ -37,6 +40,15 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("isOcrProcessed")]
     public bool? IsOcrProcessed { get; set; }
 
+    [JsonProperty("isDispatched")]
+    public bool IsDispatched { get; set; }
+
     [JsonProperty("categoryListOrder")]
     public int? CategoryListOrder { get; set; }
+
+    [JsonProperty("parentId")]
+    public long? ParentId { get; set; }
+
+    [JsonProperty("witnessId")]
+    public int? WitnessId { get; set; }
 }

@@ -19,6 +19,7 @@ const searchResults: Omit<CaseSearchResult, "uniqueReferenceNumber">[] = [
   {
     id: 13401,
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -35,5 +36,6 @@ const searchResults: Omit<CaseSearchResult, "uniqueReferenceNumber">[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
 ];

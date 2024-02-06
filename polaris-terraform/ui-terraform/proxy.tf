@@ -7,6 +7,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   location                      = azurerm_resource_group.rg_polaris.location
   service_plan_id               = azurerm_service_plan.asp_polaris_proxy.id
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_proxy_subnet.id
+  public_network_access_enabled = false
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -27,27 +28,29 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.proxy_scale_controller
-    "UPSTREAM_CMS_IP"                                 = var.cms_details.upstream_cms_ip
-    "UPSTREAM_CMS_MODERN_IP"                          = var.cms_details.upstream_cms_modern_ip
+    "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
+    "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
+    "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
+    "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"              = var.cms_details.upstream_cms_modern_ip_farnborough
     "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
     "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"               = var.cms_details.upstream_cms_services_domain_name
     "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
-    "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
+    "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
     "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
-    "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "DOCKER_REGISTRY_SERVER_URL"                      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
     "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD"                 = data.azurerm_container_registry.polaris_container_registry.admin_password
+    "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
+    "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
   }
 
   site_config {

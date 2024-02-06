@@ -1,0 +1,14 @@
+
+
+AppDependencies
+| where AppRoleName == "fa-polaris-coordinator"
+| where DependencyType == "HTTP"
+| where Name == "POST /api/extract"
+| summarize 
+    FailedCount = countif(not(Success)),
+    TotalCount = count() 
+ by 
+    bin(TimeGenerated, ts)
+| project 
+    TimeGenerated,
+    FailRatePercentage = round(100.0 * FailedCount/ TotalCount, 2)

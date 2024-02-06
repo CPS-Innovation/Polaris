@@ -3,8 +3,8 @@ import { AsyncActionHandlers } from "use-reducer-async";
 import {
   cancelCheckoutDocument,
   checkoutDocument,
-  getPdfSasUrl,
   saveRedactions,
+  saveRedactionLog,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
@@ -12,6 +12,8 @@ import { mapRedactionSaveRequest } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
+import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -50,16 +52,17 @@ type AsyncActions =
       };
     }
   | {
+      type: "SAVE_REDACTION_LOG";
+      payload: {
+        redactionLogRequestData: RedactionLogRequestData;
+        redactionLogType: RedactionLogTypes;
+      };
+    }
+  | {
       type: "REQUEST_OPEN_PDF";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
         mode: CaseDocumentViewModel["mode"];
-      };
-    }
-  | {
-      type: "REQUEST_OPEN_PDF_IN_NEW_TAB";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
       };
     }
   | {
@@ -74,22 +77,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
   Reducer<State, Action>,
   AsyncActions
 > = {
-  REQUEST_OPEN_PDF_IN_NEW_TAB:
-    ({ dispatch, getState }) =>
-    async (action) => {
-      const {
-        payload: { documentId },
-      } = action;
-
-      const { urn, caseId } = getState();
-
-      const sasUrl = await getPdfSasUrl(urn, caseId, documentId);
-
-      dispatch({
-        type: "OPEN_PDF_IN_NEW_TAB",
-        payload: { documentId, sasUrl },
-      });
-    },
   REQUEST_OPEN_PDF:
     ({ dispatch }) =>
     async (action) => {
@@ -286,9 +273,26 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         documentId,
         redactionHighlights
       );
+      const savedRedactionTypes = redactionHighlights.map(
+        (highlight) => highlight.redactionType!
+      );
       try {
+        dispatch({
+          type: "SAVING_REDACTION",
+          payload: { documentId, saveStatus: "saving" },
+        });
+        dispatch({
+          type: "SHOW_REDACTION_LOG_MODAL",
+          payload: {
+            type: RedactionLogTypes.UNDER,
+            savedRedactionTypes: savedRedactionTypes,
+          },
+        });
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
-
+        dispatch({
+          type: "SAVING_REDACTION",
+          payload: { documentId, saveStatus: "saved" },
+        });
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
           payload: { documentId },
@@ -311,6 +315,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             title: "Something went wrong!",
             message: "Failed to save redaction. Please try again later.",
           },
+        });
+        dispatch({
+          type: "SAVING_REDACTION",
+          payload: { documentId, saveStatus: "error" },
+        });
+        dispatch({
+          type: "HIDE_REDACTION_LOG_MODAL",
         });
       }
 
@@ -336,5 +347,34 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       );
 
       Promise.allSettled(requests);
+    },
+
+  SAVE_REDACTION_LOG:
+    ({ dispatch }) =>
+    async (action) => {
+      const {
+        payload: { redactionLogRequestData, redactionLogType },
+      } = action;
+      try {
+        await saveRedactionLog(redactionLogRequestData);
+
+        dispatch({
+          type: "HIDE_REDACTION_LOG_MODAL",
+        });
+      } catch (e) {
+        dispatch({
+          type: "HIDE_REDACTION_LOG_MODAL",
+        });
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Something went wrong!",
+            message:
+              redactionLogType === RedactionLogTypes.UNDER_OVER
+                ? "The entries into the Redaction Log have failed. Please try again in the Casework App, or go to the Redaction Log app and enter manually."
+                : "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually.",
+          },
+        });
+      }
     },
 };

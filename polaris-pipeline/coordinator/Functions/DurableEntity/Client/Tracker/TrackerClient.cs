@@ -44,7 +44,6 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
-                    log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                     return new BadRequestObjectResult(correlationErrorMessage);
                 }
 
@@ -52,25 +51,21 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 if (!Guid.TryParse(correlationId, out currentCorrelationId))
                     if (currentCorrelationId == Guid.Empty)
                     {
-                        log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
-                log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
                 #endregion
 
-                var (caseEntity, caseRefreshLogsEntity, errorMessage) = await GetCaseTrackersForEntity(client, caseId, currentCorrelationId, loggingName, log);
+                var (caseEntity, errorMessage) = await GetCaseTrackerForEntity(client, caseId);
 
-                if(errorMessage != null)
+                if (errorMessage != null)
                 {
-                    log.LogMethodFlow(currentCorrelationId, loggingName, errorMessage);
                     return new NotFoundObjectResult(errorMessage);
                 }
 
                 switch (req.Method.Method)
                 {
                     case "GET":
-                        log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                        var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
+                        var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
                         return new OkObjectResult(trackerDto);
 
                     default:

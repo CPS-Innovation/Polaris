@@ -29,6 +29,7 @@ describe("Refresh via guid-controlled ", () => {
     cy.findByTestId("pdfTab-spinner-0").should("not.exist")
     cy.findByTestId("div-pdfviewer-0").should("exist")
     cy.selectPDFTextElement("Four")
+    
   })
 })
 

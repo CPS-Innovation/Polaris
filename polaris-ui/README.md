@@ -14,6 +14,7 @@ Note the following target the deployed dev azure gateway, if you want to target 
 - `REACT_APP_CLIENT_ID` - search for as-web-polaris-dev in Azure Active Directory, the client ID of that App Registration goes here
 - `REACT_APP_TENANT_ID` - CPS AAD tentant Idm, unless something big happens at CPS this will be `00dd0d1d-d7e6-4338-ac51-565339c7088c`
 - `REACT_APP_GATEWAY_BASE_URL` - this will be `https://fa-polaris-dev-gateway.azurewebsites.net`
+- `REACT_APP_REDACTION_LOG_BASE_URL` - this will be `https://fa-redaction-log-dev-reporting.azurewebsites.net`
 - `REACT_APP_GATEWAY_SCOPE` - this will be `https://CPSGOVUK.onmicrosoft.com/fa-polaris-dev-gateway/user_impersonation`
 
 ## Dev/Test Settings
@@ -34,4 +35,4 @@ Note the following target the deployed dev azure gateway, if you want to target 
 - using `cypress` for integration testing
   - e2e tests, and where cypress kicks off in the pipelines?
 - `prettier` - as per https://prettier.io/docs/en/install.html#summary keep the version number in `package.json` fixed to avoid formatting differences between devs
-- pinned `faker` because of maintainer withdrawing code
+- pinned `faker` because of maintainer withdrawing code.

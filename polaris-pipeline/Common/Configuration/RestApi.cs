@@ -16,21 +16,27 @@ namespace Common.Configuration
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
-        public const string DocumentSasUrl = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sas-url";
 
         // Admin
         public const string ResetDurableState = "maintenance/resetDurableState";
 
         // Other
         public const string AuthInitialisation = "init";
-        public const string Health = "health";
         public const string Status = "status";
+        public const string GetHostName = "gethostname";
 
         // Internal Pipeline
-        public const string Search = "search";
-        public const string Extract = "extract";
-        public const string ConvertToPdf = "convert-to-pdf";
-        public const string RedactPdf = "redact-pdf";
+        public const string Search = "urns/{caseUrn}/cases/{caseId}/search";
+        public const string Extract = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
+        public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
+        public const string RedactPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
+        public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
+        public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
+
+#if SCALABILITY_TEST
+        public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";
+        public const string ScalabilityTestTracker = "cases/{caseId}/scalability-test/tracker";
+#endif
 
         public static string GetCasePath(string caseUrn, long caseId)
         {
@@ -62,12 +68,6 @@ namespace Common.Configuration
             return url;
         }
 
-        public static string GetDocumentSasPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
-        {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sas-url";
-            return url;
-        }
-
         public static string GetInstancePath(string instanceId)
         {
             var url = $"runtime/webhooks/durabletask/instances/{instanceId}";
@@ -78,6 +78,41 @@ namespace Common.Configuration
         {
             var url = $"runtime/webhooks/durabletask/entities/{durableEntityType}/{instanceId}";
             return url;
+        }
+
+        public static string GetInstancesPath()
+        {
+            return "runtime/webhooks/durabletask/instances";
+        }
+
+        public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
+        }
+
+        public static string GetExtractPath(string caseUrn, long caseId, string documentId, long versionId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
+        }
+
+        public static string GetRemoveCaseIndexesPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
+        }
+
+        public static string GetWaitForCaseEmptyResultsPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
+        }
+
+        public static string GetSearchPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/search";
+        }
+
+        public static string GetRedactPdfPath(string caseUrn, string caseId, string documentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
     }
 }

@@ -51,21 +51,16 @@ export const SearchBox: React.FC<Props> = ({
           className: "govuk-label--s",
           htmlFor: id,
         }}
-        suffix={{
-          children: (
-            <button
-              aria-label="Search"
-              data-testid={dataTestId && `btn-${dataTestId}`}
-              className={classes.button}
-              type="submit"
-              onClick={handleSearch}
-            >
-              <SearchIcon width={"20px"} height={"20px"} />
-            </button>
-          ),
-          className: classes.suffix,
-        }}
       />
+      <button
+        aria-label="Search"
+        data-testid={dataTestId && `btn-${dataTestId}`}
+        className={classes.button}
+        type="submit"
+        onClick={handleSearch}
+      >
+        <SearchIcon width={"1.25rem"} height={"1.25rem"} />
+      </button>
     </div>
   );
 };

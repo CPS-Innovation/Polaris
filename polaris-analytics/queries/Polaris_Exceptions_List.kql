@@ -1,0 +1,144 @@
+let isKnownBug = (
+    method: dynamic, 
+    exceptionType: dynamic, 
+    outerMessage: dynamic, 
+    innermostMessage:dynamic, 
+    operationName: dynamic, 
+    cmsStatusCode: dynamic,
+    urn: dynamic,
+    loadBalancedDestination: dynamic ) {
+
+    let me = tostring(method);
+    let et = tostring(exceptionType);
+    let om = tostring(outerMessage);
+    let im = tostring(innermostMessage);
+    let op = tostring(operationName);
+    let csc = tostring(cmsStatusCode);
+    let u = tostring(urn);
+    let lbd = tostring(loadBalancedDestination);
+
+    case(
+                csc contains "502",
+        "BadGateway - proxy cannot reach CMS",
+                op contains "Ping",
+        "Ping - Ping failure",
+    
+                om contains "System.OutOfMemoryException" and op contains "ConvertToPdf",
+        "24379 - System.OutOfMemoryException in Pdf Generator",
+
+                me contains "Ddei.Mappers.CaseDetailsMapper.FindHeadlineCharge",
+        "24083 - Headline charge mapping error",
+
+                op contains "RedactPdf"
+        and om contains "At most 4 elements (for any collection) can be viewed in evaluation mode",
+        "22794 - Aspose 4 elements",
+
+                im contains "aspose" and im contains "expired" and (im contains "licence" or im contains "license"),
+        "ASPOSE - Aspose licence has expired",
+
+                csc contains "302" and u contains "InitiateCookies",
+        "23611 - Auth fail InitiateCookies",
+
+                csc contains "302" and u notcontains "InitiateCookies",
+        "23613 - Auth fail CMS post-InitiateCookies",
+
+                csc contains "413",
+        "22626 - Upload document too large",
+
+                om contains "Expected UID cookie value not found",
+        "23617 - UserId not found InitiateCookies",
+
+               csc contains "504" or im contains "GatewayTimeout",
+        "23687 - Gateway Timeouts to Cms Modern",
+
+               csc contains "503",
+        "23614 - CMS/Proxy Service Unavailble",
+
+                lbd contains '""' and csc != "",
+        "23619 - Load balancing wrong",
+        
+                op contains "/polaris-ui"
+        and om contains "Uncaught TypeError: Cannot read properties of undefined (reading 'rotation')",
+        "22624 - UI Rotation",
+
+            op contains "ExtractText"
+        and (om contains "The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing."
+                or 
+             om contains "Search index update failed, timeout waiting for indexation validation")
+                or om contains "Exception while executing function: ExtractText", 
+        "23495 - Search Index",
+
+            op contains "ExtractText"
+        and om contains "Operation returned an invalid status code 'BadRequest'", 
+        "23496 - ComputerVision Bad Request",
+
+            op contains "PolarisPipelineCase"
+        and om contains "An Orchestration instance with the status Running already exists",
+        "22956 - Orchestration Running",
+
+            (me contains "MapCaseDetails"
+        and im contains "Value cannot be null.") or om contains "Mapping error(s) found", 
+         "23498 - Mapping Case/Document Details",
+
+            op contains "GeneratePdf"
+        and me contains "ConvertToPdfAsync"
+        and (et contains "HttpRequestException" or et contains "SocketException"),
+        "23502 - Convert Pdf 500 Errors (e.g. image export)",
+
+            op contains "GeneratePdf"
+        and im contains "'HTM'",
+        "23615 - HTM document conversion",
+
+            op contains "GeneratePdf"
+        and im contains "'MHT'",
+        "24091 - HTM document conversion",
+
+            op contains "RedactPdf"
+        and om contains "ConversionLog.xml' is denied",
+        "23505 - Redact Conversion.log access denied",
+
+            op contains "PolarisPipelineGetCaseTracker"
+        and im contains "The specified blob does not exist",
+        "23618 - Blob does not exist",
+
+            (csc == '' or csc == 200 or csc == 401) and et contains "GraphQL.Client.Http.GraphQLHttpRequestException",
+        "23616 - Auth fail CmsModern post-InitiateCookies",
+
+            me contains "Netherite" and om contains "Timeout",
+        "23754 - Netherite timeouts",
+
+            op contains "SlidingCaseClearDown" and (om contains "Timeout" or om contains "502"),
+        "23755 - SlidingCaseClearDown timeouts",
+
+            op contains "GeneratePdf" and im contains "Requested value" and im contains "was not found.",
+        "24381 - Pdf Conversion on unknown file type",
+
+            op contains "ListDocuments" and om contains "Error converting value {null} to type 'System.Int32'. Path 'data.attachments",
+        "24539 - DDEI statement.witness mapping error",
+            im contains "Connection reset by peer" and op contains "GeneratePdf",
+        "24709 - Pdf generator rejects coordinator http connection",
+            et contains "Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException",
+        "24710 - AD token expiry",
+            op contains "PolarisPipelineSaveDocumentRedactions",
+        "24767 - Save Redactions(unclassified elsewhere)",
+    "");
+};
+
+Polaris_Exceptions_Core
+| where not (tostring(CmsStatusCode) contains "302" and tostring(LoadBalancedDestination) contains '""')
+| where not (
+    tostring(OuterMessage) contains "Cms Modern" 
+    and tostring(OuterMessage) notcontains "ServiceUnavailable" 
+    and strcmp(format_datetime(EarliestExceptionTimeGenerated, 'yyyy-MM-dd-HH:mm'), '2023-08-30-10:09') < 0
+)
+| extend 
+    IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination )
+
+// filter out known fixes
+| where not (IsKnownBug startswith("22624")) 
+    // known incidents of 23614
+| where not (PolarisCorrelationId in ('aa8cdd9f-c04f-4ee0-ac24-ead4babdace3', 'b914e3cb-8410-488e-be53-1aad352451e6'))
+    // historical Aspose licence errors
+| where not (IsKnownBug startswith "ASPOSE" and strcmp(format_datetime(EarliestExceptionTimeGenerated, 'yyyy-MM-dd-HH:mm'), '2023-09-07-10:00') < 0)
+| where InnermostMessage notcontains "HTE" and OuterMessage notcontains "HTE" 
+

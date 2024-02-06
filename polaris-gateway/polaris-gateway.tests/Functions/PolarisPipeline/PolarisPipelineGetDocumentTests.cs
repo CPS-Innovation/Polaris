@@ -56,7 +56,8 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
                 .ReturnsAsync(_blobStream);
 
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
-            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterUserName(It.IsAny<string>()));
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterCorrelationId(It.IsAny<Guid>()));
 
             _polarisPipelineGetPdf = new PolarisPipelineGetDocument(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
@@ -114,15 +115,15 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         {
             var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value);
 
-            response.Should().BeOfType<OkObjectResult>();
+            response.Should().BeOfType<FileStreamResult>();
         }
 
         [Fact]
         public async Task Run_ReturnsBlobStream()
         {
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as OkObjectResult;
+            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as FileStreamResult;
 
-            response?.Value.Should().Be(_blobStream);
+            response.FileStream.Should().BeSameAs(_blobStream);
         }
 
         [Fact]

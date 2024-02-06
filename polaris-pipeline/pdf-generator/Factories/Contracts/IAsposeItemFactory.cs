@@ -5,6 +5,7 @@ using Aspose.Diagram;
 using Aspose.Email;
 using Aspose.Slides;
 using Aspose.Words;
+using Image = Aspose.Imaging.Image;
 
 namespace pdf_generator.Factories.Contracts
 {
@@ -20,13 +21,15 @@ namespace pdf_generator.Factories.Contracts
 
 		public Aspose.Pdf.Document CreateHtmlDocument(Stream inputStream, Guid correlationId);
 
-		public Aspose.Imaging.Image CreateImage(Stream inputStream, Guid correlationId);
+		public Image CreateImage(Stream inputStream, Guid correlationId);
 
 		public Presentation CreatePresentation(Stream inputStream, Guid correlationId);
 
 		public Document CreateWordsDocument(Stream inputStream, Guid correlationId);
 
 		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId);
+
+		public Aspose.Pdf.Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId);
 	}
 }
 

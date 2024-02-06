@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Domain.Extensions;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Logging;
-using Common.Services.DocumentToggle;
+using coordinator.Services.DocumentToggle;
 using coordinator.Domain;
 using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.ActivityFunctions.Case
@@ -21,17 +21,20 @@ namespace coordinator.Functions.ActivityFunctions.Case
         private readonly IDdeiClient _ddeiClient;
         private readonly IDocumentToggleService _documentToggleService;
         private readonly ILogger<GetCaseDocuments> _log;
+        private readonly IConfiguration _configuration;
 
         const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
 
         public GetCaseDocuments(
                  IDdeiClient ddeiClient,
                  IDocumentToggleService documentToggleService,
-                 ILogger<GetCaseDocuments> logger)
+                 ILogger<GetCaseDocuments> logger,
+                 IConfiguration configuration)
         {
             _ddeiClient = ddeiClient;
             _documentToggleService = documentToggleService;
             _log = logger;
+            _configuration = configuration;
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
@@ -52,13 +55,11 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 throw new ArgumentException("CorrelationId must be valid GUID");
             #endregion
 
-            _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             CmsDocumentDto[] documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
-            var cmsDocuments =
-                documents
-                    .Select(doc => MapPresentationFlags(doc))
-                    .ToArray();
+            var cmsDocuments = documents
+                .Select(doc => MapPresentationFlags(doc))
+                .ToArray();
 
             var caseArgDto = new DdeiCmsCaseArgDto
             {
@@ -67,10 +68,9 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 CmsAuthValues = payload.CmsAuthValues,
                 CorrelationId = payload.CorrelationId
             };
-            var @case = await _ddeiClient.GetCase(caseArgDto);
+            var @case = await _ddeiClient.GetCaseAsync(caseArgDto);
 
-            var pcdRequests =
-                @case.PreChargeDecisionRequests
+            var pcdRequests = @case.PreChargeDecisionRequests
                        .Select(MapPresentationFlags)
                        .ToArray();
 

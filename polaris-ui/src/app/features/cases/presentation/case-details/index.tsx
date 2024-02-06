@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import {
@@ -30,7 +30,14 @@ import {
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { SURVEY_LINK } from "../../../../config";
+import {
+  SURVEY_LINK,
+  FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
+} from "../../../../config";
+import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
+import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
+import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
+import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -50,6 +57,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     pipelineRefreshData,
     errorModal,
+    documentIssueModal,
+    redactionLog,
+    featureFlags,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -62,9 +72,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveRedaction,
     handleRemoveAllRedactions,
     handleSavedRedactions,
-    handleOpenPdfInNewTab,
+    handleSaveRedactionLog,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleShowHideDocumentIssueModal,
+    handleShowRedactionLogModal,
+    handleHideRedactionLogModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -74,6 +87,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     navigationUnblockHandle,
     unSavedRedactionDocs,
   } = useNavigationAlert(tabsState.items);
+
+  useSwitchContentArea();
+  useDocumentFocus(tabsState.activeTabId);
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {
@@ -113,6 +129,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
+  const getActiveTabDocument = useMemo(() => {
+    return tabsState.items.find(
+      (item) => item.documentId === tabsState.activeTabId
+    )!;
+  }, [tabsState.activeTabId, tabsState.items]);
+
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
@@ -128,7 +150,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   return (
     <>
       {errorModal.show && (
-        <Modal isVisible handleClose={handleCloseErrorModal} type="alert">
+        <Modal
+          isVisible
+          handleClose={handleCloseErrorModal}
+          type="alert"
+          ariaLabel="Error Modal"
+          ariaDescription={errorModal.title}
+        >
           <ErrorModalContent
             title={errorModal.title}
             message={errorModal.message}
@@ -143,6 +171,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             setShowAlert(false);
           }}
           type="alert"
+          ariaLabel="Unsaved redaction warning modal"
+          ariaDescription="You are navigating away from documents with unsaved redactions"
         >
           <NavigationAwayAlertContent
             type="casefile"
@@ -159,10 +189,21 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleOpenPdf={(params) => {
               setShowAlert(false);
               handleOpenPdf({ ...params, mode: "read" });
-              handleTabSelection(params.documentId);
             }}
           />
         </Modal>
+      )}
+
+      {documentIssueModal.show && (
+        <ReportAnIssueModal
+          documentId={getActiveTabDocument?.documentId!}
+          presentationTitle={getActiveTabDocument?.presentationTitle!}
+          polarisDocumentVersionId={
+            getActiveTabDocument?.polarisDocumentVersionId!
+          }
+          correlationId={pipelineState?.correlationId}
+          handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
+        />
       )}
       {searchState.isResultsVisible && (
         <ResultsModal
@@ -178,43 +219,84 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleUpdateFilter,
             handleOpenPdf: (caseDoc) => {
               handleOpenPdf(caseDoc);
-              handleTabSelection(caseDoc.documentId);
             },
           }}
         />
       )}
-      <PhaseBanner
-        className={classes["phaseBanner"]}
-        data-testid="feedback-banner"
-      >
-        Your{" "}
-        <a
-          className="govuk-link"
-          href={SURVEY_LINK}
-          target="_blank"
-          rel="noreferrer"
-        >
-          feedback (opens in a new tab)
-        </a>{" "}
-        will help us to improve this service.
-      </PhaseBanner>
-      <BackLink
-        to={backLinkProps.to}
-        onClick={() => trackEvent("Back to Case Search Results")}
-      >
-        {backLinkProps.label}
-      </BackLink>
 
+      {redactionLog.showModal &&
+        redactionLog.redactionLogLookUpsData.status === "succeeded" && (
+          <RedactionLogModal
+            redactionLogType={redactionLog.type}
+            caseUrn={caseState.data.uniqueReferenceNumber}
+            isCaseCharged={caseState.data.isCaseCharged}
+            owningUnit={caseState.data.owningUnit}
+            documentName={getActiveTabDocument.presentationFileName}
+            cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
+            additionalData={{
+              originalFileName: getActiveTabDocument.cmsOriginalFileName,
+              documentId: getActiveTabDocument.cmsDocumentId,
+              documentType: getActiveTabDocument.cmsDocType.documentType,
+              fileCreatedDate: getActiveTabDocument.cmsFileCreatedDate,
+            }}
+            savedRedactionTypes={redactionLog.savedRedactionTypes}
+            saveStatus={getActiveTabDocument.saveStatus}
+            redactionLogLookUpsData={redactionLog.redactionLogLookUpsData.data}
+            handleSaveRedactionLog={handleSaveRedactionLog}
+            redactionLogMappingsData={
+              redactionLog.redactionLogMappingData.status === "succeeded"
+                ? redactionLog.redactionLogMappingData.data
+                : null
+            }
+            handleHideRedactionLogModal={handleHideRedactionLogModal}
+            defaultLastFocus={
+              document.querySelector("#active-tab-panel") as HTMLElement
+            }
+          />
+        )}
+      <nav>
+        <PhaseBanner
+          className={classes["phaseBanner"]}
+          data-testid="feedback-banner"
+        >
+          Your{" "}
+          <a
+            className="govuk-link"
+            href={SURVEY_LINK}
+            target="_blank"
+            rel="noreferrer"
+          >
+            feedback (opens in a new tab)
+          </a>{" "}
+          will help us to improve this service.
+        </PhaseBanner>
+        <BackLink
+          to={backLinkProps.to}
+          onClick={() => trackEvent("Back to Case Search Results")}
+        >
+          {backLinkProps.label}
+        </BackLink>
+      </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
           <div
-            className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn}`}
+            role="region"
+            aria-labelledby="side-panel-region-label"
+            id="side-panel"
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+            tabIndex={0}
+            className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
           >
+            <span
+              id="side-panel-region-label"
+              className={classes.sidePanelLabel}
+            >
+              Case navigation panel
+            </span>
             <div>
               <KeyDetails
                 handleOpenPdf={() => {
                   handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
-                  handleTabSelection(dacDocumentId);
                 }}
                 caseDetails={caseState.data}
                 isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
@@ -242,7 +324,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   accordionState={accordionState.data}
                   handleOpenPdf={(caseDoc) => {
                     handleOpenPdf({ ...caseDoc, mode: "read" });
-                    handleTabSelection(caseDoc.documentId);
                   }}
                 />
               )}
@@ -255,6 +336,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
+                redactionTypesData={
+                  redactionLog.redactionLogLookUpsData.status === "succeeded"
+                    ? redactionLog.redactionLogLookUpsData.data.missedRedactions
+                    : []
+                }
                 isOkToSave={pipelineState.status === "complete"}
                 tabsState={tabsState}
                 savedDocumentDetails={pipelineRefreshData.savedDocumentDetails}
@@ -265,11 +351,20 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleRemoveRedaction={handleRemoveRedaction}
                 handleRemoveAllRedactions={handleRemoveAllRedactions}
                 handleSavedRedactions={handleSavedRedactions}
-                handleOpenPdfInNewTab={handleOpenPdfInNewTab}
+                handleOpenPdf={handleOpenPdf}
                 handleUnLockDocuments={handleUnLockDocuments}
+                handleShowHideDocumentIssueModal={
+                  handleShowHideDocumentIssueModal
+                }
+                handleShowRedactionLogModal={handleShowRedactionLogModal}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}
+                showOverRedactionLog={
+                  redactionLog.redactionLogLookUpsData.status === "succeeded"
+                    ? FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
+                    : false
+                }
               />
             )}
           </div>

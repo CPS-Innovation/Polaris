@@ -8,18 +8,28 @@ type Props = {
 export const RedactionWarning: React.FC<Props> = ({ documentWriteStatus }) => {
   const getWarningText = (documentWriteStatus: PresentationFlags["write"]) => {
     switch (documentWriteStatus) {
+      case "IsRedactionServiceOffline":
+        return "Redaction is currently unavailable and undergoing maintenance.";
       case "OnlyAvailableInCms":
         return "This document can only be redacted in CMS.";
       case "DocTypeNotAllowed":
         return "Redaction is not supported for this document type.";
       case "OriginalFileTypeNotAllowed":
         return "Redaction is not supported for this file type.";
+      case "IsDispatched":
+        return "This is a dispatched document.";
       case "IsNotOcrProcessed":
         return "Awaiting OCR processing in CMS. Please try again later for redaction.";
+      case "AttachmentCategoryNotAllowed":
+        return "This document is an email attachment. It must be housekept before it can be redacted.";
     }
   };
   return (
-    <div className={classes.redactionWarning} data-testid="redaction-warning">
+    <div
+      className={classes.redactionWarning}
+      data-testid="redaction-warning"
+      aria-live="polite"
+    >
       {getWarningText(documentWriteStatus)}
     </div>
   );

@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { Layout } from "./common/presentation/layout/Layout";
 import { Redirect, Route, Switch, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import CaseSearch, {
   path as caseSearchPath,
@@ -39,16 +40,26 @@ export const Routes: FC = () => {
     <Switch>
       <Route path={caseSearchPath}>
         <Layout>
+          <Helmet>
+            {" "}
+            <title>Casework App case search page</title>
+          </Helmet>
           <CaseSearch />
         </Layout>
       </Route>
       <Route path={caseSearchResultsPath}>
         <Layout>
+          <Helmet>
+            <title>Casework App case search result page</title>
+          </Helmet>
           <CaseSearchResults backLinkProps={{ to: caseSearchPath }} />
         </Layout>
       </Route>
       <Route path={casePath}>
         <Layout isWide>
+          <Helmet>
+            <title>Casework App case details page</title>
+          </Helmet>
           <Case
             backLinkProps={{
               // Typically the user will be on the case details page having navigated through the

@@ -6,46 +6,52 @@
   display: inline;
   background: transparent;
   border-width: 0;
-  font-size: 16px;
+  font-size: 1rem;
   color: #005ea5;
   cursor: pointer;
-  padding: 14px 10px 12px 10px;
-  margin-bottom: 4px;
+  padding: 0.875rem 0.625rem 0.75rem 0.625rem;
+  margin-bottom: 0.25rem;
+
   &:focus {
-    outline: 3px solid rgba(0, 0, 0, 0);
+    outline: 0.1875rem solid rgba(0, 0, 0, 0);
     color: #0b0c0c;
     background-color: #fd0;
-    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    box-shadow: 0 -0.125rem #fd0, 0 0.25rem #0b0c0c;
     text-decoration: none;
   }
+
   &:hover:not(:active):not(:focus) {
     background-color: #f8f8f8;
   }
 }
 
-.accordion .accordion-section[aria-expanded="false"] .accordion-section-body {
+.accordion .accordionSectionClosed .accordion-section-body {
   display: none;
 }
 
 .accordion {
-  border-bottom-width: 1px;
+  position: relative;
+  border-bottom-width: 0.0625rem;
   border-bottom-color: #bfc1c3;
   border-bottom-style: solid;
 }
 
 .accordion .accordion-section {
-  border-top-width: 1px;
+  border-top-width: 0.0625rem;
   border-top-color: #bfc1c3;
   border-top-style: solid;
+  background-color: #f3f2f1;
 }
 
 .accordion h2 {
   margin-top: 0;
   margin-bottom: 0;
 }
+
 .accordion .accordion-table__cell {
-  padding-right: 5px;
+  padding-right: 0.3125rem;
 }
+
 .accordion .accordion-link-button {
   font-size: 1rem;
 }
@@ -56,21 +62,23 @@
   justify-content: space-between;
   background: transparent;
   border-width: 0;
-  font-size: 16px;
+  font-size: 1rem;
   width: 100%;
   color: #005ea5;
   cursor: pointer;
   position: relative;
-  padding: 14px 5px 12px 0;
+  padding: 0.875rem 1rem 0.75rem 0.5rem;
 
   align-items: center;
+
   &:focus {
-    outline: 3px solid rgba(0, 0, 0, 0);
+    outline: 0.1875rem solid rgba(0, 0, 0, 0);
     color: #0b0c0c;
     background-color: #fd0;
-    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    box-shadow: 0 -0.125rem #fd0, 0 0.25rem #0b0c0c;
     text-decoration: none;
   }
+
   &:hover:not(:active):not(:focus) {
     background-color: #f8f8f8;
   }
@@ -82,7 +90,7 @@
 }
 
 .accordion .icon {
-  right: 15px;
+  right: 0.9375rem;
   height: 16px;
   width: 16px;
   /* Note: you may have to update these URL paths */
@@ -96,68 +104,197 @@
 }
 
 .accordion .accordion-section-body {
-  font-size: 16px;
-}
-.accordion .accordion-section-read-warning {
-  display: block;
-  margin-top: 15px;
+  font-size: 1rem;
 }
 
-.accordion .accordion-section[aria-expanded="true"] .icon {
+.accordion .accordion-section-read-warning {
+  display: block;
+  padding: 0.75rem 0 0.75rem;
+  background-color: #fff;
+  border-top: 0.0625rem solid #bfc1c3;
+}
+
+.accordion .accordionSectionOpened .icon {
   background-position: 0 0;
 }
 
 .accordion .accordion-section-document {
-  padding-top: 10px;
+  background-color: #fff;
 }
+
 .accordion .accordion-section-no-document {
-  padding: 10px 0;
+  border-top: 0.0625rem solid #bfc1c3;
+  padding: 0.625rem 0.5rem;
 }
+
 .accordion .accordion-document-date-title {
-  font-size: 16px;
+  font-size: 1rem;
   display: block;
   text-align: right;
-  margin-top: 5px;
-  margin-right: 10px;
+  margin-top: 0.3125rem;
+  margin-right: 0.625rem;
 }
+
 .accordion .accordion-document-list {
   list-style: none;
   padding: 0;
-  border-top: 1px solid #bfc1c3;
-  margin-top: 5px;
+  border-top: 0.0625rem solid #bfc1c3;
+  margin-top: 0;
   margin-bottom: 0;
+  border-left: 5px solid #1d70b8;
 }
+
 .accordion .accordion-document-list :last-child {
   border-bottom: none;
 }
+
 .accordion .accordion-document-list-item {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #bfc1c3;
+  background-color: rgba(29, 112, 184, 0.075);
+  padding: 10px 0 10px 10px;
+  border-bottom: 0.0625rem solid #bfc1c3;
 }
 
 .accordion .accordion-document-item-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: baseline;
-  font-size: 16px;
+  font-size: 1rem;
   justify-content: space-between;
 }
 
 .accordion .accordion-document-link-button,
 .accordion .accordion-document-link-name {
-  padding: 10px 15px 10px 0;
+  padding: 0.25rem 0.9375rem 0.25rem 0;
   min-width: 30%;
   max-width: 80%;
   word-wrap: break-word;
-  font-size: 16px;
+  font-size: 1rem;
   text-align: left;
+  font-weight: bold;
+  line-height: 1.25rem;
 }
 
 .accordion .accordion-document-date {
   white-space: nowrap;
+  display: flex;
 }
 
 .accordion .accordion-document-read-warning {
-  margin-bottom: 5px;
+  margin-bottom: 0.3125rem;
+}
+
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.dateIcon {
+  width: 1.25rem;
+  vertical-align: middle;
+}
+
+.timeIcon {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+  margin-right: 0.25rem;
+}
+
+.attachmentIcon {
+  width: 1rem;
+  margin: 0 0.25rem 0 0.1rem;
+}
+
+.attachmentWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.subCategory {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  border-top: 0.0625rem solid #bfc1c3;
+
+  h3 {
+    margin: 0.75rem 0.5rem;
+  }
+}
+
+.emailIcon {
+  width: 1.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.witnessIndicators {
+  margin: 0.25em 0 0 0;
+  font-size: 0.875rem;
+}
+
+.witnessIndicators strong {
+  font-size: 0.775rem;
+  margin-bottom: 0.25em;
+  padding: 5px 6px 4px;
+  &.tooltip {
+    margin-right: 0.25em;
+    .tooltiptext {
+      display: none;
+    }
+    &:hover,
+    &:active,
+    &:focus {
+      .tooltiptext {
+        display: inline-block;
+        text-transform: none;
+        letter-spacing: 0;
+        visibility: visible;
+        width: 70px;
+        padding: 2px 5px;
+        top: -100%;
+        left: 50%;
+        margin-left: -40px;
+        background: rgba(0, 0, 0, 0.7);
+
+        &:after {
+          width: 0px;
+          height: 0px;
+          border-left: 6px solid transparent;
+          border-right: 6px solid transparent;
+          border-top: 6px solid rgba(0, 0, 0, 0.7);
+          position: absolute;
+          left: 50%;
+          margin-left: -6px;
+          bottom: -6px;
+          content: " ";
+        }
+      }
+    }
+  }
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black !important;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  position: absolute;
+  z-index: 1;
 }

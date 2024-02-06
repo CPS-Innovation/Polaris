@@ -1,3 +1,3 @@
 export const Wait: React.FC = () => (
-  <div>Documents loading, Please wait...</div>
+  <div aria-live="polite">Documents loading, Please wait...</div>
 );

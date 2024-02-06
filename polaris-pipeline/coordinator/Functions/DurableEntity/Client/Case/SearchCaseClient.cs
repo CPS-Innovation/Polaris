@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Entity;
 using Common.Logging;
 using Common.Mappers.Contracts;
 using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Functions.Orchestration.Functions.Case;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -51,7 +52,6 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
-                    log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                     return new BadRequestObjectResult(correlationErrorMessage);
                 }
 
@@ -59,21 +59,17 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                 if (!Guid.TryParse(correlationId, out currentCorrelationId))
                     if (currentCorrelationId == Guid.Empty)
                     {
-                        log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
-                var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId.ToString()));
+                var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
                 if (!trackerState.EntityExists)
                 {
                     var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                    log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
                     return new NotFoundObjectResult(baseMessage);
                 }
-
-                log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
                 CaseDurableEntity entityState = trackerState.EntityState;
                 var documents =
@@ -83,7 +79,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
                         .ToList();
 
-                var searchResults = await _textExtractorClient.SearchTextAsync(caseId, searchTerm, currentCorrelationId, documents);
+                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId, documents);
 
                 return new OkObjectResult(searchResults);
             }

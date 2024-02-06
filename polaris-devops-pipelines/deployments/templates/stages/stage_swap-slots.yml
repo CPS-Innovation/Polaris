@@ -1,0 +1,57 @@
+﻿---
+parameters:
+  - name: stageBuildAgent
+    type: string
+  - name: stageDependsOn
+    type: object
+  - name: targetSuffix
+    type: string
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: devOpsPatToken
+    type: string
+    
+stages:
+  - stage: Swap_${{ parameters.targetLabel }}
+    displayName: Swap Slots > ${{ parameters.targetLabel }}
+    ${{ if parameters.stageDependsOn }}:
+      dependsOn: ${{ parameters.stageDependsOn }}
+    condition: succeeded()
+    pool:
+      name: ${{ parameters.stageBuildAgent }}
+    jobs:
+      - template: jobs/job_log-start.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "Swap Polaris Codebase Slots"
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          
+      - template: jobs/job_pause-pipeline.yml
+        parameters:
+          jobDependsOn:
+            - LogStart
+          
+      - template: jobs/job_swap-slots.yml
+        parameters:
+          targetSuffix: ${{ parameters.targetSuffix }}
+          azureSubscription: ${{ parameters.azureSubscription }}
+          jobDependsOn:
+            - Pause_Pipeline
+              
+      - template: jobs/job_log-result.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "Swap Polaris Codebase Slots"
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          devOpsPatToken: ${{ parameters.devOpsPatToken }}
+          jobDependsOn:
+            - Swap_Pipeline_Slots
+            - Swap_UI_Slots

@@ -5,17 +5,20 @@
     "logLevel": {
       "default": "Warning",
       "Function": "Information",
+      "coordinator.Functions.Orchestration.Functions.Case.RefreshCaseOrchestrator": "Information",
+      "coordinator.Functions.Orchestration.Functions.Maintenance.SlidingCaseClearDown": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
-      "Host.Triggers.DurableTask": "Warning",
+      "Host.Triggers.DurableTask": "Information",
       "DurableTask.AzureStorage": "Warning",
-      "DurableTask.Core": "Warning"
+      "DurableTask.Core": "Information",
+      "Microsoft.Azure.WebJobs.Host.Scale": "None"
     },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,
         "maxTelemetryItemsPerSecond": 20,
-        "excludedTypes": "Request;Exception;CustomEvents"
+        "excludedTypes": "Request;Exception;Event"
       },
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,
@@ -29,8 +32,9 @@
   },
   "extensions": {
     "durableTask": {
-      "maxConcurrentActivityFunctions": 10,
-      "maxConcurrentOrchestratorFunctions": 10,
+      "hubName": "%CoordinatorTaskHub%",
+      "maxConcurrentActivityFunctions": 225,
+      "maxConcurrentOrchestratorFunctions": 225,
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false

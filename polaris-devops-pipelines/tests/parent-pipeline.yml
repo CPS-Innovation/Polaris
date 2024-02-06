@@ -1,0 +1,22 @@
+---
+trigger: none
+pr: none
+
+variables:
+  - group: kv-dev-terraform
+  
+stages:
+  - stage: Call_Child_Pipeline
+    pool:
+      vmImage: ubuntu-latest
+    jobs:
+      - job:
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Call Child Pipeline'
+            inputs:
+              buildDefinition: 312
+              buildParameters: "test_value: staging1"
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)

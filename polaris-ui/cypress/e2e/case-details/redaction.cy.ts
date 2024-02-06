@@ -53,6 +53,7 @@ describe("redaction refresh flow", () => {
       .last()
       .should("exist")
       .contains("CASE FILE EVIDENCE and INFORMATION ");
+    cy.wait(500);
     cy.selectPDFTextElement("MCLOVE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").click({ force: true });
@@ -139,12 +140,12 @@ describe("redaction refresh flow", () => {
     });
   });
 
-  it("Should show error message when failed to save the redaction", () => {
+  it("Should disable saveRedaction and remove all redaction button, when saving a redaction", () => {
     cy.overrideRoute(
       SAVE_REDACTION_ROUTE,
       {
-        type: "break",
-        httpStatusCode: 500,
+        type: "delay",
+        timeMs: 3000,
       },
       "put"
     );
@@ -158,12 +159,38 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("btn-save-redaction-0").click();
+    cy.findByTestId("btn-save-redaction-0").should("be.disabled");
+    cy.findByTestId("btn-link-removeAll-0").should("be.disabled");
+  });
+  it("Should show error message when failed to save the redaction and should enable back the save redaction button", () => {
+    cy.overrideRoute(
+      SAVE_REDACTION_ROUTE,
+      {
+        type: "break",
+        httpStatusCode: 500,
+        timeMs: 3000,
+      },
+      "put"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").should("have.length", 1);
+    cy.findByTestId("btn-redact").click({ force: true });
+    cy.findByTestId("btn-save-redaction-0").click();
+    cy.findByTestId("btn-save-redaction-0").should("be.disabled");
+    cy.findByTestId("btn-link-removeAll-0").should("be.disabled");
     cy.findByTestId("div-modal")
       .should("exist")
       .contains("Failed to save redaction. Please try again later.");
     cy.findByTestId("btn-error-modal-ok").click();
     cy.findByTestId("div-modal").should("not.exist");
-    cy.findByTestId("btn-save-redaction-0").should("exist");
+    cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
+    cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
   });
   it("Should handle the deleted document opened in a tab after the pipeline refresh and display document deleted message to user", () => {
     cy.overrideRoute(TRACKER_ROUTE, {

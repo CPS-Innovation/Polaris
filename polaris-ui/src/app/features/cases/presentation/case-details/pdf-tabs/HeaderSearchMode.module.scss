@@ -1,18 +1,24 @@
 .content {
   background-color: #1d70b8; //map-get($govuk-colours, "blue");
-  height: 50px;
+  height: 3.125rem;
   color: white !important;
   font-size: 1rem !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-}
-
-.content a {
-  color: white;
-}
-
-.heavyText {
-  font-weight: 700;
+  padding: 0 1.25rem;
+  .heavyText {
+    font-weight: 700;
+  }
+  .backToSearchBtn {
+    color: #fff;
+    font-size: 1rem;
+    &:focus {
+      outline: 0.1875rem solid rgba(0, 0, 0, 0);
+      color: #0b0c0c;
+      background-color: #fd0;
+      box-shadow: 0 -0.125rem #fd0, 0 0.25rem #0b0c0c;
+      text-decoration: none;
+    }
+  }
 }

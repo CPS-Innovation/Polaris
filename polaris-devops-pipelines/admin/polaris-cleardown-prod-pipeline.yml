@@ -13,46 +13,15 @@ variables:
   - group: kv-prod-terraform
   - group: polaris-global
   - group: pipeline-terraform
-  - group: polaris-vpn
-
+  
 stages:
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
     jobs:
       - job: Clear_down_SearchIndex
         pool:
-          vmImage: ubuntu-latest
+          name: $(prod-build-agent)
         steps:
-          #create prod vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/templates"
-            env:
-              PRESHAREDKEY: $(prod_pre-shared_key)
-              PRIVATEKEY: $(prod_private_key)
-              CLIENTCERTIFICATE: $(prod_client_cert)
-              VPNSERVER: $(prod_vpn_server)
-              DNSSERVER: $(prod_dns_server)
-            displayName: Creating PROD VPN tunnel
-            
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-                
           # Terraform Init
           - bash: |
               terraform init \
@@ -90,44 +59,20 @@ stages:
               ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
               ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                 
-  - stage: Clear_down_BlobStorage
-    displayName: Reset Document Blob Storage
-    dependsOn: Clear_down_SearchIndex
-    condition: succeeded()
-    jobs:
-      - job: Clear_down_BlobStorage
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          #create prod vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/templates"
-            env:
-              PRESHAREDKEY: $(prod_pre-shared_key)
-              PRIVATEKEY: $(prod_private_key)
-              CLIENTCERTIFICATE: $(prod_client_cert)
-              VPNSERVER: $(prod_vpn_server)
-              DNSSERVER: $(prod_dns_server)
-            displayName: Creating PROD VPN tunnel
-            
-          - task: AzureCLI@2
-            displayName: Refresh Blob Storage
-            inputs:
-              connectedServiceNameARM: '$(prod-azure-subscription)'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az storage blob delete-batch --account-name $(prod-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
+#  - stage: Clear_down_BlobStorage
+#    displayName: Reset Document Blob Storage
+#    dependsOn: Clear_down_SearchIndex
+#    condition: succeeded()
+#    jobs:
+#      - job: Clear_down_BlobStorage
+#        pool:
+#          name: $(prod-build-agent)
+#        steps:
+#          - task: AzureCLI@2
+#            displayName: Refresh Blob Storage
+#            inputs:
+#              connectedServiceNameARM: '$(prod-azure-subscription)'
+#              scriptType: 'bash'
+#              scriptLocation: 'inlineScript'
+#              inlineScript: |
+#                az storage blob delete-batch --account-name $(prod-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include

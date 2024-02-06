@@ -6,52 +6,45 @@ namespace pdf_generator.TelemetryEvents
 {
     public class ConvertedDocumentEvent : BaseTelemetryEvent
     {
-        private readonly Guid _correlationId;
-        private readonly string _caseId;
-        private readonly string _documentId;
-        private readonly string _versionId;
-        private readonly string _fileType;
-        private readonly long _bytes;
-        private readonly DateTime _startTime;
-        private readonly DateTime _endTime;
+        public Guid CorrelationId { get; set; }
+        public string CaseUrn { get; set; }
+        public string CaseId { get; set; }
+        public string DocumentId { get; set; }
+        public string VersionId { get; set; }
+        public string FileType { get; set; }
+        public long OriginalBytes { get; set; }
+        public long Bytes { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public string ConversionHandler { get; set; }
+        public string FailureReason { get; set; }
 
-        public ConvertedDocumentEvent(
-            Guid correlationId,
-            string caseId,
-            string documentId,
-            string versionId,
-            string fileType,
-            long bytes,
-            DateTime startTime,
-            DateTime endTime)
+        public ConvertedDocumentEvent(Guid correlationId)
         {
-            _correlationId = correlationId;
-            _caseId = caseId;
-            _documentId = documentId;
-            _versionId = versionId;
-            _fileType = fileType;
-            _bytes = bytes;
-            _startTime = startTime;
-            _endTime = endTime;
+            CorrelationId = correlationId;
         }
 
-        public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
+        public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
         {
             return (
                 new Dictionary<string, string>
                 {
-                    { nameof(_correlationId), _correlationId.ToString() },
-                    { nameof(_caseId), _documentId },
-                    { nameof(_documentId), _documentId },
-                    { nameof(_versionId), _versionId },
-                    { nameof(_fileType), _fileType},
-                    { nameof(_startTime), _startTime.ToString("o") },
-                    { nameof(_endTime), _endTime.ToString("o") },
+                    { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseUrn), CaseUrn},
+                    { nameof(CaseId), CaseId },
+                    { nameof(DocumentId), EnsureNumericId(DocumentId) },
+                    { nameof(VersionId), VersionId },
+                    { nameof(FileType), FileType },
+                    { nameof(StartTime), StartTime.ToString("o") },
+                    { nameof(EndTime), EndTime.ToString("o") },
+                    { nameof(ConversionHandler), ConversionHandler },
+                    { nameof(FailureReason), FailureReason }
                 },
-                new Dictionary<string, double>
+                new Dictionary<string, double?>
                 {
-                    { durationSeconds, GetDurationSeconds(_startTime, _endTime) },
-                    { nameof(_bytes), _bytes }
+                    { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
+                    { nameof(OriginalBytes), OriginalBytes },
+                    { nameof(Bytes), Bytes }
                 }
             );
         }

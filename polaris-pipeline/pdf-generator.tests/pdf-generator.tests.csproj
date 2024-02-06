@@ -1,10 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>pdf_generator.tests</RootNamespace>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="Factories\" />
     <None Remove="Functions\" />
@@ -25,19 +23,19 @@
     <None Remove="Moq" />
     <None Remove="AutoFixture" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="TestResources\TestBook.xlsx" />
     <EmbeddedResource Include="TestResources\TestDiagram.vsd" />
     <EmbeddedResource Include="TestResources\TestImage.png" />
     <EmbeddedResource Include="TestResources\TestPresentation.pptx" />
+    <EmbeddedResource Include="TestResources\TestPdf.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Factories\" />
     <Folder Include="Wrappers\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
+    <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -46,16 +44,17 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FluentValidation" Version="11.6.0" />
-    <PackageReference Include="xunit" Version="2.5.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="xunit" Version="2.6.5" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
-    <PackageReference Include="FluentAssertions" Version="6.11.0" />
-    <PackageReference Include="Moq" Version="4.18.4" />
-    <PackageReference Include="AutoFixture" Version="4.18.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\pdf-generator\pdf-generator.csproj" />

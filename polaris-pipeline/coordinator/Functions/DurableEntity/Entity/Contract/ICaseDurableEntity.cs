@@ -19,10 +19,7 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
         Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
         void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
-        void SetCaseTiming((DocumentLogType LogType, float? T) args);
-
-        void SetOcrProcessed((string PolarisDocumentId, bool IsOcrProcessed) args);
-
+        void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
         Task<bool> AllDocumentsFailed();
         Task<string[]> GetPolarisDocumentIds();
 

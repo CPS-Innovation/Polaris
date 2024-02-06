@@ -19,6 +19,7 @@ import "@cypress/code-coverage/support";
 import "cypress-hmr-restarter";
 import "cypress-real-events";
 import { setupMockApi } from "../../src/mock-api/browser";
+import "cypress-axe";
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
@@ -35,6 +36,7 @@ Cypress.on("test:before:run:async", async () => {
     baseUrl: Cypress.env().REACT_APP_GATEWAY_BASE_URL,
     maxDelayMs: Cypress.env().REACT_APP_MOCK_API_MAX_DELAY,
     publicUrl: "",
+    redactionLogUrl: Cypress.env().REACT_APP_REDACTION_LOG_BASE_URL,
   });
 });
 
@@ -46,18 +48,32 @@ declare global {
        * Custom command to select first span element matching the given string
        */
       selectPDFTextElement(matchString: string): void;
+
       overrideRoute(
         apiRoute: string,
         response:
-          | { type: "break"; httpStatusCode: number; body?: any }
+          | {
+              type: "break";
+              httpStatusCode: number;
+              timeMs?: number;
+              body?: any;
+            }
           | { type: "delay"; timeMs: number }
           | { type?: false; body: any },
-        method?: "get" | "post" | "put"
+        method?: "get" | "post" | "put",
+        baseUrl?: string
       ): Chainable<AUTWindow>;
+
       trackRequestCount(
         counter: { count: number },
         method: "POST" | "GET" | "PUT",
         pathname?: string
+      ): void;
+
+      trackRequestBody(
+        requestObject: { body: string },
+        method: "POST" | "PUT",
+        pathname: string
       ): void;
     }
   }

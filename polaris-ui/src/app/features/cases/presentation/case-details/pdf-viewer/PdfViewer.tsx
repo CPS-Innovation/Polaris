@@ -6,7 +6,6 @@ import {
   ScaledPosition,
   IHighlight,
 } from "../../../../../../react-pdf-highlighter";
-
 import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
@@ -18,9 +17,11 @@ import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
-import { useDocumentFocus } from "../../../../../common/hooks/useDocumentFocus";
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
-
+import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
+import { LoaderUpdate } from "../../../../../common/presentation/components";
+import { SaveStatus } from "../../../domain/gateway/SaveStatus";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -28,9 +29,11 @@ type Props = {
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
+  redactionTypesData: RedactionTypeData[];
   contextData: {
     documentType: string;
     documentId: string;
+    saveStatus: SaveStatus;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -50,6 +53,7 @@ const ensureAllPdfInView = () =>
 
 export const PdfViewer: React.FC<Props> = ({
   url,
+  redactionTypesData,
   tabIndex,
   activeTabId,
   tabId,
@@ -69,7 +73,6 @@ export const PdfViewer: React.FC<Props> = ({
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
-  useDocumentFocus(tabId, activeTabId, tabIndex);
 
   const highlights = useMemo(
     () => [
@@ -89,7 +92,11 @@ export const PdfViewer: React.FC<Props> = ({
   }, [searchHighlights, focussedHighlightIndex]);
 
   const addRedaction = useCallback(
-    (position: ScaledPosition, content: { text?: string; image?: string }) => {
+    (
+      position: ScaledPosition,
+      content: { text?: string; image?: string },
+      redactionType: RedactionTypeData
+    ) => {
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
         position,
@@ -97,6 +104,7 @@ export const PdfViewer: React.FC<Props> = ({
           content.text ??
           "This is an area redaction and redacted content is unavailable",
         highlightType: content.image ? "area" : "linear",
+        redactionType: redactionType,
       };
 
       handleAddRedaction(newRedaction);
@@ -120,66 +128,97 @@ export const PdfViewer: React.FC<Props> = ({
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
-        <PdfLoader url={url} headers={headers} beforeLoad={<Wait />}>
+        {contextData.saveStatus === "saving" && (
+          <div className={classes.spinner}>
+            <Wait ariaLabel="Saving redaction, please wait" />
+          </div>
+        )}
+
+        <PdfLoader
+          url={url}
+          headers={headers}
+          beforeLoad={<Wait ariaLabel="Pdf loading, please wait" />}
+          // To avoid reaching out to an internet-hosted asset we have taken a local copy
+          //  of the library that PdfHighlighter links to and put that in our `public` folder.
+          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.11.338.js`}
+        >
           {(pdfDocument) => (
-            <PdfHighlighter
-              onWheelDownwards={ensureAllPdfInView}
-              pdfDocument={pdfDocument}
-              enableAreaSelection={(event) =>
-                (event.target as HTMLElement).className === "textLayer"
-              }
-              onScrollChange={() => {}}
-              pdfScaleValue="page-width"
-              scrollRef={(scrollTo) => {
-                scrollToFnRef.current = scrollTo;
-                // imperatively trigger as soon as we have reference to the scrollTo function
-                if (highlights.length) {
-                  scrollTo(highlights[0]);
+            <>
+              <LoaderUpdate textContent="pdf loaded" />
+              <PdfHighlighter
+                onWheelDownwards={ensureAllPdfInView}
+                pdfDocument={pdfDocument}
+                enableAreaSelection={(event) =>
+                  (event.target as HTMLElement).className === "textLayer"
                 }
-              }}
-              onSelectionFinished={(position, content, hideTipAndSelection) => {
-                if (documentWriteStatus !== "Ok") {
+                onScrollChange={() => {}}
+                pdfScaleValue="page-width"
+                scrollRef={(scrollTo) => {
+                  scrollToFnRef.current = scrollTo;
+                  // imperatively trigger as soon as we have reference to the scrollTo function
+                  if (highlights.length) {
+                    scrollTo(highlights[0]);
+                  }
+                }}
+                onSelectionFinished={(
+                  position,
+                  content,
+                  hideTipAndSelection
+                ) => {
+                  // Danger: minification problem here (similar to PrivateBetaAuthorizationFilter)
+                  //  `if(IS_REDACTION_SERVICE_OFFLINE)` just does not work in production. So work
+                  //  by passing the original string around and comparing it here.
+                  if (String(IS_REDACTION_SERVICE_OFFLINE) === "true") {
+                    return (
+                      <RedactionWarning
+                        documentWriteStatus={"IsRedactionServiceOffline"}
+                      />
+                    );
+                  }
+                  if (documentWriteStatus !== "Ok") {
+                    return (
+                      <RedactionWarning
+                        documentWriteStatus={documentWriteStatus}
+                      />
+                    );
+                  }
                   return (
-                    <RedactionWarning
-                      documentWriteStatus={documentWriteStatus}
+                    <RedactButton
+                      redactionTypesData={redactionTypesData}
+                      onConfirm={(redactionType: RedactionTypeData) => {
+                        trackEvent("Redact Content", {
+                          documentType: contextData.documentType,
+                          documentId: contextData.documentId,
+                        });
+                        addRedaction(position, content, redactionType);
+                        hideTipAndSelection();
+                      }}
                     />
                   );
-                }
-                return (
-                  <RedactButton
-                    onConfirm={() => {
-                      trackEvent("Redact Content", {
-                        documentType: contextData.documentType,
-                        documentId: contextData.documentId,
-                      });
-                      addRedaction(position, content);
-                      hideTipAndSelection();
-                    }}
-                  />
-                );
-              }}
-              highlightTransform={(
-                highlight,
-                index,
-                setTip,
-                hideTip,
-                _, // viewPortToScaled helper function
-                __, // screenshot (an image if this is an area highlight)
-                isScrolledTo
-              ) => {
-                return (
-                  <PdfHighlight
-                    highlight={highlight}
-                    index={index}
-                    setTip={setTip}
-                    hideTip={hideTip}
-                    isScrolledTo={isScrolledTo}
-                    handleRemoveRedaction={removeRedaction}
-                  />
-                );
-              }}
-              highlights={highlights}
-            />
+                }}
+                highlightTransform={(
+                  highlight,
+                  index,
+                  setTip,
+                  hideTip,
+                  _, // viewPortToScaled helper function
+                  __, // screenshot (an image if this is an area highlight)
+                  isScrolledTo
+                ) => {
+                  return (
+                    <PdfHighlight
+                      highlight={highlight}
+                      index={index}
+                      setTip={setTip}
+                      hideTip={hideTip}
+                      isScrolledTo={isScrolledTo}
+                      handleRemoveRedaction={removeRedaction}
+                    />
+                  );
+                }}
+                highlights={highlights}
+              />
+            </>
           )}
         </PdfLoader>
         {!!redactionHighlights.length && (

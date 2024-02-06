@@ -1,0 +1,17 @@
+Polaris_ProxyCmsLogs_Core
+| where ClassicModernUiOrGraphQL == "GraphQL"
+| where StatusCode == 504
+| project 
+    TimeGenerated, 
+    OutboundUrl,
+    Verb, 
+    StatusCode, 
+    RequestTimeMs, 
+    LoadBalancerTarget,
+    TraficSource = PolarisOrCmsProxy, 
+    PolarisCorrelationId, 
+    PolarisOperationName, 
+    CmsUserId 
+| order by TimeGenerated asc
+
+

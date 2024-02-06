@@ -1,15 +1,15 @@
 data "azurerm_linux_function_app" "fa_coordinator" {
-  name                = "fa-${local.pipeline_resource_name}-coordinator"
+  name                = "fa-${local.polaris_resource_name}-coordinator"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
 data "azurerm_windows_function_app" "fa_pdf_generator" {
-  name                = "fa-${local.pipeline_resource_name}-pdf-generator"
+  name                = "fa-${local.polaris_resource_name}-pdf-generator"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
 data "azurerm_linux_function_app" "fa_text_extractor" {
-  name                = "fa-${local.pipeline_resource_name}-text-extractor"
+  name                = "fa-${local.polaris_resource_name}-text-extractor"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 

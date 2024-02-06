@@ -1,15 +1,52 @@
-env                          = "prod"
-environment_tag              = "production"
-app_service_plan_sku         = "EP1"
-coordinator_service_plan_sku = "P1v3"
-dns_server                   = "10.7.204.164"
+env             = "prod"
+environment_tag = "production"
+dns_server      = "10.7.204.164"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 
 pipeline_logging = {
-  coordinator_scale_controller    = "AppInsights:None"
-  pdf_generator_scale_controller  = "AppInsights:None"
-  text_extractor_scale_controller = "AppInsights:None"
+  coordinator_scale_controller    = "AppInsights:Verbose"
+  pdf_generator_scale_controller  = "AppInsights:Verbose"
+  text_extractor_scale_controller = "AppInsights:Verbose"
 }
 
-overnight_clear_down_enabled = false
+pipeline_component_service_plans = {
+  coordinator_service_plan_sku           = "EP2"
+  coordinator_always_ready_instances     = 1
+  coordinator_maximum_scale_out_limit    = 1
+  coordinator_plan_maximum_burst         = 10
+  pdf_generator_service_plan_sku         = "EP2"
+  pdf_generator_always_ready_instances   = 3
+  pdf_generator_maximum_scale_out_limit  = 15
+  pdf_generator_plan_maximum_burst       = 15
+  text_extractor_plan_sku                = "EP3"
+  text_extractor_always_ready_instances  = 3
+  text_extractor_maximum_scale_out_limit = 10
+  text_extractor_plan_maximum_burst      = 10
+}
+
+overnight_clear_down = {
+  disabled = 1
+  schedule = "0 0 3 * * *"
+}
+
+sliding_clear_down = {
+  disabled       = 0
+  look_back_days = 7
+  protect_blobs  = true
+  schedule       = "0 */1 3-7 * * *"
+  batch_size     = 3
+}
+
+hte_feature_flag = false
+
+image_conversion_redaction = {
+  resolution      = 150
+  quality_percent = 50
+}
+
+search_service_config = {
+  replica_count                 = 3
+  partition_count               = 3
+  is_dynamic_throttling_enabled = true
+}

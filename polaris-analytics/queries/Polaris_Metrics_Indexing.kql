@@ -1,0 +1,19 @@
+AppEvents
+| where Name == "IndexedDocument"
+| project 
+    TimeGenerated, 
+    OperationId,
+    AppRoleInstance,
+    CaseId = toint(Properties.caseId),
+    PolarisCorrelationId = tostring(Properties.correlationId),
+    DocumentId = tolong(Properties.documentId),
+    StartTime = todatetime(Properties.startTime),
+    EndTime = todatetime(Properties.endTime),
+    DurationSeconds = toreal(Measurements.durationSeconds),
+    IndexDurationSeconds = toreal(Measurements.indexDurationSeconds),
+    IndexSettledDurationSeconds = toreal(Measurements.indexSettledDurationSeconds),
+    LineCount = toint(Measurements.lineCount),
+    OcrDurationSeconds = toreal(Measurements.ocrDurationSeconds),
+    PageCount = toint(Measurements.pageCount),
+    WordCount = toint(Measurements.wordCount),
+    IsFailure = tobool(Properties.isFailure) == true

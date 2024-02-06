@@ -1,129 +1,135 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Constants;
 using Common.Domain.Document;
-using Common.Domain.Exceptions;
-using Common.Logging;
-using Common.Telemetry.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.AspNetCore.Http;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
+using Common.Domain.Exceptions;
+using Common.Domain.Extensions;
+using Common.Extensions;
+using Common.Logging;
+using Common.Telemetry.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
+using Common.Streaming;
+using System.Threading.Tasks;
 
 namespace pdf_generator.Functions
 {
     public class ConvertToPdf
     {
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
-        private readonly ILogger<ConvertToPdf> _log;
+        private readonly ILogger<ConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
-        const string loggingName = nameof(ConvertToPdf);
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
+        private const string LoggingName = nameof(ConvertToPdf);
 
         public ConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
              ILogger<ConvertToPdf> logger,
-             ITelemetryClient telemetryClient)
+             ITelemetryClient telemetryClient,
+             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _pdfOrchestratorService = pdfOrchestratorService;
-            _log = logger;
+            _logger = logger;
             _telemetryClient = telemetryClient;
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
-        [FunctionName(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequestMessage request)
+        [Function(nameof(ConvertToPdf))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
+            string caseUrn, string caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
-
+            ConvertedDocumentEvent telemetryEvent = default;
             try
             {
                 #region Validate-Inputs
-                request.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-                if (correlationIdValues == null)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(request));
 
-                var correlationId = correlationIdValues.First();
-                if (!Guid.TryParse(correlationId, out currentCorrelationId) || currentCorrelationId == Guid.Empty)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
+                currentCorrelationId = request.Headers.GetCorrelation();
+                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
-                _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
+                telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
 
-                request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
-                if (cmsAuthValuesValues == null)
-                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
-                var cmsAuthValues = cmsAuthValuesValues.First();
-                if (string.IsNullOrWhiteSpace(cmsAuthValues))
-                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
+                request.Headers.CheckForCmsAuthValues();
 
-                request.Headers.TryGetValues(HttpHeaderKeys.Filetype, out var filetypes);
-                if (filetypes == null)
-                    throw new BadRequestException("Missing Filetype Value", nameof(request));
-                var filetypeValue = filetypes.First();
-                if (string.IsNullOrEmpty(filetypeValue))
-                    throw new BadRequestException("Null Filetype Value", filetypeValue);
-                if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
-                    throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
+                var fileType = request.Headers.GetFileType();
 
-                request.Headers.TryGetValues(HttpHeaderKeys.CaseId, out var caseIds);
-                if (caseIds == null)
-                    throw new BadRequestException("Missing CaseIds", nameof(request));
-                var caseId = caseIds.First();
-                if (string.IsNullOrEmpty(caseId))
-                    throw new BadRequestException("Invalid CaseId", caseId);
+                telemetryEvent.FileType = fileType.ToString();
 
-                request.Headers.TryGetValues(HttpHeaderKeys.DocumentId, out var documentIds);
-                if (documentIds == null)
-                    throw new BadRequestException("Missing DocumentIds", nameof(request));
-                var documentId = documentIds.First();
-                if (string.IsNullOrEmpty(documentId))
-                    throw new BadRequestException("Invalid DocumentId", documentId);
+                telemetryEvent.CaseId = caseId;
+                telemetryEvent.CaseUrn = caseUrn;
 
-                request.Headers.TryGetValues(HttpHeaderKeys.VersionId, out var versionIds);
-                if (versionIds == null)
-                    throw new BadRequestException("Missing VersionIds", nameof(request));
-                var versionId = versionIds.First();
-                if (string.IsNullOrEmpty(versionId))
-                    throw new BadRequestException("Invalid VersionId", versionId);
+                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
+                telemetryEvent.DocumentId = documentId;
 
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
+                telemetryEvent.VersionId = versionId;
 
                 #endregion
 
                 var startTime = DateTime.UtcNow;
-                var inputStream = await request.Content.ReadAsStreamAsync();
-                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
+                telemetryEvent.StartTime = startTime;
 
-                _telemetryClient.TrackEvent(new ConvertedDocumentEvent(
-                    correlationId: currentCorrelationId,
-                    caseId: caseId,
-                    documentId: documentId,
-                    versionId: versionId,
-                    fileType: filetype.ToString(),
-                    bytes: pdfStream.Length,
-                    startTime: startTime,
-                    endTime: DateTime.UtcNow
-                ));
-
-                pdfStream.Position = 0;
-                return new FileStreamResult(pdfStream, "application/pdf")
+                if (request.Body == null)
                 {
-                    FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
+                    throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
+                }
+
+                var inputStream = await request.Body
+                    // Aspose demands a seekable stream, and as we want to record the size of the stream, we need to ensure it is seekable also.
+                    .EnsureSeekableAsync();
+
+                var originalBytes = inputStream.Length;
+                telemetryEvent.OriginalBytes = originalBytes;
+
+                var conversionResult = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
+                if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
+                {
+                    var bytes = conversionResult.ConvertedDocument.Length;
+
+                    telemetryEvent.Bytes = bytes;
+                    telemetryEvent.EndTime = DateTime.UtcNow;
+                    telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
+
+                    _telemetryClient.TrackEvent(telemetryEvent);
+
+                    return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
+                    {
+                        FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
+                    };
+                }
+
+                var failureReason = conversionResult.GetFailureReason();
+                telemetryEvent.FailureReason = failureReason;
+                telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
+                _telemetryClient.TrackEventFailure(telemetryEvent);
+                    
+                return new ObjectResult(failureReason)
+                {
+                    StatusCode = (int) HttpStatusCode.InternalServerError
                 };
             }
             catch (Exception exception)
             {
-                return new ObjectResult(exception.ToString())
+                _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
+
+                if (telemetryEvent == null)
+                    return new ObjectResult(exception.ToFormattedString())
+                    {
+                        StatusCode = (int) HttpStatusCode.InternalServerError
+                    };
+                
+                telemetryEvent.FailureReason = exception.Message;
+                _telemetryClient.TrackEventFailure(telemetryEvent);
+
+                return new ObjectResult(exception.ToFormattedString())
                 {
                     StatusCode = (int)HttpStatusCode.InternalServerError
                 };
-            }
-            finally
-            {
-                _log.LogMethodExit(currentCorrelationId, loggingName, nameof(ConvertToPdf));
             }
         }
     }

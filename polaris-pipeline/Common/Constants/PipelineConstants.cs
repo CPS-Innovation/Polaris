@@ -11,6 +11,7 @@
         public const string VersionId = nameof(VersionId);
         public const string PolarisDocumentId = nameof(PolarisDocumentId);
         public const string BlobName = nameof(BlobName);
+        public const string XForwardedFor = "X-Forwarded-For";
     }
 
     public static class HttpHeaderValues
@@ -44,10 +45,6 @@
         public const string UnknownDocumentType = "1029";
     }
 
-    public static class FeatureFlags
-    {
-    }
-
 #if DEBUG
     public static class DebugSettings
     {
@@ -75,8 +72,9 @@
         public static class CoordinatorKeys
         {
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
-            public const string AzureWebJobsStorage = "AzureWebJobsStorage";
-            public const string OvernightClearDownEnabled = "OvernightClearDownEnabled";
+            public const string SlidingClearDownInputDays = nameof(SlidingClearDownInputDays);
+            public const string SlidingClearDownProtectBlobs = nameof(SlidingClearDownProtectBlobs);
+            public const string SlidingClearDownBatchSize = nameof(SlidingClearDownBatchSize);
         }
 
         public static class TextExtractorKeys
