@@ -1,8 +1,10 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { RedactionSavePage } from "../../domain/gateway/RedactionSavePage";
 import { RedactionSaveRequest } from "../../domain/gateway/RedactionSaveRequest";
-import { getNormalizedRedactionHighlights } from "../utils/redactionUtils";
-import { roundToFixedDecimalPlaces } from "../utils/redactionUtils";
+import {
+  getNormalizedRedactionHighlights,
+  roundToFixedDecimalPlaces,
+} from "../utils/redactionUtils";
 
 export const mapRedactionSaveRequest = (
   documentId: RedactionSaveRequest["documentId"],
