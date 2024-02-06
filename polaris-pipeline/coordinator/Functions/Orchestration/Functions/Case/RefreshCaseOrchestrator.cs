@@ -50,7 +50,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             _configuration = configuration;
             _cmsDocumentsResponseValidator = cmsDocumentsResponseValidator;
             _telemetryClient = telemetryClient;
-            _timeout = TimeSpan.FromSeconds(short.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
+            _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
