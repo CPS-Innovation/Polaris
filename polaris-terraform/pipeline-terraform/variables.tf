@@ -70,11 +70,11 @@ variable "overnight_clear_down" {
 
 variable "sliding_clear_down" {
   type = object({
-    disabled       = number
-    look_back_days = number
-    protect_blobs  = bool
-    schedule       = string
-    batch_size     = number
+    disabled        = number
+    look_back_hours = number
+    protect_blobs   = bool
+    schedule        = string
+    batch_size      = number
   })
 }
 
