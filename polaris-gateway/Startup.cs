@@ -19,7 +19,6 @@ using Common.Telemetry.Wrappers;
 using Common.Telemetry.Wrappers.Contracts;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Net.Http.Headers;
 using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
