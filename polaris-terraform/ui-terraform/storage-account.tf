@@ -65,7 +65,6 @@ resource "azurerm_storage_account_network_rules" "polaris_sacpspolaris_rules" {
     data.azurerm_subnet.polaris_ui_subnet.id,
     data.azurerm_subnet.polaris_gateway_subnet.id,
     data.azurerm_subnet.polaris_proxy_subnet.id,
-    data.azurerm_subnet.polaris_auth_handover_subnet.id,
     data.azurerm_subnet.polaris_apps_subnet.id,
     data.azurerm_subnet.polaris_apps2_subnet.id
   ]
@@ -75,7 +74,6 @@ resource "azurerm_storage_account_network_rules" "polaris_sacpspolaris_rules" {
     azurerm_service_plan.asp_polaris,
     azurerm_service_plan.asp_polaris_gateway,
     azurerm_linux_function_app.fa_polaris,
-    azurerm_linux_function_app.fa_polaris_auth_handover,
     azurerm_linux_web_app.as_web_polaris,
     #azurerm_linux_web_app.polaris_proxy
   ]
