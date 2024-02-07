@@ -40,7 +40,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
-    "SlidingClearDownInputDays"                       = var.sliding_clear_down.look_back_days
+    "SlidingClearDownInputHours"                      = var.sliding_clear_down.look_back_hours
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
     "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
     "SlidingClearDownBatchSize"                       = var.sliding_clear_down.batch_size

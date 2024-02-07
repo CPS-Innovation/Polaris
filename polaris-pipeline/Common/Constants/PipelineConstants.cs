@@ -72,7 +72,7 @@
         public static class CoordinatorKeys
         {
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
-            public const string SlidingClearDownInputDays = nameof(SlidingClearDownInputDays);
+            public const string SlidingClearDownInputHours = nameof(SlidingClearDownInputHours);
             public const string SlidingClearDownProtectBlobs = nameof(SlidingClearDownProtectBlobs);
             public const string SlidingClearDownBatchSize = nameof(SlidingClearDownBatchSize);
         }
