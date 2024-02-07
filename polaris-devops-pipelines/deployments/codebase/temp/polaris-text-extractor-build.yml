@@ -22,6 +22,13 @@ stages:
     jobs:
       - job: Build_Text_Extractor_Artifact
         steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish pipeline scripts"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
+              artifact: "polaris-script-files"
+              publishLocation: "pipeline"
+              
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
