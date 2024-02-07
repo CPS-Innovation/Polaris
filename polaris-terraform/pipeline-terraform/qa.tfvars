@@ -34,7 +34,7 @@ sliding_clear_down = {
   disabled        = 0
   look_back_hours = 12
   protect_blobs   = false
-  schedule        = "0 * * * *"
+  schedule        = "0 * * * * *"
   batch_size      = 5
 }
 
