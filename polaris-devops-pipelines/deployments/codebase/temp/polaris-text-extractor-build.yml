@@ -1,4 +1,4 @@
-﻿---
+---
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
 trigger: none
