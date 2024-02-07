@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
-using coordinator.Clients.Contracts;
+using Common.Dto.Response;
 using Common.Services.BlobStorageService.Contracts;
+using coordinator.Clients.Contracts;
 using coordinator.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -20,13 +21,13 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         }
 
         [FunctionName(nameof(ExtractText))]
-        public async Task Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<ExtractTextResult> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
             var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
 
-            await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+            return await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
                 payload.CmsCaseUrn,
                 payload.CmsCaseId,
                 payload.CmsDocumentId,

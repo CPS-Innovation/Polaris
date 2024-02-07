@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using text_extractor.TelemetryEvents;
 using text_extractor.Services.OcrService;
 using Common.Dto.Response;
+using System.Text;
 
 namespace text_extractor.Functions
 {
@@ -134,7 +135,7 @@ namespace text_extractor.Functions
                 var response = new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(new ExtractTextResponse(ocrLineCount)))
+                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(new ExtractTextResult { LineCount = ocrLineCount }), Encoding.UTF8, "application/json")
                 };
 
                 return response;

@@ -131,6 +131,9 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
                 .ReturnsAsync(_caseDocuments);
 
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>(nameof(RefreshDocumentOrchestrator), It.IsAny<string>(), It.IsAny<CaseDocumentOrchestrationPayload>()))
+                .Returns(Task.FromResult(fixture.Create<RefreshDocumentResult>()));
 
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: redactPdfResponse.ToJson());
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
@@ -196,7 +199,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
 
             foreach (var document in newCmsDocuments)
             {
-                _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync
+                _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                 (
                     nameof(RefreshDocumentOrchestrator),
                     It.IsAny<string>(),

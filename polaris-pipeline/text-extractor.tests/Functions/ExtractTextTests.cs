@@ -177,7 +177,7 @@ namespace text_extractor.tests.Functions
         {
             // Arrange
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<ExtractTextResponse>()))
+            _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<ExtractTextResult>()))
                 .Returns(string.Empty);
 
             // Act

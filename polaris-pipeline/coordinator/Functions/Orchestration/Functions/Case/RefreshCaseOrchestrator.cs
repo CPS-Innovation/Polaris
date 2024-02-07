@@ -8,6 +8,7 @@ using Common.Constants;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
+using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Telemetry.Contracts;
@@ -115,7 +116,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, payload, documents, log);
             telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
             telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
-            await Task.WhenAll(documentTasks.Select(BufferCall));
+            var result = await Task.WhenAll(documentTasks.Select(BufferCall));
+
+            var totalDocumentLineCount = result.Where(x => x != null).Sum(x => x.OcrLineCount);
 
             if (await caseEntity.AllDocumentsFailed())
                 throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
@@ -127,7 +130,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             return caseEntity.Adapt<TrackerDto>();
         }
 
-        private async static Task<(List<Task>, int, int)> GetDocumentTasks
+        private async static Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks
             (
                 IDurableOrchestrationContext context,
                 ICaseDurableEntity caseTracker,
@@ -205,25 +208,26 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var allPayloads = cmsDocumentPayloads.Concat(pcdRequestsPayloads).Concat(defendantsAndChargesPayloads);
             var allTasks = allPayloads.Select
                     (
-                        payload => context.CallSubOrchestratorAsync
+                        payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
                             nameof(RefreshDocumentOrchestrator),
                             RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
-                            payload)
-                        );
+                            payload
+                        )
+                    );
 
             return (allTasks.ToList(), createdOrUpdatedDocuments.Count, createdOrUpdatedPcdRequests.Count);
         }
 
-        private static async Task BufferCall(Task task)
+        private static async Task<T> BufferCall<T>(Task<T> task)
         {
             try
             {
-                await task;
+                return await task;
             }
             catch (Exception)
             {
-                return;
+                return default;
             }
         }
 

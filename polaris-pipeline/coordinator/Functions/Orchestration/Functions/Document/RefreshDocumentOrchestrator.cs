@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.ValueObjects;
@@ -15,7 +16,6 @@ namespace coordinator.Functions.Orchestration.Functions.Document
     public class RefreshDocumentOrchestrator : PolarisOrchestrator
     {
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
-
         const string loggingName = $"{nameof(RefreshDocumentOrchestrator)} - {nameof(Run)}";
 
         public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
@@ -25,11 +25,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
         public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log)
         {
-            _log = log;
+            _log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         [FunctionName(nameof(RefreshDocumentOrchestrator))]
-        public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task<RefreshDocumentResult> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
             if (payload == null)
@@ -52,9 +52,14 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
 
-            await CallTextExtractorAsync(context, payload, payload.BlobName, caseEntity, log);
+            var result = await CallTextExtractorAsync(context, payload, caseEntity, log);
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, payload.BlobName));
+
+            return new RefreshDocumentResult
+            {
+                OcrLineCount = result.LineCount
+            };
         }
 
         private async Task CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
@@ -71,11 +76,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
         }
 
-        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseDurableEntity caseEntity, ILogger log)
+        private async Task<ExtractTextResult> CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
         {
             try
             {
-                await context.CallActivityAsync(nameof(ExtractText), payload);
+                return await context.CallActivityAsync<ExtractTextResult>(nameof(ExtractText), payload);
             }
             catch (Exception exception)
             {
