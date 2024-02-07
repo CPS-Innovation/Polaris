@@ -33,8 +33,8 @@ overnight_clear_down = {
 sliding_clear_down = {
   disabled        = 0
   look_back_hours = 180
-  protect_blobs   = true
-  schedule        = "0 */1 3-7 * * *"
+  protect_blobs   = false
+  schedule        = "0 * * * *"
   batch_size      = 3
 }
 
