@@ -86,13 +86,16 @@ try
     if($res -eq $true)
     {
         Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
+        exit 0
     }
     else
     {
         Write-Error "Health check validation failed - '$AdjustedSuccessTextContent' was never found."
+        exit 1
     }
 }
 catch
 {
     Write-Host $PSItem.Exception.Message -ForegroundColor RED
+    exit 1
 }

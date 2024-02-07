@@ -41,8 +41,10 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
