@@ -72,7 +72,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     }
     vnet_route_all_enabled            = true
     runtime_scale_monitoring_enabled  = true
-    elastic_instance_minimum          = 3
+    elastic_instance_minimum          = 1
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
     application_stack {

@@ -43,7 +43,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     http2_enabled                          = true
     runtime_scale_monitoring_enabled       = true
     vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = 1
+    elastic_instance_minimum               = var.pipeline_component_service_plans.text_extractor_always_ready_instances
     app_scale_limit                        = var.pipeline_component_service_plans.text_extractor_maximum_scale_out_limit
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
