@@ -46,7 +46,6 @@ stages:
               WebAppName: $(AppServiceName)
               
       - deployment: DeployTextGenerator
-        dependsOn: StartTextExtractorSlot
         environment: "QA"
         strategy:
           runOnce:
@@ -75,7 +74,6 @@ stages:
                     slotName: "staging1"
 
       - job: Pause_Pipeline
-        dependsOn: DeployTextExtractor
         displayName: Pause for 2 mins
         steps:
           # introduce a pause to allow background slot tasks to complete before initiating a swap-slot request
@@ -83,7 +81,6 @@ stages:
             displayName: 'Initiate Pause'
             
       - job: SwapTextExtractorSlot
-        dependsOn: Pause_Pipeline
         strategy:
           matrix:
             TextExtractor:
@@ -103,7 +100,6 @@ stages:
               PreserveVnet: true
               
       - job: Stop_Pipeline_Slots
-        dependsOn: SwapTextExtractorSlot
         strategy:
           matrix:
             TextExtractor:
@@ -123,7 +119,6 @@ stages:
               WebAppName: $(AppServiceName)
               
       - job: GetStatusURIs
-        dependsOn: Stop_Pipeline_Slots
         steps:
           #retrieve app service status endpoints
           - bash: |
@@ -142,7 +137,6 @@ stages:
               textExtractorAppName: "fa-polaris-qa-text-extractor"
               
       - job: CheckTextExtractor
-        dependsOn: GetStatusURIs
         variables:
           uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
         steps:
