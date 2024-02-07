@@ -48,5 +48,11 @@
   "TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-doc-type",
   "TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-checked-out",
   "TARGET_DIRECTION_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-direction",
-  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable"
+  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable",
+
+  "CONVERSION_FAILURE_CASE_URN": "42MZ7119320",
+  "CONVERSION_FAILURE_CASE_ID": "2143635",
+  "CONVERSION_FAILURE_PASSWORD_PROTECTED_DOCUMENT_NAME": "a.encrypted.pdf",
+  "CONVERSION_FAILURE_INVALID_EXTENSION_NAME": "a.junk",
+  "CONVERSION_FAILURE_OK_DOCUMENT_NAME": "a.pdf"
 }
