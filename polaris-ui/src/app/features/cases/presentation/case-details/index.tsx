@@ -1,8 +1,10 @@
 import { useParams, useHistory } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { BackLink, Tooltip } from "../../../../common/presentation/components";
-import { PageContentWrapper } from "../../../../common/presentation/components";
 import {
+  BackLink,
+  Tooltip,
+  LinkButton,
+  PageContentWrapper,
   WaitPage,
   PhaseBanner,
 } from "../../../../common/presentation/components";
@@ -289,6 +291,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               role="region"
               aria-labelledby="side-panel-region-label"
               id="side-panel"
+              data-testid="side-panel"
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
               className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
@@ -341,7 +344,20 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <Tooltip
                 text={showFullScreen ? "Hide full screen" : "Show full screen"}
               >
-                <button
+                {/* <button
+                  className={`${classes.resizeBtn} ${
+                    showFullScreen && classes.showFullScreen
+                  }`}
+                  onClick={() => {
+                    setShowFullScreen((previousState) => !previousState);
+                  }}
+                > */}
+                <LinkButton
+                  id={"full-screen-btn"}
+                  dataTestId={"full-screen-btn"}
+                  ariaLabel={
+                    showFullScreen ? "Hide full screen" : "Show full screen"
+                  }
                   className={`${classes.resizeBtn} ${
                     showFullScreen && classes.showFullScreen
                   }`}
@@ -350,7 +366,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   }}
                 >
                   <DownArrow />
-                </button>
+                </LinkButton>
+                {/* </button> */}
               </Tooltip>
             </div>
           )}
