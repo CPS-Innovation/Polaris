@@ -8,6 +8,7 @@ const {
   ATTACHMENT_FAILURE_CASE_URN, 
   ATTACHMENT_FAILURE_CASE_ID,
   ATTACHMENT_FAILURE_PASSWORD_PROTECTED_DOCUMENT_NAME,
+  ATTACHMENT_FAILURE_INVALID_EXTENSION_NAME,
   ATTACHMENT_FAILURE_OK_DOCUMENT_NAME
 } =
   Cypress.env()
@@ -54,6 +55,13 @@ describe("Attachments failure", { tags: '@ci' }, () => {
           documents.some(
             (document) =>
               document.cmsOriginalFileName === ATTACHMENT_FAILURE_PASSWORD_PROTECTED_DOCUMENT_NAME &&
+              document.status === "UnableToConvertToPdf"
+          )
+        ).to.be.true
+        expect(
+          documents.some(
+            (document) =>
+              document.cmsOriginalFileName === ATTACHMENT_FAILURE_INVALID_EXTENSION_NAME &&
               document.status === "UnableToConvertToPdf"
           )
         ).to.be.true
