@@ -49,7 +49,7 @@ namespace coordinator.Clients
 
             // do not dispose or use `using` on response
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-
+            response.EnsureSuccessStatusCode();
             return await _httpResponseMessageStreamFactory.Create(response);
         }
 
