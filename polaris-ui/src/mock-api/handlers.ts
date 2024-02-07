@@ -141,7 +141,7 @@ export const setupHandlers = ({
     }),
 
     rest.get(
-      makeRedactionLogApiPath(routes.REDACTION_LOG_ROUTE),
+      makeRedactionLogApiPath(routes.REDACTION_LOG_LOOKUP_ROUTE),
       (req, res, ctx) => {
         const results = redactionLogDataSources[sourceName].lookUpsData;
         return res(delay(ctx), ctx.json(results));

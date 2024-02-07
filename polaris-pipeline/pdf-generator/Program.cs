@@ -48,7 +48,7 @@ var host = new HostBuilder()
         });
 
         services.AddSingleton(context.Configuration);
-        services.AddPdfGenerator(context.Configuration);
+        services.AddPdfGenerator();
         services.AddRedactionServices(context.Configuration);
 
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
@@ -56,8 +56,6 @@ var host = new HostBuilder()
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-
-        StartupHelpers.BuildHealthChecks(services);
     })
     .ConfigureLogging(logging =>
     {

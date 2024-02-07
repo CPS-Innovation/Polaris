@@ -65,7 +65,7 @@ public class DocumentRedactionServiceTests
                 It.Is<RedactPdfRequestDto>(r => r == _redactPdfRequest),
                 It.Is<Guid>(g => g == _correlationId)
             ))
-            .Returns(outputStream);
+            .ReturnsAsync(outputStream);
 
         _errorMessage = fixture.Create<string>();
 

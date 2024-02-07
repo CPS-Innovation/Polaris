@@ -22,7 +22,6 @@ namespace Common.Configuration
 
         // Other
         public const string AuthInitialisation = "init";
-        public const string Health = "health";
         public const string Status = "status";
         public const string GetHostName = "gethostname";
 

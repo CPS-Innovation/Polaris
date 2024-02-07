@@ -64,3 +64,10 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
               artifact: "ui-events-terraform-files"
               publishLocation: "pipeline"
+              
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Networking terraform artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
+              artifact: "networking-terraform-files"
+              publishLocation: "pipeline"

@@ -29,7 +29,10 @@ type Props = {
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
   defaultLastFocus: HTMLElement;
-  saveRedactionLog: (data: RedactionLogRequestData) => void;
+  handleSaveRedactionLog: (
+    data: RedactionLogRequestData,
+    redactionLogType: RedactionLogTypes
+  ) => void;
   handleHideRedactionLogModal: () => void;
 };
 
@@ -46,7 +49,7 @@ export const RedactionLogModal: React.FC<Props> = ({
   redactionLogLookUpsData,
   redactionLogMappingsData,
   defaultLastFocus,
-  saveRedactionLog,
+  handleSaveRedactionLog,
   handleHideRedactionLogModal,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -88,7 +91,7 @@ export const RedactionLogModal: React.FC<Props> = ({
         savedRedactionTypes={savedRedactionTypes}
         saveStatus={saveStatus}
         redactionLogLookUpsData={redactionLogLookUpsData}
-        saveRedactionLog={saveRedactionLog}
+        handleSaveRedactionLog={handleSaveRedactionLog}
         redactionLogMappingsData={redactionLogMappingsData}
         handleCloseRedactionLog={
           redactionLogType === RedactionLogTypes.UNDER_OVER

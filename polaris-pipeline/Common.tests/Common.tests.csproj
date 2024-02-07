@@ -17,7 +17,6 @@
     <None Remove="Wrappers\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\polaris-gateway\polaris-gateway.common\polaris-gateway.common.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
   <ItemGroup>

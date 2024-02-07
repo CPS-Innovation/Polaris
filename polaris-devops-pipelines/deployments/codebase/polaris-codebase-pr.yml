@@ -63,15 +63,10 @@ stages:
                     echo "run gateway codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
                   }
-                  if ($name -like 'polaris-gateway/polaris-gateway/*' -Or $name -like 'polaris-gateway/polaris-gateway.tests/*')
+                  if ($name -like 'polaris-gateway/*' -Or $name -like 'polaris-gateway.tests/*')
                   {
                     echo "run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
-                  }
-                  if ($name -like 'polaris-gateway/polaris-auth-handover/*' -Or $name -like 'polaris-gateway/polaris-auth-handover.tests/*')
-                  {
-                    echo "run auth handover..."
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
                   }
                   if ($name -like 'polaris-ui/*')
                   {
@@ -83,7 +78,6 @@ stages:
                     echo "changes to DdeiClient detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/Common/*')
                   {
@@ -99,7 +93,6 @@ stages:
                     echo "changes to the Gateway's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
                   }
                 }
@@ -112,7 +105,6 @@ stages:
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
     variables:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
-      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
     jobs:
       - job:
         displayName: Build, Test, Report - Gateway
@@ -122,28 +114,7 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
-              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
-              arguments: "--configuration Release"
-            displayName: "Build Auth Handover"
-            condition: eq(variables.runAuthHandover, 'true')
-            
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
-              projects: "polaris-gateway/polaris-auth-handover.tests/polaris-auth-handover.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run Auth Handover tests"
-            condition: eq(variables.runAuthHandover, 'true')
-
-          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-auth-handover.tests/coverage.cobertura.xml
-            artifact: AuthHandoverTestResults
-            displayName: Publish Auth Handover Test Results
-            condition: eq(variables.runAuthHandover, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "build"
-              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              projects: "polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Gateway"
             condition: eq(variables.runGateway, 'true')
@@ -151,12 +122,12 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
+              projects: "polaris-gateway.tests/polaris-gateway.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Gateway tests"
             condition: eq(variables.runGateway, 'true')
 
-          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/coverage.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway.tests/coverage.cobertura.xml
             artifact: GatewayTestResults
             displayName: Publish Gateway Test Results
             condition: eq(variables.runGateway, 'true')

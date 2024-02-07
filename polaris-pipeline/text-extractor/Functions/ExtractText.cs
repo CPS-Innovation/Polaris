@@ -21,6 +21,7 @@ using text_extractor.TelemetryEvents;
 using text_extractor.Services.OcrService;
 using Common.Dto.Response;
 using System.Text;
+using Common.Streaming;
 
 namespace text_extractor.Functions
 {

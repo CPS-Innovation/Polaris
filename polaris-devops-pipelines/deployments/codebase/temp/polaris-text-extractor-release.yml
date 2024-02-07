@@ -1,0 +1,167 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisTextExtractorBuild
+      source: Polaris Text Extractor - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: polaris-status-check-endpoints
+
+stages:
+  - stage: Deploy_Text_Extractor
+    displayName: Deploy > QA Text Extractor
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - job: StartTextExtractorSlot
+        strategy:
+          matrix:
+            TextExtractor:
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-qa-text-extractor"
+        displayName: Start QA Staging1
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Start QA Slot
+            inputs:
+              Action: "Start Azure App Service"
+              SpecifySlotOrASE: true
+              Slot: "staging1"
+              azureSubscription: $(qa-azure-subscription)
+              ResourceGroupName: "rg-polaris-pipeline-qa"
+              WebAppName: $(AppServiceName)
+              
+      - deployment: DeployTextGenerator
+        dependsOn: StartTextExtractorSlot
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # download scripts artifact
+                - download: PolarisTextExtractorBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+
+                # download text-extractor build artifact
+                - download: PolarisTextExtractorBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-qa-text-extractor"
+                    package: $(Pipeline.Workspace)/PolarisTextExtractorBuild/polaris-text-extractor-drop
+                    deployToSlotOrASE: true
+                    resourceGroupName: "rg-polaris-pipeline-qa"
+                    slotName: "staging1"
+
+      - job: PausePipeline
+        displayName: Pause for 2 mins
+        dependsOn: DeployTextGenerator
+        steps:
+          # introduce a pause to allow background slot tasks to complete before initiating a swap-slot request
+          - powershell: 'Start-Sleep -Seconds 120'
+            displayName: 'Initiate Pause'
+            
+      - job: SwapTextExtractorSlot
+        dependsOn: PausePipeline
+        strategy:
+          matrix:
+            TextExtractor:
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-qa-text-extractor"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(qa-azure-subscription)
+              resourceGroupName: "rg-polaris-pipeline-qa"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
+              
+      - job: StopPipelineSlots
+        dependsOn: SwapTextExtractorSlot
+        strategy:
+          matrix:
+            TextExtractor:
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-qa-text-extractor"
+        displayName: Stop Staging1
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Stop Slot
+            inputs:
+              Action: "Stop Azure App Service"
+              SpecifySlotOrASE: true
+              Slot: "staging1"
+              azureSubscription: $(qa-azure-subscription)
+              ResourceGroupName: "rg-polaris-pipeline-qa"
+              WebAppName: $(AppServiceName)
+              
+      - job: GetStatusURIs
+        dependsOn: StopPipelineSlots
+        steps:
+          #retrieve app service status endpoints
+          - bash: |
+              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+              az account set --subscription $subscriptionId
+              textExtractorLocation=https://$(az webapp config hostname list --webapp-name $textExtractorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
+              
+              echo "##vso[task.setvariable variable=textExtractorUri;isOutput=true]$textExtractorLocation"
+            displayName: Get URI of Text Extractor
+            name: uris
+            env:
+              clientId: $(innovation-qa-spn-client-id)
+              clientSecret: $(innovation-qa-spn-secret)
+              tenantId: $(innovation-qa-spn-tenant-id)
+              subscriptionId: $(innovation-qa-subscription-id)
+              textExtractorAppName: "fa-polaris-qa-text-extractor"
+              
+      - job: CheckTextExtractor
+        dependsOn: GetStatusURIs
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
+        steps:
+          # download scripts artifact
+          - download: PolarisTextExtractorBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          # query text-extractor status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Text-Extractor status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisTextExtractorBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI "$(uri)/api/status"
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisTextExtractorBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)

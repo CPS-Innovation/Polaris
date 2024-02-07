@@ -53,17 +53,13 @@ namespace coordinator.Clients
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
 
-            using (var requestContent = new StreamContent(documentStream))
-            {
-                request.Content = requestContent;
+            using var requestContent = new StreamContent(documentStream);
+            request.Content = requestContent;
 
-                using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var content = await response.Content.ReadAsStringAsync();
-                    return _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(content);
-                }
-            }
+            var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(responseContent);
         }
 
         public async Task<IList<StreamlinedSearchLine>> SearchTextAsync(

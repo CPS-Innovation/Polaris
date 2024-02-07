@@ -2,6 +2,7 @@ import {
   SAVE_REDACTION_ROUTE,
   SAVE_REDACTION_LOG_ROUTE,
   REDACTION_LOG_MAPPING_ROUTE,
+  REDACTION_LOG_LOOKUP_ROUTE,
 } from "../../../src/mock-api/routes";
 import {
   expectedUnderRedactionType1Payload,
@@ -303,7 +304,29 @@ describe("Redaction Log", () => {
           "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually."
         );
     });
-
+    it("Should fallback and handle redaction without any redaction log if the redaction logger is down", () => {
+      cy.overrideRoute(
+        REDACTION_LOG_LOOKUP_ROUTE,
+        {
+          type: "break",
+          httpStatusCode: 500,
+          timeMs: 500,
+        },
+        "get",
+        Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
+      );
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("select-redaction-type").should("not.exist");
+      cy.findByTestId("btn-redact").click();
+      cy.findByTestId("btn-save-redaction-0").click();
+      cy.findByTestId("div-modal").should("not.exist");
+    });
     it("Should verify the save redaction log request data for under-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
@@ -573,7 +596,6 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
     });
-
     it("Under Over redaction modal should throw error for empty  checkboxes values and should be able to successfully save an over redaction log", () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -730,6 +752,71 @@ describe("Redaction Log", () => {
           JSON.stringify(expectedOverUnderRedactionLogPayload)
         );
       });
+    });
+    it("Should throw error with correct error message, if failed to save redaction under over log successfully", () => {
+      cy.overrideRoute(
+        SAVE_REDACTION_LOG_ROUTE,
+        {
+          type: "break",
+          httpStatusCode: 500,
+          timeMs: 500,
+        },
+        "post",
+        Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
+      );
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+      cy.findByTestId("rl-under-over-redaction-content").should("be.visible");
+
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+
+      cy.get(`#checkbox-over-redaction`).click();
+      cy.get(`#checkbox-overRedaction-type-2`).click();
+      cy.get(`#checkbox-overRedaction-type-6`).click();
+      cy.findByTestId("redaction-log-notes").type("hello notes");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("rl-under-over-redaction-content").should("not.exist");
+
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(
+          "The entries into the Redaction Log have failed. Please try again in the Casework App, or go to the Redaction Log app and enter manually."
+        );
+    });
+    it(`Should fallback and should not show the "Log an Under/Over redaction" option in the Document actions, if the redaction logger is down`, () => {
+      cy.overrideRoute(
+        REDACTION_LOG_LOOKUP_ROUTE,
+        {
+          type: "break",
+          httpStatusCode: 500,
+          timeMs: 500,
+        },
+        "get",
+        Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
+      );
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .should("not.exist");
     });
   });
 

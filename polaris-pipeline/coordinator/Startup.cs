@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Common.Configuration;
 using Common.Constants;
-using Common.Domain.Extensions;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
@@ -17,7 +16,6 @@ using coordinator.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Common.Health;
 using Common.Wrappers.Contracts;
 using FluentValidation;
 using Common.Domain.Validators;
@@ -34,6 +32,7 @@ using Common.Telemetry;
 using coordinator.Providers;
 using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
+using Common.Streaming;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -55,6 +54,7 @@ namespace coordinator
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
@@ -82,44 +82,6 @@ namespace coordinator
             ));
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
-            BuildHealthChecks(builder, Configuration);
-        }
-
-        /// <summary>
-        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
-        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
-        /// </summary>
-        /// <param name="builder"></param>
-        private static void BuildHealthChecks(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
-        {
-            builder.Services.AddHttpClient();
-
-            var pdfGeneratorFunction = "pdfGeneratorFunction";
-            builder.Services.AddHttpClient(pdfGeneratorFunction, client =>
-            {
-                string url = Environment.GetEnvironmentVariable("PdfGeneratorUrl");
-                client.BaseAddress = new Uri(url.GetBaseUrl());
-                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
-                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
-            });
-
-            var textExtractorFunction = "textExtractorFunction";
-            builder.Services.AddHttpClient(textExtractorFunction, client =>
-            {
-                string url = Environment.GetEnvironmentVariable("TextExtractorUrl");
-                client.BaseAddress = new Uri(url.GetBaseUrl());
-                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
-                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
-            });
-
-            var healthChecks = builder.Services.AddHealthChecks();
-            healthChecks
-                .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI")
-                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<PolarisBlobStorageServiceHealthCheck>("PolarisBlobStorageService");
-
-            healthChecks
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction });
         }
     }
 }
