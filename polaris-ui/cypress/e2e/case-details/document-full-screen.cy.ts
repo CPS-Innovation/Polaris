@@ -175,11 +175,11 @@ describe("Document Fullscreen", () => {
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
     cy.findByTestId("side-panel").should("exist");
     cy.findByTestId("full-screen-btn").trigger("mouseover");
-    cy.findByTestId("tooltip").should("contain", "Show full screen");
+    cy.findByTestId("tooltip").should("contain", "View full screen");
     cy.findByTestId("full-screen-btn").click();
     cy.findByTestId("side-panel").should("not.exist");
     cy.findByTestId("full-screen-btn").trigger("mouseover");
-    cy.findByTestId("tooltip").should("contain", "Hide full screen");
+    cy.findByTestId("tooltip").should("contain", "Exit full screen");
     cy.findByTestId("full-screen-btn").click();
     cy.findByTestId("side-panel").should("exist");
   });

@@ -341,13 +341,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           {!!tabsState.items.length && featureFlags.fullScreen && (
             <div className={classes.resizeBtnWrapper}>
               <Tooltip
-                text={inFullScreen ? "Hide full screen" : "Show full screen"}
+                text={inFullScreen ? "Exit full screen" : "View full screen"}
               >
                 <LinkButton
                   id={"full-screen-btn"}
                   dataTestId={"full-screen-btn"}
                   ariaLabel={
-                    inFullScreen ? "Hide full screen" : "Show full screen"
+                    inFullScreen ? "Exit full screen" : "View full screen"
                   }
                   className={`${classes.resizeBtn} ${
                     inFullScreen && classes.inFullScreen
