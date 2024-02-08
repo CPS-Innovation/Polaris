@@ -1,10 +1,15 @@
 env                          = "prod"
 location                     = "UK South"
 environment_tag              = "production"
-app_service_plan_web_sku     = "P1v2"
-app_service_plan_gateway_sku = "EP1"
-app_service_plan_proxy_sku   = "P1v2"
 dns_server                   = "10.7.204.164"
+
+ui_component_service_plans = {
+  gateway_service_plan_sku           = "EP1"
+  gateway_always_ready_instances     = 1
+  gateway_maximum_scale_out_limit    = 10
+  spa_service_plan_sku               = "P1v2"
+  proxy_service_plan_sku             = "P1v2"
+}
 
 polaris_webapp_details = {
   valid_audience = "https://CPSGOVUK.onmicrosoft.com/fa-polaris-gateway"
@@ -39,7 +44,7 @@ is_redaction_service_offline = "false"
 feature_flag_hte_emails_on = "true"
 
 feature_flag_redaction_log = "true"
-feature_flag_redaction_log_under_over = "false"
+feature_flag_redaction_log_under_over = "true"
 redaction_log_user_group = ""
 
 private_beta = {

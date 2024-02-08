@@ -3,6 +3,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <RootNamespace>PolarisGateway</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
     <InformationalVersion Condition=" '$(BUILD_BUILDNUMBER)' == '' ">dev</InformationalVersion>
     <InformationalVersion Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</InformationalVersion>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -46,7 +48,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\polaris-pipeline\Common\Common.csproj" />
-    <ProjectReference Include="..\polaris-gateway.common\polaris-gateway.common.csproj" />
+    <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
+    <ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
 </Project>

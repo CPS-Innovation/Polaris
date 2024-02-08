@@ -80,6 +80,5 @@ stages:
             - CheckCoordinator
             - CheckPDFGenerator
             - CheckTextExtractor
-            - CheckAuthHandover
             - CheckGateway
             - CheckSPA

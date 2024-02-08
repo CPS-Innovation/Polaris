@@ -36,7 +36,6 @@ jobs:
           coordinatorLocation=https://$(az webapp config hostname list --webapp-name $coordinatorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
           pdfGeneratorLocation=https://$(az webapp config hostname list --webapp-name $pdfGeneratorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
           textExtractorLocation=https://$(az webapp config hostname list --webapp-name $textExtractorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
-          authHandoverLocation=https://$(az webapp config hostname list --webapp-name $authHandoverAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
           gatewayLocation=https://$(az webapp config hostname list --webapp-name $gatewayAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
           spaLocation=https://$(az webapp config hostname list --webapp-name $spaAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
           proxyLocation=https://$(az webapp config hostname list --webapp-name $proxyAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
@@ -44,7 +43,6 @@ jobs:
           echo "##vso[task.setvariable variable=coordinatorUri;isOutput=true]$coordinatorLocation"
           echo "##vso[task.setvariable variable=pdfGeneratorUri;isOutput=true]$pdfGeneratorLocation"
           echo "##vso[task.setvariable variable=textExtractorUri;isOutput=true]$textExtractorLocation"
-          echo "##vso[task.setvariable variable=authHandoverUri;isOutput=true]$authHandoverLocation"
           echo "##vso[task.setvariable variable=gatewayUri;isOutput=true]$gatewayLocation"
           echo "##vso[task.setvariable variable=spaUri;isOutput=true]$spaLocation"
           echo "##vso[task.setvariable variable=proxyUri;isOutput=true]$proxyLocation"
@@ -58,7 +56,6 @@ jobs:
           coordinatorAppName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
           pdfGeneratorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
           textExtractorAppName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
-          authHandoverAppName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
           gatewayAppName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
           spaAppName: "as-web-polaris${{ parameters.targetSuffix }}"
           pipelineResourceGroup: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
@@ -128,31 +125,6 @@ jobs:
       # query text-extractor status endpoint
       - task: PowerShell@2
         displayName: 'Checking ${{ parameters.targetLabel }} Text-Extractor status'
-        inputs:
-          failOnStderr: true
-          targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
-          arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(uri)/api/status"
-            -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
-            -Retries ${{ parameters.statusCheckRetries }}
-            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
-            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
-            
-  - job: CheckAuthHandover
-    dependsOn: GetStatusURIs
-    variables:
-      uri: $[dependencies.GetStatusURIs.outputs['uris.authHandoverUri']]
-    steps:
-      # download scripts artifact
-      - download: ${{ parameters.targetBuild }}
-        displayName: Download Scripts
-        artifact: 'polaris-script-files'
-
-      # query auth-handover status endpoint
-      - task: PowerShell@2
-        displayName: 'Checking ${{ parameters.targetLabel }} Auth-Handover status'
         inputs:
           failOnStderr: true
           targetType: 'filePath'
