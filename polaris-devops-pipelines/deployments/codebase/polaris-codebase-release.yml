@@ -59,7 +59,8 @@ stages:
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
-      stageDependsOn: Stop_DEV
+      #stageDependsOn: Stop_DEV
+      stageDependsOn: Swap_DEV
       envLabel: "Dev"
       targetBuild: PolarisCodebaseBuild
       targetSuffix: "-dev"
@@ -125,7 +126,8 @@ stages:
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Stop_QA
+      #stageDependsOn: Stop_QA
+      stageDependsOn: Swap_QA
       envLabel: "QA"
       targetBuild: PolarisCodebaseBuild
       targetSuffix: "-qa"
@@ -191,7 +193,8 @@ stages:
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Stop_PROD
+      #stageDependsOn: Stop_PROD
+      stageDependsOn: Swap_PROD
       envLabel: "Prod"
       targetBuild: PolarisCodebaseBuild
       targetSuffix: ""
