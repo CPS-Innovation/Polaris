@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Dto.Response;
 using coordinator.Domain;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
@@ -19,10 +20,5 @@ public interface IOrchestrationProvider
                                                CaseOrchestrationPayload casePayload,
                                                HttpRequestMessage req);
 
-    Task DeleteCaseAsync(IDurableOrchestrationClient client,
-                         Guid correlationId,
-                         string caseUrn,
-                         int caseId,
-                         bool checkForBlobProtection = true,
-                         bool waitForIndexToSettle = true);
+    Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(IDurableOrchestrationClient client, int caseId);
 }
