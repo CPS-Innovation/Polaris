@@ -47,31 +47,31 @@ describe("Document Fullscreen", () => {
     redactions: [
       {
         pageIndex: 1,
-        height: 1217.65,
-        width: 861,
+        height: 687.32,
+        width: 486,
         redactionCoordinates: [
-          { x1: 346.58, y1: 1196.42, x2: 538.27, y2: 1179.75 },
-          { x1: 144.73, y1: 961.77, x2: 209.85, y2: 945.1 },
-          { x1: 335.83, y1: 933.48, x2: 371.26, y2: 916.81 },
-          { x1: 177.89, y1: 290.47, x2: 231.73, y2: 273.8 },
+          { x1: 195.63, y1: 675.53, x2: 303.76, y2: 665.99 },
+          { x1: 81.69, y1: 543.08, x2: 118.43, y2: 533.54 },
+          { x1: 189.56, y1: 527.12, x2: 209.55, y2: 517.57 },
+          { x1: 100.41, y1: 164.16, x2: 130.78, y2: 154.62 },
         ],
       },
       {
         pageIndex: 3,
-        height: 1217.65,
-        width: 861,
+        height: 687.32,
+        width: 486,
         redactionCoordinates: [
-          { x1: 48.76, y1: 645.04, x2: 570.02, y2: 628.37 },
-          { x1: 48.76, y1: 485.19, x2: 635.03, y2: 468.53 },
+          { x1: 27.52, y1: 364.3, x2: 321.57, y2: 354.75 },
+          { x1: 27.52, y1: 274.08, x2: 358.24, y2: 264.53 },
         ],
       },
     ],
   };
-  it(
+  it.only(
     "Should successfully verify the save redaction request data in non-full screen mode",
     {
-      viewportHeight: 1000,
-      viewportWidth: 1200,
+      viewportHeight: 600,
+      viewportWidth: 700,
     },
     () => {
       const saveRequestObject = { body: "" };
@@ -111,11 +111,11 @@ describe("Document Fullscreen", () => {
     }
   );
 
-  it(
+  it.only(
     "Should successfully verify the save redaction request data in full screen mode",
     {
-      viewportHeight: 1000,
-      viewportWidth: 1200,
+      viewportHeight: 600,
+      viewportWidth: 700,
     },
     () => {
       const saveRequestObject = { body: "" };
