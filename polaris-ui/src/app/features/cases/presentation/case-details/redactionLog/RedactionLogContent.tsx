@@ -463,7 +463,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     defaultValues: UnderRedactionFormData,
     redactionLogRequestData: RedactionLogRequestData
   ) => {
-    const selectTypeFormData = [
+    const selectTypeFormDataKeys = [
       "cpsArea",
       "businessUnit",
       "investigatingAgency",
@@ -472,7 +472,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     ];
     const getFilteredProperties = (formData: UnderRedactionFormData) =>
       Object.keys(formData).reduce((obj, key) => {
-        if (selectTypeFormData.includes(key)) {
+        if (selectTypeFormDataKeys.includes(key)) {
           obj[key] = formData[key];
         }
         return obj;
