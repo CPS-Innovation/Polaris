@@ -29,9 +29,9 @@ public class SlidingCaseClearDown
         var correlationId = Guid.NewGuid();
         try
         {
-            var daysBackNumber = short.Parse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays]);
+            var hoursBackNumber = double.Parse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputHours]);
             var countCases = int.Parse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownBatchSize]);
-            var earliestDateToKeep = DateTime.UtcNow.AddDays(daysBackNumber * -1);
+            var earliestDateToKeep = DateTime.UtcNow.AddHours(hoursBackNumber * -1);
             var caseIds = await _orchestrationProvider.FindCaseInstancesByDateAsync(client, earliestDateToKeep, countCases);
 
             // first pass: lets do the cases in sequence rather than parallel, until we are sure of search index characteristics

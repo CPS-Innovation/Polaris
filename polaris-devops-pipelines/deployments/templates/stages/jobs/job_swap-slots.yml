@@ -8,8 +8,57 @@ parameters:
     type: object
   
 jobs:
-  - job: Swap_Pipeline_Slots
+  - job: Start_Pipeline_Slots
     dependsOn: ${{ parameters.jobDependsOn }}
+    strategy:
+      matrix:
+        Coordinator:
+          Name: "Coordinator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+        PDFGenerator:
+          Name: "PDF Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+        TextExtractor:
+          Name: "Text Extractor"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+    displayName: Start Staging1
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Start Slot
+        inputs:
+          Action: "Start Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          ResourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)
+
+  - job: Start_UI_Slots
+    dependsOn: ${{ parameters.jobDependsOn }}
+    strategy:
+      matrix:
+        SPA:
+          Name: "SPA"
+          AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
+        PolarisGateway:
+          Name: "Polaris Gateway"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+    displayName: Start Staging1
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Start slot
+        inputs:
+          Action: "Start Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          ResourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)
+          
+  - job: Swap_Pipeline_Slots
+    dependsOn: Start_Pipeline_Slots
     strategy:
       matrix:
         Coordinator:
@@ -35,15 +84,12 @@ jobs:
           PreserveVnet: true
           
   - job: Swap_UI_Slots
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: Start_UI_Slots
     strategy:
       matrix:
         SPA:
           Name: "SPA"
           AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
-        AuthHandover:
-          Name: "Auth Handover"
-          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
         PolarisGateway:
           Name: "Polaris Gateway"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"

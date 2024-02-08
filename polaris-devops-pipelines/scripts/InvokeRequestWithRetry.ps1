@@ -90,13 +90,16 @@ try
     if($res -eq $true)
     {
         Write-Host "Health check validation success - '$adjustedSuccessTextContent' or greater was found."
+        exit 0
     }
     else
     {
         Write-Error "Health check validation failed - expected a build version matching or greater than '$adjustedSuccessTextContent', but was never received."
+        exit 1
     }
 }
 catch 
 {
-    Write-Host $PSItem.Exception.Message -ForegroundColor RED    
+    Write-Host $PSItem.Exception.Message -ForegroundColor RED
+    exit 1
 }

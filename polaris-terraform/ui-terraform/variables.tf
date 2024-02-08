@@ -18,16 +18,14 @@ variable "location" {
   type        = string
 }
 
-variable "app_service_plan_web_sku" {
-  type = string
-}
-
-variable "app_service_plan_gateway_sku" {
-  type = string
-}
-
-variable "app_service_plan_proxy_sku" {
-  type = string
+variable "ui_component_service_plans" {
+  type = object({
+    gateway_service_plan_sku           = string
+    gateway_always_ready_instances     = number
+    gateway_maximum_scale_out_limit    = number
+    spa_service_plan_sku               = string
+    proxy_service_plan_sku             = string
+  })
 }
 
 variable "environment_tag" {

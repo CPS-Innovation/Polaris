@@ -8,17 +8,11 @@
     <DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Health\HealthCheck.pdf" />
     <None Remove="Wrappers\" />
     <None Remove="Newtonsoft.Json" />
     <None Remove="Domain\" />
     <None Remove="Domain\Exceptions\" />
     <None Remove="Handlers\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Health\HealthCheck.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

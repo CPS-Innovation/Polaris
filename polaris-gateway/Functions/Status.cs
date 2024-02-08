@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 
-namespace PolarisAuthHandover.Functions.Health;
+namespace PolarisGateway.Functions;
 
 public static class Status
 {
