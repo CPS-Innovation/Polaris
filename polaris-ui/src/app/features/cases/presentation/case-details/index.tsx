@@ -339,19 +339,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               </div>
             </div>
           )}
-          {!!tabsState.items.length && FEATURE_FLAG_FULL_SCREEN && (
+          {!!tabsState.items.length && featureFlags.fullScreen && (
             <div className={classes.resizeBtnWrapper}>
               <Tooltip
                 text={showFullScreen ? "Hide full screen" : "Show full screen"}
               >
-                {/* <button
-                  className={`${classes.resizeBtn} ${
-                    showFullScreen && classes.showFullScreen
-                  }`}
-                  onClick={() => {
-                    setShowFullScreen((previousState) => !previousState);
-                  }}
-                > */}
                 <LinkButton
                   id={"full-screen-btn"}
                   dataTestId={"full-screen-btn"}
@@ -367,7 +359,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 >
                   <DownArrow />
                 </LinkButton>
-                {/* </button> */}
               </Tooltip>
             </div>
           )}

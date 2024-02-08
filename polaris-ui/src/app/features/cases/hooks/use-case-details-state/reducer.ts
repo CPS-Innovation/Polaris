@@ -164,7 +164,7 @@ export const reducer = (
       }
     | {
         type: "UPDATE_FEATURE_FLAGS_DATA";
-        payload: AsyncResult<FeatureFlagData>;
+        payload: FeatureFlagData;
       }
 ): CombinedState => {
   switch (action.type) {
