@@ -35,7 +35,6 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   SURVEY_LINK,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
-  FEATURE_FLAG_FULL_SCREEN,
 } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
@@ -47,7 +46,7 @@ export const path = "/case-details/:urn/:id";
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
-  const [showFullScreen, setShowFullScreen] = useState(false);
+  const [inFullScreen, setInFullScreen] = useState(false);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -132,7 +131,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       count: tabsState.items.length,
     });
     if (tabsState.items.length === 0) {
-      setShowFullScreen(false);
+      setInFullScreen(false);
     }
   }, [tabsState.items.length, trackEvent]);
 
@@ -286,7 +285,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          {!showFullScreen && (
+          {!inFullScreen && (
             <div
               role="region"
               aria-labelledby="side-panel-region-label"
@@ -342,19 +341,19 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           {!!tabsState.items.length && featureFlags.fullScreen && (
             <div className={classes.resizeBtnWrapper}>
               <Tooltip
-                text={showFullScreen ? "Hide full screen" : "Show full screen"}
+                text={inFullScreen ? "Hide full screen" : "Show full screen"}
               >
                 <LinkButton
                   id={"full-screen-btn"}
                   dataTestId={"full-screen-btn"}
                   ariaLabel={
-                    showFullScreen ? "Hide full screen" : "Show full screen"
+                    inFullScreen ? "Hide full screen" : "Show full screen"
                   }
                   className={`${classes.resizeBtn} ${
-                    showFullScreen && classes.showFullScreen
+                    inFullScreen && classes.inFullScreen
                   }`}
                   onClick={() => {
-                    setShowFullScreen((previousState) => !previousState);
+                    setInFullScreen((previousState) => !previousState);
                   }}
                 >
                   <DownArrow />
@@ -364,7 +363,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           )}
           <div
             className={`${classes.rightColumn} ${
-              showFullScreen
+              inFullScreen
                 ? "govuk-grid-column-full"
                 : "govuk-grid-column-three-quarters"
             }`}
