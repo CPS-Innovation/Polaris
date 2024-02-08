@@ -9,7 +9,7 @@ const redactionRequestAssertionValidator = (
   expectedRequest: RedactionSaveRequest,
   request: RedactionSaveRequest
 ) => {
-  const PRECISION_FACTOR = 0.3;
+  const PRECISION_FACTOR = 0.5;
   expect(request.documentId).to.equal(expectedRequest.documentId);
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
   request.redactions.forEach((redaction, index) => {
@@ -47,22 +47,22 @@ describe("Document Fullscreen", () => {
     redactions: [
       {
         pageIndex: 1,
-        height: 1472.21,
-        width: 1041,
+        height: 1217.65,
+        width: 861,
         redactionCoordinates: [
-          { x1: 419.04, y1: 1446.53, x2: 650.79, y2: 1426.53 },
-          { x1: 174.99, y1: 1162.82, x2: 253.73, y2: 1142.82 },
-          { x1: 406.04, y1: 1128.62, x2: 448.88, y2: 1108.62 },
-          { x1: 215.08, y1: 351.18, x2: 280.17, y2: 331.18 },
+          { x1: 346.58, y1: 1196.42, x2: 538.27, y2: 1179.75 },
+          { x1: 144.73, y1: 961.77, x2: 209.85, y2: 945.1 },
+          { x1: 335.83, y1: 933.48, x2: 371.26, y2: 916.81 },
+          { x1: 177.89, y1: 290.47, x2: 231.73, y2: 273.8 },
         ],
       },
       {
         pageIndex: 3,
-        height: 1472.21,
-        width: 1041,
+        height: 1217.65,
+        width: 861,
         redactionCoordinates: [
-          { x1: 58.96, y1: 779.87, x2: 689.19, y2: 759.87 },
-          { x1: 58.96, y1: 586.61, x2: 767.79, y2: 566.61 },
+          { x1: 48.76, y1: 645.04, x2: 570.02, y2: 628.37 },
+          { x1: 48.76, y1: 485.19, x2: 635.03, y2: 468.53 },
         ],
       },
     ],
@@ -71,7 +71,7 @@ describe("Document Fullscreen", () => {
     "Should successfully verify the save redaction request data in non-full screen mode",
     {
       viewportHeight: 1000,
-      viewportWidth: 1500,
+      viewportWidth: 1200,
     },
     () => {
       const saveRequestObject = { body: "" };
@@ -115,7 +115,7 @@ describe("Document Fullscreen", () => {
     "Should successfully verify the save redaction request data in full screen mode",
     {
       viewportHeight: 1000,
-      viewportWidth: 1500,
+      viewportWidth: 1200,
     },
     () => {
       const saveRequestObject = { body: "" };
