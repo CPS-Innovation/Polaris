@@ -353,7 +353,17 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     inFullScreen && classes.inFullScreen
                   }`}
                   onClick={() => {
-                    setInFullScreen((previousState) => !previousState);
+                    if (inFullScreen) {
+                      trackEvent("Exit Full Screen", {
+                        documentId: getActiveTabDocument.documentId,
+                      });
+                      setInFullScreen(false);
+                    } else {
+                      trackEvent("View Full Screen", {
+                        documentId: getActiveTabDocument.documentId,
+                      });
+                      setInFullScreen(true);
+                    }
                   }}
                 >
                   <DownArrow />
