@@ -33,6 +33,7 @@ using coordinator.Providers;
 using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
 using Common.Streaming;
+using coordinator.Services.CleardownService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -72,7 +73,8 @@ namespace coordinator
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
-            builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
+            services.AddSingleton<ICleardownService, CleardownService>();
+            services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
