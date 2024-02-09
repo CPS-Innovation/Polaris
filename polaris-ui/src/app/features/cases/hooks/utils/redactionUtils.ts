@@ -59,21 +59,13 @@ export const getNormalizedRedactionRequest = (
       const scaleFactor = (baseWidth - width) / width;
       return {
         ...redaction,
-        height: roundToFixedDecimalPlaces(height + height * scaleFactor),
+        height: height + height * scaleFactor,
         width: baseWidth,
         redactionCoordinates: redactionCoordinates.map((coordinate) => ({
-          x1: roundToFixedDecimalPlaces(
-            coordinate.x1 + coordinate.x1 * scaleFactor
-          ),
-          y1: roundToFixedDecimalPlaces(
-            coordinate.y1 + coordinate.y1 * scaleFactor
-          ),
-          x2: roundToFixedDecimalPlaces(
-            coordinate.x2 + coordinate.x2 * scaleFactor
-          ),
-          y2: roundToFixedDecimalPlaces(
-            coordinate.y2 + coordinate.y2 * scaleFactor
-          ),
+          x1: coordinate.x1 + coordinate.x1 * scaleFactor,
+          y1: coordinate.y1 + coordinate.y1 * scaleFactor,
+          x2: coordinate.x2 + coordinate.x2 * scaleFactor,
+          y2: coordinate.y2 + coordinate.y2 * scaleFactor,
         })),
       };
     }

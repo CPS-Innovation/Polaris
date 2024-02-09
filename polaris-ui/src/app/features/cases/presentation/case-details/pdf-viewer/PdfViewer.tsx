@@ -22,7 +22,6 @@ import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
-import { useQueryParamsState } from "../../../../../common/hooks/useQueryParamsState";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -74,8 +73,6 @@ export const PdfViewer: React.FC<Props> = ({
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
-  const { canvasWidth } = useQueryParamsState<{ canvasWidth: string }>();
-  const customCanvasWidth = !!window.Cypress && canvasWidth;
 
   const highlights = useMemo(
     () => [
@@ -130,7 +127,6 @@ export const PdfViewer: React.FC<Props> = ({
         className={classes.pdfViewer}
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
-        style={customCanvasWidth ? { width: `${canvasWidth}px` } : {}}
       >
         {contextData.saveStatus === "saving" && (
           <div className={classes.spinner}>

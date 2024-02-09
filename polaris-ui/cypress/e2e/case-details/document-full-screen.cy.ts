@@ -11,7 +11,7 @@ const redactionRequestAssertionValidator = (
   redactionRequest: RedactionSaveRequest
 ) => {
   const request = getNormalizedRedactionRequest(redactionRequest, 900);
-  const PRECISION_FACTOR = 2;
+  const PRECISION_FACTOR = 1;
   expect(request.documentId).to.equal(expectedRequest.documentId);
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
   request.redactions.forEach((redaction, index) => {
@@ -78,7 +78,7 @@ describe("Document Fullscreen", () => {
       "PUT",
       "/api/urns/12AB1111111/cases/13401/documents/1"
     );
-    cy.visit("/case-details/12AB1111111/13401?canvasWidth=900");
+    cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
@@ -121,7 +121,7 @@ describe("Document Fullscreen", () => {
       "PUT",
       "/api/urns/12AB1111111/cases/13401/documents/1"
     );
-    cy.visit("/case-details/12AB1111111/13401?canvasWidth=900");
+    cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
