@@ -1,4 +1,5 @@
 import { RedactionSaveRequest } from "../../../src/app/features/cases/domain/gateway/RedactionSaveRequest";
+import { getNormalizedRedactionRequest } from "../../../src/app/features/cases/hooks/utils/redactionUtils";
 
 /**
  * Validator function to compare the redaction values with a precision factor
@@ -7,8 +8,9 @@ import { RedactionSaveRequest } from "../../../src/app/features/cases/domain/gat
  */
 const redactionRequestAssertionValidator = (
   expectedRequest: RedactionSaveRequest,
-  request: RedactionSaveRequest
+  redactionRequest: RedactionSaveRequest
 ) => {
+  const request = getNormalizedRedactionRequest(redactionRequest, 900);
   const PRECISION_FACTOR = 0.5;
   expect(request.documentId).to.equal(expectedRequest.documentId);
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
@@ -98,10 +100,16 @@ describe("Document Fullscreen", () => {
 
     //assertion on the redaction log save request
     cy.window().then(() => {
-      expect(JSON.stringify(expectedSaveRedactionPayload)).to.deep.equal(
-        saveRequestObject.body
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
       );
     });
+    // cy.window().then(() => {
+    //   expect(JSON.stringify(expectedSaveRedactionPayload)).to.deep.equal(
+    //     saveRequestObject.body
+    //   );
+    // });
   });
 
   it.only("Should successfully verify the save redaction request data in full screen mode", () => {

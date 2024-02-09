@@ -1,4 +1,5 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { RedactionSaveRequest } from "../../../cases/domain/gateway/RedactionSaveRequest";
 import { round } from "lodash";
 
 export const getNormalizedRedactionHighlights = (
@@ -46,3 +47,39 @@ export const roundToFixedDecimalPlaces = (
   num: number,
   precisionCount: number = 2
 ) => round(num, precisionCount);
+
+export const getNormalizedRedactionRequest = (
+  redactionRequest: RedactionSaveRequest,
+  baseWidth: number
+) => {
+  const normalizedRedactions = redactionRequest.redactions.map((redaction) => {
+    const { height, width, redactionCoordinates } = redaction;
+
+    if (width !== baseWidth) {
+      const scaleFactor = (baseWidth - width) / width;
+      return {
+        ...redaction,
+        height: roundToFixedDecimalPlaces(height + height * scaleFactor),
+        redactionCoordinates: redactionCoordinates.map((coordinate) => ({
+          x1: roundToFixedDecimalPlaces(
+            coordinate.x1 + coordinate.x1 * scaleFactor
+          ),
+          y1: roundToFixedDecimalPlaces(
+            coordinate.y1 + coordinate.y1 * scaleFactor
+          ),
+          x2: roundToFixedDecimalPlaces(
+            coordinate.x2 + coordinate.x2 * scaleFactor
+          ),
+          y2: roundToFixedDecimalPlaces(
+            coordinate.y2 + coordinate.y2 * scaleFactor
+          ),
+        })),
+      };
+    }
+    return redaction;
+  });
+  return {
+    documentId: redactionRequest.documentId,
+    redactions: normalizedRedactions,
+  };
+};
