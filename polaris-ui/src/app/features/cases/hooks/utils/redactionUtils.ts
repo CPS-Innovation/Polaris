@@ -60,6 +60,7 @@ export const getNormalizedRedactionRequest = (
       return {
         ...redaction,
         height: roundToFixedDecimalPlaces(height + height * scaleFactor),
+        baseWidth: baseWidth,
         redactionCoordinates: redactionCoordinates.map((coordinate) => ({
           x1: roundToFixedDecimalPlaces(
             coordinate.x1 + coordinate.x1 * scaleFactor
