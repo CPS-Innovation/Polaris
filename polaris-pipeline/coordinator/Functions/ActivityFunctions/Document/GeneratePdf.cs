@@ -69,7 +69,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     documentStream,
                     fileType);
 
-            if (convertResult.IsSuccess)
+            if (!convertResult.IsSuccess)
             {
                 return false;
             }
