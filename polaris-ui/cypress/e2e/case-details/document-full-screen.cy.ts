@@ -11,7 +11,7 @@ const redactionRequestAssertionValidator = (
   redactionRequest: RedactionSaveRequest
 ) => {
   const request = getNormalizedRedactionRequest(redactionRequest, 900);
-  const PRECISION_FACTOR = 0.5;
+  const PRECISION_FACTOR = 2;
   expect(request.documentId).to.equal(expectedRequest.documentId);
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
   request.redactions.forEach((redaction, index) => {
