@@ -15,6 +15,10 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Common.Telemetry.Contracts;
+using coordinator.TelemetryEvents;
+using coordinator.Helpers.ChunkHelper;
+using Common.Wrappers.Contracts;
 
 namespace coordinator.Functions.DurableEntity.Client.Case
 {
@@ -23,11 +27,15 @@ namespace coordinator.Functions.DurableEntity.Client.Case
         private readonly ITextExtractorClient _textExtractorClient;
 
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
+        private readonly ITelemetryClient _telemetryClient;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public SearchCaseClient(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper)
+        public SearchCaseClient(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper, ITelemetryClient telemetryClient, IJsonConvertWrapper jsonConvertWrapper)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
+            _telemetryClient = telemetryClient;
+            _jsonConvertWrapper = jsonConvertWrapper;
         }
 
         const string loggingName = $"{nameof(SearchCaseClient)} - {nameof(HttpStart)}";
@@ -45,6 +53,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
             try
             {
+
                 var searchTerm = req.RequestUri.ParseQueryString()["query"];
                 if (string.IsNullOrWhiteSpace(searchTerm))
                     return new BadRequestObjectResult("Search term not supplied.");
@@ -61,6 +70,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                     {
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
+
 
                 var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
@@ -80,6 +90,22 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         .ToList();
 
                 var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId, documents);
+
+                var documentIds = searchResults.Select(result => result.PolarisDocumentId).ToList();
+
+                // the max string length of Application Insights custom properties is 8192
+                // so we chunk the docIds and create multiple events as some cases could exceed this limit
+                var chunkedDocumentIds = ChunkHelper.ChunkStringListByMaxCharacterCount(documentIds, 8192);
+
+                foreach (var documentIdsChunk in chunkedDocumentIds)
+                {
+                    var telemetryEvent = new SearchCaseEvent(
+                        correlationId: currentCorrelationId,
+                        caseId,
+                        documentIds: _jsonConvertWrapper.SerializeObject(documentIdsChunk)
+                    );
+                    _telemetryClient.TrackEvent(telemetryEvent);
+                }
 
                 return new OkObjectResult(searchResults);
             }
