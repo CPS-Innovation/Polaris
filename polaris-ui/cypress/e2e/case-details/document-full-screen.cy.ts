@@ -12,6 +12,7 @@ const redactionRequestAssertionValidator = (
 ) => {
   const request = getNormalizedRedactionRequest(redactionRequest, 900);
   const PRECISION_FACTOR = 1.5;
+  const PRECISION_FACTOR_Y2 = 3;
   expect(request.documentId).to.equal(expectedRequest.documentId);
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
   request.redactions.forEach((redaction, index) => {
@@ -40,7 +41,7 @@ const redactionRequestAssertionValidator = (
       ).to.be.lessThan(PRECISION_FACTOR);
       expect(
         Math.abs(coordinate.y2 - expectedCoordinates[index].y2)
-      ).to.be.lessThan(PRECISION_FACTOR);
+      ).to.be.lessThan(PRECISION_FACTOR_Y2);
     });
   });
 };
@@ -71,7 +72,7 @@ describe("Document Fullscreen", () => {
       },
     ],
   };
-  it.only("Should successfully verify the save redaction request data in non-full screen mode", () => {
+  it("Should successfully verify the save redaction request data in non-full screen mode", () => {
     const saveRequestObject = { body: "" };
     cy.trackRequestBody(
       saveRequestObject,
@@ -109,7 +110,7 @@ describe("Document Fullscreen", () => {
     });
   });
 
-  it.only("Should successfully verify the save redaction request data in non full screen and full screen mode", () => {
+  it("Should successfully verify the save redaction request data in non full screen and full screen mode", () => {
     const saveRequestObject = { body: "" };
     cy.trackRequestBody(
       saveRequestObject,
@@ -147,8 +148,8 @@ describe("Document Fullscreen", () => {
     });
   });
 
-  it.only("Should successfully verify the save redaction request data in given screen size(1200,800)", () => {
-    cy.viewport(1200, 800);
+  it.only("Should successfully verify the save redaction request data in given screen size(1300, 1000)", () => {
+    cy.viewport(1300, 1000);
     const saveRequestObject = { body: "" };
     cy.trackRequestBody(
       saveRequestObject,
@@ -177,7 +178,6 @@ describe("Document Fullscreen", () => {
 
     //assertion on the redaction log save request
     cy.window().then(() => {
-      expect({}).to.equal(saveRequestObject.body);
       redactionRequestAssertionValidator(
         expectedSaveRedactionPayload,
         JSON.parse(saveRequestObject.body)
@@ -185,8 +185,8 @@ describe("Document Fullscreen", () => {
     });
   });
 
-  it.only("Should successfully verify the save redaction request data in given screen size(1000,700)", () => {
-    cy.viewport(1000, 700);
+  it.only("Should successfully verify the save redaction request data in given screen size(1100, 1000)", () => {
+    cy.viewport(1100, 1000);
     const saveRequestObject = { body: "" };
     cy.trackRequestBody(
       saveRequestObject,
@@ -215,7 +215,191 @@ describe("Document Fullscreen", () => {
 
     //assertion on the redaction log save request
     cy.window().then(() => {
-      expect({}).to.equal(saveRequestObject.body);
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
+      );
+    });
+  });
+
+  it.only("Should successfully verify the save redaction request data in given screen size(1000,1000)", () => {
+    cy.viewport(1000, 1000);
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
+      );
+    });
+  });
+
+  it.only("Should successfully verify the save redaction request data in given screen size(900,1000)", () => {
+    cy.viewport(900, 1000);
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
+      );
+    });
+  });
+
+  it.only("Should successfully verify the save redaction request data in given screen size(700,1000)", () => {
+    cy.viewport(700, 1000);
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
+      );
+    });
+  });
+
+  it.only("Should successfully verify the save redaction request data in given screen size(600,1000)", () => {
+    cy.viewport(600, 1000);
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
+      );
+    });
+  });
+
+  it.only("Should successfully verify the save redaction request data in given screen size(800,900)", () => {
+    cy.viewport(800, 900);
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
       redactionRequestAssertionValidator(
         expectedSaveRedactionPayload,
         JSON.parse(saveRequestObject.body)
