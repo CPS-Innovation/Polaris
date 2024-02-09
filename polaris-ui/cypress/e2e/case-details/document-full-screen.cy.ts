@@ -107,14 +107,9 @@ describe("Document Fullscreen", () => {
         JSON.parse(saveRequestObject.body)
       );
     });
-    // cy.window().then(() => {
-    //   expect(JSON.stringify(expectedSaveRedactionPayload)).to.deep.equal(
-    //     saveRequestObject.body
-    //   );
-    // });
   });
 
-  it.only("Should successfully verify the save redaction request data in full screen mode", () => {
+  it.only("Should successfully verify the save redaction request data in non full screen and full screen mode", () => {
     const saveRequestObject = { body: "" };
     cy.trackRequestBody(
       saveRequestObject,
@@ -152,6 +147,79 @@ describe("Document Fullscreen", () => {
     });
   });
 
+  it.only("Should successfully verify the save redaction request data in given screen size(1200,800)", () => {
+    cy.viewport(1200, 800);
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
+      );
+    });
+  });
+
+  it.only("Should successfully verify the save redaction request data in given screen size(1000,700)", () => {
+    cy.viewport(1000, 700);
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
+      );
+    });
+  });
   it("Should show the 'Show Full Screen' button when at least one document is opened in a tab", () => {
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("full-screen-btn").should("not.exist");
