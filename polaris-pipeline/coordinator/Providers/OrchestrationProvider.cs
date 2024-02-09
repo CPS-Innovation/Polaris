@@ -2,7 +2,6 @@
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
-using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Collections.Generic;
@@ -11,22 +10,18 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Constants;
-using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
-using coordinator.Clients.Contracts;
+using coordinator.Services.CleardownService;
+using Common.Dto.Response;
 
 namespace coordinator.Providers;
 
 public class OrchestrationProvider : IOrchestrationProvider
 {
     private readonly IConfiguration _configuration;
-    private readonly ITelemetryClient _telemetryClient;
-    private readonly IPolarisBlobStorageService _blobStorageService;
     private readonly IQueryConditionFactory _queryConditionFactory;
-    private readonly ITextExtractorClient _textExtractorClient;
 
     private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = {
         OrchestrationRuntimeStatus.Running,
@@ -49,17 +44,11 @@ public class OrchestrationProvider : IOrchestrationProvider
 
     public OrchestrationProvider(
             IConfiguration configuration,
-            ITelemetryClient telemetryClient,
-            IPolarisBlobStorageService blobStorageService,
-            IQueryConditionFactory queryConditionFactory,
-            ITextExtractorClient textExtractorClient
+            IQueryConditionFactory queryConditionFactory
     )
     {
         _configuration = configuration;
-        _telemetryClient = telemetryClient;
-        _blobStorageService = blobStorageService;
         _queryConditionFactory = queryConditionFactory;
-        _textExtractorClient = textExtractorClient;
     }
 
     public async Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient orchestrationClient, DateTime createdTimeTo, int batchSize)
@@ -94,59 +83,25 @@ public class OrchestrationProvider : IOrchestrationProvider
         return client.CreateCheckStatusResponse(req, instanceId);
     }
 
-    public async Task DeleteCaseAsync(IDurableOrchestrationClient client,
-                                      Guid correlationId,
-                                      string caseUrn,
-                                      int caseId,
-                                      bool checkForBlobProtection = true,
-                                      bool waitForIndexToSettle = true)
+    public async Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(IDurableOrchestrationClient client, int caseId)
     {
-        var telemetryEvent = new DeletedCaseEvent(
-            correlationId: correlationId,
-            caseId: caseId,
-            startTime: DateTime.UtcNow
-        );
-
+        var result = new DeleteCaseOrchestrationResult();
         try
         {
-            var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseUrn, caseId, correlationId);
-            telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
-            telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
-            telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
-            telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
-
-            if (waitForIndexToSettle)
-            {
-                var waitResult = await _textExtractorClient.WaitForCaseEmptyResultsAsync(caseUrn, caseId, correlationId);
-                telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
-                telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
-                telemetryEvent.IndexSettledTime = DateTime.UtcNow;
-            }
-            telemetryEvent.DidWaitForIndexToSettle = waitForIndexToSettle;
-
-            var shouldClearBlobs = !checkForBlobProtection
-                || !_configuration.IsSettingEnabled(ConfigKeys.CoordinatorKeys.SlidingClearDownProtectBlobs);
-            if (shouldClearBlobs)
-            {
-                await _blobStorageService.DeleteBlobsByCaseAsync(caseId.ToString());
-                telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
-            }
-            telemetryEvent.DidClearBlobs = shouldClearBlobs;
-
             var terminateInstanceIds = await GetInstanceIdsAsync(client,
                 _queryConditionFactory.Create(_inProgressStatuses, RefreshCaseOrchestrator.GetKey(caseId.ToString()))
              );
-            telemetryEvent.TerminatedInstancesCount = terminateInstanceIds.Count;
-            telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
+            result.TerminatedInstancesCount = terminateInstanceIds.Count;
+            result.GotTerminateInstancesDateTime = DateTime.UtcNow;
 
             await Task.WhenAll(
                 terminateInstanceIds.Select(instanceId => client.TerminateAsync(instanceId, "Forcibly terminated DELETE"))
             );
-            telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
+            result.TerminatedInstancesTime = DateTime.UtcNow;
 
             var didComplete = await WaitForOrchestrationsToCompleteAsync(client, terminateInstanceIds);
-            telemetryEvent.DidOrchestrationsTerminate = didComplete;
-            telemetryEvent.TerminatedInstancesSettledTime = DateTime.UtcNow;
+            result.DidOrchestrationsTerminate = didComplete;
+            result.TerminatedInstancesSettledDateTime = DateTime.UtcNow;
 
             var orchestratorPurgeInstanceIds = await GetInstanceIdsAsync(client,
                  _queryConditionFactory.Create(_completedStatuses, RefreshCaseOrchestrator.GetKey(caseId.ToString()))
@@ -154,20 +109,20 @@ public class OrchestrationProvider : IOrchestrationProvider
             var entityPurgeInstanceIds = await GetInstanceIdsAsync(client,
                  _queryConditionFactory.Create(_entityStatuses, CaseDurableEntity.GetInstanceId(caseId.ToString()))
             );
-            telemetryEvent.GotPurgeInstancesTime = DateTime.UtcNow;
+            result.GotPurgeInstancesDateTime = DateTime.UtcNow;
             var instancesToPurge = Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds);
-            telemetryEvent.PurgeInstancesCount = instancesToPurge.Count();
+            result.PurgeInstancesCount = instancesToPurge.Count();
 
-            var result = await client.PurgeInstanceHistoryAsync(instancesToPurge);
-            telemetryEvent.PurgedInstancesCount = result.InstancesDeleted;
+            var purgeResult = await client.PurgeInstanceHistoryAsync(instancesToPurge);
+            result.PurgedInstancesCount = purgeResult.InstancesDeleted;
 
-            telemetryEvent.EndTime = DateTime.UtcNow;
-            _telemetryClient.TrackEvent(telemetryEvent);
+            result.OrchestrationEndDateTime = DateTime.UtcNow;
+            result.IsSuccess = true;
+            return result;
         }
         catch (Exception)
         {
-            _telemetryClient.TrackEventFailure(telemetryEvent);
-            throw;
+            return result;
         }
     }
 
