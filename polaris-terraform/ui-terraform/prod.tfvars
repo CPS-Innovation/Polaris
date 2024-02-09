@@ -5,7 +5,7 @@ dns_server                   = "10.7.204.164"
 
 ui_component_service_plans = {
   gateway_service_plan_sku           = "EP1"
-  gateway_always_ready_instances     = 1
+  gateway_always_ready_instances     = 3
   gateway_maximum_scale_out_limit    = 10
   spa_service_plan_sku               = "P1v2"
   proxy_service_plan_sku             = "P1v2"

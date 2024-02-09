@@ -148,13 +148,38 @@ namespace coordinator.Clients.Tests.Clients
                             .Returns(HttpResponseMessageStream.Create(_httpResponseMessage));
 
             // Act
-            var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new System.IO.MemoryStream(), Common.Domain.Document.FileType.MSG);
+            var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
             // Assert
-            var responseText = new StreamReader(response, System.Text.Encoding.UTF8).ReadToEnd();
+            response.IsSuccess.Should().BeTrue();
+            var responseText = new StreamReader(response.PdfStream, System.Text.Encoding.UTF8).ReadToEnd();
             responseText.Should().Be(expectedContent);
         }
 
+        [Fact]
+        public async Task ConvertToPdfAsync_WhenUnsupportedMediaTypeIsReceived_DoesNotThrowAndReturnsUnsuccessfulResponse()
+        {
+            // Arrange
+            var expectedContent = _fixture.Create<string>();
+            _httpResponseMessage.Content = new StringContent(expectedContent);
+
+            _mockRequestFactory
+                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
+                .Returns(_httpRequestMessage);
+
+            _mockHttpResponseMessageStreamFactory
+                            .Setup(factory => factory.Create(It.Is<HttpResponseMessage>(h => h == _httpResponseMessage)))
+                            .Returns(HttpResponseMessageStream.Create(_httpResponseMessage));
+
+            _httpResponseMessage.StatusCode = HttpStatusCode.UnsupportedMediaType;
+
+            // Act
+            var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
+
+            // Assert
+            response.IsSuccess.Should().BeFalse();
+            response.ErrorMessage.Should().Be(expectedContent);
+        }
         [Fact]
         public async Task ConvertToPdfAsync_WhenHttpRequestExceptionThrown_IsCaughtAsException()
         {

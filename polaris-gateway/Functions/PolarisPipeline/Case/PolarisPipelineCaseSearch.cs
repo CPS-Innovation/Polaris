@@ -1,7 +1,7 @@
 ﻿using Azure;
 using Common.Configuration;
 using Common.Logging;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;

@@ -463,15 +463,31 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     defaultValues: UnderRedactionFormData,
     redactionLogRequestData: RedactionLogRequestData
   ) => {
-    const { notes, ...defaultValuesWithoutNotes } = defaultValues;
-    const { notes: newNotes, ...newValuesWithoutNotes } = newValues;
+    const selectTypeFormDataKeys = [
+      "cpsArea",
+      "businessUnit",
+      "investigatingAgency",
+      "chargeStatus",
+      "documentType",
+    ];
+    const getFilteredProperties = (formData: UnderRedactionFormData) =>
+      Object.keys(formData).reduce((obj, key) => {
+        if (selectTypeFormDataKeys.includes(key)) {
+          obj[key] = formData[key];
+        }
+        return obj;
+      }, {} as any);
+
+    const defaultSelectValues = getFilteredProperties(defaultValues);
+    const currentSelectValues = getFilteredProperties(newValues);
+
     const hasDefaultValueChange =
-      JSON.stringify(defaultValuesWithoutNotes) ===
-      JSON.stringify(newValuesWithoutNotes);
+      JSON.stringify(defaultSelectValues) ===
+      JSON.stringify(currentSelectValues);
     if (!hasDefaultValueChange) {
       trackEvent("Failed Default Mapping Redaction Log", {
-        oldValues: defaultValuesWithoutNotes,
-        newValues: newValuesWithoutNotes,
+        oldValues: defaultSelectValues,
+        newValues: currentSelectValues,
       });
     }
     if (redactionLogType === RedactionLogTypes.UNDER) {

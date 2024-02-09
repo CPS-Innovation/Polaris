@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Common.Configuration;
 using Common.Logging;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.ValueObjects;

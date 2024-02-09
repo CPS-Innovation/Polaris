@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Azure;
 using Common.Domain.SearchIndex;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using FluentAssertions;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Http;

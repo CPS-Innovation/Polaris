@@ -71,7 +71,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
         {
             // Arrange
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync(It.IsAny<string>(), It.IsAny<object>()));
+                .Setup(context => context.CallActivityAsync<bool>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(true);
 
             // Act
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
@@ -97,7 +98,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
         public async Task Run_Tracker_RegistersIndexed_WhenNotAlreadyProcessed()
         {
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync(It.IsAny<string>(), It.IsAny<object>()));
+                .Setup(context => context.CallActivityAsync<bool>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(true);
 
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
