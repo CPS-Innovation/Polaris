@@ -3,13 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
-using System.Net.Http;
 using Common.Configuration;
-using Common.Logging;
-using PolarisGateway.Domain.Validators.Contracts;
-using Gateway.Clients.PolarisPipeline.Contracts;
+using PolarisGateway.Domain.Validators;
+using Gateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.ValueObjects;
 
@@ -19,8 +15,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
     {
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineCheckoutDocument> _logger;
-
-        const string loggingName = $"{nameof(PolarisPipelineCheckoutDocument)} - {nameof(Run)}";
 
         public PolarisPipelineCheckoutDocument
             (
@@ -42,19 +36,15 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
             try
             {
-                #region Validate-Inputs
-                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                var request = await ValidateRequest(req, nameof(PolarisPipelineCheckoutDocument), ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
 
                 currentCorrelationId = request.CurrentCorrelationId;
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
-                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
-                #endregion
+                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, nameof(PolarisPipelineCheckoutDocument));
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Checking out document for urn {caseUrn}, caseId {caseId}, polarisDocumentId  {polarisDocumentId}");
                 var response = await _pipelineClient.CheckoutDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), request.CmsAuthValues, currentCorrelationId);
 
                 return response;
@@ -63,13 +53,9 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
             {
                 return exception switch
                 {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.CheckoutDocumentAsync)}.", currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.CheckoutDocumentAsync)}.", currentCorrelationId, nameof(PolarisPipelineCheckoutDocument)),
+                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, nameof(PolarisPipelineCheckoutDocument))
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             }
         }
     }

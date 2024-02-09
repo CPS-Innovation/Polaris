@@ -3,15 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
-using System.Net.Http;
 using Common.Configuration;
-using PolarisGateway.Domain.Validators.Contracts;
-using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Domain.Validators;
+using Gateway.Clients;
 using PolarisGateway.Extensions;
-using PolarisGateway.common.Mappers.Contracts;
+using PolarisGateway.common.Mappers;
 using Gateway.Common.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Request;
@@ -82,7 +78,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                 }
 
                 var polarisDocumentIdValue = new PolarisDocumentId(polarisDocumentId);
-                var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value, caseId, polarisDocumentIdValue, currentCorrelationId);
+                var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value);
                 var redactionResult = await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, polarisDocumentIdValue, redactPdfRequest, request.CmsAuthValues, currentCorrelationId);
                 var IsSuccess = redactionResult.Succeeded;
                 telemetryEvent.IsSuccess = IsSuccess;

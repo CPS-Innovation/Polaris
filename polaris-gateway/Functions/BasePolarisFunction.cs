@@ -1,7 +1,7 @@
 ﻿using Common.Constants;
 using Common.Extensions;
 using Common.Logging;
-using PolarisGateway.Domain.Validators.Contracts;
+using PolarisGateway.Domain.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,6 @@ using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Validation;
 using Common.Telemetry.Wrappers.Contracts;
-using System;
 using System.Net;
 
 namespace PolarisGateway.Functions
@@ -77,7 +76,7 @@ namespace PolarisGateway.Functions
             return currentCorrelationId;
         }
 
-        private async Task<(String, StringValues)> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
+        private async Task<(string, StringValues)> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
         {
             if (!req.Headers.TryGetValue(OAuthSettings.Authorization, out var accessTokenValue) ||
                 string.IsNullOrWhiteSpace(accessTokenValue))
@@ -100,20 +99,17 @@ namespace PolarisGateway.Functions
 
         private IActionResult AuthenticationErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
-            _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new BadRequestObjectResult(errorMessage);
 
         }
 
         protected IActionResult AuthorizationErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
-            _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new UnauthorizedObjectResult(errorMessage);
         }
 
         protected IActionResult CmsAuthValuesErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
-            _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new ObjectResult(errorMessage)
             {
                 // client will react to a 403 to trigger reauthentication
@@ -123,13 +119,11 @@ namespace PolarisGateway.Functions
 
         protected IActionResult BadRequestErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
-            _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new BadRequestObjectResult(errorMessage);
         }
 
         protected IActionResult BadGatewayErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
-            _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new ObjectResult(errorMessage)
             {
                 StatusCode = 502
@@ -138,7 +132,6 @@ namespace PolarisGateway.Functions
 
         protected IActionResult NotFoundErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
-            _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new NotFoundObjectResult(errorMessage);
         }
 
@@ -148,9 +141,5 @@ namespace PolarisGateway.Functions
             return new ObjectResult(additionalMessage) { StatusCode = (int)statusCode };
         }
 
-        protected void LogInformation(string message, Guid correlationId, string loggerSource)
-        {
-            _logger.LogMethodFlow(correlationId, loggerSource, message);
-        }
     }
 }

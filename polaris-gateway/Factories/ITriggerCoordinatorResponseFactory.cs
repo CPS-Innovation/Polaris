@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PolarisGateway.Domain.PolarisPipeline;
 
-namespace PolarisGateway.Factories.Contracts
+namespace PolarisGateway.Factories
 {
     public interface ITriggerCoordinatorResponseFactory
     {

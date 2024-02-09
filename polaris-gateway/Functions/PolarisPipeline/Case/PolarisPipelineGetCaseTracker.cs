@@ -4,16 +4,10 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using PolarisGateway.Extensions;
 using Common.Configuration;
-using Common.Logging;
-using PolarisGateway.Domain.Validators.Contracts;
-using Gateway.Clients.PolarisPipeline.Contracts;
+using PolarisGateway.Domain.Validators;
+using Gateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
-using Common.Dto.Tracker;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
 {
@@ -32,45 +26,35 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
             _logger = logger;
         }
 
-        const string loggingName = $"{nameof(PolarisPipelineGetCaseTracker)} - {nameof(Run)}";
-
         [FunctionName(nameof(PolarisPipelineGetCaseTracker))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            TrackerDto tracker = null;
+
 
             try
             {
-                #region
-                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                var request = await ValidateRequest(req, nameof(PolarisPipelineGetCaseTracker), ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
 
                 currentCorrelationId = request.CurrentCorrelationId;
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
-                    return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, loggingName);
-                #endregion
+                    return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, nameof(PolarisPipelineGetCaseTracker));
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting tracker details for caseId {caseId}");
-                tracker = await _pipelineClient.GetTrackerAsync(caseUrn, caseId, currentCorrelationId);
+                var tracker = await _pipelineClient.GetTrackerAsync(caseUrn, caseId, currentCorrelationId);
 
-                return tracker == null ? NotFoundErrorResponse($"No tracker found for case Urn '{caseUrn}', case id '{caseId}'.", currentCorrelationId, loggingName) : new OkObjectResult(tracker);
+                return tracker == null ? NotFoundErrorResponse($"No tracker found for case Urn '{caseUrn}', case id '{caseId}'.", currentCorrelationId, nameof(PolarisPipelineGetCaseTracker)) : new OkObjectResult(tracker);
             }
             catch (Exception exception)
             {
                 return exception switch
                 {
-                    MsalException => InternalServerErrorResponse(exception, "An onBehalfOfToken exception occurred.", currentCorrelationId, loggingName),
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetTrackerAsync)}.", currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
+                    MsalException => InternalServerErrorResponse(exception, "An onBehalfOfToken exception occurred.", currentCorrelationId, nameof(PolarisPipelineGetCaseTracker)),
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetTrackerAsync)}.", currentCorrelationId, nameof(PolarisPipelineGetCaseTracker)),
+                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, nameof(PolarisPipelineGetCaseTracker))
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, tracker.ToJson());
             }
         }
     }

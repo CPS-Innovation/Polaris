@@ -3,15 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
-using System.Net.Http;
 using Common.Telemetry.Wrappers.Contracts;
-using Common.Logging;
-using PolarisGateway.Domain.Validators.Contracts;
-using Gateway.Clients.PolarisPipeline.Contracts;
+using PolarisGateway.Domain.Validators;
 using Common.Configuration;
 using Common.ValueObjects;
+using Gateway.Clients;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -40,19 +36,15 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
             try
             {
-                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
 
                 currentCorrelationId = request.CurrentCorrelationId;
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
-                #endregion
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting document for urn {caseUrn}, caseId {caseId}, id {polarisDocumentId}");
                 var blobStream = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), currentCorrelationId);
 
                 return blobStream != null
@@ -66,10 +58,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                     HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetDocumentAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             }
         }
     }

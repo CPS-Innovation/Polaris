@@ -4,7 +4,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using PolarisGateway.Domain.Validators.Contracts;
 using Common.Logging;
 using Common.Constants;
 using Common.Extensions;
@@ -29,7 +28,6 @@ namespace PolarisGateway.Domain.Validators
 
         public async Task<ValidateTokenResult> ValidateTokenAsync(StringValues token, Guid correlationId, string requiredScopes = null, string requiredRoles = null)
         {
-            _log.LogMethodEntry(correlationId, nameof(ValidateTokenAsync), string.Empty);
             if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
             try
             {
@@ -62,45 +60,35 @@ namespace PolarisGateway.Domain.Validators
                     UserName = userName
                 };
             }
-            catch (InvalidOperationException invalidOperationException)
+            catch (InvalidOperationException)
             {
-                _log.LogMethodError(correlationId, nameof(ValidateTokenAsync), "An invalid operation exception was caught", invalidOperationException);
                 return new ValidateTokenResult
                 {
                     IsValid = false,
 
                 };
             }
-            catch (SecurityTokenValidationException securityException)
+            catch (SecurityTokenValidationException)
             {
-                _log.LogMethodError(correlationId, nameof(ValidateTokenAsync), "A security exception was caught", securityException);
+                return new ValidateTokenResult
+                {
+                    IsValid = false,
+                };
+            }
+            catch (Exception)
+            {
                 return new ValidateTokenResult
                 {
                     IsValid = false,
 
                 };
-            }
-            catch (Exception ex)
-            {
-                _log.LogMethodError(correlationId, nameof(ValidateTokenAsync), "An unexpected error was caught", ex);
-                return new ValidateTokenResult
-                {
-                    IsValid = false,
-
-                };
-            }
-            finally
-            {
-                _log.LogMethodExit(correlationId, nameof(ValidateTokenAsync), string.Empty);
             }
         }
 
         private bool IsValid(ClaimsPrincipal claimsPrincipal, Guid correlationId, string scopes = null, string roles = null)
         {
-            _log.LogMethodEntry(correlationId, nameof(IsValid), string.Empty);
             if (claimsPrincipal == null)
             {
-                _log.LogMethodFlow(correlationId, nameof(IsValid), "Claims Principal not found - returning 'false' indicating an authorization failure");
                 return false;
             }
 
@@ -109,7 +97,6 @@ namespace PolarisGateway.Domain.Validators
 
             if (!requiredScopes.Any() && !requiredRoles.Any())
             {
-                _log.LogMethodFlow(correlationId, nameof(IsValid), "No required scopes or roles found - allowing access - returning");
                 return true;
             }
 
@@ -121,7 +108,6 @@ namespace PolarisGateway.Domain.Validators
             var tokenScopes = scopeClaim.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).ToList();
             var hasAccessToScopes = !requiredScopes.Any() || requiredScopes.All(x => tokenScopes.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase)));
 
-            _log.LogMethodExit(correlationId, nameof(IsValid), $"Outcome role and scope checks - hasAccessToRoles: {hasAccessToRoles}, hasAccessToScopes: {hasAccessToScopes}");
             return hasAccessToRoles && hasAccessToScopes;
         }
 

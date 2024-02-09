@@ -1,30 +1,23 @@
-﻿using System;
+﻿
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
-using PolarisGateway.common.Mappers.Contracts;
+using PolarisGateway.common.Mappers;
 using PolarisGateway.Mappers;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using Common.ValueObjects;
 
 namespace PolarisGateway.Tests.Mappers
 {
     public class RedactPdfRequestMapperTests
     {
         private readonly Fixture _fixture;
-        private readonly Guid _correlationId;
-        private readonly Mock<ILogger<RedactPdfRequestMapper>> _loggerMock;
 
         public RedactPdfRequestMapperTests()
         {
             _fixture = new Fixture();
-            _correlationId = _fixture.Create<Guid>();
-            _loggerMock = new Mock<ILogger<RedactPdfRequestMapper>>();
         }
 
         [Fact]
@@ -32,11 +25,9 @@ namespace PolarisGateway.Tests.Mappers
         {
             var testRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
             testRequest.Redactions = _fixture.CreateMany<RedactionDefinitionDto>(5).ToList();
-            var testCaseId = _fixture.Create<int>();
-            var testPolarisDocumentId = _fixture.Create<PolarisDocumentId>();
 
-            IRedactPdfRequestMapper mapper = new RedactPdfRequestMapper(_loggerMock.Object);
-            var result = mapper.Map(testRequest, testCaseId, testPolarisDocumentId, _correlationId);
+            IRedactPdfRequestMapper mapper = new RedactPdfRequestMapper();
+            var result = mapper.Map(testRequest);
 
             using (new AssertionScope())
             {

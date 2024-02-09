@@ -8,18 +8,17 @@ using Common.Constants;
 using Common.Factories.Contracts;
 using Common.Wrappers.Contracts;
 using FluentAssertions;
-using Gateway.Clients.PolarisPipeline;
+using Gateway.Clients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
-using Gateway.Clients.PolarisPipeline.Contracts;
 using Xunit;
 using Common.Dto.Tracker;
 using Common.Streaming;
 
-namespace PolarisGateway.Tests.Clients.PolarisPipeline
+namespace PolarisGateway.Tests.Clients
 {
     public class PipelineClientTests
     {

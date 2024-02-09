@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Validation;
 
-namespace PolarisGateway.Domain.Validators.Contracts
+namespace PolarisGateway.Domain.Validators
 {
     public interface IAuthorizationValidator
     {

@@ -2,15 +2,14 @@
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Moq;
-using PolarisGateway.common.Mappers.Contracts;
+using PolarisGateway.common.Mappers;
 using PolarisGateway.Factories;
 using Xunit;
 
 namespace PolarisGateway.Tests.Factories
 {
-    public class TriggerCoordinatorResponseFactoryTests
+	public class TriggerCoordinatorResponseFactoryTests
 	{
 		private readonly HttpRequest _httpRequest;
 		private readonly Uri _trackerUrl;
@@ -22,17 +21,16 @@ namespace PolarisGateway.Tests.Factories
 		{
 			var fixture = new Fixture();
 			_correlationId = fixture.Create<Guid>();
-		
+
 			var context = new DefaultHttpContext();
 			_httpRequest = context.Request;
 			_trackerUrl = new Uri("http://www.test.co.uk");
 
 			var mockTrackerUrlMapper = new Mock<ITrackerUrlMapper>();
-			var mockLogger = new Mock<ILogger<TriggerCoordinatorResponseFactory>>();
 
 			mockTrackerUrlMapper.Setup(mapper => mapper.Map(_httpRequest, It.IsAny<Guid>())).Returns(_trackerUrl);
 
-			_triggerCoordinatorResponseFactory = new TriggerCoordinatorResponseFactory(mockTrackerUrlMapper.Object, mockLogger.Object);
+			_triggerCoordinatorResponseFactory = new TriggerCoordinatorResponseFactory(mockTrackerUrlMapper.Object);
 		}
 
 		[Fact]

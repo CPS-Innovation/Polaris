@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Dto.Case;
 using Common.Extensions;
-using Common.Logging;
-using PolarisGateway.Domain.Validators.Contracts;
+using PolarisGateway.Domain.Validators;
 using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
 using DdeiClient.Services.Contracts;
@@ -16,17 +11,15 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 
 namespace PolarisGateway.Functions.CaseData
 {
     public class Cases : BasePolarisFunction
     {
-        private readonly IDdeiClient _caseDataService;
+        private readonly IDdeiClient _ddeiClient;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly ILogger<Cases> _logger;
-        const string loggingName = $"{nameof(Cases)} - {nameof(Run)}";
 
         public Cases(ILogger<Cases> logger,
                         IDdeiClient caseDataService,
@@ -35,12 +28,18 @@ namespace PolarisGateway.Functions.CaseData
                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
-            _caseDataService = caseDataService;
+            _ddeiClient = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
         }
 
         [FunctionName(nameof(Cases))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // is this useful? does this clash with the 404 if we hit asn unknown endpoint on a function app?
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             Guid currentCorrelationId = default;
@@ -48,43 +47,34 @@ namespace PolarisGateway.Functions.CaseData
 
             try
             {
-                #region Validate-Inputs
-                var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                var validationResult = await ValidateRequest(req, nameof(Cases), ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
 
                 currentCorrelationId = validationResult.CurrentCorrelationId;
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
-
                 if (string.IsNullOrEmpty(caseUrn))
-                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
-                #endregion
+                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, nameof(Cases));
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{caseUrn}'");
                 var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, caseUrn);
-                caseInformation = await _caseDataService.ListCasesAsync(urnArg);
+                caseInformation = await _ddeiClient.ListCasesAsync(urnArg);
 
                 if (caseInformation != null && caseInformation.Any())
                 {
                     return new OkObjectResult(caseInformation);
                 }
 
-                return NotFoundErrorResponse($"No data found for urn '{caseUrn}'.", currentCorrelationId, loggingName);
+                return NotFoundErrorResponse($"No data found for urn '{caseUrn}'.", currentCorrelationId, nameof(Cases));
             }
             catch (Exception exception)
             {
                 return exception switch
                 {
-                    MsalException => InternalServerErrorResponse(exception, $"An MSAL exception occurred. {exception.NestedMessage()}", currentCorrelationId, loggingName),
-                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.NestedMessage(), currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred. {exception.NestedMessage()}", currentCorrelationId, loggingName)
+                    MsalException => InternalServerErrorResponse(exception, $"An MSAL exception occurred. {exception.NestedMessage()}", currentCorrelationId, nameof(Cases)),
+                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.NestedMessage(), currentCorrelationId, nameof(Cases)),
+                    _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred. {exception.NestedMessage()}", currentCorrelationId, nameof(Cases))
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, caseInformation.ToJson());
             }
         }
     }

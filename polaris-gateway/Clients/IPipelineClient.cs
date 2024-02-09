@@ -5,7 +5,7 @@ using Common.Dto.Tracker;
 using Common.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gateway.Clients.PolarisPipeline.Contracts
+namespace Gateway.Clients
 {
     public interface IPipelineClient
     {

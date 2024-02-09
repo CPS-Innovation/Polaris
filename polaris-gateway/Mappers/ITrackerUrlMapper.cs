@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace PolarisGateway.common.Mappers.Contracts
+namespace PolarisGateway.common.Mappers
 {
     public interface ITrackerUrlMapper
     {

@@ -40,6 +40,9 @@ namespace pdf_generator.Functions
         }
 
         [Function(nameof(ConvertToPdf))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
             string caseUrn, string caseId, string documentId, string versionId)
         {
@@ -107,10 +110,10 @@ namespace pdf_generator.Functions
                 telemetryEvent.FailureReason = failureReason;
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
                 _telemetryClient.TrackEventFailure(telemetryEvent);
-                    
+
                 return new ObjectResult(failureReason)
                 {
-                    StatusCode = (int) HttpStatusCode.InternalServerError
+                    StatusCode = (int)HttpStatusCode.UnsupportedMediaType
                 };
             }
             catch (Exception exception)
@@ -120,9 +123,9 @@ namespace pdf_generator.Functions
                 if (telemetryEvent == null)
                     return new ObjectResult(exception.ToFormattedString())
                     {
-                        StatusCode = (int) HttpStatusCode.InternalServerError
+                        StatusCode = (int)HttpStatusCode.InternalServerError
                     };
-                
+
                 telemetryEvent.FailureReason = exception.Message;
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 

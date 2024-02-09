@@ -1,9 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using Common.Configuration;
-using Common.Dto.Case;
-using Common.Logging;
-using PolarisGateway.Domain.Validators.Contracts;
+﻿using Common.Configuration;
+using PolarisGateway.Domain.Validators;
 using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
 using DdeiClient.Services.Contracts;
@@ -13,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 
 namespace PolarisGateway.Functions.CaseData
@@ -22,9 +17,6 @@ namespace PolarisGateway.Functions.CaseData
     {
         private readonly IDdeiClient _ddeiClient;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
-        private readonly ILogger<Case> _logger;
-
-        const string loggingName = $"{nameof(Case)} - {nameof(Run)}";
 
         public Case(ILogger<Case> logger,
                     IDdeiClient ddeiService,
@@ -35,45 +27,44 @@ namespace PolarisGateway.Functions.CaseData
         {
             _ddeiClient = ddeiService;
             _caseDataArgFactory = caseDataArgFactory;
-            _logger = logger;
         }
 
         [FunctionName(nameof(Case))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // is this useful? does this clash with the 404 if we hit asn unknown endpoint on a function app?
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            CaseDto caseDetails = null;
 
             try
             {
-                var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                var validationResult = await ValidateRequest(req, nameof(Case), ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
 
                 currentCorrelationId = validationResult.CurrentCorrelationId;
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
                 var caseArg = _caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId);
-                caseDetails = await _ddeiClient.GetCaseAsync(caseArg);
+                var caseDetails = await _ddeiClient.GetCaseAsync(caseArg);
 
                 return caseDetails != null
                     ? new OkObjectResult(caseDetails)
-                    : NotFoundErrorResponse($"No data found for case id '{caseId}'.", currentCorrelationId, loggingName);
+                    : NotFoundErrorResponse($"No data found for case id '{caseId}'.", currentCorrelationId, nameof(Case));
             }
             catch (Exception exception)
             {
                 return exception switch
                 {
-                    MsalException => InternalServerErrorResponse(exception, "An MSAL exception occurred.", currentCorrelationId, loggingName),
-                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.Message, currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
+                    MsalException => InternalServerErrorResponse(exception, "An MSAL exception occurred.", currentCorrelationId, nameof(Case)),
+                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.Message, currentCorrelationId, nameof(Case)),
+                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, nameof(Case))
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, caseDetails.ToJson());
             }
         }
     }

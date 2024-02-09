@@ -1,26 +1,15 @@
-﻿using Common.Domain.Extensions;
-using Common.Dto.Request;
+﻿using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using Common.Logging;
-using PolarisGateway.common.Mappers.Contracts;
-using Common.ValueObjects;
-using Microsoft.Extensions.Logging;
+using PolarisGateway.common.Mappers;
 
 namespace PolarisGateway.Mappers
 {
     public class RedactPdfRequestMapper : IRedactPdfRequestMapper
     {
-        private readonly ILogger<RedactPdfRequestMapper> _logger;
+        public RedactPdfRequestMapper() { }
 
-        public RedactPdfRequestMapper(ILogger<RedactPdfRequestMapper> logger)
+        public RedactPdfRequestDto Map(DocumentRedactionSaveRequestDto saveRequest)
         {
-            _logger = logger;
-        }
-
-        public RedactPdfRequestDto Map(DocumentRedactionSaveRequestDto saveRequest, long caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
-        {
-            _logger.LogMethodEntry(correlationId, nameof(Map), $"SaveRequest: '{saveRequest.ToJson()}', CaseId: {caseId}, PolarisDocumentId: {polarisDocumentId}");
-
             if (saveRequest == null) throw new ArgumentNullException(nameof(saveRequest));
 
             var result = new RedactPdfRequestDto
@@ -30,7 +19,6 @@ namespace PolarisGateway.Mappers
                 RedactionDefinitions = new List<RedactionDefinitionDto>()
             };
 
-            _logger.LogMethodFlow(correlationId, nameof(Map), "Mapping each set of redaction details (co-ordinates and page info) to an object that the PDFGenerator pipeline API expects");
             foreach (var item in saveRequest.Redactions)
             {
                 var redactionDefinition = new RedactionDefinitionDto
@@ -54,7 +42,6 @@ namespace PolarisGateway.Mappers
                 result.RedactionDefinitions.Add(redactionDefinition);
             }
 
-            _logger.LogMethodExit(correlationId, nameof(Map), result.ToJson());
             return result;
         }
     }

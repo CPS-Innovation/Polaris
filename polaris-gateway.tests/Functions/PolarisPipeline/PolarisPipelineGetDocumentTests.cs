@@ -1,12 +1,11 @@
-﻿using System.Security.AccessControl;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using AutoFixture;
-using PolarisGateway.Domain.Validators.Contracts;
+using PolarisGateway.Domain.Validators;
 using Common.ValueObjects;
 using FluentAssertions;
-using Gateway.Clients.PolarisPipeline.Contracts;
+using Gateway.Clients;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
