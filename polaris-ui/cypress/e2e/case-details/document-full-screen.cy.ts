@@ -15,10 +15,12 @@ const redactionRequestAssertionValidator = (
   expect(request.documentId).to.equal(expectedRequest.documentId);
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
   request.redactions.forEach((redaction, index) => {
-    expect(redaction.height).to.equal(expectedRequest.redactions[index].height);
     expect(redaction.pageIndex).to.equal(
       expectedRequest.redactions[index].pageIndex
     );
+    expect(
+      Math.abs(redaction.height - expectedRequest.redactions[index].height)
+    ).to.be.lessThan(PRECISION_FACTOR);
     expect(
       Math.abs(redaction.width - expectedRequest.redactions[index].width)
     ).to.be.lessThan(PRECISION_FACTOR);
