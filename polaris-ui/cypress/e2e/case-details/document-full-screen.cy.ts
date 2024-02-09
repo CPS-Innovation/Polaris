@@ -98,9 +98,8 @@ describe("Document Fullscreen", () => {
 
     //assertion on the redaction log save request
     cy.window().then(() => {
-      redactionRequestAssertionValidator(
-        expectedSaveRedactionPayload,
-        JSON.parse(saveRequestObject.body)
+      expect(JSON.stringify(expectedSaveRedactionPayload)).to.deep.equal(
+        saveRequestObject.body
       );
     });
   });
