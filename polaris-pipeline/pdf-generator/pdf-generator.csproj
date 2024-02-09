@@ -6,7 +6,7 @@
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enabled</ImplicitUsings>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
     <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>

@@ -44,7 +44,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
         }
 
         [FunctionName(nameof(GeneratePdf))]
-        public async Task Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
@@ -59,7 +59,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             var documentStream = await GetDocumentStreamAsync(payload);
 
-            using var pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
+            using var convertResult = await _pdfGeneratorClient.ConvertToPdfAsync(
                     payload.CorrelationId,
                     payload.CmsAuthValues,
                     payload.CmsCaseUrn,
@@ -68,6 +68,13 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     payload.CmsVersionId.ToString(),
                     documentStream,
                     fileType);
+
+            if (convertResult.IsSuccess)
+            {
+                return false;
+            }
+
+            var pdfStream = convertResult.PdfStream;
 
             await _blobStorageService.UploadDocumentAsync
                 (
@@ -78,6 +85,8 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     payload.CmsVersionId.ToString(),
                     payload.CorrelationId
                 );
+
+            return true;
         }
 
         private FileType GetFileType(CaseDocumentOrchestrationPayload payload)
