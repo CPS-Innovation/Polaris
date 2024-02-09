@@ -177,6 +177,7 @@ describe("Document Fullscreen", () => {
 
     //assertion on the redaction log save request
     cy.window().then(() => {
+      expect({}).to.equal(saveRequestObject.body);
       redactionRequestAssertionValidator(
         expectedSaveRedactionPayload,
         JSON.parse(saveRequestObject.body)
@@ -214,6 +215,7 @@ describe("Document Fullscreen", () => {
 
     //assertion on the redaction log save request
     cy.window().then(() => {
+      expect({}).to.equal(saveRequestObject.body);
       redactionRequestAssertionValidator(
         expectedSaveRedactionPayload,
         JSON.parse(saveRequestObject.body)
