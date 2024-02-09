@@ -1,7 +1,7 @@
 ﻿using Common.Constants;
 using Common.Extensions;
 using Common.Logging;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,7 +11,6 @@ using PolarisGateway.Domain.Validation;
 using Common.Telemetry.Wrappers.Contracts;
 using System;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions
 {

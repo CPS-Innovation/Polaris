@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Case;
 using Common.Logging;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
 using DdeiClient.Services.Contracts;
