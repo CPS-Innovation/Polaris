@@ -1,6 +1,6 @@
 ﻿using Common.Configuration;
 using Common.Logging;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Common.ValueObjects;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Http;
