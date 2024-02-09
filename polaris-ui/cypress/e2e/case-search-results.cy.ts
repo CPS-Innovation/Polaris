@@ -1,6 +1,6 @@
 import { CASE_SEARCH_ROUTE } from "../../src/mock-api/routes";
 
-xdescribe("search results", () => {
+describe("search results", () => {
   it("displays search result and summarises returned count and URN", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
 

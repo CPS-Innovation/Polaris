@@ -1,6 +1,6 @@
 import { CASE_SEARCH_ROUTE } from "../../src/mock-api/routes";
 
-xdescribe("Cms Authentication", () => {
+describe("Cms Authentication", () => {
   it("can reauthenticate if api returns 403", () => {
     cy.overrideRoute(CASE_SEARCH_ROUTE, {
       type: "break",
