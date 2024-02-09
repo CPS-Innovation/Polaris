@@ -47,114 +47,100 @@ describe("Document Fullscreen", () => {
     redactions: [
       {
         pageIndex: 1,
-        height: 687.32,
-        width: 486,
+        height: 1272.81,
+        width: 900,
         redactionCoordinates: [
-          { x1: 195.63, y1: 675.53, x2: 303.76, y2: 665.99 },
-          { x1: 81.69, y1: 543.08, x2: 118.43, y2: 533.54 },
-          { x1: 189.56, y1: 527.12, x2: 209.55, y2: 517.57 },
-          { x1: 100.41, y1: 164.16, x2: 130.78, y2: 154.62 },
+          { x1: 362.28, y1: 1250.66, x2: 562.65, y2: 1232.94 },
+          { x1: 151.29, y1: 1005.39, x2: 219.35, y2: 987.67 },
+          { x1: 351.04, y1: 975.82, x2: 388.08, y2: 958.09 },
+          { x1: 185.94, y1: 303.67, x2: 242.22, y2: 285.95 },
         ],
       },
       {
         pageIndex: 3,
-        height: 687.32,
-        width: 486,
+        height: 1272.81,
+        width: 900,
         redactionCoordinates: [
-          { x1: 27.52, y1: 364.3, x2: 321.57, y2: 354.75 },
-          { x1: 27.52, y1: 274.08, x2: 358.24, y2: 264.53 },
+          { x1: 50.97, y1: 674.31, x2: 595.85, y2: 656.58 },
+          { x1: 50.97, y1: 507.23, x2: 663.8, y2: 489.5 },
         ],
       },
     ],
   };
-  it.only(
-    "Should successfully verify the save redaction request data in non-full screen mode",
-    {
-      viewportHeight: 600,
-      viewportWidth: 700,
-    },
-    () => {
-      const saveRequestObject = { body: "" };
-      cy.trackRequestBody(
-        saveRequestObject,
-        "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+  it.only("Should successfully verify the save redaction request data in non-full screen mode", () => {
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401?canvasWidth=900");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+
+    cy.findByTestId("btn-save-redaction-0").click();
+
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      expect(JSON.stringify(expectedSaveRedactionPayload)).to.deep.equal(
+        saveRequestObject.body
       );
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    });
+  });
 
-      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("MCLOVE");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("Male");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("BYRNE");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("FRESH SWELLING");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("medical treatment");
-      cy.findByTestId("btn-redact").click();
+  it.only("Should successfully verify the save redaction request data in full screen mode", () => {
+    const saveRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveRequestObject,
+      "PUT",
+      "/api/urns/12AB1111111/cases/13401/documents/1"
+    );
+    cy.visit("/case-details/12AB1111111/13401?canvasWidth=900");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("full-screen-btn").click();
+    cy.wait(1000);
+    cy.selectPDFTextElement("MCLOVE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("Male");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("BYRNE");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("FRESH SWELLING");
+    cy.findByTestId("btn-redact").click();
+    cy.selectPDFTextElement("medical treatment");
+    cy.findByTestId("btn-redact").click();
+    cy.findByTestId("btn-save-redaction-0").click();
 
-      cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
-        expect(JSON.stringify(expectedSaveRedactionPayload)).to.deep.equal(
-          saveRequestObject.body
-        );
-      });
-    }
-  );
-
-  it.only(
-    "Should successfully verify the save redaction request data in full screen mode",
-    {
-      viewportHeight: 600,
-      viewportWidth: 700,
-    },
-    () => {
-      const saveRequestObject = { body: "" };
-      cy.trackRequestBody(
-        saveRequestObject,
-        "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+    //assertion on the redaction log save request
+    cy.window().then(() => {
+      redactionRequestAssertionValidator(
+        expectedSaveRedactionPayload,
+        JSON.parse(saveRequestObject.body)
       );
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").click();
-      cy.findByTestId("full-screen-btn").click();
-      cy.wait(1000);
-      cy.selectPDFTextElement("MCLOVE");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("Male");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("BYRNE");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("FRESH SWELLING");
-      cy.findByTestId("btn-redact").click();
-      cy.selectPDFTextElement("medical treatment");
-      cy.findByTestId("btn-redact").click();
-      cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
-        redactionRequestAssertionValidator(
-          expectedSaveRedactionPayload,
-          JSON.parse(saveRequestObject.body)
-        );
-      });
-    }
-  );
+    });
+  });
 
   it("Should show the 'Show Full Screen' button when at least one document is opened in a tab", () => {
     cy.visit("/case-details/12AB1111111/13401");
