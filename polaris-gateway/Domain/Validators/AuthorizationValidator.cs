@@ -4,9 +4,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Common.Logging;
 using Common.Constants;
 using Common.Extensions;
+using Common.Logging;
 using PolarisGateway.Domain.Validation;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -60,27 +60,29 @@ namespace PolarisGateway.Domain.Validators
                     UserName = userName
                 };
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException ex)
             {
+                _log.LogMethodError(correlationId, nameof(ValidateTokenAsync), "An invalid operation exception was caught", ex);
                 return new ValidateTokenResult
                 {
                     IsValid = false,
 
                 };
             }
-            catch (SecurityTokenValidationException)
+            catch (SecurityTokenValidationException ex)
             {
+                _log.LogMethodError(correlationId, nameof(ValidateTokenAsync), "A security exception was caught", ex);
                 return new ValidateTokenResult
                 {
                     IsValid = false,
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _log.LogMethodError(correlationId, nameof(ValidateTokenAsync), "An unexpected error was caught", ex);
                 return new ValidateTokenResult
                 {
                     IsValid = false,
-
                 };
             }
         }
