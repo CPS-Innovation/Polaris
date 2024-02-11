@@ -51,7 +51,7 @@ namespace PolarisGateway.Domain.Validators
                 var tokenValidator = new JwtSecurityTokenHandler();
                 var claimsPrincipal = tokenValidator.ValidateToken(token.ToJwtString(), validationParameters, out _);
 
-                var isValid = IsValid(claimsPrincipal, correlationId, requiredScopes, requiredRoles);
+                var isValid = IsValid(claimsPrincipal, requiredScopes, requiredRoles);
                 var userName = claimsPrincipal.Identity.Name;
 
                 return new ValidateTokenResult
@@ -87,7 +87,7 @@ namespace PolarisGateway.Domain.Validators
             }
         }
 
-        private bool IsValid(ClaimsPrincipal claimsPrincipal, Guid correlationId, string scopes = null, string roles = null)
+        private bool IsValid(ClaimsPrincipal claimsPrincipal, string scopes = null, string roles = null)
         {
             if (claimsPrincipal == null)
             {

@@ -3,7 +3,6 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using PolarisGateway.common.Mappers;
 using PolarisGateway.Factories;
 using Xunit;
 
@@ -11,35 +10,59 @@ namespace PolarisGateway.Tests.Factories
 {
 	public class TriggerCoordinatorResponseFactoryTests
 	{
-		private readonly HttpRequest _httpRequest;
-		private readonly Uri _trackerUrl;
+		private readonly string _requestScheme;
+		private readonly string _requestHost;
+		private readonly ushort _requestPort;
+		private readonly Mock<HttpRequest> _mockRequest;
 		private readonly Guid _correlationId;
 
-		private readonly TriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
+		private readonly TrackerResponseFactory _triggerCoordinatorResponseFactory;
 
 		public TriggerCoordinatorResponseFactoryTests()
 		{
 			var fixture = new Fixture();
 			_correlationId = fixture.Create<Guid>();
 
-			var context = new DefaultHttpContext();
-			_httpRequest = context.Request;
-			_trackerUrl = new Uri("http://www.test.co.uk");
 
-			var mockTrackerUrlMapper = new Mock<ITrackerUrlMapper>();
+			_requestScheme = "http";
+			_requestHost = fixture.Create<string>();
+			_requestPort = fixture.Create<ushort>();
+			var correlationId = fixture.Create<Guid>();
 
-			mockTrackerUrlMapper.Setup(mapper => mapper.Map(_httpRequest, It.IsAny<Guid>())).Returns(_trackerUrl);
+			_mockRequest = new Mock<HttpRequest>();
+			_mockRequest.Setup(x => x.Scheme).Returns(_requestScheme);
+			_mockRequest.Setup(x => x.Host).Returns(new HostString(_requestHost, _requestPort));
 
-			_triggerCoordinatorResponseFactory = new TriggerCoordinatorResponseFactory(mockTrackerUrlMapper.Object);
+			_triggerCoordinatorResponseFactory = new TrackerResponseFactory();
 		}
 
 		[Fact]
-		public void Map_ReturnsTrackerUrl()
+		public void Create_ReturnsTrackerUrl_WhenDefinedPortIsSet()
 		{
-			var response = _triggerCoordinatorResponseFactory.Create(_httpRequest, _correlationId);
+			// Arrange
+			var expectedAbsoluteUri = $"{_requestScheme}://{_requestHost}:{_requestPort}/tracker";
 
-			response.TrackerUrl.Should().Be(_trackerUrl);
+			// Act
+			var response = _triggerCoordinatorResponseFactory.Create(_mockRequest.Object, _correlationId);
+
+			// Assert
+			response.TrackerUrl.AbsoluteUri.Should().Be(expectedAbsoluteUri);
 		}
+
+		[Fact]
+		public void Create_ReturnsTrackerUrl_WhenDefinedPortIsNotSet()
+		{
+			// Arrange
+			var expectedAbsoluteUri = $"{_requestScheme}://{_requestHost}/tracker";
+			_mockRequest.Setup(x => x.Host).Returns(new HostString(_requestHost));
+
+			// Act
+			var response = _triggerCoordinatorResponseFactory.Create(_mockRequest.Object, _correlationId);
+
+			// Assert
+			response.TrackerUrl.AbsoluteUri.Should().Be(expectedAbsoluteUri);
+		}
+
 	}
 }
 

@@ -8,12 +8,12 @@ using PolarisGateway.Domain.Validators;
 using Gateway.Clients;
 using PolarisGateway.Extensions;
 using PolarisGateway.common.Mappers;
-using Gateway.Common.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.ValueObjects;
 using Common.Telemetry.Contracts;
 using PolarisGateway.TelemetryEvents;
+using Common.Extensions;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -23,7 +23,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
         private readonly ITelemetryClient _telemetryClient;
-        const string loggingName = $"{nameof(PolarisPipelineSaveDocumentRedactions)} - {nameof(Run)}";
 
         public PolarisPipelineSaveDocumentRedactions
             (
@@ -46,7 +45,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
-            Guid currentCorrelationId = default;
             var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);
 
             IActionResult sendTelemetryAndReturn(IActionResult result)
@@ -57,15 +55,8 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
             try
             {
-                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                var isRequestValid = request.InvalidResponseResult == null;
-                telemetryEvent.IsRequestValid = isRequestValid;
-                currentCorrelationId = telemetryEvent.CorrelationId = request.CurrentCorrelationId;
-
-                if (!isRequestValid)
-                {
-                    return sendTelemetryAndReturn(request.InvalidResponseResult);
-                }
+                await Initiate(req);
+                telemetryEvent.IsRequestValid = true;
 
                 var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
                 var isRequestJsonValid = redactions.IsValid;
@@ -74,28 +65,26 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
                 if (!isRequestJsonValid)
                 {
-                    return sendTelemetryAndReturn(redactions.ToBadRequest());
+                    // todo: log these errors to telemetry event
+                    var result = new BadRequestObjectResult(redactions.Errors.Select(e => new
+                    {
+                        Field = e.PropertyName,
+                        Error = e.ErrorMessage
+                    }));
+
+                    return sendTelemetryAndReturn(result);
                 }
 
-                var polarisDocumentIdValue = new PolarisDocumentId(polarisDocumentId);
                 var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value);
-                var redactionResult = await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, polarisDocumentIdValue, redactPdfRequest, request.CmsAuthValues, currentCorrelationId);
-                var IsSuccess = redactionResult.Succeeded;
-                telemetryEvent.IsSuccess = IsSuccess;
+                await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), redactPdfRequest, CmsAuthValues, CorrelationId);
+                telemetryEvent.IsSuccess = true;
 
-                var result = IsSuccess ? new OkResult()
-                    : BadGatewayErrorResponse("Error Saving redaction details", currentCorrelationId, loggingName);
-
-                return sendTelemetryAndReturn(result);
+                return sendTelemetryAndReturn(new OkResult());
             }
             catch (Exception exception)
             {
                 _telemetryClient.TrackEventFailure(telemetryEvent);
-                return exception switch
-                {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.SaveRedactionsAsync)}, '{exception.Message}'.", currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred, '{exception.Message}'.", currentCorrelationId, loggingName)
-                };
+                return HandleUnhandledException(exception);
             }
         }
     }

@@ -32,30 +32,15 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         [FunctionName(nameof(PolarisPipelineCheckoutDocument))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
-            Guid currentCorrelationId = default;
-
             try
             {
-                var request = await ValidateRequest(req, nameof(PolarisPipelineCheckoutDocument), ValidRoles.UserImpersonation);
-                if (request.InvalidResponseResult != null)
-                    return request.InvalidResponseResult;
+                await Initiate(req);
 
-                currentCorrelationId = request.CurrentCorrelationId;
-
-                if (string.IsNullOrWhiteSpace(caseUrn))
-                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, nameof(PolarisPipelineCheckoutDocument));
-
-                var response = await _pipelineClient.CheckoutDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), request.CmsAuthValues, currentCorrelationId);
-
-                return response;
+                return await _pipelineClient.CheckoutDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), CmsAuthValues, CorrelationId);
             }
             catch (Exception exception)
             {
-                return exception switch
-                {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.CheckoutDocumentAsync)}.", currentCorrelationId, nameof(PolarisPipelineCheckoutDocument)),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, nameof(PolarisPipelineCheckoutDocument))
-                };
+                return HandleUnhandledException(exception);
             }
         }
     }

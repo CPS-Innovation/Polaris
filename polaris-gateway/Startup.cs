@@ -50,11 +50,10 @@ namespace PolarisGateway
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
-            services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
-            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
-            services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            services.AddTransient<IPipelineClient, PipelineClient>();
+            services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
+            services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddSingleton<ITrackerResponseFactory, TrackerResponseFactory>();
+            //services.AddTransient<IPipelineClient, PipelineClient>();
 
             services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
@@ -62,7 +61,7 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

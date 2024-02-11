@@ -11,9 +11,6 @@ using Common.Wrappers.Contracts;
 using Common.Domain.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Logging;
-using PolarisGateway.Constants;
-using PolarisGateway.Domain.Dto;
-using PolarisGateway.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Ddei.Factories.Contracts;
@@ -259,6 +256,36 @@ namespace PolarisGateway.Functions.CmsAuthentication
         private void LogException(string methodName, Exception ex, Guid correlationId)
         {
             _logger.LogMethodError(correlationId, methodName, ex.Message, ex);
+        }
+
+        private class CmsHandoverParams
+        {
+            public int CaseId { get; set; }
+        }
+
+        private enum AuthFlowMode
+        {
+            // There are two mechanisms for redirecting back to the client.  
+            //  Mechanism 1: the Polaris UI has detected missing or expired auth and redirects to this endpoint with
+            //    a query param that contains the URL to redirect to after auth.
+            PolarisAuthRedirect,
+            // Mechanism 2: we are brought here from CMS.  The scheme there is that we are passed a case id of a case.
+            //  This is passed in the form of `q=%7B%22caseId%22%3A2073383%7D` where there is a fragment of JSON that
+            //  contains the case id.  We need to extract this and then call Modern to get the URN to form our full
+            //  redirect URL.
+            CmsLaunch
+        }
+
+        private class AuthHandoverConstants
+        {
+            public static readonly string[] WhitelistedCookieNameRoots = new[] {
+          "ASP.NET_SessionId",
+          "UID",
+          "WindowID",
+          "CMSUSER", // the cookie name itself is not fixed e.g. CMSUSER246814=foo
+          ".CMSAUTH",
+          "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
+        };
         }
     }
 }

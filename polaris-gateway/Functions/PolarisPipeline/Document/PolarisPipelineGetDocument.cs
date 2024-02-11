@@ -8,6 +8,8 @@ using PolarisGateway.Domain.Validators;
 using Common.Configuration;
 using Common.ValueObjects;
 using Gateway.Clients;
+using Common.Extensions;
+using System.Net;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -15,8 +17,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
     {
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineGetDocument> _logger;
-
-        const string loggingName = $"{nameof(PolarisPipelineGetDocument)} - ${nameof(Run)}";
+        private const string PdfContentType = "application/pdf";
 
         public PolarisPipelineGetDocument(IPipelineClient pipelineClient,
                                           ILogger<PolarisPipelineGetDocument> logger,
@@ -32,32 +33,20 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
-            Guid currentCorrelationId = default;
-
             try
             {
-                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                if (request.InvalidResponseResult != null)
-                    return request.InvalidResponseResult;
+                await Initiate(req);
 
-                currentCorrelationId = request.CurrentCorrelationId;
-
-                if (string.IsNullOrWhiteSpace(caseUrn))
-                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
-
-                var blobStream = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), currentCorrelationId);
-
-                return blobStream != null
-                                    ? new FileStreamResult(blobStream, "application/pdf")
-                                    : NotFoundErrorResponse($"No document found for document id '{polarisDocumentId}'.", currentCorrelationId, loggingName);
+                var result = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), CorrelationId);
+                return new FileStreamResult(result, PdfContentType);
             }
             catch (Exception exception)
             {
-                return exception switch
+                if (exception is HttpRequestException h && h.StatusCode == HttpStatusCode.NotFound)
                 {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetDocumentAsync)}.", currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
-                };
+                    return new NotFoundObjectResult($"No tracker found for case Urn '{caseUrn}', case id '{caseId}'.");
+                }
+                return HandleUnhandledException(exception);
             }
         }
     }

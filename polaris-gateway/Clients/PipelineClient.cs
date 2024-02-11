@@ -43,13 +43,12 @@ namespace Gateway.Clients
             _logger = logger;
         }
 
-        public async Task<StatusCodeResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<HttpStatusCode> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
+            // todo: this client class shouldn't return IActionResults or HttpStatusCodes
             var url = $"{RestApi.GetCasePath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
             var response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId, null, ExpectedRefreshErrorStatusCodes);
-            var statusCode = response.StatusCode;
-
-            return new StatusCodeResult((int)statusCode);
+            return response.StatusCode;
         }
 
         public async Task<IActionResult> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
@@ -63,21 +62,9 @@ namespace Gateway.Clients
 
         public async Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
         {
-            HttpResponseMessage response;
-            try
-            {
-                var url = $"{RestApi.GetCaseTrackerPath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
-            }
-            catch (HttpRequestException exception)
-            {
-                if (exception.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
 
-                throw;
-            }
+            var url = $"{RestApi.GetCaseTrackerPath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            var response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
 
             var stringContent = await response.Content.ReadAsStringAsync();
             return _jsonConvertWrapper.DeserializeObject<TrackerDto>(stringContent, correlationId);
@@ -85,23 +72,10 @@ namespace Gateway.Clients
 
         public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
-            try
-            {
-                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                // do not dispose of the response here
-                var response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
-                return await _httpResponseMessageStreamFactory.Create(response);
-            }
-            catch (HttpRequestException exception)
-            {
-                if (exception.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // todo: check that returning null here is good logic
-                    return null;
-                }
-
-                throw;
-            }
+            var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            // do not dispose of the response here
+            var response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
+            return await _httpResponseMessageStreamFactory.Create(response);
         }
 
         public async Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
@@ -136,24 +110,10 @@ namespace Gateway.Clients
             };
         }
 
-        public async Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
+        public async Task CancelCheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
         {
-            try
-            {
-                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
-            }
-            catch (HttpRequestException exception)
-            {
-                if (exception.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-
-                throw;
-            }
-
-            return new OkResult();
+            var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
         }
 
         public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
@@ -163,7 +123,16 @@ namespace Gateway.Clients
             using var response = await SendRequestAsync(HttpMethod.Put, url, cmsAuthValues, correlationId, content);
             var stringContent = await response.Content.ReadAsStringAsync();
 
-            return _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent, correlationId);
+            var result = _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent, correlationId);
+
+            if (!result.Succeeded)
+            {
+                // todo: remove returning a Succeeded boolean from redaction endpoint,
+                //   endpoint should return unhappy status code
+                throw new Exception("Error Saving redaction details");
+            }
+
+            return result;
         }
 
         public async Task<IList<StreamlinedSearchLine>> SearchCase(string caseUrn, int caseId, string searchTerm, Guid correlationId)

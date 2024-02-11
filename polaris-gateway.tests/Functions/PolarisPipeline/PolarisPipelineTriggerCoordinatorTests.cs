@@ -48,9 +48,9 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _mockPipelineClient = new Mock<IPipelineClient>();
             _mockPipelineClient
                 .Setup(x => x.RefreshCaseAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>()))
-                .ReturnsAsync(new StatusCodeResult((int)HttpStatusCode.Accepted));
+                .ReturnsAsync(HttpStatusCode.Accepted);
 
-            var mockTriggerCoordinatorResponseFactory = new Mock<ITriggerCoordinatorResponseFactory>();
+            var mockTriggerCoordinatorResponseFactory = new Mock<ITrackerResponseFactory>();
             mockTriggerCoordinatorResponseFactory
                 .Setup(factory => factory.Create(_request, It.IsAny<Guid>()))
                 .Returns(_triggerCoordinatorResponse);

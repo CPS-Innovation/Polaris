@@ -5,88 +5,80 @@ using PolarisGateway.Domain.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Exceptions;
-using PolarisGateway.Domain.Validation;
 using Common.Telemetry.Wrappers.Contracts;
-using System.Net;
+using Common.Domain.Exceptions;
+using Ddei.Exceptions;
 
 namespace PolarisGateway.Functions
 {
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+
+    // Might as well have 500 here too
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public abstract class BasePolarisFunction
     {
         private readonly ILogger _logger;
         private readonly IAuthorizationValidator _tokenValidator;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
+        protected Guid CorrelationId { get; set; }
+        protected string LoggingSource { get; set; }
+        protected string CmsAuthValues { get; set; }
 
         protected BasePolarisFunction(ILogger logger, IAuthorizationValidator tokenValidator, ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _tokenValidator = tokenValidator ?? throw new ArgumentNullException(nameof(tokenValidator));
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
+            LoggingSource = GetType().Name;
         }
 
-        protected async Task<ValidateRequestResult> ValidateRequest(HttpRequest req, string loggingSource, string validScopes, string validRoles = "")
+        // todo: annotations about what this throws
+        protected async Task Initiate(HttpRequest req)
         {
-            var result = new ValidateRequestResult();
+            // todo: can we get this from nameof(superclass) or something
+            CorrelationId = req.Headers.GetCorrelation();
 
-            try
-            {
-                result.CurrentCorrelationId = EstablishCorrelation(req);
-                var (username, accessToken) = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
-                result.AccessTokenValue = accessToken;
-                // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.
-                //  We are adding our user identity in to the AppInsights logs, so best to do this before
-                //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
-                _telemetryAugmentationWrapper.RegisterUserName(username);
-                _telemetryAugmentationWrapper.RegisterCorrelationId(result.CurrentCorrelationId);
+            var username = await AuthenticateRequest(req, CorrelationId);
+            // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.
+            //  We are adding our user identity in to the AppInsights logs, so best to do this before
+            //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
+            _telemetryAugmentationWrapper.RegisterUserName(username);
 
-                // todo: only DDEI-bound requests need to have a cms auth values
-                result.CmsAuthValues = EstablishCmsAuthValues(req);
-                _telemetryAugmentationWrapper.RegisterCmsUserId(result.CmsAuthValues.ExtractCmsUserId());
-            }
-            catch (CorrelationException correlationException)
-            {
-                result.InvalidResponseResult = BadRequestErrorResponse(correlationException.Message, Guid.Empty, loggingSource);
-            }
-            catch (CpsAuthenticationException cpsAuthenticationException)
-            {
-                result.InvalidResponseResult = AuthenticationErrorResponse(cpsAuthenticationException.Message, result.CurrentCorrelationId, loggingSource);
-            }
-            catch (CpsAuthorizationException cpsAuthorizationException)
-            {
-                result.InvalidResponseResult = AuthorizationErrorResponse(cpsAuthorizationException.Message, result.CurrentCorrelationId, loggingSource);
-            }
-            catch (CmsAuthenticationException cmsAuthenticationException)
-            {
-                result.InvalidResponseResult = CmsAuthValuesErrorResponse(cmsAuthenticationException.Message, result.CurrentCorrelationId, loggingSource);
-            }
-
-            return result;
+            CmsAuthValues = EstablishCmsAuthValues(req);
+            _telemetryAugmentationWrapper.RegisterCmsUserId(CmsAuthValues.ExtractCmsUserId());
         }
 
-        private static Guid EstablishCorrelation(HttpRequest req)
+        protected IActionResult HandleUnhandledException(Exception ex, string additionalMessage = "")
         {
-            if (!req.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationId) || string.IsNullOrWhiteSpace(correlationId))
-                throw new CorrelationException();
+            _logger.LogMethodError(CorrelationId, LoggingSource, additionalMessage, ex);
 
-            if (!Guid.TryParse(correlationId, out var currentCorrelationId) && currentCorrelationId != Guid.Empty)
-                throw new CorrelationException();
+            // todo: PipelineClient exceptions
+            var statusCode = ex switch
+            {
+                ArgumentNullException or BadRequestException _ => 400,
+                CpsAuthenticationException _ => 401,
+                // must be 403, client will react to a 403 to trigger reauthentication
+                CaseDataServiceException or CmsAuthenticationException _ => 403,
+                _ => 500,
+            };
 
-            return currentCorrelationId;
+            return new ObjectResult(ex.Message) { StatusCode = statusCode };
         }
 
-        private async Task<(string, StringValues)> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
+        private async Task<string> AuthenticateRequest(HttpRequest req, Guid correlationId)
         {
             if (!req.Headers.TryGetValue(OAuthSettings.Authorization, out var accessTokenValue) ||
                 string.IsNullOrWhiteSpace(accessTokenValue))
                 throw new CpsAuthenticationException();
 
-            var validateTokenResult = await _tokenValidator.ValidateTokenAsync(accessTokenValue, currentCorrelationId, validScopes, validRoles);
+            var validateTokenResult = await _tokenValidator.ValidateTokenAsync(accessTokenValue, correlationId, ValidRoles.UserImpersonation);
             if (!validateTokenResult.IsValid)
-                throw new CpsAuthorizationException();
+                throw new CpsAuthenticationException();
 
-            return (validateTokenResult.UserName, accessTokenValue);
+            return validateTokenResult.UserName;
         }
 
         private static string EstablishCmsAuthValues(HttpRequest req)
@@ -96,50 +88,5 @@ namespace PolarisGateway.Functions
 
             return cmsAuthValues;
         }
-
-        private IActionResult AuthenticationErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
-        {
-            return new BadRequestObjectResult(errorMessage);
-
-        }
-
-        protected IActionResult AuthorizationErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
-        {
-            return new UnauthorizedObjectResult(errorMessage);
-        }
-
-        protected IActionResult CmsAuthValuesErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
-        {
-            return new ObjectResult(errorMessage)
-            {
-                // client will react to a 403 to trigger reauthentication
-                StatusCode = 403
-            };
-        }
-
-        protected IActionResult BadRequestErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
-        {
-            return new BadRequestObjectResult(errorMessage);
-        }
-
-        protected IActionResult BadGatewayErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
-        {
-            return new ObjectResult(errorMessage)
-            {
-                StatusCode = 502
-            };
-        }
-
-        protected IActionResult NotFoundErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
-        {
-            return new NotFoundObjectResult(errorMessage);
-        }
-
-        protected IActionResult InternalServerErrorResponse(Exception exception, string additionalMessage, Guid correlationId, string loggerSource, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
-        {
-            _logger.LogMethodError(correlationId, loggerSource, additionalMessage, exception);
-            return new ObjectResult(additionalMessage) { StatusCode = (int)statusCode };
-        }
-
     }
 }

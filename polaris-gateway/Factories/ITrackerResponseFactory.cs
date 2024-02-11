@@ -3,7 +3,7 @@ using PolarisGateway.Domain.PolarisPipeline;
 
 namespace PolarisGateway.Factories
 {
-    public interface ITriggerCoordinatorResponseFactory
+    public interface ITrackerResponseFactory
     {
         TriggerCoordinatorResponse Create(HttpRequest request, Guid correlationId);
     }
