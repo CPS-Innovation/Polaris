@@ -103,6 +103,9 @@ export const HeaderReadMode: React.FC<Props> = ({
               : "disable redaction area mode"
           }
           onClick={() => {
+            if (window.getSelection()) {
+              window.getSelection()?.removeAllRanges();
+            }
             handleAreaOnlyRedaction(
               contextData.documentId,
               !contextData.areaOnlyRedactionMode
