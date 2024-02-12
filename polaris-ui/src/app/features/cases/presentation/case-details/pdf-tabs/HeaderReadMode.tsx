@@ -93,14 +93,15 @@ export const HeaderReadMode: React.FC<Props> = ({
         <LinkButton
           className={
             contextData.areaOnlyRedactionMode
-              ? `${classes.areaModeBtn} ${classes.areaModeBtnEnabled}`
-              : classes.areaModeBtn
+              ? `${classes.areaToolBtn} ${classes.areaToolBtnEnabled}`
+              : classes.areaToolBtn
           }
-          dataTestId="btn-area-mode"
+          dataTestId={`btn-area-tool-${contextData.tabIndex}`}
+          id={`btn-area-tool-${contextData.tabIndex}`}
           ariaLabel={
             !contextData.areaOnlyRedactionMode
-              ? "enable redaction area mode"
-              : "disable redaction area mode"
+              ? "redact area tool on"
+              : "redact area tool off"
           }
           onClick={() => {
             if (window.getSelection()) {

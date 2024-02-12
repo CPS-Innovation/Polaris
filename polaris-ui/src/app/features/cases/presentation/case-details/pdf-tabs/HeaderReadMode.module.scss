@@ -7,10 +7,10 @@
   border-bottom: 0.0625rem solid #b1b4b6;
 }
 
-.areaModeBtn {
+.areaToolBtn {
   margin-right: 0.625rem;
   display: flex;
-  padding: 0.625rem 0.625rem 0.625rem 0.625rem;
+  align-items: center;
   border: none;
   border-radius: 0.3125rem;
   position: relative;
@@ -20,7 +20,6 @@
   cursor: pointer;
   & svg {
     width: 100%;
-    scale: 1.5;
     fill: #fff;
   }
   &:focus {
@@ -30,6 +29,6 @@
   }
 }
 
-.areaModeBtnEnabled {
+.areaToolBtnEnabled {
   background: #000;
 }

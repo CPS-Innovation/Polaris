@@ -748,8 +748,6 @@ describe("case details page", () => {
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Escape");
       cy.focused().should("have.id", "active-tab-panel");
-      cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "document-actions-dropdown-0");
     });
 
     it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key ',' and 'Shift'+','", () => {
@@ -831,6 +829,7 @@ describe("case details page", () => {
       cy.focused().should("have.id", "document-tabs");
       cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       cy.focused().should("have.id", "document-actions-dropdown-0");
       cy.realPress(["Control", "."]);
