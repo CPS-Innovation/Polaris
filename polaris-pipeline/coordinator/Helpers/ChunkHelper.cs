@@ -1,37 +1,43 @@
 using System.Collections.Generic;
+using System.Text;
 
 namespace coordinator.Helpers.ChunkHelper
 {
     public static class ChunkHelper
     {
-        public static List<List<string>> ChunkStringListByMaxCharacterCount(List<string> stringList, int maxCharacter)
+        public static List<string> ChunkStringListByMaxCharacterCount(List<string> stringList, int maxCharacter)
         {
-            var chunkedStringLists = new List<List<string>>();
-            var currentChunk = new List<string>();
-            var currentChunkLength = 0;
+            var chunkedStrings = new List<string>();
+            StringBuilder stringBuilder = new StringBuilder();
+            int currentChunkLength = 0;
 
             foreach (var stringItem in stringList)
             {
-                var stringLength = stringItem.Length;
+                int stringLength = stringItem.Length;
 
-                if (currentChunkLength + stringLength > maxCharacter)
+                if (currentChunkLength + stringLength + 5 > maxCharacter) // add the length of ", " and "[]"
                 {
-                    // add the current chunk to the list of chunks and start a new chunk
-                    chunkedStringLists.Add(currentChunk);
-                    currentChunk = new List<string>();
+                    chunkedStrings.Add($"[{stringBuilder}]");
+                    stringBuilder.Clear();
                     currentChunkLength = 0;
                 }
 
-                currentChunk.Add(stringItem);
-                currentChunkLength += stringLength;
+                if (stringBuilder.Length > 0)
+                {
+                    stringBuilder.Append(", ");
+                    currentChunkLength += 2;
+                }
+
+                stringBuilder.Append($"\"{stringItem}\"");
+                currentChunkLength += stringLength + 2; // add the length of the double quotes
             }
 
-            if (currentChunk.Count > 0)
+            if (stringBuilder.Length > 0)
             {
-                chunkedStringLists.Add(currentChunk);
+                chunkedStrings.Add($"[{stringBuilder}]");
             }
 
-            return chunkedStringLists;
+            return chunkedStrings;
         }
     }
 }

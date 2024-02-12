@@ -18,7 +18,6 @@ using Microsoft.Extensions.Logging;
 using Common.Telemetry.Contracts;
 using coordinator.TelemetryEvents;
 using coordinator.Helpers.ChunkHelper;
-using Common.Wrappers.Contracts;
 
 namespace coordinator.Functions.DurableEntity.Client.Case
 {
@@ -28,14 +27,12 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly ITelemetryClient _telemetryClient;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public SearchCaseClient(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper, ITelemetryClient telemetryClient, IJsonConvertWrapper jsonConvertWrapper)
+        public SearchCaseClient(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper, ITelemetryClient telemetryClient)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
             _telemetryClient = telemetryClient;
-            _jsonConvertWrapper = jsonConvertWrapper;
         }
 
         const string loggingName = $"{nameof(SearchCaseClient)} - {nameof(HttpStart)}";
@@ -102,7 +99,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                     var telemetryEvent = new SearchCaseEvent(
                         correlationId: currentCorrelationId,
                         caseId,
-                        documentIds: _jsonConvertWrapper.SerializeObject(documentIdsChunk)
+                        documentIds: documentIdsChunk
                     );
                     _telemetryClient.TrackEvent(telemetryEvent);
                 }
