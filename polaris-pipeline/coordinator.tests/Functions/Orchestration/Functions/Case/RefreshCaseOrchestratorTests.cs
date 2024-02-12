@@ -26,9 +26,9 @@ using Moq;
 using Xunit;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
-using Common.Domain.Entity;
 using Common.Telemetry.Contracts;
 using coordinator.Validators;
+using coordinator.Domain.Entity;
 
 namespace coordinator.tests.Functions.Orchestration.Functions.Case
 {

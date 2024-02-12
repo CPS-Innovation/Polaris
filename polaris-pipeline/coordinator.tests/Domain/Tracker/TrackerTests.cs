@@ -24,7 +24,7 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.ValueObjects;
 using Newtonsoft.Json;
-using Common.Domain.Entity;
+using coordinator.Domain.Entity;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 
 namespace coordinator.tests.Domain.Tracker

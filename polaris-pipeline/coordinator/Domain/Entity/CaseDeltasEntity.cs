@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Common.Domain.Entity
+namespace coordinator.Domain.Entity
 {
     public class CaseDeltasEntity
     {

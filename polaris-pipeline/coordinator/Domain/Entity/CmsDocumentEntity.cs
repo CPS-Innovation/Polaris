@@ -3,8 +3,9 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
+using Common.Domain.Entity;
 
-namespace Common.Domain.Entity
+namespace coordinator.Domain.Entity
 {
     public class CmsDocumentEntity : BaseDocumentEntity
     {
