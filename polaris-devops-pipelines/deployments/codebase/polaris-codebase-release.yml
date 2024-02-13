@@ -77,10 +77,20 @@ stages:
       armTenantId: $(innovation-development-spn-tenant-id)
       armSubscriptionId: $(innovation-development-subscription-id)
 
-  - template: ../templates/stages/stage_run-e2e-tests.yml
+  - template: ../templates/stages/stage_update_github_tag.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Check_DEV
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "DEV"
+      targetName: "Update GitHub Tag"
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      stageDependsOn: Update_GitHub_Tag_DEV
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "e2e Tests"
@@ -144,10 +154,20 @@ stages:
       armTenantId: $(innovation-qa-spn-tenant-id)
       armSubscriptionId: $(innovation-qa-subscription-id)
 
-  - template: ../templates/stages/stage_run-e2e-tests.yml
+  - template: ../templates/stages/stage_update_github_tag.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Check_QA
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "QA"
+      targetName: "Update GitHub Tag"
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Update_GitHub_Tag_QA
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "e2e Tests"
@@ -211,10 +231,20 @@ stages:
       armTenantId: $(innovation-prod-spn-tenant-id)
       armSubscriptionId: $(innovation-prod-subscription-id)
 
-  - template: ../templates/stages/stage_run-e2e-tests.yml
+  - template: ../templates/stages/stage_update_github_tag.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Check_PROD
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "PROD"
+      targetName: "Update GitHub Tag"
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Update_GitHub_Tag_PROD
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "e2e Tests"

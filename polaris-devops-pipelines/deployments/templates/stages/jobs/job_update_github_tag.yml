@@ -1,0 +1,19 @@
+---
+parameters:
+  - name: targetLabel
+    type: string
+
+jobs:
+  - job: UpdateGithubTag
+    steps:
+      - task: PowerShell@2
+        displayName: 'Update Tag for: ${{ parameters.targetLabel }}'
+        inputs:
+          targetType: 'inline'
+          script: |
+            git config user.name "$BUILD_REQUESTEDFOR"
+            git config user.email "$BUILD_REQUESTEDFOREMAIL"
+            
+            git push origin :refs/tags/${{ parameters.targetLabel }}
+            git tag -f ${{ parameters.targetLabel }}
+            git push origin ${{ parameters.targetLabel }}
