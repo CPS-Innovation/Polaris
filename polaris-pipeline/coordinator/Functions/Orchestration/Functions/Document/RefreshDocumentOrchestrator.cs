@@ -50,6 +50,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 ));
             }
 
+            // todo: this is temporary code until the coordinator refactor exercise is done.
             if (!isPdfConverted)
             {
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));

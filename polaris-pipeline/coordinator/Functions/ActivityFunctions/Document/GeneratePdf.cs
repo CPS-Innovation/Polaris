@@ -44,6 +44,8 @@ namespace coordinator.Functions.ActivityFunctions.Document
             _log = logger;
         }
 
+        // todo: for the time being we have a boolean success flag return value. The coordinator refactor 
+        //  exercise will do something better than this.
         [FunctionName(nameof(GeneratePdf))]
         public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
         {
@@ -76,6 +78,9 @@ namespace coordinator.Functions.ActivityFunctions.Document
             }
             catch (UnsupportedMediaTypeException)
             {
+                // If pdf-generator has failed on conversion we arrive here.  The failure will have been logged in the
+                //  pdf-generator function app so no need to log here, but we let the caller know we've not converted 
+                //  via bool return value.
                 return false;
             }
 
