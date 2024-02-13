@@ -4,17 +4,18 @@ import { PipelineResults } from "../../../gateway/PipelineResults"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 
-const {
-  CONVERSION_FAILURE_CASE_URN,
+const { 
+  CONVERSION_FAILURE_CASE_URN, 
   CONVERSION_FAILURE_CASE_ID,
   CONVERSION_FAILURE_PASSWORD_PROTECTED_DOCUMENT_NAME,
   CONVERSION_FAILURE_INVALID_EXTENSION_NAME,
-  CONVERSION_FAILURE_OK_DOCUMENT_NAME,
-} = Cypress.env()
+  CONVERSION_FAILURE_OK_DOCUMENT_NAME
+} =
+  Cypress.env()
 
 let routes: ApiRoutes
 
-describe("Conversion failure", { tags: "@ci" }, () => {
+describe("Conversion failure", { tags: '@ci' }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)
