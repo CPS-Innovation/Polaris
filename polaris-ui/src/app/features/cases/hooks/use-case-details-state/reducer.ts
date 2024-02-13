@@ -30,6 +30,10 @@ import {
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import {
+  addToLocalStorage,
+  ReadData,
+} from "../../presentation/case-details/utils/localStorageUtils";
 
 export const reducer = (
   state: CombinedState,
@@ -245,7 +249,8 @@ export const reducer = (
             : [];
         const documentsState = mapDocumentsState(
           action.payload.data.documents,
-          witnesses
+          witnesses,
+          state.caseId
         );
         const accordionState = mapAccordionState(documentsState);
         nextState = {
@@ -403,7 +408,7 @@ export const reducer = (
       const redactionsHighlightsToRetain =
         alreadyOpenedTabIndex !== -1
           ? state.tabsState.items[alreadyOpenedTabIndex].redactionHighlights
-          : [];
+          : []; // here read unsaved redaction from localstorage
 
       const foundDocument = state.documentsState.data.find(
         (item) => item.documentId === documentId
@@ -514,6 +519,55 @@ export const reducer = (
                 ? { ...existingItem, ...item }
                 : existingItem
             );
+
+      const accordionsData =
+        state.accordionState.status === "succeeded"
+          ? state.accordionState.data
+          : [];
+      const isDocUnread = accordionsData.some((accordion) => {
+        return accordion.docs.some(
+          (doc) => doc.documentId === documentId && !doc.docRead
+        );
+      });
+
+      if (isDocUnread && state.accordionState.status === "succeeded") {
+        const newAccordionsData = accordionsData.map((accordion) => {
+          const docs = accordion.docs.map((document) => {
+            if (document.documentId === documentId) {
+              return { ...document, docRead: true };
+            }
+            return document;
+          });
+          return { ...accordion, docs: docs };
+        });
+
+        const docReadData = newAccordionsData.reduce((acc, accordion) => {
+          accordion.docs.forEach((document) => {
+            if (document.docRead) {
+              acc[document.documentId] = true;
+            }
+          });
+          return acc;
+        }, {} as ReadData);
+
+        addToLocalStorage(state.caseId, "read", docReadData);
+
+        return {
+          ...coreNewState,
+          tabsState: {
+            ...coreNewState.tabsState,
+            items: nextItemsArray,
+          },
+          searchState: {
+            ...state.searchState,
+            isResultsVisible: false,
+          },
+          accordionState: {
+            ...state.accordionState,
+            data: newAccordionsData,
+          },
+        };
+      }
 
       return {
         ...coreNewState,
@@ -751,6 +805,20 @@ export const reducer = (
     }
     case "SAVING_REDACTION": {
       const { documentId, saveStatus } = action.payload;
+
+      const redactionHighlights = state.tabsState.items.find(
+        (item) => item.documentId === documentId
+      )?.redactionHighlights;
+
+      if (saveStatus === "saving") {
+        //save redaction here
+      }
+
+      if (saveStatus === "saved") {
+        //clear saved redaction here
+      }
+
+      console.log("redactionHighlights>>>>", redactionHighlights);
       return {
         ...state,
         tabsState: {

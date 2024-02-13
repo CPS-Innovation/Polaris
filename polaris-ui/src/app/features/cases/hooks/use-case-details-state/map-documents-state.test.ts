@@ -34,6 +34,7 @@ describe("mapDocumentsState", () => {
           presentationCategory: "category0",
           presentationFileName: "foo",
           presentationSubCategory: null,
+          docRead: false,
           witnessIndicators: [],
         },
         {
@@ -42,12 +43,13 @@ describe("mapDocumentsState", () => {
           presentationCategory: "category1",
           presentationFileName: "bar",
           presentationSubCategory: null,
+          docRead: false,
           witnessIndicators: [],
         },
       ] as MappedCaseDocument[],
     };
 
-    const result = mapDocumentsState(input, []);
+    const result = mapDocumentsState(input, [], 123);
 
     expect(result).toEqual(expectedResult);
   });
@@ -95,6 +97,7 @@ describe("mapDocumentsState", () => {
           attachments: [],
           presentationCategory: "category0",
           presentationFileName: "foo",
+          docRead: false,
           presentationSubCategory: null,
           witnessIndicators: ["V"],
         },
@@ -109,7 +112,7 @@ describe("mapDocumentsState", () => {
       ] as MappedCaseDocument[],
     };
 
-    const result = mapDocumentsState(input, witnessesInput);
+    const result = mapDocumentsState(input, witnessesInput, 123);
 
     expect(result).toEqual(expectedResult);
   });

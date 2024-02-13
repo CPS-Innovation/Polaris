@@ -7,4 +7,5 @@ export type MappedCaseDocument = PresentationDocumentProperties & {
   presentationSubCategory: string | null;
   attachments: { documentId: string; name: string }[];
   witnessIndicators: WitnessIndicator[];
+  docRead: boolean;
 };

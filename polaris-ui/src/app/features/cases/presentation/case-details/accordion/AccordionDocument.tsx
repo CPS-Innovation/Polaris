@@ -40,7 +40,11 @@ export const AccordionDocument: React.FC<Props> = ({
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
 
   return (
-    <li className={`${classes["accordion-document-list-item"]}`}>
+    <li
+      className={`${classes["accordion-document-list-item"]} ${
+        caseDocument.docRead ? classes.docRead : ""
+      }`}
+    >
       <div className={`${classes["accordion-document-item-wrapper"]}`}>
         {canViewDocument ? (
           <LinkButton
