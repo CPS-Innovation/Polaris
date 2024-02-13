@@ -2,9 +2,12 @@
 parameters:
   - name: targetLabel
     type: string
+  - name: jobDependsOn
+    type: object
 
 jobs:
   - job: UpdateGithubTag
+    dependsOn: ${{ parameters.jobDependsOn }}
     steps:
       - task: PowerShell@2
         displayName: 'Update Tag for: ${{ parameters.targetLabel }}'
