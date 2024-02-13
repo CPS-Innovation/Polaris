@@ -11,9 +11,11 @@ jobs:
         inputs:
           targetType: 'inline'
           script: |
+            $targetLabel = "${{ parameters.targetLabel }}"
+            $lowercaseTargetLabel = $targetLabel.ToLower()
             git config user.name "$BUILD_REQUESTEDFOR"
             git config user.email "$BUILD_REQUESTEDFOREMAIL"
             
-            git push origin :refs/tags/${{ parameters.targetLabel }}
-            git tag -f ${{ parameters.targetLabel }}
-            git push origin ${{ parameters.targetLabel }}
+            git push origin :refs/tags/$lowercaseTargetLabel
+            git tag -f $lowercaseTargetLabel
+            git push origin $lowercaseTargetLabel
