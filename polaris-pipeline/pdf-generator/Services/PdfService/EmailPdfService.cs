@@ -2,7 +2,7 @@
 using System.IO;
 using Aspose.Email;
 using Aspose.Words;
-using Common.Domain.Document;
+using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService

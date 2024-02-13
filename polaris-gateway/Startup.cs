@@ -1,5 +1,4 @@
-﻿using Common.Constants;
-using Common.Factories;
+﻿using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
@@ -49,7 +48,7 @@ namespace PolarisGateway
             {
                 // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
                 return new ConfigurationManager<OpenIdConnectConfiguration>(
-                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
+                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(Common.Constants.OAuthSettings.TenantId)}/.well-known/openid-configuration",
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
@@ -61,7 +60,7 @@ namespace PolarisGateway
 
             services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
-                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, PipelineSettings.PipelineCoordinatorBaseUrl));
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 

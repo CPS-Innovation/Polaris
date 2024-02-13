@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text;
 using Common.Configuration;
-using Common.Constants;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request;
 using Common.Dto.Response;
@@ -12,6 +11,7 @@ using Common.Streaming;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
+using PolarisGateway;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -50,7 +50,7 @@ namespace Gateway.Clients.PolarisPipeline
         {
             _logger.LogMethodEntry(correlationId, nameof(RefreshCaseAsync), $"CaseId: {caseId}");
 
-            var url = $"{RestApi.GetCasePath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            var url = $"{RestApi.GetCasePath(caseUrn, caseId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
             var response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId, null, ExpectedRefreshErrorStatusCodes);
             HttpStatusCode statusCode = response.StatusCode;
 
@@ -63,7 +63,7 @@ namespace Gateway.Clients.PolarisPipeline
         {
             _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"CaseId: {caseId}");
 
-            var url = $"{RestApi.GetCasePath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            var url = $"{RestApi.GetCasePath(caseUrn, caseId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
             var response = await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId, null, ExpectedRefreshErrorStatusCodes);
             HttpStatusCode statusCode = response.StatusCode;
 
@@ -79,7 +79,7 @@ namespace Gateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                var url = $"{RestApi.GetCaseTrackerPath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+                var url = $"{RestApi.GetCaseTrackerPath(caseUrn, caseId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
                 response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
@@ -102,7 +102,7 @@ namespace Gateway.Clients.PolarisPipeline
         {
             try
             {
-                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
                 // do not dispose of the response here
                 var response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
                 return await _httpResponseMessageStreamFactory.Create(response);
@@ -126,7 +126,7 @@ namespace Gateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
                 response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId, null, ExpectedCheckoutErrorStatusCodes);
             }
             catch (HttpRequestException exception)
@@ -159,7 +159,7 @@ namespace Gateway.Clients.PolarisPipeline
 
             try
             {
-                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
                 await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
             }
             catch (HttpRequestException exception)
@@ -180,7 +180,7 @@ namespace Gateway.Clients.PolarisPipeline
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Saving Redactions for Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
             var content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
-            var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
             using var response = await SendRequestAsync(HttpMethod.Put, url, cmsAuthValues, correlationId, content);
             var stringContent = await response.Content.ReadAsStringAsync();
 
@@ -195,7 +195,7 @@ namespace Gateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                var url = $"{RestApi.GetCaseSearchPath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}&query={searchTerm}";
+                var url = $"{RestApi.GetCaseSearchPath(caseUrn, caseId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}&query={searchTerm}";
                 response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
