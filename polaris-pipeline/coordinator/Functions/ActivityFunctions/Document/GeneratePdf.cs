@@ -13,6 +13,7 @@ using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System.Net.Http;
 
 namespace coordinator.Functions.ActivityFunctions.Document
 {
@@ -59,22 +60,24 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             var documentStream = await GetDocumentStreamAsync(payload);
 
-            using var convertResult = await _pdfGeneratorClient.ConvertToPdfAsync(
-                    payload.CorrelationId,
-                    payload.CmsAuthValues,
-                    payload.CmsCaseUrn,
-                    payload.CmsCaseId.ToString(),
-                    payload.CmsDocumentId,
-                    payload.CmsVersionId.ToString(),
-                    documentStream,
-                    fileType);
+            Stream pdfStream = Stream.Null;
+            try
+            {
+                pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
+                            payload.CorrelationId,
+                            payload.CmsAuthValues,
+                            payload.CmsCaseUrn,
+                            payload.CmsCaseId.ToString(),
+                            payload.CmsDocumentId,
+                            payload.CmsVersionId.ToString(),
+                            documentStream,
+                            fileType);
 
-            if (!convertResult.IsSuccess)
+            }
+            catch (UnsupportedMediaTypeException)
             {
                 return false;
             }
-
-            var pdfStream = convertResult.PdfStream;
 
             await _blobStorageService.UploadDocumentAsync
                 (

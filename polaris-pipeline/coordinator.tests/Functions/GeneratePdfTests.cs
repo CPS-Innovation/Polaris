@@ -24,7 +24,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
-using coordinator.Clients;
 
 namespace pdf_generator.tests.Functions
 {
@@ -103,10 +102,7 @@ namespace pdf_generator.tests.Functions
                 .Returns(_generatePdfRequest);
 
             _mockPdfGeneratorClient = new Mock<IPdfGeneratorClient>();
-            var convertToPdfResponse = new ConvertToPdfResponse
-            {
-                PdfStream = _pdfStream,
-            };
+
             _mockPdfGeneratorClient
                 .Setup(client => client.ConvertToPdfAsync(
                     _generatePdfRequest.CorrelationId,
@@ -117,7 +113,7 @@ namespace pdf_generator.tests.Functions
                     _generatePdfRequest.CmsVersionId.ToString(),
                     _documentStream,
                     FileType.DOC))
-                .ReturnsAsync(convertToPdfResponse);
+                .ReturnsAsync(_pdfStream);
 
             _generatePdf = new GeneratePdf(
                                 _mockConvertPcdRequestToHtmlService.Object,

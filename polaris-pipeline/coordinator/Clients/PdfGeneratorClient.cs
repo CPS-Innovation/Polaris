@@ -17,21 +17,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Clients
 {
-    public class ConvertToPdfResponse : IDisposable
-
-    {
-        public bool IsSuccess { get; set; }
-
-        public Stream PdfStream { get; set; }
-
-        public string ErrorMessage { get; set; }
-
-        public void Dispose()
-        {
-            PdfStream?.Dispose();
-        }
-    }
-
     public class PdfGeneratorClient : IPdfGeneratorClient
     {
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
@@ -53,7 +38,7 @@ namespace coordinator.Clients
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
+        public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
@@ -66,18 +51,16 @@ namespace coordinator.Clients
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             if (response.StatusCode == HttpStatusCode.UnsupportedMediaType)
             {
-                return new ConvertToPdfResponse
-                {
-                    IsSuccess = false,
-                    ErrorMessage = await response.Content.ReadAsStringAsync()
-                };
+                throw new UnsupportedMediaTypeException(
+                    $"Unsupported media type: {fileType}",
+                    // todo: we do not have the *real* media type header to hand, so just use a generic one
+                    //  Key thing is we communicate to the caller that the pdf-generator has rejected us on media type grounds
+                    new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream")
+                );
             }
+
             response.EnsureSuccessStatusCode();
-            return new ConvertToPdfResponse
-            {
-                IsSuccess = true,
-                PdfStream = await _httpResponseMessageStreamFactory.Create(response)
-            };
+            return await _httpResponseMessageStreamFactory.Create(response);
         }
 
         public async Task<RedactPdfResponse> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)

@@ -151,8 +151,7 @@ namespace coordinator.Clients.Tests.Clients
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
             // Assert
-            response.IsSuccess.Should().BeTrue();
-            var responseText = new StreamReader(response.PdfStream, System.Text.Encoding.UTF8).ReadToEnd();
+            var responseText = new StreamReader(response, System.Text.Encoding.UTF8).ReadToEnd();
             responseText.Should().Be(expectedContent);
         }
 
@@ -174,11 +173,10 @@ namespace coordinator.Clients.Tests.Clients
             _httpResponseMessage.StatusCode = HttpStatusCode.UnsupportedMediaType;
 
             // Act
-            var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
+            var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
             // Assert
-            response.IsSuccess.Should().BeFalse();
-            response.ErrorMessage.Should().Be(expectedContent);
+            await act.Should().ThrowAsync<UnsupportedMediaTypeException>();
         }
         [Fact]
         public async Task ConvertToPdfAsync_WhenHttpRequestExceptionThrown_IsCaughtAsException()
