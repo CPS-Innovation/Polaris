@@ -68,7 +68,7 @@ const getRoutesToTest = (correlationId: CorrelationId, headers: any) => {
 describe("Gateway endpoint auth", { tags: "@ci" }, () => {
   ;["EMPTY", "UNDEFINED", "NOT_A_GUID"].forEach(
     (correlationId: CorrelationId) => {
-      it(`rejects calls that do not an appropriate correlation id: (${correlationId} correlation id)`, () => {
+      it(`rejects calls that do not have an appropriate correlation id: (${correlationId} correlation id)`, () => {
         const routesToTest = getRoutesToTest(correlationId, {})
 
         for (const route of routesToTest) {
@@ -115,7 +115,7 @@ describe("Gateway endpoint auth", { tags: "@ci" }, () => {
     })
   })
 
-  it("rejects calls that have a correlation id and token but do not have cms auth values", () => {
+  it("rejects calls that have a correlation id and valid token but do not have cms auth values", () => {
     cy.getADTokens().then((adTokens) => {
       const routesToTest = getRoutesToTest("BLANK", {
         Authorization: `Bearer ${adTokens.access_token}`,
