@@ -1,7 +1,8 @@
 ﻿using Common.Dto.Case;
 using Common.ValueObjects;
+using Common.Domain.Entity;
 
-namespace Common.Domain.Entity
+namespace coordinator.Domain.Entity
 {
     public class DefendantsAndChargesEntity : BaseDocumentEntity
     {

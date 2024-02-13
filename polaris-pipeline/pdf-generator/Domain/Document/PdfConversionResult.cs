@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Common.Domain.Extensions;
 
-namespace Common.Domain.Document;
+namespace pdf_generator.Domain.Document;
 
 public class PdfConversionResult
 {

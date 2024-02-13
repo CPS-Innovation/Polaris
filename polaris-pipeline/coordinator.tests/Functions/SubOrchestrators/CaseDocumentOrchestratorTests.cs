@@ -2,9 +2,9 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.Entity;
 using Common.Dto.Tracker;
 using coordinator.Domain;
+using coordinator.Domain.Entity;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Document;

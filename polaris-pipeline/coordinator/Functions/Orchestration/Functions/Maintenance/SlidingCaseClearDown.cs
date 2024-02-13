@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Logging;
+using coordinator.Constants;
 using coordinator.Providers;
 using coordinator.Services.CleardownService;
 using Microsoft.Azure.WebJobs;
@@ -32,8 +32,8 @@ public class SlidingCaseClearDown
         var correlationId = Guid.NewGuid();
         try
         {
-            var hoursBackNumber = double.Parse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputHours]);
-            var countCases = int.Parse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownBatchSize]);
+            var hoursBackNumber = double.Parse(_configuration[ConfigKeys.SlidingClearDownInputHours]);
+            var countCases = int.Parse(_configuration[ConfigKeys.SlidingClearDownBatchSize]);
             var earliestDateToKeep = DateTime.UtcNow.AddHours(hoursBackNumber * -1);
             var caseIds = await _orchestrationProvider.FindCaseInstancesByDateAsync(client, earliestDateToKeep, countCases);
 

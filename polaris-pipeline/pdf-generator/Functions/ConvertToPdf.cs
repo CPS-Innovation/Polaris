@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
 using Common.Configuration;
-using Common.Domain.Document;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
+using pdf_generator.Domain.Document;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
 using Common.Domain.Exceptions;

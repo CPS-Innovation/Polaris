@@ -153,7 +153,7 @@ namespace coordinator.Services.DocumentToggle
                 {
                     currentLine = lines[lineIndex]
                                     .Trim();
-                    if (currentLine.StartsWith(Constants.Comment))
+                    if (currentLine.StartsWith(DocumentToggleConstants.Comment))
                     {
                         continue;
                     }
@@ -196,7 +196,7 @@ namespace coordinator.Services.DocumentToggle
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.FileType
                         && (
-                          def.Identifier == Constants.Wildcard ||
+                          def.Identifier == DocumentToggleConstants.Wildcard ||
                             def.Identifier.Equals(document.FileExtension, StringComparison.InvariantCultureIgnoreCase)));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
@@ -207,7 +207,7 @@ namespace coordinator.Services.DocumentToggle
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.DocType
                         && (
-                          def.Identifier == Constants.Wildcard ||
+                          def.Identifier == DocumentToggleConstants.Wildcard ||
                             def.Identifier.Equals(document.CmsDocType.DocumentTypeId, StringComparison.InvariantCultureIgnoreCase)));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;

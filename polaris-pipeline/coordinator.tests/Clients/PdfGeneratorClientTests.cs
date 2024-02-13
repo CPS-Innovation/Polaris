@@ -12,8 +12,8 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.Contracts;
+using coordinator.Constants;
 using Common.Wrappers.Contracts;
-using Common.Constants;
 using Common.Factories.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
@@ -57,7 +57,7 @@ namespace coordinator.Clients.Tests.Clients
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 
-            mockConfiguration.Setup(config => config[PipelineSettings.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
+            mockConfiguration.Setup(config => config[ConfigKeys.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
 
             _httpRequestMessage = new HttpRequestMessage
             {
