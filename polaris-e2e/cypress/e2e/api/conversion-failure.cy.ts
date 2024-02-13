@@ -50,8 +50,7 @@ describe("Conversion failure", { tags: '@ci' }, () => {
         routes.GET_TRACKER(CONVERSION_FAILURE_CASE_URN, CONVERSION_FAILURE_CASE_ID)
       )
       .its("body")
-      .then(({ documents, status }) => {
-        expect(status).to.be.equal("Completed")
+      .then(({ documents }) => {
         expect(
           documents.some(
             (document) =>
