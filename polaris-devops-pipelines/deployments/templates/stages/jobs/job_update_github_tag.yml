@@ -1,0 +1,21 @@
+---
+parameters:
+  - name: targetLabel
+    type: string
+
+jobs:
+  - job: UpdateGithubTag
+    steps:
+      - task: PowerShell@2
+        displayName: 'Update Tag for: ${{ parameters.targetLabel }}'
+        inputs:
+          targetType: 'inline'
+          script: |
+            $targetLabel = "${{ parameters.targetLabel }}"
+            $lowercaseTargetLabel = $targetLabel.ToLower()
+            git config user.name "$BUILD_REQUESTEDFOR"
+            git config user.email "$BUILD_REQUESTEDFOREMAIL"
+            
+            git push origin :refs/tags/$lowercaseTargetLabel
+            git tag -f $lowercaseTargetLabel
+            git push origin $lowercaseTargetLabel
