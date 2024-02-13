@@ -2,7 +2,7 @@ using System;
 using Azure;
 using Azure.Core.Serialization;
 using Azure.Search.Documents;
-using Common.Constants;
+using text_extractor.Constants;
 using text_extractor.Factories.Contracts;
 using Microsoft.Extensions.Configuration;
 
@@ -19,9 +19,9 @@ public class AzureSearchClientFactory : IAzureSearchClientFactory
 
     public SearchClient Create()
     {
-        string searchClientEndpointUrl = _configuration[ConfigKeys.SharedKeys.SearchClientEndpointUrl] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientEndpointUrl));
-        string indexName = _configuration[ConfigKeys.SharedKeys.SearchClientIndexName] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientIndexName));
-        string searchClientAuthorizationKey = _configuration[ConfigKeys.SharedKeys.SearchClientAuthorizationKey] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientAuthorizationKey));
+        string searchClientEndpointUrl = _configuration[ConfigKeys.SearchClientEndpointUrl] ?? throw new ArgumentNullException(nameof(ConfigKeys.SearchClientEndpointUrl));
+        string indexName = _configuration[ConfigKeys.SearchClientIndexName] ?? throw new ArgumentNullException(nameof(ConfigKeys.SearchClientIndexName));
+        string searchClientAuthorizationKey = _configuration[ConfigKeys.SearchClientAuthorizationKey] ?? throw new ArgumentNullException(nameof(ConfigKeys.SearchClientAuthorizationKey));
 
         var sc = new SearchClient(
             new Uri(searchClientEndpointUrl),

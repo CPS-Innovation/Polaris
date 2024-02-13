@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Constants;
 using Common.Factories.Contracts;
 using Common.Wrappers.Contracts;
 using FluentAssertions;
@@ -76,7 +75,7 @@ namespace PolarisGateway.Tests.Clients
 
             var mockPipelineClientLogger = new Mock<ILogger<PipelineClient>>();
 
-            mockConfiguration.Setup(config => config[PipelineSettings.PipelineCoordinatorFunctionAppKey]).Returns(_polarisPipelineFunctionAppKey);
+            mockConfiguration.Setup(config => config[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]).Returns(_polarisPipelineFunctionAppKey);
 
             _mockRequestFactory
                 .Setup(factory => factory.Create(HttpMethod.Post, $"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}", It.IsAny<Guid>(), _cmsAuthValues))

@@ -1,7 +1,7 @@
-﻿using Common.Domain.Entity;
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
+using coordinator.Domain.Entity;
 
 namespace coordinator.Domain
 {

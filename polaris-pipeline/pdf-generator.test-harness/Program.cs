@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
+using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 
 namespace pdf_generator.test_harness;
