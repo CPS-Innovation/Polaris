@@ -5,13 +5,13 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Constants;
 using Common.Domain.Extensions;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
+using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Functions.ActivityFunctions.Case;
@@ -26,9 +26,9 @@ using Moq;
 using Xunit;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
-using Common.Domain.Entity;
 using Common.Telemetry.Contracts;
 using coordinator.Validators;
+using coordinator.Domain.Entity;
 
 namespace coordinator.tests.Functions.Orchestration.Functions.Case
 {
@@ -104,7 +104,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
             _mockCmsDocumentsResponseValidator = new Mock<ICmsDocumentsResponseValidator>();
 
             mockConfiguration
-                .Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs])
+                .Setup(config => config[ConfigKeys.CoordinatorOrchestratorTimeoutSecs])
                 .Returns("300");
 
             _mockCaseEntity

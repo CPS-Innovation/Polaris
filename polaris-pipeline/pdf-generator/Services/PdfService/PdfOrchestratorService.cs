@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Common.Domain.Document;
+using pdf_generator.Domain.Document;
 using Common.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
