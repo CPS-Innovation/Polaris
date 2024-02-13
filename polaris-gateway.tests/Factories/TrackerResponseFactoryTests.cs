@@ -8,7 +8,7 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Factories
 {
-	public class TriggerCoordinatorResponseFactoryTests
+	public class TrackerResponseFactoryTests
 	{
 		private readonly string _requestScheme;
 		private readonly string _requestHost;
@@ -18,7 +18,7 @@ namespace PolarisGateway.Tests.Factories
 
 		private readonly TrackerResponseFactory _triggerCoordinatorResponseFactory;
 
-		public TriggerCoordinatorResponseFactoryTests()
+		public TrackerResponseFactoryTests()
 		{
 			var fixture = new Fixture();
 			_correlationId = fixture.Create<Guid>();

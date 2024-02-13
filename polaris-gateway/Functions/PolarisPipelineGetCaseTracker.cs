@@ -9,12 +9,11 @@ using Gateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
 using System.Net;
 
-namespace PolarisGateway.Functions.PolarisPipeline.Case
+namespace PolarisGateway.Functions
 {
     public class PolarisPipelineGetCaseTracker : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineGetCaseTracker> _logger;
 
         public PolarisPipelineGetCaseTracker(ILogger<PolarisPipelineGetCaseTracker> logger,
                                          IPipelineClient pipelineClient,
@@ -23,10 +22,10 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
-            _logger = logger;
         }
 
         [FunctionName(nameof(PolarisPipelineGetCaseTracker))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
         {
             try

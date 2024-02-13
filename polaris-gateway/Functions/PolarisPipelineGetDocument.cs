@@ -8,15 +8,13 @@ using PolarisGateway.Domain.Validators;
 using Common.Configuration;
 using Common.ValueObjects;
 using Gateway.Clients;
-using Common.Extensions;
 using System.Net;
 
-namespace PolarisGateway.Functions.PolarisPipeline.Document
+namespace PolarisGateway.Functions
 {
     public class PolarisPipelineGetDocument : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineGetDocument> _logger;
         private const string PdfContentType = "application/pdf";
 
         public PolarisPipelineGetDocument(IPipelineClient pipelineClient,
@@ -26,10 +24,10 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
-            _logger = logger;
         }
 
         [FunctionName(nameof(PolarisPipelineGetDocument))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {

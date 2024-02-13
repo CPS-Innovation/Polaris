@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Domain.Validators;
 using Gateway.Clients;
-using PolarisGateway.Extensions;
 using PolarisGateway.common.Mappers;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Request;
@@ -15,7 +14,7 @@ using Common.Telemetry.Contracts;
 using PolarisGateway.TelemetryEvents;
 using Common.Extensions;
 
-namespace PolarisGateway.Functions.PolarisPipeline.Document
+namespace PolarisGateway.Functions
 {
     public class PolarisPipelineSaveDocumentRedactions : BasePolarisFunction
     {
@@ -43,6 +42,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         }
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);

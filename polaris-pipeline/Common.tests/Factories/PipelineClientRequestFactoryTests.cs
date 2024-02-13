@@ -1,14 +1,10 @@
-﻿using System;
-using System.Net.Http;
-using AutoFixture;
+﻿using AutoFixture;
 using Common.Factories;
 using Common.Factories.Contracts;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
-namespace PolarisGateway.Tests.Factories
+namespace Common.Tests.Factories
 {
     public class PipelineClientRequestFactoryTests
     {

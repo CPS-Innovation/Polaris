@@ -14,11 +14,11 @@ using Moq;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Factories;
-using PolarisGateway.Functions.PolarisPipeline.Case;
+using PolarisGateway.Functions;
 using Common.Telemetry.Wrappers.Contracts;
 using Xunit;
 
-namespace PolarisGateway.Tests.Functions.PolarisPipeline
+namespace PolarisGateway.Tests.Functions
 {
     public class PolarisPipelineTriggerCoordinatorTests : SharedMethods.SharedMethods
     {

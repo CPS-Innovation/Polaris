@@ -5,7 +5,6 @@ using PolarisGateway.Domain.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.Exceptions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Domain.Exceptions;
 using Ddei.Exceptions;
@@ -35,7 +34,7 @@ namespace PolarisGateway.Functions
             LoggingSource = GetType().Name;
         }
 
-        // todo: annotations about what this throws
+        // todo: move to isolated process functions and this goes in middleware
         protected async Task Initiate(HttpRequest req)
         {
             // todo: can we get this from nameof(superclass) or something
@@ -51,6 +50,7 @@ namespace PolarisGateway.Functions
             _telemetryAugmentationWrapper.RegisterCmsUserId(CmsAuthValues.ExtractCmsUserId());
         }
 
+        // todo: move to isolated process functions and this goes in middleware
         protected IActionResult HandleUnhandledException(Exception ex, string additionalMessage = "")
         {
             _logger.LogMethodError(CorrelationId, LoggingSource, additionalMessage, ex);
@@ -88,5 +88,20 @@ namespace PolarisGateway.Functions
 
             return cmsAuthValues;
         }
+
+        [Serializable]
+        private class CpsAuthenticationException : Exception
+        {
+            public CpsAuthenticationException()
+                : base("Invalid token. No authentication token was supplied.") { }
+        }
+
+        [Serializable]
+        private class CmsAuthenticationException : Exception
+        {
+            public CmsAuthenticationException()
+                : base("Invalid cms auth values. A string is expected.") { }
+        }
+
     }
 }

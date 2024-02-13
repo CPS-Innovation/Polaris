@@ -9,12 +9,11 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry.Wrappers.Contracts;
 
-namespace PolarisGateway.Functions.PolarisPipeline.Document
+namespace PolarisGateway.Functions
 {
     public class PolarisPipelineCancelCheckoutDocument : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineCancelCheckoutDocument> _logger;
 
         public PolarisPipelineCancelCheckoutDocument
             (
@@ -26,10 +25,10 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
-            _logger = logger;
         }
 
         [FunctionName(nameof(PolarisPipelineCancelCheckoutDocument))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {

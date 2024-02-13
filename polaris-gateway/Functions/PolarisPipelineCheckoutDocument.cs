@@ -9,12 +9,11 @@ using Gateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.ValueObjects;
 
-namespace PolarisGateway.Functions.PolarisPipeline.Document
+namespace PolarisGateway.Functions
 {
     public class PolarisPipelineCheckoutDocument : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineCheckoutDocument> _logger;
 
         public PolarisPipelineCheckoutDocument
             (
@@ -26,10 +25,10 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
-            _logger = logger;
         }
 
         [FunctionName(nameof(PolarisPipelineCheckoutDocument))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             try

@@ -11,11 +11,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Functions.PolarisPipeline.Document;
+using PolarisGateway.Functions;
 using Common.Telemetry.Wrappers.Contracts;
 using Xunit;
 
-namespace PolarisGateway.Tests.Functions.PolarisPipeline
+namespace PolarisGateway.Tests.Functions
 {
     public class PolarisPipelineGetDocumentTests : SharedMethods.SharedMethods
     {

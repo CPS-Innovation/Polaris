@@ -9,12 +9,11 @@ using Gateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Domain.Exceptions;
 
-namespace PolarisGateway.Functions.PolarisPipeline.Case
+namespace PolarisGateway.Functions
 {
     public class PolarisPipelineCaseSearch : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineCaseSearch> _logger;
 
         private const string Query = "query";
 
@@ -25,10 +24,10 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
             : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
-            _logger = logger;
         }
 
         [FunctionName(nameof(PolarisPipelineCaseSearch))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req, string caseUrn, int caseId)
         {
             try

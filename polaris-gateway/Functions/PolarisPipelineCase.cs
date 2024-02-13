@@ -9,15 +9,16 @@ using Gateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
 using PolarisGateway.Factories;
 
-namespace PolarisGateway.Functions.PolarisPipeline.Case
+namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineCaseDelete : BasePolarisFunction
+    // note: the analytics KQL queries refer to "PolarisPipelineCase" as the function name,
+    //  if we change this then we must change the KQL queries to be `| ... ("PolarisPipelineCase" or "NewName")
+    public class PolarisPipelineCase : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineCase> _logger;
         private readonly ITrackerResponseFactory _triggerCoordinatorResponseFactory;
 
-        public PolarisPipelineCaseDelete(ILogger<PolarisPipelineCase> logger,
+        public PolarisPipelineCase(ILogger<PolarisPipelineCase> logger,
                                     IPipelineClient pipelineClient,
                                     IAuthorizationValidator tokenValidator,
                                     ITrackerResponseFactory triggerCoordinatorResponseFactory,
@@ -26,17 +27,22 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
         {
             _pipelineClient = pipelineClient;
             _triggerCoordinatorResponseFactory = triggerCoordinatorResponseFactory;
-            _logger = logger;
         }
 
-        [FunctionName(nameof(PolarisPipelineCaseDelete))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        [FunctionName(nameof(PolarisPipelineCase))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             try
             {
                 await Initiate(req);
 
-                return await _pipelineClient.DeleteCaseAsync(caseUrn, caseId, CmsAuthValues, CorrelationId);
+                var responseCode = await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, CmsAuthValues, CorrelationId);
+                var result = _triggerCoordinatorResponseFactory.Create(req, CorrelationId);
+                return new ObjectResult(result)
+                {
+                    StatusCode = (int)responseCode
+                };
             }
             catch (Exception exception)
             {
