@@ -71,7 +71,7 @@ namespace PolarisGateway.Functions
             if (!req.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationId) || string.IsNullOrWhiteSpace(correlationId))
                 throw new CorrelationException();
 
-            if (!Guid.TryParse(correlationId, out var currentCorrelationId) && currentCorrelationId != Guid.Empty)
+            if (!Guid.TryParse(correlationId, out var currentCorrelationId) || currentCorrelationId == Guid.Empty)
                 throw new CorrelationException();
 
             return currentCorrelationId;
