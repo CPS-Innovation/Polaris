@@ -11,7 +11,7 @@
   severity            = 2
   time_window         = 5
   action {
-    action_group = [azurerm_monitor_action_group.polaris-alert-action-group.id]
+    action_group = [azurerm_monitor_action_group.polaris-alert-action-group[0].id]
   }
   trigger {
     operator  = "GreaterThan"
@@ -42,7 +42,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "polaris-alert-rule-cms50
   severity            = 1
   time_window         = 15
   action {
-    action_group = [azurerm_monitor_action_group.polaris-alert-action-group.id]
+    action_group = [azurerm_monitor_action_group.polaris-alert-action-group[0].id]
   }
   trigger {
     operator  = "GreaterThan"
@@ -72,7 +72,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "polaris-alert-rule-restr
   severity            = 2
   time_window         = 60
   action {
-    action_group = [azurerm_monitor_action_group.polaris-nf-alert-action-group.id]
+    action_group = [azurerm_monitor_action_group.polaris-nf-alert-action-group[0].id]
   }
   trigger {
     operator  = "GreaterThan"
@@ -103,7 +103,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "polaris-alert-rule-docum
   severity            = 3
   time_window         = 60
   action {
-    action_group = [azurerm_monitor_action_group.polaris-nf-alert-action-group.id]
+    action_group = [azurerm_monitor_action_group.polaris-nf-alert-action-group[0].id]
   }
   trigger {
     operator  = "GreaterThan"
