@@ -12,11 +12,8 @@ export const mapRedactionSaveRequest = (
 ) => {
   const redactions = [] as RedactionSavePage[];
 
-  const baseHeight = redactionHighlights[0].position.boundingRect.height;
-  const normalizedHighlights = getNormalizedRedactionHighlights(
-    redactionHighlights,
-    baseHeight
-  );
+  const normalizedHighlights =
+    getNormalizedRedactionHighlights(redactionHighlights);
 
   for (const redactionHighlight of normalizedHighlights) {
     const { position, highlightType } = redactionHighlight;

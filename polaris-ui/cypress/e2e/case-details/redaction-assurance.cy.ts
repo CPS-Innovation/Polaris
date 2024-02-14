@@ -10,9 +10,14 @@ const redactionRequestAssertionValidator = (
   expectedRequest: RedactionSaveRequest,
   redactionRequest: RedactionSaveRequest
 ) => {
-  const request = getNormalizedRedactionRequest(redactionRequest, 900);
+  //This normalize the redaction save request so that we can do the compare
+  const request = getNormalizedRedactionRequest(
+    expectedRequest,
+    redactionRequest
+  );
+  //assurance test currently passes if the values falls under particular precision
   const PRECISION_FACTOR = 1.5;
-  const PRECISION_FACTOR_Y2 = 3;
+  const PRECISION_FACTOR_Y2 = 3; // When running on the pipeline y2 values shows a higher deviation
   expect(request.documentId).to.equal(expectedRequest.documentId);
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
   request.redactions.forEach((redaction, index) => {
@@ -494,6 +499,161 @@ describe("Redaction Assurance", () => {
       cy.window().then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
+          JSON.parse(saveRequestObject.body)
+        );
+      });
+    });
+  });
+
+  describe("Mixed Orientation PDf (Portrait and Landscape)", () => {
+    const expectedMixedOrientationPDfSaveRequest = {
+      documentId: "10",
+      redactions: [
+        {
+          pageIndex: 1,
+          height: 1347.18,
+          width: 1041,
+          redactionCoordinates: [
+            { x1: 70.16, y1: 1111.72, x2: 90.97, y2: 1089.72 },
+            { x1: 896.84, y1: 1111.72, x2: 928.04, y2: 1089.72 },
+            { x1: 70.16, y1: 797.61, x2: 99.99, y2: 775.61 },
+            { x1: 896.84, y1: 797.61, x2: 928.04, y2: 775.61 },
+            { x1: 70.16, y1: 458.78, x2: 101.37, y2: 436.78 },
+            { x1: 896.84, y1: 458.78, x2: 928.04, y2: 436.78 },
+            { x1: 70.16, y1: 144.68, x2: 101.37, y2: 122.68 },
+            { x1: 896.84, y1: 144.68, x2: 928.04, y2: 122.68 },
+          ],
+        },
+        {
+          pageIndex: 2,
+          height: 1041,
+          width: 1347.18,
+          redactionCoordinates: [
+            { x1: 70.16, y1: 780.8, x2: 90.97, y2: 758.8 },
+            { x1: 1172.4, y1: 780.8, x2: 1203.6, y2: 758.8 },
+            { x1: 70.16, y1: 590.41, x2: 99.99, y2: 568.41 },
+            { x1: 1172.4, y1: 590.41, x2: 1203.6, y2: 568.41 },
+            { x1: 70.16, y1: 375.28, x2: 101.37, y2: 353.28 },
+            { x1: 1172.4, y1: 375.28, x2: 1203.6, y2: 353.28 },
+            { x1: 70.16, y1: 160.16, x2: 101.37, y2: 138.16 },
+            { x1: 1172.4, y1: 160.16, x2: 1203.6, y2: 138.16 },
+          ],
+        },
+      ],
+    };
+    it("Should successfully verify the save redaction request data in given screen size(1300, 1000)", () => {
+      cy.viewport(1300, 1000);
+      const saveRequestObject = { body: "" };
+      cy.trackRequestBody(
+        saveRequestObject,
+        "PUT",
+        "/api/urns/12AB1111111/cases/13401/documents/10"
+      );
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Page1 Portrait");
+      cy.selectPDFTextElement("p1");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p10");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p11");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p20");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p21");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p30");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p31");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p40");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("L1");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L10");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L11");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L20");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L21");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L30");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L31");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L40");
+      cy.findByTestId("btn-redact").click();
+
+      cy.findByTestId("btn-save-redaction-0").click();
+
+      //assertion on the redaction log save request
+      cy.window().then(() => {
+        redactionRequestAssertionValidator(
+          expectedMixedOrientationPDfSaveRequest,
+          JSON.parse(saveRequestObject.body)
+        );
+      });
+    });
+
+    it("Should successfully verify the save redaction request data in given screen size(1000, 1000)", () => {
+      cy.viewport(1000, 1000);
+      const saveRequestObject = { body: "" };
+      cy.trackRequestBody(
+        saveRequestObject,
+        "PUT",
+        "/api/urns/12AB1111111/cases/13401/documents/10"
+      );
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Page1 Portrait");
+      cy.selectPDFTextElement("p1");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p10");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p11");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p20");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p21");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p30");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p31");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p40");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("L1");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L10");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L11");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L20");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L21");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L30");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L31");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("L40");
+      cy.findByTestId("btn-redact").click();
+
+      cy.findByTestId("btn-save-redaction-0").click();
+
+      //assertion on the redaction log save request
+      cy.window().then(() => {
+        redactionRequestAssertionValidator(
+          expectedMixedOrientationPDfSaveRequest,
           JSON.parse(saveRequestObject.body)
         );
       });

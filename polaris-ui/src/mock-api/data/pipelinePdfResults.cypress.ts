@@ -216,6 +216,29 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
     },
+    {
+      documentId: "10",
+      cmsDocumentId: "10",
+      pdfBlobName: "PortraitLandscape",
+      status: "Indexed",
+      cmsOriginalFileName: "PortraitLandscape",
+      presentationTitle: "PortraitLandscape",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-02",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 1019,
+        documentType: "MG12",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: null,
+    },
   ],
 };
 // this will return updated tracker data with updated polarisDocumentVersionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow
