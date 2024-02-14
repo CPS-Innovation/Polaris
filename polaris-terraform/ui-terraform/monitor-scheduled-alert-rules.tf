@@ -17,7 +17,6 @@
     operator  = "GreaterThan"
     threshold = 1
     metric_trigger {
-      metric_column       = ""
       metric_trigger_type = "Total"
       operator            = "GreaterThanOrEqual"
       threshold           = 1
@@ -48,7 +47,6 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "polaris-alert-rule-cms50
     operator  = "GreaterThan"
     threshold = 1
     metric_trigger {
-      metric_column       = ""
       metric_trigger_type = "Total"
       operator            = "GreaterThanOrEqual"
       threshold           = 1
@@ -78,7 +76,6 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "polaris-alert-rule-restr
     operator  = "GreaterThan"
     threshold = 0
     metric_trigger {
-      metric_column       = ""
       metric_trigger_type = "Total"
       operator            = "GreaterThanOrEqual"
       threshold           = 1
@@ -109,7 +106,6 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "polaris-alert-rule-docum
     operator  = "GreaterThan"
     threshold = 1
     metric_trigger {
-      metric_column       = ""
       metric_trigger_type = "Total"
       operator            = "GreaterThanOrEqual"
       threshold           = 1
