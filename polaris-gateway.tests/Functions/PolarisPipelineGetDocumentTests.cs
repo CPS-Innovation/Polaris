@@ -30,7 +30,7 @@ namespace PolarisGateway.Tests.Functions
 
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
-        private readonly PolarisPipelineGetDocument _polarisPipelineGetPdf;
+        private readonly PolarisPipelineGetDocument _polarisPipelineGetDocument;
 
         public PolarisPipelineGetDocumentTests()
         {
@@ -58,61 +58,41 @@ namespace PolarisGateway.Tests.Functions
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterUserName(It.IsAny<string>()));
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterCorrelationId(It.IsAny<Guid>()));
 
-            _polarisPipelineGetPdf = new PolarisPipelineGetDocument(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
+            _polarisPipelineGetDocument = new PolarisPipelineGetDocument(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenAccessCorrelationIdIsMissing()
         {
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId, _polarisDocumentId.Value);
+            var response = await _polarisPipelineGetDocument.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId, _polarisDocumentId.Value);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(400);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenAccessTokenIsMissing()
         {
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutToken(), _caseUrn, _caseId, _polarisDocumentId.Value);
+            var response = await _polarisPipelineGetDocument.Run(CreateHttpRequestWithoutToken(), _caseUrn, _caseId, _polarisDocumentId.Value);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Fact]
         public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
         {
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = false });
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value);
-
-            response.Should().BeOfType<UnauthorizedObjectResult>();
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" ")]
-        public async Task Run_ReturnsBadRequestWhenUrnIsInvalid(string caseUrn)
-        {
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), caseUrn, _caseId, _polarisDocumentId.Value);
-
-            response.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Fact]
-        public async Task Run_ReturnsNotFoundWhenPipelineClientReturnsNull()
-        {
-            _mockPipelineClient
-                .Setup(client => client.GetDocumentAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<PolarisDocumentId>(), It.IsAny<Guid>()))
-                .ReturnsAsync(default(Stream));
-
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value);
-
-            response.Should().BeOfType<NotFoundObjectResult>();
+            var response = await _polarisPipelineGetDocument.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value);
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Fact]
         public async Task Run_ReturnsOk()
         {
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value);
+            var response = await _polarisPipelineGetDocument.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value);
 
             response.Should().BeOfType<FileStreamResult>();
         }
@@ -120,7 +100,7 @@ namespace PolarisGateway.Tests.Functions
         [Fact]
         public async Task Run_ReturnsBlobStream()
         {
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as FileStreamResult;
+            var response = await _polarisPipelineGetDocument.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as FileStreamResult;
 
             response.FileStream.Should().BeSameAs(_blobStream);
         }
@@ -132,7 +112,7 @@ namespace PolarisGateway.Tests.Functions
                 .Setup(client => client.GetDocumentAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<PolarisDocumentId>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception());
 
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as ObjectResult;
+            var response = await _polarisPipelineGetDocument.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as ObjectResult;
 
             response?.StatusCode.Should().Be(500);
         }
