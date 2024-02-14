@@ -32,7 +32,7 @@ namespace PolarisGateway.Tests.Functions
 
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
-        private readonly PolarisPipelineCase _polarisPipelineTriggerCoordinator;
+        private readonly PolarisPipelineCase _polarisPipelineCase;
 
         public PolarisPipelineTriggerCoordinatorTests()
         {
@@ -64,48 +64,51 @@ namespace PolarisGateway.Tests.Functions
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterUserName(It.IsAny<string>()));
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterCorrelationId(It.IsAny<Guid>()));
 
-            _polarisPipelineTriggerCoordinator =
+            _polarisPipelineCase =
                 new PolarisPipelineCase(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenAccessCorrelationIdIsMissing()
         {
-            var response = await _polarisPipelineTriggerCoordinator.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId);
+            var response = await _polarisPipelineCase.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(400);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenAccessTokenIsMissing()
         {
-            var response = await _polarisPipelineTriggerCoordinator.Run(CreateHttpRequestWithoutToken(), _caseUrn, _caseId);
+            var response = await _polarisPipelineCase.Run(CreateHttpRequestWithoutToken(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenCmsAuthValuesIsMissing()
         {
-            var response = await _polarisPipelineTriggerCoordinator.Run(CreateHttpRequestWithoutCmsAuthValuesToken(), _caseUrn, _caseId);
+            var response = await _polarisPipelineCase.Run(CreateHttpRequestWithoutCmsAuthValuesToken(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<ObjectResult>();
-            ((response as ObjectResult)?.StatusCode).Should().Be(403);
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(403);
         }
 
         [Fact]
         public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
         {
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = false });
-            var response = await _polarisPipelineTriggerCoordinator.Run(CreateHttpRequest(), _caseUrn, _caseId);
+            var response = await _polarisPipelineCase.Run(CreateHttpRequest(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<UnauthorizedObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenCaseUrnIsNotSupplied()
         {
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, string.Empty, _caseId);
+            var response = await _polarisPipelineCase.Run(_request, string.Empty, _caseId);
 
             response.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -114,7 +117,7 @@ namespace PolarisGateway.Tests.Functions
         public async Task Run_TriggersCoordinator()
         {
             _request.Method = "POST";
-            await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
+            await _polarisPipelineCase.Run(_request, _caseUrn, _caseId);
 
             _mockPipelineClient.Verify(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()));
         }
@@ -123,7 +126,7 @@ namespace PolarisGateway.Tests.Functions
         public async Task Run_NewRefreshProcessReturnsAccepted()
         {
             _request.Method = "POST";
-            var result = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
+            var result = await _polarisPipelineCase.Run(_request, _caseUrn, _caseId) as ObjectResult;
 
             result.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
         }
@@ -131,7 +134,7 @@ namespace PolarisGateway.Tests.Functions
         [Fact]
         public async Task Run_ReturnsTriggerCoordinatorResponse()
         {
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as OkObjectResult;
+            var response = await _polarisPipelineCase.Run(_request, _caseUrn, _caseId) as OkObjectResult;
 
             response?.Value.Should().Be(_triggerCoordinatorResponse);
         }
@@ -142,7 +145,7 @@ namespace PolarisGateway.Tests.Functions
             _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new HttpRequestException());
 
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
+            var response = await _polarisPipelineCase.Run(_request, _caseUrn, _caseId) as ObjectResult;
 
             response?.StatusCode.Should().Be(500);
         }
@@ -153,7 +156,7 @@ namespace PolarisGateway.Tests.Functions
             _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception());
 
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
+            var response = await _polarisPipelineCase.Run(_request, _caseUrn, _caseId) as ObjectResult;
 
             response?.StatusCode.Should().Be(500);
         }
