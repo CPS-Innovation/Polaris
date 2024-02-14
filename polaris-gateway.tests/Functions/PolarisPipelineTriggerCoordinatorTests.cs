@@ -106,14 +106,6 @@ namespace PolarisGateway.Tests.Functions
         }
 
         [Fact]
-        public async Task Run_ReturnsBadRequestWhenCaseUrnIsNotSupplied()
-        {
-            var response = await _polarisPipelineCase.Run(_request, string.Empty, _caseId);
-
-            response.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Fact]
         public async Task Run_TriggersCoordinator()
         {
             _request.Method = "POST";

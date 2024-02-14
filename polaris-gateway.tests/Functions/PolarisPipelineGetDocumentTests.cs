@@ -66,7 +66,6 @@ namespace PolarisGateway.Tests.Functions
         {
             var response = await _polarisPipelineGetDocument.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId, _polarisDocumentId.Value);
 
-
             response.Should().BeOfType<ObjectResult>()
                 .And.Subject.As<ObjectResult>().StatusCode.Should().Be(400);
         }

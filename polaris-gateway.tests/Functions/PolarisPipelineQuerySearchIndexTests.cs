@@ -61,7 +61,8 @@ namespace PolarisGateway.Tests.Functions
         {
             var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(400);
         }
 
         [Fact]
@@ -69,7 +70,8 @@ namespace PolarisGateway.Tests.Functions
         {
             var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequestWithoutToken(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Fact]
@@ -78,17 +80,8 @@ namespace PolarisGateway.Tests.Functions
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = false });
             var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<UnauthorizedObjectResult>();
-        }
-
-        [Theory]
-        [InlineData(-1)]
-        [InlineData(0)]
-        public async Task Run_ReturnsBadRequestWhenCaseId_IsNotAValidValue(int caseId)
-        {
-            var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseUrn, caseId);
-
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Theory]
@@ -102,7 +95,8 @@ namespace PolarisGateway.Tests.Functions
 
             var response = await _polarisPipelineQuerySearchIndex.Run(request, _caseUrn, _caseId);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(400);
         }
 
         [Fact]

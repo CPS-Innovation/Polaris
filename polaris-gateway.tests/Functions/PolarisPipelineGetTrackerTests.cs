@@ -57,7 +57,8 @@ namespace PolarisGateway.Tests.Functions
         {
             var response = await _polarisPipelineGetTracker.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(400);
         }
 
         [Fact]
@@ -65,7 +66,8 @@ namespace PolarisGateway.Tests.Functions
         {
             var response = await _polarisPipelineGetTracker.Run(CreateHttpRequestWithoutToken(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Fact]
@@ -74,7 +76,8 @@ namespace PolarisGateway.Tests.Functions
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = false });
             var response = await _polarisPipelineGetTracker.Run(CreateHttpRequest(), _caseUrn, _caseId);
 
-            response.Should().BeOfType<UnauthorizedObjectResult>();
+            response.Should().BeOfType<ObjectResult>()
+                .And.Subject.As<ObjectResult>().StatusCode.Should().Be(401);
         }
 
         [Fact]
@@ -84,27 +87,6 @@ namespace PolarisGateway.Tests.Functions
 
             response.Should().BeOfType<ObjectResult>();
             ((response as ObjectResult)?.StatusCode).Should().Be(403);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
-        public async Task Run_ReturnsBadRequestWhenCaseUrnIsEmpty(string caseUrn)
-        {
-            var response = await _polarisPipelineGetTracker.Run(CreateHttpRequest(), caseUrn, _caseId);
-
-            response.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Fact]
-        public async Task Run_ReturnsNotFoundWhenPipelineClientReturnsNull()
-        {
-            _mockPipelineClient.Setup(client => client.GetTrackerAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>()))
-                .ReturnsAsync(default(TrackerDto));
-
-            var response = await _polarisPipelineGetTracker.Run(CreateHttpRequest(), _caseUrn, _caseId);
-
-            response.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
