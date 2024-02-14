@@ -15,16 +15,16 @@ using text_extractor.Services.CaseSearchService.Contracts;
 
 namespace text_extractor.Functions
 {
-    public class CaseIndexCount
+    public class DocumentIndexCount
     {
-        private readonly ILogger<CaseIndexCount> _log;
+        private readonly ILogger<DocumentIndexCount> _log;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IExceptionHandler _exceptionHandler;
-        private const string loggingName = nameof(CaseIndexCount);
+        private const string loggingName = nameof(DocumentIndexCount);
 
-        public CaseIndexCount(ILogger<CaseIndexCount> log, ISearchIndexService searchIndexService, IJsonConvertWrapper jsonConvertWrapper,
+        public DocumentIndexCount(ILogger<DocumentIndexCount> log, ISearchIndexService searchIndexService, IJsonConvertWrapper jsonConvertWrapper,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper, IExceptionHandler exceptionHandler)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
@@ -34,8 +34,8 @@ namespace text_extractor.Functions
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
         }
 
-        [FunctionName(nameof(CaseIndexCount))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseIndexCount)] HttpRequestMessage request, long caseId)
+        [FunctionName(nameof(DocumentIndexCount))]
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentIndexCount)] HttpRequestMessage request, long caseId, string documentId, long versionId)
         {
             Guid correlationId = Guid.Empty;
 
@@ -46,7 +46,7 @@ namespace text_extractor.Functions
 
                 _log.LogMethodFlow(correlationId, loggingName, $"Begin index count for case ID {caseId}");
 
-                var result = await _searchIndexService.GetCaseIndexCount(caseId);
+                var result = await _searchIndexService.GetDocumentIndexCount(caseId, documentId, versionId);
 
                 _log.LogMethodFlow(correlationId, loggingName, $"Index count completed for case ID {caseId}");
 

@@ -102,5 +102,29 @@ namespace coordinator.Clients
                 return _jsonConvertWrapper.DeserializeObject<IndexSettledResult>(result);
             }
         }
+
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(string caseUrn, long cmsCaseId, Guid correlationId)
+        {
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetCaseIndexCountResultsPath(caseUrn, cmsCaseId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+
+            using (var response = await _httpClient.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadAsStringAsync();
+                return _jsonConvertWrapper.DeserializeObject<SearchIndexCountResult>(result);
+            }
+        }
+
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string caseUrn, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId)
+        {
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetDocumentIndexCountResultsPath(caseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+
+            using (var response = await _httpClient.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadAsStringAsync();
+                return _jsonConvertWrapper.DeserializeObject<SearchIndexCountResult>(result);
+            }
+        }
     }
 }

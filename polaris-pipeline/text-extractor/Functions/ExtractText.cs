@@ -17,11 +17,9 @@ using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using text_extractor.TelemetryEvents;
 using text_extractor.Services.OcrService;
 using Common.Dto.Response;
 using System.Text;
-using Common.Streaming;
 
 namespace text_extractor.Functions
 {
@@ -64,13 +62,11 @@ namespace text_extractor.Functions
         {
             Guid currentCorrelationId = default;
             const string loggingName = "ExtractText - Run";
-            IndexedDocumentEvent telemetryEvent = default;
             try
             {
                 #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
-                telemetryEvent = new IndexedDocumentEvent(currentCorrelationId);
 
                 if (request.Content == null)
                 {
@@ -84,24 +80,22 @@ namespace text_extractor.Functions
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
-                telemetryEvent.CaseUrn = caseUrn;
-                telemetryEvent.CaseId = caseId;
-                telemetryEvent.DocumentId = documentId;
-                telemetryEvent.VersionId = versionId;
 
                 #endregion
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
 
-                telemetryEvent.StartTime = DateTime.UtcNow;
-
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
                 var ocrLineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
-                telemetryEvent.OcrCompletedTime = DateTime.UtcNow;
-                telemetryEvent.PageCount = ocrResults.ReadResults.Count;
-                telemetryEvent.LineCount = ocrLineCount;
-                telemetryEvent.WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count));
+
+                var extractTextResult = new ExtractTextResult()
+                {
+                    OcrCompletedTime = DateTime.UtcNow,
+                    PageCount = ocrResults.ReadResults.Count,
+                    LineCount = ocrLineCount,
+                    WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count))
+                };
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
 
@@ -115,23 +109,9 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
-                telemetryEvent.IndexStoredTime = DateTime.UtcNow;
+                extractTextResult.IndexStoredTime = DateTime.UtcNow;
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
-
-                // await Task.Delay(2000);
-                // var result = await _searchIndexService.WaitForStoreResultsAsync(caseId,
-                //                                                                 documentId,
-                //                                                                 versionId,
-                //                                                                 ocrResults.ReadResults.Sum(r => r.Lines.Count));
-
-                // telemetryEvent.DidIndexSettle = result.IsSuccess;
-                // telemetryEvent.WaitRecordCounts = result.RecordCounts;
-                // telemetryEvent.IndexSettleTargetCount = result.TargetCount;
-                // if (result.IsSuccess)
-                // {
-                telemetryEvent.EndTime = DateTime.UtcNow;
-                _telemetryClient.TrackEvent(telemetryEvent);
 
                 var response = new HttpResponseMessage
                 {
@@ -140,13 +120,9 @@ namespace text_extractor.Functions
                 };
 
                 return response;
-                // }
-
-                // throw new Exception("Search index update failed, timeout waiting for indexation validation");
             }
             catch (Exception exception)
             {
-                _telemetryClient.TrackEventFailure(telemetryEvent);
                 return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log);
             }
             finally

@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
 using coordinator.Clients.Contracts;
+using coordinator.Services.TextExtractService;
 
 namespace coordinator.Providers;
 
@@ -27,7 +28,7 @@ public class OrchestrationProvider : IOrchestrationProvider
     private readonly IPolarisBlobStorageService _blobStorageService;
     private readonly IQueryConditionFactory _queryConditionFactory;
     private readonly ITextExtractorClient _textExtractorClient;
-
+    private readonly ITextExtractService _textExtractService;
     private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = {
         OrchestrationRuntimeStatus.Running,
         OrchestrationRuntimeStatus.Pending,
@@ -52,7 +53,8 @@ public class OrchestrationProvider : IOrchestrationProvider
             ITelemetryClient telemetryClient,
             IPolarisBlobStorageService blobStorageService,
             IQueryConditionFactory queryConditionFactory,
-            ITextExtractorClient textExtractorClient
+            ITextExtractorClient textExtractorClient,
+            ITextExtractService textExtractService
     )
     {
         _configuration = configuration;
@@ -60,6 +62,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         _blobStorageService = blobStorageService;
         _queryConditionFactory = queryConditionFactory;
         _textExtractorClient = textExtractorClient;
+        _textExtractService = textExtractService;
     }
 
     public async Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient orchestrationClient, DateTime createdTimeTo, int batchSize)
@@ -117,7 +120,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             if (waitForIndexToSettle)
             {
-                var waitResult = await _textExtractorClient.WaitForCaseEmptyResultsAsync(caseUrn, caseId, correlationId);
+                var waitResult = await _textExtractService.WaitForCaseEmptyResultsAsync(caseUrn, caseId, correlationId);
                 telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
                 telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
                 telemetryEvent.IndexSettledTime = DateTime.UtcNow;

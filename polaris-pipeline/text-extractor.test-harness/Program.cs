@@ -19,8 +19,6 @@ using Common.Wrappers;
 using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using text_extractor.Factories;
-using text_extractor.Factories.Contracts;
 using text_extractor.Services.OcrService;
 using TextExtractor.TestHarness.Constants;
 using TextExtractor.TestHarness.Services;

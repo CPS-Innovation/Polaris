@@ -212,7 +212,7 @@ namespace text_extractor.Services.CaseSearchService
             }
         }
 
-        public async Task<CaseIndexCountResult> GetCaseIndexCount(long caseId)
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(long caseId)
         {
             if (caseId == 0)
             {
@@ -230,7 +230,28 @@ namespace text_extractor.Services.CaseSearchService
             var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
             var indexTotal = countResult.Value.TotalCount.Value;
 
-            return new CaseIndexCountResult(indexTotal);
+            return new SearchIndexCountResult(indexTotal);
+        }
+
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId)
+        {
+            if (caseId == 0)
+            {
+                throw new ArgumentException("Invalid caseId", nameof(caseId));
+            }
+
+            var indexCountSearchOptions = new SearchOptions
+            {
+                Filter = $"caseId eq {caseId} and documentId eq '{documentId}' and versionId eq {versionId}",
+                IncludeTotalCount = true,
+                Size = 0,
+                SessionId = caseId.ToString()
+            };
+
+            var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
+            var indexTotal = countResult.Value.TotalCount.Value;
+
+            return new SearchIndexCountResult(indexTotal);
         }
 
         private async Task<Response<SearchResults<ISearchable>>> GetSearchResults<ISearchable>(SearchOptions searchOptions, string searchTerm = "*")

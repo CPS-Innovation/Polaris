@@ -33,6 +33,7 @@ namespace Common.Configuration
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
         public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId}/case-index-count";
+        public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
 
 #if SCALABILITY_TEST
         public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";
@@ -114,6 +115,16 @@ namespace Common.Configuration
         public static string GetRedactPdfPath(string caseUrn, string caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
+        }
+
+        public static string GetCaseIndexCountResultsPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/case-index-count";
+        }
+
+        public static string GetDocumentIndexCountResultsPath(string caseUrn, long caseId, string documentId, long versionId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
         }
     }
 }

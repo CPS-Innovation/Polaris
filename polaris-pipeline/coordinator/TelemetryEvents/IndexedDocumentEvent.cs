@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Telemetry;
 
-namespace text_extractor.TelemetryEvents
+namespace text_extractor.coordinator
 {
     public class IndexedDocumentEvent : BaseTelemetryEvent
     {

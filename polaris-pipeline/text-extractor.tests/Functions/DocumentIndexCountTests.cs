@@ -18,21 +18,23 @@ using Xunit;
 
 namespace text_extractor.tests.Functions
 {
-    public class CaseIndexCountTests
+    public class DocumentIndexCountTests
     {
         private readonly Fixture _fixture;
         private readonly HttpRequestMessage _httpRequestMessage;
         private HttpResponseMessage _errorHttpResponseMessage;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<ILogger<CaseIndexCount>> _mockLogger;
+        private readonly Mock<ILogger<DocumentIndexCount>> _mockLogger;
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
         private readonly long _caseId;
-        private readonly CaseIndexCount _caseIndexCount;
+        private readonly string _documentId;
+        private readonly long _versionId;
+        private readonly DocumentIndexCount _documentIndexCount;
 
-        public CaseIndexCountTests()
+        public DocumentIndexCountTests()
         {
             _fixture = new Fixture();
 
@@ -42,14 +44,16 @@ namespace text_extractor.tests.Functions
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
-            _mockLogger = new Mock<ILogger<CaseIndexCount>>();
+            _mockLogger = new Mock<ILogger<DocumentIndexCount>>();
             _caseId = _fixture.Create<long>();
+            _documentId = _fixture.Create<string>();
+            _versionId = _fixture.Create<long>();
 
             _mockSearchIndexService
-                .Setup(service => service.GetCaseIndexCount(It.IsAny<long>()))
+                .Setup(service => service.GetDocumentIndexCount(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>()))
                 .ReturnsAsync(new SearchIndexCountResult(100));
 
-            _caseIndexCount = new CaseIndexCount(
+            _documentIndexCount = new DocumentIndexCount(
                 _mockLogger.Object,
                 _mockSearchIndexService.Object,
                 _mockJsonConvertWrapper.Object,
@@ -61,42 +65,42 @@ namespace text_extractor.tests.Functions
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(null, null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(null, null, null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, null, null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndJsonConvertWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, _mockTelemetryAugmentationWrapper.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, _mockTelemetryAugmentationWrapper.Object, null));
         }
 
         [Fact]
         public async Task Run_ReturnsExceptionWhenCorrelationIdIsMissing()
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<CaseIndexCount>>()))
+            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<DocumentIndexCount>>()))
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
+            var response = await _documentIndexCount.Run(_httpRequestMessage, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -109,7 +113,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
+            var response = await _documentIndexCount.Run(_httpRequestMessage, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -122,7 +126,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
+            var response = await _documentIndexCount.Run(_httpRequestMessage, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -135,7 +139,7 @@ namespace text_extractor.tests.Functions
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<SearchIndexCountResult>()))
                 .Returns(string.Empty);
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
+            var response = await _documentIndexCount.Run(_httpRequestMessage, _caseId, _documentId, _versionId);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -148,7 +152,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
+            var response = await _documentIndexCount.Run(_httpRequestMessage, _caseId, _documentId, _versionId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }

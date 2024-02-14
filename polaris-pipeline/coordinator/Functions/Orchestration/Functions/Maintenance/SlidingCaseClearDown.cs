@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Logging;
 using coordinator.Providers;
+using coordinator.Services.TextExtractService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -15,12 +16,15 @@ public class SlidingCaseClearDown
     private readonly ILogger<SlidingCaseClearDown> _logger;
     private readonly IConfiguration _configuration;
     private readonly IOrchestrationProvider _orchestrationProvider;
+    private readonly ITextExtractService _textExtractService;
 
-    public SlidingCaseClearDown(ILogger<SlidingCaseClearDown> logger, IConfiguration configuration, IOrchestrationProvider orchestrationProvider)
+    public SlidingCaseClearDown(ILogger<SlidingCaseClearDown> logger, IConfiguration configuration,
+        IOrchestrationProvider orchestrationProvider, ITextExtractService textExtractService)
     {
         _logger = logger;
         _configuration = configuration;
         _orchestrationProvider = orchestrationProvider;
+        _textExtractService = textExtractService;
     }
 
     [FunctionName(nameof(SlidingCaseClearDown))]

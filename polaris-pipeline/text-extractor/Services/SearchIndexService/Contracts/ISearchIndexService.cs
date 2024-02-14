@@ -21,6 +21,9 @@ namespace text_extractor.Services.CaseSearchService.Contracts
         IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm);
 
         Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId);
-        Task<CaseIndexCountResult> GetCaseIndexCount(long caseId);
+
+        Task<SearchIndexCountResult> GetCaseIndexCount(long caseId);
+
+        Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId);
     }
 }

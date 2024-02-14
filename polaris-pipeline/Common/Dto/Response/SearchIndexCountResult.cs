@@ -1,8 +1,8 @@
 namespace Common.Dto.Response
 {
-    public class CaseIndexCountResult
+    public class SearchIndexCountResult
     {
-        public CaseIndexCountResult(long lineCount)
+        public SearchIndexCountResult(long lineCount)
         {
             LineCount = lineCount;
         }
