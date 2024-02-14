@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Common.ValueObjects;
 using FluentAssertions;
 using Gateway.Clients.PolarisPipeline.Contracts;

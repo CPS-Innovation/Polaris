@@ -7,7 +7,7 @@ using System;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Common.Configuration;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;

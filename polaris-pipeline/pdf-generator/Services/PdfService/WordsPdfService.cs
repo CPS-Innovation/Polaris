@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Aspose.Words;
-using Common.Domain.Document;
+using pdf_generator.Domain.Document;
 using Common.Extensions;
 using pdf_generator.Factories.Contracts;
 

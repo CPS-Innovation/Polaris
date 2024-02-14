@@ -4,19 +4,15 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Common.Validators.Contracts;
+using PolarisGateway.Domain.Validators.Contracts;
 using Common.Logging;
 using Common.Constants;
 using Common.Extensions;
 using PolarisGateway.Domain.Validation;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Common.Validators
+namespace PolarisGateway.Domain.Validators
 {
     [ExcludeFromCodeCoverage]
     public class AuthorizationValidator : IAuthorizationValidator

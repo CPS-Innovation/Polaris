@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
@@ -12,6 +11,7 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Telemetry.Contracts;
+using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Functions.ActivityFunctions.Case;
@@ -51,7 +51,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             _configuration = configuration;
             _cmsDocumentsResponseValidator = cmsDocumentsResponseValidator;
             _telemetryClient = telemetryClient;
-            _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
+            _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorOrchestratorTimeoutSecs]));
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]

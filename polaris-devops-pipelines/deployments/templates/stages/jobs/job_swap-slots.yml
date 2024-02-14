@@ -18,9 +18,6 @@ jobs:
         PDFGenerator:
           Name: "PDF Generator"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
-        TextExtractor:
-          Name: "Text Extractor"
-          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
     displayName: Start Staging1
     steps:
       - checkout: none
@@ -67,9 +64,6 @@ jobs:
         PDFGenerator:
           Name: "PDF Generator"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
-        TextExtractor:
-          Name: "Text Extractor"
-          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
     displayName: Swap
     steps:
       - checkout: none

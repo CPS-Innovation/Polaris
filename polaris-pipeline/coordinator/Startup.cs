@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Common.Configuration;
-using Common.Constants;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
@@ -23,6 +22,7 @@ using Common.Dto.Request;
 using Ddei.Services.Extensions;
 using Common.Handlers.Contracts;
 using Common.Handlers;
+using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Services.RenderHtmlService;
 using coordinator.Domain.Mapper;
@@ -34,6 +34,7 @@ using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
 using Common.Streaming;
 using coordinator.Services.TextExtractService;
+using coordinator.Services.CleardownService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -49,7 +50,6 @@ namespace coordinator
             services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
-            services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
@@ -60,12 +60,12 @@ namespace coordinator
 
             services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {
-                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
+                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
             services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
             {
-                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
+                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
@@ -74,7 +74,8 @@ namespace coordinator
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
-            builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
+            services.AddSingleton<ICleardownService, CleardownService>();
+            services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);

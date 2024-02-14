@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using coordinator.Clients;
 using coordinator.Clients.Contracts;
 using Common.Configuration;
-using Common.Constants;
 using Common.Factories;
 using Common.Factories.Contracts;
 using text_extractor.Services.CaseSearchService;
@@ -14,6 +13,7 @@ using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Factories;
 using text_extractor.Mappers;
 using text_extractor.Mappers.Contracts;
+using text_extractor.Constants;
 using coordinator.Factories;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
@@ -103,12 +103,12 @@ namespace TextExtractor.TestHarness
                             .AddCommandLine(args)
                             .Build();
 
-            configuration["PolarisPipelineTextExtractorFunctionAppKey"] = configuration.GetSection("Values")[PipelineSettings.PipelineTextExtractorFunctionAppKey];
-            configuration["SearchClientEndpointUrl"] = configuration.GetSection("Values")[ConfigKeys.SharedKeys.SearchClientEndpointUrl];
-            configuration["SearchClientIndexName"] = configuration.GetSection("Values")[ConfigKeys.SharedKeys.SearchClientIndexName];
-            configuration["SearchClientAuthorizationKey"] = configuration.GetSection("Values")[ConfigKeys.SharedKeys.SearchClientAuthorizationKey];
-            configuration["ComputerVisionClientServiceKey"] = configuration.GetSection("Values")[ConfigKeys.TextExtractorKeys.ComputerVisionClientServiceKey];
-            configuration["ComputerVisionClientServiceUrl"] = configuration.GetSection("Values")[ConfigKeys.TextExtractorKeys.ComputerVisionClientServiceUrl];
+            configuration["PolarisPipelineTextExtractorFunctionAppKey"] = configuration.GetSection("Values")[coordinator.Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey];
+            configuration["SearchClientEndpointUrl"] = configuration.GetSection("Values")[ConfigKeys.SearchClientEndpointUrl];
+            configuration["SearchClientIndexName"] = configuration.GetSection("Values")[ConfigKeys.SearchClientIndexName];
+            configuration["SearchClientAuthorizationKey"] = configuration.GetSection("Values")[ConfigKeys.SearchClientAuthorizationKey];
+            configuration["ComputerVisionClientServiceKey"] = configuration.GetSection("Values")[ConfigKeys.ComputerVisionClientServiceKey];
+            configuration["ComputerVisionClientServiceUrl"] = configuration.GetSection("Values")[ConfigKeys.ComputerVisionClientServiceUrl];
 
             var services = new ServiceCollection();
 
@@ -122,7 +122,7 @@ namespace TextExtractor.TestHarness
             services.AddSingleton<IOcrService, OcrService>();
             services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
             {
-                client.BaseAddress = new Uri(configuration.GetSection("Values").GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
+                client.BaseAddress = new Uri(configuration.GetSection("Values").GetValueFromConfig(coordinator.Constants.ConfigKeys.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
             AddSearchClient(services, configuration);

@@ -4,10 +4,10 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Constants;
 using Common.Domain.SearchIndex;
-using Common.Dto.Response;
 using Common.Factories.Contracts;
+using Common.Constants;
+using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using coordinator.Clients.Contracts;
@@ -49,7 +49,7 @@ namespace coordinator.Clients
             Guid correlationId,
             Stream documentStream)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
 
@@ -81,7 +81,7 @@ namespace coordinator.Clients
 
         public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetRemoveCaseIndexesPath(caseUrn, cmsCaseId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetRemoveCaseIndexesPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -93,7 +93,7 @@ namespace coordinator.Clients
 
         public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetWaitForCaseEmptyResultsPath(caseUrn, cmsCaseId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetWaitForCaseEmptyResultsPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {

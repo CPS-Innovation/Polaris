@@ -15,7 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.18.0" />
-    <PackageReference Include="Azure.Search.Documents" Version="11.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
     <PackageReference Include="Azure.Storage.Files.Shares" Version="12.1.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.11.1" />
