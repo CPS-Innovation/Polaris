@@ -1,5 +1,42 @@
 import { RedactionSaveRequest } from "../../../src/app/features/cases/domain/gateway/RedactionSaveRequest";
-import { getNormalizedRedactionRequest } from "../../../src/app/features/cases/hooks/utils/redactionUtils";
+
+/**
+ * This is to normalize the save redaction request based on the height of the known save request data for each page
+ * @param expectedRequest
+ * @param redactionRequest
+ * @returns
+ */
+export const getNormalizedRedactionRequest = (
+  expectedRequest: RedactionSaveRequest,
+  redactionRequest: RedactionSaveRequest
+) => {
+  const normalizedRedactions = redactionRequest.redactions.map(
+    (redaction, index) => {
+      const { height, width, redactionCoordinates } = redaction;
+      const baseHeight = expectedRequest.redactions[index].height;
+
+      if (height !== baseHeight) {
+        const scaleFactor = (baseHeight - height) / height;
+        return {
+          ...redaction,
+          height: baseHeight,
+          width: width + width * scaleFactor,
+          redactionCoordinates: redactionCoordinates.map((coordinate) => ({
+            x1: coordinate.x1 + coordinate.x1 * scaleFactor,
+            y1: coordinate.y1 + coordinate.y1 * scaleFactor,
+            x2: coordinate.x2 + coordinate.x2 * scaleFactor,
+            y2: coordinate.y2 + coordinate.y2 * scaleFactor,
+          })),
+        };
+      }
+      return redaction;
+    }
+  );
+  return {
+    documentId: redactionRequest.documentId,
+    redactions: normalizedRedactions,
+  };
+};
 
 /**
  * Validator function to compare the redaction values with a precision factor
@@ -50,6 +87,7 @@ const redactionRequestAssertionValidator = (
     });
   });
 };
+
 describe("Redaction Assurance", () => {
   const expectedSaveRedactionPayload = {
     documentId: "1",

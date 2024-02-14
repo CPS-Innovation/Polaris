@@ -2,6 +2,11 @@ import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { RedactionSaveRequest } from "../../../cases/domain/gateway/RedactionSaveRequest";
 import { round } from "lodash";
 
+/**
+ * This is normalize redaction highlights based on the page height of the first redaction on each page
+ * @param redactionHighlights
+ * @returns
+ */
 export const getNormalizedRedactionHighlights = (
   redactionHighlights: IPdfHighlight[]
 ) => {
@@ -52,35 +57,3 @@ export const roundToFixedDecimalPlaces = (
   num: number,
   precisionCount: number = 2
 ) => round(num, precisionCount);
-
-export const getNormalizedRedactionRequest = (
-  expectedRequest: RedactionSaveRequest,
-  redactionRequest: RedactionSaveRequest
-) => {
-  const normalizedRedactions = redactionRequest.redactions.map(
-    (redaction, index) => {
-      const { height, width, redactionCoordinates } = redaction;
-      const baseHeight = expectedRequest.redactions[index].height;
-
-      if (height !== baseHeight) {
-        const scaleFactor = (baseHeight - height) / height;
-        return {
-          ...redaction,
-          height: baseHeight,
-          width: width + width * scaleFactor,
-          redactionCoordinates: redactionCoordinates.map((coordinate) => ({
-            x1: coordinate.x1 + coordinate.x1 * scaleFactor,
-            y1: coordinate.y1 + coordinate.y1 * scaleFactor,
-            x2: coordinate.x2 + coordinate.x2 * scaleFactor,
-            y2: coordinate.y2 + coordinate.y2 * scaleFactor,
-          })),
-        };
-      }
-      return redaction;
-    }
-  );
-  return {
-    documentId: redactionRequest.documentId,
-    redactions: normalizedRedactions,
-  };
-};
