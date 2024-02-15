@@ -42,7 +42,7 @@ export const mapRedactionSaveRequest = (
 
     redactionPage.redactionCoordinates.push(
       ...rects.map((item) => ({
-        x1: roundToFixedDecimalPlaces(item.x1),
+        x1: item.x1 > 0 ? roundToFixedDecimalPlaces(item.x1) : 0,
         y1: roundToFixedDecimalPlaces(getSafeCoordinate(height, item.y1)),
         x2: roundToFixedDecimalPlaces(item.x2),
         y2: roundToFixedDecimalPlaces(getSafeCoordinate(height, item.y2)),
