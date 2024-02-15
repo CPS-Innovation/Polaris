@@ -134,7 +134,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     if (tabsState.items.length === 0) {
       setInFullScreen(false);
     }
-  }, [tabsState.items.length, trackEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabsState.items.length]);
 
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
@@ -37,7 +37,6 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleAreaOnlyRedaction,
   contextData,
 }) => {
-  console.log("areaOnlyRedactionMode>>>", contextData.areaOnlyRedactionMode);
   const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
 
@@ -81,6 +80,30 @@ export const HeaderReadMode: React.FC<Props> = ({
     return items;
   }, [showOverRedactionLog, disableReportBtn]);
 
+  const handleRedactAreaToolButtonClick = useCallback(() => {
+    if (window.getSelection()) {
+      window.getSelection()?.removeAllRanges();
+    }
+    handleAreaOnlyRedaction(
+      contextData.documentId,
+      !contextData.areaOnlyRedactionMode
+    );
+    if (!contextData.areaOnlyRedactionMode) {
+      trackEvent("Redact Area Tool On", {
+        documentId: contextData.documentId,
+      });
+      return;
+    }
+    trackEvent("Redact Area Tool Off", {
+      documentId: contextData.documentId,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    contextData.areaOnlyRedactionMode,
+    contextData.documentId,
+    handleAreaOnlyRedaction,
+  ]);
+
   return (
     <div className={classes.content}>
       <Tooltip
@@ -103,15 +126,7 @@ export const HeaderReadMode: React.FC<Props> = ({
               ? "redact area tool on"
               : "redact area tool off"
           }
-          onClick={() => {
-            if (window.getSelection()) {
-              window.getSelection()?.removeAllRanges();
-            }
-            handleAreaOnlyRedaction(
-              contextData.documentId,
-              !contextData.areaOnlyRedactionMode
-            );
-          }}
+          onClick={handleRedactAreaToolButtonClick}
         >
           <AreaIcon />
         </LinkButton>
