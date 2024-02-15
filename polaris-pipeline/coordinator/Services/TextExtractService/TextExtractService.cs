@@ -71,7 +71,7 @@ namespace coordinator.Services.TextExtractService
                 .Build();
         }
 
-        private bool IsIndexingComplete(SearchIndexCountResult searchIndexCount)
+        private bool IsExpectedIndexCount(SearchIndexCountResult searchIndexCount)
         {
             _recordCounts.Add(searchIndexCount.LineCount);
             return _targetCount == searchIndexCount.LineCount;
@@ -87,7 +87,7 @@ namespace coordinator.Services.TextExtractService
                 BackoffType = DelayBackoffType.Exponential,
                 Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
                 ShouldHandle = new PredicateBuilder<SearchIndexCountResult>()
-                    .HandleResult(searchIndexCount => !IsIndexingComplete(searchIndexCount)),
+                    .HandleResult(searchIndexCount => !IsExpectedIndexCount(searchIndexCount)),
                 OnRetry = retryArguments =>
                 {
                     _log.LogMethodFlow(correlationId, nameof(WaitForDocumentStoreResultsAsync), $"Get document index count attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");

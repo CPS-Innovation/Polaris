@@ -105,7 +105,7 @@ namespace coordinator.Clients
 
         public async Task<SearchIndexCountResult> GetCaseIndexCount(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetCaseIndexCountResultsPath(caseUrn, cmsCaseId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetCaseIndexCountResultsPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -117,7 +117,7 @@ namespace coordinator.Clients
 
         public async Task<SearchIndexCountResult> GetDocumentIndexCount(string caseUrn, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetDocumentIndexCountResultsPath(caseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetDocumentIndexCountResultsPath(caseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
