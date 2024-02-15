@@ -116,7 +116,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, payload, documents, log);
             telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
             telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
-            var result = await Task.WhenAll(documentTasks.Select(BufferCall));
+            await Task.WhenAll(documentTasks.Select(BufferCall));
 
             if (await caseEntity.AllDocumentsFailed())
                 throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
