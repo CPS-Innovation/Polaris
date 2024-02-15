@@ -49,9 +49,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log("hii 00000");
     if (buttonOpen && guidanceCloseBtnRef?.current) {
-      console.log("hii 1111");
       guidanceCloseBtnRef?.current.focus();
     }
   }, [buttonOpen]);
