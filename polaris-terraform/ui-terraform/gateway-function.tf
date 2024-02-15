@@ -44,7 +44,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
@@ -69,7 +72,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     }
     vnet_route_all_enabled            = true
     runtime_scale_monitoring_enabled  = true
-    elastic_instance_minimum          = 3
+    elastic_instance_minimum          = var.ui_component_service_plans.gateway_always_ready_instances
+    app_scale_limit                   = var.ui_component_service_plans.gateway_maximum_scale_out_limit
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
     application_stack {

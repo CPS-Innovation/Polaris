@@ -1,9 +1,10 @@
-import { round } from "lodash";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { RedactionSavePage } from "../../domain/gateway/RedactionSavePage";
 import { RedactionSaveRequest } from "../../domain/gateway/RedactionSaveRequest";
-
-const NUMBER_DECIMAL_PLACES = 2;
+import {
+  getNormalizedRedactionHighlights,
+  roundToFixedDecimalPlaces,
+} from "../utils/redactionUtils";
 
 export const mapRedactionSaveRequest = (
   documentId: RedactionSaveRequest["documentId"],
@@ -11,7 +12,10 @@ export const mapRedactionSaveRequest = (
 ) => {
   const redactions = [] as RedactionSavePage[];
 
-  for (const redactionHighlight of redactionHighlights) {
+  const normalizedHighlights =
+    getNormalizedRedactionHighlights(redactionHighlights);
+
+  for (const redactionHighlight of normalizedHighlights) {
     const { position, highlightType } = redactionHighlight;
     const { pageNumber: pageIndex } = position;
     const { height, width } = position.boundingRect;
@@ -38,9 +42,9 @@ export const mapRedactionSaveRequest = (
 
     redactionPage.redactionCoordinates.push(
       ...rects.map((item) => ({
-        x1: item.x1,
+        x1: roundToFixedDecimalPlaces(item.x1),
         y1: roundToFixedDecimalPlaces(getSafeCoordinate(height, item.y1)),
-        x2: item.x2,
+        x2: roundToFixedDecimalPlaces(item.x2),
         y2: roundToFixedDecimalPlaces(getSafeCoordinate(height, item.y2)),
       }))
     );
@@ -75,6 +79,3 @@ const getSafeCoordinate = (height: number, y: number) => {
   //  back end has (0,0) at the bottom-left, so we transpose here.
   return height - y;
 };
-
-const roundToFixedDecimalPlaces = (num: number) =>
-  round(num, NUMBER_DECIMAL_PLACES);

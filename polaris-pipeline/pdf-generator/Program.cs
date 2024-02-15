@@ -45,10 +45,15 @@ var host = new HostBuilder()
         services.Configure<KestrelServerOptions>(options =>
         {
             options.AllowSynchronousIO = true;
+            // Kestrel has a default limit of 30MB for request body size. Isolated Azure functions (currently)
+            //  have a 100MB default limit which can be controlled by FUNCTIONS_REQUEST_BODY_SIZE_LIMIT
+            //  see https://learn.microsoft.com/en-us/azure/azure-functions/functions-app-settings#functions_request_body_size_limit
+            //  Let's leave the size limit up to the function-level configuration.
+            options.Limits.MaxRequestBodySize = null;
         });
 
         services.AddSingleton(context.Configuration);
-        services.AddPdfGenerator(context.Configuration);
+        services.AddPdfGenerator();
         services.AddRedactionServices(context.Configuration);
 
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
@@ -56,8 +61,6 @@ var host = new HostBuilder()
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-
-        StartupHelpers.BuildHealthChecks(services);
     })
     .ConfigureLogging(logging =>
     {

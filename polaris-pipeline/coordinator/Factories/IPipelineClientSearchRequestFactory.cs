@@ -7,6 +7,6 @@ namespace coordinator.Factories
 {
     public interface IPipelineClientSearchRequestFactory
     {
-        HttpRequestMessage Create(long cmsCaseId, string searchTerm, Guid correlationId, IEnumerable<SearchFilterDocument> documents);
+        HttpRequestMessage Create(string caseUrn, long cmsCaseId, string searchTerm, Guid correlationId, IEnumerable<SearchFilterDocument> documents);
     }
 }

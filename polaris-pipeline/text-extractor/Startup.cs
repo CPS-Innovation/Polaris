@@ -1,10 +1,8 @@
 ﻿using Common.Wrappers;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using text_extractor.Services.OcrService;
-using text_extractor.Health;
 using text_extractor.Factories;
 using text_extractor.Factories.Contracts;
 using text_extractor.Services.CaseSearchService;
@@ -13,7 +11,6 @@ using text_extractor.Mappers.Contracts;
 using text_extractor.Mappers;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
-using Common.Health;
 using Azure.Search.Documents;
 using Common.Wrappers.Contracts;
 using System.IO;
@@ -66,8 +63,6 @@ namespace text_extractor
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
             services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-
-            BuildHealthChecks(services);
         }
 
         private static void AddSearchClient(IServiceCollection services, IConfigurationRoot configuration)
@@ -100,21 +95,6 @@ namespace text_extractor
 #else
             services.AddSingleton<IOcrService, OcrService>();
 #endif
-        }
-
-        /// <summary>
-        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
-        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
-        /// </summary>
-        /// <param name="builder"></param>
-        private static void BuildHealthChecks(IServiceCollection services)
-        {
-            services.AddHealthChecks()
-                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<OcrServiceHealthCheck>("OCR Service")
-                .AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
-                .AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
-                .AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");
         }
     }
 }

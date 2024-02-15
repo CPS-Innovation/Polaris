@@ -7,6 +7,7 @@ namespace pdf_generator.TelemetryEvents
     public class ConvertedDocumentEvent : BaseTelemetryEvent
     {
         public Guid CorrelationId { get; set; }
+        public string CaseUrn { get; set; }
         public string CaseId { get; set; }
         public string DocumentId { get; set; }
         public string VersionId { get; set; }
@@ -15,6 +16,8 @@ namespace pdf_generator.TelemetryEvents
         public long Bytes { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public string ConversionHandler { get; set; }
+        public string FailureReason { get; set; }
 
         public ConvertedDocumentEvent(Guid correlationId)
         {
@@ -27,12 +30,15 @@ namespace pdf_generator.TelemetryEvents
                 new Dictionary<string, string>
                 {
                     { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseUrn), CaseUrn},
                     { nameof(CaseId), CaseId },
                     { nameof(DocumentId), EnsureNumericId(DocumentId) },
                     { nameof(VersionId), VersionId },
-                    { nameof(FileType), FileType},
+                    { nameof(FileType), FileType },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
+                    { nameof(ConversionHandler), ConversionHandler },
+                    { nameof(FailureReason), FailureReason }
                 },
                 new Dictionary<string, double?>
                 {

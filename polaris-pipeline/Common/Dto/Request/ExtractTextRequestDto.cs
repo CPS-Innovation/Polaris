@@ -7,12 +7,9 @@ namespace Common.Dto.Request
 {
     public class ExtractTextRequestDto
     {
-        public ExtractTextRequestDto(PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName)
+        public ExtractTextRequestDto(PolarisDocumentId polarisDocumentId, string blobName)
         {
             PolarisDocumentId = polarisDocumentId;
-            CaseId = cmsCaseId;
-            DocumentId = cmsDocumentId;
-            VersionId = versionId;
             BlobName = blobName;
         }
 
@@ -31,15 +28,6 @@ namespace Common.Dto.Request
                 PolarisDocumentId = new PolarisDocumentId(value);
             }
         }
-
-        [RequiredLongGreaterThanZero]
-        public long CaseId { get; set; }
-
-        [Required]
-        public string DocumentId { get; set; }
-
-        [RequiredLongGreaterThanZero]
-        public long VersionId { get; set; }
 
         [Required]
         public string BlobName { get; set; }

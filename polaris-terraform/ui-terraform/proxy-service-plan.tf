@@ -7,7 +7,7 @@ resource "azurerm_service_plan" "asp_polaris_proxy" {
   location            = azurerm_resource_group.rg_polaris.location
   resource_group_name = azurerm_resource_group.rg_polaris.name
   os_type             = "Linux"
-  sku_name            = var.app_service_plan_proxy_sku
+  sku_name            = var.ui_component_service_plans.proxy_service_plan_sku
   tags                = local.common_tags
 }
 

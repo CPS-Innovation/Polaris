@@ -70,5 +70,5 @@ export type CombinedState = {
     redactionLogMappingData: AsyncResult<RedactionLogMappingData>;
     savedRedactionTypes: RedactionTypeData[];
   };
-  featureFlags: AsyncResult<FeatureFlagData>;
+  featureFlags: FeatureFlagData;
 };

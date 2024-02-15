@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using coordinator.Clients.Contracts;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
-using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
@@ -47,7 +46,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
         [FunctionName(nameof(GeneratePdf))]
         public async Task Run([ActivityTrigger] IDurableActivityContext context)
         {
-            #region Validate-Inputs
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
             if (payload == null)
@@ -56,62 +54,65 @@ namespace coordinator.Functions.ActivityFunctions.Document
             var results = _validatorWrapper.Validate(payload);
             if (results?.Any() == true)
                 throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
-            #endregion
 
-            Stream documentStream = null;
+            var fileType = GetFileType(payload);
 
-            FileType fileType = (FileType)(-1);
+            var documentStream = await GetDocumentStreamAsync(payload);
 
-            if (payload.CmsDocumentTracker != null)
-            {
-                documentStream = await _ddeiClient.GetDocumentFromFileStoreAsync
-                    (
-                        payload.CmsDocumentTracker.Path,
-                        payload.CmsAuthValues,
-                        payload.CorrelationId
-                    );
-
-                string fileExtension = payload.CmsDocumentTracker.CmsOriginalFileExtension.Replace(".", string.Empty).ToUpperInvariant();
-                fileType = Enum.Parse<FileType>(fileExtension);
-            }
-            else if (payload.PcdRequestTracker != null)
-            {
-                documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
-                fileType = FileType.HTML;
-            }
-            else if (payload.DefendantAndChargesTracker != null)
-            {
-                documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.DefendantAndChargesTracker.DefendantsAndCharges);
-                fileType = FileType.HTML;
-            }
-
-            Stream pdfStream = null;
-
-            try
-            {
-                pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
+            using var pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
                     payload.CorrelationId,
                     payload.CmsAuthValues,
+                    payload.CmsCaseUrn,
                     payload.CmsCaseId.ToString(),
                     payload.CmsDocumentId,
                     payload.CmsVersionId.ToString(),
                     documentStream,
                     fileType);
 
-                await _blobStorageService.UploadDocumentAsync
-                    (
-                        pdfStream,
-                        payload.BlobName,
-                        payload.CmsCaseId.ToString(),
-                        payload.PolarisDocumentId,
-                        payload.CmsVersionId.ToString(),
-                        payload.CorrelationId
-                    );
-            }
-            finally
+            await _blobStorageService.UploadDocumentAsync
+                (
+                    pdfStream,
+                    payload.BlobName,
+                    payload.CmsCaseId.ToString(),
+                    payload.PolarisDocumentId,
+                    payload.CmsVersionId.ToString(),
+                    payload.CorrelationId
+                );
+        }
+
+        private FileType GetFileType(CaseDocumentOrchestrationPayload payload)
+        {
+            if (payload.PcdRequestTracker != null || payload.DefendantAndChargesTracker != null)
             {
-                documentStream?.Dispose();
-                pdfStream?.Dispose();
+                return FileType.HTML;
+            }
+            else
+            {
+                var fileExtension = payload.CmsDocumentTracker.CmsOriginalFileExtension
+                    .Replace(".", string.Empty)
+                    .ToUpperInvariant();
+
+                return Enum.Parse<FileType>(fileExtension);
+            }
+        }
+
+        private async Task<Stream> GetDocumentStreamAsync(CaseDocumentOrchestrationPayload payload)
+        {
+
+            if (payload.PcdRequestTracker != null)
+            {
+                return await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
+            }
+            else if (payload.DefendantAndChargesTracker != null)
+            {
+                return await _convertPcdRequestToHtmlService.ConvertAsync(payload.DefendantAndChargesTracker.DefendantsAndCharges);
+            }
+            else
+            {
+                return await _ddeiClient.GetDocumentFromFileStoreAsync(
+                        payload.CmsDocumentTracker.Path,
+                        payload.CmsAuthValues,
+                        payload.CorrelationId);
             }
         }
     }

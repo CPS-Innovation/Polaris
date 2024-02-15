@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using coordinator.Clients.Contracts;
 using Common.Configuration;
-using Common.Constants;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request;
 using Common.Factories.Contracts;
 using coordinator.Factories;
+using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
@@ -43,6 +43,7 @@ namespace coordinator.Clients
 
         public async Task ExtractTextAsync(
             PolarisDocumentId polarisDocumentId,
+            string cmsCaseUrn,
             long cmsCaseId,
             string cmsDocumentId,
             long versionId,
@@ -50,32 +51,24 @@ namespace coordinator.Clients
             Guid correlationId,
             Stream documentStream)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Extract}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
-            request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());
-            request.Headers.Add(HttpHeaderKeys.DocumentId, cmsDocumentId);
-            request.Headers.Add(HttpHeaderKeys.VersionId, versionId.ToString());
             request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
 
-            using (var requestContent = new StreamContent(documentStream))
-            {
-                request.Content = requestContent;
-
-                using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
-                {
-                    response.EnsureSuccessStatusCode();
-                }
-            }
+            using var requestContent = new StreamContent(documentStream);
+            request.Content = requestContent;
+            await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
 
         public async Task<IList<StreamlinedSearchLine>> SearchTextAsync(
+            string caseUrn,
             long cmsCaseId,
             string searchTerm,
             Guid correlationId,
             IEnumerable<SearchFilterDocument> documents
             )
         {
-            var request = _pipelineClientSearchRequestFactory.Create(cmsCaseId, searchTerm, correlationId, documents);
+            var request = _pipelineClientSearchRequestFactory.Create(caseUrn, cmsCaseId, searchTerm, correlationId, documents);
             using (var response = await _httpClient.SendAsync(request))
             {
                 response.EnsureSuccessStatusCode();
@@ -84,11 +77,9 @@ namespace coordinator.Clients
             }
         }
 
-        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(long cmsCaseId, Guid correlationId)
+        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.RemoveCaseIndexes}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
-            var content = new RemoveCaseIndexesRequestDto { CaseId = cmsCaseId };
-            request.Content = new StringContent(_jsonConvertWrapper.SerializeObject(content), Encoding.UTF8, "application/json");
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetRemoveCaseIndexesPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -98,11 +89,9 @@ namespace coordinator.Clients
             }
         }
 
-        public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId)
+        public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.WaitForCaseEmptyResults}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
-            var content = new WaitForCaseEmptyResultsRequestDto { CaseId = cmsCaseId };
-            request.Content = new StringContent(_jsonConvertWrapper.SerializeObject(content), Encoding.UTF8, "application/json");
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetWaitForCaseEmptyResultsPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {

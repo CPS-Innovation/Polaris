@@ -30,17 +30,12 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
-    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"          = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_text_extractor_host_keys.default_function_key
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
-    "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
-    "SlidingClearDownInputDays"                       = var.sliding_clear_down.look_back_days
+    "SlidingClearDownInputHours"                      = var.sliding_clear_down.look_back_hours
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
     "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
     "SlidingClearDownBatchSize"                       = var.sliding_clear_down.batch_size
@@ -54,7 +49,10 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 

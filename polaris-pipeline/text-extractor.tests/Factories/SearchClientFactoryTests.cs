@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using Azure.Search.Documents;
-using Common.Constants;
+using text_extractor.Constants;
 using text_extractor.Factories;
 using text_extractor.Factories.Contracts;
 using FluentAssertions;
@@ -24,9 +24,9 @@ namespace text_extractor.tests.Factories
 			_searchIndexName = fixture.Create<string>();
 			var configuration = new Mock<IConfiguration>();
 
-			configuration.Setup(x => x[ConfigKeys.SharedKeys.SearchClientEndpointUrl]).Returns(_searchEndpointUrl);
-			configuration.Setup(x => x[ConfigKeys.SharedKeys.SearchClientIndexName]).Returns(_searchIndexName);
-			configuration.Setup(x => x[ConfigKeys.SharedKeys.SearchClientAuthorizationKey]).Returns(fixture.Create<string>());
+			configuration.Setup(x => x[ConfigKeys.SearchClientEndpointUrl]).Returns(_searchEndpointUrl);
+			configuration.Setup(x => x[ConfigKeys.SearchClientIndexName]).Returns(_searchIndexName);
+			configuration.Setup(x => x[ConfigKeys.SearchClientAuthorizationKey]).Returns(fixture.Create<string>());
 
 			_searchClientFactory = new AzureSearchClientFactory(configuration.Object);
 		}

@@ -74,7 +74,7 @@ namespace Common.Handlers
                     baseErrorMessage = "An Ocr service exception occurred";
                     break;
 
-                case PdfConversionException:
+                case PdfEncryptionException:
                     statusCode = HttpStatusCode.NotImplemented;
                     baseErrorMessage = "A failed to convert to pdf exception occurred";
                     break;

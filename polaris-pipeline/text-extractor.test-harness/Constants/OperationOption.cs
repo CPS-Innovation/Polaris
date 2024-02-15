@@ -4,6 +4,7 @@ namespace TextExtractor.TestHarness.Constants
     {
         InsertOnly = 1,
         InsertDelete = 2,
-        DeleteOnly = 3
+        DeleteOnly = 3,
+        OcrOnly = 4
     }
 }

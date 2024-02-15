@@ -6,9 +6,6 @@ namespace Common.Dto.Request.Search
 
     public class SearchRequestDto
     {
-        [JsonProperty("caseId")]
-        public long CaseId { get; set; }
-
         [JsonProperty("documents")]
         public List<SearchRequestDocumentDto> Documents { get; set; }
 

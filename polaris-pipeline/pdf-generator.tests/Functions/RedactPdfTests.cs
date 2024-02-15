@@ -34,7 +34,9 @@ namespace pdf_generator.tests.Functions
         private readonly Mock<ILogger<RedactPdf>> _loggerMock;
         private readonly Mock<IValidator<RedactPdfRequestDto>> _mockValidator;
         private readonly RedactPdf _redactPdf;
-        
+        private readonly string _caseUrn;
+        private readonly string _caseId;
+        private readonly string _documentId;
         private readonly string _serializedRedactPdfRequest;
         private readonly string _serializedRedactPdfResponse;
 
@@ -43,7 +45,7 @@ namespace pdf_generator.tests.Functions
             var request = _fixture.Create<RedactPdfRequestDto>();
 
             _serializedRedactPdfRequest = JsonConvert.SerializeObject(request);
-            
+
             var redactPdfResponse = _fixture.Create<RedactPdfResponse>();
             _serializedRedactPdfResponse = redactPdfResponse.ToJson();
 
@@ -55,17 +57,20 @@ namespace pdf_generator.tests.Functions
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<RedactPdfResponse>()))
                 .Returns(_serializedRedactPdfResponse);
 
-            mockDocumentRedactionService.Setup(x => x.RedactPdfAsync(It.IsAny<RedactPdfRequestDto>(), It.IsAny<Guid>())).ReturnsAsync(redactPdfResponse);
+            mockDocumentRedactionService.Setup(x => x.RedactPdfAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RedactPdfRequestDto>(), It.IsAny<Guid>())).ReturnsAsync(redactPdfResponse);
 
             _loggerMock = new Mock<ILogger<RedactPdf>>();
-            
+
             _mockValidator = new Mock<IValidator<RedactPdfRequestDto>>();
             _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestDto>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ValidationResult());
 
-            var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
+            _caseUrn = _fixture.Create<string>();
+            _caseId = _fixture.Create<string>();
+            _documentId = _fixture.Create<string>();
 
+            var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _redactPdf = new RedactPdf(
                 _mockExceptionHandler.Object,
                 _mockJsonConvertWrapper.Object,
@@ -80,14 +85,14 @@ namespace pdf_generator.tests.Functions
         {
             var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
-                .Setup(handler => handler.HandleExceptionNew(It.IsAny<NullReferenceException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+                .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
-            
+
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfRequestDto>(It.IsAny<string>())).Returns(new RedactPdfRequestDto());
 
-            var mockRequest = CreateMockRequest(new StringContent("{}"), Guid.NewGuid());
-            
-            var response = await _redactPdf.Run(mockRequest.Object);
+            var mockRequest = CreateMockRequest(new StringContent("{}"), null);
+
+            var response = await _redactPdf.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -99,10 +104,10 @@ namespace pdf_generator.tests.Functions
             _mockExceptionHandler
                 .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
-            
+
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, null);
-            
-            var response = await _redactPdf.Run(mockRequest.Object);
+
+            var response = await _redactPdf.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -114,10 +119,10 @@ namespace pdf_generator.tests.Functions
             _mockExceptionHandler
                 .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
-            
+
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.Empty);
-            
-            var response = await _redactPdf.Run(mockRequest.Object);
+
+            var response = await _redactPdf.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -126,7 +131,7 @@ namespace pdf_generator.tests.Functions
         public async Task Run_ReturnsBadRequestWhenThereAreAnyValidationErrors()
         {
             var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
-            
+
             var testFailures = _fixture.CreateMany<ValidationFailure>(2);
 
             _mockExceptionHandler
@@ -135,10 +140,10 @@ namespace pdf_generator.tests.Functions
             _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestDto>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ValidationResult(testFailures));
-            
+
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());
-            
-            var response = await _redactPdf.Run(mockRequest.Object);
+
+            var response = await _redactPdf.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -157,8 +162,8 @@ namespace pdf_generator.tests.Functions
                 .Returns(errorHttpResponseMessage);
 
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());
-            
-            var response = await _redactPdf.Run(mockRequest.Object);
+
+            var response = await _redactPdf.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -167,8 +172,8 @@ namespace pdf_generator.tests.Functions
         public async Task Run_ReturnsOk()
         {
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());
-            
-            var response = await _redactPdf.Run(mockRequest.Object);
+
+            var response = await _redactPdf.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
 
             response.Should().BeOfType<OkObjectResult>();
         }
@@ -177,11 +182,11 @@ namespace pdf_generator.tests.Functions
         public async Task Run_ReturnsExpectedContent()
         {
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());
-            
-            var response = await _redactPdf.Run(mockRequest.Object);
+
+            var response = await _redactPdf.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
 
             response.Should().BeOfType<OkObjectResult>();
-            
+
             var result = response as OkObjectResult;
             result.Should().NotBeNull();
 
@@ -190,16 +195,16 @@ namespace pdf_generator.tests.Functions
 
             message.Should().Be(_serializedRedactPdfResponse);
         }
-        
+
         private static Mock<HttpRequest> CreateMockRequest(object body, Guid? correlationId)
         {
             var mockRequest = new Mock<HttpRequest>();
 
             var ms = new MemoryStream();
             var sw = new StreamWriter(ms);
-                
+
             var json = JsonConvert.SerializeObject(body);
-                    
+
             sw.Write(json);
             sw.Flush();
 
@@ -217,6 +222,6 @@ namespace pdf_generator.tests.Functions
 
             mockRequest.Setup(x => x.Headers).Returns(mockHeaders);
             return mockRequest;
-        }    
+        }
     }
 }

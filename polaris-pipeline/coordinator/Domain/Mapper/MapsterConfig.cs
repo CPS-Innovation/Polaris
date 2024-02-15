@@ -1,7 +1,7 @@
-﻿using Common.Domain.Entity;
-using Common.Dto.Document;
+﻿using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Domain.Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using System;

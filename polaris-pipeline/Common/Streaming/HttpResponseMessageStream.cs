@@ -14,7 +14,7 @@ public class HttpResponseMessageStream : Stream
     private HttpResponseMessageStream(Stream stream, HttpResponseMessage response)
     {
         inner = stream;
-        this.Response = response;
+        Response = response;
     }
 
     public override bool CanRead => inner.CanRead;
