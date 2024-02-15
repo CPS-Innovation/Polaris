@@ -58,7 +58,7 @@ namespace text_extractor.Functions
             string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
-            ExtractTextResult extractTextResult = default;
+            ExtractTextResult extractTextResult = new ExtractTextResult();
 
             try
             {
