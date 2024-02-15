@@ -1,5 +1,6 @@
 ﻿using Common.Constants;
 using Common.Domain.Document;
+using Common.Domain.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Factories;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
+using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 
 namespace pdf_generator.test_harness;
@@ -31,7 +33,7 @@ internal static class Program
     builder.Services.AddSingleton<AppInsights.TelemetryClient>();
     builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
-    builder.Services.AddPdfGenerator(builder.Configuration);
+    builder.Services.AddPdfGenerator();
     builder.Services.AddRedactionServices(builder.Configuration);
     builder.Services.AddHttpClient(
       "testClient",
@@ -46,12 +48,12 @@ internal static class Program
 
     if (!Enum.TryParse(mode, out Mode modeEnum))
       throw new Exception("Unknown mode");
-      
+
     using var serviceScope = host.Services.CreateScope();
     switch (modeEnum)
     {
       case Mode.LibraryCallRedactPdf:
-        RedactPdfFile(serviceScope.ServiceProvider);
+        await RedactPdfFileAsync(serviceScope.ServiceProvider);
         break;
       case Mode.LibraryCallConvertToPdf:
         ConvertFileToPdf(serviceScope.ServiceProvider);
@@ -84,7 +86,7 @@ internal static class Program
       }
     }
 
-    static void RedactPdfFile(IServiceProvider serviceProvider)
+    static async Task RedactPdfFileAsync(IServiceProvider serviceProvider)
     {
       var redactionService = serviceProvider.GetRequiredService<IRedactionProvider>();
 
@@ -99,7 +101,7 @@ internal static class Program
         Console.WriteLine("Invalid input for the number of pages. Exiting.");
         return;
       }
-      
+
       if (File.Exists(filePath))
       {
         try
@@ -131,12 +133,11 @@ internal static class Program
           var redactPdf = new RedactPdfRequestDto
           {
             FileName = filePath,
-            CaseId = 1234,
             VersionId = 1,
             RedactionDefinitions = redactionDefinitions
           };
 
-          var pdfStream = redactionService.Redact(fileStream, redactPdf, currentCorrelationId);
+          var pdfStream = await redactionService.Redact(fileStream, "1234", "123", redactPdf, currentCorrelationId);
 
           // Write the PDF stream to the file system
           byte[] pdfBytes;
@@ -182,12 +183,12 @@ internal static class Program
         throw new Exception("File does not exist, check path");
       }
     }
-    
+
     static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
     {
       var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IPipelineClientRequestFactory>();
       var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
-      
+
       Console.WriteLine("Enter the input file path:");
       var filePath = Console.ReadLine();
       Console.WriteLine("Enter the output file path:");
@@ -199,12 +200,12 @@ internal static class Program
         {
           await using var fileStream = File.OpenRead(filePath);
 
-          Guid currentCorrelationId = default;
+          Guid currentCorrelationId = Guid.NewGuid();
           var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
 
           var fileType = Enum.Parse<FileType>(extension);
-          
-          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, $"test-convert-to-pdf", currentCorrelationId);
+
+          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, "urns/test-case-urn/cases/test-case-id/documents/test-document-id/versions/test-version-id/test-convert-to-pdf", currentCorrelationId);
           request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
           using (var requestContent = new StreamContent(fileStream))
@@ -219,7 +220,7 @@ internal static class Program
               await response.Content.CopyToAsync(pdfStream);
               pdfStream.Seek(0, SeekOrigin.Begin);
             }
-            
+
             // Write the PDF stream to the file system
             byte[] pdfBytes;
             using (var ms = new MemoryStream())
@@ -260,19 +261,26 @@ internal static class PdfManager
 
       var fileType = Enum.Parse<FileType>(extension);
 
-      var pdfStream = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
+      var conversionResult = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
 
-      // Write the PDF stream to the file system
-      byte[] pdfBytes;
-      using (var ms = new MemoryStream())
+      if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
       {
-        pdfStream.CopyTo(ms);
-        pdfBytes = ms.ToArray();
+        // Write the PDF stream to the file system
+        byte[] pdfBytes;
+        using (var ms = new MemoryStream())
+        {
+          conversionResult.ConvertedDocument.CopyTo(ms);
+          pdfBytes = ms.ToArray();
+        }
+
+        File.WriteAllBytes(outputFilePath, pdfBytes);
+
+        Console.WriteLine("PDF conversion successful.");
       }
-
-      File.WriteAllBytes(outputFilePath, pdfBytes);
-
-      Console.WriteLine("PDF conversion successful.");
+      else
+      {
+        Console.WriteLine($"PDF conversion Failed - Status: {conversionResult.ConversionStatus.GetEnumValue()}, Feedback: {conversionResult.Feedback}");
+      }
     }
     catch (Exception e)
     {

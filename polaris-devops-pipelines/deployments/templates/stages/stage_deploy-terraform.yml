@@ -26,6 +26,8 @@ parameters:
     type: string
   - name: terraformUIEventsContainerName
     type: string
+  - name: terraformNetworkingContainerName
+    type: string
   - name: terraformStateKey
     type: string
   - name: terraformStateAccessKey
@@ -182,6 +184,28 @@ stages:
           totalLogRetentionTime: ${{ parameters.totalLogRetentionTime }}
           jobDependsOn:
             - ApplyUITerraform
+            
+      - template: jobs/job_apply-terraform.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetTerraformArtifact: "networking-terraform-files"
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "Networking Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetPlanName: ${{ parameters.targetPlanName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+          terraformContainerName: ${{ parameters.terraformNetworkingContainerName }}
+          terraformStateKey: ${{ parameters.terraformStateKey }}
+          terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          terraformType: "Networking"
+          jobDependsOn:
+            - SetLogAnalyticsArchivalPeriods
 
       - template: jobs/job_log-result-deployment.yml
         parameters:
@@ -198,3 +222,4 @@ stages:
             - ApplyUITerraform
             - ApplyUIEventsTerraform
             - SetLogAnalyticsArchivalPeriods
+            - ApplyNetworkingTerraform

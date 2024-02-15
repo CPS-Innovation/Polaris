@@ -164,7 +164,7 @@ export const reducer = (
       }
     | {
         type: "UPDATE_FEATURE_FLAGS_DATA";
-        payload: AsyncResult<FeatureFlagData>;
+        payload: FeatureFlagData;
       }
     | {
         type: "ENABLE_AREA_REDACTION_MODE";

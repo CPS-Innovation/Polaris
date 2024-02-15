@@ -4,13 +4,11 @@ using System;
 using System.Net.Http;
 using Common.Constants;
 using Microsoft.Extensions.Logging;
-using Common.Logging;
 using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.ValueObjects;
-using Common.Domain.Entity;
-using Microsoft.WindowsAzure.Storage;
+using coordinator.Domain.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 
 namespace coordinator.Functions.DurableEntity.Client

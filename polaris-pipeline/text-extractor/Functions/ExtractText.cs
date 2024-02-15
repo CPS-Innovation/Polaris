@@ -19,6 +19,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using text_extractor.TelemetryEvents;
 using text_extractor.Services.OcrService;
+using Common.Streaming;
 
 namespace text_extractor.Functions
 {
@@ -53,7 +54,8 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(ExtractText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Extract)] HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Extract)] HttpRequestMessage request,
+            string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "ExtractText - Run";
@@ -75,11 +77,12 @@ namespace text_extractor.Functions
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
-                _telemetryAugmentationWrapper.RegisterDocumentId(extractTextRequest.DocumentId);
-                _telemetryAugmentationWrapper.RegisterDocumentVersionId(extractTextRequest.VersionId.ToString());
-                telemetryEvent.CaseId = extractTextRequest.CaseId;
-                telemetryEvent.DocumentId = extractTextRequest.DocumentId;
-                telemetryEvent.VersionId = extractTextRequest.VersionId;
+                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
+                telemetryEvent.CaseUrn = caseUrn;
+                telemetryEvent.CaseId = caseId;
+                telemetryEvent.DocumentId = documentId;
+                telemetryEvent.VersionId = versionId;
 
                 #endregion
 
@@ -100,9 +103,9 @@ namespace text_extractor.Functions
                     (
                         ocrResults,
                         extractTextRequest.PolarisDocumentId,
-                        extractTextRequest.CaseId,
-                        extractTextRequest.DocumentId,
-                        extractTextRequest.VersionId,
+                        caseId,
+                        documentId,
+                        versionId,
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
@@ -111,10 +114,10 @@ namespace text_extractor.Functions
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
                 await Task.Delay(2000);
-                var result = await _searchIndexService.WaitForStoreResultsAsync(extractTextRequest.CaseId,
-                                                                                    extractTextRequest.DocumentId,
-                                                                                    extractTextRequest.VersionId,
-                                                                                    ocrResults.ReadResults.Sum(r => r.Lines.Count));
+                var result = await _searchIndexService.WaitForStoreResultsAsync(caseId,
+                                                                                documentId,
+                                                                                versionId,
+                                                                                ocrResults.ReadResults.Sum(r => r.Lines.Count));
 
                 telemetryEvent.DidIndexSettle = result.IsSuccess;
                 telemetryEvent.WaitRecordCounts = result.RecordCounts;

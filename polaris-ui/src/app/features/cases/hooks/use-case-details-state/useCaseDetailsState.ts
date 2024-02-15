@@ -63,7 +63,7 @@ export const initialState = {
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
   },
-  featureFlags: { status: "loading" },
+  featureFlags: { redactionLog: false, fullScreen: false },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -86,17 +86,13 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const redactionLogLookUpsData = useApi(
     getRedactionLogLookUpsData,
     [],
-    combinedState.featureFlags.status === "succeeded"
-      ? combinedState.featureFlags.data.redactionLog
-      : false
+    combinedState.featureFlags.redactionLog
   );
 
   const redactionLogMappingData = useApi(
     getRedactionLogMappingData,
     [],
-    combinedState.featureFlags.status === "succeeded"
-      ? combinedState.featureFlags.data.redactionLog
-      : false
+    combinedState.featureFlags.redactionLog
   );
 
   useEffect(() => {
@@ -116,12 +112,11 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   }, [redactionLogMappingData, dispatch]);
 
   useEffect(() => {
-    if (combinedState.featureFlags.status === "loading")
-      dispatch({
-        type: "UPDATE_FEATURE_FLAGS_DATA",
-        payload: { status: "succeeded", data: featureFlagData },
-      });
-  }, [featureFlagData, combinedState.featureFlags.status, dispatch]);
+    dispatch({
+      type: "UPDATE_FEATURE_FLAGS_DATA",
+      payload: featureFlagData,
+    });
+  }, [featureFlagData.fullScreen, featureFlagData.redactionLog, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")
@@ -305,11 +300,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleSavedRedactionLog = useCallback(
-    (redactionLogRequestData: RedactionLogRequestData) =>
+  const handleSaveRedactionLog = useCallback(
+    (
+      redactionLogRequestData: RedactionLogRequestData,
+      redactionLogType: RedactionLogTypes
+    ) =>
       dispatch({
         type: "SAVE_REDACTION_LOG",
-        payload: { redactionLogRequestData },
+        payload: { redactionLogRequestData, redactionLogType },
       }),
     [dispatch]
   );
@@ -391,7 +389,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
-    handleSavedRedactionLog,
     handleAreaOnlyRedaction,
+    handleSaveRedactionLog,
   };
 };

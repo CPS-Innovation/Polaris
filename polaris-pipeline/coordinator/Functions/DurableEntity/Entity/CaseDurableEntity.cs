@@ -6,6 +6,7 @@ using Common.Dto.Tracker;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Domain.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;

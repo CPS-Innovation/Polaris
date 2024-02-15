@@ -6,6 +6,7 @@ type TooltipProps = {
   children: React.ReactNode;
   position?: "top" | "bottom" | "left" | "right";
   className?: string;
+  dataTestId?: string;
 };
 
 export const Tooltip: React.FC<TooltipProps> = ({
@@ -13,6 +14,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   children,
   position = "bottom",
   className = "",
+  dataTestId = "tooltip",
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -45,7 +47,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
     >
       {children}
       {showTooltip && (
-        <div className={`${classes.tooltip} ${getPositionClass()}`}>{text}</div>
+        <div
+          className={`${classes.tooltip} ${getPositionClass()}`}
+          data-testid={dataTestId}
+        >
+          {text}
+        </div>
       )}
     </div>
   );

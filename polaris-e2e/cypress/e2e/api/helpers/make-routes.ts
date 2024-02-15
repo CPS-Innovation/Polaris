@@ -5,13 +5,15 @@ const { API_ROOT_DOMAIN } = Cypress.env()
 
 export type ApiRoutes = ReturnType<typeof makeApiRoutes>
 
-export const makeApiRoutes = (authHeaders: any) => {
+const makeHeaders = (headers: any, correlationId: CorrelationId) => ({
+  ...headers,
+  "correlation-id": correlationIds[correlationId],
+})
+
+export const makeApiRoutes = (headers: any) => {
   const LIST_CASES = (urn: string, correlationId: CorrelationId = "BLANK") => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
+    headers: makeHeaders(headers, correlationId),
   })
 
   const GET_CASE = (
@@ -20,24 +22,8 @@ export const makeApiRoutes = (authHeaders: any) => {
     correlationId: CorrelationId = "BLANK"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
+    headers: makeHeaders(headers, correlationId),
   })
-
-  // const TRACKER_CLEAR = (
-  //   urn: string,
-  //   caseId: number,
-  //   correlationId: CorrelationId = "BLANK"
-  // ) => ({
-  //   url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
-  //   headers: {
-  //     ...authHeaders,
-  //     "correlation-id": correlationIds[correlationId],
-  //   },
-  //   method: "DELETE",
-  // })
 
   const TRACKER_START = (
     urn: string,
@@ -45,10 +31,7 @@ export const makeApiRoutes = (authHeaders: any) => {
     correlationId: CorrelationId = "BLANK"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
+    headers: makeHeaders(headers, correlationId),
     method: "POST",
   })
 
@@ -58,10 +41,7 @@ export const makeApiRoutes = (authHeaders: any) => {
     correlationId: CorrelationId = "BLANK"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
+    headers: makeHeaders(headers, correlationId),
   })
 
   const GET_SEARCH = (
@@ -71,10 +51,18 @@ export const makeApiRoutes = (authHeaders: any) => {
     correlationId: CorrelationId = "BLANK"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/search?query=${query}`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
+    headers: makeHeaders(headers, correlationId),
+  })
+
+  const GET_DOCUMENT = (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    correlationId: CorrelationId = "BLANK"
+  ) => ({
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}`,
+    headers: makeHeaders(headers, correlationId),
+    method: "GET",
   })
 
   const CHECKOUT_DOCUMENT = (
@@ -84,11 +72,19 @@ export const makeApiRoutes = (authHeaders: any) => {
     correlationId: CorrelationId = "BLANK"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
+    headers: makeHeaders(headers, correlationId),
     method: "POST",
+  })
+
+  const CANCEL_CHECKOUT_DOCUMENT = (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    correlationId: CorrelationId = "BLANK"
+  ) => ({
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`,
+    headers: makeHeaders(headers, correlationId),
+    method: "DELETE",
   })
 
   const SAVE_DOCUMENT = (
@@ -98,10 +94,7 @@ export const makeApiRoutes = (authHeaders: any) => {
     correlationId: CorrelationId = "BLANK"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
+    headers: makeHeaders(headers, correlationId),
     method: "PUT",
     body: {
       documentId,
@@ -123,7 +116,9 @@ export const makeApiRoutes = (authHeaders: any) => {
     TRACKER_START,
     GET_TRACKER,
     GET_SEARCH,
+    GET_DOCUMENT,
     CHECKOUT_DOCUMENT,
+    CANCEL_CHECKOUT_DOCUMENT,
     SAVE_DOCUMENT,
   }
 }

@@ -1,0 +1,28 @@
+{
+  "version": "2.0",
+  "logging": {
+    "fileLoggingMode": "debugOnly",
+    "logLevel": {
+      "default": "Warning",
+      "Function": "Information",
+      "Host.Aggregator": "Error",
+      "Host.Results": "Warning",
+      "PolarisGateway.Functions.CmsAuthentication.InitiateCookies": "Information"
+    },
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": false,
+        "maxTelemetryItemsPerSecond": 20,
+        "excludedTypes": "Request;Exception;Events"
+      },
+      "enableLiveMetrics": true,
+      "enableDependencyTracking": true,
+      "enablePerformanceCountersCollection": true,
+      "httpAutoCollectionOptions": {
+        "enableHttpTriggerExtendedInfoCollection": true,
+        "enableW3CDistributedTracing": true,
+        "enableResponseHeaderInjection": true
+      }
+    }
+  }
+}

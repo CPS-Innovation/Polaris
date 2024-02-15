@@ -64,4 +64,3 @@ stages:
             - DeployTextGenerator
             - DeploySpa
             - DeployGateway
-            - DeployAuthHandover

@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using coordinator.Providers;
+using coordinator.Services.CleardownService;
 
 namespace coordinator.Functions.Orchestration.Client.Case
 {
@@ -24,13 +25,16 @@ namespace coordinator.Functions.Orchestration.Client.Case
     {
         private readonly ILogger<CaseClient> _logger;
         private readonly IOrchestrationProvider _orchestrationProvider;
+        private readonly ICleardownService _cleardownService;
 
         public CaseClient(
             ILogger<CaseClient> logger,
-            IOrchestrationProvider orchestrationProvider)
+            IOrchestrationProvider orchestrationProvider,
+            ICleardownService cleardownService)
         {
             _logger = logger;
             _orchestrationProvider = orchestrationProvider;
+            _cleardownService = cleardownService;
         }
 
         [FunctionName(nameof(CaseClient))]
@@ -90,10 +94,10 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
 
                     case "DELETE":
-                        await _orchestrationProvider.DeleteCaseAsync(orchestrationClient,
-                                                                     currentCorrelationId,
+                        await _cleardownService.DeleteCaseAsync(orchestrationClient,
+                                                                     caseUrn,
                                                                      caseIdNum,
-                                                                     checkForBlobProtection: false,
+                                                                     currentCorrelationId,
                                                                      waitForIndexToSettle: true);
                         return new HttpResponseMessage(HttpStatusCode.OK);
 

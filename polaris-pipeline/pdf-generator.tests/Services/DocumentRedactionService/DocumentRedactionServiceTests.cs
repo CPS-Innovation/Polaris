@@ -20,6 +20,8 @@ public class DocumentRedactionServiceTests
     private readonly IDocumentRedactionService _documentRedactionService;
     private readonly RedactPdfRequestDto _redactPdfRequest;
     private readonly Guid _correlationId;
+    private readonly string _caseId;
+    private readonly PolarisDocumentId _documentId;
     private readonly string _errorMessage;
     private string _uploadFileName;
     public DocumentRedactionServiceTests()
@@ -41,6 +43,8 @@ public class DocumentRedactionServiceTests
         _redactPdfRequest = fixture.Create<RedactPdfRequestDto>();
         _correlationId = fixture.Create<Guid>();
         _uploadFileName = fixture.Create<string>();
+        _caseId = fixture.Create<string>();
+        _documentId = fixture.Create<PolarisDocumentId>();
 
         var inputStream = new MemoryStream();
         var outputStream = new MemoryStream();
@@ -56,18 +60,20 @@ public class DocumentRedactionServiceTests
 
         mockRedactionProvider.Setup(s => s.Redact(
                 It.Is<Stream>(s => s == inputStream),
+                It.Is<string>(c => c == _caseId),
+                It.Is<string>(d => d == _documentId.ToString()),
                 It.Is<RedactPdfRequestDto>(r => r == _redactPdfRequest),
                 It.Is<Guid>(g => g == _correlationId)
             ))
-            .Returns(outputStream);
+            .ReturnsAsync(outputStream);
 
         _errorMessage = fixture.Create<string>();
 
         _mockBlobStorageService.Setup(s => s.UploadDocumentAsync(
             It.Is<Stream>(s => s == outputStream),
             It.Is<string>(s => s == _uploadFileName),
-            It.Is<string>(s => s == _redactPdfRequest.CaseId.ToString()),
-            It.Is<PolarisDocumentId>(s => s == _redactPdfRequest.PolarisDocumentId),
+            It.Is<string>(s => s == _caseId),
+            It.Is<PolarisDocumentId>(s => s == _documentId),
             It.Is<string>(s => s == _redactPdfRequest.VersionId.ToString()),
             It.Is<Guid>(g => g == _correlationId)))
         .Returns(Task.CompletedTask);
@@ -88,7 +94,7 @@ public class DocumentRedactionServiceTests
         .ThrowsAsync(new Exception(_errorMessage));
 
         // Act
-        var saveResult = await _documentRedactionService.RedactPdfAsync(_redactPdfRequest, _correlationId);
+        var saveResult = await _documentRedactionService.RedactPdfAsync(_caseId, _documentId.ToString(), _redactPdfRequest, _correlationId);
 
         // Assert
         using (new AssertionScope())
@@ -103,7 +109,7 @@ public class DocumentRedactionServiceTests
     public async Task DocumentRedactionService_RedactPdfAsync_ReturnsASuccessResponse()
     {
         // Act
-        var saveResult = await _documentRedactionService.RedactPdfAsync(_redactPdfRequest, _correlationId);
+        var saveResult = await _documentRedactionService.RedactPdfAsync(_caseId, _documentId.ToString(), _redactPdfRequest, _correlationId);
 
         // Assert
         using (new AssertionScope())

@@ -36,12 +36,11 @@ public class CoordinateCalculatorTests
     [Fact]
     public void CalculateRelativeCoordinates_BasedOnTargetPdfDimensions()
     {
-        using var pdfStream = new MemoryStream();
         using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestBook.xlsx");
 
-        _pdfService.ReadToPdfStream(inputStream, pdfStream, Guid.NewGuid());
+        var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
-        var pdfInfo = new PdfFileInfo(pdfStream);
+        var pdfInfo = new PdfFileInfo(conversionResult.ConvertedDocument);
 
         var fixture = new Fixture();
         var testCoordinates = fixture.Create<RedactionCoordinatesDto>();
@@ -60,8 +59,8 @@ public class CoordinateCalculatorTests
         using (new AssertionScope())
         {
             _asposeItemFactory.Verify(x => x.CreateWorkbook(It.IsAny<Stream>(), It.IsAny<Guid>()));
-            pdfStream.Should().NotBeNull();
-            pdfStream.Length.Should().BeGreaterThan(0);
+            conversionResult.ConvertedDocument.Should().NotBeNull();
+            conversionResult.ConvertedDocument.Length.Should().BeGreaterThan(0);
 
             testCalculation.X1.Should().Be(targetPdfWidth / 100 * x1Cent);
             testCalculation.Y1.Should().Be(targetPdfHeight / 100 * y1Cent);

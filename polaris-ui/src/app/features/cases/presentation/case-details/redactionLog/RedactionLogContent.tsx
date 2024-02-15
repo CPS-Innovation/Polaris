@@ -62,7 +62,10 @@ type RedactionLogContentProps = {
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
-  saveRedactionLog: (data: RedactionLogRequestData) => void;
+  handleSaveRedactionLog: (
+    data: RedactionLogRequestData,
+    redactionLogType: RedactionLogTypes
+  ) => void;
   message?: string;
   handleCloseRedactionLog?: () => void;
 };
@@ -78,7 +81,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   additionalData,
   saveStatus,
   redactionLogType,
-  saveRedactionLog,
+  handleSaveRedactionLog,
   savedRedactionTypes,
   redactionLogLookUpsData,
   redactionLogMappingsData,
@@ -460,15 +463,31 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     defaultValues: UnderRedactionFormData,
     redactionLogRequestData: RedactionLogRequestData
   ) => {
-    const { notes, ...defaultValuesWithoutNotes } = defaultValues;
-    const { notes: newNotes, ...newValuesWithoutNotes } = newValues;
+    const selectTypeFormDataKeys = [
+      "cpsArea",
+      "businessUnit",
+      "investigatingAgency",
+      "chargeStatus",
+      "documentType",
+    ];
+    const getFilteredProperties = (formData: UnderRedactionFormData) =>
+      Object.keys(formData).reduce((obj, key) => {
+        if (selectTypeFormDataKeys.includes(key)) {
+          obj[key] = formData[key];
+        }
+        return obj;
+      }, {} as any);
+
+    const defaultSelectValues = getFilteredProperties(defaultValues);
+    const currentSelectValues = getFilteredProperties(newValues);
+
     const hasDefaultValueChange =
-      JSON.stringify(defaultValuesWithoutNotes) ===
-      JSON.stringify(newValuesWithoutNotes);
+      JSON.stringify(defaultSelectValues) ===
+      JSON.stringify(currentSelectValues);
     if (!hasDefaultValueChange) {
       trackEvent("Failed Default Mapping Redaction Log", {
-        oldValues: defaultValuesWithoutNotes,
-        newValues: newValuesWithoutNotes,
+        oldValues: defaultSelectValues,
+        newValues: currentSelectValues,
       });
     }
     if (redactionLogType === RedactionLogTypes.UNDER) {
@@ -487,7 +506,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   return (
     <div
       className={classes.modalContent}
-      data-testid="rl-under-redaction-content"
+      data-testid={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? "rl-under-over-redaction-content"
+          : "rl-under-redaction-content"
+      }
     >
       {saveStatus === "saving" && (
         <div
@@ -562,7 +585,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               event.preventDefault();
               const redactionLogRequestData = getRedactionLogRequestData(data);
               setSavingRedactionLog(true);
-              saveRedactionLog(redactionLogRequestData);
+              handleSaveRedactionLog(redactionLogRequestData, redactionLogType);
               handleAppInsightReporting(
                 data,
                 defaultValues,

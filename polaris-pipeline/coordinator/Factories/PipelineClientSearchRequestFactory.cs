@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using Common.Configuration;
-using Common.Constants;
+using coordinator.Constants;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request.Search;
 using Common.Wrappers.Contracts;
@@ -30,14 +30,14 @@ namespace coordinator.Factories
         }
 
         public HttpRequestMessage Create(
-          long cmsCaseId,
+            string caseUrn,
+            long cmsCaseId,
             string searchTerm, Guid correlationId,
             IEnumerable<SearchFilterDocument> documents)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Search}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetSearchPath(caseUrn, cmsCaseId)}?code={_configuration[ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
             var searchDto = new SearchRequestDto
             {
-                CaseId = cmsCaseId,
                 SearchTerm = searchTerm,
                 Documents = documents.ToList().Select(doc => new SearchRequestDocumentDto
                 {
