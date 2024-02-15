@@ -9,13 +9,13 @@ namespace Common.Configuration
         public const string Cases = "urns/{caseUrn}/cases";
 
         // Case (singular)
-        public const string Case = "urns/{caseUrn}/cases/{caseId}";
-        public const string CaseTracker = "urns/{caseUrn}/cases/{caseId}/tracker";
-        public const string CaseSearch = "urns/{caseUrn}/cases/{caseId}/search";
+        public const string Case = "urns/{caseUrn}/cases/{caseId:min(1)}";
+        public const string CaseTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/tracker";
+        public const string CaseSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
 
         // Document (singular)
-        public const string Document = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
-        public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
+        public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
+        public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
 
         // Admin
         public const string ResetDurableState = "maintenance/resetDurableState";
@@ -26,17 +26,12 @@ namespace Common.Configuration
         public const string GetHostName = "gethostname";
 
         // Internal Pipeline
-        public const string Search = "urns/{caseUrn}/cases/{caseId}/search";
-        public const string Extract = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
-        public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
-        public const string RedactPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
-        public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
-        public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
-
-#if SCALABILITY_TEST
-        public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";
-        public const string ScalabilityTestTracker = "cases/{caseId}/scalability-test/tracker";
-#endif
+        public const string Search = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
+        public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/extract";
+        public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
+        public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
+        public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
+        public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId:min(1)}/wait-for-case-empty-results";
 
         public static string GetCasePath(string caseUrn, long caseId)
         {

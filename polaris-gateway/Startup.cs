@@ -2,17 +2,14 @@
 using Common.Factories.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Gateway.Clients.PolarisPipeline;
-using Gateway.Clients.PolarisPipeline.Contracts;
+using Gateway.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using PolarisGateway.common.Mappers.Contracts;
+using PolarisGateway.common.Mappers;
 using PolarisGateway.Factories;
-using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Mappers;
-using PolarisGateway.Domain.Validators.Contracts;
 using PolarisGateway.Domain.Validators;
 using Common.Telemetry.Wrappers;
 using Common.Telemetry.Wrappers.Contracts;
@@ -52,11 +49,10 @@ namespace PolarisGateway
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
-            services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
-            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
-            services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            services.AddTransient<IPipelineClient, PipelineClient>();
+            services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
+            services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddSingleton<ITrackerResponseFactory, TrackerResponseFactory>();
+            //services.AddTransient<IPipelineClient, PipelineClient>();
 
             services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
@@ -64,7 +60,7 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
