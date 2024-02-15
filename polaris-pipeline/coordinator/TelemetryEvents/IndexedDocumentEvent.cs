@@ -25,7 +25,7 @@ namespace text_extractor.coordinator
         public int WordCount { get; set; }
         public long IndexSettleTargetCount { get; set; }
         public bool DidIndexSettle { get; set; }
-        public List<long> WaitRecordCounts;
+        public List<long> WaitRecordCounts { get; set; }
 
         public IndexedDocumentEvent(Guid correlationId)
         {

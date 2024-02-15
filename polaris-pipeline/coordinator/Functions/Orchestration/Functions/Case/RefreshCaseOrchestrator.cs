@@ -118,8 +118,6 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
             var result = await Task.WhenAll(documentTasks.Select(BufferCall));
 
-            var totalDocumentLineCount = result.Where(x => x != null).Sum(x => x.OcrLineCount);
-
             if (await caseEntity.AllDocumentsFailed())
                 throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 

@@ -31,7 +31,6 @@ namespace text_extractor.Functions
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
         private readonly ILogger<ExtractText> _log;
-        private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
@@ -41,7 +40,6 @@ namespace text_extractor.Functions
                            IExceptionHandler exceptionHandler,
                            IDtoHttpRequestHeadersMapper dtoHttpRequestHeadersMapper,
                            ILogger<ExtractText> logger,
-                           ITelemetryClient telemetryClient,
                            ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
                            IJsonConvertWrapper jsonConvertWrapper)
         {
@@ -51,7 +49,6 @@ namespace text_extractor.Functions
             _exceptionHandler = exceptionHandler;
             _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper;
             _log = logger;
-            _telemetryClient = telemetryClient;
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
             _jsonConvertWrapper = jsonConvertWrapper;
         }

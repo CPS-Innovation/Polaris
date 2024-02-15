@@ -19,7 +19,7 @@ namespace coordinator.Services.TextExtractService
         private readonly ILogger<TextExtractService> _log;
         private readonly ITextExtractorClient _textExtractorClient;
         private long _targetCount;
-        private List<long> _recordCounts;
+        private readonly List<long> _recordCounts;
 
         public TextExtractService(ILogger<TextExtractService> log, ITextExtractorClient textExtractorClient)
         {
@@ -34,7 +34,7 @@ namespace coordinator.Services.TextExtractService
 
             var indexCountPipeline = GetIndexCountResiliencePipeline(correlationId);
 
-            var result = await indexCountPipeline.ExecuteAsync(async token =>
+            await indexCountPipeline.ExecuteAsync(async token =>
                 await _textExtractorClient.GetDocumentIndexCount(caseUrn, cmsCaseId, cmsDocumentId, versionId, correlationId),
                 CancellationToken.None);
 
@@ -52,7 +52,7 @@ namespace coordinator.Services.TextExtractService
 
             var indexCountPipeline = GetIndexCountResiliencePipeline(correlationId);
 
-            var result = await indexCountPipeline.ExecuteAsync(async token =>
+            await indexCountPipeline.ExecuteAsync(async token =>
                 await _textExtractorClient.GetCaseIndexCount(caseUrn, cmsCaseId, correlationId),
                 CancellationToken.None);
 

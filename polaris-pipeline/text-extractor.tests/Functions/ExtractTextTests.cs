@@ -104,7 +104,6 @@ namespace text_extractor.tests.Functions
                                 _mockExceptionHandler.Object,
                                 mockDtoHttpRequestHeadersMapper.Object,
                                 _mockLogger.Object,
-                                _mockTelemetryClient.Object,
                                 _mockTelemetryAugmentationWrapper.Object,
                                 _mockJsonConvertWrapper.Object);
         }
