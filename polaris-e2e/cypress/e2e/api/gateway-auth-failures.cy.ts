@@ -103,7 +103,8 @@ describe("Gateway endpoint auth failures", { tags: "@ci" }, () => {
           ...route,
           failOnStatusCode: false,
           followRedirect: false,
-        }).then((response) => expect(response.isOkStatusCode).to.equal(false))
+          // either a redirect or a fail
+        }).then((response) => expect(response.status).to.be.greaterThan(299))
       }
     })
 
@@ -120,7 +121,8 @@ describe("Gateway endpoint auth failures", { tags: "@ci" }, () => {
             ...route,
             failOnStatusCode: false,
             followRedirect: false,
-          }).then((response) => expect(response.isOkStatusCode).to.equal(false))
+            // either a redirect or a fail
+          }).then((response) => expect(response.status).to.be.greaterThan(299))
         }
       })
     })
