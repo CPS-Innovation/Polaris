@@ -5,6 +5,14 @@ namespace Ddei.Factories
 {
     public class CaseDataArgFactory : ICaseDataArgFactory
     {
+        public DdeiCmsCaseDataArgDto CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId)
+        {
+            return new DdeiCmsCaseDataArgDto
+            {
+                CorrelationId = correlationId,
+                CmsAuthValues = partialCmsAuthValues
+            };
+        }
         public DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
         {
             return new DdeiCmsUrnArgDto
