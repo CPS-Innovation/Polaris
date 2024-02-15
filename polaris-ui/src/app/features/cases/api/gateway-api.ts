@@ -67,11 +67,6 @@ export const searchUrn = async (urn: string) => {
   });
 
   if (!response.ok) {
-    // special case: the gateway returns 404 if no results
-    //  but we are happy to just return empty data
-    if (response.status === 404) {
-      return [];
-    }
     throw new ApiError("Search URN failed", url, response);
   }
 

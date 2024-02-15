@@ -11,7 +11,6 @@ using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService.Contracts;
-using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
@@ -33,6 +32,7 @@ namespace text_extractor.Functions
         private readonly ILogger<ExtractText> _log;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private const string loggingName = "ExtractText - Run";
 
         public ExtractText(IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
                            IOcrService ocrService,
@@ -58,7 +58,8 @@ namespace text_extractor.Functions
             string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "ExtractText - Run";
+            ExtractTextResult extractTextResult = default;
+
             try
             {
                 #region Validate-Inputs
@@ -80,21 +81,18 @@ namespace text_extractor.Functions
 
                 #endregion
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
-
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
                 var ocrLineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
 
-                var extractTextResult = new ExtractTextResult()
+                extractTextResult = new ExtractTextResult()
                 {
                     OcrCompletedTime = DateTime.UtcNow,
                     PageCount = ocrResults.ReadResults.Count,
                     LineCount = ocrLineCount,
-                    WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count))
+                    WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count)),
+                    IsSuccess = true
                 };
-
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
 
                 await _searchIndexService.SendStoreResultsAsync
                     (
@@ -108,23 +106,18 @@ namespace text_extractor.Functions
                     );
                 extractTextResult.IndexStoredTime = DateTime.UtcNow;
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
-
                 var response = new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(new ExtractTextResult { LineCount = ocrLineCount }), Encoding.UTF8, "application/json")
+                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(extractTextResult), Encoding.UTF8, "application/json")
                 };
 
                 return response;
             }
             catch (Exception exception)
             {
-                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log);
-            }
-            finally
-            {
-                _log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
+                extractTextResult.IsSuccess = false;
+                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log, extractTextResult);
             }
         }
     }

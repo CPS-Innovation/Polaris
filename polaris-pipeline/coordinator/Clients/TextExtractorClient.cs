@@ -13,6 +13,7 @@ using Common.Wrappers.Contracts;
 using coordinator.Clients.Contracts;
 using coordinator.Factories;
 using Microsoft.Extensions.Configuration;
+using Common.Handlers;
 
 namespace coordinator.Clients
 {
@@ -57,9 +58,21 @@ namespace coordinator.Clients
             request.Content = requestContent;
 
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-
             var responseContent = await response.Content.ReadAsStringAsync();
-            return _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(responseContent);
+
+            ExtractTextResult result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(responseContent);
+            }
+            else
+            {
+                var unsuccessfulResponse = _jsonConvertWrapper.DeserializeObject<ExceptionContent>(responseContent);
+                result = _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(unsuccessfulResponse?.Data.ToString());
+            }
+
+            return result;
         }
 
         public async Task<IList<StreamlinedSearchLine>> SearchTextAsync(

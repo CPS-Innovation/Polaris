@@ -112,7 +112,7 @@ namespace text_extractor.tests.Functions
         public async Task Run_ReturnsExceptionWhenCorrelationIdIsMissing()
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<ExtractText>>()))
+            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<ExtractText>>(), It.IsAny<object>()))
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
@@ -125,7 +125,7 @@ namespace text_extractor.tests.Functions
         public async Task Run_ReturnsBadRequestWhenContentIsInvalid()
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object, It.IsAny<object>()))
                 .Returns(_errorHttpResponseMessage);
 
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
@@ -139,7 +139,7 @@ namespace text_extractor.tests.Functions
         public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object, It.IsAny<object>()))
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
@@ -152,7 +152,7 @@ namespace text_extractor.tests.Functions
         public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object, It.IsAny<object>()))
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
@@ -189,15 +189,16 @@ namespace text_extractor.tests.Functions
         [Fact]
         public async Task Run_ReturnsResponseWhenExceptionOccurs()
         {
+            // Arrange
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             var exception = new Exception();
-            // _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequestDto>(_serializedExtractTextRequest))
-            //     .Throws(exception);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object, It.IsAny<object>()))
                 .Returns(_errorHttpResponseMessage);
 
+            // Act
             var response = await _extractText.Run(_httpRequestMessage, _caseUrn, _caseId, _documentId, _versionId);
 
+            // Assert
             response.Should().Be(_errorHttpResponseMessage);
         }
     }
