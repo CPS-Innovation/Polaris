@@ -65,11 +65,22 @@ stages:
       armClientSecret: $(innovation-development-spn-secret)
       armTenantId: $(innovation-development-spn-tenant-id)
       armSubscriptionId: $(innovation-development-subscription-id)
-
-  - template: ../templates/stages/stage_update_github_tag.yml
+      
+  - template: ../templates/stages/stage_create-commit-report.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Check_DEV
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "DEV"
+      targetLabelLower: "dev"
+      targetName: "Create Commit Report"
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_update-github-tag.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      stageDependsOn: Create_Commit_Report_DEV
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "Update GitHub Tag"
@@ -131,11 +142,22 @@ stages:
       armClientSecret: $(innovation-qa-spn-secret)
       armTenantId: $(innovation-qa-spn-tenant-id)
       armSubscriptionId: $(innovation-qa-subscription-id)
-
-  - template: ../templates/stages/stage_update_github_tag.yml
+      
+  - template: ../templates/stages/stage_create-commit-report.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Check_QA
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "QA"
+      targetLabelLower: "qa"
+      targetName: "Create Commit Report"
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_update-github-tag.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Create_Commit_Report_QA
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "Update GitHub Tag"
@@ -197,11 +219,22 @@ stages:
       armClientSecret: $(innovation-prod-spn-secret)
       armTenantId: $(innovation-prod-spn-tenant-id)
       armSubscriptionId: $(innovation-prod-subscription-id)
-
-  - template: ../templates/stages/stage_update_github_tag.yml
+      
+  - template: ../templates/stages/stage_create-commit-report.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Check_PROD
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "PROD"
+      targetLabelLower: "prod"
+      targetName: "Create Commit Report"
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_update-github-tag.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Create_Commit_Report_PROD
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "Update GitHub Tag"

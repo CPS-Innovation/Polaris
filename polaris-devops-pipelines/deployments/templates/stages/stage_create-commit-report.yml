@@ -1,4 +1,4 @@
----
+﻿---
 parameters:
   - name: stageBuildAgent
     type: string
@@ -8,6 +8,8 @@ parameters:
     type: string
   - name: targetLabel
     type: string
+  - name: targetLabelLower
+    type: string
   - name: targetName
     type: string
   - name: appInsightsKey
@@ -16,8 +18,8 @@ parameters:
     type: string
 
 stages:
-  - stage: Update_GitHub_Tag_${{ parameters.targetLabel }}
-    displayName: Update GitHub Tag > ${{ parameters.targetLabel }}
+  - stage: Create_Commit_Report_${{ parameters.targetLabel }}
+    displayName: Create Commit Report > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
@@ -31,9 +33,10 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
 
-      - template: jobs/job_update_github_tag.yml
+      - template: jobs/job_create-commit-report.yml
         parameters:
           targetLabel: ${{ parameters.targetLabel }}
+          targetLabelLower: ${{ parameters.targetLabelLower }}
           jobDependsOn:
             - LogStart
 
@@ -46,4 +49,4 @@ stages:
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
           jobDependsOn:
             - LogStart
-            - UpdateGithubTag
+            - CreateCommitReport
