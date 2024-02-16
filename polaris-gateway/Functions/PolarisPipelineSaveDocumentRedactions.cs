@@ -57,7 +57,7 @@ namespace PolarisGateway.Functions
             {
                 await Initiate(req);
                 telemetryEvent.IsRequestValid = true;
-
+                telemetryEvent.CorrelationId = CorrelationId;
                 var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
                 var isRequestJsonValid = redactions.IsValid;
                 telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
