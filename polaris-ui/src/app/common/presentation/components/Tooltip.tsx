@@ -12,8 +12,8 @@ type TooltipProps = {
 export const Tooltip: React.FC<TooltipProps> = ({
   text,
   children,
+  className,
   position = "bottom",
-  className = "",
   dataTestId = "tooltip",
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -31,9 +31,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
       case "right":
         return classes.tooltipRight;
       case "left":
-        return classes.tooltipRight;
+        return classes.tooltipLeft;
       case "top":
-        return classes.tooltipBottom;
+        return classes.tooltipTop;
       default:
         return classes.tooltipBottom;
     }
@@ -41,7 +41,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <div
-      className={classes.tooltipContainer}
+      className={`${classes.tooltipContainer} ${className ? className : ""}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

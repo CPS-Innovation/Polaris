@@ -123,8 +123,8 @@ export const HeaderReadMode: React.FC<Props> = ({
           id={`btn-area-tool-${contextData.tabIndex}`}
           ariaLabel={
             !contextData.areaOnlyRedactionMode
-              ? "redact area tool on"
-              : "redact area tool off"
+              ? "enable area redaction mode"
+              : "disable area redaction mode"
           }
           onClick={handleRedactAreaToolButtonClick}
         >

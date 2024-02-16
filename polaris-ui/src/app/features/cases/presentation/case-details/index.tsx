@@ -344,6 +344,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             <div className={classes.resizeBtnWrapper}>
               <Tooltip
                 text={inFullScreen ? "Exit full screen" : "View full screen"}
+                position="right"
               >
                 <LinkButton
                   id={"full-screen-btn"}
