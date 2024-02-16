@@ -6,7 +6,7 @@
       "default": "Warning",
       "Function": "Information",
       "Host.Aggregator": "Error",
-      "Host.Results": "Warning",
+      "Host.Results": "Information",
       "PolarisGateway.Functions.CmsAuthentication.InitiateCookies": "Information"
     },
     "applicationInsights": {
