@@ -1,0 +1,237 @@
+﻿---
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/*
+      - polaris-gateway/*
+      - polaris-pipeline/*
+      - polaris-ui/*
+      - polaris-e2e/*
+
+pr: none
+
+variables:
+  - group: polaris-global
+  - name: buildConfiguration
+    value: "Release"
+  - name: majorMinorVersion
+    value: "1.0"
+  - name: semanticVersion
+    value: "$[counter(variables['majorMinorVersion'], 1)]"
+    
+pool:
+  name: $(dev-build-agent)
+
+stages:
+  - stage: Publish_Pipeline_Scripts
+    displayName: Publish Pipeline Scripts
+    jobs:
+      - job: Build_Pipeline_Scripts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish pipeline scripts"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
+              artifact: "polaris-script-files"
+              publishLocation: "pipeline"
+  
+  - stage: Publish_Pipeline_Terraform_Artifacts
+    displayName: Publish Pipeline Terraform Artifacts
+    jobs:
+      - job: Build_Pipeline_Terraform_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline terraform artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+              artifact: "pipeline-terraform-files"
+              publishLocation: "pipeline"
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline events terraform artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
+              artifact: "pipeline-events-terraform-files"
+              publishLocation: "pipeline"
+
+  - stage: Publish_UI_Terraform_Artifacts
+    displayName: Publish UI Terraform Artifacts
+    jobs:
+      - job: Build_UI_Terraform_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI terraform artifact'
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
+              artifact: 'ui-terraform-files'
+              publishLocation: 'pipeline'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI events terraform artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
+              artifact: "ui-events-terraform-files"
+              publishLocation: "pipeline"
+              
+  - stage: Publish_Networking_Terraform_Artifact
+    displayName: Publish Networking Terraform Artifact
+    jobs:
+      - job: Build_Terraform_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Networking terraform artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
+              artifact: "networking-terraform-files"
+              publishLocation: "pipeline"
+              
+  - stage: Publish_Coordinator_Artifact
+    displayName: Publish Coordinator Artifact
+    jobs:
+      - job: Build_Coordinator_Artifact
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/coordinator/coordinator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Coordinator package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
+              artifact: "polaris-coordinator-drop"
+            displayName: "Publish Coordinator codebase artifact"
+      
+  - stage: Publish_Pdf_Generator_Artifact
+    displayName: Publish PDF Generator Artifact
+    jobs:
+      - job: Build_Pdf_Generator_Artifact
+        steps:
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-generator'
+              OverWrite: true
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create PDF-Generator package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
+              artifact: "polaris-pdf-generator-drop"
+            displayName: "Publish PDF-Generator codebase artifact"
+            
+  - stage: Publish_Text_Extractor_Artifact
+    displayName: Publish Text Extractor Artifact
+    jobs:
+      - job: Build_Text_Extractor_Artifact
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Text-Extractor package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
+              artifact: "polaris-text-extractor-drop"
+            displayName: "Publish Text-Extractor codebase artifact"
+      
+  - stage: Publish_Gateway_Artifact
+    displayName: Publish Gateway Artifact
+    jobs:
+      - job: Build_Gateway_Artifact
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Gateway package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
+              artifact: "polaris-gateway-drop"
+            displayName: "Publish Gateway codebase artifact"
+
+  - stage: Publish_SPA_Artifact
+    displayName: Publish SPA Artifact
+    jobs:
+      - job: Build_SPA_Artifacts
+        steps:
+          # We want to rely only on the .env.production file, anything in .env is still included
+          #  if not overwritten by .env.production.  For safety, just delete .env
+          - task: DeleteFiles@1
+            displayName: "Remove .env file"
+            inputs:
+              contents: |
+                polaris-ui/.env
+
+          # Add build version
+          - task: PowerShell@2
+            displayName: "Record build version"
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-ui/public
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"ui`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-ui"
+            displayName: "npm install"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run prettier"
+            displayName: "npm prettier"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run build"
+            displayName: "npm build"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/build"
+              ArtifactName: "polaris-ui-drop"
+              publishLocation: "Container"
+            displayName: Publish UI artifact
