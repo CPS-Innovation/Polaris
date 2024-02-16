@@ -8,6 +8,10 @@ pr:
   paths:
     include:
       - polaris-terraform/*
+      - polaris-gateway/*
+      - polaris-pipeline/*
+      - polaris-ui/*
+      - polaris-e2e/*
         
 variables:
   - group: kv-dev-terraform
