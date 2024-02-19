@@ -33,8 +33,6 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
-            using var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
-
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
                 CaseUrn = payload.CmsCaseUrn,
@@ -44,39 +42,49 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 StartTime = DateTime.Now
             };
 
-            var extractTextResult = await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
-                payload.CmsCaseUrn,
-                payload.CmsCaseId,
-                payload.CmsDocumentId,
-                payload.CmsVersionId,
-                payload.BlobName,
-                payload.CorrelationId,
-                documentStream);
+            try
+            {
+                using var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
 
-            telemetryEvent.OcrCompletedTime = extractTextResult.OcrCompletedTime;
-            telemetryEvent.PageCount = extractTextResult.PageCount;
-            telemetryEvent.LineCount = extractTextResult.LineCount;
-            telemetryEvent.WordCount = extractTextResult.WordCount;
+                var extractTextResult = await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+                    payload.CmsCaseUrn,
+                    payload.CmsCaseId,
+                    payload.CmsDocumentId,
+                    payload.CmsVersionId,
+                    payload.BlobName,
+                    payload.CorrelationId,
+                    documentStream);
 
-            await Task.Delay(1000);
+                telemetryEvent.OcrCompletedTime = extractTextResult.OcrCompletedTime;
+                telemetryEvent.PageCount = extractTextResult.PageCount;
+                telemetryEvent.LineCount = extractTextResult.LineCount;
+                telemetryEvent.WordCount = extractTextResult.WordCount;
 
-            var searchIndexCountResult = await _textExtractService.WaitForDocumentStoreResultsAsync(
-                payload.CmsCaseUrn,
-                payload.CmsCaseId,
-                payload.CmsDocumentId,
-                payload.CmsVersionId,
-                extractTextResult.LineCount,
-                payload.CorrelationId
-            );
+                await Task.Delay(1000);
 
-            telemetryEvent.DidIndexSettle = searchIndexCountResult.IsSuccess;
-            telemetryEvent.WaitRecordCounts = searchIndexCountResult.RecordCounts;
-            telemetryEvent.IndexSettleTargetCount = searchIndexCountResult.TargetCount;
+                var searchIndexCountResult = await _textExtractService.WaitForDocumentStoreResultsAsync(
+                    payload.CmsCaseUrn,
+                    payload.CmsCaseId,
+                    payload.CmsDocumentId,
+                    payload.CmsVersionId,
+                    extractTextResult.LineCount,
+                    payload.CorrelationId
+                );
 
-            telemetryEvent.EndTime = DateTime.UtcNow;
-            _telemetryClient.TrackEvent(telemetryEvent);
+                telemetryEvent.DidIndexSettle = searchIndexCountResult.IsSuccess;
+                telemetryEvent.WaitRecordCounts = searchIndexCountResult.RecordCounts;
+                telemetryEvent.IndexSettleTargetCount = searchIndexCountResult.TargetCount;
 
-            return extractTextResult;
+                telemetryEvent.EndTime = DateTime.UtcNow;
+                _telemetryClient.TrackEvent(telemetryEvent);
+
+                return extractTextResult;
+            }
+            catch (Exception)
+            {
+                _telemetryClient.TrackEventFailure(telemetryEvent);
+                throw;
+            }
         }
     }
 }
