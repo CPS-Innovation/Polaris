@@ -37,6 +37,7 @@ export const AccordionDocument: React.FC<Props> = ({
     return `${caseDocument.attachments.length} attachments`;
   };
 
+  console.log(caseDocument)
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
 
   return (
@@ -88,6 +89,14 @@ export const AccordionDocument: React.FC<Props> = ({
               {getAttachmentText()}
             </span>
           </div>
+        )}
+        {caseDocument.hasFailedAttachments && (
+          // todo: change this to icon/design
+          <span
+            data-testid={`failed-attachment-warning-${caseDocument.documentId}`}
+          >
+            Failed to load attachments
+          </span>
         )}
       </div>
       <div className={classes.witnessIndicators}>
