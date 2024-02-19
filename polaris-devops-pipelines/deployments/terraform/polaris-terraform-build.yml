@@ -1,73 +1,73 @@
----
-name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
-
-trigger:
-  batch: true
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - polaris-terraform/*
-
-pr: none
-
-variables:
-  - group: polaris-global
-  - name: buildConfiguration
-    value: "Release"
-  - name: majorMinorVersion
-    value: "1.0"
-  - name: semanticVersion
-    value: "$[counter(variables['majorMinorVersion'], 1)]"
-
-pool:
-  name: $(dev-build-agent)
-
-stages:
-  - stage: Publish_Artifacts
-    displayName: Publish artifacts
-    jobs:
-      - job: Build_Artifacts
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: "Publish pipeline scripts"
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
-              artifact: "polaris-script-files"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline events terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
-              artifact: "pipeline-events-terraform-files"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish UI terraform artifact'
-            inputs:
-              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
-              artifact: 'ui-terraform-files'
-              publishLocation: 'pipeline'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish UI events terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
-              artifact: "ui-events-terraform-files"
-              publishLocation: "pipeline"
-              
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Networking terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
-              artifact: "networking-terraform-files"
-              publishLocation: "pipeline"
+#---
+#name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
+#
+#trigger:
+#  batch: true
+#  branches:
+#    include:
+#      - main
+#  paths:
+#    include:
+#      - polaris-terraform/*
+#
+#pr: none
+#
+#variables:
+#  - group: polaris-global
+#  - name: buildConfiguration
+#    value: "Release"
+#  - name: majorMinorVersion
+#    value: "1.0"
+#  - name: semanticVersion
+#    value: "$[counter(variables['majorMinorVersion'], 1)]"
+#
+#pool:
+#  name: $(dev-build-agent)
+#
+#stages:
+#  - stage: Publish_Artifacts
+#    displayName: Publish artifacts
+#    jobs:
+#      - job: Build_Artifacts
+#        steps:
+#          - task: PublishPipelineArtifact@1
+#            displayName: "Publish pipeline scripts"
+#            inputs:
+#              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
+#              artifact: "polaris-script-files"
+#              publishLocation: "pipeline"
+#
+#          - task: PublishPipelineArtifact@1
+#            displayName: 'Publish pipeline terraform artifact'
+#            inputs:
+#              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+#              artifact: "pipeline-terraform-files"
+#              publishLocation: "pipeline"
+#
+#          - task: PublishPipelineArtifact@1
+#            displayName: 'Publish pipeline events terraform artifact'
+#            inputs:
+#              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
+#              artifact: "pipeline-events-terraform-files"
+#              publishLocation: "pipeline"
+#
+#          - task: PublishPipelineArtifact@1
+#            displayName: 'Publish UI terraform artifact'
+#            inputs:
+#              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
+#              artifact: 'ui-terraform-files'
+#              publishLocation: 'pipeline'
+#
+#          - task: PublishPipelineArtifact@1
+#            displayName: 'Publish UI events terraform artifact'
+#            inputs:
+#              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
+#              artifact: "ui-events-terraform-files"
+#              publishLocation: "pipeline"
+#              
+#          - task: PublishPipelineArtifact@1
+#            displayName: 'Publish Networking terraform artifact'
+#            inputs:
+#              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
+#              artifact: "networking-terraform-files"
+#              publishLocation: "pipeline"

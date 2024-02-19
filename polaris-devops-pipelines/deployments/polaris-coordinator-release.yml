@@ -1,0 +1,254 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisCoordinatorBuild
+      source: Polaris Coordinator - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Pipeline_Scripts
+          - Publish_Pipeline_Terraform_Artifacts
+          - Publish_UI_Terraform_Artifacts
+          - Publish_Networking_Terraform_Artifact
+          - Publish_Coordinator_Artifact
+          - Publish_Pdf_Generator_Artifact
+          - Publish_Text_Extractor_Artifact
+          - Publish_Gateway_Artifact
+          - Publish_SPA_Artifact
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: polaris-status-check-endpoints
+  - name: buildName
+    value: PolarisCoordinatorBuild
+    
+stages:
+  - stage: Determine_Changes
+    displayName: Determine Changes
+    jobs:
+      - job: Generate_Diff
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = $(git diff --name-only origin/main)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+                
+                $pipelineTerraformCount=0
+                $pipelineEventsTerraformCount=0
+                $uiTerraformCount=0
+                $uiEventsTerraformCount=0
+                $networkingTerraformCount=0
+                $coordinatorCount=0
+                $pdfGeneratorCount=0
+                $textExtractorCount=0
+                $gatewayCount=0
+                $uiCount=0
+                $ddeiClientCount=0
+                $commonCount=0
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+                    ((pipelineTerraformCount++))
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+                    ((pipelineEventsTerraformCount++))
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+                    ((uiTerraformCount++))
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+                    ((uiEventsTerraformCount++))
+                  }
+                  if ($name -like 'polaris-terraform/networking-terraform/*')
+                  {
+                    echo "run networking terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+                    ((networkingTerraformCount++))
+                  }
+                  if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
+                  {
+                    echo "run coordinator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+                    ((coordinatorCount++))
+                  }
+                  if ($name -like 'polaris-pipeline/pdf-generator/*' -Or $name -like 'polaris-pipeline/pdf-generator.tests/*')
+                  {
+                    echo "run pdf generator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+                    ((pdfGeneratorCount++))
+                  }
+                  if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
+                  {
+                    echo "run text extractor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+                    ((textExtractorCount++))
+                  }
+                  if ($name -like 'polaris-gateway/*' -Or $name -like 'polaris-gateway.tests/*')
+                  {
+                    echo "run gateway..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+                    ((gatewayCount++))
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                    ((uiCount++))
+                  }
+                  if ($name -like 'polaris-pipeline/DdeiClient/*' -Or $name -like 'polaris-pipeline/DdeiClient.tests/*')
+                  {
+                    echo "changes to DdeiClient detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+                    ((ddeiClientCount++))
+                  }
+                  if ($name -like 'polaris-pipeline/Common/*' -Or $name -like 'polaris-pipeline/Common.tests/*')
+                  {
+                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+                    ((commonCount++))
+                  }
+                }
+                
+                Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT;isOutput=true]$pipelineTerraformCount"
+                Write-Host "##vso[task.setvariable variable=PIPELINE_EVENTS_TERRAFORM_COUNT;isOutput=true]$pipelineEventsTerraformCount"
+                Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT;isOutput=true]$uiTerraformCount"
+                Write-Host "##vso[task.setvariable variable=UI_EVENTS_TERRAFORM_COUNT;isOutput=true]$uiEventsTerraformCount"
+                Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT;isOutput=true]$networkingTerraformCount"
+                Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT;isOutput=true]$coordinatorCount"
+                Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT;isOutput=true]$pdfGeneratorCount"
+                Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT;isOutput=true]$textExtractorCount"
+                Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT;isOutput=true]$gatewayCount"
+                Write-Host "##vso[task.setvariable variable=UI_COUNT;isOutput=true]$uiCount"
+                Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT;isOutput=true]$ddeiClientCount"
+                Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT;isOutput=true]$commonCount"
+            name: Change_Results
+            displayName: Processing changes to repo
+            
+  - stage: Wait_For_Running_Releases
+    displayName: Wait for Running Releases
+    dependsOn: Determine_Changes
+    jobs:
+      # Job to wait for running builds
+      - job: waitForRunningBuilds
+        displayName: 'Checking for Running Releases'
+        timeoutInMinutes: 240
+        pool:
+          vmImage: 'windows-latest'
+        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
+        condition: True # 'False' will skip this job
+
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                #If this starts failing randomly, check for DevOps token expiry
+                $token = "$(devops-pat-token)"
+                $organization = "CPSDTS"
+                $project = "Information%20Management"
+                
+                $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $user,$token)))
+                
+                $ThisBuildDefinitionID = $(System.DefinitionId)
+                [int]$ThisBuildID = $(Build.BuildId)
+                
+                $GET_BUILDS_BY_DEFINITION_URL = "https://dev.azure.com/$organization/$project/_apis/build/builds?api-version=5.1&definitions=$ThisBuildDefinitionID"
+                
+                do
+                {
+                    $GET_BUILDS_BY_DEFINITION_RESPONSE = ""
+                    try
+                    {
+                      $GET_BUILDS_BY_DEFINITION_RESPONSE = Invoke-RestMethod -Uri $GET_BUILDS_BY_DEFINITION_URL `
+                                                  -Method GET `
+                                                  -ContentType "application/json" `
+                                                  -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}
+                    }
+                    catch
+                    {
+                      continue
+                    }
+                
+                    [array]$runningBuilds = $GET_BUILDS_BY_DEFINITION_RESPONSE.value | Where-Object -Property "status" -Value "inProgress" -EQ
+                
+                    [int]$currentRunningBuild = ($runningBuilds | Sort-Object -Property "Id")[0].Id
+                
+                    Write-Host "This Build ID: " $ThisBuildID
+                    Write-Host "Currently Running Build ID: " $currentRunningBuild
+                    Write-Host "Waiting..." 
+                    Write-Output ""
+                    Start-Sleep -Seconds 5
+                }
+                while($ThisBuildID -ne $currentRunningBuild)
+                
+                Write-Host "Waiting Complete."
+                Write-Host "Starting Build: " $ThisBuildID
+                Start-Sleep -Seconds 5
+                
+  - stage: Apply_Terraform
+    displayName: Apply Terraform
+    dependsOn:
+      - Determine_Changes
+      - Wait_For_Running_Releases
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM'], 'true'))
+    jobs:
+      - job: Release_Terraform
+        displayName: Release Terraform
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Release Terraform'
+            inputs:
+              buildDefinition: 316
+              buildParameters: "TargetBuild: $(buildName)"
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: "$(devops-pat-token)"
+              
+  - stage: Deploy_Codebase
+    displayName: Deploy Codebase
+    dependsOn:
+      - Determine_Changes
+      - Wait_For_Running_Releases
+      - Apply_Terraform
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE'], 'true'))
+    jobs:
+      - job: Release_Polaris_Codebase
+        displayName: Release Codebase
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Release Terraform'
+            inputs:
+              buildDefinition: 295
+              buildParameters: "TargetBuild: $(buildName)"
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: "$(devops-pat-token)"
