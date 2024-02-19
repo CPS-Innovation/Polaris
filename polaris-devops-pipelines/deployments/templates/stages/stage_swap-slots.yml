@@ -33,12 +33,17 @@ stages:
           targetName: "Swap Polaris Codebase Slots"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
+      - template: jobs/job_pause-pipeline.yml
+        parameters:
+          jobDependsOn:
+            - LogStart
+          
       - template: jobs/job_swap-slots.yml
         parameters:
           targetSuffix: ${{ parameters.targetSuffix }}
           azureSubscription: ${{ parameters.azureSubscription }}
           jobDependsOn:
-            - LogStart
+            - Pause_Pipeline
               
       - template: jobs/job_log-result.yml
         parameters:

@@ -2,6 +2,7 @@
 using System.IO;
 using Aspose.Email;
 using Aspose.Words;
+using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
@@ -15,17 +16,23 @@ namespace pdf_generator.Services.PdfService
             _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
         }
 
-        public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
+        public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
         {
+            var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeEmail);
+            var mailMessageStream = new MemoryStream();
+            var pdfStream = new MemoryStream();
+            
             var mailMsg = _asposeItemFactory.CreateMailMessage(inputStream, correlationId);
-            using var memoryStream = new MemoryStream();
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            mailMsg.Save(memoryStream, SaveOptions.DefaultMhtml);
+            mailMessageStream.Seek(0, SeekOrigin.Begin);
+            mailMsg.Save(mailMessageStream, SaveOptions.DefaultMhtml);
 
             //// load the MTHML from memoryStream into a document
-            var document = _asposeItemFactory.CreateMhtmlDocument(inputStream, correlationId);
+            var document = _asposeItemFactory.CreateMhtmlDocument(mailMessageStream, correlationId);
             document.Save(pdfStream, SaveFormat.Pdf);
             pdfStream.Seek(0, SeekOrigin.Begin);
+            
+            conversionResult.RecordConversionSuccess(pdfStream);
+            return conversionResult;
         }
     }
 }

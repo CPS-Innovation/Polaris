@@ -20,6 +20,8 @@ export const RedactionWarning: React.FC<Props> = ({ documentWriteStatus }) => {
         return "This is a dispatched document.";
       case "IsNotOcrProcessed":
         return "Awaiting OCR processing in CMS. Please try again later for redaction.";
+      case "AttachmentCategoryNotAllowed":
+        return "This document is an email attachment. It must be housekept before it can be redacted.";
     }
   };
   return (

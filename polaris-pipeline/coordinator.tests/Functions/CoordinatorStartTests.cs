@@ -10,6 +10,7 @@ using coordinator.Domain;
 using coordinator.Functions.Orchestration.Client.Case;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.Providers;
+using coordinator.Services.CleardownService;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,7 @@ namespace coordinator.tests.Functions
 
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
+        private readonly Mock<ICleardownService> _mockCleardownService;
 
         private readonly CaseClient _coordinatorStart;
 
@@ -54,11 +56,12 @@ namespace coordinator.tests.Functions
             var mockLogger = new Mock<ILogger<CaseClient>>();
             var mockBlobStorageClient = new Mock<IPolarisBlobStorageService>();
             _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
-
+            _mockCleardownService = new Mock<ICleardownService>();
+            
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 
-            mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<string>(), It.IsAny<Guid>()))
+            mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
@@ -70,11 +73,12 @@ namespace coordinator.tests.Functions
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequestMessage))
                 .ReturnsAsync(_httpResponseMessage);
-            _mockOrchestrationProvider.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<int>(), false))
-                .ReturnsAsync(_httpResponseMessage);
+            _mockOrchestrationProvider.Setup(s => s.DeleteCaseOrchestrationAsync(_mockDurableOrchestrationClient.Object,
+                    It.IsAny<int>()));
 
-            _coordinatorStart = new CaseClient(mockLogger.Object, _mockOrchestrationProvider.Object);
+            _mockCleardownService.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
+                    It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<bool>()));
+            _coordinatorStart = new CaseClient(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
         }
 
         [Fact]

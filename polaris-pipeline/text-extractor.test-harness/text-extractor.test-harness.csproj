@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>TextExtractor.TestHarness</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\coordinator\coordinator.csproj" />
+    <ProjectReference Include="..\text-extractor\text-extractor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="SourceFiles/100-lines.pdf" CopyToOutputDirectory="Always" />
+    <None Include="SourceFiles/10000-lines.pdf" CopyToOutputDirectory="Always" />
+    <None Include="SourceFiles/gt100000-lines.pdf" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+</Project>

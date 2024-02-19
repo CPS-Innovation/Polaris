@@ -22,7 +22,8 @@ export type PresentationFlags = {
     | "OriginalFileTypeNotAllowed"
     | "IsNotOcrProcessed"
     | "IsDispatched"
-    | "IsRedactionServiceOffline";
+    | "IsRedactionServiceOffline"
+    | "AttachmentCategoryNotAllowed";
 };
 
 export type PresentationDocumentProperties = {

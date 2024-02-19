@@ -16,10 +16,10 @@ export type RedactionLogRequestData = {
   redactions: {
     missedRedaction: RedactionTypeData;
     redactionType: RedactionCategory;
+    returnedToInvestigativeAuthority: boolean;
   }[];
   chargeStatus: ChargeStatus;
   notes: string | null;
-  returnedToInvestigativeAuthority: boolean;
   cmsValues: {
     documentId: string;
     originalFileName: string;

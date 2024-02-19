@@ -32,18 +32,18 @@ schedules:
 
 resources:
   repositories:
-    - repository: PolarisMain
+    - repository: PolarisTagged
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/heads/main
+      ref: refs/tags/$(cypress_environment)
 
 steps:
-  - checkout: PolarisMain
+  - checkout: PolarisTagged
     clean: true
     persistCredentials: true
     fetchDepth: 1
-    displayName: "Checkout polaris-e2e"
+    displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
 
   - task: Bash@3
     inputs:
@@ -56,17 +56,17 @@ steps:
       workingDir: "polaris-e2e"
     displayName: "npm install"
 
-  - task: Npm@1
+  - task: CmdLine@2
     env:
       CYPRESS_CLIENTSECRET: "$(cypress_clientsecret)"
       CYPRESS_AD_USERNAME: "$(cypress_ad_username)"
       CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
       CYPRESS_ENVIRONMENT: "$(cypress_environment)"
       CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
+    condition: succeeded()
     inputs:
-      command: "custom"
-      workingDir: "polaris-e2e"
-      customCommand: "run cy:ci"
+      workingDirectory: "polaris-e2e"
+      script: "npm run cy:ci"
     displayName: "cypress run tests"
 
   - task: PublishBuildArtifacts@1

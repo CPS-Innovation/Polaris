@@ -38,7 +38,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
-    "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
+    "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
     "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
@@ -50,6 +50,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
+    "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
   }
 
   site_config {

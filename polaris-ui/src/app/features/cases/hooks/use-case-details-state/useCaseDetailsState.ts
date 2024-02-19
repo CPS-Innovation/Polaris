@@ -16,6 +16,7 @@ import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -57,11 +58,12 @@ export const initialState = {
   },
   redactionLog: {
     showModal: false,
+    type: RedactionLogTypes.UNDER,
     redactionLogLookUpsData: { status: "loading" },
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
   },
-  featureFlags: { status: "loading" },
+  featureFlags: { redactionLog: false, fullScreen: false },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -84,17 +86,13 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const redactionLogLookUpsData = useApi(
     getRedactionLogLookUpsData,
     [],
-    combinedState.featureFlags.status === "succeeded"
-      ? combinedState.featureFlags.data.redactionLog
-      : false
+    combinedState.featureFlags.redactionLog
   );
 
   const redactionLogMappingData = useApi(
     getRedactionLogMappingData,
     [],
-    combinedState.featureFlags.status === "succeeded"
-      ? combinedState.featureFlags.data.redactionLog
-      : false
+    combinedState.featureFlags.redactionLog
   );
 
   useEffect(() => {
@@ -114,12 +112,11 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   }, [redactionLogMappingData, dispatch]);
 
   useEffect(() => {
-    if (combinedState.featureFlags.status === "loading")
-      dispatch({
-        type: "UPDATE_FEATURE_FLAGS_DATA",
-        payload: { status: "succeeded", data: featureFlagData },
-      });
-  }, [featureFlagData, combinedState.featureFlags.status, dispatch]);
+    dispatch({
+      type: "UPDATE_FEATURE_FLAGS_DATA",
+      payload: featureFlagData,
+    });
+  }, [featureFlagData.fullScreen, featureFlagData.redactionLog, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")
@@ -303,20 +300,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleSavedRedactionLog = useCallback(
-    (redactionLogRequestData: RedactionLogRequestData) =>
+  const handleSaveRedactionLog = useCallback(
+    (
+      redactionLogRequestData: RedactionLogRequestData,
+      redactionLogType: RedactionLogTypes
+    ) =>
       dispatch({
         type: "SAVE_REDACTION_LOG",
-        payload: { redactionLogRequestData },
-      }),
-    [dispatch]
-  );
-
-  const handleOpenPdfInNewTab = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"]) =>
-      dispatch({
-        type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: { documentId },
+        payload: { redactionLogRequestData, redactionLogType },
       }),
     [dispatch]
   );
@@ -338,6 +329,26 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleShowRedactionLogModal = useCallback(
+    (type: RedactionLogTypes) =>
+      dispatch({
+        type: "SHOW_REDACTION_LOG_MODAL",
+        payload: {
+          type: type,
+          savedRedactionTypes: [],
+        },
+      }),
+    [dispatch]
+  );
+
+  const handleHideRedactionLogModal = useCallback(
+    () =>
+      dispatch({
+        type: "HIDE_REDACTION_LOG_MODAL",
+      }),
+    [dispatch]
+  );
+
   const handleUnLockDocuments = useCallback(
     (documentIds: CaseDocumentViewModel["documentId"][]) =>
       dispatch({
@@ -349,7 +360,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
 
   return {
     ...combinedState,
-    handleOpenPdfInNewTab,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -365,6 +375,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
-    handleSavedRedactionLog,
+    handleShowRedactionLogModal,
+    handleHideRedactionLogModal,
+    handleSaveRedactionLog,
   };
 };

@@ -71,7 +71,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                await _ddeiClient.CancelCheckoutDocument(arg);
+                await _ddeiClient.CancelCheckoutDocumentAsync(arg);
 
                 return new OkResult();
             }

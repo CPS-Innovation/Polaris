@@ -5,13 +5,13 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Constants;
 using Common.Domain.Extensions;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
+using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Functions.ActivityFunctions.Case;
@@ -26,9 +26,9 @@ using Moq;
 using Xunit;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
-using Common.Domain.Entity;
 using Common.Telemetry.Contracts;
 using coordinator.Validators;
+using coordinator.Domain.Entity;
 
 namespace coordinator.tests.Functions.Orchestration.Functions.Case
 {
@@ -94,7 +94,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 UpdatedDefendantsAndCharges = fixture.Create<DefendantsAndChargesEntity>(),
                 IsDeletedDefendantsAndCharges = false
             };
-            var evaluateDocumentsResponse = fixture.CreateMany<EvaluateDocumentResponse>().ToList();
+            var redactPdfResponse = fixture.CreateMany<RedactPdfResponse>().ToList();
 
             var mockConfiguration = new Mock<IConfiguration>();
             var mockLogger = new Mock<ILogger<RefreshCaseOrchestrator>>();
@@ -104,7 +104,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
             _mockCmsDocumentsResponseValidator = new Mock<ICmsDocumentsResponseValidator>();
 
             mockConfiguration
-                .Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs])
+                .Setup(config => config[ConfigKeys.CoordinatorOrchestratorTimeoutSecs])
                 .Returns("300");
 
             _mockCaseEntity
@@ -131,8 +131,11 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
                 .ReturnsAsync(_caseDocuments);
 
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>(nameof(RefreshDocumentOrchestrator), It.IsAny<string>(), It.IsAny<CaseDocumentOrchestrationPayload>()))
+                .Returns(Task.FromResult(fixture.Create<RefreshDocumentResult>()));
 
-            var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: evaluateDocumentsResponse.ToJson());
+            var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: redactPdfResponse.ToJson());
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
 
             _mockCmsDocumentsResponseValidator.Setup(validator => validator.Validate(It.IsAny<CmsDocumentDto[]>())).Returns(true);
@@ -196,7 +199,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
 
             foreach (var document in newCmsDocuments)
             {
-                _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync
+                _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                 (
                     nameof(RefreshDocumentOrchestrator),
                     It.IsAny<string>(),

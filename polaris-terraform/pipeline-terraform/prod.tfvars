@@ -31,11 +31,12 @@ overnight_clear_down = {
 }
 
 sliding_clear_down = {
-  disabled       = 0
-  look_back_days = 31
-  protect_blobs  = true
-  schedule       = "0 */5 * * * *"
-  batch_size     = 5
+  disabled        = 0
+  // 7.5 days to cleardown daytime traffic at night and nightime traffic during day
+  look_back_hours = 180
+  protect_blobs   = false
+  schedule        = "0 * * * * *"
+  batch_size      = 3
 }
 
 hte_feature_flag = false
@@ -46,7 +47,7 @@ image_conversion_redaction = {
 }
 
 search_service_config = {
-  replica_count                 = 4
-  partition_count               = 6
-  is_dynamic_throttling_enabled = false
+  replica_count                 = 3
+  partition_count               = 3
+  is_dynamic_throttling_enabled = true
 }

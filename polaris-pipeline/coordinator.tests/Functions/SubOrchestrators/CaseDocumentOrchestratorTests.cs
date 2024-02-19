@@ -2,9 +2,10 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.Entity;
+using Common.Dto.Response;
 using Common.Dto.Tracker;
 using coordinator.Domain;
+using coordinator.Domain.Entity;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Document;
@@ -37,13 +38,18 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
                     JsonSerializer.Serialize(trackerPcdRequestDto),
                     JsonSerializer.Serialize(defendantsAndChargesListDto)
-                ); ;
-
+                );
 
             var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
             _mockCaseEntity.Setup(entity => entity.GetVersion()).ReturnsAsync(1);
+
+            var extractTextResponse = fixture.Create<ExtractTextResult>();
+
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<ExtractTextResult>(nameof(ExtractText), _payload))
+                .Returns(Task.FromResult(extractTextResponse));
 
             _mockDurableOrchestrationContext
                 .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())

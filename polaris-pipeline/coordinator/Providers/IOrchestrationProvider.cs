@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Dto.Response;
 using coordinator.Domain;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
@@ -9,11 +10,15 @@ namespace coordinator.Providers;
 
 public interface IOrchestrationProvider
 {
-    Task<List<string>> FindCaseInstancesByDateAsync(DateTime createdTimeTo, Guid correlationId, int batchSize);
-    
-    Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
-        string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req);
+    Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient client,
+                                                 DateTime createdTimeTo,
+                                                 int batchSize);
 
-    Task<HttpResponseMessage> DeleteCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
-        int caseId, bool checkForBlobProtection);
+    Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient client,
+                                               Guid correlationId,
+                                               string caseId,
+                                               CaseOrchestrationPayload casePayload,
+                                               HttpRequestMessage req);
+
+    Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(IDurableOrchestrationClient client, int caseId);
 }

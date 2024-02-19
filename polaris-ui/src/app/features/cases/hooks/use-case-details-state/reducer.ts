@@ -29,6 +29,8 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+
 export const reducer = (
   state: CombinedState,
   action:
@@ -48,13 +50,6 @@ export const reducer = (
             documentId: string;
             polarisDocumentVersionId: number;
           };
-        };
-      }
-    | {
-        type: "OPEN_PDF_IN_NEW_TAB";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          sasUrl: string;
         };
       }
     | {
@@ -150,11 +145,14 @@ export const reducer = (
         payload: boolean;
       }
     | {
-        type: "SHOW_HIDE_REDACTION_LOG_MODAL";
+        type: "SHOW_REDACTION_LOG_MODAL";
         payload: {
-          show: boolean;
+          type: RedactionLogTypes;
           savedRedactionTypes: RedactionTypeData[];
         };
+      }
+    | {
+        type: "HIDE_REDACTION_LOG_MODAL";
       }
     | {
         type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
@@ -166,7 +164,7 @@ export const reducer = (
       }
     | {
         type: "UPDATE_FEATURE_FLAGS_DATA";
-        payload: AsyncResult<FeatureFlagData>;
+        payload: FeatureFlagData;
       }
 ): CombinedState => {
   switch (action.type) {
@@ -355,20 +353,6 @@ export const reducer = (
           ...state.pipelineRefreshData,
           startRefresh: action.payload.startRefresh,
           savedDocumentDetails: newSavedDocumentDetails,
-        },
-      };
-    }
-    case "OPEN_PDF_IN_NEW_TAB": {
-      const { documentId, sasUrl } = action.payload;
-      return {
-        ...state,
-        tabsState: {
-          ...state.tabsState,
-          items: [
-            ...state.tabsState.items.map((item) =>
-              item.documentId === documentId ? { ...item, sasUrl } : item
-            ),
-          ],
         },
       };
     }
@@ -868,13 +852,24 @@ export const reducer = (
         },
       };
     }
-    case "SHOW_HIDE_REDACTION_LOG_MODAL": {
+    case "SHOW_REDACTION_LOG_MODAL": {
       return {
         ...state,
         redactionLog: {
           ...state.redactionLog,
-          showModal: action.payload.show,
+          showModal: true,
+          type: action.payload.type,
           savedRedactionTypes: action.payload.savedRedactionTypes,
+        },
+      };
+    }
+    case "HIDE_REDACTION_LOG_MODAL": {
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          showModal: false,
+          savedRedactionTypes: [],
         },
       };
     }

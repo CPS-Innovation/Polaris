@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using Common.Domain.Document;
-using Common.Domain.Exceptions;
+using pdf_generator.Domain.Document;
+using Common.Extensions;
 using Common.Logging;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace pdf_generator.Services.PdfService
@@ -15,47 +15,43 @@ namespace pdf_generator.Services.PdfService
         private readonly IPdfService _slidesPdfService;
         private readonly IPdfService _imagingPdfService;
         private readonly IPdfService _diagramPdfService;
-        private readonly IPdfService _htmlPdfService;
         private readonly IPdfService _emailPdfService;
         private readonly IPdfService _pdfRendererService;
         private readonly IPdfService _xpsPdfRendererService;
         private readonly ILogger<PdfOrchestratorService> _logger;
-        private readonly IConfiguration _configuration;
-
+        
         public PdfOrchestratorService(
             IPdfService wordsPdfService,
             IPdfService cellsPdfService,
             IPdfService slidesPdfService,
             IPdfService imagingPdfService,
             IPdfService diagramPdfService,
-            IPdfService htmlPdfService,
             IPdfService emailPdfService,
             IPdfService pdfRendererService,
             IPdfService xpsPdfRendererService,
-            ILogger<PdfOrchestratorService> logger,
-            IConfiguration configuration)
+            ILogger<PdfOrchestratorService> logger)
         {
             _wordsPdfService = wordsPdfService;
             _cellsPdfService = cellsPdfService;
             _slidesPdfService = slidesPdfService;
             _imagingPdfService = imagingPdfService;
             _diagramPdfService = diagramPdfService;
-            _htmlPdfService = htmlPdfService;
             _emailPdfService = emailPdfService;
             _pdfRendererService = pdfRendererService;
             _xpsPdfRendererService = xpsPdfRendererService;
             _logger = logger;
-            _configuration = configuration;
         }
 
-        public Stream ReadToPdfStream(Stream inputStream, FileType fileType, string documentId, Guid correlationId)
+        public PdfConversionResult ReadToPdfStream(Stream inputStream, FileType fileType, string documentId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(ReadToPdfStream), documentId);
-
+            PdfConversionResult conversionResult;
+            var converterType = PdfConverterType.None;
+            
             try
             {
-                _logger.LogMethodFlow(correlationId, nameof(ReadToPdfStream), "Analysing file type and matching to a converter");
-                var pdfStream = new MemoryStream();
+                _logger.LogMethodFlow(correlationId, nameof(ReadToPdfStream),
+                    "Analysing file type and matching to a converter");
                 switch (fileType)
                 {
                     case FileType.DOC:
@@ -66,7 +62,15 @@ namespace pdf_generator.Services.PdfService
                     case FileType.DOTX:
                     case FileType.RTF:
                     case FileType.TXT:
-                        _wordsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                    case FileType.HTML:
+                    case FileType.HTM:
+                    case FileType.MHT:
+                    case FileType.MHTML:
+                    // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
+                    // But Aspose seems forgiving enough to convert it, so treat it as HTML
+                    case FileType.HTE:    
+                        converterType = PdfConverterType.AsposeWords;
+                        conversionResult = _wordsPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.CSV:
@@ -74,12 +78,14 @@ namespace pdf_generator.Services.PdfService
                     case FileType.XLSX:
                     case FileType.XLSM:
                     case FileType.XLT:
-                        _cellsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        converterType = PdfConverterType.AsposeCells;
+                        conversionResult = _cellsPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.PPT:
                     case FileType.PPTX:
-                        _slidesPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        converterType = PdfConverterType.AsposeSlides;
+                        conversionResult = _slidesPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.BMP:
@@ -90,55 +96,53 @@ namespace pdf_generator.Services.PdfService
                     case FileType.TIF:
                     case FileType.TIFF:
                     case FileType.PNG:
-                        _imagingPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        converterType = PdfConverterType.AsposeImaging;
+                        conversionResult = _imagingPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.VSD:
-                        _diagramPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
-                        break;
-
-                    case FileType.HTML:
-                    case FileType.HTM:
-                        _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
-                        break;
-
-                    // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
-                    // But Aspose seems forgiving enough to convert it, so treat it as HTML
-                    case FileType.HTE:
-                        _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        converterType = PdfConverterType.AsposeDiagrams;
+                        conversionResult = _diagramPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.EML:
                     case FileType.MSG:
-                        _emailPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        converterType = PdfConverterType.AsposeEmail;
+                        conversionResult = _emailPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.PDF:
-                        _pdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        converterType = PdfConverterType.AsposePdf;
+                        conversionResult = _pdfRendererService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.XPS:
-                        _xpsPdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        converterType = PdfConverterType.AsposePdf;
+                        conversionResult = _xpsPdfRendererService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
+                        conversionResult = new PdfConversionResult(documentId, PdfConverterType.None);
+                        conversionResult.RecordConversionFailure(PdfConversionStatus.DocumentTypeUnsupported, $"File type {nameof(fileType)} is currently unsupported by Polaris");
+                        return conversionResult;
                 }
-
-                return pdfStream;
             }
             catch (Exception exception)
             {
                 inputStream?.Dispose();
 
-                //the stack trace is lost here if simply thrown but not preserved except the message - ensure the exception is logged in full here until exceptions are reworked in general
                 _logger.LogMethodError(correlationId, nameof(ReadToPdfStream), exception.Message, exception);
-                throw new PdfConversionException(documentId, exception.Message);
+                conversionResult = new PdfConversionResult(documentId, converterType);
+                conversionResult.RecordConversionFailure(PdfConversionStatus.UnexpectedError, exception.ToFormattedString());
+                
+                return conversionResult;
             }
             finally
             {
                 _logger.LogMethodExit(correlationId, nameof(ReadToPdfStream), string.Empty);
             }
+            
+            return conversionResult;
         }
     }
 }

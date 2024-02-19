@@ -6,7 +6,10 @@ import {
   RedactionLogLookUpsData,
   RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { useCallback } from "react";
 
 type Props = {
   caseUrn: string;
@@ -14,6 +17,7 @@ type Props = {
   owningUnit: string;
   documentName: string;
   cmsDocumentTypeId: number;
+  redactionLogType: RedactionLogTypes;
   additionalData: {
     documentId: string;
     documentType: string;
@@ -24,7 +28,12 @@ type Props = {
   savedRedactionTypes: RedactionTypeData[];
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
-  saveRedactionLog: (data: RedactionLogRequestData) => void;
+  defaultLastFocus: HTMLElement;
+  handleSaveRedactionLog: (
+    data: RedactionLogRequestData,
+    redactionLogType: RedactionLogTypes
+  ) => void;
+  handleHideRedactionLogModal: () => void;
 };
 
 export const RedactionLogModal: React.FC<Props> = ({
@@ -33,21 +42,46 @@ export const RedactionLogModal: React.FC<Props> = ({
   owningUnit,
   documentName,
   cmsDocumentTypeId,
+  redactionLogType,
   additionalData,
   savedRedactionTypes,
   saveStatus,
   redactionLogLookUpsData,
   redactionLogMappingsData,
-  saveRedactionLog,
+  defaultLastFocus,
+  handleSaveRedactionLog,
+  handleHideRedactionLogModal,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
+
+  const handleCloseModal = useCallback(() => {
+    trackEvent("Close Under Over Redaction Log");
+    handleHideRedactionLogModal();
+  }, [trackEvent, handleHideRedactionLogModal]);
+
   return (
     <Modal
       isVisible={true}
+      handleClose={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? handleCloseModal
+          : undefined
+      }
       type="data"
-      ariaLabel="Under redaction modal"
-      ariaDescription="Contains form to be filled out and submitted for redaction log "
+      ariaLabel={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? "Redaction log modal"
+          : "Under Redaction log modal"
+      }
+      ariaDescription={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? `Fill and submit under or over redaction log form for the document ${documentName}`
+          : `Fill and submit under redaction log form for the document ${documentName}`
+      }
+      defaultLastFocus={defaultLastFocus}
     >
       <RedactionLogContent
+        redactionLogType={redactionLogType}
         caseUrn={caseUrn}
         isCaseCharged={isCaseCharged}
         owningUnit={owningUnit}
@@ -57,8 +91,13 @@ export const RedactionLogModal: React.FC<Props> = ({
         savedRedactionTypes={savedRedactionTypes}
         saveStatus={saveStatus}
         redactionLogLookUpsData={redactionLogLookUpsData}
-        saveRedactionLog={saveRedactionLog}
+        handleSaveRedactionLog={handleSaveRedactionLog}
         redactionLogMappingsData={redactionLogMappingsData}
+        handleCloseRedactionLog={
+          redactionLogType === RedactionLogTypes.UNDER_OVER
+            ? handleCloseModal
+            : undefined
+        }
       />
     </Modal>
   );

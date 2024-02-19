@@ -10,4 +10,13 @@ async function polarisAuthRedirect(r) {
   )
 }
 
-export default { polarisAuthRedirect }
+function taskListAuthRedirect(r) {
+  const taskListHostAddress = r.variables['taskListHostAddress'] ?? ""
+  const cookie = encodeURIComponent(r.headersIn.Cookie ?? "")
+  r.return(
+      302,
+      `${taskListHostAddress}/POCWorkCaseManagementGOVUK/RedirectPage?Cookie=${cookie}`
+  )
+}
+
+export default { polarisAuthRedirect, taskListAuthRedirect }

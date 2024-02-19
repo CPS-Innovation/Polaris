@@ -4,7 +4,6 @@ import * as HEADERS from "./header-factory";
 import {
   searchUrn,
   getCaseDetails,
-  getPdfSasUrl,
   initiatePipeline,
   getPipelinePdfResults,
   searchCase,
@@ -50,27 +49,6 @@ describe("gateway-apis", () => {
       );
       expect(reauthenticationFilter).toHaveBeenCalledTimes(1);
       expect(response).toEqual({ data: "mocked response" });
-    });
-
-    it("searchUrn should not throw error if response status is 404 and call reauthentication", async () => {
-      const mockResponse = new Response(
-        JSON.stringify({ data: "mocked response" }),
-        {
-          status: 404,
-          statusText: "OK",
-        }
-      );
-
-      (reauthenticationFilter as jest.Mock).mockReturnValue(mockResponse);
-      fetchMock.mockResponseOnce(JSON.stringify({ data: "mocked response" }));
-      const response = await searchUrn("urn_abc");
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://gateway-url/api/urns/urn_abc/cases",
-        expect.anything()
-      );
-      expect(reauthenticationFilter).toHaveBeenCalledTimes(1);
-      expect(response).toEqual([]);
     });
 
     it("searchUrn should throw error if for any other failed response status", async () => {
@@ -135,34 +113,6 @@ describe("gateway-apis", () => {
         await getCaseDetails("abc", 122);
       }).rejects.toThrow(
         "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/122: Get Case Details failed; status - OK (500)"
-      );
-    });
-  });
-
-  describe("getPdfSasUrl", () => {
-    beforeEach(() => {
-      fetchMock.resetMocks();
-    });
-
-    it("getPdfSasUrl should call fetch and should not call reauthentication", async () => {
-      fetchMock.mockResponseOnce("mocked response");
-      const response = await getPdfSasUrl("abc", 123, "ABC");
-      expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://gateway-url/api/urns/abc/cases/123/documents/ABC/sas-url",
-        expect.anything()
-      );
-      expect(response).toEqual("mocked response");
-    });
-
-    it("getPdfSasUrl should throw error if for any other failed response status ", async () => {
-      fetchMock.mockResponseOnce("Internal Server Error", { status: 500 });
-
-      expect(async () => {
-        await getPdfSasUrl("abc", 123, "ABC");
-      }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123/documents/ABC/sas-url: Get Pdf SasUrl failed; status - Internal Server Error (500)"
       );
     });
   });

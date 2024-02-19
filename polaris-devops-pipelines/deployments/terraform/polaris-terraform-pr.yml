@@ -23,6 +23,8 @@ variables:
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform"
   - name: uiEventsTerraformWorkingDir
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-events-terraform"
+  - name: networkingTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
 
 stages:
   - stage: Determine_Changes
@@ -66,6 +68,11 @@ stages:
                   {
                     echo "run ui events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/networking-terraform/*')
+                  {
+                    echo "run networking terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_TERRAFORM;isOutput=true]true"
                   }
                 }
             name: Change_Results
@@ -320,6 +327,69 @@ stages:
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
             displayName: "Terraform > Write UI Events Plan"
             workingDirectory: $(uiEventsTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              TF_LOG: $(dev-log-level)
+
+  - stage: Validate_Networking_Terraform
+    displayName: Validate Networking Terraform
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
+    jobs:
+      - job: Validate
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(networkingTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_LOG: $(dev-log-level)
+
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(networkingTerraformWorkingDir)
+
+      - job: CheckPlan
+        dependsOn: Validate
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(networkingTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_LOG: $(dev-log-level)
+
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write Networking Plan'
+            workingDirectory: $(networkingTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)

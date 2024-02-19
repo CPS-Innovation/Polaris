@@ -5,6 +5,8 @@ using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Domain.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -21,15 +23,9 @@ namespace coordinator.Functions.DurableEntity.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
-        public static string GetOrchestrationKey(string caseId)
-        {
-            // Avoid ambiguity of name collisions between e.g "123" and "1234", as delete operation uses a prefix, e.g. "123..."
-            return $"[{caseId}]";
-        }
-
         public static string GetInstanceId(string caseId)
         {
-            return $"@{nameof(CaseDurableEntity).ToLower()}@{GetOrchestrationKey(caseId)}";
+            return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
         }
 
         [JsonProperty("transactionId")]

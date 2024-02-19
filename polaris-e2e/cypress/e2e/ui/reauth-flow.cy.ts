@@ -2,7 +2,7 @@
 
 const { TARGET_URN } = Cypress.env()
 
-describe("Reauth flow", () => {
+describe("Reauth flow", { tags: '@ci' }, () => {
   it("can send the user around the reauth flow", () => {
     cy.on("uncaught:exception", () => false)
 

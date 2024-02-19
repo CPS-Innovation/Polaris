@@ -2,40 +2,54 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-	  <RootNamespace>coordinator</RootNamespace>
-	  <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+    <RootNamespace>coordinator</RootNamespace>
+    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
   </PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<WarningLevel>4</WarningLevel>
-		<DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
-	</PropertyGroup>	
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
+    <None Remove="Services\RenderHtmlService\PcdRequest.cshtml" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.18.0" />
-    <PackageReference Include="Azure.Search.Documents" Version="11.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
     <PackageReference Include="Azure.Storage.Files.Shares" Version="12.1.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.11.1" />
-	<PackageReference Include="Mapster" Version="7.3.0" />
-	<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
-	<PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-	<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.10.0" />
+    <PackageReference Include="Mapster" Version="7.3.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
+    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.10.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.12" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
-	<PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.32.1" />
-	<PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
-	<PackageReference Include="Azure.Identity" Version="1.9.0" />
-	<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
-	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	<PackageReference Include="System.Drawing.Common" Version="4.7.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.32.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Polly.Core" Version="8.3.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.3" />
+    <PackageReference Include="RazorLight" Version="2.3.1" />
+    <PackageReference Include="System.Runtime.InteropServices.WindowsRuntime" Version="4.3.0" />
+    <PackageReference Include="System.Threading.AccessControl" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <!-- 
+      Include document-toggle.config as well as embeddeding (see below) 
+      because the tests are interested in it 
+    -->
+    <None Update="document-toggle.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -43,5 +57,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="document-toggle.config" />
+    <EmbeddedResource Include="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
+    <EmbeddedResource Include="Services\RenderHtmlService\PcdRequest.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+        <_Parameter1>$(MSBuildProjectName).tests</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 </Project>

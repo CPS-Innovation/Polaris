@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
@@ -81,14 +81,14 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
                 #endregion
 
-                var redactionResult = await _redactionClient.RedactPdfAsync(redactPdfRequest, currentCorrelationId);
+                var redactionResult = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactPdfRequest, currentCorrelationId);
                 if (!redactionResult.Succeeded)
                 {
                     string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
                     throw new ArgumentException(error);
                 }
 
-                var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
+                using var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
@@ -106,7 +106,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                await _ddeiClient.UploadPdf(arg, pdfStream);
+                await _ddeiClient.UploadPdfAsync(arg, pdfStream);
 
                 return new ObjectResult(redactionResult);
             }

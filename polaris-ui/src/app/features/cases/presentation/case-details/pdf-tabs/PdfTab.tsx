@@ -16,6 +16,7 @@ type PdfTabProps = {
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
+  showOverRedactionLog: boolean;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -37,6 +38,7 @@ type PdfTabProps = {
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
+  handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -44,6 +46,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   redactionTypesData,
   activeTabId,
   tabId,
+  showOverRedactionLog,
   caseDocumentViewModel,
   headers,
   documentWriteStatus,
@@ -57,6 +60,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
   handleShowHideDocumentIssueModal,
+  handleShowRedactionLogModal,
 }) => {
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -123,8 +127,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         />
       ) : (
         <HeaderReadMode
+          showOverRedactionLog={showOverRedactionLog}
           caseDocumentViewModel={caseDocumentViewModel}
           handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
+          handleShowRedactionLogModal={handleShowRedactionLogModal}
           contextData={{
             documentId: documentId,
             tabIndex: tabIndex,

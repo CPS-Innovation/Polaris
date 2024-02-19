@@ -7,7 +7,7 @@ using Common.Domain.Exceptions;
 using Common.Dto.Request.Search;
 using Common.Extensions;
 using Common.Mappers.Contracts;
-using Common.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
@@ -35,7 +35,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(SearchText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Search)] HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Search)] HttpRequestMessage request, string caseUrn, long caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
@@ -52,7 +52,7 @@ namespace text_extractor.Functions
                 .ToList();
 
             var searchResults = await _searchIndexService.QueryAsync(
-                searchDto.CaseId,
+                caseId,
                 searchFilterDocuments,
                 searchDto.SearchTerm);
 

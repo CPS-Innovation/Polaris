@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common.Constants;
-using Common.Extensions;
 using Common.Logging;
+using coordinator.Constants;
 using coordinator.Providers;
+using coordinator.Services.CleardownService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -17,72 +16,41 @@ public class SlidingCaseClearDown
     private readonly ILogger<SlidingCaseClearDown> _logger;
     private readonly IConfiguration _configuration;
     private readonly IOrchestrationProvider _orchestrationProvider;
+    private readonly ICleardownService _cleardownService;
 
-    private const string LoggingName = $"{nameof(SlidingCaseClearDown)} - {nameof(RunAsync)}";
-
-    public SlidingCaseClearDown(ILogger<SlidingCaseClearDown> logger, IConfiguration configuration, IOrchestrationProvider orchestrationProvider)
+    public SlidingCaseClearDown(ILogger<SlidingCaseClearDown> logger, IConfiguration configuration, IOrchestrationProvider orchestrationProvider, ICleardownService cleardownService)
     {
         _logger = logger;
         _configuration = configuration;
         _orchestrationProvider = orchestrationProvider;
+        _cleardownService = cleardownService;
     }
 
-    /// <summary>
-    /// Cron expression set to run every 5 minutes
-    /// </summary>
-    /// <param name="myTimer"></param>
-    /// <param name="client"></param>
-    /// <exception cref="InvalidCastException"></exception>
     [FunctionName(nameof(SlidingCaseClearDown))]
-    public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = true)]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
+    public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%")] TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
         try
         {
-            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays], out var clearDownInputDays);
-            var batchConvSucceeded = int.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownBatchSize], out var clearDownBatchSize);
-            if (inputConvSucceeded && batchConvSucceeded)
+            var hoursBackNumber = double.Parse(_configuration[ConfigKeys.SlidingClearDownInputHours]);
+            var countCases = int.Parse(_configuration[ConfigKeys.SlidingClearDownBatchSize]);
+            var earliestDateToKeep = DateTime.UtcNow.AddHours(hoursBackNumber * -1);
+            var caseIds = await _orchestrationProvider.FindCaseInstancesByDateAsync(client, earliestDateToKeep, countCases);
+
+            // first pass: lets do the cases in sequence rather than parallel, until we are sure of search index characteristics
+            foreach (var caseId in caseIds)
             {
-                var clearDownPeriod = clearDownInputDays * -1;
-                var targetCases = await _orchestrationProvider.FindCaseInstancesByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId, clearDownBatchSize);
-
-                if (targetCases.Count == 0)
-                {
-                    _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "No candidate case found to clear-down.");
-                    return;
-                }
-
-                var tasks = new List<Task<Tuple<int, bool>>>();
-                foreach (var targetCaseId in targetCases)
-                {
-                    if (!int.TryParse(targetCaseId, out var caseId))
-                        throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
-                    
-                    tasks.Add(CallDeleteCaseAsync(correlationId, client, caseId));
-                }
-                
-                foreach (var task in await Task.WhenAll(tasks))
-                {
-                    if (task.Item2)
-                    {
-                        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Clear down of case {task.Item1} completed");
-                    }
-                }
+                // pass an explicit string for the caseUrn for logging purposes as we don't have access to the caseUrn here
+                await _cleardownService.DeleteCaseAsync(client,
+                 "sliding-clear-down",
+                 caseId,
+                 correlationId,
+                 waitForIndexToSettle: false);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogMethodError(correlationId, LoggingName, ex.Message, ex);
+            _logger.LogMethodError(correlationId, nameof(SlidingCaseClearDown), ex.Message, ex);
         }
-    }
-    
-    private async Task<Tuple<int, bool>> CallDeleteCaseAsync(Guid correlationId, IDurableOrchestrationClient client, int caseId)
-    {
-        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {caseId}");
-
-        var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
-        deleteResponse.EnsureSuccessStatusCode();
-        
-        return Tuple.Create(caseId, true);
     }
 }

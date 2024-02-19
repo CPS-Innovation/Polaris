@@ -21,3 +21,4 @@ azurite
 /polaris-integration.tests/obj
 /polaris-integration.tests/.vs
 /polaris-pipeline/pdf-generator.test-rig/
+/polaris-common/polaris-common/bin

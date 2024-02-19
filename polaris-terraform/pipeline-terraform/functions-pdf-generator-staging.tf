@@ -15,7 +15,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HteFeatureFlag"                                  = var.hte_feature_flag
     "HostType"                                        = "Staging1"
     "ImageConversion__Resolution"                     = var.image_conversion_redaction.resolution
@@ -31,7 +31,11 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/api/status"
+    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
@@ -45,10 +49,11 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {
-      dotnet_version = "v6.0"
+      dotnet_version = "v8.0"
     }
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
+    use_32_bit_worker                 = false
   }
 
   identity {
