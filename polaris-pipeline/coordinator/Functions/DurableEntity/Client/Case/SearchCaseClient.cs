@@ -88,7 +88,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
                 var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId, documents);
 
-                var documentIds = searchResults.Select(result => result.PolarisDocumentId).ToList();
+                var documentIds = searchResults.Select(result => result.PolarisDocumentId).Distinct().ToList();
 
                 // the max string length of Application Insights custom properties is 8192
                 // so we chunk the docIds and create multiple events as some cases could exceed this limit
