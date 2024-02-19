@@ -1,5 +1,4 @@
 ﻿using Common.ValueObjects;
-using System;
 
 namespace Common.Configuration
 {
@@ -32,6 +31,8 @@ namespace Common.Configuration
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId:min(1)}/wait-for-case-empty-results";
+        public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
+        public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
 
         public static string GetCasePath(string caseUrn, long caseId)
         {
@@ -108,6 +109,16 @@ namespace Common.Configuration
         public static string GetRedactPdfPath(string caseUrn, string caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
+        }
+
+        public static string GetCaseIndexCountResultsPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/case-index-count";
+        }
+
+        public static string GetDocumentIndexCountResultsPath(string caseUrn, long caseId, string documentId, long versionId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
         }
     }
 }
