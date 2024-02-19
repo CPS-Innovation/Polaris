@@ -1,8 +1,10 @@
 import { msalInstance } from "./msalInstance";
+import { useMemo } from "react";
 import {
   PRIVATE_BETA_REDACTION_LOG_USER_GROUP,
   FEATURE_FLAG_REDACTION_LOG,
   PRIVATE_BETA_CHECK_IGNORE_USER,
+  FEATURE_FLAG_FULL_SCREEN,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -48,8 +50,22 @@ const showRedactionLogFeature = (
   return isInPrivateBetaGroup || isInCypressQueryParamFeatureFlag;
 };
 
+const showFullScreenFeature = (username: string, queryParam: string) => {
+  if (!FEATURE_FLAG_FULL_SCREEN) {
+    return false;
+  }
+  const isInCypressQueryParamFeatureFlag =
+    queryParam === "false" &&
+    window.Cypress &&
+    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
+  if (isInCypressQueryParamFeatureFlag) return false;
+
+  return true;
+};
+
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
-  const { redactionLog } = useQueryParamsState<FeatureFlagQueryParams>();
+  const { redactionLog, fullScreen } =
+    useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
   const groupClaims = account?.idTokenClaims?.groups as string[];
@@ -60,5 +76,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       userDetails?.username,
       redactionLog
     ),
+    fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
   };
 };

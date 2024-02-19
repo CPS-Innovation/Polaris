@@ -32,7 +32,9 @@ type AppInsightsTrackEventNames =
   | "Save Redaction Log"
   | "Save Redaction Log Under Over"
   | "Open Under Over Redaction Log"
-  | "Close Under Over Redaction Log";
+  | "Close Under Over Redaction Log"
+  | "View Full Screen"
+  | "Exit Full Screen";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -94,6 +96,8 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "User has clicked on the Log an Under/Over redaction button in the action drop down menu",
   "Close Under Over Redaction Log":
     "User has clicked on the close button of the under over redaction log modal button",
+  "View Full Screen": "User has clicked on the view full screen button",
+  "Exit Full Screen": "User has clicked on the exit full screen button",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

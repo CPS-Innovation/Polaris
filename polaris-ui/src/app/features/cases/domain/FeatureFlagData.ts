@@ -6,8 +6,10 @@ declare global {
 
 export type FeatureFlagData = {
   redactionLog: boolean;
+  fullScreen: boolean;
 };
 
 export type FeatureFlagQueryParams = {
   redactionLog: string;
+  fullScreen: string;
 };
