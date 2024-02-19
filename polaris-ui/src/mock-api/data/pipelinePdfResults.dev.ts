@@ -33,6 +33,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: "4",
       witnessId: null,
+      hasFailedAttachments: true,
     },
     {
       documentId: "2",
@@ -56,6 +57,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: "4",
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "3",
@@ -79,6 +81,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: "4",
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "4",
@@ -102,6 +105,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "5",
@@ -125,6 +129,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "6",
@@ -148,6 +153,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: "4",
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "7",
@@ -171,6 +177,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "8",
@@ -195,6 +202,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "9",
@@ -219,6 +227,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "10",
@@ -243,6 +252,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: null,
+      hasFailedAttachments: false,
     },
     {
       documentId: "10",
@@ -266,6 +276,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: 2762766,
+      hasFailedAttachments: false,
     },
   ],
 };

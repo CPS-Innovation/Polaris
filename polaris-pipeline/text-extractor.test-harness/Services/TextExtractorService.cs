@@ -9,6 +9,7 @@ using Common.ValueObjects;
 using coordinator.Domain;
 using TextExtractor.TestHarness.Constants;
 using TextExtractor.TestHarness.Extensions;
+using coordinator.Domain.Entity;
 
 namespace TextExtractor.TestHarness.Services
 {

@@ -24,6 +24,7 @@ public class CaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
             IsDispatched = ddeiResponse.IsDispatched,
             ParentDocumentId = ddeiResponse.ParentId.ToString(),
             WitnessId = ddeiResponse.WitnessId,
+            HasFailedAttachments = ddeiResponse.HasFailedAttachments,
         };
     }
 }
