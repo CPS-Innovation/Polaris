@@ -19,7 +19,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using text_extractor.TelemetryEvents;
 using text_extractor.Services.OcrService;
-using Common.Streaming;
 
 namespace text_extractor.Functions
 {
@@ -82,6 +81,9 @@ namespace text_extractor.Functions
                 telemetryEvent.CaseUrn = caseUrn;
                 telemetryEvent.CaseId = caseId;
                 telemetryEvent.DocumentId = documentId;
+                telemetryEvent.DocumentTypeId = request.Headers.GetDocumentTypeId();
+                telemetryEvent.DocumentType = request.Headers.GetDocumentType();
+                telemetryEvent.DocumentCategory = request.Headers.GetDocumentCategory();
                 telemetryEvent.VersionId = versionId;
 
                 #endregion

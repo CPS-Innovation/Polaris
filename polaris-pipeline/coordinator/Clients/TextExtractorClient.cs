@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Domain.SearchIndex;
-using Common.Dto.Request;
 using Common.Factories.Contracts;
 using coordinator.Factories;
 using Common.Constants;
@@ -47,6 +45,9 @@ namespace coordinator.Clients
             long cmsCaseId,
             string cmsDocumentId,
             long versionId,
+            string documentTypeId,
+            string documentType,
+            string documentCategory,
             string blobName,
             Guid correlationId,
             Stream documentStream)
@@ -54,6 +55,9 @@ namespace coordinator.Clients
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
+            request.Headers.Add(HttpHeaderKeys.DocumentTypeId, documentTypeId);
+            request.Headers.Add(HttpHeaderKeys.DocumentType, documentType);
+            request.Headers.Add(HttpHeaderKeys.DocumentCategory, documentCategory);
 
             using var requestContent = new StreamContent(documentStream);
             request.Content = requestContent;

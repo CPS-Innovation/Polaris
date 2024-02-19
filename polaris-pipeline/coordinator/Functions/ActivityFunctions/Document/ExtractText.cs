@@ -31,6 +31,9 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 payload.CmsCaseId,
                 payload.CmsDocumentId,
                 payload.CmsVersionId,
+                payload.DocumentTypeId,
+                payload.DocumentType,
+                payload.DocumentCategory,
                 payload.BlobName,
                 payload.CorrelationId,
                 documentStream);
