@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Telemetry;
 
-namespace text_extractor.TelemetryEvents
+namespace text_extractor.coordinator
 {
     public class IndexedDocumentEvent : BaseTelemetryEvent
     {
@@ -25,7 +25,7 @@ namespace text_extractor.TelemetryEvents
         public int WordCount { get; set; }
         public long IndexSettleTargetCount { get; set; }
         public bool DidIndexSettle { get; set; }
-        public List<long> WaitRecordCounts;
+        public List<long> WaitRecordCounts { get; set; }
 
         public IndexedDocumentEvent(Guid correlationId)
         {

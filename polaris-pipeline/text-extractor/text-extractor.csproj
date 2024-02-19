@@ -38,5 +38,5 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
         <_Parameter1>$(MSBuildProjectName).tests</_Parameter1>
     </AssemblyAttribute>
-</ItemGroup>
+  </ItemGroup>
 </Project>
