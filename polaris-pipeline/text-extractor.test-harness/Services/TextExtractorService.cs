@@ -41,9 +41,6 @@ namespace TextExtractor.TestHarness.Services
                         payload.CmsCaseId,
                         payload.CmsDocumentId,
                         payload.CmsVersionId,
-                        payload.DocumentTypeId,
-                        payload.DocumentType,
-                        payload.DocumentCategory,
                         payload.BlobName,
                         payload.CorrelationId,
                         documentStream);
