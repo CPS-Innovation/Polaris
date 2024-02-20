@@ -10,6 +10,7 @@ resources:
         branches:
           include:
             - refs/heads/main
+            - refs/heads/feature/25783-add-coordinator-build-and-release-pipeline
         stages:
           - Publish_Artifacts
 
