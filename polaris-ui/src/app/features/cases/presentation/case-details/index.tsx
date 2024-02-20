@@ -163,7 +163,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           handleClose={handleCloseErrorModal}
           type="alert"
           ariaLabel="Error Modal"
-          ariaDescription={errorModal.title}
+          ariaDescription={`${errorModal.title} ${errorModal.message}`}
         >
           <ErrorModalContent
             title={errorModal.title}
