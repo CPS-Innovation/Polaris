@@ -38,6 +38,9 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 CaseUrn = payload.CmsCaseUrn,
                 CaseId = payload.CmsCaseId,
                 DocumentId = payload.CmsDocumentId,
+                DocumentTypeId = payload.DocumentTypeId,
+                DocumentType = payload.DocumentType,
+                DocumentCategory = payload.DocumentCategory,
                 VersionId = payload.CmsVersionId,
                 StartTime = DateTime.Now
             };

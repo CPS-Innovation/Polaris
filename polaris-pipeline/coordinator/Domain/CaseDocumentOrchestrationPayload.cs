@@ -64,6 +64,39 @@ namespace coordinator.Domain
             }
         }
 
+        public string DocumentTypeId
+        {
+            get
+            {
+                if (CmsDocumentTracker != null)
+                    return CmsDocumentTracker.CmsDocType.DocumentTypeId;
+                else
+                    return string.Empty;
+            }
+        }
+
+        public string DocumentType
+        {
+            get
+            {
+                if (CmsDocumentTracker != null)
+                    return CmsDocumentTracker.CmsDocType.DocumentType;
+                else
+                    return string.Empty;
+            }
+        }
+
+        public string DocumentCategory
+        {
+            get
+            {
+                if (CmsDocumentTracker != null)
+                    return CmsDocumentTracker.CmsDocType.DocumentCategory;
+                else
+                    return string.Empty;
+            }
+        }
+
         public string BlobName
         {
             get
