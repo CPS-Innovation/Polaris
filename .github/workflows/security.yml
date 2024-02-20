@@ -7,4 +7,7 @@ on:
 jobs:
   scan:
     name: Security Scan
-    uses: CPS-Innovation/.github/.github/workflows/security-scan.yml@main
+    uses: CPS-Innovation/Polaris/.github/workflows/security-scan.yml@main
+    permissions:
+      security-events: write
+      statuses: write
