@@ -9,8 +9,7 @@ resources:
       trigger:
         branches:
           include:
-            #- refs/heads/main
-            - refs/heads/feature/25783-add-coordinator-build-and-release-pipeline
+            - refs/heads/main
         stages:
           - Publish_Artifacts
 
@@ -161,6 +160,7 @@ stages:
 
         steps:
           - task: PowerShell@2
+            displayName: Querying Status
             inputs:
               targetType: 'inline'
               script: |
@@ -191,7 +191,10 @@ stages:
                       continue
                     }
                 
-                    Write-Host "API Response: " $GET_BUILDS_BY_DEFINITION_RESPONSE
+                    $GET_BUILDS_BY_DEFINITION_RESPONSE.PSObject.Properties | ForEach-Object {
+                        Write-Host $_.Name ": " $_.Value
+                    }
+                    
                     [array]$runningBuilds = $GET_BUILDS_BY_DEFINITION_RESPONSE.value | Where-Object -Property "status" -Value "inProgress" -EQ
                 
                     [int]$currentRunningBuild = ($runningBuilds | Sort-Object -Property "Id")[0].Id

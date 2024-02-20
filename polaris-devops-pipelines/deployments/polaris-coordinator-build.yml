@@ -5,8 +5,7 @@ trigger:
   batch: true
   branches:
     include:
-      #- main
-      - feature/25783-add-coordinator-build-and-release-pipeline
+      - main
   paths:
     include:
       - polaris-terraform/*
