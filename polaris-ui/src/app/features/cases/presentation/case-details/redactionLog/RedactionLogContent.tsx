@@ -71,7 +71,7 @@ type RedactionLogContentProps = {
   handleCloseRedactionLog?: () => void;
 };
 
-const NOTES_MAX_CHARACTERS = 20;
+const NOTES_MAX_CHARACTERS = 400;
 
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   caseUrn,
@@ -449,7 +449,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         return {
           children: `Supporting notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
           href: "#redaction-log-notes",
-          "data-testid": "redaction-log-notes",
+          "data-testid": "redaction-log-notes-link",
         };
     }
   };
@@ -850,6 +850,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             <Controller
               name="notes"
               control={control}
+              rules={{
+                validate: { required: () => errorState.notes !== true },
+              }}
               render={({ field }) => {
                 return (
                   <CharacterCount
