@@ -40,18 +40,18 @@ stages:
                 $count=$temp.Length
                 echo "Total changed $count files"
                 
-                declare -i pipelineTerraformCount=0
-                declare -i pipelineEventsTerraformCount=0
-                declare -i uiTerraformCount=0
-                declare -i uiEventsTerraformCount=0
-                declare -i networkingTerraformCount=0
-                declare -i coordinatorCount=0
-                declare -i pdfGeneratorCount=0
-                declare -i textExtractorCount=0
-                declare -i gatewayCount=0
-                declare -i uiCount=0
-                declare -i ddeiClientCount=0
-                declare -i commonCount=0
+                $pipelineTerraformCount=0
+                $pipelineEventsTerraformCount=0
+                $uiTerraformCount=0
+                $uiEventsTerraformCount=0
+                $networkingTerraformCount=0
+                $coordinatorCount=0
+                $pdfGeneratorCount=0
+                $textExtractorCount=0
+                $gatewayCount=0
+                $uiCount=0
+                $ddeiClientCount=0
+                $commonCount=0
 
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
@@ -61,73 +61,73 @@ stages:
                   {
                     echo "run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    pipelineTerraformCount+=1
+                    $pipelineTerraformCount++
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
                     echo "run pipeline events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    pipelineEventsTerraformCount+=1
+                    $pipelineEventsTerraformCount++
                   }
                   if ($name -like 'polaris-terraform/ui-terraform/*')
                   {
                     echo "run ui terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    uiTerraformCount+=1
+                    $uiTerraformCount++
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
                     echo "run ui events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    uiEventsTerraformCount+=1
+                    $uiEventsTerraformCount++
                   }
                   if ($name -like 'polaris-terraform/networking-terraform/*')
                   {
                     echo "run networking terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    networkingTerraformCount+=1
+                    $networkingTerraformCount++
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
                   {
                     echo "run coordinator..."
                     Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    coordinatorCount+=1
+                    $coordinatorCount++
                   }
                   if ($name -like 'polaris-pipeline/pdf-generator/*' -Or $name -like 'polaris-pipeline/pdf-generator.tests/*')
                   {
                     echo "run pdf generator..."
                     Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    pdfGeneratorCount+=1
+                    $pdfGeneratorCount++
                   }
                   if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
                   {
                     echo "run text extractor..."
                     Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    textExtractorCount+=1
+                    $textExtractorCount++
                   }
                   if ($name -like 'polaris-gateway/*' -Or $name -like 'polaris-gateway.tests/*')
                   {
                     echo "run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    gatewayCount+=1
+                    $gatewayCount++
                   }
                   if ($name -like 'polaris-ui/*')
                   {
                     echo "run ui codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
-                    uiCount+=1
+                    $uiCount++
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*' -Or $name -like 'polaris-pipeline/DdeiClient.tests/*')
                   {
                     echo "changes to DdeiClient detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    ddeiClientCount+=1
+                    $ddeiClientCount++
                   }
                   if ($name -like 'polaris-pipeline/Common/*' -Or $name -like 'polaris-pipeline/Common.tests/*')
                   {
                     echo "changes to the Pipeline's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    commonCount+=1
+                    $commonCount++
                   }
                 }
                 
