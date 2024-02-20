@@ -749,6 +749,7 @@ describe("case details page", () => {
       cy.realPress("Escape");
       cy.focused().should("have.id", "active-tab-panel");
       cy.realPress(["Tab"]);
+      cy.realPress(["Tab"]);
       cy.focused().should("have.id", "document-actions-dropdown-0");
     });
 
@@ -831,6 +832,7 @@ describe("case details page", () => {
       cy.focused().should("have.id", "document-tabs");
       cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       cy.focused().should("have.id", "document-actions-dropdown-0");
       cy.realPress(["Control", "."]);

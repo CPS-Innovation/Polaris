@@ -166,6 +166,13 @@ export const reducer = (
         type: "UPDATE_FEATURE_FLAGS_DATA";
         payload: FeatureFlagData;
       }
+    | {
+        type: "ENABLE_AREA_REDACTION_MODE";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          enableAreaOnlyMode: boolean;
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -443,6 +450,7 @@ export const reducer = (
           ...coreItem,
           sasUrl: undefined,
           mode: "read",
+          areaOnlyRedactionMode: false,
         };
       } else {
         const foundDocumentSearchResult =
@@ -500,6 +508,7 @@ export const reducer = (
             ? foundDocumentSearchResult.occurrencesInDocumentCount
             : /* istanbul ignore next */ 0,
           searchHighlights: sortedHighlights,
+          areaOnlyRedactionMode: false,
         };
       }
 
@@ -878,6 +887,23 @@ export const reducer = (
       return {
         ...state,
         featureFlags: action.payload,
+      };
+    }
+    case "ENABLE_AREA_REDACTION_MODE": {
+      const { documentId, enableAreaOnlyMode } = action.payload;
+      return {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  areaOnlyRedactionMode: enableAreaOnlyMode,
+                }
+              : item
+          ),
+        },
       };
     }
 
