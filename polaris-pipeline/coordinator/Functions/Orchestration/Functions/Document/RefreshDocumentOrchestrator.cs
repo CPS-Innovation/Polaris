@@ -54,7 +54,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             if (!isPdfConverted)
             {
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
-                return;
+                return new RefreshDocumentResult();
             }
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
