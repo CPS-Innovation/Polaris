@@ -198,6 +198,7 @@ stages:
                       continue
                     }
                 
+                    Write-Host "API Response: " $GET_BUILDS_BY_DEFINITION_RESPONSE
                     [array]$runningBuilds = $GET_BUILDS_BY_DEFINITION_RESPONSE.value | Where-Object -Property "status" -Value "inProgress" -EQ
                 
                     [int]$currentRunningBuild = ($runningBuilds | Sort-Object -Property "Id")[0].Id
