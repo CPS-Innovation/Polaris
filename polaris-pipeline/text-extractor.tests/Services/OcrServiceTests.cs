@@ -68,12 +68,12 @@ namespace text_extractor.tests.Services
         }
 
         [Fact]
-        public void StreamResiliencePipeline_RetryStrategyWillDelayFor500Milliseconds()
+        public void StreamResiliencePipeline_RetryStrategyWillDelayFor5000Milliseconds()
         {
             var descriptor = _streamPipeline.GetPipelineDescriptor();
             var retryOptions = Assert.IsType<RetryStrategyOptions<HttpOperationHeaderResponse<ReadInStreamHeaders>>>(descriptor.Strategies[0].Options);
 
-            Assert.Equal(TimeSpan.FromMilliseconds(500), retryOptions.Delay);
+            Assert.Equal(TimeSpan.FromMilliseconds(5000), retryOptions.Delay);
         }
 
         [Fact]
@@ -103,12 +103,12 @@ namespace text_extractor.tests.Services
         }
 
         [Fact]
-        public void ReadResiliencePipeline_RetryStrategyWillDelayFor500Milliseconds()
+        public void ReadResiliencePipeline_RetryStrategyWillDelayFor5000Milliseconds()
         {
             var descriptor = _readPipeline.GetPipelineDescriptor();
             var retryOptions = Assert.IsType<RetryStrategyOptions<HttpOperationResponse<ReadOperationResult>>>(descriptor.Strategies[0].Options);
 
-            Assert.Equal(TimeSpan.FromMilliseconds(500), retryOptions.Delay);
+            Assert.Equal(TimeSpan.FromMilliseconds(5000), retryOptions.Delay);
         }
     }
 }
