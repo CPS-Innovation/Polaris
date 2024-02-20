@@ -9,7 +9,8 @@ resources:
       trigger:
         branches:
           include:
-            - refs/heads/main
+            #- refs/heads/main
+            - refs/heads/feature/25783-add-coordinator-build-and-release-pipeline
         stages:
           - Publish_Pipeline_Scripts
           - Publish_Pipeline_Terraform_Artifacts
