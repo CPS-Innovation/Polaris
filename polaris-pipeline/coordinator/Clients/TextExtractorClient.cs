@@ -46,9 +46,6 @@ namespace coordinator.Clients
             long cmsCaseId,
             string cmsDocumentId,
             long versionId,
-            string documentTypeId,
-            string documentType,
-            string documentCategory,
             string blobName,
             Guid correlationId,
             Stream documentStream)
@@ -56,9 +53,6 @@ namespace coordinator.Clients
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
-            request.Headers.Add(HttpHeaderKeys.DocumentTypeId, documentTypeId);
-            request.Headers.Add(HttpHeaderKeys.DocumentType, documentType);
-            request.Headers.Add(HttpHeaderKeys.DocumentCategory, documentCategory);
 
             using var requestContent = new StreamContent(documentStream);
             request.Content = requestContent;
