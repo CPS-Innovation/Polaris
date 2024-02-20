@@ -12,15 +12,7 @@ resources:
             #- refs/heads/main
             - refs/heads/feature/25783-add-coordinator-build-and-release-pipeline
         stages:
-          - Publish_Pipeline_Scripts
-          - Publish_Pipeline_Terraform_Artifacts
-          - Publish_UI_Terraform_Artifacts
-          - Publish_Networking_Terraform_Artifact
-          - Publish_Coordinator_Artifact
-          - Publish_Pdf_Generator_Artifact
-          - Publish_Text_Extractor_Artifact
-          - Publish_Gateway_Artifact
-          - Publish_SPA_Artifact
+          - Publish_Artifacts
 
 variables:
   - group: kv-dev-terraform

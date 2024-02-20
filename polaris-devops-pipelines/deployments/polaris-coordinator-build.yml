@@ -30,7 +30,7 @@ pool:
   name: $(dev-build-agent)
 
 stages:
-  - stage: Publish_Pipeline_Scripts
+  - stage: Publish_Artifacts
     displayName: Publish Pipeline Scripts
     jobs:
       - job: Build_Pipeline_Scripts
@@ -42,9 +42,6 @@ stages:
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
   
-  - stage: Publish_Pipeline_Terraform_Artifacts
-    displayName: Publish Pipeline Terraform Artifacts
-    jobs:
       - job: Build_Pipeline_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
@@ -61,9 +58,6 @@ stages:
               artifact: "pipeline-events-terraform-files"
               publishLocation: "pipeline"
 
-  - stage: Publish_UI_Terraform_Artifacts
-    displayName: Publish UI Terraform Artifacts
-    jobs:
       - job: Build_UI_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
@@ -80,9 +74,6 @@ stages:
               artifact: "ui-events-terraform-files"
               publishLocation: "pipeline"
               
-  - stage: Publish_Networking_Terraform_Artifact
-    displayName: Publish Networking Terraform Artifact
-    jobs:
       - job: Build_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
@@ -92,9 +83,6 @@ stages:
               artifact: "networking-terraform-files"
               publishLocation: "pipeline"
               
-  - stage: Publish_Coordinator_Artifact
-    displayName: Publish Coordinator Artifact
-    jobs:
       - job: Build_Coordinator_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -112,9 +100,6 @@ stages:
               artifact: "polaris-coordinator-drop"
             displayName: "Publish Coordinator codebase artifact"
       
-  - stage: Publish_Pdf_Generator_Artifact
-    displayName: Publish PDF Generator Artifact
-    jobs:
       - job: Build_Pdf_Generator_Artifact
         steps:
           - task: DownloadSecureFile@1
@@ -146,9 +131,6 @@ stages:
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
             
-  - stage: Publish_Text_Extractor_Artifact
-    displayName: Publish Text Extractor Artifact
-    jobs:
       - job: Build_Text_Extractor_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -166,9 +148,6 @@ stages:
               artifact: "polaris-text-extractor-drop"
             displayName: "Publish Text-Extractor codebase artifact"
       
-  - stage: Publish_Gateway_Artifact
-    displayName: Publish Gateway Artifact
-    jobs:
       - job: Build_Gateway_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -186,9 +165,6 @@ stages:
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
 
-  - stage: Publish_SPA_Artifact
-    displayName: Publish SPA Artifact
-    jobs:
       - job: Build_SPA_Artifacts
         steps:
           # We want to rely only on the .env.production file, anything in .env is still included
