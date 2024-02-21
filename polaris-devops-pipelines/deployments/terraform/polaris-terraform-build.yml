@@ -1,14 +1,14 @@
 ---
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
-#trigger:
-#  batch: true
-#  branches:
-#    include:
-#      - main
-#  paths:
-#    include:
-#      - polaris-terraform/*
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/*
 
 pr: none
 

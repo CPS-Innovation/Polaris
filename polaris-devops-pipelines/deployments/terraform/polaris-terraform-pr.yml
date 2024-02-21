@@ -1,13 +1,13 @@
 ---
 trigger: none
 
-#pr:
-#  branches:
-#    include:
-#      - main
-#  paths:
-#    include:
-#      - polaris-terraform/*
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/*
 
 variables:
   - group: kv-dev-terraform

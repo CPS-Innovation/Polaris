@@ -1,16 +1,16 @@
 ---
 trigger: none
 
-#pr:
-#  branches:
-#    include:
-#      - main
-#  paths:
-#    include:
-#      - polaris-gateway/*
-#      - polaris-pipeline/*
-#      - polaris-ui/*
-#      - polaris-e2e/*
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-gateway/*
+      - polaris-pipeline/*
+      - polaris-ui/*
+      - polaris-e2e/*
 
 variables:
   - group: polaris-global
