@@ -4,7 +4,7 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: $(TargetBuild)
+    - pipeline: PolarisCodebaseBuild
       source: Polaris Codebase - Build
       trigger:
         branches:
@@ -27,7 +27,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
       envLabel: "Dev"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "Codebase CI Deployment"
       targetSuffix: "-dev"
@@ -40,7 +40,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Deploy_DEV
       targetSuffix: "-dev"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       azureSubscription: $(dev-azure-subscription)
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -52,7 +52,7 @@ stages:
       #stageDependsOn: Stop_DEV
       stageDependsOn: Swap_DEV
       envLabel: "Dev"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetSuffix: "-dev"
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
@@ -71,7 +71,7 @@ stages:
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Check_DEV
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetLabelLower: "dev"
       targetName: "Create Commit Report"
@@ -82,7 +82,7 @@ stages:
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Create_Commit_Report_DEV
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "Update GitHub Tag"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -92,7 +92,7 @@ stages:
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Update_GitHub_Tag_DEV
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "e2e Tests"
       buildDefinitionId: 129
@@ -104,7 +104,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "QA"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "Codebase CI Deployment"
       targetSuffix: "-qa"
@@ -117,7 +117,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Deploy_QA
       targetSuffix: "-qa"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       azureSubscription: $(qa-azure-subscription)
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -129,7 +129,7 @@ stages:
       #stageDependsOn: Stop_QA
       stageDependsOn: Swap_QA
       envLabel: "QA"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetSuffix: "-qa"
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
@@ -148,7 +148,7 @@ stages:
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Check_QA
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetLabelLower: "qa"
       targetName: "Create Commit Report"
@@ -159,7 +159,7 @@ stages:
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Create_Commit_Report_QA
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "Update GitHub Tag"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -169,7 +169,7 @@ stages:
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Update_GitHub_Tag_QA
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "e2e Tests"
       buildDefinitionId: 210
@@ -181,7 +181,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "Prod"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "Codebase CI Deployment"
       targetSuffix: ""
@@ -194,7 +194,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Deploy_PROD
       targetSuffix: ""
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       azureSubscription: $(prod-azure-subscription)
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -206,7 +206,7 @@ stages:
       #stageDependsOn: Stop_PROD
       stageDependsOn: Swap_PROD
       envLabel: "Prod"
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetSuffix: ""
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
@@ -225,7 +225,7 @@ stages:
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Check_PROD
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetLabelLower: "prod"
       targetName: "Create Commit Report"
@@ -236,7 +236,7 @@ stages:
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Create_Commit_Report_PROD
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "Update GitHub Tag"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -246,7 +246,7 @@ stages:
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Update_GitHub_Tag_PROD
-      targetBuild: $(TargetBuild)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "e2e Tests"
       buildDefinitionId: 240
