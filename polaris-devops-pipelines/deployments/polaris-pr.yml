@@ -570,7 +570,7 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
-              projects: "polaris-pipeline/Common/common.csproj"
+              projects: "polaris-pipeline/Common/Common.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Common Library"
             
