@@ -300,6 +300,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
       witnessId: null,
+      hasFailedAttachments: false,
     },
   ],
 };
