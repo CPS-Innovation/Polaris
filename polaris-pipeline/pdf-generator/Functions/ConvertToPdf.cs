@@ -90,6 +90,13 @@ namespace pdf_generator.Functions
                 telemetryEvent.OriginalBytes = originalBytes;
 
                 var conversionResult = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
+
+                // #25834 - Successfully converted documents may still have a failure reason we need to record
+                if (conversionResult.HasFailureReason())
+                {
+                    telemetryEvent.FailureReason = conversionResult.GetFailureReason();
+                }
+
                 if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
                 {
                     var bytes = conversionResult.ConvertedDocument.Length;
@@ -106,12 +113,10 @@ namespace pdf_generator.Functions
                     };
                 }
 
-                var failureReason = conversionResult.GetFailureReason();
-                telemetryEvent.FailureReason = failureReason;
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                return new ObjectResult(failureReason)
+                return new ObjectResult(conversionResult.GetFailureReason())
                 {
                     StatusCode = (int)HttpStatusCode.UnsupportedMediaType
                 };
