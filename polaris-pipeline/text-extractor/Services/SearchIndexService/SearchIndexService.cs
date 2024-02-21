@@ -10,7 +10,6 @@ using Azure.Search.Documents.Models;
 using Common.Domain.SearchIndex;
 using Common.Extensions;
 using Common.Dto.Response;
-using Common.Factories.Contracts;
 using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Factories.Contracts;
 using Common.ValueObjects;
@@ -211,6 +210,48 @@ namespace text_extractor.Services.CaseSearchService
 
                 return result;
             }
+        }
+
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(long caseId)
+        {
+            if (caseId == 0)
+            {
+                throw new ArgumentException("Invalid caseId", nameof(caseId));
+            }
+
+            var indexCountSearchOptions = new SearchOptions
+            {
+                Filter = $"caseId eq {caseId}",
+                IncludeTotalCount = true,
+                Size = 0,
+                SessionId = caseId.ToString()
+            };
+
+            var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
+            var indexTotal = countResult.Value.TotalCount.Value;
+
+            return new SearchIndexCountResult(indexTotal);
+        }
+
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId)
+        {
+            if (caseId == 0)
+            {
+                throw new ArgumentException("Invalid caseId", nameof(caseId));
+            }
+
+            var indexCountSearchOptions = new SearchOptions
+            {
+                Filter = $"caseId eq {caseId} and documentId eq '{documentId}' and versionId eq {versionId}",
+                IncludeTotalCount = true,
+                Size = 0,
+                SessionId = caseId.ToString()
+            };
+
+            var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
+            var indexTotal = countResult.Value.TotalCount.Value;
+
+            return new SearchIndexCountResult(indexTotal);
         }
 
         private async Task<Response<SearchResults<ISearchable>>> GetSearchResults<ISearchable>(SearchOptions searchOptions, string searchTerm = "*")

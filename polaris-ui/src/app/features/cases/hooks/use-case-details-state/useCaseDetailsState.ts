@@ -358,6 +358,18 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleAreaOnlyRedaction = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      enableAreaOnlyMode: boolean
+    ) =>
+      dispatch({
+        type: "ENABLE_AREA_REDACTION_MODE",
+        payload: { documentId, enableAreaOnlyMode },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -377,6 +389,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
+    handleAreaOnlyRedaction,
     handleSaveRedactionLog,
   };
 };

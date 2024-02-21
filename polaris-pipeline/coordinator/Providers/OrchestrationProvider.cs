@@ -1,5 +1,4 @@
-﻿using Common.Telemetry.Contracts;
-using coordinator.Domain;
+﻿using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -13,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
-using coordinator.Services.CleardownService;
 using Common.Dto.Response;
 
 namespace coordinator.Providers;
@@ -22,7 +20,6 @@ public class OrchestrationProvider : IOrchestrationProvider
 {
     private readonly IConfiguration _configuration;
     private readonly IQueryConditionFactory _queryConditionFactory;
-
     private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = {
         OrchestrationRuntimeStatus.Running,
         OrchestrationRuntimeStatus.Pending,

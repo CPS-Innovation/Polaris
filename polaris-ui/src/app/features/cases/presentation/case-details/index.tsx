@@ -82,6 +82,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
+    handleAreaOnlyRedaction,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -133,7 +134,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     if (tabsState.items.length === 0) {
       setInFullScreen(false);
     }
-  }, [tabsState.items.length, trackEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabsState.items.length]);
 
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
@@ -161,7 +163,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           handleClose={handleCloseErrorModal}
           type="alert"
           ariaLabel="Error Modal"
-          ariaDescription={errorModal.title}
+          ariaDescription={`${errorModal.title} ${errorModal.message}`}
         >
           <ErrorModalContent
             title={errorModal.title}
@@ -342,6 +344,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             <div className={classes.resizeBtnWrapper}>
               <Tooltip
                 text={inFullScreen ? "Exit full screen" : "View full screen"}
+                position="right"
               >
                 <LinkButton
                   id={"full-screen-btn"}
@@ -411,6 +414,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     ? FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
                     : false
                 }
+                handleAreaOnlyRedaction={handleAreaOnlyRedaction}
               />
             )}
           </div>

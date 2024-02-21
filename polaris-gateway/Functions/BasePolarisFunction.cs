@@ -39,6 +39,7 @@ namespace PolarisGateway.Functions
         {
             // todo: can we get this from nameof(superclass) or something
             CorrelationId = req.Headers.GetCorrelation();
+            _telemetryAugmentationWrapper.RegisterCorrelationId(CorrelationId);
 
             var username = await AuthenticateRequest(req, CorrelationId);
             // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.

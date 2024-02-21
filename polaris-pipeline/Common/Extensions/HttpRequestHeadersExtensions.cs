@@ -60,8 +60,10 @@ namespace Common.Extensions
             var filetypeValue = value[0];
             if (string.IsNullOrEmpty(filetypeValue))
                 throw new BadRequestException("Null Filetype Value", filetypeValue);
-            if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
+            if (!Enum.IsDefined(typeof(FileType), filetypeValue))
                 throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
+
+            Enum.TryParse(filetypeValue, true, out FileType filetype);
 
             return filetype;
         }
@@ -109,6 +111,39 @@ namespace Common.Extensions
                 throw new BadRequestException("Invalid VersionId", versionId);
 
             return versionId;
+        }
+
+        public static string GetDocumentTypeId(this HttpRequestHeaders headers)
+        {
+            headers.TryGetValues(HttpHeaderKeys.DocumentTypeId, out var documentTypeIdValues);
+            if (documentTypeIdValues == null)
+                throw new BadRequestException("Invalid documentTypeId.", nameof(headers));
+
+            var documentTypeId = documentTypeIdValues.First();
+
+            return documentTypeId ?? string.Empty;
+        }
+
+        public static string GetDocumentType(this HttpRequestHeaders headers)
+        {
+            headers.TryGetValues(HttpHeaderKeys.DocumentType, out var documentTypeValues);
+            if (documentTypeValues == null)
+                throw new BadRequestException("Invalid documentType.", nameof(headers));
+
+            var documentType = documentTypeValues.First();
+
+            return documentType ?? string.Empty;
+        }
+
+        public static string GetDocumentCategory(this HttpRequestHeaders headers)
+        {
+            headers.TryGetValues(HttpHeaderKeys.DocumentCategory, out var documentCategoryValues);
+            if (documentCategoryValues == null)
+                throw new BadRequestException("Invalid documentCategory.", nameof(headers));
+
+            var documentCategory = documentCategoryValues.First();
+
+            return documentCategory ?? string.Empty;
         }
     }
 }

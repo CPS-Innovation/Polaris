@@ -1,15 +1,16 @@
-using Xunit;
+using System;
+using AutoFixture;
 using Moq;
-using coordinator.Services.CleardownService;
+using Xunit;
+using Common.Dto.Response;
 using Common.Services.BlobStorageService.Contracts;
+using Common.Telemetry;
+using Common.Telemetry.Contracts;
 using coordinator.Clients.Contracts;
 using coordinator.Providers;
-using Common.Telemetry.Contracts;
-using AutoFixture;
-using System;
-using Common.Dto.Response;
+using coordinator.Services.TextExtractService;
+using coordinator.Services.CleardownService;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Common.Telemetry;
 
 namespace coordinator.tests.Services.CleardownServiceTests
 {
@@ -20,6 +21,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
     private readonly Guid _correlationId;
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
     private readonly Mock<ITextExtractorClient> _mockTextExtractorClient;
+    private readonly Mock<ITextExtractService> _mockTextExtractorService;
     private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
     private readonly Mock<ITelemetryClient> _mockTelemetryClient;
     private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
@@ -38,12 +40,13 @@ namespace coordinator.tests.Services.CleardownServiceTests
       _mockTextExtractorClient = new Mock<ITextExtractorClient>();
       _mockTextExtractorClient.Setup(m => m.RemoveCaseIndexesAsync(_caseUrn, _caseId, _correlationId))
         .ReturnsAsync(new IndexDocumentsDeletedResult());
-      _mockTextExtractorClient.Setup(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId))
+      _mockTextExtractorService = new Mock<ITextExtractService>();
+      _mockTextExtractorService.Setup(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId))
         .ReturnsAsync(new IndexSettledResult());
 
       _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
       _mockTelemetryClient = new Mock<ITelemetryClient>();
-      _cleardownService = new CleardownService(_mockBlobStorageService.Object, _mockTextExtractorClient.Object, _mockOrchestrationProvider.Object, _mockTelemetryClient.Object);
+      _cleardownService = new CleardownService(_mockBlobStorageService.Object, _mockTextExtractorClient.Object, _mockTextExtractorService.Object, _mockOrchestrationProvider.Object, _mockTelemetryClient.Object);
     }
 
     [Fact]
@@ -56,7 +59,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
       _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId, waitForIndexToSettle);
 
       // Assert
-      _mockTextExtractorClient.Verify(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId), Times.Once);
+      _mockTextExtractorService.Verify(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId), Times.Once);
     }
 
     [Fact]
@@ -69,7 +72,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
       _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId, waitForIndexToSettle);
 
       // Assert
-      _mockTextExtractorClient.Verify(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId), Times.Never);
+      _mockTextExtractorService.Verify(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId), Times.Never);
     }
 
     [Fact]
