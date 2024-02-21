@@ -224,8 +224,8 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Release Terraform'
             inputs:
-              buildDefinition: 316
-              buildParameters: "TargetBuild: $(buildName)"
+              buildDefinition: 344
+              buildParameters: "TargetBuild: "PolarisBuild
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "$(devops-pat-token)"
@@ -244,8 +244,8 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Release Terraform'
             inputs:
-              buildDefinition: 295
-              buildParameters: "TargetBuild: $(buildName)"
+              buildDefinition: 343
+              buildParameters: "TargetBuild: "PolarisBuild
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "$(devops-pat-token)"

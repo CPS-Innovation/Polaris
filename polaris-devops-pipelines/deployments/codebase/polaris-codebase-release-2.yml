@@ -2,17 +2,6 @@
 trigger: none
 pr: none
 
-resources:
-  pipelines:
-    - pipeline: $(TargetBuild)
-      source: Polaris Codebase - Build
-      trigger:
-        branches:
-          include:
-            - refs/heads/main
-        stages:
-          - Publish_Artifacts
-
 variables:
   - group: kv-dev-terraform
   - group: kv-qa-terraform
