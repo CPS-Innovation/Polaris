@@ -4,8 +4,8 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: PolarisCoordinatorBuild
-      source: Polaris Coordinator - Build
+    - pipeline: PolarisBuild
+      source: Polaris - Build
       trigger:
         branches:
           include:
@@ -20,7 +20,7 @@ variables:
   - group: polaris-global
   - group: polaris-status-check-endpoints
   - name: buildName
-    value: PolarisCoordinatorBuild
+    value: PolarisBuild
     
 stages:
   - stage: Determine_Changes
