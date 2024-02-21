@@ -4,7 +4,7 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: PolarisTerraformBuild
+    - pipeline: $(TargetBuild)
       source: Polaris Terraform - Build
       trigger:
         branches:
@@ -28,7 +28,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
       envLabel: "Dev"
-      targetBuild: PolarisTerraformBuild
+      targetBuild: $(TargetBuild)
       targetLabel: "DEV"
       targetSuffix: "-dev"
       targetPlanName: "dev"
@@ -55,7 +55,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Terraform_DEV
       envLabel: "Dev"
-      targetBuild: PolarisTerraformBuild
+      targetBuild: $(TargetBuild)
       targetSuffix: "-dev"
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
@@ -76,7 +76,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Check_DEV
       envLabel: "QA"
-      targetBuild: PolarisTerraformBuild
+      targetBuild: $(TargetBuild)
       targetLabel: "QA"
       targetSuffix: "-qa"
       targetPlanName: "qa"
@@ -103,7 +103,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Terraform_QA
       envLabel: "QA"
-      targetBuild: PolarisTerraformBuild
+      targetBuild: $(TargetBuild)
       targetSuffix: "-qa"
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
@@ -124,7 +124,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Check_DEV
       envLabel: "Prod"
-      targetBuild: PolarisTerraformBuild
+      targetBuild: $(TargetBuild)
       targetLabel: "PROD"
       targetSuffix: ""
       targetPlanName: "prod"
@@ -151,7 +151,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Terraform_PROD
       envLabel: "Prod"
-      targetBuild: PolarisTerraformBuild
+      targetBuild: $(TargetBuild)
       targetSuffix: ""
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
