@@ -102,6 +102,7 @@ namespace pdf_generator.tests.Functions
                 .Returns(_generatePdfRequest);
 
             _mockPdfGeneratorClient = new Mock<IPdfGeneratorClient>();
+
             _mockPdfGeneratorClient
                 .Setup(client => client.ConvertToPdfAsync(
                     _generatePdfRequest.CorrelationId,

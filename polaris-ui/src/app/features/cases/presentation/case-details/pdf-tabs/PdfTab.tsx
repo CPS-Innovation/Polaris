@@ -39,6 +39,7 @@ type PdfTabProps = {
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
+  handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -61,6 +62,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleSavedRedactions,
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
+  handleAreaOnlyRedaction,
 }) => {
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -70,6 +72,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     mode,
     redactionHighlights,
     documentId,
+    areaOnlyRedactionMode,
     isDeleted,
     saveStatus,
     cmsDocType: { documentType },
@@ -132,9 +135,11 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           caseDocumentViewModel={caseDocumentViewModel}
           handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
           handleShowRedactionLogModal={handleShowRedactionLogModal}
+          handleAreaOnlyRedaction={handleAreaOnlyRedaction}
           contextData={{
             documentId: documentId,
             tabIndex: tabIndex,
+            areaOnlyRedactionMode: areaOnlyRedactionMode,
           }}
         />
       )}
@@ -172,6 +177,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
           focussedHighlightIndex={focussedHighlightIndex}
+          areaOnlyRedactionMode={areaOnlyRedactionMode}
           handleAddRedaction={localHandleAddRedaction}
           handleRemoveRedaction={localHandleRemoveRedaction}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}

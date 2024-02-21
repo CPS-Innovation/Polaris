@@ -278,6 +278,29 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: 2762766,
       hasFailedAttachments: false,
     },
+    {
+      documentId: "11",
+      cmsDocumentId: "11",
+      pdfBlobName: "PortraitLandscape",
+      status: "Indexed",
+      cmsOriginalFileName: "PortraitLandscape",
+      presentationTitle: "PortraitLandscape",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-02",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 1019,
+        documentType: "MG12",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: null,
+    },
   ],
 };
 

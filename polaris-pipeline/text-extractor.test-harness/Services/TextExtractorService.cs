@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using coordinator.Clients.Contracts;
-using Common.Domain.Entity;
 using Common.Dto.Document;
 using Common.ValueObjects;
 using coordinator.Domain;

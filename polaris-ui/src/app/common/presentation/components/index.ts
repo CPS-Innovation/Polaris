@@ -22,3 +22,5 @@ export { LinkButton } from "./LinkButton";
 export { TextArea } from "./TextArea";
 export { Guidance } from "./Guidance";
 export { Spinner } from "./Spinner";
+export { Tooltip } from "./Tooltip";
+export { CharacterCount } from "./CharacterCount";

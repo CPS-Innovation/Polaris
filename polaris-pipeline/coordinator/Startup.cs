@@ -33,6 +33,7 @@ using coordinator.Providers;
 using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
 using Common.Streaming;
+using coordinator.Services.TextExtractService;
 using coordinator.Services.CleardownService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -68,6 +69,7 @@ namespace coordinator
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
+            services.AddTransient<ITextExtractService, TextExtractService>();
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();

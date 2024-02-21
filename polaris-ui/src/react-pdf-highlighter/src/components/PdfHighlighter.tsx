@@ -16,7 +16,7 @@ import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
 
 import getBoundingRect from "../lib/get-bounding-rect";
-import getClientRects from "../lib/get-client-rects";
+import getClientRects, { PAGE_BORDER_WIDTH } from "../lib/get-client-rects";
 import getAreaAsPng from "../lib/get-area-as-png";
 
 import {
@@ -122,16 +122,37 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   resizeObserver: ResizeObserver | null = null;
   containerNode?: HTMLDivElement | null = null;
   unsubscribe = () => {};
-
+  mouseSelectionRef: React.RefObject<MouseSelection>;
   constructor(props: Props<T_HT>) {
     super(props);
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver(this.debouncedScaleValue);
     }
+    this.mouseSelectionRef = React.createRef();
   }
+
+  /***
+   * This is clear up the area selection and hide tip if the user clicks outside the document
+   * clearing up of area selection, if the user clicks inside the document is already done MouseSelection component.
+   */
+  documentClickHandler = (event: MouseEvent) => {
+    if (asElement(event.target).closest(".PdfHighlighter")) {
+      return;
+    }
+    if (asElement(event.target).closest(".PdfHighlighter__tip-container")) {
+      return;
+    }
+    if ((event.target as HTMLElement)?.classList.contains("PdfHighlighter")) {
+      return;
+    }
+
+    this.hideTipAndSelection();
+    this.mouseSelectionRef.current?.reset();
+  };
 
   componentDidMount() {
     this.init();
+    document.addEventListener("click", this.documentClickHandler);
   }
 
   attachRef = (ref: HTMLDivElement | null) => {
@@ -193,7 +214,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         eventBus: this.eventBus,
         // enhanceTextSelection: true, // deprecated. https://github.com/mozilla/pdf.js/issues/9943#issuecomment-409369485
         textLayerMode: 2,
-        removePageBorders: true,
         linkService: this.linkService,
         renderer: "canvas",
         l10n: null,
@@ -209,6 +229,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   componentWillUnmount() {
     this.unsubscribe();
+    document.removeEventListener("click", this.documentClickHandler);
   }
 
   findOrCreateHighlightLayer(page: number) {
@@ -628,6 +649,15 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   debouncedScaleValue: () => void = debounce(this.handleScaleValue, 500);
 
+  shouldStart = (event: MouseEvent) => {
+    const { enableAreaSelection } = this.props;
+    return (
+      enableAreaSelection(event) &&
+      isHTMLElement(event.target) &&
+      Boolean(asElement(event.target).closest(".page"))
+    );
+  };
+
   render() {
     const { onSelectionFinished, enableAreaSelection } = this.props;
 
@@ -638,16 +668,13 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
           {this.renderTip()}
           {typeof enableAreaSelection === "function" ? (
             <MouseSelection
+              ref={this.mouseSelectionRef}
               onDragStart={() => this.toggleTextSelection(true)}
               onDragEnd={() => this.toggleTextSelection(false)}
               onChange={(isVisible) =>
                 this.setState({ isAreaSelectionInProgress: isVisible })
               }
-              shouldStart={(event) =>
-                enableAreaSelection(event) &&
-                isHTMLElement(event.target) &&
-                Boolean(asElement(event.target).closest(".page"))
-              }
+              shouldStart={this.shouldStart}
               onSelection={(startTarget, boundingRect, resetSelection) => {
                 const page = getPageFromElement(startTarget);
 
@@ -657,8 +684,12 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
                 const pageBoundingRect = {
                   ...boundingRect,
-                  top: boundingRect.top - page.node.offsetTop,
-                  left: boundingRect.left - page.node.offsetLeft,
+                  top:
+                    boundingRect.top - page.node.offsetTop - PAGE_BORDER_WIDTH,
+                  left:
+                    boundingRect.left -
+                    page.node.offsetLeft -
+                    PAGE_BORDER_WIDTH,
                   pageNumber: page.number,
                 };
 

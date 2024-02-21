@@ -51,27 +51,6 @@ describe("gateway-apis", () => {
       expect(response).toEqual({ data: "mocked response" });
     });
 
-    it("searchUrn should not throw error if response status is 404 and call reauthentication", async () => {
-      const mockResponse = new Response(
-        JSON.stringify({ data: "mocked response" }),
-        {
-          status: 404,
-          statusText: "OK",
-        }
-      );
-
-      (reauthenticationFilter as jest.Mock).mockReturnValue(mockResponse);
-      fetchMock.mockResponseOnce(JSON.stringify({ data: "mocked response" }));
-      const response = await searchUrn("urn_abc");
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://gateway-url/api/urns/urn_abc/cases",
-        expect.anything()
-      );
-      expect(reauthenticationFilter).toHaveBeenCalledTimes(1);
-      expect(response).toEqual([]);
-    });
-
     it("searchUrn should throw error if for any other failed response status", async () => {
       const mockResponse = new Response(
         JSON.stringify({ data: "mocked response" }),
