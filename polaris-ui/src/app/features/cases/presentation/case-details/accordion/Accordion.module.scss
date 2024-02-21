@@ -243,11 +243,14 @@
   font-size: 0.775rem;
   margin-bottom: 0.25em;
   padding: 5px 6px 4px;
+
   &.tooltip {
     margin-right: 0.25em;
+
     .tooltiptext {
       display: none;
     }
+
     &:hover,
     &:active,
     &:focus {
@@ -297,4 +300,10 @@
 
   position: absolute;
   z-index: 1;
+}
+
+.failed-attachment-warning {
+  color: #d4351c;
+  font-size: 0.875rem;
+  font-style: italic;
 }
