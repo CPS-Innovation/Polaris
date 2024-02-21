@@ -19,7 +19,7 @@ parameters:
 
 stages:
   - stage: Create_Commit_Report_${{ parameters.targetLabel }}
-    displayName: Create Commit Report > ${{ parameters.targetLabel }}
+    displayName: Save Report > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
