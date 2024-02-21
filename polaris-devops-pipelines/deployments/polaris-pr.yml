@@ -81,19 +81,19 @@ stages:
                   if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
                   {
                     echo "run coordinator..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/pdf-generator/*' -Or $name -like 'polaris-pipeline/pdf-generator.tests/*')
                   {
                     echo "run pdf generator..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PDF_GENERATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
                   {
                     echo "run text extractor..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_TEXT_EXTRACTOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/*' -Or $name -like 'polaris-gateway.tests/*')
@@ -105,12 +105,12 @@ stages:
                   if ($name -like 'polaris-ui/*')
                   {
                     echo "run ui codebase..."
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*' -Or $name -like 'polaris-pipeline/DdeiClient.tests/*')
                   {
                     echo "changes to DdeiClient detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_DDEI_CLIENT;isOutput=true]true"
@@ -119,9 +119,9 @@ stages:
                   {
                     echo "changes to the Pipeline's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PDF_GENERATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_TEXT_EXTRACTOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_DDEI_CLIENT;isOutput=true]true"
                   }
@@ -130,10 +130,25 @@ stages:
             displayName: Processing changes to repo
 
   - stage: Validate_Polaris
+    condition: succeeded
+    displayName: Validate Changes
     dependsOn: Determine_Changes
+    variables:
+      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
+      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
+      runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_COORDINATOR']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PDF_GENERATOR']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TEXT_EXTRACTOR']]
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY']]
+      runUI: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI']]
+      runPipelineCommon: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COMMON']]
+      runDDEIClient: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_DDEI_CLIENT']]
     jobs:
       - job: Validate_Pipeline_Terraform
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
+        condition: eq(variables.runPipelineTerraform, 'true')
         pool:
           name: $(dev-build-agent)
         steps:
@@ -162,8 +177,8 @@ stages:
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_Pipeline_Terraform
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
-        displayName: Check Plan
+        condition: eq(variables.runPipelineTerraform, 'true')
+        displayName: Check Pipeline Terraform
         steps:
           # Terraform Init
           - bash: |
@@ -194,7 +209,7 @@ stages:
               TF_LOG: $(dev-log-level)
 
       - job: Validate_Pipeline_Events_Terraform
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'))
+        condition: eq(variables.runPipelineEventsTerraform, 'true')
         pool:
           name: $(dev-build-agent)
         steps:
@@ -220,11 +235,11 @@ stages:
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
     
       - job: Check_Pipeline_Events_Plan
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'))
+        condition: eq(variables.runPipelineEventsTerraform, 'true')
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_Pipeline_Events_Terraform
-        displayName: Check Plan
+        displayName: Check Pipeline Events Terraform
         steps:
           # Terraform Init
           - bash: |
@@ -255,7 +270,7 @@ stages:
               TF_LOG: $(dev-log-level)
     
       - job: Validate_UI_Terraform
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true'))
+        condition: eq(variables.runUITerraform, 'true')
         pool:
             name: $(dev-build-agent)
         steps:
@@ -281,11 +296,11 @@ stages:
             workingDirectory: $(uiTerraformWorkingDir)
       
       - job: Check_UI_Plan
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true'))
+        condition: eq(variables.runUITerraform, 'true')
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_UI_Terraform
-        displayName: Check Plan
+        displayName: Check UI Terraform
         steps:
           # Terraform Init
           - bash: |
@@ -316,7 +331,7 @@ stages:
               TF_LOG: $(dev-log-level)
     
       - job: Validate_UI_Events_Terraform
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true'))
+        condition: eq(variables.runUIEventsTerraform, 'true')
         pool:
           name: $(dev-build-agent)
         steps:
@@ -342,11 +357,11 @@ stages:
             workingDirectory: $(uiEventsTerraformWorkingDir)
     
       - job: Check_UI_Events_Plan
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true'))
+        condition: eq(variables.runUIEventsTerraform, 'true')
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_UI_Events_Terraform
-        displayName: Check Plan
+        displayName: Check UI Events Terraform
         steps:
           # Terraform Init
           - bash: |
@@ -377,7 +392,7 @@ stages:
               TF_LOG: $(dev-log-level)
     
       - job: Validate_Networking_Terraform
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
+        condition: eq(variables.runNetworkingTerraform, 'true'))
         pool:
           name: $(dev-build-agent)
         steps:
@@ -403,8 +418,9 @@ stages:
             workingDirectory: $(networkingTerraformWorkingDir)
     
       - job: Check_Networking_Plan
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
+        condition: eq(variables.runNetworkingTerraform, 'true'))
         dependsOn: Validate_Networking_Terraform
+        displayName: Check Networking Terraform
         pool:
           name: $(dev-build-agent)
         steps:
@@ -437,7 +453,7 @@ stages:
               TF_LOG: $(dev-log-level)
                   
       - job: Validate_Gateway_Codebase
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
+        condition: eq(variables.runGateway, 'true'))
         displayName: Build, Test, Report - Gateway
         pool:
           name: $(dev-build-agent)
@@ -461,7 +477,7 @@ stages:
             displayName: Publish Gateway Test Results
                 
       - job: Validate_Coordinator_Codebase
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_COORDINATOR'], 'true'))
+        condition: eq(variables.runCoordinator, 'true'))
         displayName: Build, Test, Report - Coordinator
         pool:
           name: $(dev-build-agent)
@@ -485,7 +501,7 @@ stages:
             displayName: Publish Coordinator Test Results
                 
       - job: Validate_PDF_Generator_Codebase
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_PDF_GENERATOR'], 'true'))
+        condition: eq(variables.runPdfGenerator, 'true'))
         displayName: Build, Test, Report - PDF Generator
         pool:
           vmImage: windows-latest
@@ -522,7 +538,7 @@ stages:
             displayName: Publish Pdf-Generator Test Results
                 
       - job: Validate_Text_Extractor_Codebase
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR'], 'true'))
+        condition: eq(variables.runTextExtractor, 'true'))
         displayName: Build, Test, Report - Text Extractor
         pool:
           name: $(dev-build-agent)
@@ -546,7 +562,7 @@ stages:
             displayName: Publish Text-Extractor Test Results
                 
       - job: Validate_Pipeline_Common_Library
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_COMMON'], 'true'))
+        condition: eq(variables.runPipelineCommon, 'true'))
         displayName: Build, Test, Report - Pipeline Common Library
         pool:
           name: $(dev-build-agent)
@@ -570,7 +586,7 @@ stages:
             displayName: Publish Common Library Test Results
                 
       - job: Validate_DDEI_Client_Library
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_DDEI_CLIENT'], 'true'))
+        condition: eq(variables.runDDEIClient, 'true'))
         displayName: Build, Test, Report - DDEI Client Library
         pool:
           name: $(dev-build-agent)
@@ -594,7 +610,7 @@ stages:
             displayName: Publish DDEI Client Library Test Results
 
       - job: Validate_UI_Codebase
-        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
+        condition: eq(variables.runUI, 'true'))
         displayName: Build, Test, Report - UI
         pool:
           vmImage: ubuntu-latest
@@ -717,7 +733,7 @@ stages:
   - stage: Generate_Reports
     displayName: Collate and publish test results
     dependsOn: Validate_Polaris
-    condition: or(eq(dependencies.Validate_Gateway_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(dependencies.Pipeline_Common_Library.result, 'Succeeded'),eq(dependencies.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(dependencies.Validate_UI_Codebase.result, 'Succeeded'))
+    condition: or(eq(dependencies.Validate_Gateway_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Pipeline_Common_Library.result, 'Succeeded'),eq(dependencies.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(dependencies.Validate_UI_Codebase.result, 'Succeeded'))
     jobs:
       - job:
         displayName: Build, Test, Report - UI
