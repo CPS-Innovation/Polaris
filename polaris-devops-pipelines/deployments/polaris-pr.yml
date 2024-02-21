@@ -130,7 +130,7 @@ stages:
             displayName: Processing changes to repo
 
   - stage: Validate_Polaris
-    condition: succeeded
+    condition: succeeded()
     displayName: Validate Changes
     dependsOn: Determine_Changes
     variables:
