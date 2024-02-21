@@ -1,52 +1,52 @@
-﻿  ﻿---
-  parameters:
-    - name: stageBuildAgent
-      type: string
-    - name: stageDependsOn
-      type: object
-    - name: targetBuild
-      type: string
-    - name: targetLabel
-      type: string
-    - name: targetLabelLower
-      type: string
-    - name: targetName
-      type: string
-    - name: appInsightsKey
-      type: string
-    - name: devOpsPatToken
-      type: string
-  
-  stages:
-    - stage: Create_Commit_Report_${{ parameters.targetLabel }}
-      displayName: Create Commit Report > ${{ parameters.targetLabel }}
-      ${{ if parameters.stageDependsOn }}:
-        dependsOn: ${{ parameters.stageDependsOn }}
-      condition: succeeded()
-      pool:
-        name: ${{ parameters.stageBuildAgent }}
-      jobs:
-        - template: jobs/job_log-start.yml
-          parameters:
-            targetBuild: ${{ parameters.targetBuild }}
-            targetLabel: ${{ parameters.targetLabel }}
-            targetName: ${{ parameters.targetName }}
-            appInsightsKey: ${{ parameters.appInsightsKey }}
+﻿---
+parameters:
+  - name: stageBuildAgent
+    type: string
+  - name: stageDependsOn
+    type: object
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetLabelLower
+    type: string
+  - name: targetName
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: devOpsPatToken
+    type: string
 
-        - template: jobs/job_create-commit-report.yml
-          parameters:
-            targetLabel: ${{ parameters.targetLabel }}
-            targetLabelLower: ${{ parameters.targetLabelLower }}
-            jobDependsOn:
-              - LogStart
+stages:
+  - stage: Create_Commit_Report_${{ parameters.targetLabel }}
+    displayName: Create Commit Report > ${{ parameters.targetLabel }}
+    ${{ if parameters.stageDependsOn }}:
+      dependsOn: ${{ parameters.stageDependsOn }}
+    condition: succeeded()
+    pool:
+      name: ${{ parameters.stageBuildAgent }}
+    jobs:
+      - template: jobs/job_log-start.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: ${{ parameters.targetName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
 
-        - template: jobs/job_log-result.yml
-          parameters:
-            targetBuild: ${{ parameters.targetBuild }}
-            targetLabel: ${{ parameters.targetLabel }}
-            targetName: ${{ parameters.targetName }}
-            appInsightsKey: ${{ parameters.appInsightsKey }}
-            devOpsPatToken: ${{ parameters.devOpsPatToken }}
-            jobDependsOn:
-              - LogStart
-              - CreateCommitReport
+      - template: jobs/job_create-commit-report.yml
+        parameters:
+          targetLabel: ${{ parameters.targetLabel }}
+          targetLabelLower: ${{ parameters.targetLabelLower }}
+          jobDependsOn:
+            - LogStart
+
+      - template: jobs/job_log-result.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: ${{ parameters.targetName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          devOpsPatToken: ${{ parameters.devOpsPatToken }}
+          jobDependsOn:
+            - LogStart
+            - CreateCommitReport
