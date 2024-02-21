@@ -339,7 +339,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
-
     },
     {
       documentId: "3",

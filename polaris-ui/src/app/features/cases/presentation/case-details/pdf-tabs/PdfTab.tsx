@@ -77,7 +77,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     saveStatus,
     cmsDocType: { documentType },
     attachments,
-    hasFailedAttachments
+    hasFailedAttachments,
   } = caseDocumentViewModel;
 
   const searchHighlights =
