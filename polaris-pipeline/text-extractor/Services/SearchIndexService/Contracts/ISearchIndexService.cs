@@ -22,5 +22,8 @@ namespace text_extractor.Services.CaseSearchService.Contracts
 
         Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId);
 
+        Task<SearchIndexCountResult> GetCaseIndexCount(long caseId);
+
+        Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId);
     }
 }

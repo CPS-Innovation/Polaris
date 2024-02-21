@@ -22,26 +22,26 @@ namespace Common.Extensions
 
             return currentCorrelationId;
         }
-        
+
         public static Guid GetCorrelation(this IHeaderDictionary headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
+
             if (!headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var value))
                 throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(headers));
-            
-            if (!Guid.TryParse(value[0], out var correlationId))
+
+            if (!Guid.TryParse(value[0], out var correlationId) || correlationId == Guid.Empty)
                 throw new BadRequestException("Invalid correlationId. A valid GUID is required.", value);
 
             return correlationId;
         }
-        
+
         public static void CheckForCmsAuthValues(this IHeaderDictionary headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
+
             if (!headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var value))
                 throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(headers));
 
@@ -53,15 +53,17 @@ namespace Common.Extensions
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
+
             if (!headers.TryGetValue(HttpHeaderKeys.Filetype, out var value))
                 throw new BadRequestException("Missing Filetype Value", nameof(headers));
-            
+
             var filetypeValue = value[0];
             if (string.IsNullOrEmpty(filetypeValue))
                 throw new BadRequestException("Null Filetype Value", filetypeValue);
-            if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
+            if (!Enum.IsDefined(typeof(FileType), filetypeValue))
                 throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
+
+            Enum.TryParse(filetypeValue, true, out FileType filetype);
 
             return filetype;
         }
@@ -70,10 +72,10 @@ namespace Common.Extensions
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
+
             if (!headers.TryGetValue(HttpHeaderKeys.CaseId, out var value))
                 throw new BadRequestException("Missing CaseIds", nameof(headers));
-            
+
             var caseId = value[0];
             if (string.IsNullOrEmpty(caseId))
                 throw new BadRequestException("Invalid CaseId", caseId);
@@ -85,7 +87,7 @@ namespace Common.Extensions
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
+
             if (!headers.TryGetValue(HttpHeaderKeys.DocumentId, out var value))
                 throw new BadRequestException("Missing DocumentIds", nameof(headers));
 
@@ -100,7 +102,7 @@ namespace Common.Extensions
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
-            
+
             if (!headers.TryGetValue(HttpHeaderKeys.VersionId, out var value))
                 throw new BadRequestException("Missing VersionIds", nameof(headers));
 
@@ -109,6 +111,39 @@ namespace Common.Extensions
                 throw new BadRequestException("Invalid VersionId", versionId);
 
             return versionId;
+        }
+
+        public static string GetDocumentTypeId(this HttpRequestHeaders headers)
+        {
+            headers.TryGetValues(HttpHeaderKeys.DocumentTypeId, out var documentTypeIdValues);
+            if (documentTypeIdValues == null)
+                throw new BadRequestException("Invalid documentTypeId.", nameof(headers));
+
+            var documentTypeId = documentTypeIdValues.First();
+
+            return documentTypeId ?? string.Empty;
+        }
+
+        public static string GetDocumentType(this HttpRequestHeaders headers)
+        {
+            headers.TryGetValues(HttpHeaderKeys.DocumentType, out var documentTypeValues);
+            if (documentTypeValues == null)
+                throw new BadRequestException("Invalid documentType.", nameof(headers));
+
+            var documentType = documentTypeValues.First();
+
+            return documentType ?? string.Empty;
+        }
+
+        public static string GetDocumentCategory(this HttpRequestHeaders headers)
+        {
+            headers.TryGetValues(HttpHeaderKeys.DocumentCategory, out var documentCategoryValues);
+            if (documentCategoryValues == null)
+                throw new BadRequestException("Invalid documentCategory.", nameof(headers));
+
+            var documentCategory = documentCategoryValues.First();
+
+            return documentCategory ?? string.Empty;
         }
     }
 }

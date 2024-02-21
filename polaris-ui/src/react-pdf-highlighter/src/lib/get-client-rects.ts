@@ -2,17 +2,19 @@ import type { LTWHP, Page } from "../types.js";
 
 import optimizeClientRects from "./optimize-client-rects";
 
+export const PAGE_BORDER_WIDTH = 9;
+
 const isClientRectInsidePageRect = (clientRect: DOMRect, pageRect: DOMRect) => {
-  if (clientRect.top < pageRect.top) {
+  if (clientRect.top < pageRect.top + PAGE_BORDER_WIDTH) {
     return false;
   }
-  if (clientRect.bottom > pageRect.bottom) {
+  if (clientRect.bottom > pageRect.bottom - PAGE_BORDER_WIDTH) {
     return false;
   }
-  if (clientRect.right > pageRect.right) {
+  if (clientRect.right > pageRect.right - PAGE_BORDER_WIDTH) {
     return false;
   }
-  if (clientRect.left < pageRect.left) {
+  if (clientRect.left < pageRect.left + PAGE_BORDER_WIDTH) {
     return false;
   }
 
@@ -42,8 +44,16 @@ const getClientRects = (
         clientRect.height < pageRect.height
       ) {
         const highlightedRect = {
-          top: clientRect.top + page.node.scrollTop - pageRect.top,
-          left: clientRect.left + page.node.scrollLeft - pageRect.left,
+          top:
+            clientRect.top +
+            page.node.scrollTop -
+            pageRect.top -
+            PAGE_BORDER_WIDTH,
+          left:
+            clientRect.left +
+            page.node.scrollLeft -
+            pageRect.left -
+            PAGE_BORDER_WIDTH,
           width: clientRect.width,
           height: clientRect.height,
           pageNumber: page.number,

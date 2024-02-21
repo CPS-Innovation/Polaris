@@ -818,6 +818,52 @@ describe("Redaction Log", () => {
         .contains("Log an Under/Over redaction")
         .should("not.exist");
     });
+    it("Should throw error if the supporting notes crosses the maximum character limit", () => {
+      const notes400CharacterText =
+        "Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Inve";
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+
+      cy.get(`#checkbox-over-redaction`).click();
+      cy.get(`#checkbox-overRedaction-type-2`).click();
+      cy.get(`#checkbox-overRedaction-type-6`).click();
+      cy.findByTestId("redaction-log-notes").type(notes400CharacterText);
+      cy.realPress(".");
+      cy.get("#redaction-log-notes-info")
+        .contains("You have 1 character too many")
+        .should("exist");
+      cy.realPress("a");
+      cy.get("#redaction-log-notes-info")
+        .contains("You have 2 characters too many")
+        .should("exist");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("redaction-log-error-summary")
+        .find("li")
+        .should("have.length", 1);
+      cy.findByTestId("redaction-log-notes-link").should("exist");
+      cy.get("#redaction-log-notes-error").should(
+        "have.text",
+        "Error: Supporting notes must be 400 characters or less"
+      );
+      cy.findByTestId("redaction-log-notes").type("{backspace}");
+      cy.realPress("{backspace}");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("div-modal").should("not.exist");
+    });
   });
 
   describe("Feature Flag Off", () => {

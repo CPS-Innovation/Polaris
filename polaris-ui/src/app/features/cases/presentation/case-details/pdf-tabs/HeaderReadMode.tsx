@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
@@ -6,9 +6,14 @@ import {
   DropdownButton,
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
+import {
+  LinkButton,
+  Tooltip,
+} from "../../../../../common/presentation/components";
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
+import { ReactComponent as AreaIcon } from "../../../../../common/presentation/svgs/areaIcon.svg";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
@@ -16,9 +21,11 @@ type Props = {
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
+  handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   contextData: {
     documentId: string;
     tabIndex: number;
+    areaOnlyRedactionMode: boolean;
   };
 };
 
@@ -27,6 +34,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { sasUrl },
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
+  handleAreaOnlyRedaction,
   contextData,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -72,8 +80,57 @@ export const HeaderReadMode: React.FC<Props> = ({
     return items;
   }, [showOverRedactionLog, disableReportBtn]);
 
+  const handleRedactAreaToolButtonClick = useCallback(() => {
+    if (window.getSelection()) {
+      window.getSelection()?.removeAllRanges();
+    }
+    handleAreaOnlyRedaction(
+      contextData.documentId,
+      !contextData.areaOnlyRedactionMode
+    );
+    if (!contextData.areaOnlyRedactionMode) {
+      trackEvent("Redact Area Tool On", {
+        documentId: contextData.documentId,
+      });
+      return;
+    }
+    trackEvent("Redact Area Tool Off", {
+      documentId: contextData.documentId,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    contextData.areaOnlyRedactionMode,
+    contextData.documentId,
+    handleAreaOnlyRedaction,
+  ]);
+
   return (
     <div className={classes.content}>
+      <Tooltip
+        text={
+          contextData.areaOnlyRedactionMode
+            ? "Redact area tool on"
+            : "Redact area tool off"
+        }
+      >
+        <LinkButton
+          className={
+            contextData.areaOnlyRedactionMode
+              ? `${classes.areaToolBtn} ${classes.areaToolBtnEnabled}`
+              : classes.areaToolBtn
+          }
+          dataTestId={`btn-area-tool-${contextData.tabIndex}`}
+          id={`btn-area-tool-${contextData.tabIndex}`}
+          ariaLabel={
+            !contextData.areaOnlyRedactionMode
+              ? "enable area redaction mode"
+              : "disable area redaction mode"
+          }
+          onClick={handleRedactAreaToolButtonClick}
+        >
+          <AreaIcon />
+        </LinkButton>
+      </Tooltip>
       <DropdownButton
         name="Document actions"
         dropDownItems={dropDownItems}

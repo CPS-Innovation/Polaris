@@ -41,6 +41,7 @@ type Props = {
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
+  areaOnlyRedactionMode: boolean;
   handleAddRedaction: (newRedaction: NewPdfHighlight) => void;
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
@@ -63,6 +64,7 @@ export const PdfViewer: React.FC<Props> = ({
   searchHighlights = [],
   redactionHighlights,
   isOkToSave,
+  areaOnlyRedactionMode,
   handleAddRedaction,
   handleRemoveRedaction,
   handleRemoveAllRedactions,
@@ -121,10 +123,23 @@ export const PdfViewer: React.FC<Props> = ({
     handleRemoveRedaction(id);
   };
 
+  const enableAreaSelection = useCallback(
+    (event) => {
+      return areaOnlyRedactionMode
+        ? true
+        : (event.target as HTMLElement).className === "textLayer";
+    },
+    [areaOnlyRedactionMode]
+  );
+
   return (
     <>
       <div
-        className={classes.pdfViewer}
+        className={
+          areaOnlyRedactionMode
+            ? `${classes.pdfViewer} ${classes.areaOnlyRedaction}`
+            : classes.pdfViewer
+        }
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
@@ -148,9 +163,7 @@ export const PdfViewer: React.FC<Props> = ({
               <PdfHighlighter
                 onWheelDownwards={ensureAllPdfInView}
                 pdfDocument={pdfDocument}
-                enableAreaSelection={(event) =>
-                  (event.target as HTMLElement).className === "textLayer"
-                }
+                enableAreaSelection={enableAreaSelection}
                 onScrollChange={() => {}}
                 pdfScaleValue="page-width"
                 scrollRef={(scrollTo) => {

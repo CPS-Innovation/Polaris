@@ -49,6 +49,16 @@ namespace coordinator.Clients
 
             // do not dispose or use `using` on response
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            if (response.StatusCode == HttpStatusCode.UnsupportedMediaType)
+            {
+                throw new UnsupportedMediaTypeException(
+                    $"Unsupported media type: {fileType}",
+                    // todo: we do not have the *real* media type header to hand, so just use a generic one
+                    //  Key thing is we communicate to the caller that the pdf-generator has rejected us on media type grounds
+                    new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream")
+                );
+            }
+
             response.EnsureSuccessStatusCode();
             return await _httpResponseMessageStreamFactory.Create(response);
         }

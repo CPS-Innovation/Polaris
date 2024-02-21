@@ -4,7 +4,6 @@ public static class ConfigurationKeys
 {
     public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
     public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
-    public const string PipelineCoordinatorDurableExtensionCode = "PolarisPipelineCoordinatorDurableExtensionCode";
 }
 
 public static class ValidRoles

@@ -18,7 +18,8 @@ namespace text_extractor.Services.OcrService
 {
     public class OcrService : IOcrService
     {
-        private const int RetryDelayInMilliseconds = 500;
+        private const int RetryDelayInMilliseconds = 5000;
+        private const int MaxRetryDelayInMilliseconds = 15000;
         private readonly ComputerVisionClient _computerVisionClient;
         private readonly ILogger<OcrService> _log;
 
@@ -90,6 +91,7 @@ namespace text_extractor.Services.OcrService
                     MaxRetryAttempts = 3,
                     BackoffType = DelayBackoffType.Exponential,
                     Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
+                    MaxDelay = TimeSpan.FromMilliseconds(MaxRetryDelayInMilliseconds),
                     ShouldHandle = new PredicateBuilder<HttpOperationHeaderResponse<ReadInStreamHeaders>>()
                         .Handle<HttpRequestException>()
                         .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),

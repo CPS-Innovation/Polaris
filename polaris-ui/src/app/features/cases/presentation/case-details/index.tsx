@@ -1,8 +1,10 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo } from "react";
-import { BackLink } from "../../../../common/presentation/components";
-import { PageContentWrapper } from "../../../../common/presentation/components";
+import { useEffect, useMemo, useState } from "react";
 import {
+  BackLink,
+  Tooltip,
+  LinkButton,
+  PageContentWrapper,
   WaitPage,
   PhaseBanner,
 } from "../../../../common/presentation/components";
@@ -38,11 +40,13 @@ import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentA
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
+import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
+  const [inFullScreen, setInFullScreen] = useState(false);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -78,6 +82,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
+    handleAreaOnlyRedaction,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -126,6 +131,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     trackEvent("Open Documents Count", {
       count: tabsState.items.length,
     });
+    if (tabsState.items.length === 0) {
+      setInFullScreen(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
@@ -155,7 +163,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           handleClose={handleCloseErrorModal}
           type="alert"
           ariaLabel="Error Modal"
-          ariaDescription={errorModal.title}
+          ariaDescription={`${errorModal.title} ${errorModal.message}`}
         >
           <ErrorModalContent
             title={errorModal.title}
@@ -279,58 +287,99 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          <div
-            role="region"
-            aria-labelledby="side-panel-region-label"
-            id="side-panel"
-            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-            tabIndex={0}
-            className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
-          >
-            <span
-              id="side-panel-region-label"
-              className={classes.sidePanelLabel}
+          {!inFullScreen && (
+            <div
+              role="region"
+              aria-labelledby="side-panel-region-label"
+              id="side-panel"
+              data-testid="side-panel"
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+              tabIndex={0}
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
             >
-              Case navigation panel
-            </span>
-            <div>
-              <KeyDetails
-                handleOpenPdf={() => {
-                  handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
-                }}
-                caseDetails={caseState.data}
-                isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
-                dacDocumentId={dacDocumentId}
-              />
-
-              {!isMultipleDefendantsOrCharges && (
-                <Charges caseDetails={caseState.data} />
-              )}
-
-              <SearchBox
-                id="case-details-search"
-                data-testid="search-case"
-                labelText="Search"
-                value={searchTerm}
-                handleChange={handleSearchTermChange}
-                handleSubmit={handleLaunchSearchResults}
-                trackEventKey="Search Case Documents From Case Details"
-              />
-
-              {accordionState.status === "loading" ? (
-                <AccordionWait />
-              ) : (
-                <Accordion
-                  accordionState={accordionState.data}
-                  handleOpenPdf={(caseDoc) => {
-                    handleOpenPdf({ ...caseDoc, mode: "read" });
+              <span
+                id="side-panel-region-label"
+                className={classes.sidePanelLabel}
+              >
+                Case navigation panel
+              </span>
+              <div>
+                <KeyDetails
+                  handleOpenPdf={() => {
+                    handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
                   }}
+                  caseDetails={caseState.data}
+                  isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+                  dacDocumentId={dacDocumentId}
                 />
-              )}
+
+                {!isMultipleDefendantsOrCharges && (
+                  <Charges caseDetails={caseState.data} />
+                )}
+
+                <SearchBox
+                  id="case-details-search"
+                  data-testid="search-case"
+                  labelText="Search"
+                  value={searchTerm}
+                  handleChange={handleSearchTermChange}
+                  handleSubmit={handleLaunchSearchResults}
+                  trackEventKey="Search Case Documents From Case Details"
+                />
+
+                {accordionState.status === "loading" ? (
+                  <AccordionWait />
+                ) : (
+                  <Accordion
+                    accordionState={accordionState.data}
+                    handleOpenPdf={(caseDoc) => {
+                      handleOpenPdf({ ...caseDoc, mode: "read" });
+                    }}
+                  />
+                )}
+              </div>
             </div>
-          </div>
+          )}
+          {!!tabsState.items.length && featureFlags.fullScreen && (
+            <div className={classes.resizeBtnWrapper}>
+              <Tooltip
+                text={inFullScreen ? "Exit full screen" : "View full screen"}
+                position="right"
+              >
+                <LinkButton
+                  id={"full-screen-btn"}
+                  dataTestId={"full-screen-btn"}
+                  ariaLabel={
+                    inFullScreen ? "Exit full screen" : "View full screen"
+                  }
+                  className={`${classes.resizeBtn} ${
+                    inFullScreen && classes.inFullScreen
+                  }`}
+                  onClick={() => {
+                    if (inFullScreen) {
+                      trackEvent("Exit Full Screen", {
+                        documentId: getActiveTabDocument.documentId,
+                      });
+                      setInFullScreen(false);
+                    } else {
+                      trackEvent("View Full Screen", {
+                        documentId: getActiveTabDocument.documentId,
+                      });
+                      setInFullScreen(true);
+                    }
+                  }}
+                >
+                  <DownArrow />
+                </LinkButton>
+              </Tooltip>
+            </div>
+          )}
           <div
-            className={`govuk-grid-column-three-quarters ${classes.rightColumn}`}
+            className={`${classes.rightColumn} ${
+              inFullScreen
+                ? "govuk-grid-column-full"
+                : "govuk-grid-column-three-quarters"
+            }`}
           >
             {!tabsState.items.length ? (
               <PdfTabsEmpty pipelineState={pipelineState} />
@@ -365,6 +414,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     ? FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
                     : false
                 }
+                handleAreaOnlyRedaction={handleAreaOnlyRedaction}
               />
             )}
           </div>
