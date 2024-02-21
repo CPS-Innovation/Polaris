@@ -392,7 +392,7 @@ stages:
               TF_LOG: $(dev-log-level)
     
       - job: Validate_Networking_Terraform
-        condition: eq(variables.runNetworkingTerraform, 'true'))
+        condition: eq(variables.runNetworkingTerraform, 'true')
         pool:
           name: $(dev-build-agent)
         steps:
@@ -418,7 +418,7 @@ stages:
             workingDirectory: $(networkingTerraformWorkingDir)
     
       - job: Check_Networking_Plan
-        condition: eq(variables.runNetworkingTerraform, 'true'))
+        condition: eq(variables.runNetworkingTerraform, 'true')
         dependsOn: Validate_Networking_Terraform
         displayName: Check Networking Terraform
         pool:
@@ -453,7 +453,7 @@ stages:
               TF_LOG: $(dev-log-level)
                   
       - job: Validate_Gateway_Codebase
-        condition: eq(variables.runGateway, 'true'))
+        condition: eq(variables.runGateway, 'true')
         displayName: Build, Test, Report - Gateway
         pool:
           name: $(dev-build-agent)
@@ -477,7 +477,7 @@ stages:
             displayName: Publish Gateway Test Results
                 
       - job: Validate_Coordinator_Codebase
-        condition: eq(variables.runCoordinator, 'true'))
+        condition: eq(variables.runCoordinator, 'true')
         displayName: Build, Test, Report - Coordinator
         pool:
           name: $(dev-build-agent)
@@ -501,7 +501,7 @@ stages:
             displayName: Publish Coordinator Test Results
                 
       - job: Validate_PDF_Generator_Codebase
-        condition: eq(variables.runPdfGenerator, 'true'))
+        condition: eq(variables.runPdfGenerator, 'true')
         displayName: Build, Test, Report - PDF Generator
         pool:
           vmImage: windows-latest
@@ -538,7 +538,7 @@ stages:
             displayName: Publish Pdf-Generator Test Results
                 
       - job: Validate_Text_Extractor_Codebase
-        condition: eq(variables.runTextExtractor, 'true'))
+        condition: eq(variables.runTextExtractor, 'true')
         displayName: Build, Test, Report - Text Extractor
         pool:
           name: $(dev-build-agent)
@@ -562,7 +562,7 @@ stages:
             displayName: Publish Text-Extractor Test Results
                 
       - job: Validate_Pipeline_Common_Library
-        condition: eq(variables.runPipelineCommon, 'true'))
+        condition: eq(variables.runPipelineCommon, 'true')
         displayName: Build, Test, Report - Pipeline Common Library
         pool:
           name: $(dev-build-agent)
@@ -586,7 +586,7 @@ stages:
             displayName: Publish Common Library Test Results
                 
       - job: Validate_DDEI_Client_Library
-        condition: eq(variables.runDDEIClient, 'true'))
+        condition: eq(variables.runDDEIClient, 'true')
         displayName: Build, Test, Report - DDEI Client Library
         pool:
           name: $(dev-build-agent)
@@ -610,7 +610,7 @@ stages:
             displayName: Publish DDEI Client Library Test Results
 
       - job: Validate_UI_Codebase
-        condition: eq(variables.runUI, 'true'))
+        condition: eq(variables.runUI, 'true')
         displayName: Build, Test, Report - UI
         pool:
           vmImage: ubuntu-latest
