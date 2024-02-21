@@ -733,7 +733,7 @@ stages:
   - stage: Generate_Reports
     displayName: Collate and publish test results
     dependsOn: Validate_Polaris
-    condition: or(eq(stageDependencies.Validate_Polaris.Validate_Gateway_Codebase.result, 'Succeeded'),eq(stageDependencies.Validate_Polaris.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(stageDependencies.Validate_Polaris.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(stageDependencies.Validate_Polaris.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(stageDependencies.Validate_Polaris.Validate_Pipeline_Common_Library.result, 'Succeeded'),eq(stageDependencies.Validate_Polaris.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(stageDependencies.Validate_Polaris.Validate_UI_Codebase.result, 'Succeeded'))
+    condition: or(eq(Validate_Polaris.Validate_Gateway_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_Pipeline_Common_Library.result, 'Succeeded'),eq(Validate_Polaris.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(Validate_Polaris.Validate_UI_Codebase.result, 'Succeeded'))
     jobs:
       - job:
         displayName: Test - UI
