@@ -475,6 +475,9 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)/polaris-gateway.tests/coverage.cobertura.xml
             artifact: GatewayTestResults
             displayName: Publish Gateway Test Results
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
                 
       - job: Validate_Coordinator_Codebase
         condition: eq(variables.runCoordinator, 'true')
@@ -499,6 +502,9 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
             artifact: CoordinatorTestResults
             displayName: Publish Coordinator Test Results
+
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
                 
       - job: Validate_PDF_Generator_Codebase
         condition: eq(variables.runPdfGenerator, 'true')
@@ -536,6 +542,9 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
             artifact: PdfGeneratorTestResults
             displayName: Publish Pdf-Generator Test Results
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
                 
       - job: Validate_Text_Extractor_Codebase
         condition: eq(variables.runTextExtractor, 'true')
@@ -560,6 +569,9 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
             artifact: TextExtractorTestResults
             displayName: Publish Text-Extractor Test Results
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
                 
       - job: Validate_Pipeline_Common_Library
         condition: eq(variables.runPipelineCommon, 'true')
@@ -584,6 +596,9 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/Common.tests/coverage.cobertura.xml
             artifact: CommonLibraryTestResults
             displayName: Publish Common Library Test Results
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
                 
       - job: Validate_DDEI_Client_Library
         condition: eq(variables.runDDEIClient, 'true')
@@ -608,6 +623,9 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/DdeiClient.tests/coverage.cobertura.xml
             artifact: DdeiClientLibraryTestResults
             displayName: Publish DDEI Client Library Test Results
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
 
       - job: Validate_UI_Codebase
         condition: eq(variables.runUI, 'true')
@@ -729,14 +747,25 @@ stages:
 
           - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
             artifact: UITestResults
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
 
   - stage: Generate_Reports
     displayName: Collate and publish test results
     dependsOn: Validate_Polaris
-    condition: or(eq(Validate_Polaris.Validate_Gateway_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(Validate_Polaris.Validate_Pipeline_Common_Library.result, 'Succeeded'),eq(Validate_Polaris.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(Validate_Polaris.Validate_UI_Codebase.result, 'Succeeded'))
+    variables:
+      gatewayTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Gateway_Codebase.outputs['testsAvailable.result']]
+      coordinatorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Coordinator_Codebase.outputs['testsAvailable.result']]
+      pdfGeneratorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_PDF_Generator_Codebase.outputs['testsAvailable.result']]
+      textExtractorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Text_Extractor_Codebase.outputs['testsAvailable.result']]
+      commonLibraryTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Pipeline_Common_Library.outputs['testsAvailable.result']]
+      ddeiClientTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_DDEI_Client_Library.outputs['testsAvailable.result']]
+      uiTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_UI_Codebase.outputs['testsAvailable.result']]
     jobs:
       - job:
         displayName: Test - UI
+        condition: or(eq(variables.gatewayTestsAvailable, 'true'),eq(variables.coordinatorTestsAvailable, 'true'),eq(variables.pdfGeneratorTestsAvailable, 'true'),eq(variables.textExtractorTestsAvailable, 'true'),eq(variables.commonLibraryTestsAvailable, 'true'),eq(variables.ddeiClientTestsAvailable, 'true'),eq(variables.uiTestsAvailable, 'true'))
         pool:
           vmImage: ubuntu-latest
         steps:
