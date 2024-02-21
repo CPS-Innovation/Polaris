@@ -755,13 +755,13 @@ stages:
     displayName: Collate and publish test results
     dependsOn: Validate_Polaris
     variables:
-      gatewayTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Gateway_Codebase.outputs['testsAvailable.result']]
-      coordinatorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Coordinator_Codebase.outputs['testsAvailable.result']]
-      pdfGeneratorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_PDF_Generator_Codebase.outputs['testsAvailable.result']]
-      textExtractorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Text_Extractor_Codebase.outputs['testsAvailable.result']]
-      commonLibraryTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Pipeline_Common_Library.outputs['testsAvailable.result']]
-      ddeiClientTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_DDEI_Client_Library.outputs['testsAvailable.result']]
-      uiTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_UI_Codebase.outputs['testsAvailable.result']]
+      gatewayTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Gateway_Codebase.outputs['result.testsAvailable']]
+      coordinatorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Coordinator_Codebase.outputs['result.testsAvailable']]
+      pdfGeneratorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_PDF_Generator_Codebase.outputs['result.testsAvailable']]
+      textExtractorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Text_Extractor_Codebase.outputs['result.testsAvailable']]
+      commonLibraryTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Pipeline_Common_Library.outputs['result.testsAvailable']]
+      ddeiClientTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_DDEI_Client_Library.outputs['result.testsAvailable']]
+      uiTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_UI_Codebase.outputs['result.testsAvailable']]
     jobs:
       - job:
         displayName: Test - UI
