@@ -50,5 +50,25 @@ namespace pdf_generator.tests.Services.PdfService
                 conversionResult.ConvertedDocument.Length.Should().BeGreaterThan(0);
             }
         }
+
+        [Fact]
+        public void ReadToPdfStream_CatchesIndexOutOfRangeException()
+        {
+            // Arrange
+            using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
+            _asposeItemFactory.Setup(x => x.CreateRenderedPdfDocument(It.IsAny<Stream>(), It.IsAny<Guid>())).Throws<IndexOutOfRangeException>();
+
+            // Act
+            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
+
+            // Assert
+            using (new AssertionScope())
+            {
+                conversionResult.Should().NotBeNull();
+                conversionResult.ConvertedDocument.Should().NotBeNull();
+                conversionResult.ConvertedDocument.Length.Should().BeGreaterThan(0);
+            }
+        }
+
     }
 }
