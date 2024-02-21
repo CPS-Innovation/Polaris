@@ -225,7 +225,7 @@ stages:
             displayName: 'Release Terraform'
             inputs:
               buildDefinition: 344
-              buildParameters: "TargetBuild: "PolarisBuild
+              buildParameters: "TargetBuild: $(PolarisBuild)"
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "$(devops-pat-token)"
@@ -245,7 +245,7 @@ stages:
             displayName: 'Release Terraform'
             inputs:
               buildDefinition: 343
-              buildParameters: "TargetBuild: "PolarisBuild
+              buildParameters: "TargetBuild: $(PolarisBuild)"
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "$(devops-pat-token)"

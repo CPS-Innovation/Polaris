@@ -129,12 +129,11 @@ stages:
             name: Change_Results
             displayName: Processing changes to repo
 
-  - stage: Validate_Pipeline_Terraform
-    displayName: Validate Pipeline Terraform
+  - stage: Validate_Polaris
     dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
     jobs:
-      - job: Validate
+      - job: Validate_Pipeline_Terraform
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
         pool:
           name: $(dev-build-agent)
         steps:
@@ -159,10 +158,11 @@ stages:
             displayName: Terraform > Validate Config
             workingDirectory: $(pipelineTerraformWorkingDir)
 
-      - job: CheckPlan
+      - job: Check_Pipeline_Plan
         pool:
           name: $(dev-build-agent)
-        dependsOn: Validate
+        dependsOn: Validate_Pipeline_Terraform
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
         displayName: Check Plan
         steps:
           # Terraform Init
@@ -193,12 +193,8 @@ stages:
               ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
               TF_LOG: $(dev-log-level)
 
-  - stage: Validate_Pipeline_Events_Terraform
-    displayName: Validate Pipeline Events Terraform
-    dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'))
-    jobs:
-      - job: Validate
+      - job: Validate_Pipeline_Events_Terraform
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'))
         pool:
           name: $(dev-build-agent)
         steps:
@@ -217,16 +213,17 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
-
-      - job: CheckPlan
+    
+      - job: Check_Pipeline_Events_Plan
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'))
         pool:
           name: $(dev-build-agent)
-        dependsOn: Validate
+        dependsOn: Validate_Pipeline_Events_Terraform
         displayName: Check Plan
         steps:
           # Terraform Init
@@ -244,7 +241,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -256,15 +253,11 @@ stages:
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
               ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
               TF_LOG: $(dev-log-level)
-
-  - stage: Validate_UI_Terraform
-    displayName: Validate UI Terraform
-    dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true'))
-    jobs:
-      - job: Validate
+    
+      - job: Validate_UI_Terraform
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true'))
         pool:
-          name: $(dev-build-agent)
+            name: $(dev-build-agent)
         steps:
           # Terraform Init
           - bash: |
@@ -281,16 +274,17 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
             workingDirectory: $(uiTerraformWorkingDir)
-
-      - job: CheckPlan
+      
+      - job: Check_UI_Plan
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true'))
         pool:
           name: $(dev-build-agent)
-        dependsOn: Validate
+        dependsOn: Validate_UI_Terraform
         displayName: Check Plan
         steps:
           # Terraform Init
@@ -308,7 +302,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -320,13 +314,9 @@ stages:
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
               ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
               TF_LOG: $(dev-log-level)
-
-  - stage: Validate_UI_Events_Terraform
-    displayName: Validate UI Events Terraform
-    dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true'))
-    jobs:
-      - job: Validate
+    
+      - job: Validate_UI_Events_Terraform
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true'))
         pool:
           name: $(dev-build-agent)
         steps:
@@ -345,16 +335,17 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
             workingDirectory: $(uiEventsTerraformWorkingDir)
-
-      - job: CheckPlan
+    
+      - job: Check_UI_Events_Plan
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true'))
         pool:
           name: $(dev-build-agent)
-        dependsOn: Validate
+        dependsOn: Validate_UI_Events_Terraform
         displayName: Check Plan
         steps:
           # Terraform Init
@@ -372,7 +363,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -384,13 +375,9 @@ stages:
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
               ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
               TF_LOG: $(dev-log-level)
-
-  - stage: Validate_Networking_Terraform
-    displayName: Validate Networking Terraform
-    dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
-    jobs:
-      - job: Validate
+    
+      - job: Validate_Networking_Terraform
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
         pool:
           name: $(dev-build-agent)
         steps:
@@ -409,14 +396,15 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
             workingDirectory: $(networkingTerraformWorkingDir)
-
-      - job: CheckPlan
-        dependsOn: Validate
+    
+      - job: Check_Networking_Plan
+        condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
+        dependsOn: Validate_Networking_Terraform
         pool:
           name: $(dev-build-agent)
         steps:
@@ -435,7 +423,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-
+    
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -447,350 +435,315 @@ stages:
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
               ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
               TF_LOG: $(dev-log-level)
-              
-      - stage: Validate_Gateway_Codebase
-        displayName: Validate Gateway Codebase
-        dependsOn: Determine_Changes
+                  
+      - job: Validate_Gateway_Codebase
         condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - Gateway
-            pool:
-              name: $(dev-build-agent)
-            steps:
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "build"
-                  projects: "polaris-gateway/polaris-gateway.csproj"
-                  arguments: "--configuration $(buildConfiguration)"
-                displayName: "Build Gateway"
+        displayName: Build, Test, Report - Gateway
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Gateway"
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway.tests/polaris-gateway.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Gateway tests"
+            
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway.tests/coverage.cobertura.xml
+            artifact: GatewayTestResults
+            displayName: Publish Gateway Test Results
                 
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "test"
-                  projects: "polaris-gateway.tests/polaris-gateway.tests.csproj"
-                  arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-                displayName: "Run Gateway tests"
-                
-              - publish: $(System.DefaultWorkingDirectory)/polaris-gateway.tests/coverage.cobertura.xml
-                artifact: GatewayTestResults
-                displayName: Publish Gateway Test Results
-                
-      - stage: Validate_Coordinator_Codebase
-        displayName: Validate Coordinator Codebase
-        dependsOn: Determine_Changes
+      - job: Validate_Coordinator_Codebase
         condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_COORDINATOR'], 'true'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - Coordinator
-            pool:
-              name: $(dev-build-agent)
-            steps:
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "build"
-                  projects: "polaris-pipeline/coordinator/coordinator.csproj"
-                  arguments: "--configuration $(buildConfiguration)"
-                displayName: "Build Coordinator"
+        displayName: Build, Test, Report - Coordinator
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/coordinator/coordinator.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Coordinator"
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/coordinator.tests/coordinator.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Coordinator tests"
+            
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
+            artifact: CoordinatorTestResults
+            displayName: Publish Coordinator Test Results
                 
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "test"
-                  projects: "polaris-pipeline/coordinator.tests/coordinator.tests.csproj"
-                  arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-                displayName: "Run Coordinator tests"
-                
-              - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
-                artifact: CoordinatorTestResults
-                displayName: Publish Coordinator Test Results
-                
-      - stage: Validate_PDF_Generator_Codebase
-        displayName: Validate PDF Generator Codebase
-        dependsOn: Determine_Changes
+      - job: Validate_PDF_Generator_Codebase
         condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_PDF_GENERATOR'], 'true'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - PDF Generator
-            pool:
-              vmImage: windows-latest
-            steps:
-              - task: DownloadSecureFile@1
-                name: licence
-                inputs:
-                  secureFile: "Aspose.Total.NET.lic"
-                displayName: "Download Aspose Licence"
-          
-              - task: CopyFiles@2
-                inputs:
-                  sourceFolder: $(Agent.TempDirectory)
-                  contents: Aspose.Total.NET.lic
-                  targetFolder: "polaris-pipeline/pdf-generator"
-                displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
-          
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "build"
-                  projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-                  arguments: "--configuration $(buildConfiguration)"
-                displayName: "Build PDF Generator"
-          
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "test"
-                  projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
-                  arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-                displayName: "Run Pdf-Generator tests"
-          
-              - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
-                artifact: PdfGeneratorTestResults
-                displayName: Publish Pdf-Generator Test Results
+        displayName: Build, Test, Report - PDF Generator
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: "Aspose.Total.NET.lic"
+            displayName: "Download Aspose Licence"
+      
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: "polaris-pipeline/pdf-generator"
+            displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
+      
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build PDF Generator"
+      
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Pdf-Generator tests"
+      
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
+            artifact: PdfGeneratorTestResults
+            displayName: Publish Pdf-Generator Test Results
                 
-      - stage: Validate_Text_Extractor_Codebase
-        displayName: Validate Text Extractor Codebase
-        dependsOn: Determine_Changes
+      - job: Validate_Text_Extractor_Codebase
         condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR'], 'true'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - Text Extractor
-            pool:
-              name: $(dev-build-agent)
-            steps:
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "build"
-                  projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
-                  arguments: "--configuration $(buildConfiguration)"
-                displayName: "Build Text Extractor"
- 
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "test"
-                  projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
-                  arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-                displayName: "Run Text-Extractor tests"
+        displayName: Build, Test, Report - Text Extractor
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Text Extractor"
 
-              - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
-                artifact: TextExtractorTestResults
-                displayName: Publish Text-Extractor Test Results
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Text-Extractor tests"
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
+            artifact: TextExtractorTestResults
+            displayName: Publish Text-Extractor Test Results
                 
-      - stage: Validate_Pipeline_Common_Library
-        displayName: Validate Pipeline Common Library
-        dependsOn: Determine_Changes
+      - job: Validate_Pipeline_Common_Library
         condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_COMMON'], 'true'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - Pipeline Common Library
-            pool:
-              name: $(dev-build-agent)
-            steps:
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "build"
-                  projects: "polaris-pipeline/Common/common.csproj"
-                  arguments: "--configuration $(buildConfiguration)"
-                displayName: "Build Common Library"
-                
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "test"
-                  projects: "polaris-pipeline/Common.tests/Common.tests.csproj"
-                  arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-                displayName: "Run Common Library tests"
+        displayName: Build, Test, Report - Pipeline Common Library
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/Common/common.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Common Library"
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/Common.tests/Common.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Common Library tests"
 
-              - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/Common.tests/coverage.cobertura.xml
-                artifact: CommonLibraryTestResults
-                displayName: Publish Common Library Test Results
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/Common.tests/coverage.cobertura.xml
+            artifact: CommonLibraryTestResults
+            displayName: Publish Common Library Test Results
                 
-      - stage: Validate_DDEI_Client_Library
-        displayName: Validate DDEI Client Library
-        dependsOn: Determine_Changes
+      - job: Validate_DDEI_Client_Library
         condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_DDEI_CLIENT'], 'true'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - DDEI Client Library
-            pool:
-              name: $(dev-build-agent)
-            steps:
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "build"
-                  projects: "polaris-pipeline/DdeiClient/DdeiClient.csproj"
-                  arguments: "--configuration $(buildConfiguration)"
-                displayName: "Build DDEI Client Library"
+        displayName: Build, Test, Report - DDEI Client Library
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/DdeiClient/DdeiClient.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build DDEI Client Library"
 
-              - task: DotNetCoreCLI@2
-                inputs:
-                  command: "test"
-                  projects: "polaris-pipeline/DdeiClient.tests/DdeiClient.tests.csproj"
-                  arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-                displayName: "Run DDEI Client tests"
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/DdeiClient.tests/DdeiClient.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run DDEI Client tests"
 
-              - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/DdeiClient.tests/coverage.cobertura.xml
-                artifact: DdeiClientLibraryTestResults
-                displayName: Publish DDEI Client Library Test Results
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/DdeiClient.tests/coverage.cobertura.xml
+            artifact: DdeiClientLibraryTestResults
+            displayName: Publish DDEI Client Library Test Results
 
-      - stage: Validate_UI_Codebase
-        displayName: Validate UI Codebase
-        dependsOn: Determine_Changes
+      - job: Validate_UI_Codebase
         condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - UI
-            pool:
-              vmImage: ubuntu-latest
-            steps:
-              # Begin UI testing
-              # We want to rely only on the .env.production file, anything in .env is still included
-              #  if not overwritten by .env.production.  For safety, just delete .env
-              - task: DeleteFiles@1
-                displayName: "Remove .env file"
-                inputs:
-                  contents: |
-                    polaris-ui/.env
+        displayName: Build, Test, Report - UI
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Begin UI testing
+          # We want to rely only on the .env.production file, anything in .env is still included
+          #  if not overwritten by .env.production.  For safety, just delete .env
+          - task: DeleteFiles@1
+            displayName: "Remove .env file"
+            inputs:
+              contents: |
+                polaris-ui/.env
 
-              - task: Npm@1
-                inputs:
-                  command: "install"
-                  workingDir: "polaris-ui"
-                displayName: "npm install"
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-ui"
+            displayName: "npm install"
 
-              - task: Npm@1
-                inputs:
-                  command: "custom"
-                  workingDir: "polaris-ui"
-                  customCommand: "run prettier"
-                displayName: "npm prettier"
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run prettier"
+            displayName: "npm prettier"
 
-              - task: Npm@1
-                inputs:
-                  command: "custom"
-                  workingDir: "polaris-ui"
-                  customCommand: "run test:ci"
-                displayName: "npm test"
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run test:ci"
+            displayName: "npm test"
 
-              - task: Npm@1
-                inputs:
-                  command: "custom"
-                  workingDir: "polaris-ui"
-                  customCommand: "run cy:ci"
-                displayName: "cypress run tests"
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run cy:ci"
+            displayName: "cypress run tests"
 
-              - task: Npm@1
-                inputs:
-                  command: "custom"
-                  workingDir: "polaris-ui"
-                  customCommand: "run build"
-                displayName: "npm build"
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run build"
+            displayName: "npm build"
 
-              - task: Npm@1
-                inputs:
-                  command: "custom"
-                  workingDir: "polaris-ui"
-                  customCommand: "run coverage"
-                displayName: "combine unit and cypress coverage"
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run coverage"
+            displayName: "combine unit and cypress coverage"
 
-              - task: PublishBuildArtifacts@1
-                condition: always()  # this step will always run, helpful to diagnose failing cypress tests
-                inputs:
-                  PathtoPublish: "polaris-ui/cypress/videos"
-                  ArtifactName: "Cypress failure vidoes"
-                  publishLocation: "Container"
-                displayName: "Publish UI Cypress Failure Videos"
+          - task: PublishBuildArtifacts@1
+            condition: always()  # this step will always run, helpful to diagnose failing cypress tests
+            inputs:
+              PathtoPublish: "polaris-ui/cypress/videos"
+              ArtifactName: "Cypress failure vidoes"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Failure Videos"
 
-              - task: PublishBuildArtifacts@1
-                inputs:
-                  PathtoPublish: "polaris-ui/report"
-                  ArtifactName: "Unit test report"
-                  publishLocation: "Container"
-                displayName: "Publish UI Unit Test Report"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/report"
+              ArtifactName: "Unit test report"
+              publishLocation: "Container"
+            displayName: "Publish UI Unit Test Report"
 
-              - task: PublishBuildArtifacts@1
-                inputs:
-                  PathtoPublish: "polaris-ui/report-cypress"
-                  ArtifactName: "Cypress test report"
-                  publishLocation: "Container"
-                displayName: "Publish UI Cypress Test Report"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/report-cypress"
+              ArtifactName: "Cypress test report"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Test Report"
 
-              - task: PublishBuildArtifacts@1
-                inputs:
-                  PathtoPublish: "polaris-ui/coverage"
-                  ArtifactName: "Unit test coverage report"
-                  publishLocation: "Container"
-                displayName: "Publish UI Unit Test Coverage Report"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage"
+              ArtifactName: "Unit test coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Unit Test Coverage Report"
 
-              - task: PublishBuildArtifacts@1
-                inputs:
-                  PathtoPublish: "polaris-ui/coverage-cypress"
-                  ArtifactName: "Cypress coverage report"
-                  publishLocation: "Container"
-                displayName: "Publish UI Cypress Coverage Report"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage-cypress"
+              ArtifactName: "Cypress coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Coverage Report"
 
-              - task: PublishBuildArtifacts@1
-                inputs:
-                  PathtoPublish: "polaris-ui/coverage-merged"
-                  ArtifactName: "Merged coverage report"
-                  publishLocation: "Container"
-                displayName: "Publish UI Merged Coverage Report"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage-merged"
+              ArtifactName: "Merged coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Merged Coverage Report"
 
-              - task: PublishTestResults@2
-                inputs:
-                  testResultsFormat: "JUnit"
-                  testResultsFiles: "polaris-ui/report/*.xml"
-                  testRunTitle: "Unit tests"
-                displayName: "Publish UI Unit Test XML"
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "polaris-ui/report/*.xml"
+              testRunTitle: "Unit tests"
+            displayName: "Publish UI Unit Test XML"
 
-              - task: PublishTestResults@2
-                inputs:
-                  testResultsFormat: "JUnit"
-                  testResultsFiles: "polaris-ui/report-cypress/test-*.xml"
-                  testRunTitle: "Cypress tests"
-                  mergeTestResults: true
-                displayName: "Publish UI Unit Test Cypress Tests XML"
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "polaris-ui/report-cypress/test-*.xml"
+              testRunTitle: "Cypress tests"
+              mergeTestResults: true
+            displayName: "Publish UI Unit Test Cypress Tests XML"
 
-              - script: |
-                  cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
-                displayName: "Moving ui coverage results"
+          - script: |
+              cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
+            displayName: "Moving ui coverage results"
 
-              - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
-                artifact: UITestResults
+          - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
+            artifact: UITestResults
 
-      - stage: Generate_Reports
-        displayName: Collate and publish test results
-        dependsOn:
-          - Validate_Gateway_Codebase
-          - Validate_Coordinator_Codebase
-          - Validate_PDF_Generator_Codebase
-          - Validate_Text_Extractor_Codebase
-          - Validate_Pipeline_Common_Library
-          - Validate_DDEI_Client_Library
-          - Validate_UI_Codebase
-        condition: or(eq(dependencies.Validate_Gateway_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(dependencies.Pipeline_Common_Library.result, 'Succeeded'),eq(dependencies.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(dependencies.Validate_UI_Codebase.result, 'Succeeded'))
-        jobs:
-          - job:
-            displayName: Build, Test, Report - UI
-            pool:
-              vmImage: ubuntu-latest
-            steps:
-              - task: DotNetCoreCLI@2
-                displayName: "Install ReportGenerator"
-                inputs:
-                  command: custom
-                  custom: tool
-                  arguments: "install --global dotnet-reportgenerator-globaltool"
+  - stage: Generate_Reports
+    displayName: Collate and publish test results
+    dependsOn: Validate_Polaris
+    condition: or(eq(dependencies.Validate_Gateway_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(dependencies.Pipeline_Common_Library.result, 'Succeeded'),eq(dependencies.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(dependencies.Validate_UI_Codebase.result, 'Succeeded'))
+    jobs:
+      - job:
+        displayName: Build, Test, Report - UI
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: "Install ReportGenerator"
+            inputs:
+              command: custom
+              custom: tool
+              arguments: "install --global dotnet-reportgenerator-globaltool"
 
-              - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
-                displayName: "Update PATH"
+          - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
+            displayName: "Update PATH"
 
-              - download: current
-                patterns: '**/*.cobertura.xml'
-                displayName: Retrieve published test reports
+          - download: current
+            patterns: '**/*.cobertura.xml'
+            displayName: Retrieve published test reports
 
-              - script: |
-                  reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
-                displayName: "Create code coverage report"
+          - script: |
+              reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
+            displayName: "Create code coverage report"
 
-              - task: PublishCodeCoverageResults@1
-                displayName: "Publish code coverage report"
-                inputs:
-                  codeCoverageTool: "cobertura"
-                  summaryFileLocation: "$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml"
+          - task: PublishCodeCoverageResults@1
+            displayName: "Publish code coverage report"
+            inputs:
+              codeCoverageTool: "cobertura"
+              summaryFileLocation: "$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml"
