@@ -17,7 +17,7 @@ parameters:
 
 stages:
   - stage: Update_GitHub_Tag_${{ parameters.targetLabel }}
-    displayName: Update GitHub Tag > ${{ parameters.targetLabel }}
+    displayName: Update Tag > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
