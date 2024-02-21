@@ -454,7 +454,7 @@ stages:
                   
       - job: Validate_Gateway_Codebase
         condition: eq(variables.runGateway, 'true')
-        displayName: Build, Test, Report - Gateway
+        displayName: Test - Gateway
         pool:
           name: $(dev-build-agent)
         steps:
@@ -478,7 +478,7 @@ stages:
                 
       - job: Validate_Coordinator_Codebase
         condition: eq(variables.runCoordinator, 'true')
-        displayName: Build, Test, Report - Coordinator
+        displayName: Test - Coordinator
         pool:
           name: $(dev-build-agent)
         steps:
@@ -502,7 +502,7 @@ stages:
                 
       - job: Validate_PDF_Generator_Codebase
         condition: eq(variables.runPdfGenerator, 'true')
-        displayName: Build, Test, Report - PDF Generator
+        displayName: Test - PDF Generator
         pool:
           vmImage: windows-latest
         steps:
@@ -539,7 +539,7 @@ stages:
                 
       - job: Validate_Text_Extractor_Codebase
         condition: eq(variables.runTextExtractor, 'true')
-        displayName: Build, Test, Report - Text Extractor
+        displayName: Test - Text Extractor
         pool:
           name: $(dev-build-agent)
         steps:
@@ -563,7 +563,7 @@ stages:
                 
       - job: Validate_Pipeline_Common_Library
         condition: eq(variables.runPipelineCommon, 'true')
-        displayName: Build, Test, Report - Pipeline Common Library
+        displayName: Test - Pipeline Common Library
         pool:
           name: $(dev-build-agent)
         steps:
@@ -587,7 +587,7 @@ stages:
                 
       - job: Validate_DDEI_Client_Library
         condition: eq(variables.runDDEIClient, 'true')
-        displayName: Build, Test, Report - DDEI Client Library
+        displayName: Test - DDEI Client Library
         pool:
           name: $(dev-build-agent)
         steps:
@@ -611,7 +611,7 @@ stages:
 
       - job: Validate_UI_Codebase
         condition: eq(variables.runUI, 'true')
-        displayName: Build, Test, Report - UI
+        displayName: Test - UI
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -736,7 +736,7 @@ stages:
     condition: or(eq(dependencies.Validate_Gateway_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Coordinator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_PDF_Generator_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Text_Extractor_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Pipeline_Common_Library.result, 'Succeeded'),eq(dependencies.Validate_DDEI_Client_Library.result, 'Succeeded'),eq(dependencies.Validate_UI_Codebase.result, 'Succeeded'))
     jobs:
       - job:
-        displayName: Build, Test, Report - UI
+        displayName: Test - UI
         pool:
           vmImage: ubuntu-latest
         steps:
