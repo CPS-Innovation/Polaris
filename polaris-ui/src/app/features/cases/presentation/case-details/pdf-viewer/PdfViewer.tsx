@@ -110,6 +110,7 @@ export const PdfViewer: React.FC<Props> = ({
       };
 
       handleAddRedaction(newRedaction);
+      window.getSelection()?.removeAllRanges();
     },
     [handleAddRedaction]
   );
