@@ -435,10 +435,15 @@ stages:
     dependsOn:
       - Determine_Changes
       - Wait_For_Running_Releases
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM_DEV'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM_QA'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM_PROD'], 'true')))
+    condition: succeeded()
+    variables:
+      runTerraformDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM_DEV']]
+      runTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM_QA']]
+      runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM_PROD']]
     jobs:
       - job: Release_Terraform
         displayName: Release Terraform
+        condition: or(eq(variables.runTerraformDEV, 'true'),eq(variables.runTerraformQA, 'true'),eq(variables.runTerraformPROD, 'true'))
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Release Terraform'
@@ -455,10 +460,15 @@ stages:
       - Determine_Changes
       - Wait_For_Running_Releases
       - Apply_Terraform
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE_DEV'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE_QA'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE_PROD'], 'true')))
+    condition: succeeded()
+    variables:
+      runCodebaseDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE_DEV']]
+      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE_QA']]
+      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE_PROD']]
     jobs:
       - job: Release_Polaris_Codebase
         displayName: Release Codebase
+        condition: or(eq(variables.runCodebaseDEV, 'true'),eq(variables.runCodebaseQA, 'true'),eq(variables.runCodebasePROD, 'true'))
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Release Terraform'
