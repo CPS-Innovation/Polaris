@@ -34,23 +34,23 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                $files = $(git diff --name-only origin/main)
+                $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
                 $temp=$files -split ' '
                 $count=$temp.Length
-                echo "Total changed $count files"
+                echo "******** Total changed $count files for DEV ********"
                 
-                $pipelineTerraformCount=0
-                $pipelineEventsTerraformCount=0
-                $uiTerraformCount=0
-                $uiEventsTerraformCount=0
-                $networkingTerraformCount=0
-                $coordinatorCount=0
-                $pdfGeneratorCount=0
-                $textExtractorCount=0
-                $gatewayCount=0
-                $uiCount=0
-                $ddeiClientCount=0
-                $commonCount=0
+                $pipelineTerraformCountDEV=0
+                $pipelineEventsTerraformCountDEV=0
+                $uiTerraformCountDEV=0
+                $uiEventsTerraformCountDEV=0
+                $networkingTerraformCountDEV=0
+                $coordinatorCountDEV=0
+                $pdfGeneratorCountDEV=0
+                $textExtractorCountDEV=0
+                $gatewayCountDEV=0
+                $uiCountDEV=0
+                $ddeiClientCountDEV=0
+                $commonCountDEV=0
 
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
@@ -58,97 +58,315 @@ stages:
                   echo "this is $name file"
                   if ($name -like 'polaris-terraform/pipeline-terraform/*')
                   {
-                    echo "run pipeline terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    $pipelineTerraformCount++
+                    echo "DEV: run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_DEV;isOutput=true]true"
+                    $pipelineTerraformCountDEV++
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
-                    echo "run pipeline events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    $pipelineEventsTerraformCount++
+                    echo "DEV: run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_DEV;isOutput=true]true"
+                    $pipelineEventsTerraformCountDEV++
                   }
                   if ($name -like 'polaris-terraform/ui-terraform/*')
                   {
-                    echo "run ui terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    $uiTerraformCount++
+                    echo "DEV: run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_DEV;isOutput=true]true"
+                    $uiTerraformCountDEV++
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
-                    echo "run ui events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    $uiEventsTerraformCount++
+                    echo "DEV: run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_DEV;isOutput=true]true"
+                    $uiEventsTerraformCountDEV++
                   }
                   if ($name -like 'polaris-terraform/networking-terraform/*')
                   {
-                    echo "run networking terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-                    $networkingTerraformCount++
+                    echo "DEV: run networking terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_DEV;isOutput=true]true"
+                    $networkingTerraformCountDEV++
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
                   {
-                    echo "run coordinator..."
-                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    $coordinatorCount++
+                    echo "DEV: run coordinator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_DEV;isOutput=true]true"
+                    $coordinatorCountDEV++
                   }
                   if ($name -like 'polaris-pipeline/pdf-generator/*' -Or $name -like 'polaris-pipeline/pdf-generator.tests/*')
                   {
-                    echo "run pdf generator..."
-                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    $pdfGeneratorCount++
+                    echo "DEV: run pdf generator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_DEV;isOutput=true]true"
+                    $pdfGeneratorCountDEV++
                   }
                   if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
                   {
-                    echo "run text extractor..."
-                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    $textExtractorCount++
+                    echo "DEV: run text extractor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_DEV;isOutput=true]true"
+                    $textExtractorCountDEV++
                   }
                   if ($name -like 'polaris-gateway/*' -Or $name -like 'polaris-gateway.tests/*')
                   {
-                    echo "run gateway..."
-                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    $gatewayCount++
+                    echo "DEV: run gateway..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_DEV;isOutput=true]true"
+                    $gatewayCountDEV++
                   }
                   if ($name -like 'polaris-ui/*')
                   {
-                    echo "run ui codebase..."
-                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    $uiCount++
+                    echo "DEV: run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_DEV;isOutput=true]true"
+                    $uiCountDEV++
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*' -Or $name -like 'polaris-pipeline/DdeiClient.tests/*')
                   {
-                    echo "changes to DdeiClient detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    $ddeiClientCount++
+                    echo "DEV: changes to DdeiClient detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_DEV;isOutput=true]true"
+                    $ddeiClientCountDEV++
                   }
                   if ($name -like 'polaris-pipeline/Common/*' -Or $name -like 'polaris-pipeline/Common.tests/*')
                   {
-                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
-                    $commonCount++
+                    echo "DEV: changes to the Pipeline's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_DEV;isOutput=true]true"
+                    $commonCountDEV++
                   }
                 }
                 
-                Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT;isOutput=true]$pipelineTerraformCount"
-                Write-Host "##vso[task.setvariable variable=PIPELINE_EVENTS_TERRAFORM_COUNT;isOutput=true]$pipelineEventsTerraformCount"
-                Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT;isOutput=true]$uiTerraformCount"
-                Write-Host "##vso[task.setvariable variable=UI_EVENTS_TERRAFORM_COUNT;isOutput=true]$uiEventsTerraformCount"
-                Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT;isOutput=true]$networkingTerraformCount"
-                Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT;isOutput=true]$coordinatorCount"
-                Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT;isOutput=true]$pdfGeneratorCount"
-                Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT;isOutput=true]$textExtractorCount"
-                Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT;isOutput=true]$gatewayCount"
-                Write-Host "##vso[task.setvariable variable=UI_COUNT;isOutput=true]$uiCount"
-                Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT;isOutput=true]$ddeiClientCount"
-                Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT;isOutput=true]$commonCount"
+                $files = $(git diff --name-only --relative --diff-filter AMRD qa HEAD)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "******** Total changed $count files for QA ********"
+                
+                $pipelineTerraformCountQA=0
+                $pipelineEventsTerraformCountQA=0
+                $uiTerraformCountQA=0
+                $uiEventsTerraformCountQA=0
+                $networkingTerraformCountQA=0
+                $coordinatorCountQA=0
+                $pdfGeneratorCountQA=0
+                $textExtractorCountQA=0
+                $gatewayCountQA=0
+                $uiCountQA=0
+                $ddeiClientCountQA=0
+                $commonCountQA=0
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "QA: run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_QA;isOutput=true]true"
+                    $pipelineTerraformCountQA++
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "QA: run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_QA;isOutput=true]true"
+                    $pipelineEventsTerraformCountQA++
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "QA: run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_QA;isOutput=true]true"
+                    $uiTerraformCountQA++
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "QA: run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_QA;isOutput=true]true"
+                    $uiEventsTerraformCountQA++
+                  }
+                  if ($name -like 'polaris-terraform/networking-terraform/*')
+                  {
+                    echo "QA: run networking terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_QA;isOutput=true]true"
+                    $networkingTerraformCountQA++
+                  }
+                  if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
+                  {
+                    echo "QA: run coordinator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_QA;isOutput=true]true"
+                    $coordinatorCountQA++
+                  }
+                  if ($name -like 'polaris-pipeline/pdf-generator/*' -Or $name -like 'polaris-pipeline/pdf-generator.tests/*')
+                  {
+                    echo "QA: run pdf generator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_QA;isOutput=true]true"
+                    $pdfGeneratorCountQA++
+                  }
+                  if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
+                  {
+                    echo "QA: run text extractor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_QA;isOutput=true]true"
+                    $textExtractorCountQA++
+                  }
+                  if ($name -like 'polaris-gateway/*' -Or $name -like 'polaris-gateway.tests/*')
+                  {
+                    echo "QA: run gateway..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_QA;isOutput=true]true"
+                    $gatewayCountQA++
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "QA: run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_QA;isOutput=true]true"
+                    $uiCountQA++
+                  }
+                  if ($name -like 'polaris-pipeline/DdeiClient/*' -Or $name -like 'polaris-pipeline/DdeiClient.tests/*')
+                  {
+                    echo "QA: changes to DdeiClient detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_QA;isOutput=true]true"
+                    $ddeiClientCountQA++
+                  }
+                  if ($name -like 'polaris-pipeline/Common/*' -Or $name -like 'polaris-pipeline/Common.tests/*')
+                  {
+                    echo "QA: changes to the Pipeline's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_QA;isOutput=true]true"
+                    $commonCountQA++
+                  }
+                }
+                
+                $files = $(git diff --name-only --relative --diff-filter AMRD prod HEAD)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "******** Total changed $count files for PROD ********"
+
+                $pipelineTerraformCountPROD=0
+                $pipelineEventsTerraformCountPROD=0
+                $uiTerraformCountPROD=0
+                $uiEventsTerraformCountPROD=0
+                $networkingTerraformCountPROD=0
+                $coordinatorCountPROD=0
+                $pdfGeneratorCountPROD=0
+                $textExtractorCountPROD=0
+                $gatewayCountPROD=0
+                $uiCountPROD=0
+                $ddeiClientCountPROD=0
+                $commonCountPROD=0
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "PROD: run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_PROD;isOutput=true]true"
+                    $pipelineTerraformCountPROD++
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "PROD: run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_PROD;isOutput=true]true"
+                    $pipelineEventsTerraformCountPROD++
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "PROD: run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_PROD;isOutput=true]true"
+                    $uiTerraformCountPROD++
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "PROD: run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_PROD;isOutput=true]true"
+                    $uiEventsTerraformCountPROD++
+                  }
+                  if ($name -like 'polaris-terraform/networking-terraform/*')
+                  {
+                    echo "PROD: run networking terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM_PROD;isOutput=true]true"
+                    $networkingTerraformCountPROD++
+                  }
+                  if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
+                  {
+                    echo "PROD: run coordinator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_PROD;isOutput=true]true"
+                    $coordinatorCountPROD++
+                  }
+                  if ($name -like 'polaris-pipeline/pdf-generator/*' -Or $name -like 'polaris-pipeline/pdf-generator.tests/*')
+                  {
+                    echo "PROD: run pdf generator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_PROD;isOutput=true]true"
+                    $pdfGeneratorCountPROD++
+                  }
+                  if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
+                  {
+                    echo "PROD: run text extractor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_PROD;isOutput=true]true"
+                    $textExtractorCountPROD++
+                  }
+                  if ($name -like 'polaris-gateway/*' -Or $name -like 'polaris-gateway.tests/*')
+                  {
+                    echo "PROD: run gateway..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_PROD;isOutput=true]true"
+                    $gatewayCountPROD++
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "PROD: run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_PROD;isOutput=true]true"
+                    $uiCountPROD++
+                  }
+                  if ($name -like 'polaris-pipeline/DdeiClient/*' -Or $name -like 'polaris-pipeline/DdeiClient.tests/*')
+                  {
+                    echo "PROD: changes to DdeiClient detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_PROD;isOutput=true]true"
+                    $ddeiClientCountPROD++
+                  }
+                  if ($name -like 'polaris-pipeline/Common/*' -Or $name -like 'polaris-pipeline/Common.tests/*')
+                  {
+                    echo "PROD: changes to the Pipeline's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE_PROD;isOutput=true]true"
+                    $commonCountPROD++
+                  }
+                }
+
+                Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT_DEV;isOutput=true]$pipelineTerraformCountDEV"
+                Write-Host "##vso[task.setvariable variable=PIPELINE_EVENTS_TERRAFORM_COUNT_DEV;isOutput=true]$pipelineEventsTerraformCountDEV"
+                Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT_DEV;isOutput=true]$uiTerraformCountDEV"
+                Write-Host "##vso[task.setvariable variable=UI_EVENTS_TERRAFORM_COUNT_DEV;isOutput=true]$uiEventsTerraformCountDEV"
+                Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT_DEV;isOutput=true]$networkingTerraformCountDEV"
+                Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT_DEV;isOutput=true]$coordinatorCountDEV"
+                Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT_DEV;isOutput=true]$pdfGeneratorCountDEV"
+                Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT_DEV;isOutput=true]$textExtractorCountDEV"
+                Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT_DEV;isOutput=true]$gatewayCountDEV"
+                Write-Host "##vso[task.setvariable variable=UI_COUNT_DEV;isOutput=true]$uiCountDEV"
+                Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT_DEV;isOutput=true]$ddeiClientCountDEV"
+                Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT_DEV;isOutput=true]$commonCountDEV"
+                
+                Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT_QA;isOutput=true]$pipelineTerraformCountQA"
+                Write-Host "##vso[task.setvariable variable=PIPELINE_EVENTS_TERRAFORM_COUNT_QA;isOutput=true]$pipelineEventsTerraformCountQA"
+                Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT_QA;isOutput=true]$uiTerraformCountQA"
+                Write-Host "##vso[task.setvariable variable=UI_EVENTS_TERRAFORM_COUNT_QA;isOutput=true]$uiEventsTerraformCountQA"
+                Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT_QA;isOutput=true]$networkingTerraformCountQA"
+                Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT_QA;isOutput=true]$coordinatorCountQA"
+                Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT_QA;isOutput=true]$pdfGeneratorCountQA"
+                Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT_QA;isOutput=true]$textExtractorCountQA"
+                Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT_QA;isOutput=true]$gatewayCountQA"
+                Write-Host "##vso[task.setvariable variable=UI_COUNT_QA;isOutput=true]$uiCountQA"
+                Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT_QA;isOutput=true]$ddeiClientCountQA"
+                Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT_QA;isOutput=true]$commonCountQA"
+                
+                Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT_PROD;isOutput=true]$pipelineTerraformCountPROD"
+                Write-Host "##vso[task.setvariable variable=PIPELINE_EVENTS_TERRAFORM_COUNT_PROD;isOutput=true]$pipelineEventsTerraformCountPROD"
+                Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT_PROD;isOutput=true]$uiTerraformCountPROD"
+                Write-Host "##vso[task.setvariable variable=UI_EVENTS_TERRAFORM_COUNT_PROD;isOutput=true]$uiEventsTerraformCountPROD"
+                Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT_PROD;isOutput=true]$networkingTerraformCountPROD"
+                Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT_PROD;isOutput=true]$coordinatorCountPROD"
+                Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT_PROD;isOutput=true]$pdfGeneratorCountPROD"
+                Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT_PROD;isOutput=true]$textExtractorCountPROD"
+                Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT_PROD;isOutput=true]$gatewayCountPROD"
+                Write-Host "##vso[task.setvariable variable=UI_COUNT_PROD;isOutput=true]$uiCountPROD"
+                Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT_PROD;isOutput=true]$ddeiClientCountPROD"
+                Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT_PROD;isOutput=true]$commonCountPROD"
             name: Change_Results
             displayName: Processing changes to repo
             
   - stage: Wait_For_Running_Releases
-    displayName: Wait for Running Releases
+    displayName: Assess Queue
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE'], 'true')))
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM_DEV'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE_DEV'], 'true')))
     jobs:
       # Job to wait for running builds
       - job: waitForRunningBuilds
@@ -217,7 +435,7 @@ stages:
     dependsOn:
       - Determine_Changes
       - Wait_For_Running_Releases
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM'], 'true'))
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM_DEV'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM_QA'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM_PROD'], 'true')))
     jobs:
       - job: Release_Terraform
         displayName: Release Terraform
@@ -237,7 +455,7 @@ stages:
       - Determine_Changes
       - Wait_For_Running_Releases
       - Apply_Terraform
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE'], 'true'))
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE_DEV'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE_QA'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE_PROD'], 'true')))
     jobs:
       - job: Release_Polaris_Codebase
         displayName: Release Codebase
