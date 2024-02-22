@@ -1,0 +1,718 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisBuild
+      source: Polaris - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: polaris-status-check-endpoints
+    
+stages:
+  - stage: Determine_Changes
+    displayName: Determine Changes
+    jobs:
+      - job: Generate_Diff
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - template: tasks/task_determine-changes.yml
+            
+  - stage: Wait_For_Running_Releases_DEV
+    displayName: Assess Queue
+    dependsOn: Determine_Changes
+    condition: succeeded()
+    variables:
+      runTerraformDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM_DEV']]
+      runCodebaseDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE_DEV']]
+    jobs:
+      # Job to wait for running builds
+      - job: waitForRunningBuildsDev
+        condition: or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true'))
+        displayName: 'Checking for Running Releases'
+        timeoutInMinutes: 240
+        pool:
+          vmImage: 'windows-latest'
+        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
+        steps:
+          - template: tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: "$(devops-pat-token)"
+                
+  - stage: Deploy_DEV
+    displayName: Deploy > DEV
+    condition: succeeded()
+    variables:
+      runTerraformDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM_DEV']]
+      runCodebaseDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE_DEV']]
+    dependsOn: 
+      - Determine_Changes
+      - Wait_For_Running_Releases_DEV
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: LogStart
+        displayName: Log Start
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runTerraformDEV, 'true')))
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-start-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "CI Deployment"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    
+      - deployment: LogStartTerraform
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        dependsOn: LogStart
+        displayName: Log Terraform Start
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-start-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "Terraform CI Deployment"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    
+      - deployment: ApplyNetworkingTerraform
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        displayName: Apply Networking Terraform
+        dependsOn: LogStartTerraform
+        environment: "Dev"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "networking-terraform-files"
+                    targetLabel: "DEV"
+                    targetName: "Networking Terraform CI Deployment"
+                    targetPlanName: "dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    terraformContainerName: $(networking-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
+
+      - deployment: ApplyPipelineTerraform
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        dependsOn: ApplyNetworkingTerraform
+        displayName: Apply Pipeline Terraform
+        environment: "Dev"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:      
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "pipeline-terraform-files"
+                    targetLabel: "DEV"
+                    targetName: "Pipeline Terraform CI Deployment"
+                    targetPlanName: "dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    terraformContainerName: $(pipeline-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
+
+      - deployment: ApplyPipelineEventsTerraform
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        dependsOn: ApplyNetworkingTerraform
+        displayName: Apply Pipeline Events Terraform
+        environment: "Dev"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "pipeline-events-terraform-files"
+                    targetLabel: "DEV"
+                    targetName: "Pipeline Events Terraform CI Deployment"
+                    targetPlanName: "dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    terraformContainerName: $(pipeline-events-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
+                
+      - deployment: UpdatePipelineComponentAppKeys
+        dependsOn: ApplyPipelineTerraform
+        displayName: Update Component Keys
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_update-app-keys-in-pipeline-components.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "Pipeline Terraform CI Deployment"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
+                  
+      - deployment: ApplyUITerraform
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        dependsOn: UpdatePipelineComponentAppKeys
+        displayName: Apply UI Terraform
+        environment: "Dev"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "ui-terraform-files"
+                    targetLabel: "DEV"
+                    targetName: "UI Terraform CI Deployment"
+                    targetPlanName: "dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    terraformContainerName: $(ui-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
+
+      - deployment: ApplyUIEventsTerraform
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        dependsOn: ApplyUITerraform
+        displayName: Apply UI Events Terraform
+        environment: "Dev"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "ui-events-terraform-files"
+                    targetLabel: "DEV"
+                    targetName: "UI Events Terraform CI Deployment"
+                    targetPlanName: "dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    terraformContainerName: $(ui-events-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
+
+      - deployment: SetLogAnalyticsArchivalPeriods
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        dependsOn: ApplyUITerraform
+        displayName: Update Analytics Archival Periods
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_set-log-analytics-archival-periods.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "UI Terraform CI Deployment"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
+                    logRetentionTime: $(log-retention-time)
+                    totalLogRetentionTime: $(total-log-retention-time)
+                  
+      - deployment: LogResultTerraformEnded
+        condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
+        displayName: Log Terraform End
+        dependsOn:
+          - ApplyPipelineTerraform
+          - ApplyPipelineEventsTerraform
+          - UpdatePipelineComponentAppKeys
+          - ApplyUITerraform
+          - ApplyUIEventsTerraform
+          - SetLogAnalyticsArchivalPeriods
+          - ApplyNetworkingTerraform
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-result-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "Terraform CI Deployment"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    devOpsPatToken: "$(devops-pat-token)"
+                    
+      - deployment: LogStartCodebase
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        dependsOn: LogResultTerraformEnded
+        displayName: Log Codebase Start
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-start-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    
+      - job: StartPipelineSlots
+        dependsOn: LogResultTerraformEnded
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        strategy:
+          matrix:
+            Coordinator:
+              Name: "Coordinator"
+              AppServiceName: "fa-polaris-dev-coordinator"
+            PDFGenerator:
+              Name: "PDF Generator"
+              AppServiceName: "fa-polaris-dev-pdf-generator"
+        displayName: Start Staging1
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Start Slot
+            inputs:
+              Action: "Start Azure App Service"
+              SpecifySlotOrASE: true
+              Slot: "staging1"
+              azureSubscription: $(dev-azure-subscription)
+              ResourceGroupName: "rg-polaris-pipeline-dev"
+              WebAppName: $(AppServiceName)
+
+      - job: Start_UI_Slots
+        dependsOn: LogResultTerraformEnded
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        strategy:
+          matrix:
+            SPA:
+              Name: "SPA"
+              AppServiceName: "as-web-polaris-dev"
+            PolarisGateway:
+              Name: "Polaris Gateway"
+              AppServiceName: "fa-polaris-dev-gateway"
+        displayName: Start Staging1
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Start slot
+            inputs:
+              Action: "Start Azure App Service"
+              SpecifySlotOrASE: true
+              Slot: "staging1"
+              azureSubscription: $(dev-azure-subscription)
+              ResourceGroupName: "rg-polaris-dev"
+              WebAppName: $(AppServiceName)
+
+      - deployment: DeployCoordinator
+        dependsOn: Start_Pipeline_Slots
+        displayName: Deploy Coordinator
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        environment: "Dev"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-coordinator.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    azureSubscription: $(dev-azure-subscription)
+
+      - deployment: DeployPdfGenerator
+        dependsOn: Start_Pipeline_Slots
+        displayName: Deploy PDF Generator
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        environment: ${{ parameters.envLabel }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-pdf-generator.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    azureSubscription: $(dev-azure-subscription)
+
+      - deployment: DeployTextGenerator
+        dependsOn: Start_Pipeline_Slots
+        displayName: Deploy Text Extractor
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-text-extractor.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    azureSubscription: $(dev-azure-subscription)
+
+      - deployment: DeploySpa
+        dependsOn: Start_UI_Slots
+        displayName: Deploy SPA
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        environment: "Dev"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-spa.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    azureSubscription: $(dev-azure-subscription)
+
+      - deployment: DeployGateway
+        dependsOn: Start_UI_Slots
+        displayName: Deploy Gateway
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-gateway.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    azureSubscription: $(dev-azure-subscription)
+
+      - deployment: LogResultCodebaseEnded
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        displayName: Log Codebase End
+        dependsOn:
+          - DeployCoordinator
+          - DeployPdfGenerator
+          - DeployTextGenerator
+          - DeploySpa
+          - DeployGateway
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-result-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    devOpsPatToken: "$(devops-pat-token)"
+
+      - deployment: LogResultEnded
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
+        displayName: Log Deployment End
+        dependsOn:
+          - ApplyPipelineTerraform
+          - ApplyPipelineEventsTerraform
+          - UpdatePipelineComponentAppKeys
+          - ApplyUITerraform
+          - ApplyUIEventsTerraform
+          - SetLogAnalyticsArchivalPeriods
+          - ApplyNetworkingTerraform
+          - DeployCoordinator
+          - DeployPdfGenerator
+          - DeployTextGenerator
+          - DeploySpa
+          - DeployGateway
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-result-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "CI Deployment"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    devOpsPatToken: "$(devops-pat-token)"    
+
+  - stage: Swap_DEV
+    displayName: Swap Slots > DEV
+    dependsOn: 
+      - Deploy_DEV
+      - Determine_Changes
+    variables:
+      runCodebaseDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE_DEV']]
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: LogStart
+        displayName: Log Start
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        steps:
+          - template: tasks/task_log-start.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
+          
+      - job: Pause_Pipeline
+        dependsOn: LogStart
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        displayName: Pause for 2 mins
+        steps:
+          - template: tasks/task_pause-pipeline.yml
+
+      - job: Start_Pipeline_Slots
+        dependsOn: Pause_Pipeline
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        strategy:
+          matrix:
+            Coordinator:
+              Name: "Coordinator"
+              AppServiceName: "fa-polaris-dev-coordinator"
+            PDFGenerator:
+              Name: "PDF Generator"
+              AppServiceName: "fa-polaris-dev-pdf-generator"
+        displayName: Start Staging1
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Start Slot
+            inputs:
+              Action: "Start Azure App Service"
+              SpecifySlotOrASE: true
+              Slot: "staging1"
+              azureSubscription: $(dev-azure-subscription)
+              ResourceGroupName: "rg-polaris-pipeline-dev"
+              WebAppName: $(AppServiceName)
+
+      - job: Start_UI_Slots
+        dependsOn: Pause_Pipeline
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        strategy:
+          matrix:
+            SPA:
+              Name: "SPA"
+              AppServiceName: "as-web-polaris-dev"
+            PolarisGateway:
+              Name: "Polaris Gateway"
+              AppServiceName: "fa-polaris-dev-gateway"
+        displayName: Start Staging1
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Start slot
+            inputs:
+              Action: "Start Azure App Service"
+              SpecifySlotOrASE: true
+              Slot: "staging1"
+              azureSubscription: $(dev-azure-subscription)
+              ResourceGroupName: "rg-polaris-dev"
+              WebAppName: $(AppServiceName)
+
+      - job: Swap_Pipeline_Slots
+        dependsOn: Start_Pipeline_Slots
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        strategy:
+          matrix:
+            Coordinator:
+              Name: "Coordinator"
+              AppServiceName: "fa-polaris-dev-coordinator"
+            PDFGenerator:
+              Name: "PDF Generator"
+              AppServiceName: "fa-polaris-dev-pdf-generator"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(dev-azure-subscription)
+              resourceGroupName: "rg-polaris-pipeline-dev"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
+
+      - job: Swap_UI_Slots
+        dependsOn: Start_UI_Slots
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        strategy:
+          matrix:
+            SPA:
+              Name: "SPA"
+              AppServiceName: "as-web-polaris-dev"
+            PolarisGateway:
+              Name: "Polaris Gateway"
+              AppServiceName: "fa-polaris-dev-gateway"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(dev-azure-subscription)
+              resourceGroupName: "rg-polaris-dev"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
+
+      - job: LogResult
+        condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
+        dependsOn:
+          - Swap_Pipeline_Slots
+          - Swap_UI_Slots
+        steps:
+          - template: tasks/task_log-result.yml
+        parameters:
+          targetBuild: PolarisBuild
+          targetLabel: "Dev"
+          targetName: "Swap Polaris Codebase Slots"
+          appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+          devOpsPatToken: "$(devops-pat-token)"
+
+  - stage: Check_DEV
+    displayName: Status Checks > DEV
+    dependsOn: 
+      - Swap_DEV
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: LogStart
+        displayName: Log Start
+        steps:
+          - template: tasks/task_log-start.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Status Checks"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
+        
+      - job: GetStatusURIs
+        dependsOn: LogStart
+        steps:
+          - template: tasks/task_check-statuses.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetSuffix: ${{ parameters.targetSuffix }}
+              targetLabel: ${{ parameters.targetLabel }}
+              statusCheckMethod: ${{ parameters.statusCheckMethod }}
+              statusCheckRetries: ${{ parameters.statusCheckRetries }}
+              statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
+              statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
+              armClientId: ${{ parameters.armClientId }}
+              armClientSecret: ${{ parameters.armClientSecret }}
+              armTenantId: ${{ parameters.armTenantId }}
+              armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          
+      - template: jobs/job_check-statuses.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetLabel: ${{ parameters.targetLabel }}
+          statusCheckMethod: ${{ parameters.statusCheckMethod }}
+          statusCheckRetries: ${{ parameters.statusCheckRetries }}
+          statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
+          statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          jobDependsOn:
+            - LogStart
+
+      - job: LogResult
+        dependsOn:
+          - LogStart
+          - GetStatusURIs
+          - CheckCoordinator
+          - CheckPDFGenerator
+          - CheckTextExtractor
+          - CheckGateway
+          - CheckSPA
+        steps:
+          - template: tasks/task_log-result.yml
+        parameters:
+          targetBuild: PolarisBuild
+          targetLabel: "Dev"
+          targetName: "Status Checks"
+          appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+          devOpsPatToken: "$(devops-pat-token)"
+                        
