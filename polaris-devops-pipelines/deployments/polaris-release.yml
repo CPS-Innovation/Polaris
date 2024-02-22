@@ -410,10 +410,6 @@ stages:
                       continue
                     }
                 
-                    $GET_BUILDS_BY_DEFINITION_RESPONSE.PSObject.Properties | ForEach-Object {
-                        Write-Host $_.Name ": " $_.Value
-                    }
-                    
                     [array]$runningBuilds = $GET_BUILDS_BY_DEFINITION_RESPONSE.value | Where-Object -Property "status" -Value "inProgress" -EQ
                 
                     [int]$currentRunningBuild = ($runningBuilds | Sort-Object -Property "Id")[0].Id
@@ -449,7 +445,7 @@ stages:
             displayName: 'Release Terraform'
             inputs:
               buildDefinition: 344
-              buildParameters: "TargetBuild: $(resources.pipelines.pipeline)"
+              buildParameters: "TargetBuild: $(resources.pipeline.PolarisBuild.pipelineID)"
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "$(devops-pat-token)"
@@ -471,10 +467,10 @@ stages:
         condition: or(eq(variables.runCodebaseDEV, 'true'),eq(variables.runCodebaseQA, 'true'),eq(variables.runCodebasePROD, 'true'))
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
-            displayName: 'Release Terraform'
+            displayName: 'Release Codebase'
             inputs:
               buildDefinition: 343
-              buildParameters: "TargetBuild: $(resources.pipelines.pipeline)"
+              buildParameters: "TargetBuild: $(resources.pipeline.PolarisBuild.pipelineID)"
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "$(devops-pat-token)"
