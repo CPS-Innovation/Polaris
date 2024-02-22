@@ -113,7 +113,7 @@ stages:
                   if ($name -like 'polaris-ui/*')
                   {
                     echo "run ui codebase..."
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
                     $uiCount++
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*' -Or $name -like 'polaris-pipeline/DdeiClient.tests/*')
@@ -148,6 +148,7 @@ stages:
   - stage: Wait_For_Running_Releases
     displayName: Wait for Running Releases
     dependsOn: Determine_Changes
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_CODEBASE'], 'true')))
     jobs:
       # Job to wait for running builds
       - job: waitForRunningBuilds
