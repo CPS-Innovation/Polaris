@@ -59,11 +59,11 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(RedactionPageCounts), string.Join(",", RedactionPageCounts?.Select(x => $"{x.Key}:{x.Value}")) },
                     { nameof(ProviderType), ProviderType.ToString() },
                     { nameof(ProviderDetails), ProviderDetails?.ToString() },
-                    { nameof(PdfFormat), PdfFormat.ToString() },
+                    { nameof(PdfFormat), PdfFormat?.ToString() },
           },
           new Dictionary<string, double?>
           {
-                    { redactionCount, RedactionPageCounts.Select(x => x.Value).Sum() },
+                    { redactionCount, RedactionPageCounts?.Select(x => x.Value).Sum() },
                     { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
                     { nameof(OriginalBytes), OriginalBytes },
                     { nameof(Bytes), Bytes },
