@@ -2,9 +2,13 @@ import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 
 export type LocalStorageKey = "redactions" | "read";
 export type ReadData = Record<string, boolean>;
+export type RedactionsData = {
+  documentId: string;
+  redactionHighlights: IPdfHighlight[];
+}[];
 
 type StorageData = {
-  redactions: IPdfHighlight[];
+  redactions: RedactionsData;
   read: ReadData;
 };
 

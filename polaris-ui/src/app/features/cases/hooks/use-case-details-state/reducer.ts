@@ -32,7 +32,9 @@ import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 import {
   addToLocalStorage,
+  readFromLocalStorage,
   ReadData,
+  RedactionsData,
 } from "../../presentation/case-details/utils/localStorageUtils";
 
 export const reducer = (
@@ -364,6 +366,8 @@ export const reducer = (
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
 
+      console.log("OPEN_PDF>>>>");
+
       const coreNewState = {
         ...state,
         searchState: {
@@ -401,14 +405,30 @@ export const reducer = (
         //  via the url hash functionality
         return coreNewState;
       }
+
+      console.log("OPEN_PDF>>>>1111");
       const alreadyOpenedTabIndex = state.tabsState.items.findIndex(
         (item) => item.documentId === documentId
       );
 
+      const getLocallySavedRedactionHighlights = () => {
+        const redactionsData = readFromLocalStorage(
+          state.caseId,
+          "redactions"
+        ) as RedactionsData | null;
+        if (!redactionsData) {
+          return [];
+        }
+        return (
+          redactionsData.find((data) => data.documentId === documentId)
+            ?.redactionHighlights ?? []
+        );
+      };
+
       const redactionsHighlightsToRetain =
         alreadyOpenedTabIndex !== -1
           ? state.tabsState.items[alreadyOpenedTabIndex].redactionHighlights
-          : []; // here read unsaved redaction from localstorage
+          : getLocallySavedRedactionHighlights();
 
       const foundDocument = state.documentsState.data.find(
         (item) => item.documentId === documentId
@@ -781,7 +801,7 @@ export const reducer = (
     case "ADD_REDACTION": {
       const { documentId, redaction } = action.payload;
 
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -794,7 +814,6 @@ export const reducer = (
                     {
                       ...redaction,
                       id: String(+new Date()),
-                      redactionAddedOrder: item.redactionHighlights.length,
                     },
                   ],
                 }
@@ -802,6 +821,15 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = newState.tabsState.items.map((item) => {
+        return {
+          documentId: item.documentId,
+          redactionHighlights: item.redactionHighlights,
+        };
+      });
+      addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      return newState;
     }
     case "SAVING_REDACTION": {
       const { documentId, saveStatus } = action.payload;
