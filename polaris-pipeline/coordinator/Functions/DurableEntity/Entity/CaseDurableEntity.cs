@@ -227,7 +227,8 @@ namespace coordinator.Functions.DurableEntity.Entity
                         polarisParentDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
                         cmsParentDocumentId: newDocument.ParentDocumentId,
                         witnessId: newDocument.WitnessId,
-                        presentationFlags: newDocument.PresentationFlags
+                        presentationFlags: newDocument.PresentationFlags,
+                        hasFailedAttachments: newDocument.HasFailedAttachments
                     );
 
                 CmsDocuments.Add(trackerDocument);

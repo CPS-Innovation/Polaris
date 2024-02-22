@@ -30,7 +30,8 @@ namespace coordinator.Domain.Entity
             PolarisDocumentId polarisParentDocumentId,
             string cmsParentDocumentId,
             int? witnessId,
-            PresentationFlagsDto presentationFlags)
+            PresentationFlagsDto presentationFlags,
+            bool hasFailedAttachments)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
@@ -45,6 +46,7 @@ namespace coordinator.Domain.Entity
             PolarisParentDocumentId = polarisParentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
             WitnessId = witnessId;
+            HasFailedAttachments = hasFailedAttachments;
         }
 
         [JsonProperty("path")]
@@ -97,5 +99,7 @@ namespace coordinator.Domain.Entity
 
         [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }
+        [JsonProperty("hasFailedAttachments")]
+        public bool HasFailedAttachments { get; set; }
     }
 }

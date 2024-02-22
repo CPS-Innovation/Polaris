@@ -77,6 +77,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     saveStatus,
     cmsDocType: { documentType },
     attachments,
+    hasFailedAttachments,
   } = caseDocumentViewModel;
 
   const searchHighlights =
@@ -147,6 +148,16 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           caseDocumentViewModel={caseDocumentViewModel}
           handleOpenPdf={handleOpenPdf}
         />
+      )}
+      {hasFailedAttachments && (
+        <div className={classes.attachmentHeaderContent}>
+          <span
+            className={classes.failedAttachmentWarning}
+            data-testid={`failed-attachment-warning-${documentId}`}
+          >
+            Attachments only available on CMS
+          </span>
+        </div>
       )}
       {url && !isDocumentRefreshing() ? (
         <PdfViewer
