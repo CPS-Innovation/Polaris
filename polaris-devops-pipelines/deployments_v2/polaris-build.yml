@@ -73,7 +73,7 @@ stages:
               artifact: "ui-events-terraform-files"
               publishLocation: "pipeline"
               
-      - job: Build_Terraform_Artifacts
+      - job: Build_Networking_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Networking terraform artifact'
@@ -91,13 +91,13 @@ stages:
               projects: "polaris-pipeline/coordinator/coordinator.csproj"
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
-            displayName: "Create Coordinator package to publish"
+            displayName: "Build Coordinator artifact"
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
               artifact: "polaris-coordinator-drop"
-            displayName: "Publish Coordinator codebase artifact"
+            displayName: "Publish Coordinator artifact"
       
       - job: Build_Pdf_Generator_Artifact
         steps:
@@ -122,7 +122,7 @@ stages:
               projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
-            displayName: "Create PDF-Generator package to publish"
+            displayName: "Build PDF-Generator artifact"
 
           - task: PublishPipelineArtifact@1
             inputs:
@@ -139,13 +139,13 @@ stages:
               projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
-            displayName: "Create Text-Extractor package to publish"
+            displayName: "Build Text-Extractor artifact"
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
               artifact: "polaris-text-extractor-drop"
-            displayName: "Publish Text-Extractor codebase artifact"
+            displayName: "Publish Text-Extractor artifact"
       
       - job: Build_Gateway_Artifact
         steps:
@@ -156,13 +156,13 @@ stages:
               projects: "polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
-            displayName: "Create Gateway package to publish"
+            displayName: "Build Gateway artifact"
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
-            displayName: "Publish Gateway codebase artifact"
+            displayName: "Publish Gateway artifact"
 
       - job: Build_SPA_Artifacts
         steps:

@@ -647,12 +647,12 @@ stages:
           - Swap_UI_Slots
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "Dev"
-          targetName: "Swap Polaris Codebase Slots"
-          appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "Dev"
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   # DEV: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_DEV
@@ -708,12 +708,12 @@ stages:
           - CheckSPA
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "Dev"
-          targetName: "Status Checks"
-          appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "Dev"
+              targetName: "Status Checks"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
             
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_DEV
@@ -755,12 +755,12 @@ stages:
           - CreateCommitReport
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "Dev"
-          targetName: "Create Commit Report"
-          appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "Dev"
+              targetName: "Create Commit Report"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
   
   # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag_DEV
@@ -800,12 +800,12 @@ stages:
           - UpdateGitHubTag
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "Dev"
-          targetName: "Update GitHub Tag"
-          appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "Dev"
+              targetName: "Update GitHub Tag"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
   
   #DEV: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests_DEV
@@ -1472,12 +1472,12 @@ stages:
           - Swap_UI_Slots
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "QA"
-          targetName: "Swap Polaris Codebase Slots"
-          appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   # QA: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_QA
@@ -1533,12 +1533,12 @@ stages:
           - CheckSPA
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "QA"
-          targetName: "Status Checks"
-          appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetName: "Status Checks"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_QA
@@ -1580,12 +1580,12 @@ stages:
           - CreateCommitReport
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "QA"
-          targetName: "Create Commit Report"
-          appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetName: "Create Commit Report"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   # QA: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag_QA
@@ -1625,12 +1625,12 @@ stages:
           - UpdateGitHubTag
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "QA"
-          targetName: "Update GitHub Tag"
-          appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetName: "Update GitHub Tag"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   #QA: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests_QA
@@ -1672,12 +1672,12 @@ stages:
           - RunE2eTests
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "QA"
-          targetName: "e2e Tests"
-          appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetName: "e2e Tests"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
                         
   ################################# PROD ###############################################          
   # QUEUE PIPELINE IF ANOTHER ONE BASED ON THIS BUILD DEFINITION ID IS ALREADY RUNNING
@@ -2297,12 +2297,12 @@ stages:
           - Swap_UI_Slots
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "PROD"
-          targetName: "Swap Polaris Codebase Slots"
-          appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   # PROD: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_PROD
@@ -2358,12 +2358,12 @@ stages:
           - CheckSPA
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "PROD"
-          targetName: "Status Checks"
-          appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetName: "Status Checks"
+              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   # PROD: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_PROD
@@ -2405,12 +2405,12 @@ stages:
           - CreateCommitReport
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "PROD"
-          targetName: "Create Commit Report"
-          appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetName: "Create Commit Report"
+              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   # PROD: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag_PROD
@@ -2450,12 +2450,12 @@ stages:
           - UpdateGitHubTag
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "PROD"
-          targetName: "Update GitHub Tag"
-          appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetName: "Update GitHub Tag"
+              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
 
   #PROD: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests_PROD
@@ -2497,9 +2497,9 @@ stages:
           - RunE2eTests
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "PROD"
-          targetName: "e2e Tests"
-          appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetName: "e2e Tests"
+              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
