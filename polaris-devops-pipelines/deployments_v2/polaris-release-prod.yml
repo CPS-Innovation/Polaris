@@ -278,7 +278,7 @@ stages:
                     totalLogRetentionTime: $(total-log-retention-time)
 
       - deployment: Log_Result_Terraform_Ended
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         displayName: Log Terraform End
         dependsOn:
           - Apply_Pipeline_Terraform
@@ -302,7 +302,7 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Start_Codebase
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         dependsOn: Log_Result_Terraform_Ended
         displayName: Log Codebase Start
         environment: "Prod"
@@ -403,7 +403,7 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
 
-      - deployment: Deploy_Text_Generator
+      - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
@@ -460,12 +460,12 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
 
       - deployment: Log_Result_Codebase_Ended
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
-          - Deploy_Text_Generator
+          - Deploy_Text_Extractor
           - Deploy_Spa
           - Deploy_Gateway
         environment: "Prod"
@@ -482,7 +482,7 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Result_Ended
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
         displayName: Log Deployment End
         dependsOn:
           - Apply_Pipeline_Terraform
@@ -494,7 +494,7 @@ stages:
           - Apply_Networking_Terraform
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
-          - Deploy_Text_Generator
+          - Deploy_Text_Extractor
           - Deploy_Spa
           - Deploy_Gateway
         environment: "Prod"
