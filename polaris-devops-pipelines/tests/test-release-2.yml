@@ -5,14 +5,13 @@ pr: none
 resources:
   pipelines:
     - pipeline: TestBuild
-      source: Test - Release1
+      source: Test - Build1
       trigger:
         branches:
           include:
             - refs/heads/main
-            - bugfix/find-solution-to-call-child-pipeline-passing-build-ref
         stages:
-          - Deploy
+          - Publish_Artifacts
 
 variables:
   - group: kv-dev-terraform
