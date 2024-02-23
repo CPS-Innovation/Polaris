@@ -1,7 +1,5 @@
 ﻿---
 parameters:
-  - name: targetBuild
-    type: string
   - name: targetLabel
     type: string
   - name: buildDefinitionId
