@@ -62,7 +62,7 @@ stages:
     jobs:
       - deployment: Log_Start
         displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
         environment: "QA"
         strategy:
           runOnce:
@@ -76,7 +76,7 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
       - deployment: Log_Start_Terraform
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         dependsOn: Log_Start
         displayName: Log Terraform Start
         environment: "QA"
@@ -92,7 +92,7 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
       - deployment: Apply_Networking_Terraform
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         displayName: Apply Networking Terraform
         dependsOn: Log_Start_Terraform
         environment: "QA"
@@ -120,7 +120,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_Pipeline_Terraform
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Terraform
         environment: "QA"
@@ -148,7 +148,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_Pipeline_Events_Terraform
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         dependsOn: Apply_Pipeline_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "QA"
@@ -178,7 +178,7 @@ stages:
       - deployment: Update_Pipeline_Component_App_Keys
         dependsOn: Apply_Pipeline_Terraform
         displayName: Update Component Keys
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         environment: "QA"
         strategy:
           runOnce:
@@ -197,7 +197,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_UI_Terraform
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         dependsOn: Update_Pipeline_Component_App_Keys
         displayName: Apply UI Terraform
         environment: "QA"
@@ -225,7 +225,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_UI_Events_Terraform
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "QA"
@@ -253,7 +253,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Set_Log_Analytics_Archival_Periods
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        condition: eq(variables.runTerraform, 'true')
         dependsOn: Apply_UI_Terraform
         displayName: Update Analytics Archival Periods
         environment: "QA"
@@ -317,7 +317,7 @@ stages:
 
       - job: Start_Pipeline_Slots
         dependsOn: Log_Start_Codebase
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         strategy:
           matrix:
             Coordinator:
@@ -341,7 +341,7 @@ stages:
 
       - job: Start_UI_Slots
         dependsOn: Log_Start_Codebase
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         strategy:
           matrix:
             SPA:
@@ -366,7 +366,7 @@ stages:
       - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         environment: "QA"
         workspace:
           clean: all
@@ -386,7 +386,7 @@ stages:
       - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         environment: "QA"
         strategy:
           runOnce:
@@ -404,7 +404,7 @@ stages:
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         environment: "QA"
         strategy:
           runOnce:
@@ -422,7 +422,7 @@ stages:
       - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         environment: "QA"
         workspace:
           clean: all
@@ -442,7 +442,7 @@ stages:
       - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: eq(variables.runCodebase, 'true')
         environment: "QA"
         strategy:
           runOnce:
