@@ -18,7 +18,6 @@ stages:
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
-        condition: eq(variables.runCodebase, 'true')
         environment: "Dev"
         strategy:
           runOnce:
