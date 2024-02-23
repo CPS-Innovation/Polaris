@@ -301,7 +301,7 @@ stages:
         condition: eq(variables.runCodebase, 'true')
         dependsOn: 
           - Log_Result_Terraform_Ended
-          - - Wait_For_Running_Builds
+          - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "QA"
         strategy:
