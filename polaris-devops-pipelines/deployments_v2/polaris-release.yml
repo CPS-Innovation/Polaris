@@ -71,7 +71,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - deployment: LogStart
+      - deployment: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runTerraformDEV, 'true')))
         environment: "Dev"
@@ -86,9 +86,9 @@ stages:
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     
-      - deployment: LogStartTerraform
+      - deployment: Log_Start_Terraform
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
-        dependsOn: LogStart
+        dependsOn: Log_Start
         displayName: Log Terraform Start
         environment: "Dev"
         strategy:
@@ -102,10 +102,10 @@ stages:
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     
-      - deployment: ApplyNetworkingTerraform
+      - deployment: Apply_Networking_Terraform
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
         displayName: Apply Networking Terraform
-        dependsOn: LogStartTerraform
+        dependsOn: Log_Start_Terraform
         environment: "Dev"
         workspace:
           clean: all
@@ -130,9 +130,9 @@ stages:
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
 
-      - deployment: ApplyPipelineTerraform
+      - deployment: Apply_Pipeline_Terraform
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
-        dependsOn: ApplyNetworkingTerraform
+        dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Terraform
         environment: "Dev"
         workspace:
@@ -158,9 +158,9 @@ stages:
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
 
-      - deployment: ApplyPipelineEventsTerraform
+      - deployment: Apply_Pipeline_Events_Terraform
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
-        dependsOn: ApplyNetworkingTerraform
+        dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "Dev"
         workspace:
@@ -186,8 +186,8 @@ stages:
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
                 
-      - deployment: UpdatePipelineComponentAppKeys
-        dependsOn: ApplyPipelineTerraform
+      - deployment: Update_Pipeline_Component_App_Keys
+        dependsOn: Apply_Pipeline_Terraform
         displayName: Update Component Keys
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
         environment: "Dev"
@@ -207,9 +207,9 @@ stages:
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
                   
-      - deployment: ApplyUITerraform
+      - deployment: Apply_UI_Terraform
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
-        dependsOn: UpdatePipelineComponentAppKeys
+        dependsOn: Update_Pipeline_Component_App_Keys
         displayName: Apply UI Terraform
         environment: "Dev"
         workspace:
@@ -235,9 +235,9 @@ stages:
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
 
-      - deployment: ApplyUIEventsTerraform
+      - deployment: Apply_UI_Events_Terraform
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
-        dependsOn: ApplyUITerraform
+        dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "Dev"
         workspace:
@@ -263,9 +263,9 @@ stages:
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
 
-      - deployment: SetLogAnalyticsArchivalPeriods
+      - deployment: Set_Log_Analytics_Archival_Periods
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
-        dependsOn: ApplyUITerraform
+        dependsOn: Apply_UI_Terraform
         displayName: Update Analytics Archival Periods
         environment: "Dev"
         strategy:
@@ -286,17 +286,17 @@ stages:
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
                   
-      - deployment: LogResultTerraformEnded
+      - deployment: Log_Result_Terraform_Ended
         condition: and(succeeded(), eq(variables.runTerraformDEV, 'true'))
         displayName: Log Terraform End
         dependsOn:
-          - ApplyPipelineTerraform
-          - ApplyPipelineEventsTerraform
-          - UpdatePipelineComponentAppKeys
-          - ApplyUITerraform
-          - ApplyUIEventsTerraform
-          - SetLogAnalyticsArchivalPeriods
-          - ApplyNetworkingTerraform
+          - Apply_Pipeline_Terraform
+          - Apply_Pipeline_Events_Terraform
+          - Update_Pipeline_Component_App_Keys
+          - Apply_UI_Terraform
+          - Apply_UI_Events_Terraform
+          - Set_Log_Analytics_Archival_Periods
+          - Apply_Networking_Terraform
         environment: "Dev"
         strategy:
           runOnce:
@@ -310,9 +310,9 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
                     
-      - deployment: LogStartCodebase
+      - deployment: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
-        dependsOn: LogResultTerraformEnded
+        dependsOn: Log_Result_Terraform_Ended
         displayName: Log Codebase Start
         environment: "Dev"
         strategy:
@@ -326,8 +326,8 @@ stages:
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     
-      - job: StartPipelineSlots
-        dependsOn: LogResultTerraformEnded
+      - job: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
         strategy:
           matrix:
@@ -351,7 +351,7 @@ stages:
               WebAppName: $(AppServiceName)
 
       - job: Start_UI_Slots
-        dependsOn: LogResultTerraformEnded
+        dependsOn: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
         strategy:
           matrix:
@@ -374,7 +374,7 @@ stages:
               ResourceGroupName: "rg-polaris-dev"
               WebAppName: $(AppServiceName)
 
-      - deployment: DeployCoordinator
+      - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
@@ -394,7 +394,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
 
-      - deployment: DeployPdfGenerator
+      - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
@@ -412,7 +412,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
 
-      - deployment: DeployTextGenerator
+      - deployment: Deploy_Text_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
@@ -430,7 +430,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
 
-      - deployment: DeploySpa
+      - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
@@ -450,7 +450,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
 
-      - deployment: DeployGateway
+      - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
@@ -468,15 +468,15 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
 
-      - deployment: LogResultCodebaseEnded
+      - deployment: Log_Result_Codebase_Ended
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
         displayName: Log Codebase End
         dependsOn:
-          - DeployCoordinator
-          - DeployPdfGenerator
-          - DeployTextGenerator
-          - DeploySpa
-          - DeployGateway
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Text_Generator
+          - Deploy_Spa
+          - Deploy_Gateway
         environment: "Dev"
         strategy:
           runOnce:
@@ -490,22 +490,22 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: LogResultEnded
+      - deployment: Log_Result_Ended
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         displayName: Log Deployment End
         dependsOn:
-          - ApplyPipelineTerraform
-          - ApplyPipelineEventsTerraform
-          - UpdatePipelineComponentAppKeys
-          - ApplyUITerraform
-          - ApplyUIEventsTerraform
-          - SetLogAnalyticsArchivalPeriods
-          - ApplyNetworkingTerraform
-          - DeployCoordinator
-          - DeployPdfGenerator
-          - DeployTextGenerator
-          - DeploySpa
-          - DeployGateway
+          - Apply_Pipeline_Terraform
+          - Apply_Pipeline_Events_Terraform
+          - Update_Pipeline_Component_App_Keys
+          - Apply_UI_Terraform
+          - Apply_UI_Events_Terraform
+          - Set_Log_Analytics_Archival_Periods
+          - Apply_Networking_Terraform
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Text_Generator
+          - Deploy_Spa
+          - Deploy_Gateway
         environment: "Dev"
         strategy:
           runOnce:
@@ -531,7 +531,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
         steps:
@@ -543,7 +543,7 @@ stages:
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
           
       - job: Pause_Pipeline
-        dependsOn: LogStart
+        dependsOn: Log_Start
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
         displayName: Pause for 2 mins
         steps:
@@ -645,7 +645,7 @@ stages:
               webAppName: $(AppServiceName)
               PreserveVnet: true
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), eq(variables.runCodebaseDEV, 'true'))
         dependsOn:
           - Swap_Pipeline_Slots
@@ -672,7 +672,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
@@ -683,8 +683,8 @@ stages:
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
         
-      - job: GetStatusURIs
-        dependsOn: LogStart
+      - job: Get_Status_URIs
+        dependsOn: Log_Start
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
           - template: tasks/task_get-status-uris.yml
@@ -695,11 +695,11 @@ stages:
               armTenantId: $(innovation-development-spn-tenant-id)
               armSubscriptionId: $(innovation-development-subscription-id)
 
-      - job: CheckCoordinator
-        dependsOn: GetStatusURIs
+      - job: Check_Coordinator
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.coordinatorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -714,11 +714,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckPDFGenerator
-        dependsOn: GetStatusURIs
+      - job: Check_PDF_Generator
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.pdfGeneratorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -733,11 +733,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckTextExtractor
-        dependsOn: GetStatusURIs
+      - job: Check_Text_Extractor
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -752,11 +752,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckGateway
-        dependsOn: GetStatusURIs
+      - job: Check_Gateway
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.gatewayUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -771,11 +771,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckProxy
-        dependsOn: GetStatusURIs
+      - job: Check_Proxy
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.proxyUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -790,11 +790,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: "Polaris Proxy is online"
 
-      - job: CheckSPA
-        dependsOn: GetStatusURIs
+      - job: Check_SPA
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.spaUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -809,17 +809,17 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
           
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         dependsOn:
-          - LogStart
-          - GetStatusURIs
-          - CheckCoordinator
-          - CheckPDFGenerator
-          - CheckTextExtractor
-          - CheckGateway
-          - CheckProxy
-          - CheckSPA
+          - Log_Start
+          - Get_Status_URIs
+          - Check_Coordinator
+          - Check_PDF_Generator
+          - Check_Text_Extractor
+          - Check_Gateway
+          - Check_Proxy
+          - Check_SPA
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -842,7 +842,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
@@ -853,8 +853,8 @@ stages:
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
 
-      - job: CreateCommitReport
-        dependsOn: LogStart
+      - job: Create_Commit_Report
+        dependsOn: Log_Start
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
           - template: tasks/task_create-commit-report.yml
@@ -862,11 +862,11 @@ stages:
               targetLabel: "DEV"
               targetLabelLower: "dev"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         dependsOn:
-          - LogStart
-          - CreateCommitReport
+          - Log_Start
+          - Create_Commit_Report
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -889,7 +889,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
@@ -900,18 +900,18 @@ stages:
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               
-      - job: UpdateGithubTag
-        dependsOn: LogStart
+      - job: Update_Github_Tag
+        dependsOn: Log_Start
         steps:
           - template: tasks/task_update-github-tag.yml
             parameters:
               targetLabel: "DEV"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         dependsOn:
-          - LogStart
-          - UpdateGitHubTag
+          - Log_Start
+          - Update_GitHub_Tag
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -934,7 +934,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
@@ -945,7 +945,7 @@ stages:
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
 
-      - job: RunE2ETests
+      - job: Run_e2e_Tests
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
           - template: tasks/task_run-e2e-tests.yml
@@ -954,11 +954,11 @@ stages:
               buildDefinitionId: 129
               devOpsPatToken: "$(devops-pat-token)"
       
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         dependsOn:
-          - LogStart
-          - RunE2eTests
+          - Log_Start
+          - Run_e2e_Tests
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -1010,7 +1010,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - deployment: LogStart
+      - deployment: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runTerraformQA, 'true')))
         environment: "QA"
@@ -1025,9 +1025,9 @@ stages:
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - deployment: LogStartTerraform
+      - deployment: Log_Start_Terraform
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
-        dependsOn: LogStart
+        dependsOn: Log_Start
         displayName: Log Terraform Start
         environment: "QA"
         strategy:
@@ -1041,10 +1041,10 @@ stages:
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - deployment: ApplyNetworkingTerraform
+      - deployment: Apply_Networking_Terraform
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
         displayName: Apply Networking Terraform
-        dependsOn: LogStartTerraform
+        dependsOn: Log_Start_Terraform
         environment: "QA"
         workspace:
           clean: all
@@ -1069,9 +1069,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: ApplyPipelineTerraform
+      - deployment: Apply_Pipeline_Terraform
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
-        dependsOn: ApplyNetworkingTerraform
+        dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Terraform
         environment: "QA"
         workspace:
@@ -1097,9 +1097,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: ApplyPipelineEventsTerraform
+      - deployment: Apply_Pipeline_Events_Terraform
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
-        dependsOn: ApplyNetworkingTerraform
+        dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "QA"
         workspace:
@@ -1125,8 +1125,8 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: UpdatePipelineComponentAppKeys
-        dependsOn: ApplyPipelineTerraform
+      - deployment: Update_Pipeline_Component_App_Keys
+        dependsOn: Apply_Pipeline_Terraform
         displayName: Update Component Keys
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
         environment: "QA"
@@ -1146,9 +1146,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: ApplyUITerraform
+      - deployment: Apply_UI_Terraform
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
-        dependsOn: UpdatePipelineComponentAppKeys
+        dependsOn: Update_Pipeline_Component_App_Keys
         displayName: Apply UI Terraform
         environment: "QA"
         workspace:
@@ -1174,9 +1174,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: ApplyUIEventsTerraform
+      - deployment: Apply_UI_Events_Terraform
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
-        dependsOn: ApplyUITerraform
+        dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "QA"
         workspace:
@@ -1202,9 +1202,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: SetLogAnalyticsArchivalPeriods
+      - deployment: Set_Log_Analytics_Archival_Periods
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
-        dependsOn: ApplyUITerraform
+        dependsOn: Apply_UI_Terraform
         displayName: Update Analytics Archival Periods
         environment: "QA"
         strategy:
@@ -1225,17 +1225,17 @@ stages:
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
 
-      - deployment: LogResultTerraformEnded
+      - deployment: Log_Result_Terraform_Ended
         condition: and(succeeded(), eq(variables.runTerraformQA, 'true'))
         displayName: Log Terraform End
         dependsOn:
-          - ApplyPipelineTerraform
-          - ApplyPipelineEventsTerraform
-          - UpdatePipelineComponentAppKeys
-          - ApplyUITerraform
-          - ApplyUIEventsTerraform
-          - SetLogAnalyticsArchivalPeriods
-          - ApplyNetworkingTerraform
+          - Apply_Pipeline_Terraform
+          - Apply_Pipeline_Events_Terraform
+          - Update_Pipeline_Component_App_Keys
+          - Apply_UI_Terraform
+          - Apply_UI_Events_Terraform
+          - Set_Log_Analytics_Archival_Periods
+          - Apply_Networking_Terraform
         environment: "QA"
         strategy:
           runOnce:
@@ -1249,9 +1249,9 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: LogStartCodebase
+      - deployment: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
-        dependsOn: LogResultTerraformEnded
+        dependsOn: Log_Result_Terraform_Ended
         displayName: Log Codebase Start
         environment: "QA"
         strategy:
@@ -1265,8 +1265,8 @@ stages:
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - job: StartPipelineSlots
-        dependsOn: LogResultTerraformEnded
+      - job: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
         strategy:
           matrix:
@@ -1290,7 +1290,7 @@ stages:
               WebAppName: $(AppServiceName)
 
       - job: Start_UI_Slots
-        dependsOn: LogResultTerraformEnded
+        dependsOn: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
         strategy:
           matrix:
@@ -1313,7 +1313,7 @@ stages:
               ResourceGroupName: "rg-polaris-qa"
               WebAppName: $(AppServiceName)
 
-      - deployment: DeployCoordinator
+      - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
@@ -1333,7 +1333,7 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: DeployPdfGenerator
+      - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
@@ -1351,7 +1351,7 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: DeployTextGenerator
+      - deployment: Deploy_Text_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
@@ -1369,7 +1369,7 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: DeploySpa
+      - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
@@ -1389,7 +1389,7 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: DeployGateway
+      - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
@@ -1407,15 +1407,15 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: LogResultCodebaseEnded
+      - deployment: Log_Result_Codebase_Ended
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
         displayName: Log Codebase End
         dependsOn:
-          - DeployCoordinator
-          - DeployPdfGenerator
-          - DeployTextGenerator
-          - DeploySpa
-          - DeployGateway
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Text_Generator
+          - Deploy_Spa
+          - Deploy_Gateway
         environment: "QA"
         strategy:
           runOnce:
@@ -1429,22 +1429,22 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: LogResultEnded
+      - deployment: Log_Result_Ended
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         displayName: Log Deployment End
         dependsOn:
-          - ApplyPipelineTerraform
-          - ApplyPipelineEventsTerraform
-          - UpdatePipelineComponentAppKeys
-          - ApplyUITerraform
-          - ApplyUIEventsTerraform
-          - SetLogAnalyticsArchivalPeriods
-          - ApplyNetworkingTerraform
-          - DeployCoordinator
-          - DeployPdfGenerator
-          - DeployTextGenerator
-          - DeploySpa
-          - DeployGateway
+          - Apply_Pipeline_Terraform
+          - Apply_Pipeline_Events_Terraform
+          - Update_Pipeline_Component_App_Keys
+          - Apply_UI_Terraform
+          - Apply_UI_Events_Terraform
+          - Set_Log_Analytics_Archival_Periods
+          - Apply_Networking_Terraform
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Text_Generator
+          - Deploy_Spa
+          - Deploy_Gateway
         environment: "QA"
         strategy:
           runOnce:
@@ -1470,7 +1470,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
         steps:
@@ -1482,7 +1482,7 @@ stages:
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
       - job: Pause_Pipeline
-        dependsOn: LogStart
+        dependsOn: Log_Start
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
         displayName: Pause for 2 mins
         steps:
@@ -1584,7 +1584,7 @@ stages:
               webAppName: $(AppServiceName)
               PreserveVnet: true
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), eq(variables.runCodebaseQA, 'true'))
         dependsOn:
           - Swap_Pipeline_Slots
@@ -1611,7 +1611,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
@@ -1622,8 +1622,8 @@ stages:
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - job: GetStatusURIs
-        dependsOn: LogStart
+      - job: Get_Status_URIs
+        dependsOn: Log_Start
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
           - template: tasks/task_get-status-uris.yml
@@ -1634,11 +1634,11 @@ stages:
               armTenantId: $(innovation-qa-spn-tenant-id)
               armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - job: CheckCoordinator
-        dependsOn: GetStatusURIs
+      - job: Check_Coordinator
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.coordinatorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -1653,11 +1653,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckPDFGenerator
-        dependsOn: GetStatusURIs
+      - job: Check_PDF_Generator
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.pdfGeneratorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -1672,11 +1672,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckTextExtractor
-        dependsOn: GetStatusURIs
+      - job: Check_Text_Extractor
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -1691,11 +1691,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckGateway
-        dependsOn: GetStatusURIs
+      - job: Check_Gateway
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.gatewayUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -1710,11 +1710,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: CheckProxy
-        dependsOn: GetStatusURIs
+      - job: Check_Proxy
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.proxyUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -1729,11 +1729,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: "Polaris Proxy is online"
 
-      - job: CheckSPA
-        dependsOn: GetStatusURIs
+      - job: Check_SPA
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.spaUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -1748,17 +1748,17 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         dependsOn:
-          - LogStart
-          - GetStatusURIs
-          - CheckCoordinator
-          - CheckPDFGenerator
-          - CheckTextExtractor
-          - CheckGateway
-          - CheckProxy
-          - CheckSPA
+          - Log_Start
+          - Get_Status_URIs
+          - Check_Coordinator
+          - Check_PDF_Generator
+          - Check_Text_Extractor
+          - Check_Gateway
+          - Check_Proxy
+          - Check_SPA
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -1781,7 +1781,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
@@ -1792,8 +1792,8 @@ stages:
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - job: CreateCommitReport
-        dependsOn: LogStart
+      - job: Create_Commit_Report
+        dependsOn: Log_Start
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
           - template: tasks/task_create-commit-report.yml
@@ -1801,11 +1801,11 @@ stages:
               targetLabel: "QA"
               targetLabelLower: "qa"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         dependsOn:
-          - LogStart
-          - CreateCommitReport
+          - Log_Start
+          - Create_Commit_Report
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -1828,7 +1828,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
@@ -1839,18 +1839,18 @@ stages:
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - job: UpdateGithubTag
-        dependsOn: LogStart
+      - job: Update_Github_Tag
+        dependsOn: Log_Start
         steps:
           - template: tasks/task_update-github-tag.yml
             parameters:
               targetLabel: "QA"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         dependsOn:
-          - LogStart
-          - UpdateGitHubTag
+          - Log_Start
+          - Update_GitHub_Tag
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -1873,7 +1873,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
@@ -1884,7 +1884,7 @@ stages:
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - job: RunE2ETests
+      - job: Run_e2e_Tests
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
           - template: tasks/task_run-e2e-tests.yml
@@ -1893,11 +1893,11 @@ stages:
               buildDefinitionId: 210
               devOpsPatToken: "$(devops-pat-token)"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         dependsOn:
-          - LogStart
-          - RunE2eTests
+          - Log_Start
+          - Run_e2e_Tests
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -1949,7 +1949,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - deployment: LogStart
+      - deployment: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runTerraformPROD, 'true')))
         environment: "PROD"
@@ -1964,9 +1964,9 @@ stages:
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - deployment: LogStartTerraform
+      - deployment: Log_Start_Terraform
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
-        dependsOn: LogStart
+        dependsOn: Log_Start
         displayName: Log Terraform Start
         environment: "PROD"
         strategy:
@@ -1980,10 +1980,10 @@ stages:
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - deployment: ApplyNetworkingTerraform
+      - deployment: Apply_Networking_Terraform
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
         displayName: Apply Networking Terraform
-        dependsOn: LogStartTerraform
+        dependsOn: Log_Start_Terraform
         environment: "PROD"
         workspace:
           clean: all
@@ -2008,9 +2008,9 @@ stages:
                     armTenantId: $(innovation-prod-spn-tenant-id)
                     armSubscriptionId: $(innovation-prod-subscription-id)
 
-      - deployment: ApplyPipelineTerraform
+      - deployment: Apply_Pipeline_Terraform
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
-        dependsOn: ApplyNetworkingTerraform
+        dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Terraform
         environment: "PROD"
         workspace:
@@ -2036,9 +2036,9 @@ stages:
                     armTenantId: $(innovation-prod-spn-tenant-id)
                     armSubscriptionId: $(innovation-prod-subscription-id)
 
-      - deployment: ApplyPipelineEventsTerraform
+      - deployment: Apply_Pipeline_Events_Terraform
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
-        dependsOn: ApplyNetworkingTerraform
+        dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "PROD"
         workspace:
@@ -2064,8 +2064,8 @@ stages:
                     armTenantId: $(innovation-prod-spn-tenant-id)
                     armSubscriptionId: $(innovation-prod-subscription-id)
 
-      - deployment: UpdatePipelineComponentAppKeys
-        dependsOn: ApplyPipelineTerraform
+      - deployment: Update_Pipeline_Component_App_Keys
+        dependsOn: Apply_Pipeline_Terraform
         displayName: Update Component Keys
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
         environment: "PROD"
@@ -2085,9 +2085,9 @@ stages:
                     armTenantId: $(innovation-prod-spn-tenant-id)
                     armSubscriptionId: $(innovation-prod-subscription-id)
 
-      - deployment: ApplyUITerraform
+      - deployment: Apply_UI_Terraform
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
-        dependsOn: UpdatePipelineComponentAppKeys
+        dependsOn: Update_Pipeline_Component_App_Keys
         displayName: Apply UI Terraform
         environment: "PROD"
         workspace:
@@ -2113,9 +2113,9 @@ stages:
                     armTenantId: $(innovation-prod-spn-tenant-id)
                     armSubscriptionId: $(innovation-prod-subscription-id)
 
-      - deployment: ApplyUIEventsTerraform
+      - deployment: Apply_UI_Events_Terraform
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
-        dependsOn: ApplyUITerraform
+        dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "PROD"
         workspace:
@@ -2141,9 +2141,9 @@ stages:
                     armTenantId: $(innovation-prod-spn-tenant-id)
                     armSubscriptionId: $(innovation-prod-subscription-id)
 
-      - deployment: SetLogAnalyticsArchivalPeriods
+      - deployment: Set_Log_Analytics_Archival_Periods
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
-        dependsOn: ApplyUITerraform
+        dependsOn: Apply_UI_Terraform
         displayName: Update Analytics Archival Periods
         environment: "PROD"
         strategy:
@@ -2164,17 +2164,17 @@ stages:
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
 
-      - deployment: LogResultTerraformEnded
+      - deployment: Log_Result_Terraform_Ended
         condition: and(succeeded(), eq(variables.runTerraformPROD, 'true'))
         displayName: Log Terraform End
         dependsOn:
-          - ApplyPipelineTerraform
-          - ApplyPipelineEventsTerraform
-          - UpdatePipelineComponentAppKeys
-          - ApplyUITerraform
-          - ApplyUIEventsTerraform
-          - SetLogAnalyticsArchivalPeriods
-          - ApplyNetworkingTerraform
+          - Apply_Pipeline_Terraform
+          - Apply_Pipeline_Events_Terraform
+          - Update_Pipeline_Component_App_Keys
+          - Apply_UI_Terraform
+          - Apply_UI_Events_Terraform
+          - Set_Log_Analytics_Archival_Periods
+          - Apply_Networking_Terraform
         environment: "PROD"
         strategy:
           runOnce:
@@ -2188,9 +2188,9 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: LogStartCodebase
+      - deployment: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
-        dependsOn: LogResultTerraformEnded
+        dependsOn: Log_Result_Terraform_Ended
         displayName: Log Codebase Start
         environment: "PROD"
         strategy:
@@ -2204,8 +2204,8 @@ stages:
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - job: StartPipelineSlots
-        dependsOn: LogResultTerraformEnded
+      - job: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
         strategy:
           matrix:
@@ -2229,7 +2229,7 @@ stages:
               WebAppName: $(AppServiceName)
 
       - job: Start_UI_Slots
-        dependsOn: LogResultTerraformEnded
+        dependsOn: Log_Start_Codebase
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
         strategy:
           matrix:
@@ -2252,7 +2252,7 @@ stages:
               ResourceGroupName: "rg-polaris"
               WebAppName: $(AppServiceName)
 
-      - deployment: DeployCoordinator
+      - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
@@ -2272,7 +2272,7 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
 
-      - deployment: DeployPdfGenerator
+      - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
@@ -2290,7 +2290,7 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
 
-      - deployment: DeployTextGenerator
+      - deployment: Deploy_Text_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
@@ -2308,7 +2308,7 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
 
-      - deployment: DeploySpa
+      - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
@@ -2328,7 +2328,7 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
 
-      - deployment: DeployGateway
+      - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
@@ -2346,15 +2346,15 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
 
-      - deployment: LogResultCodebaseEnded
+      - deployment: Log_Result_Codebase_Ended
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
         displayName: Log Codebase End
         dependsOn:
-          - DeployCoordinator
-          - DeployPdfGenerator
-          - DeployTextGenerator
-          - DeploySpa
-          - DeployGateway
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Text_Generator
+          - Deploy_Spa
+          - Deploy_Gateway
         environment: "PROD"
         strategy:
           runOnce:
@@ -2368,22 +2368,22 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: LogResultEnded
+      - deployment: Log_Result_Ended
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         displayName: Log Deployment End
         dependsOn:
-          - ApplyPipelineTerraform
-          - ApplyPipelineEventsTerraform
-          - UpdatePipelineComponentAppKeys
-          - ApplyUITerraform
-          - ApplyUIEventsTerraform
-          - SetLogAnalyticsArchivalPeriods
-          - ApplyNetworkingTerraform
-          - DeployCoordinator
-          - DeployPdfGenerator
-          - DeployTextGenerator
-          - DeploySpa
-          - DeployGateway
+          - Apply_Pipeline_Terraform
+          - Apply_Pipeline_Events_Terraform
+          - Update_Pipeline_Component_App_Keys
+          - Apply_UI_Terraform
+          - Apply_UI_Events_Terraform
+          - Set_Log_Analytics_Archival_Periods
+          - Apply_Networking_Terraform
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Text_Generator
+          - Deploy_Spa
+          - Deploy_Gateway
         environment: "PROD"
         strategy:
           runOnce:
@@ -2409,7 +2409,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
         steps:
@@ -2421,7 +2421,7 @@ stages:
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
       - job: Pause_Pipeline
-        dependsOn: LogStart
+        dependsOn: Log_Start
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
         displayName: Pause for 2 mins
         steps:
@@ -2523,7 +2523,7 @@ stages:
               webAppName: $(AppServiceName)
               PreserveVnet: true
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), eq(variables.runCodebasePROD, 'true'))
         dependsOn:
           - Swap_Pipeline_Slots
@@ -2550,7 +2550,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
@@ -2561,8 +2561,8 @@ stages:
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - job: GetStatusURIs
-        dependsOn: LogStart
+      - job: Get_Status_URIs
+        dependsOn: Log_Start
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
           - template: tasks/task_get-status-uris.yml
@@ -2573,11 +2573,11 @@ stages:
               armTenantId: $(innovation-prod-spn-tenant-id)
               armSubscriptionId: $(innovation-prod-subscription-id)
               
-      - job: CheckCoordinator
-        dependsOn: GetStatusURIs
+      - job: Check_Coordinator
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.coordinatorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -2592,11 +2592,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
-      - job: CheckPDFGenerator
-        dependsOn: GetStatusURIs
+      - job: Check_PDF_Generator
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.pdfGeneratorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -2611,11 +2611,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
-      - job: CheckTextExtractor
-        dependsOn: GetStatusURIs
+      - job: Check_Text_Extractor
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -2630,11 +2630,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
-      - job: CheckGateway
-        dependsOn: GetStatusURIs
+      - job: Check_Gateway
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.gatewayUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -2649,11 +2649,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
-      - job: CheckProxy
-        dependsOn: GetStatusURIs
+      - job: Check_Proxy
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.proxyUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -2668,11 +2668,11 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: "Polaris Proxy is online"
               
-      - job: CheckSPA
-        dependsOn: GetStatusURIs
+      - job: Check_SPA
+        dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         variables:
-          uri: $[dependencies.GetStatusURIs.outputs['uris.spaUri']]
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
@@ -2687,17 +2687,17 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         dependsOn:
-          - LogStart
-          - GetStatusURIs
-          - CheckCoordinator
-          - CheckPDFGenerator
-          - CheckTextExtractor
-          - CheckGateway
-          - CheckProxy
-          - CheckSPA
+          - Log_Start
+          - Get_Status_URIs
+          - Check_Coordinator
+          - Check_PDF_Generator
+          - Check_Text_Extractor
+          - Check_Gateway
+          - Check_Proxy
+          - Check_SPA
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -2720,7 +2720,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
@@ -2731,8 +2731,8 @@ stages:
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - job: CreateCommitReport
-        dependsOn: LogStart
+      - job: Create_Commit_Report
+        dependsOn: Log_Start
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
           - template: tasks/task_create-commit-report.yml
@@ -2740,11 +2740,11 @@ stages:
               targetLabel: "PROD"
               targetLabelLower: "prod"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         dependsOn:
-          - LogStart
-          - CreateCommitReport
+          - Log_Start
+          - Create_Commit_Report
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -2767,7 +2767,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
@@ -2778,18 +2778,18 @@ stages:
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - job: UpdateGithubTag
-        dependsOn: LogStart
+      - job: Update_Github_Tag
+        dependsOn: Log_Start
         steps:
           - template: tasks/task_update-github-tag.yml
             parameters:
               targetLabel: "PROD"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         dependsOn:
-          - LogStart
-          - UpdateGitHubTag
+          - Log_Start
+          - Update_GitHub_Tag
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -2812,7 +2812,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - job: LogStart
+      - job: Log_Start
         displayName: Log Start
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
@@ -2823,7 +2823,7 @@ stages:
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - job: RunE2ETests
+      - job: Run_e2e_Tests
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
           - template: tasks/task_run-e2e-tests.yml
@@ -2832,11 +2832,11 @@ stages:
               buildDefinitionId: 210
               devOpsPatToken: "$(devops-pat-token)"
 
-      - job: LogResult
+      - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         dependsOn:
-          - LogStart
-          - RunE2eTests
+          - Log_Start
+          - Run_e2e_Tests
         steps:
           - template: tasks/task_log-result.yml
             parameters:
