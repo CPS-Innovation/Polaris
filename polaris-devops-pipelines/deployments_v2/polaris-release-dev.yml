@@ -5,7 +5,7 @@ pr: none
 resources:
   pipelines:
     - pipeline: PolarisBuild
-      source: Polaris - Build
+      source: Polaris Build - DEV
       trigger:
         branches:
           include:
@@ -32,32 +32,6 @@ stages:
             parameters:
               targetLabel: "DEV"
   
-  # QUEUE PIPELINE IF ANOTHER ONE BASED ON THIS BUILD DEFINITION ID IS ALREADY RUNNING
-  - stage: Wait_For_Running_Releases
-    displayName: Assess Queue
-    dependsOn: Determine_Changes
-    condition: succeeded()
-    variables:
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    jobs:
-      # Job to wait for running builds
-      - deployment: Wait_For_Running_Builds
-        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
-        displayName: 'Checking for Running Releases'
-        timeoutInMinutes: 240
-        pool:
-          vmImage: 'windows-latest'
-        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_wait-for-running-releases.yml
-                  parameters:
-                    devOpsPatToken: "$(devops-pat-token)"
-              
   # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
   - stage: Deploy
     displayName: Deploy > DEV
@@ -65,9 +39,7 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    dependsOn: 
-      - Determine_Changes
-      - Wait_For_Running_Releases
+    dependsOn: Determine_Changes
     pool:
       name: $(dev-build-agent)
     jobs:
@@ -86,9 +58,23 @@ stages:
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     
+      - job: Wait_For_Running_Builds
+        dependsOn: Log_Start
+        displayName: 'Checking for Running Releases'
+        timeoutInMinutes: 240
+        pool:
+          vmImage: 'windows-latest'
+        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
+        steps:
+          - template: tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: "$(devops-pat-token)"
+                    
       - deployment: Log_Start_Terraform
         condition: eq(variables.runTerraform, 'true')
-        dependsOn: Log_Start
+        dependsOn: 
+          - Log_Start
+          - Wait_For_Running_Builds
         displayName: Log Terraform Start
         environment: "Dev"
         strategy:
@@ -312,7 +298,9 @@ stages:
                     
       - deployment: Log_Start_Codebase
         condition: eq(variables.runCodebase, 'true')
-        dependsOn: Log_Result_Terraform_Ended
+        dependsOn: 
+          - Log_Result_Terraform_Ended
+          - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "Dev"
         strategy:
@@ -998,9 +986,8 @@ stages:
         steps:
           - template: tasks/task_schedule-release.yml
             parameters:
-              targetBuild: "PolarisBuild"
               targetLabel: "QA"
-              buildDefinitionId: 346
+              buildDefinitionId: 352
               devOpsPatToken: "$(devops-pat-token)"
               
       - job: Schedule_Release_PROD
@@ -1009,9 +996,8 @@ stages:
         steps:
           - template: tasks/task_schedule-release.yml
             parameters:
-              targetBuild: "PolarisBuild"
               targetLabel: "PROD"
-              buildDefinitionId: 347
+              buildDefinitionId: 353
               devOpsPatToken: "$(devops-pat-token)"
 
       - job: Log_Result

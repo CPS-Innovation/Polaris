@@ -2,6 +2,17 @@
 trigger: none
 pr: none
 
+resources:
+  pipelines:
+    - pipeline: PolarisBuild
+      source: Polaris Build - PROD
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
 variables:
   - group: kv-dev-terraform
   - group: kv-prod-terraform
@@ -22,33 +33,6 @@ stages:
             parameters:
               targetLabel: "PROD"
   
-  # QUEUE PIPELINE IF ANOTHER ONE BASED ON THIS BUILD DEFINITION ID IS ALREADY RUNNING
-  - stage: Wait_For_Running_Releases
-    displayName: Assess Queue
-    dependsOn:
-      - Determine_Changes
-    condition: succeeded()
-    variables:
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    jobs:
-      # Job to wait for running builds
-      - deployment: Wait_For_Running_Builds
-        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
-        displayName: 'Checking for Running Releases'
-        timeoutInMinutes: 240
-        pool:
-          vmImage: 'windows-latest'
-        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
-        environment: "Prod"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_wait-for-running-releases.yml
-                  parameters:
-                    devOpsPatToken: "$(devops-pat-token)"
-
   # PROD: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
   - stage: Deploy
     displayName: Deploy > PROD
@@ -56,9 +40,7 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    dependsOn:
-      - Determine_Changes
-      - Wait_For_Running_Releases
+    dependsOn: Determine_Changes
     pool:
       name: $(prod-build-agent)
     jobs:
@@ -72,14 +54,28 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+                    
+      - job: Wait_For_Running_Builds
+        dependsOn: Log_Start
+        displayName: 'Checking for Running Releases'
+        timeoutInMinutes: 240
+        pool:
+          vmImage: 'windows-latest'
+        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
+        steps:
+          - template: tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Start_Terraform
         condition: eq(variables.runTerraform, 'true')
-        dependsOn: Log_Start
+        dependsOn: 
+          - Log_Start
+          - Wait_For_Running_Builds
         displayName: Log Terraform Start
         environment: "Prod"
         strategy:
@@ -88,7 +84,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -106,7 +102,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "PROD"
                     targetName: "Networking Terraform CI Deployment"
@@ -134,7 +130,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "pipeline-terraform-files"
                     targetLabel: "PROD"
                     targetName: "Pipeline Terraform CI Deployment"
@@ -162,7 +158,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "pipeline-events-terraform-files"
                     targetLabel: "PROD"
                     targetName: "Pipeline Events Terraform CI Deployment"
@@ -188,7 +184,7 @@ stages:
               steps:
                 - template: tasks/task_update-app-keys-in-pipeline-components.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Pipeline Terraform CI Deployment"
                     targetSuffix: ""
@@ -211,7 +207,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "ui-terraform-files"
                     targetLabel: "PROD"
                     targetName: "UI Terraform CI Deployment"
@@ -239,7 +235,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "ui-events-terraform-files"
                     targetLabel: "PROD"
                     targetName: "UI Events Terraform CI Deployment"
@@ -265,7 +261,7 @@ stages:
               steps:
                 - template: tasks/task_set-log-analytics-archival-periods.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "UI Terraform CI Deployment"
                     targetSuffix: ""
@@ -295,7 +291,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -303,7 +299,9 @@ stages:
 
       - deployment: Log_Start_Codebase
         condition: eq(variables.runCodebase, 'true')
-        dependsOn: Log_Result_Terraform_Ended
+        dependsOn: 
+          - Log_Result_Terraform_Ended
+          - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "Prod"
         strategy:
@@ -312,7 +310,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -378,7 +376,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-coordinator.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: ""
@@ -396,7 +394,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-pdf-generator.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: ""
@@ -414,7 +412,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-text-extractor.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: ""
@@ -434,7 +432,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-spa.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: ""
@@ -452,7 +450,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-gateway.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: ""
@@ -475,7 +473,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -504,7 +502,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "PROD"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -528,7 +526,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -644,7 +642,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -669,7 +667,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -694,7 +692,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "Coordinator"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -703,7 +701,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
       - job: Check_PDF_Generator
         dependsOn: Get_Status_URIs
@@ -713,7 +711,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "PDF Generator"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -722,7 +720,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
       - job: Check_Text_Extractor
         dependsOn: Get_Status_URIs
@@ -732,7 +730,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "Text Extractor"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -741,7 +739,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
@@ -751,7 +749,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "Gateway"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -760,7 +758,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
       - job: Check_Proxy
         dependsOn: Get_Status_URIs
@@ -770,7 +768,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "Proxy"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -789,7 +787,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "UI"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -798,7 +796,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -814,7 +812,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -839,7 +837,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -861,7 +859,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -886,7 +884,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -906,7 +904,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -931,7 +929,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -954,7 +952,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
