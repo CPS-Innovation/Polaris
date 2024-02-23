@@ -12,7 +12,6 @@ stages:
   # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
   - stage: Deploy
     displayName: Test Deploy
-    condition: succeeded()
     pool:
       name: $(dev-build-agent)
     jobs:
