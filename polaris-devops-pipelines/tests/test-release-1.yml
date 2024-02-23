@@ -18,8 +18,6 @@ variables:
   - group: polaris-global
   - group: polaris-status-check-endpoints
   - group: terraform-containers
-  - name: buildRef
-    value: TestBuild
     
 stages:
   # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
@@ -58,7 +56,7 @@ stages:
             displayName: 'Schedule'
             inputs:
               buildDefinition: 350
-              buildParameters: "target_build: $(buildRef)"
-              waitForQueuedBuildsToFinish: true
-              cancelBuildsIfAnyFails: true
+              buildParameters: "target_build: $(resources.pipeline.TestBuild.pipelineID)"
+              waitForQueuedBuildsToFinish: false
+              cancelBuildsIfAnyFails: false
               password: "$(devops-pat-token)"
