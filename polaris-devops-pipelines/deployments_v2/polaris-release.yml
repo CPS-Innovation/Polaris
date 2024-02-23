@@ -654,7 +654,7 @@ stages:
           - template: tasks/task_log-result.yml
             parameters:
               targetBuild: PolarisBuild
-              targetLabel: "Dev"
+              targetLabel: "DEV"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               devOpsPatToken: "$(devops-pat-token)"
@@ -687,19 +687,127 @@ stages:
         dependsOn: LogStart
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
         steps:
-          - template: tasks/task_check-statuses.yml
+          - template: tasks/task_get-status-uris.yml
             parameters:
-              targetBuild: PolarisBuild
               targetSuffix: "-dev"
-              targetLabel: "DEV"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               armClientId: $(innovation-development-spn-client-id)
               armClientSecret: $(innovation-development-spn-secret)
               armTenantId: $(innovation-development-spn-tenant-id)
               armSubscriptionId: $(innovation-development-subscription-id)
+
+      - job: CheckCoordinator
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.coordinatorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetAppName: "Coordinator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckPDFGenerator
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.pdfGeneratorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetAppName: "PDF Generator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckTextExtractor
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetAppName: "Text Extractor"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckGateway
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.gatewayUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetAppName: "Gateway"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckProxy
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.proxyUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetAppName: "Proxy"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
+              endpointUri: "$(uri)/"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: "Polaris Proxy is online"
+
+      - job: CheckSPA
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.spaUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetAppName: "UI"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/polaris-ui/build-version.txt"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
           
       - job: LogResult
         condition: and(succeeded(), or(eq(variables.runTerraformDEV, 'true'),eq(variables.runCodebaseDEV, 'true')))
@@ -710,12 +818,13 @@ stages:
           - CheckPDFGenerator
           - CheckTextExtractor
           - CheckGateway
+          - CheckProxy
           - CheckSPA
         steps:
           - template: tasks/task_log-result.yml
             parameters:
               targetBuild: PolarisBuild
-              targetLabel: "Dev"
+              targetLabel: "DEV"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               devOpsPatToken: "$(devops-pat-token)"
@@ -762,7 +871,7 @@ stages:
           - template: tasks/task_log-result.yml
             parameters:
               targetBuild: PolarisBuild
-              targetLabel: "Dev"
+              targetLabel: "DEV"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               devOpsPatToken: "$(devops-pat-token)"
@@ -807,7 +916,7 @@ stages:
           - template: tasks/task_log-result.yml
             parameters:
               targetBuild: PolarisBuild
-              targetLabel: "Dev"
+              targetLabel: "DEV"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               devOpsPatToken: "$(devops-pat-token)"
@@ -854,7 +963,7 @@ stages:
           - template: tasks/task_log-result.yml
             parameters:
               targetBuild: PolarisBuild
-              targetLabel: "Dev"
+              targetLabel: "DEV"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               devOpsPatToken: "$(devops-pat-token)"
@@ -1517,19 +1626,127 @@ stages:
         dependsOn: LogStart
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
         steps:
-          - template: tasks/task_check-statuses.yml
+          - template: tasks/task_get-status-uris.yml
             parameters:
-              targetBuild: PolarisBuild
               targetSuffix: "-qa"
-              targetLabel: "QA"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               armClientId: $(innovation-qa-spn-client-id)
               armClientSecret: $(innovation-qa-spn-secret)
               armTenantId: $(innovation-qa-spn-tenant-id)
               armSubscriptionId: $(innovation-qa-subscription-id)
+
+      - job: CheckCoordinator
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.coordinatorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetAppName: "Coordinator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckPDFGenerator
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.pdfGeneratorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetAppName: "PDF Generator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckTextExtractor
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetAppName: "Text Extractor"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckGateway
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.gatewayUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetAppName: "Gateway"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: CheckProxy
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.proxyUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetAppName: "Proxy"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
+              endpointUri: "$(uri)/"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: "Polaris Proxy is online"
+
+      - job: CheckSPA
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.spaUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetAppName: "UI"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/polaris-ui/build-version.txt"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: LogResult
         condition: and(succeeded(), or(eq(variables.runTerraformQA, 'true'),eq(variables.runCodebaseQA, 'true')))
@@ -1540,6 +1757,7 @@ stages:
           - CheckPDFGenerator
           - CheckTextExtractor
           - CheckGateway
+          - CheckProxy
           - CheckSPA
         steps:
           - template: tasks/task_log-result.yml
@@ -2347,19 +2565,127 @@ stages:
         dependsOn: LogStart
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
         steps:
-          - template: tasks/task_check-statuses.yml
+          - template: tasks/task_get-status-uris.yml
             parameters:
-              targetBuild: PolarisBuild
               targetSuffix: ""
-              targetLabel: "PROD"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               armClientId: $(innovation-prod-spn-client-id)
               armClientSecret: $(innovation-prod-spn-secret)
               armTenantId: $(innovation-prod-spn-tenant-id)
               armSubscriptionId: $(innovation-prod-subscription-id)
+              
+      - job: CheckCoordinator
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.coordinatorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetAppName: "Coordinator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+              
+      - job: CheckPDFGenerator
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.pdfGeneratorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetAppName: "PDF Generator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+              
+      - job: CheckTextExtractor
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetAppName: "Text Extractor"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+              
+      - job: CheckGateway
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.gatewayUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetAppName: "Gateway"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+              
+      - job: CheckProxy
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.proxyUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetAppName: "Proxy"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
+              endpointUri: "$(uri)/"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: "Polaris Proxy is online"
+              
+      - job: CheckSPA
+        dependsOn: GetStatusURIs
+        condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
+        variables:
+          uri: $[dependencies.GetStatusURIs.outputs['uris.spaUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetAppName: "UI"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/polaris-ui/build-version.txt"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: LogResult
         condition: and(succeeded(), or(eq(variables.runTerraformPROD, 'true'),eq(variables.runCodebasePROD, 'true')))
@@ -2370,6 +2696,7 @@ stages:
           - CheckPDFGenerator
           - CheckTextExtractor
           - CheckGateway
+          - CheckProxy
           - CheckSPA
         steps:
           - template: tasks/task_log-result.yml
