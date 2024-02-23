@@ -72,3 +72,21 @@ export const readFromLocalStorage = (
   }
   return null;
 };
+
+export const deleteFromLocalStorage = (
+  caseId: number,
+  featureKey: LocalStorageKey
+) => {
+  const storageKey = `${caseId}`;
+  const storedData = localStorage.getItem(storageKey);
+  if (storedData) {
+    const parsedData = JSON.parse(storedData);
+    delete parsedData.value[featureKey];
+    const newData = {
+      ...parsedData,
+      modifiedDate: Date.now(),
+    };
+    localStorage.setItem(storageKey, JSON.stringify(newData));
+    return;
+  }
+};

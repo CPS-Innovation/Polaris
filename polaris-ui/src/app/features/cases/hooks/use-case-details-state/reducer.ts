@@ -32,6 +32,7 @@ import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 import {
   addToLocalStorage,
+  deleteFromLocalStorage,
   readFromLocalStorage,
   ReadData,
   RedactionsData,
@@ -842,9 +843,10 @@ export const reducer = (
         //save redaction here
       }
 
-      if (saveStatus === "saved") {
-        //clear saved redaction here
-      }
+      // if (saveStatus === "saved") {
+      //   //clear saved redaction here
+
+      // }
 
       console.log("redactionHighlights>>>>", redactionHighlights);
       return {
@@ -865,7 +867,7 @@ export const reducer = (
     case "REMOVE_REDACTION": {
       const { redactionId, documentId } = action.payload;
 
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -881,11 +883,21 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = newState.tabsState.items.map((item) => {
+        return {
+          documentId: item.documentId,
+          redactionHighlights: item.redactionHighlights,
+        };
+      });
+      addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+
+      return newState;
     }
 
     case "REMOVE_ALL_REDACTIONS": {
       const { documentId } = action.payload;
-
+      deleteFromLocalStorage(state.caseId, "redactions");
       return {
         ...state,
         tabsState: {
