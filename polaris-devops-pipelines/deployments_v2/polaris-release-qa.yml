@@ -2,6 +2,17 @@
 trigger: none
 pr: none
 
+resources:
+  pipelines:
+    - pipeline: PolarisBuild
+      source: Polaris Build - QA
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
 variables:
   - group: kv-dev-terraform
   - group: kv-qa-terraform
@@ -71,7 +82,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -87,7 +98,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -105,7 +116,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "QA"
                     targetName: "Networking Terraform CI Deployment"
@@ -133,7 +144,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "pipeline-terraform-files"
                     targetLabel: "QA"
                     targetName: "Pipeline Terraform CI Deployment"
@@ -161,7 +172,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "pipeline-events-terraform-files"
                     targetLabel: "QA"
                     targetName: "Pipeline Events Terraform CI Deployment"
@@ -187,7 +198,7 @@ stages:
               steps:
                 - template: tasks/task_update-app-keys-in-pipeline-components.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Pipeline Terraform CI Deployment"
                     targetSuffix: "-qa"
@@ -210,7 +221,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "ui-terraform-files"
                     targetLabel: "QA"
                     targetName: "UI Terraform CI Deployment"
@@ -238,7 +249,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetTerraformArtifact: "ui-events-terraform-files"
                     targetLabel: "QA"
                     targetName: "UI Events Terraform CI Deployment"
@@ -264,7 +275,7 @@ stages:
               steps:
                 - template: tasks/task_set-log-analytics-archival-periods.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "UI Terraform CI Deployment"
                     targetSuffix: "-qa"
@@ -294,7 +305,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -311,7 +322,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -377,7 +388,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-coordinator.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
@@ -395,7 +406,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-pdf-generator.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
@@ -413,7 +424,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-text-extractor.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
@@ -433,7 +444,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-spa.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
@@ -451,7 +462,7 @@ stages:
               steps:
                 - template: tasks/task_deploy-gateway.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
@@ -474,7 +485,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -503,7 +514,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: $(target_build)
+                    targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -527,7 +538,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -643,7 +654,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -668,7 +679,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -693,7 +704,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetAppName: "Coordinator"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -702,7 +713,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Check_PDF_Generator
         dependsOn: Get_Status_URIs
@@ -712,7 +723,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetAppName: "PDF Generator"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -721,7 +732,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Check_Text_Extractor
         dependsOn: Get_Status_URIs
@@ -731,7 +742,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetAppName: "Text Extractor"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -740,7 +751,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
@@ -750,7 +761,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetAppName: "Gateway"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -759,7 +770,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Check_Proxy
         dependsOn: Get_Status_URIs
@@ -769,7 +780,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetAppName: "Proxy"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -788,7 +799,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetAppName: "UI"
               targetScript: "InvokeRequestWithRetry.ps1"
@@ -797,7 +808,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.$(target_build).runName)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -813,7 +824,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -838,7 +849,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -860,7 +871,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -885,7 +896,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -905,7 +916,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -930,7 +941,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -953,7 +964,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(target_build)
+              targetBuild: PolarisBuild
               targetLabel: "QA"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"

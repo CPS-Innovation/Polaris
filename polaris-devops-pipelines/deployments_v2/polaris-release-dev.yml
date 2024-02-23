@@ -5,7 +5,7 @@ pr: none
 resources:
   pipelines:
     - pipeline: PolarisBuild
-      source: Polaris - Build
+      source: Polaris Build - DEV
       trigger:
         branches:
           include:
@@ -998,7 +998,6 @@ stages:
         steps:
           - template: tasks/task_schedule-release.yml
             parameters:
-              targetBuild: "PolarisBuild"
               targetLabel: "QA"
               buildDefinitionId: 346
               devOpsPatToken: "$(devops-pat-token)"
@@ -1009,7 +1008,6 @@ stages:
         steps:
           - template: tasks/task_schedule-release.yml
             parameters:
-              targetBuild: "PolarisBuild"
               targetLabel: "PROD"
               buildDefinitionId: 347
               devOpsPatToken: "$(devops-pat-token)"
