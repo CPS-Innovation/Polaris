@@ -19,6 +19,7 @@ variables:
   - group: kv-prod-terraform
   - group: polaris-global
   - group: polaris-status-check-endpoints
+  - group: terraform-containers
     
 stages:
   # DETERMINE CHANGES - GIT DIFF FOR ALL 3 ENVIRONMENTS AND PREPARE RECORD OF CHANGES
