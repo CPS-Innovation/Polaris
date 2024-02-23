@@ -1,0 +1,53 @@
+﻿---
+parameters:
+  - name: devOpsPatToken
+    type: string
+
+steps:
+  - task: PowerShell@2
+    displayName: Querying Status
+    inputs:
+      targetType: 'inline'
+      script: |
+        #If this starts failing randomly, check for DevOps token expiry
+        $token = "${{ parameters.devOpsPatToken }}"
+        $organization = "CPSDTS"
+        $project = "Information%20Management"
+
+        $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $user,$token)))
+
+        $ThisBuildDefinitionID = $(System.DefinitionId)
+        [int]$ThisBuildID = $(Build.BuildId)
+
+        $GET_BUILDS_BY_DEFINITION_URL = "https://dev.azure.com/$organization/$project/_apis/build/builds?api-version=5.1&definitions=$ThisBuildDefinitionID"
+
+        do
+        {
+            $GET_BUILDS_BY_DEFINITION_RESPONSE = ""
+            try
+            {
+              $GET_BUILDS_BY_DEFINITION_RESPONSE = Invoke-RestMethod -Uri $GET_BUILDS_BY_DEFINITION_URL `
+                                          -Method GET `
+                                          -ContentType "application/json" `
+                                          -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}
+            }
+            catch
+            {
+              continue
+            }
+
+            [array]$runningBuilds = $GET_BUILDS_BY_DEFINITION_RESPONSE.value | Where-Object -Property "status" -Value "inProgress" -EQ
+
+            [int]$currentRunningBuild = ($runningBuilds | Sort-Object -Property "Id")[0].Id
+
+            Write-Host "This Build ID: " $ThisBuildID
+            Write-Host "Currently Running Build ID: " $currentRunningBuild
+            Write-Host "Waiting..." 
+            Write-Output ""
+            Start-Sleep -Seconds 5
+        }
+        while($ThisBuildID -ne $currentRunningBuild)
+
+        Write-Host "Waiting Complete."
+        Write-Host "Starting Build: " $ThisBuildID
+        Start-Sleep -Seconds 5
