@@ -55,8 +55,7 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Schedule'
             inputs:
-              buildDefinition: 350
-              buildParameters: "target_build: $(resources.pipeline.TestBuild.pipelineID)"
+              buildDefinition: 351
               waitForQueuedBuildsToFinish: false
               cancelBuildsIfAnyFails: false
               password: "$(devops-pat-token)"
