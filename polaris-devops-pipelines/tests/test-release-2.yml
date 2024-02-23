@@ -2,6 +2,18 @@
 trigger: none
 pr: none
 
+resources:
+  pipelines:
+    - pipeline: TestBuild
+      source: Test - Release1
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+            - refs/heads/bugfix/find-solution-to-call-child-pipeline-passing-build-ref
+        stages:
+          - Deploy
+
 variables:
   - group: kv-dev-terraform
   - group: polaris-global
