@@ -389,6 +389,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-dev"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
@@ -406,6 +407,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-dev"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
@@ -423,6 +425,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-dev"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
@@ -442,6 +445,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-dev"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
@@ -459,6 +463,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-dev"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
@@ -1214,6 +1219,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
@@ -1231,6 +1237,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
@@ -1248,6 +1255,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
@@ -1267,6 +1275,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
@@ -1284,6 +1293,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: "-qa"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
@@ -2039,6 +2049,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -2056,6 +2067,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -2073,6 +2085,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -2092,6 +2105,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -2109,6 +2123,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
+                    targetName: "Codebase CI Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
