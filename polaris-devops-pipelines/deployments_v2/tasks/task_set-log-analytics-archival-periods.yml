@@ -23,7 +23,7 @@ parameters:
   - name: totalLogRetentionTime
     type: string
   
-tasks:
+steps:
   # download scripts artifact
   - download: ${{ parameters.targetBuild }}
     displayName: Download Scripts
