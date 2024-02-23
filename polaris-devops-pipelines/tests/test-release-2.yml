@@ -5,13 +5,13 @@ pr: none
 resources:
   pipelines:
     - pipeline: TestBuild
-      source: Test - Build1
+      source: Test - Release1
       trigger:
         branches:
           include:
             - refs/heads/main
         stages:
-          - Publish_Artifacts
+          - Deploy
 
 variables:
   - group: kv-dev-terraform
