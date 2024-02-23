@@ -1,0 +1,20 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: buildDefinitionId
+    type: string
+  - name: devOpsPatToken
+    type: string
+
+steps:
+  - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+    displayName: 'Schedule a Release: ${{ parameters.targetLabel }}'
+    inputs:
+      buildDefinition: ${{ parameters.buildDefinitionId }}
+      buildParameters: "target_build: $(targetBuild)"
+      waitForQueuedBuildsToFinish: false
+      cancelBuildsIfAnyFails: false
+      password: "${{ parameters.devOpsPatToken }}"
