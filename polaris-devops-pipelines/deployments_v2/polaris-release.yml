@@ -847,12 +847,12 @@ stages:
           - RunE2eTests
         steps:
           - template: tasks/task_log-result.yml
-        parameters:
-          targetBuild: PolarisBuild
-          targetLabel: "Dev"
-          targetName: "e2e Tests"
-          appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-          devOpsPatToken: "$(devops-pat-token)"
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "Dev"
+              targetName: "e2e Tests"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(devops-pat-token)"
   
   ################################# QA ###############################################          
   # QUEUE PIPELINE IF ANOTHER ONE BASED ON THIS BUILD DEFINITION ID IS ALREADY RUNNING
