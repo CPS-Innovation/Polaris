@@ -24,19 +24,13 @@ stages:
   - stage: Determine_Changes
     displayName: Determine Changes
     jobs:
-      - deployment: Generate_Diff
-        displayName: 'Determine Changes in DEV'
-        timeoutInMinutes: 240
+      - job: Generate_Diff
         pool:
           name: $(dev-build-agent)
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_determine-changes.yml
-                  parameters:
-                    targetLabel: "DEV"
+        steps:
+          - template: tasks/task_determine-changes.yml
+            parameters:
+              targetLabel: "DEV"
   
   # QUEUE PIPELINE IF ANOTHER ONE BASED ON THIS BUILD DEFINITION ID IS ALREADY RUNNING
   - stage: Wait_For_Running_Releases
