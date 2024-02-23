@@ -1685,7 +1685,7 @@ stages:
     displayName: Assess Queue
     dependsOn:
       - Determine_Changes
-      - Run_e2e_Tests_QA
+      - Run_e2e_Tests_DEV
     condition: succeeded()
     variables:
       runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM_PROD']]
