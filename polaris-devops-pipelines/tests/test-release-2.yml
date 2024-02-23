@@ -1,0 +1,44 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: TestBuild
+      source: Test - Build1
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: polaris-status-check-endpoints
+  - group: terraform-containers
+
+stages:
+  # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
+  - stage: Deploy
+    displayName: Test Deploy
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: Deploy_Text_Extractor
+        displayName: Deploy Text Extractor
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # download scripts artifact
+                - download: TestBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                
+                # download text-extractor build artifact
+                - download: TestBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
