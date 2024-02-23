@@ -11,7 +11,7 @@ resources:
           include:
             - refs/heads/main
         stages:
-          - Deploy
+          - Publish_Artifacts
 
 variables:
   - group: kv-dev-terraform
@@ -24,7 +24,7 @@ stages:
   - stage: Deploy
     displayName: Test Deploy
     pool:
-      name: $(dev-build-agent)
+      name: $(qa-build-agent)
     jobs:
       - deployment: Deploy_Text_Extractor
         displayName: Deploy Text Extractor
