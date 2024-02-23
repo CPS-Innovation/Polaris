@@ -996,7 +996,7 @@ stages:
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn: Log_Start
         steps:
-          - template: tasks/tasks_schedule-release.yml
+          - template: tasks/task_schedule-release.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "QA"
@@ -1007,7 +1007,7 @@ stages:
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn: Log_Start
         steps:
-          - template: tasks/tasks_schedule-release.yml
+          - template: tasks/task_schedule-release.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
