@@ -35,11 +35,11 @@ stages:
             deploy:
               steps:
                 # download scripts artifact
-                - download: $(target_build)
+                - download: TestBuild
                   displayName: Download Scripts
                   artifact: 'polaris-script-files'
                 
                 # download text-extractor build artifact
-                - download: $(target_build)
+                - download: TestBuild
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
