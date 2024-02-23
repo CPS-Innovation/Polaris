@@ -1,3 +1,4 @@
+---
 parameters:
   - name: targetBuild
     type: string

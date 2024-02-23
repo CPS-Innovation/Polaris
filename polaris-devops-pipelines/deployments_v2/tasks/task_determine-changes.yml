@@ -1,5 +1,4 @@
 ﻿---
-
 steps:
   - task: PowerShell@2
     inputs:

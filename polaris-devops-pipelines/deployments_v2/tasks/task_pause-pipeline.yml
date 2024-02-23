@@ -1,6 +1,4 @@
 ﻿---
-parameters:
-  
 steps:
   # introduce a pause to allow background slot tasks to complete before initiating a swap-slot request
   - powershell: 'Start-Sleep -Seconds 120'
