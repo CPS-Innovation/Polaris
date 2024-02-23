@@ -85,3 +85,7 @@ export const getPresentationRedactionTypeNames = (
       return `${name}s`;
   }
 };
+
+export const removeNonDigits = (input: string) => {
+  return input.replace(/\D/g, "");
+};

@@ -24,7 +24,7 @@ export const expectedUnderRedactionType1Payload = {
   chargeStatus: 2,
   cmsValues: {
     originalFileName: "M*******3",
-    documentId: "1",
+    documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
@@ -57,7 +57,7 @@ export const expectedUnderRedactionType2Payload = {
   chargeStatus: 2,
   cmsValues: {
     originalFileName: "M*******3",
-    documentId: "1",
+    documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
@@ -90,7 +90,7 @@ export const expectedOverRedactionLogPayload = {
   chargeStatus: 2,
   cmsValues: {
     originalFileName: "M*******3",
-    documentId: "1",
+    documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
@@ -132,7 +132,7 @@ export const expectedOverUnderRedactionLogPayload = {
   chargeStatus: 2,
   cmsValues: {
     originalFileName: "M*******3",
-    documentId: "1",
+    documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
