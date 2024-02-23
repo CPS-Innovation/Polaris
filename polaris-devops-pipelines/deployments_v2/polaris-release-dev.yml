@@ -998,7 +998,7 @@ stages:
         steps:
           - template: tasks/task_schedule-release.yml
             parameters:
-              targetBuild: PolarisBuild
+              targetBuild: "PolarisBuild"
               targetLabel: "QA"
               buildDefinitionId: 346
               devOpsPatToken: "$(devops-pat-token)"
@@ -1009,7 +1009,7 @@ stages:
         steps:
           - template: tasks/task_schedule-release.yml
             parameters:
-              targetBuild: PolarisBuild
+              targetBuild: "PolarisBuild"
               targetLabel: "PROD"
               buildDefinitionId: 347
               devOpsPatToken: "$(devops-pat-token)"
@@ -1023,7 +1023,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisBuild
+              targetBuild: $(resources.pipeline.PolarisBuild.pipelineName)
               targetLabel: "DEV"
               targetName: "Schedule Releases"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
