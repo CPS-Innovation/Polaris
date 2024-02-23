@@ -1023,7 +1023,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: $(resources.pipeline.PolarisBuild.pipelineName)
+              targetBuild: PolarisBuild
               targetLabel: "DEV"
               targetName: "Schedule Releases"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
