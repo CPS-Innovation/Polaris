@@ -13,13 +13,19 @@ stages:
   - stage: Determine_Changes
     displayName: Determine Changes
     jobs:
-      - job: Generate_Diff
+      - deployment: Generate_Diff
+        displayName: 'Determine Changes in QA'
+        timeoutInMinutes: 240
         pool:
           name: $(qa-build-agent)
-        steps:
-          - template: tasks/task_determine-changes.yml
-            parameters:
-              targetLabel: "QA"
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_determine-changes.yml
+                  parameters:
+                    targetLabel: "QA"
   
   # QUEUE PIPELINE IF ANOTHER ONE BASED ON THIS BUILD DEFINITION ID IS ALREADY RUNNING
   - stage: Wait_For_Running_Releases
