@@ -27,8 +27,8 @@ stages:
     dependsOn: Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     jobs:
       # Job to wait for running builds
       - deployment: Wait_For_Running_Builds
@@ -52,8 +52,8 @@ stages:
     displayName: Deploy > QA
     condition: succeeded()
     variables:
-      runTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     dependsOn:
       - Determine_Changes
       - Wait_For_Running_Releases
@@ -62,7 +62,7 @@ stages:
     jobs:
       - deployment: Log_Start
         displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runTerraform, 'true')))
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         environment: "QA"
         strategy:
           runOnce:
@@ -515,7 +515,7 @@ stages:
       - Deploy
       - Determine_Changes
     variables:
-      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     condition: succeeded()
     pool:
       name: $(qa-build-agent)
@@ -656,8 +656,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(qa-build-agent)
     jobs:
@@ -826,8 +826,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(qa-build-agent)
     jobs:
@@ -873,8 +873,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(qa-build-agent)
     jobs:
@@ -918,8 +918,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(qa-build-agent)
     jobs:

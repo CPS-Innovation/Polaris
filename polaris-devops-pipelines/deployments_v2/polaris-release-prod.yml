@@ -29,11 +29,11 @@ stages:
       - Run_e2e_Tests
     condition: succeeded()
     variables:
-      runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     jobs:
       # Job to wait for running builds
-      - deployment: waitForRunningBuildsDev
+      - deployment: Wait_For_Running_Builds
         condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
         displayName: 'Checking for Running Releases'
         timeoutInMinutes: 240
@@ -54,8 +54,8 @@ stages:
     displayName: Deploy > PROD
     condition: succeeded()
     variables:
-      runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     dependsOn:
       - Determine_Changes
       - Wait_For_Running_Releases
@@ -64,7 +64,7 @@ stages:
     jobs:
       - deployment: Log_Start
         displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runTerraform, 'true')))
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         environment: "Prod"
         strategy:
           runOnce:
@@ -517,7 +517,7 @@ stages:
       - Deploy
       - Determine_Changes
     variables:
-      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     condition: succeeded()
     pool:
       name: $(prod-build-agent)
@@ -658,8 +658,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(prod-build-agent)
     jobs:
@@ -828,8 +828,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(prod-build-agent)
     jobs:
@@ -875,8 +875,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(prod-build-agent)
     jobs:
@@ -920,8 +920,8 @@ stages:
       - Determine_Changes
     condition: succeeded()
     variables:
-      runTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     pool:
       name: $(prod-build-agent)
     jobs:
