@@ -141,23 +141,27 @@
   border-top: 0.0625rem solid #bfc1c3;
   margin-top: 0;
   margin-bottom: 0;
-  border-left: 5px solid #1d70b8;
-}
-
-.accordion .accordion-document-list :last-child {
-  border-bottom: none;
 }
 
 .accordion .accordion-document-list-item {
   display: flex;
   flex-direction: column;
   background-color: rgba(29, 112, 184, 0.075);
+  border-left: 5px solid #1d70b8;
+}
+
+.listItemWrapper {
   padding: 10px 0 10px 10px;
   border-bottom: 0.0625rem solid #bfc1c3;
+}
+.listItemWrapper :last-child {
+  border-bottom: none;
 }
 
 .accordion .docRead {
   background-color: #fff;
+  border-left: none;
+  border-right: 5px solid #bfe3e0;
 }
 
 .accordion .accordion-document-item-wrapper {
