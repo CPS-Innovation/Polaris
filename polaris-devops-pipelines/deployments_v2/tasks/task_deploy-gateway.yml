@@ -4,6 +4,8 @@ parameters:
     type: string
   - name: targetLabel
     type: string
+  - name: targetName
+    type: string
   - name: targetSuffix
     type: string
   - name: appInsightsKey
