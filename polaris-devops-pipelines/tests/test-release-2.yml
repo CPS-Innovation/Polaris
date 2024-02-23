@@ -16,7 +16,6 @@ stages:
       name: $(dev-build-agent)
     jobs:
       - deployment: Deploy_Text_Extractor
-        dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
         environment: "Dev"
         strategy:
