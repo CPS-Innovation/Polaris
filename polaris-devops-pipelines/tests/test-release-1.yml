@@ -1,0 +1,67 @@
+﻿---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: TestBuild
+      source: Test - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+          
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: polaris-status-check-endpoints
+  - group: terraform-containers
+  - name: buildRef
+    value: TestBuild
+    
+stages:
+  # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
+  - stage: Deploy
+    displayName: Test Deploy
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: Deploy_Text_Extractor
+        dependsOn: Start_Pipeline_Slots
+        displayName: Deploy Text Extractor
+        condition: eq(variables.runCodebase, 'true')
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # download scripts artifact
+                - download: TestBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                  
+                # download text-extractor build artifact
+                - download: TestBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                    
+  - stage: Schedule_Releases
+    displayName: Test Schedule
+    dependsOn: Deploy
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: Schedule_Test
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Schedule'
+            inputs:
+              buildDefinition: 123
+              buildParameters: "target_build: $(buildRef)"
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: "$(devops-pat-token)"
