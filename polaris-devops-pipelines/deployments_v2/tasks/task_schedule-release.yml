@@ -14,7 +14,7 @@ steps:
     displayName: 'Schedule a Release: ${{ parameters.targetLabel }}'
     inputs:
       buildDefinition: ${{ parameters.buildDefinitionId }}
-      buildParameters: "target_build: $(targetBuild)"
+      buildParameters: "target_build: ${{ parameters.targetBuild }}"
       waitForQueuedBuildsToFinish: false
       cancelBuildsIfAnyFails: false
       password: "${{ parameters.devOpsPatToken }}"
