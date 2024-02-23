@@ -2,16 +2,16 @@
 trigger: none
 pr: none
 
-resources:
-  pipelines:
-    - pipeline: TestBuild
-      source: Test - Release1
-      trigger:
-        branches:
-          include:
-            - refs/heads/main
-        stages:
-          - Deploy
+#resources:
+#  pipelines:
+#    - pipeline: TestBuild
+#      source: Test - Release1
+#      trigger:
+#        branches:
+#          include:
+#            - refs/heads/main
+#        stages:
+#          - Deploy
 
 variables:
   - group: kv-dev-terraform
@@ -34,11 +34,11 @@ stages:
             deploy:
               steps:
                 # download scripts artifact
-                - download: TestBuild
+                - download: $(TriggeredBuildIds)
                   displayName: Download Scripts
                   artifact: 'polaris-script-files'
                 
                 # download text-extractor build artifact
-                - download: TestBuild
+                - download: $(TriggeredBuildIds)
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"

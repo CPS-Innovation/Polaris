@@ -43,19 +43,19 @@ stages:
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                     
-  #- stage: Schedule_Releases
-  #  displayName: Test Schedule
-  #  dependsOn: Deploy
-  #  condition: succeeded()
-  #  pool:
-  #    name: $(dev-build-agent)
-  #  jobs:
-  #    - job: Schedule_Test
-  #      steps:
-  #        - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
-  #          displayName: 'Schedule'
-  #          inputs:
-  #            buildDefinition: 351
-  #            waitForQueuedBuildsToFinish: false
-  #            cancelBuildsIfAnyFails: false
-  #            password: "$(devops-pat-token)"
+  - stage: Schedule_Releases
+    displayName: Test Schedule
+    dependsOn: Deploy
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: Schedule_Test
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Schedule'
+            inputs:
+              buildDefinition: 350
+              waitForQueuedBuildsToFinish: false
+              cancelBuildsIfAnyFails: false
+              password: "$(devops-pat-token)"
