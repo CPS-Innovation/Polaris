@@ -10,7 +10,7 @@ resources:
         branches:
           include:
             - refs/heads/main
-            - refs/heads/bugfix/find-solution-to-call-child-pipeline-passing-build-ref
+            - bugfix/find-solution-to-call-child-pipeline-passing-build-ref
         stages:
           - Deploy
 
