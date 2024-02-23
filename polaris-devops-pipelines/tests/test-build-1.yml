@@ -14,7 +14,7 @@ variables:
     value: "$[counter(variables['majorMinorVersion'], 1)]"
     
 pool:
-  name: $(dev-build-agent)
+  name: $(qa-build-agent)
 
 stages:
   - stage: Publish_Artifacts
