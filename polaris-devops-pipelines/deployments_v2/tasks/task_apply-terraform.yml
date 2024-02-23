@@ -37,7 +37,7 @@ steps:
     artifact: 'polaris-script-files'
 
   # send custom event to AppInsights
-  - template: tasks/task_send-to-app-insights.yml
+  - template: task_send-to-app-insights.yml
     parameters:
       appInsightsKey: ${{ parameters.appInsightsKey }}
       targetBuild: ${{ parameters.targetBuild }}
@@ -91,7 +91,7 @@ steps:
       TF_LOG: "ERROR"
 
   # send custom event to AppInsights
-  - template: tasks/task_send-to-app-insights.yml
+  - template: task_send-to-app-insights.yml
     parameters:
       appInsightsKey: ${{ parameters.appInsightsKey }}
       targetBuild: ${{ parameters.targetBuild }}
