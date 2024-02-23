@@ -16,6 +16,7 @@ variables:
 pool:
   name: $(dev-build-agent)
 
+#a comment
 stages:
   - stage: Publish_Artifacts
     displayName: Publish Pipeline Scripts
