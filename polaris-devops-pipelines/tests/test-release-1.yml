@@ -60,7 +60,7 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Schedule'
             inputs:
-              buildDefinition: 123
+              buildDefinition: 350
               buildParameters: "target_build: $(buildRef)"
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
