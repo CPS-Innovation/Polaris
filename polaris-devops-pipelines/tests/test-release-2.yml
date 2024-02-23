@@ -5,7 +5,7 @@ pr: none
 resources:
   pipelines:
     - pipeline: TestBuild
-      source: Test - Release1
+      source: Test - Build1
       trigger:
         branches:
           include:
