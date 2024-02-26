@@ -7,7 +7,7 @@ describe("Refresh via guid-controlled ", () => {
 
     cy.clearCaseTracker(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID)
 
-    cy.visit("/polaris-ui")
+    cy.visit("/polaris-ui/case-search?redactionLog=false")
     cy.setPolarisInstrumentationGuid("PHASE_1")
     cy.findByTestId("input-search-urn").type(`${REFRESH_TARGET_URN}{enter}`)
     cy.findByTestId(`link-${REFRESH_TARGET_URN}`).click()
@@ -18,9 +18,6 @@ describe("Refresh via guid-controlled ", () => {
     cy.selectPDFTextElement("Three")
 
     cy.setPolarisInstrumentationGuid("PHASE_2")
-    cy.findByTestId("btn-redact").should("be.disabled")
-    cy.findByTestId("select-redaction-type").should("have.length", 1)
-    cy.findByTestId("select-redaction-type").select("2")
     cy.findByTestId("btn-redact").click({ force: true })
 
     cy.findByTestId("btn-save-redaction-0").click(
@@ -30,10 +27,10 @@ describe("Refresh via guid-controlled ", () => {
     )
 
     // we need to add redaction log modal functionality here
-    // cy.findByTestId("pdfTab-spinner-0").should("exist")
-    // cy.findByTestId("pdfTab-spinner-0").should("not.exist")
-    // cy.findByTestId("div-pdfviewer-0").should("exist")
-    // cy.selectPDFTextElement("Four")
+    cy.findByTestId("pdfTab-spinner-0").should("exist")
+    cy.findByTestId("pdfTab-spinner-0").should("not.exist")
+    cy.findByTestId("div-pdfviewer-0").should("exist")
+    cy.selectPDFTextElement("Four")
   })
 })
 
