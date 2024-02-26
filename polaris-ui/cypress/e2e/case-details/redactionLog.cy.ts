@@ -867,7 +867,7 @@ describe("Redaction Log", () => {
   });
 
   describe("Feature Flag Off", () => {
-    it("Should not show the redaction types select input along with the redaction button ", () => {
+    it("Should not show the redaction types select input along with the redaction button", () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
