@@ -109,8 +109,8 @@ Cypress.Commands.add("trackRequestBody", (requestObject, method, pathname) => {
     const worker = (window as any).msw.worker;
     worker.events.on("request:start", (req: any) => {
       if (req.method === method && req.url.pathname === pathname) {
-        cy.log("request>>>", req.body);
         requestObject.body = req.body;
+        cy.log("request>>>", req.body);
       }
     });
   });

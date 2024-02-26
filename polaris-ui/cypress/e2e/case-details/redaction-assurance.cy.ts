@@ -164,7 +164,6 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
-        cy.log("saveRequestObject.body", saveRequestObject.body);
         expect(saveRequestObject.body).to.equal("a");
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
