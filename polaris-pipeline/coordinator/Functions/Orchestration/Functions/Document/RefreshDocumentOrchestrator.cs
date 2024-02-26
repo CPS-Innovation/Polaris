@@ -5,6 +5,7 @@ using Common.Dto.Tracker;
 using Common.Logging;
 using Common.ValueObjects;
 using coordinator.Domain;
+using coordinator.Domain.Entity;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
@@ -58,6 +59,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
+
+            if (payload.CaseDeltaType != DocumentDeltaType.RequiresIndexing)
+            {
+                return new RefreshDocumentResult();
+            }
 
             var result = await CallTextExtractorAsync(context, payload, caseEntity, log);
 

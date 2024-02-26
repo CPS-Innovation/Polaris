@@ -104,7 +104,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
             var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges) = GetDeltaDefendantsAndCharges(defendantsAndCharges);
 
-            CaseDeltasEntity deltas = new CaseDeltasEntity
+            var deltas = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = CreateTrackerCmsDocuments(createdDocuments),
                 UpdatedCmsDocuments = UpdateTrackerCmsDocuments(updatedDocuments),
@@ -148,13 +148,17 @@ namespace coordinator.Functions.DurableEntity.Entity
                  (
                      cmsDocument != null &&
                      (
-                         cmsDocument.Status != DocumentStatus.Indexed ||
                          cmsDocument.CmsVersionId != incomingDocument.VersionId ||
                          cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
-                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId
+                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId ||
+                         cmsDocument.PresentationTitle != incomingDocument.PresentationTitle ||
+                         cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
+                         cmsDocument.WitnessId != incomingDocument.WitnessId
                      )
                  )
                  select incomingDocument).ToList();
+
+            // todo: filetype check here
 
             var deletedCmsDocumentIdsToRemove
                 = CmsDocuments.Where(doc => !incomingDocuments.Any(incomingDoc => incomingDoc.DocumentId == doc.CmsDocumentId))
@@ -202,9 +206,9 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<CmsDocumentEntity> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
+        private List<(CmsDocumentEntity, DocumentDeltaType)> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
         {
-            var newDocuments = new List<CmsDocumentEntity>();
+            var newDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
 
             foreach (var newDocument in createdDocuments)
             {
@@ -232,33 +236,47 @@ namespace coordinator.Functions.DurableEntity.Entity
                     );
 
                 CmsDocuments.Add(trackerDocument);
-                newDocuments.Add(trackerDocument);
+                newDocuments.Add((trackerDocument, DocumentDeltaType.RequiresIndexing));
             }
 
             return newDocuments;
         }
 
-        private List<CmsDocumentEntity> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
+        private List<(CmsDocumentEntity, DocumentDeltaType)> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
         {
-            var changedDocuments = new List<CmsDocumentEntity>();
+            var changedDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
 
             foreach (var updatedDocument in updatedDocuments)
             {
                 var trackerDocument = CmsDocuments.Find(d => d.CmsDocumentId == updatedDocument.DocumentId);
 
-                trackerDocument.PolarisDocumentVersionId++;
-                trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
                 trackerDocument.Path = updatedDocument.Path;
                 trackerDocument.CmsOriginalFileExtension = updatedDocument.FileExtension;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
-                trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
                 trackerDocument.IsDispatched = updatedDocument.IsDispatched;
                 trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
                 trackerDocument.WitnessId = updatedDocument.WitnessId;
-                changedDocuments.Add(trackerDocument);
+                trackerDocument.CategoryListOrder = updatedDocument.CategoryListOrder;
+
+                var caseDeltaType = DocumentDeltaType.DoesNotRequireRefresh;
+
+                if (trackerDocument.IsOcrProcessed != updatedDocument.IsOcrProcessed)
+                {
+                    trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
+                    caseDeltaType = DocumentDeltaType.RequiresPdfRefresh;
+                }
+
+                if (trackerDocument.CmsVersionId != updatedDocument.VersionId)
+                {
+                    trackerDocument.PolarisDocumentVersionId++;
+                    trackerDocument.CmsVersionId = updatedDocument.VersionId;
+                    caseDeltaType = DocumentDeltaType.RequiresIndexing;
+                }
+
+                changedDocuments.Add((trackerDocument, caseDeltaType));
             }
 
             return changedDocuments;

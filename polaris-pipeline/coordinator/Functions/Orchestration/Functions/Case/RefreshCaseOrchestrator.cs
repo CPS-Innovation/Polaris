@@ -13,6 +13,7 @@ using Common.Logging;
 using Common.Telemetry.Contracts;
 using coordinator.Constants;
 using coordinator.Domain;
+using coordinator.Domain.Entity;
 using coordinator.Domain.Exceptions;
 using coordinator.Functions.ActivityFunctions.Case;
 using coordinator.Functions.DurableEntity.Entity.Contract;
@@ -155,13 +156,14 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                         {
                             return new CaseDocumentOrchestrationPayload
                             (
-                                caseDocumentPayload.CmsAuthValues,
-                                caseDocumentPayload.CorrelationId,
-                                caseDocumentPayload.CmsCaseUrn,
-                                caseDocumentPayload.CmsCaseId,
-                                JsonSerializer.Serialize(trackerCmsDocument),
-                                null,
-                                null
+                                cmsAuthValues: caseDocumentPayload.CmsAuthValues,
+                                correlationId: caseDocumentPayload.CorrelationId,
+                                cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
+                                cmsCaseId: caseDocumentPayload.CmsCaseId,
+                                serializedTrackerCmsDocumentDto: JsonSerializer.Serialize(trackerCmsDocument.Item1),
+                                serializedTrackerPcdRequestDto: null,
+                                serializedTrackerDefendantAndChargesDto: null,
+                                caseDeltaType: trackerCmsDocument.Item2
                             );
                         }
                     )
@@ -175,13 +177,14 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                         {
                             return new CaseDocumentOrchestrationPayload
                             (
-                                caseDocumentPayload.CmsAuthValues,
-                                caseDocumentPayload.CorrelationId,
-                                caseDocumentPayload.CmsCaseUrn,
-                                caseDocumentPayload.CmsCaseId,
-                                null,
-                                JsonSerializer.Serialize(trackerPcdRequest),
-                                null
+                                cmsAuthValues: caseDocumentPayload.CmsAuthValues,
+                                correlationId: caseDocumentPayload.CorrelationId,
+                                cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
+                                cmsCaseId: caseDocumentPayload.CmsCaseId,
+                                serializedTrackerCmsDocumentDto: null,
+                                serializedTrackerPcdRequestDto: JsonSerializer.Serialize(trackerPcdRequest),
+                                serializedTrackerDefendantAndChargesDto: null,
+                                caseDeltaType: DocumentDeltaType.RequiresIndexing
                             );
                         }
                     ).
@@ -192,13 +195,14 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             {
                 var payload = new CaseDocumentOrchestrationPayload
                 (
-                    caseDocumentPayload.CmsAuthValues,
-                    caseDocumentPayload.CorrelationId,
-                    caseDocumentPayload.CmsCaseUrn,
-                    caseDocumentPayload.CmsCaseId,
-                    null,
-                    null,
-                    JsonSerializer.Serialize(createdOrUpdatedDefendantsAndCharges)
+                    cmsAuthValues: caseDocumentPayload.CmsAuthValues,
+                    correlationId: caseDocumentPayload.CorrelationId,
+                    cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
+                    cmsCaseId: caseDocumentPayload.CmsCaseId,
+                    serializedTrackerCmsDocumentDto: null,
+                    serializedTrackerPcdRequestDto: null,
+                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(createdOrUpdatedDefendantsAndCharges),
+                    caseDeltaType: DocumentDeltaType.RequiresIndexing
                 );
                 defendantsAndChargesPayloads.Add(payload);
             }
