@@ -164,6 +164,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -220,6 +221,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -330,6 +332,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -385,6 +388,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -441,6 +445,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -496,6 +501,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -551,6 +557,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -606,6 +613,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -661,6 +669,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -716,6 +725,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -860,6 +870,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedMixedOrientationPDfSaveRequest,
           JSON.parse(saveRequestObject.body)
@@ -967,6 +978,7 @@ describe("Redaction Assurance", () => {
 
       //assertion on the redaction log save request
       cy.window().then(() => {
+        cy.log("saveRequestObject.body", saveRequestObject.body);
         redactionRequestAssertionValidator(
           expectedMixedOrientationPDfSaveRequest,
           JSON.parse(saveRequestObject.body)
