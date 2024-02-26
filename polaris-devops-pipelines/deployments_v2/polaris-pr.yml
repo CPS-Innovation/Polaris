@@ -747,6 +747,9 @@ stages:
 
           - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
             artifact: UITestResults
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
 
   - stage: Generate_Reports
     displayName: Collate and publish test results
