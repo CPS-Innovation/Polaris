@@ -110,7 +110,6 @@ Cypress.Commands.add("trackRequestBody", (requestObject, method, pathname) => {
     worker.events.on("request:start", (req: any) => {
       if (req.method === method && req.url.pathname === pathname) {
         requestObject.body = req.body;
-        cy.log("request>>>", req.body);
       }
     });
   });
