@@ -7,7 +7,7 @@ import {
 
 import { refreshPipelineDeletedDocuments } from "../../../src/mock-api/data/pipelinePdfResults.cypress";
 
-xdescribe("redaction refresh flow", () => {
+describe("redaction refresh flow", () => {
   it("should successfully complete the redaction refresh flow for saving redaction of single document two times", () => {
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();

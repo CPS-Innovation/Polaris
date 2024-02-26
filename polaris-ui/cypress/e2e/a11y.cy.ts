@@ -28,7 +28,7 @@ function terminalLog(violations: any) {
   cy.task("table", violationData);
 }
 
-xdescribe("Accessibility testing using cypress-axe", () => {
+describe("Accessibility testing using cypress-axe", () => {
   describe("case search page", () => {
     beforeEach(() => {
       cy.visit("/case-details");

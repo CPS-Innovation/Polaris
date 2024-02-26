@@ -1,4 +1,4 @@
-xdescribe("searching for cases", () => {
+describe("searching for cases", () => {
   it("can not accept an invalid URN and return an appropriate validation message to the user", () => {
     cy.visit("/case-search");
 

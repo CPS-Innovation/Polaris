@@ -1,4 +1,4 @@
-xdescribe("the app", () => {
+describe("the app", () => {
   it("opens", () => {
     cy.visit("/");
 
