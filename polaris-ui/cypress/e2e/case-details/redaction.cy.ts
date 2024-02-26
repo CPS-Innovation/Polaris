@@ -9,7 +9,7 @@ import { refreshPipelineDeletedDocuments } from "../../../src/mock-api/data/pipe
 
 describe("redaction refresh flow", () => {
   it("should successfully complete the redaction refresh flow for saving redaction of single document two times", () => {
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
@@ -37,7 +37,7 @@ describe("redaction refresh flow", () => {
   });
 
   it("should successfully complete the redaction refresh flow for saving redaction of two different documents", () => {
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findAllByTestId("div-pdfviewer-0")
@@ -71,7 +71,7 @@ describe("redaction refresh flow", () => {
   });
 
   it("should call again the initiate pipeline, if the previous call return 423 status during redaction refresh flow and successfully complete the redaction refresh flow", () => {
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
@@ -128,7 +128,7 @@ describe("redaction refresh flow", () => {
       },
       "post"
     );
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
@@ -149,7 +149,7 @@ describe("redaction refresh flow", () => {
       },
       "put"
     );
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
@@ -172,7 +172,7 @@ describe("redaction refresh flow", () => {
       },
       "put"
     );
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
@@ -196,7 +196,7 @@ describe("redaction refresh flow", () => {
     cy.overrideRoute(TRACKER_ROUTE, {
       body: refreshPipelineDeletedDocuments()[0],
     });
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-2").click();
     cy.findByTestId("link-document-1").click();
@@ -234,7 +234,7 @@ describe("redaction refresh flow", () => {
       },
       "post"
     );
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
@@ -259,7 +259,7 @@ describe("redaction refresh flow", () => {
       },
       "post"
     );
-    cy.visit("/case-details/12AB1111111/13401");
+    cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")

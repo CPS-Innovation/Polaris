@@ -105,6 +105,9 @@ describe("Accessibility testing using cypress-axe", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.findByTestId("btn-redact").click({ force: true });
       //open the second document and save redaction
@@ -115,7 +118,9 @@ describe("Accessibility testing using cypress-axe", () => {
         .contains("CASE FILE EVIDENCE and INFORMATION ");
       cy.wait(500);
       cy.selectPDFTextElement("MCLOVE");
-      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click({ force: true });
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });

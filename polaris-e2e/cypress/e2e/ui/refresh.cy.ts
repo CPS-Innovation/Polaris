@@ -21,15 +21,14 @@ describe("Refresh via guid-controlled ", () => {
     cy.findByTestId("btn-redact").click({ force: true })
 
     cy.findByTestId("btn-save-redaction-0").click(
-    // The user cannot submit a redaction until the current pipeline refresh is complete.
-    //  In this instance, we forgive a long running process
-      {timeout: 5 * 60 * 1000}
+      // The user cannot submit a redaction until the current pipeline refresh is complete.
+      //  In this instance, we forgive a long running process
+      { timeout: 5 * 60 * 1000 }
     )
     cy.findByTestId("pdfTab-spinner-0").should("exist")
     cy.findByTestId("pdfTab-spinner-0").should("not.exist")
     cy.findByTestId("div-pdfviewer-0").should("exist")
     cy.selectPDFTextElement("Four")
-    
   })
 })
 
