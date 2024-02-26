@@ -88,7 +88,7 @@ const redactionRequestAssertionValidator = (
   });
 };
 
-describe("Redaction Assurance", () => {
+describe("Redaction Assurance - sample", () => {
   const expectedSaveRedactionPayload = {
     documentId: "1",
     redactions: [
