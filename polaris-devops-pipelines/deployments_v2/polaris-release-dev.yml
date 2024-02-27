@@ -45,7 +45,7 @@ stages:
     jobs:
       - deployment: Log_Start
         displayName: Log Start
-        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         environment: "Dev"
         strategy:
           runOnce:
@@ -71,7 +71,7 @@ stages:
               devOpsPatToken: "$(devops-pat-token)"
                     
       - deployment: Log_Start_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: 
           - Log_Start
           - Wait_For_Running_Builds
@@ -89,7 +89,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     
       - deployment: Apply_Networking_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         displayName: Apply Networking Terraform
         dependsOn: Log_Start_Terraform
         environment: "Dev"
@@ -117,7 +117,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_Pipeline_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Terraform
         environment: "Dev"
@@ -145,7 +145,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_Pipeline_Events_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_Pipeline_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "Dev"
@@ -175,7 +175,7 @@ stages:
       - deployment: Update_Pipeline_Component_App_Keys
         dependsOn: Apply_Pipeline_Terraform
         displayName: Update Component Keys
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -194,7 +194,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
                   
       - deployment: Apply_UI_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Update_Pipeline_Component_App_Keys
         displayName: Apply UI Terraform
         environment: "Dev"
@@ -222,7 +222,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_UI_Events_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "Dev"
@@ -250,7 +250,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Set_Log_Analytics_Archival_Periods
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_UI_Terraform
         displayName: Update Analytics Archival Periods
         environment: "Dev"
@@ -273,7 +273,7 @@ stages:
                     totalLogRetentionTime: $(total-log-retention-time)
                   
       - deployment: Log_Result_Terraform_Ended
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         displayName: Log Terraform End
         dependsOn:
           - Apply_Pipeline_Terraform
@@ -297,7 +297,7 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
                     
       - deployment: Log_Start_Codebase
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: 
           - Log_Result_Terraform_Ended
           - Wait_For_Running_Builds
@@ -316,7 +316,7 @@ stages:
                     
       - job: Start_Pipeline_Slots
         dependsOn: Log_Start_Codebase
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         strategy:
           matrix:
             Coordinator:
@@ -340,7 +340,7 @@ stages:
 
       - job: Start_UI_Slots
         dependsOn: Log_Start_Codebase
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         strategy:
           matrix:
             SPA:
@@ -365,7 +365,7 @@ stages:
       - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         environment: "Dev"
         workspace:
           clean: all
@@ -385,7 +385,7 @@ stages:
       - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -403,7 +403,7 @@ stages:
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -421,7 +421,7 @@ stages:
       - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         environment: "Dev"
         workspace:
           clean: all
@@ -441,7 +441,7 @@ stages:
       - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -457,7 +457,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
 
       - deployment: Log_Result_Codebase_Ended
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
@@ -479,7 +479,7 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Result_Ended
-        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Deployment End
         dependsOn:
           - Apply_Pipeline_Terraform
