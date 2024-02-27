@@ -1,0 +1,16 @@
+AppEvents
+| where ClientType != "Browser"
+| where Name startswith "PROD" 
+| where TimeGenerated > datetime(2023-12-01T00:00:00)
+| where extract("^([^:]+)", 1, Name) in ( 
+    "PROD Codebase CI Deployment",   
+    "PROD Terraform CI Deployment",
+    "PROD Pipeline Terraform CI Deployment",
+    "PROD Pipeline Events Terraform CI Deployment",
+    "PROD UI Terraform CI Deployment",
+    "PROD UI Events Terraform CI Deployment",
+    "PROD Deploy DDEI Codebase",
+    "PROD Deploy DDEI Terraform"       
+)
+| summarize arg_max(TimeGenerated, *) by OperationName
+| order by TimeGenerated desc

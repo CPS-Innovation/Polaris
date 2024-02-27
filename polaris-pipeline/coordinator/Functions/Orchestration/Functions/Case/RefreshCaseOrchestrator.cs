@@ -163,7 +163,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                                 serializedTrackerCmsDocumentDto: JsonSerializer.Serialize(trackerCmsDocument.Item1),
                                 serializedTrackerPcdRequestDto: null,
                                 serializedTrackerDefendantAndChargesDto: null,
-                                caseDeltaType: trackerCmsDocument.Item2
+                                documentDeltaType: trackerCmsDocument.Item2
                             );
                         }
                     )
@@ -184,7 +184,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                                 serializedTrackerCmsDocumentDto: null,
                                 serializedTrackerPcdRequestDto: JsonSerializer.Serialize(trackerPcdRequest),
                                 serializedTrackerDefendantAndChargesDto: null,
-                                caseDeltaType: DocumentDeltaType.RequiresIndexing
+                                documentDeltaType: DocumentDeltaType.RequiresIndexing
                             );
                         }
                     ).
@@ -202,7 +202,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                     serializedTrackerCmsDocumentDto: null,
                     serializedTrackerPcdRequestDto: null,
                     serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(createdOrUpdatedDefendantsAndCharges),
-                    caseDeltaType: DocumentDeltaType.RequiresIndexing
+                    documentDeltaType: DocumentDeltaType.RequiresIndexing
                 );
                 defendantsAndChargesPayloads.Add(payload);
             }

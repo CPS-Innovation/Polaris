@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using coordinator.Domain.Entity;
 
 namespace pdf_generator.tests.Functions
 {
@@ -57,7 +58,8 @@ namespace pdf_generator.tests.Functions
                     _fixture.Create<long>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
                     null,
-                    null
+                    null,
+                    DocumentDeltaType.RequiresIndexing
                 );
             _generatePdfRequest.CmsCaseId = 123456;
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileExtension = ".doc";

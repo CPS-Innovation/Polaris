@@ -1,0 +1,23 @@
+Polaris_Metrics_Conversion
+| where FileType != "PDF"
+| where DocumentIdAsString != ""
+| project DocumentId = tolong(DocumentId)
+| where DocumentId > 10000000
+| join kind = leftouter (
+    AppRequests
+    | where AppRoleName == "fa-polaris-gateway"
+    | where Name == "PolarisPipelineGetDocument"
+    | extend DocumentId = extract("CMS-(.+)", 1,  Url)
+    | distinct DocumentId
+    | where DocumentId != ""
+    | project tolong(DocumentId)
+) 
+on DocumentId
+| project DocumentId, WasRead = not(isnull(DocumentId1))
+| summarize count() by WasRead
+
+// Polaris_Metrics_Conversion
+// | where FileType != "PDF"
+// | where DocumentIdAsString != ""
+// | project DocumentId = tolong(DocumentId)
+// | where DocumentId > 10000000

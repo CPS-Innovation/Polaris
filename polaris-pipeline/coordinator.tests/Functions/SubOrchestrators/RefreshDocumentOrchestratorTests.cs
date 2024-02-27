@@ -38,7 +38,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     fixture.Create<long>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
                     JsonSerializer.Serialize(trackerPcdRequestDto),
-                    JsonSerializer.Serialize(defendantsAndChargesListDto)
+                    JsonSerializer.Serialize(defendantsAndChargesListDto),
+                    DocumentDeltaType.RequiresIndexing
                 );
 
             var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();

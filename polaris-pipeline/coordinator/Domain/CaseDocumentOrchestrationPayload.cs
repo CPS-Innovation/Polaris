@@ -16,7 +16,7 @@ namespace coordinator.Domain
                 string serializedTrackerCmsDocumentDto,
                 string serializedTrackerPcdRequestDto,
                 string serializedTrackerDefendantAndChargesDto,
-                DocumentDeltaType caseDeltaType
+                DocumentDeltaType documentDeltaType
             )
             : base(cmsCaseUrn, cmsCaseId, correlationId)
         {
@@ -36,7 +36,7 @@ namespace coordinator.Domain
                 PolarisDocumentId = DefendantAndChargesTracker.PolarisDocumentId;
             }
             CmsAuthValues = cmsAuthValues;
-            CaseDeltaType = caseDeltaType;
+            CaseDeltaType = documentDeltaType;
         }
         public string CmsAuthValues { get; set; }
 
