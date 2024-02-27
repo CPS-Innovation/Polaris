@@ -1,19 +1,15 @@
-﻿using Common.Constants;
-using Common.Factories;
+﻿using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Gateway.Clients.PolarisPipeline;
-using Gateway.Clients.PolarisPipeline.Contracts;
+using Gateway.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using PolarisGateway.common.Mappers.Contracts;
+using PolarisGateway.common.Mappers;
 using PolarisGateway.Factories;
-using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Mappers;
-using PolarisGateway.Domain.Validators.Contracts;
 using PolarisGateway.Domain.Validators;
 using Common.Telemetry.Wrappers;
 using Common.Telemetry.Wrappers.Contracts;
@@ -49,23 +45,22 @@ namespace PolarisGateway
             {
                 // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
                 return new ConfigurationManager<OpenIdConnectConfiguration>(
-                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
+                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(Common.Constants.OAuthSettings.TenantId)}/.well-known/openid-configuration",
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
-            services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
-            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
-            services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            services.AddTransient<IPipelineClient, PipelineClient>();
+            services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
+            services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddSingleton<ITrackerResponseFactory, TrackerResponseFactory>();
+            //services.AddTransient<IPipelineClient, PipelineClient>();
 
             services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
-                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, PipelineSettings.PipelineCoordinatorBaseUrl));
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

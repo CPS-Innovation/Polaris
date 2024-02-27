@@ -6,6 +6,7 @@ using Common.Dto.Tracker;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Domain.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -226,7 +227,8 @@ namespace coordinator.Functions.DurableEntity.Entity
                         polarisParentDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
                         cmsParentDocumentId: newDocument.ParentDocumentId,
                         witnessId: newDocument.WitnessId,
-                        presentationFlags: newDocument.PresentationFlags
+                        presentationFlags: newDocument.PresentationFlags,
+                        hasFailedAttachments: newDocument.HasFailedAttachments
                     );
 
                 CmsDocuments.Add(trackerDocument);

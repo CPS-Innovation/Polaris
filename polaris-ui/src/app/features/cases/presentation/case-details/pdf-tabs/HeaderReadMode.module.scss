@@ -5,11 +5,30 @@
   justify-content: flex-end;
   padding: 0.25rem 1.25rem;
   border-bottom: 0.0625rem solid #b1b4b6;
-  .btnReportIssue {
-    margin: 0;
-  }
+}
 
-  .btnOpenPdf {
-    display: none;
+.areaToolBtn {
+  margin-right: 0.625rem;
+  display: flex;
+  align-items: center;
+  border: none;
+  border-radius: 0.3125rem;
+  position: relative;
+  width: 2.3rem;
+  height: 2.3rem;
+  background: #185c97;
+  cursor: pointer;
+  & svg {
+    width: 100%;
+    fill: #fff;
   }
+  &:focus {
+    & svg {
+      fill: #000;
+    }
+  }
+}
+
+.areaToolBtnEnabled {
+  background: #000;
 }

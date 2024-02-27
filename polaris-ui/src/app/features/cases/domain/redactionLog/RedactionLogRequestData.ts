@@ -21,7 +21,7 @@ export type RedactionLogRequestData = {
   chargeStatus: ChargeStatus;
   notes: string | null;
   cmsValues: {
-    documentId: string;
+    documentId: number;
     originalFileName: string;
     documentTypeId: number;
     documentType: string;

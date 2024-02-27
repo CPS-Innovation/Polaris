@@ -6,8 +6,6 @@ using text_extractor.Mappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
 namespace text_extractor.Tests.Mappers;
@@ -53,10 +51,16 @@ public class StreamlinedSearchWordMapperTests
     }
 
     [Theory]
-    [InlineData(" police. ", "police")]
-    [InlineData(" police, ", "police")]
-    [InlineData(" police! ", "police")]
-    public void GivenASearchTermThatIsFoundInASentenceWithPunctuation_ThenTheMapperProvidesDetail(string searchResultText, string searchTerm)
+    [InlineData("police", " police. ")]
+    [InlineData("police", " police, ")]
+    [InlineData("police", " police! ")]
+    [InlineData("police", " POLICE. ")]
+    [InlineData("police", " POLICE, ")]
+    [InlineData("police", " POLICE! ")]
+    [InlineData("POLICE", " police. ")]
+    [InlineData("POLICE", " police, ")]
+    [InlineData("POLICE", " police! ")]
+    public void GivenASearchTermThatIsFoundInASentenceWithPunctuation_ThenTheMapperProvidesDetail(string searchTerm, string searchResultText)
     {
         var searchLine = _fixture.Create<SearchLine>();
         searchLine.Words = _fixture.CreateMany<Word>(1).ToList();
@@ -98,11 +102,11 @@ public class StreamlinedSearchWordMapperTests
     [InlineData("friend", "we are best-friends", false, StreamlinedMatchType.None)]
     [InlineData("friends", "we are best-friends.", true, StreamlinedMatchType.Exact)]
     [InlineData("friends", "we are best-fwiends.", false, StreamlinedMatchType.None)]
-    public void Query_TestSearchResultsSelection_For_ExpectedIdentifiers(string searchTerm, string searchText, bool isBoundingBoxSet, StreamlinedMatchType expectedMatchType)
+    public void Query_TestSearchResultsSelection_For_ExpectedIdentifiers(string searchTerm, string searchResultText, bool isBoundingBoxSet, StreamlinedMatchType expectedMatchType)
     {
         var searchLine = _fixture.Create<SearchLine>();
         searchLine.Words = _fixture.CreateMany<Word>(1).ToList();
-        searchLine.Words[0].Text = searchText;
+        searchLine.Words[0].Text = searchResultText;
 
         IStreamlinedSearchWordMapper mapper = new StreamlinedSearchWordMapper();
         var result = mapper.Map(searchLine.Words[0], searchTerm);
@@ -115,7 +119,7 @@ public class StreamlinedSearchWordMapperTests
                 result.BoundingBox.Should().BeNull();
 
             result.StreamlinedMatchType.Should().Be(expectedMatchType);
-            result.Text.Should().Be(searchText);
+            result.Text.Should().Be(searchResultText);
         }
     }
 }

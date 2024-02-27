@@ -32,18 +32,18 @@ schedules:
 
 resources:
   repositories:
-    - repository: PolarisMain
+    - repository: PolarisTagged
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/heads/main
+      ref: refs/tags/$(cypress_environment)
 
 steps:
-  - checkout: PolarisMain
+  - checkout: PolarisTagged
     clean: true
     persistCredentials: true
     fetchDepth: 1
-    displayName: "Checkout polaris-e2e"
+    displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
 
   - task: Bash@3
     inputs:

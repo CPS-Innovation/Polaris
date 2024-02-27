@@ -12,8 +12,8 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.Contracts;
+using coordinator.Constants;
 using Common.Wrappers.Contracts;
-using Common.Constants;
 using Common.Factories.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
@@ -57,7 +57,7 @@ namespace coordinator.Clients.Tests.Clients
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 
-            mockConfiguration.Setup(config => config[PipelineSettings.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
+            mockConfiguration.Setup(config => config[ConfigKeys.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
 
             _httpRequestMessage = new HttpRequestMessage
             {
@@ -148,13 +148,36 @@ namespace coordinator.Clients.Tests.Clients
                             .Returns(HttpResponseMessageStream.Create(_httpResponseMessage));
 
             // Act
-            var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new System.IO.MemoryStream(), Common.Domain.Document.FileType.MSG);
+            var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
             // Assert
             var responseText = new StreamReader(response, System.Text.Encoding.UTF8).ReadToEnd();
             responseText.Should().Be(expectedContent);
         }
 
+        [Fact]
+        public async Task ConvertToPdfAsync_WhenUnsupportedMediaTypeIsReceived_DoesNotThrowAndReturnsUnsuccessfulResponse()
+        {
+            // Arrange
+            var expectedContent = _fixture.Create<string>();
+            _httpResponseMessage.Content = new StringContent(expectedContent);
+
+            _mockRequestFactory
+                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
+                .Returns(_httpRequestMessage);
+
+            _mockHttpResponseMessageStreamFactory
+                            .Setup(factory => factory.Create(It.Is<HttpResponseMessage>(h => h == _httpResponseMessage)))
+                            .Returns(HttpResponseMessageStream.Create(_httpResponseMessage));
+
+            _httpResponseMessage.StatusCode = HttpStatusCode.UnsupportedMediaType;
+
+            // Act
+            var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
+
+            // Assert
+            await act.Should().ThrowAsync<UnsupportedMediaTypeException>();
+        }
         [Fact]
         public async Task ConvertToPdfAsync_WhenHttpRequestExceptionThrown_IsCaughtAsException()
         {

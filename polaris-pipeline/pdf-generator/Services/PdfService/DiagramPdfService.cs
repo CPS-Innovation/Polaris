@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Aspose.Diagram;
-using Common.Domain.Document;
+using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService

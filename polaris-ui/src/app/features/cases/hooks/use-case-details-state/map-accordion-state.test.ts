@@ -463,6 +463,7 @@ describe("mapAccordionState", () => {
           polarisParentDocumentId: null,
           witnessId: null,
           witnessIndicators: [],
+          hasFailedAttachments: false,
         },
         {
           documentId: "2",
@@ -490,6 +491,7 @@ describe("mapAccordionState", () => {
           polarisParentDocumentId: null,
           witnessId: null,
           witnessIndicators: [],
+          hasFailedAttachments: false,
         },
       ],
     };
@@ -529,6 +531,7 @@ describe("mapAccordionState", () => {
               polarisParentDocumentId: null,
               witnessId: null,
               witnessIndicators: [],
+              hasFailedAttachments: false,
             },
           ],
         },

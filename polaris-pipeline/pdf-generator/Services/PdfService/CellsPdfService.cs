@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using Aspose.Cells;
-using Common.Domain.Document;
 using Common.Extensions;
+using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService

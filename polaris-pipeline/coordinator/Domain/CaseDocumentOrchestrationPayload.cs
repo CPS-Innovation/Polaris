@@ -1,7 +1,7 @@
-﻿using Common.Domain.Entity;
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
+using coordinator.Domain.Entity;
 
 namespace coordinator.Domain
 {
@@ -61,6 +61,39 @@ namespace coordinator.Domain
                     return PcdRequestTracker.CmsVersionId;
                 else
                     return DefendantAndChargesTracker.CmsVersionId;
+            }
+        }
+
+        public string DocumentTypeId
+        {
+            get
+            {
+                if (CmsDocumentTracker != null)
+                    return CmsDocumentTracker.CmsDocType.DocumentTypeId;
+                else
+                    return string.Empty;
+            }
+        }
+
+        public string DocumentType
+        {
+            get
+            {
+                if (CmsDocumentTracker != null)
+                    return CmsDocumentTracker.CmsDocType.DocumentType;
+                else
+                    return string.Empty;
+            }
+        }
+
+        public string DocumentCategory
+        {
+            get
+            {
+                if (CmsDocumentTracker != null)
+                    return CmsDocumentTracker.CmsDocType.DocumentCategory;
+                else
+                    return string.Empty;
             }
         }
 

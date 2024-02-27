@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Select,
-  TextArea,
   Button,
   Guidance,
   ErrorSummary,
   Spinner,
   LinkButton,
+  CharacterCount,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import { UnderOverRedactionContent } from "./UnderOverRedactionContent";
@@ -26,6 +26,7 @@ import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionL
 import {
   getDefaultValuesFromMappings,
   redactString,
+  removeNonDigits,
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
@@ -43,6 +44,7 @@ export type ErrorState = {
   category: boolean;
   underRedaction: boolean;
   overRedaction: boolean;
+  notes: boolean;
 };
 
 type RedactionLogContentProps = {
@@ -99,6 +101,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     category: false,
     underRedaction: false,
     overRedaction: false,
+    notes: false,
   });
   const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
     cpsArea: "",
@@ -383,6 +386,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
       cmsValues: {
         ...additionalData,
+        documentId: parseInt(removeNonDigits(additionalData.documentId)),
         documentTypeId: cmsDocumentTypeId,
         originalFileName: redactString(additionalData.originalFileName),
       },
@@ -442,6 +446,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           children: "Select an under redaction type",
           href: "#checkbox-underRedaction-type-1",
           "data-testid": "checkbox-cps-urt-link",
+        };
+      case "notes":
+        return {
+          children: `Supporting notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
+          href: "#redaction-log-notes",
+          "data-testid": "redaction-log-notes-link",
         };
     }
   };
@@ -579,6 +589,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             investigatingAgency: !getValues("investigatingAgency"),
             documentType: !getValues("documentType"),
             chargeStatus: !getValues("chargeStatus"),
+            notes: getValues("notes").length > NOTES_MAX_CHARACTERS,
           }));
           handleSubmit(
             (data) => {
@@ -841,16 +852,21 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             <Controller
               name="notes"
               control={control}
+              rules={{
+                validate: { required: () => errorState.notes !== true },
+              }}
               render={({ field }) => {
                 return (
-                  <TextArea
+                  <CharacterCount
                     {...field}
-                    hint={{
-                      children: `You can enter up to ${
-                        NOTES_MAX_CHARACTERS - field.value.length
-                      } characters`,
-                    }}
-                    maxLength={`${NOTES_MAX_CHARACTERS}`}
+                    errorMessage={
+                      errorState.notes
+                        ? {
+                            children: `Supporting notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
+                          }
+                        : undefined
+                    }
+                    maxlength={NOTES_MAX_CHARACTERS}
                     id="redaction-log-notes"
                     data-testid="redaction-log-notes"
                     label={{

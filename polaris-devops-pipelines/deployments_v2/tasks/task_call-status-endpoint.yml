@@ -1,0 +1,43 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetAppName
+    type: string
+  - name: targetScript
+    type: string
+  - name: endpointUri
+    type: string
+  - name: statusCheckMethod
+    type: string
+  - name: statusCheckRetries
+    type: string
+  - name: statusCheckDelaySeconds
+    type: string
+  - name: statusCheckTimeoutSeconds
+    type: string
+  - name: successTextContent
+    type: string
+  
+steps:
+  # download scripts artifact
+  - download: ${{ parameters.targetBuild }}
+    displayName: Download Scripts
+    artifact: 'polaris-script-files'
+
+  # query coordinator status endpoint
+  - task: PowerShell@2
+    displayName: 'Checking ${{ parameters.targetLabel }} ${{ parameters.targetAppName }} status'
+    inputs:
+      failOnStderr: true
+      targetType: 'filePath'
+      filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/${{ parameters.targetScript }}
+      arguments: > # Use this to avoid newline characters in multi-line string
+        -URI "${{ parameters.endpointUri }}"
+        -Method ${{ parameters.statusCheckMethod }}
+        -SuccessTextContent ${{ parameters.successTextContent }}
+        -Retries ${{ parameters.statusCheckRetries }}
+        -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+        -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}

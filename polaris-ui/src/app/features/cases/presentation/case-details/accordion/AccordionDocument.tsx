@@ -127,6 +127,17 @@ export const AccordionDocument: React.FC<Props> = ({
             Document only available on CMS
           </span>
         )}
+        {caseDocument.hasFailedAttachments && (
+          <div className={classes.attachmentWrapper}>
+            <AttachmentIcon className={classes.attachmentIcon} />
+            <span
+              className={`${classes["failed-attachment-warning"]}`}
+              data-testid={`failed-attachment-warning-${caseDocument.documentId}`}
+            >
+              Attachments only available on CMS
+            </span>
+          </div>
+        )}
       </div>
     </li>
   );

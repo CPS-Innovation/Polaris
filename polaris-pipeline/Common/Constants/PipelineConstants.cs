@@ -9,6 +9,9 @@
         public const string CaseId = nameof(CaseId);
         public const string DocumentId = nameof(DocumentId);
         public const string VersionId = nameof(VersionId);
+        public const string DocumentTypeId = nameof(DocumentTypeId);
+        public const string DocumentType = nameof(DocumentType);
+        public const string DocumentCategory = nameof(DocumentCategory);
         public const string PolarisDocumentId = nameof(PolarisDocumentId);
         public const string BlobName = nameof(BlobName);
         public const string XForwardedFor = "X-Forwarded-For";
@@ -26,11 +29,6 @@
         public const string Bearer = "Bearer";
         public const string Authorization = "Authorization";
         //public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
-    }
-
-    public static class EventGridEvents
-    {
-        public const string BlobDeletedEvent = "Microsoft.Storage.BlobDeleted";
     }
 
     public static class DocumentTags
@@ -55,40 +53,10 @@
     }
 #endif
 
-    public static class PipelineSettings
-    {
-        public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
-        public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
-        public const string PipelineCoordinatorDurableExtensionCode = "PolarisPipelineCoordinatorDurableExtensionCode";
-
-        public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
-        public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
-        public const string PipelineTextExtractorBaseUrl = "PolarisPipelineTextExtractorBaseUrl";
-        public const string PipelineTextExtractorFunctionAppKey = "PolarisPipelineTextExtractorFunctionAppKey";
-    }
-
     public static class ConfigKeys
     {
-        public static class CoordinatorKeys
-        {
-            public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
-            public const string SlidingClearDownInputHours = nameof(SlidingClearDownInputHours);
-            public const string SlidingClearDownProtectBlobs = nameof(SlidingClearDownProtectBlobs);
-            public const string SlidingClearDownBatchSize = nameof(SlidingClearDownBatchSize);
-        }
-
-        public static class TextExtractorKeys
-        {
-            public const string ComputerVisionClientServiceKey = "ComputerVisionClientServiceKey";
-            public const string ComputerVisionClientServiceUrl = "ComputerVisionClientServiceUrl";
-        }
-
         public static class SharedKeys
         {
-            public const string SearchClientEndpointUrl = "SearchClientEndpointUrl";
-            public const string SearchClientIndexName = "SearchClientIndexName";
-            public const string SearchClientAuthorizationKey = "SearchClientAuthorizationKey";
-
             public const string BlobServiceContainerName = "BlobServiceContainerName";
             public const string BlobExpirySecs = "BlobExpirySecs";
             public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";

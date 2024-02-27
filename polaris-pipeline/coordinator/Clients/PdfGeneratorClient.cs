@@ -40,7 +40,7 @@ namespace coordinator.Clients
 
         public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
@@ -49,6 +49,16 @@ namespace coordinator.Clients
 
             // do not dispose or use `using` on response
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            if (response.StatusCode == HttpStatusCode.UnsupportedMediaType)
+            {
+                throw new UnsupportedMediaTypeException(
+                    $"Unsupported media type: {fileType}",
+                    // todo: we do not have the *real* media type header to hand, so just use a generic one
+                    //  Key thing is we communicate to the caller that the pdf-generator has rejected us on media type grounds
+                    new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream")
+                );
+            }
+
             response.EnsureSuccessStatusCode();
             return await _httpResponseMessageStreamFactory.Create(response);
         }
@@ -60,7 +70,7 @@ namespace coordinator.Clients
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
                 request.Content = requestMessage;
 
                 response = await _httpClient.SendAsync(request);

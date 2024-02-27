@@ -16,6 +16,5 @@ namespace DdeiClient.Services.Contracts
         Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
         Task CancelCheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
         Task UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream);
-        Task<string> GetStatusAsync();
     }
 }

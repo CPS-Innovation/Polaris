@@ -1,5 +1,6 @@
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
+using Ddei.Factories.Contracts;
 using DdeiClient.Services.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -18,9 +19,10 @@ namespace PolarisGateway.Tests.Functions.CmsAuthentication
       var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
       var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
       var mockLogger = new Mock<ILogger<InitiateCookies>>();
-
+      var mockCaseDataArgFactory = new Mock<ICaseDataArgFactory>();
       _initiateCookies = new InitiateCookies(
           mockDdeiClient.Object,
+          mockCaseDataArgFactory.Object,
           mockJsonConvertWrapper.Object,
           mockTelemetryAugmentationWrapper.Object,
           mockLogger.Object

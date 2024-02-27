@@ -1,4 +1,4 @@
-﻿using Common.Constants;
+﻿using text_extractor.Constants;
 using text_extractor.Factories.Contracts;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +16,9 @@ namespace text_extractor.Factories
 
 		public ComputerVisionClient Create()
         {
-			return new ComputerVisionClient(new ApiKeyServiceClientCredentials(_configuration[ConfigKeys.TextExtractorKeys.ComputerVisionClientServiceKey]))
+			return new ComputerVisionClient(new ApiKeyServiceClientCredentials(_configuration[ConfigKeys.ComputerVisionClientServiceKey]))
 			{
-				Endpoint = _configuration[ConfigKeys.TextExtractorKeys.ComputerVisionClientServiceUrl]
+				Endpoint = _configuration[ConfigKeys.ComputerVisionClientServiceUrl]
 			};
 		}
 	}
