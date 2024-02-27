@@ -161,9 +161,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("btn-redact").click();
 
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -218,9 +219,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
 
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -328,9 +330,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -383,9 +386,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -439,9 +443,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -494,9 +499,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -549,9 +555,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -604,9 +611,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -659,9 +667,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -714,9 +723,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -858,9 +868,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("btn-redact").click();
 
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedMixedOrientationPDfSaveRequest,
           JSON.parse(saveRequestObject.body)
@@ -965,9 +976,10 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("btn-redact").click();
 
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.wait(2000);
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedMixedOrientationPDfSaveRequest,
           JSON.parse(saveRequestObject.body)

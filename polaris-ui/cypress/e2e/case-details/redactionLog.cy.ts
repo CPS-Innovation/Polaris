@@ -358,7 +358,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedUnderRedactionType1Payload)
         );
@@ -673,7 +675,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedUnderRedactionType2Payload)
         );
@@ -708,7 +712,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedOverRedactionLogPayload)
         );
@@ -747,7 +753,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedOverUnderRedactionLogPayload)
         );
