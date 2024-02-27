@@ -1,0 +1,29 @@
+AppEvents
+| where Name == "SearchCase"
+| project TimeGenerated, OperationId, PolarisCorrelationId = tostring(Properties.correlationId), CaseId = toint(Properties.caseId), DocumentIds =  parse_json(tostring(Properties.documentIds))
+| mv-expand DocumentIds 
+| extend DocumentId = tostring(DocumentIds)
+| project-away DocumentIds
+| where DocumentId startswith "CMS-" 
+| extend DocumentId = tolong(extract("(\\d+)", 1, DocumentId))
+| partition hint.strategy=native by DocumentId
+ (
+    top 1 by TimeGenerated desc
+ ) 
+
+
+| join kind=leftouter (
+    Polaris_Metrics_Indexing 
+    | partition hint.strategy=native by DocumentId
+    (
+        top 1 by TimeGenerated desc
+        | project DocumentId, DocumentTypeId, DocumentCategory 
+    ) 
+    
+) on DocumentId
+| where not(isnull(DocumentId1))
+| where not(isnull(DocumentCategory))
+
+| project-away DocumentId1
+| where PolarisCorrelationId !startswith "e2e"
+| where CaseId != 2144174

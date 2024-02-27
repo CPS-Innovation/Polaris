@@ -1,0 +1,6 @@
+AppExceptions
+| where AppRoleName startswith "fa-polaris-ddei"
+| where ExceptionType == "polaris_ddei.Domain.Exceptions.Cms.CmsModernAuthorizationException"
+| project TimeGenerated, OuterMessage = replace_string(OuterMessage, "is not authorised to access case", "")
+| distinct Date = format_datetime(TimeGenerated,'yyyy-MM-dd'), OuterMessage
+| order by Date desc

@@ -1,0 +1,3 @@
+Polaris_Exceptions_List
+| where IsKnownBug startswith "25015"
+| project EarliestExceptionTimeGenerated, Urn, CmsUserId, User

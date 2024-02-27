@@ -10,6 +10,7 @@ AppEvents
     IsFailure = tobool(Properties.isFailure),
     CaseId = toint(Properties.caseId),
     DocumentId = tolong(Properties.documentId),
+    DocumentIdAsString = tostring(Properties.documentId),
     PolarisCorrelationId = tostring(Properties.correlationId),
     InflationFactor = 1 * Measurements.bytes / Measurements.originalBytes,
     DurationSeconds = round(toreal(Measurements.durationSeconds), 3),
@@ -17,4 +18,6 @@ AppEvents
     Megabytes = round(Measurements.bytes / (1000.0 * 1000.0),2),
     FileType = tostring(Properties.fileType),
     AppRoleInstance,
-    OperationId
+    OperationId,
+    ConversionHandler = tostring(Properties.conversionHandler),
+    FailureReason = tostring(Properties.failureReason)
