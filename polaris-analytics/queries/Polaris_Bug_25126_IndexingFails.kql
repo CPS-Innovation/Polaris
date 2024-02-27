@@ -1,0 +1,21 @@
+Polaris_Metrics_Indexing
+| where IsFailure
+| where TimeGenerated > todatetime('2024-01-11T21:45:06.1872385Z')
+| project FailTimeGenerated = TimeGenerated, DocumentId,LineCount, WaitRecordCounts, WaitCheckCount, CaseId, OcrDurationSeconds, OperationId
+| join (Polaris_Metrics_Indexing | where TimeGenerated > todatetime('2023-12-01T21:45:06.1872385Z') | summarize EarliestProcessing = min(TimeGenerated) by DocumentId) on DocumentId
+//| join kind=leftouter (Polaris_Metrics_Conversion | where TimeGenerated > todatetime('2023-12-01T21:45:06.1872385Z') | summarize max(Megabytes)  by DocumentId) on DocumentId
+| join kind=leftouter (AppExceptions | where AppRoleName startswith "fa-polaris-text-extractor" | where ExceptionType == "Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models.ComputerVisionOcrErrorException") on OperationId
+//| join kind=leftouter (AppDependencies | where AppRoleName startswith "fa-polaris-text-extractor" ) on OperationId
+| extend GapFirstProcessing = datetime_diff('minute', FailTimeGenerated, EarliestProcessing)
+| extend HasGap = GapFirstProcessing > 0
+| extend FailType = case(
+    LineCount == 0 and isnull(OcrDurationSeconds), "1 - Zero LineCount, Ocr failed", 
+    LineCount == 0 , "2 - Zero LineCount adfter Ocr", 
+    WaitCheckCount == 0, "3 - LineCount but no wait", 
+    HasGap, "4 - Never settles previously processed", 
+    "5 - Never settles first processing" )
+
+// 1 - go to Document Intteligence because of doc size (4MB) or got to new v4.0 sdk (20MB). Probably some password protecteds in there
+// 2 - were XLSXs
+// 3 - all at a particular time (when there were 429s but not sure if this is significant)
+// 4 - polution from previously stored document results, how is this possible?

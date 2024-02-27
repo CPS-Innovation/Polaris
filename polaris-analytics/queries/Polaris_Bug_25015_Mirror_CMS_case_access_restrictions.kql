@@ -1,0 +1,10 @@
+Polaris_Exceptions_List 
+| where ExceptionType contains "CmsModernAuthorizationException"
+//| where EarliestExceptionTimeGenerated > todatetime('2024-01-01')
+| project 
+    EarliestExceptionTimeGenerated,
+    OuterMessage,
+    Urn, 
+    CmsUserId, 
+    User,
+    IsKnownBug

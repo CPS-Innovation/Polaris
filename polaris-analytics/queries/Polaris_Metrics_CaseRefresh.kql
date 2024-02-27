@@ -10,5 +10,5 @@ AppEvents
     EndTime = todatetime(Properties.endTime),
     CmsDocsCount = toint(Measurements.cmsDocsCount),
     CmsDocsProcessedCount = toint(Measurements.cmsDocsProcessedCount),
-    DurationSeconds = Measurements.durationSeconds
+    DurationSeconds = todouble(Measurements.durationSeconds)
 
