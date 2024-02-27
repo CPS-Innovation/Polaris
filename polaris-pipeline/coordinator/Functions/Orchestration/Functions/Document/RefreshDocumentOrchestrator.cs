@@ -60,7 +60,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
 
-            if (payload.CaseDeltaType != DocumentDeltaType.RequiresIndexing)
+            if (payload.DocumentDeltaType != DocumentDeltaType.RequiresIndexing)
             {
                 return new RefreshDocumentResult();
             }

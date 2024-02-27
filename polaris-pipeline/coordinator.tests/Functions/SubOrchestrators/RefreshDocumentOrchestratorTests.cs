@@ -10,6 +10,7 @@ using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Document;
+using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -19,6 +20,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
 {
     public class RefreshDocumentOrchestratorTests
     {
+        private Fixture _fixture;
         private readonly CaseDocumentOrchestrationPayload _payload;
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
@@ -26,16 +28,16 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
         public RefreshDocumentOrchestratorTests()
         {
-            var fixture = new Fixture();
-            var trackerCmsDocumentDto = fixture.Create<DocumentDto>();
-            var trackerPcdRequestDto = fixture.Create<PcdRequestEntity>();
-            var defendantsAndChargesListDto = fixture.Create<DefendantsAndChargesEntity>();
+            _fixture = new Fixture();
+            var trackerCmsDocumentDto = _fixture.Create<DocumentDto>();
+            var trackerPcdRequestDto = _fixture.Create<PcdRequestEntity>();
+            var defendantsAndChargesListDto = _fixture.Create<DefendantsAndChargesEntity>();
             _payload = new CaseDocumentOrchestrationPayload
                 (
-                    fixture.Create<string>(),
+                    _fixture.Create<string>(),
                     Guid.NewGuid(),
-                    fixture.Create<string>(),
-                    fixture.Create<long>(),
+                    _fixture.Create<string>(),
+                    _fixture.Create<long>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
                     JsonSerializer.Serialize(trackerPcdRequestDto),
                     JsonSerializer.Serialize(defendantsAndChargesListDto),
@@ -47,7 +49,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
             _mockCaseEntity.Setup(entity => entity.GetVersion()).ReturnsAsync(1);
 
-            var extractTextResponse = fixture.Create<ExtractTextResult>();
+            var extractTextResponse = _fixture.Create<ExtractTextResult>();
 
             _mockDurableOrchestrationContext
                 .Setup(context => context.CallActivityAsync<ExtractTextResult>(nameof(ExtractText), _payload))
@@ -100,6 +102,56 @@ namespace coordinator.tests.Functions.SubOrchestrators
                         )
                     )
                 );
+        }
+
+        [Fact]
+        public async Task Run_Tracker_DoesNotIndexDocumentWithStatusNotEqualToRequiresIndexing()
+        {
+            // Arrange
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<bool>(It.Is<string>(s => s == nameof(GeneratePdf)), It.IsAny<object>()))
+                .ReturnsAsync(true);
+
+            var extractTextResult = _fixture.Create<ExtractTextResult>();
+            extractTextResult.LineCount = -99;
+
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<ExtractTextResult>(It.Is<string>(s => s == nameof(ExtractText)), It.IsAny<object>()))
+                .ReturnsAsync(extractTextResult);
+
+            _payload.DocumentDeltaType = DocumentDeltaType.RequiresPdfRefresh;
+
+            // Act
+            var result = await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
+
+            // Assert
+            result.Should().BeOfType<RefreshDocumentResult>();
+            result.OcrLineCount.Should().NotBe(extractTextResult.LineCount);
+        }
+
+        [Fact]
+        public async Task Run_Tracker_DoesIndexDocumentWithStatusEqualToRequiresIndexing()
+        {
+            // Arrange
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<bool>(It.Is<string>(s => s == nameof(GeneratePdf)), It.IsAny<object>()))
+                .ReturnsAsync(true);
+
+            var extractTextResult = _fixture.Create<ExtractTextResult>();
+            extractTextResult.LineCount = -99;
+
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<ExtractTextResult>(It.Is<string>(s => s == nameof(ExtractText)), It.IsAny<object>()))
+                .ReturnsAsync(extractTextResult);
+
+            _payload.DocumentDeltaType = DocumentDeltaType.RequiresIndexing;
+
+            // Act
+            var result = await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
+
+            // Assert
+            result.Should().BeOfType<RefreshDocumentResult>();
+            result.OcrLineCount.Should().Be(extractTextResult.LineCount);
         }
 
         [Fact]

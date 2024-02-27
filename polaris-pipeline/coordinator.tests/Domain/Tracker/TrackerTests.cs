@@ -184,15 +184,6 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.FailedReason.Should().Be("exceptionMessage");
         }
 
-        //[Fact]
-        //public async Task GetDocuments_ReturnsDocuments()
-        //{
-        //    _tracker.CmsDocuments = _trackerDocuments;
-        //    var documents = await _tracker.GetDocuments();
-
-        //    documents.Should().BeEquivalentTo(_trackerDocuments);
-        //}
-
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {

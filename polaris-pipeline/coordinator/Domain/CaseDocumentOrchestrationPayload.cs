@@ -36,11 +36,11 @@ namespace coordinator.Domain
                 PolarisDocumentId = DefendantAndChargesTracker.PolarisDocumentId;
             }
             CmsAuthValues = cmsAuthValues;
-            CaseDeltaType = documentDeltaType;
+            DocumentDeltaType = documentDeltaType;
         }
         public string CmsAuthValues { get; set; }
 
-        public DocumentDeltaType CaseDeltaType { get; set; }
+        public DocumentDeltaType DocumentDeltaType { get; set; }
 
         public string CmsDocumentId
         {
