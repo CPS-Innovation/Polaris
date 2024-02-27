@@ -27,7 +27,7 @@ namespace text_extractor.Mappers
             if (searchTerm.Equals(tidiedText, StringComparison.CurrentCultureIgnoreCase))
                 return new SearchTermResult(true, StreamlinedMatchType.Exact);
 
-            var partialWeighting = Fuzz.PartialRatio(tidiedText, searchTerm);
+            var partialWeighting = Fuzz.PartialRatio(tidiedText.ToLowerInvariant(), searchTerm.ToLowerInvariant());
             if (partialWeighting >= 95)
             {
                 return Regex.IsMatch(wordText, @"\b" + searchTerm + @"\b", RegexOptions.IgnoreCase)

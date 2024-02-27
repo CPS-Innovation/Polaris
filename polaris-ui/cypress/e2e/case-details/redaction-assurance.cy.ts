@@ -130,22 +130,41 @@ describe("Redaction Assurance", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -167,23 +186,43 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("full-screen-btn").click();
       cy.wait(1000);
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
 
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -261,21 +300,40 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -298,21 +356,40 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -335,21 +412,41 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
+
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -372,21 +469,40 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -409,21 +525,40 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -446,21 +581,40 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -483,21 +637,40 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -520,21 +693,40 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("Male");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("BYRNE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("FRESH SWELLING");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("medical treatment");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
@@ -594,43 +786,92 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("Page1 Portrait");
       cy.selectPDFTextElement("p1");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p10");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p11");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p20");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p21");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p30");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p31");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p40");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("L1");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L10");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L11");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L20");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L21");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L30");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L31");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L40");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedMixedOrientationPDfSaveRequest,
           JSON.parse(saveRequestObject.body)
@@ -653,43 +894,92 @@ describe("Redaction Assurance", () => {
         .should("exist")
         .contains("Page1 Portrait");
       cy.selectPDFTextElement("p1");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p10");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p11");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p20");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p21");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p30");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p31");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("p40");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("L1");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L10");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L11");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L20");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L21");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L30");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L31");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.selectPDFTextElement("L40");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.findByTestId("btn-save-redaction-0").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
+      //assertion on the redaction save request
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         redactionRequestAssertionValidator(
           expectedMixedOrientationPDfSaveRequest,
           JSON.parse(saveRequestObject.body)

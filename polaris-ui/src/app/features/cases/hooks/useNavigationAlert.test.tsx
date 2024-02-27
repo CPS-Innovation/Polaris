@@ -49,6 +49,8 @@ describe("useNavigationAlert hook", () => {
       saveStatus: "initial",
       witnessId: null,
       witnessIndicators: [],
+      hasFailedAttachments: false,
+      areaOnlyRedactionMode: false,
     },
     {
       clientLockedState: "unlocked",
@@ -91,6 +93,8 @@ describe("useNavigationAlert hook", () => {
       saveStatus: "initial",
       witnessId: null,
       witnessIndicators: [],
+      hasFailedAttachments: false,
+      areaOnlyRedactionMode: false,
     },
   ];
 

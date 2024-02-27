@@ -17,7 +17,7 @@ parameters:
 
 stages:
   - stage: Update_GitHub_Tag_${{ parameters.targetLabel }}
-    displayName: Update GitHub Tag > ${{ parameters.targetLabel }}
+    displayName: Update Tag > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
@@ -31,7 +31,7 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
 
-      - template: jobs/job_update_github_tag.yml
+      - template: jobs/job_update-github-tag.yml
         parameters:
           targetLabel: ${{ parameters.targetLabel }}
           jobDependsOn:

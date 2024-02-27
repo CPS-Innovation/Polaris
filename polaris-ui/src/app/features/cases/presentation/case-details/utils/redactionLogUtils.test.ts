@@ -1,6 +1,7 @@
 import {
   redactString,
   getPresentationRedactionTypeNames,
+  removeNonDigits,
 } from "./redactionLogUtils";
 
 describe("redactionLogUtils", () => {
@@ -90,6 +91,15 @@ describe("redactionLogUtils", () => {
           expectedResults[index]
         );
       });
+    });
+  });
+
+  describe("removeNonDigits", () => {
+    test("Should replace all the non digit characters from a string", () => {
+      expect(removeNonDigits("CMS-123")).toEqual("123");
+      expect(removeNonDigits("CMS-123abc")).toEqual("123");
+      expect(removeNonDigits("CMS-   123abc")).toEqual("123");
+      expect(removeNonDigits("abc456abc123abc")).toEqual("456123");
     });
   });
 });

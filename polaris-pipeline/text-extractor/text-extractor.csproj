@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventGrid" Version="3.3.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Polly.Core" Version="8.2.1" />
+    <PackageReference Include="Polly.Core" Version="8.3.0" />
     <PackageReference Include="FuzzySharp" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>

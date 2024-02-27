@@ -9,6 +9,9 @@
         public const string CaseId = nameof(CaseId);
         public const string DocumentId = nameof(DocumentId);
         public const string VersionId = nameof(VersionId);
+        public const string DocumentTypeId = nameof(DocumentTypeId);
+        public const string DocumentType = nameof(DocumentType);
+        public const string DocumentCategory = nameof(DocumentCategory);
         public const string PolarisDocumentId = nameof(PolarisDocumentId);
         public const string BlobName = nameof(BlobName);
         public const string XForwardedFor = "X-Forwarded-For";

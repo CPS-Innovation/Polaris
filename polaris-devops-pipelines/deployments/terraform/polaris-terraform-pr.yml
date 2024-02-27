@@ -205,7 +205,7 @@ stages:
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
               ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
               TF_LOG: $(dev-log-level)
-              
+
   - stage: Validate_UI_Terraform
     displayName: Validate UI Terraform
     dependsOn: Determine_Changes

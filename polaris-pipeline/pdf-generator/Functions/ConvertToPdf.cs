@@ -39,6 +39,9 @@ namespace pdf_generator.Functions
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [Function(nameof(ConvertToPdf))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
             string caseUrn, string caseId, string documentId, string versionId)
@@ -87,6 +90,13 @@ namespace pdf_generator.Functions
                 telemetryEvent.OriginalBytes = originalBytes;
 
                 var conversionResult = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
+
+                // #25834 - Successfully converted documents may still have a failure reason we need to record
+                if (conversionResult.HasFailureReason())
+                {
+                    telemetryEvent.FailureReason = conversionResult.GetFailureReason();
+                }
+
                 if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
                 {
                     var bytes = conversionResult.ConvertedDocument.Length;
@@ -103,14 +113,12 @@ namespace pdf_generator.Functions
                     };
                 }
 
-                var failureReason = conversionResult.GetFailureReason();
-                telemetryEvent.FailureReason = failureReason;
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
                 _telemetryClient.TrackEventFailure(telemetryEvent);
-                    
-                return new ObjectResult(failureReason)
+
+                return new ObjectResult(conversionResult.GetFailureReason())
                 {
-                    StatusCode = (int) HttpStatusCode.InternalServerError
+                    StatusCode = (int)HttpStatusCode.UnsupportedMediaType
                 };
             }
             catch (Exception exception)
@@ -120,9 +128,9 @@ namespace pdf_generator.Functions
                 if (telemetryEvent == null)
                     return new ObjectResult(exception.ToFormattedString())
                     {
-                        StatusCode = (int) HttpStatusCode.InternalServerError
+                        StatusCode = (int)HttpStatusCode.InternalServerError
                     };
-                
+
                 telemetryEvent.FailureReason = exception.Message;
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 

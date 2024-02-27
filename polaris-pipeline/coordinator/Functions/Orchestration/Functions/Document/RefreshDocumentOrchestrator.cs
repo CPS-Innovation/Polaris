@@ -39,7 +39,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
             var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, false, payload.CorrelationId, log);
 
-            await CallPdfGeneratorAsync(context, payload, caseEntity, log);
+            var isPdfConverted = await CallPdfGeneratorAsync(context, payload, caseEntity, log);
 
             if (payload.CmsDocumentTracker != null)
             {
@@ -48,6 +48,13 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                     payload.CmsDocumentTracker.IsOcrProcessed,
                     payload.CmsDocumentTracker.IsDispatched
                 ));
+            }
+
+            // todo: this is temporary code until the coordinator refactor exercise is done.
+            if (!isPdfConverted)
+            {
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
+                return new RefreshDocumentResult();
             }
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
@@ -62,11 +69,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             };
         }
 
-        private async Task CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
+        private async Task<bool> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
         {
             try
             {
-                await context.CallActivityAsync(nameof(GeneratePdf), payload);
+                return await context.CallActivityAsync<bool>(nameof(GeneratePdf), payload);
             }
             catch (Exception exception)
             {

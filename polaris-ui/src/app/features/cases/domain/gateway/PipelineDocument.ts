@@ -40,6 +40,7 @@ export type PresentationDocumentProperties = {
   presentationFlags: PresentationFlags;
   polarisParentDocumentId: string | null;
   witnessId: number | null;
+  hasFailedAttachments: boolean;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

@@ -6,6 +6,7 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using coordinator.Domain;
 using coordinator.Domain.Entity;
+using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Document;
@@ -16,14 +17,14 @@ using Xunit;
 
 namespace coordinator.tests.Functions.SubOrchestrators
 {
-    public class CaseDocumentOrchestratorTests
+    public class RefreshDocumentOrchestratorTests
     {
         private readonly CaseDocumentOrchestrationPayload _payload;
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
         private readonly RefreshDocumentOrchestrator _caseDocumentOrchestrator;
 
-        public CaseDocumentOrchestratorTests()
+        public RefreshDocumentOrchestratorTests()
         {
             var fixture = new Fixture();
             var trackerCmsDocumentDto = fixture.Create<DocumentDto>();
@@ -77,7 +78,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
         {
             // Arrange
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync(It.IsAny<string>(), It.IsAny<object>()));
+                .Setup(context => context.CallActivityAsync<bool>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(true);
 
             // Act
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
@@ -100,10 +102,59 @@ namespace coordinator.tests.Functions.SubOrchestrators
         }
 
         [Fact]
+        public async Task Run_Tracker_DoesNotRegistersPdfBlobNameOrIndexIfCallPdfGeneratorAsyncReturnsFalse()
+        {
+            // Arrange
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<bool>(It.Is<string>(s => s == nameof(GeneratePdf)), It.IsAny<object>()))
+                .ReturnsAsync(false);
+
+            // Act
+            await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
+
+            // Assert
+            _mockCaseEntity.Verify
+            (
+                tracker => tracker.SetDocumentStatus
+                (
+                    It.Is<(string, DocumentStatus, string)>
+                    (
+                        a => a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() &&
+                            a.Item2 == DocumentStatus.UnableToConvertToPdf &&
+                            a.Item3 == null
+                    )
+                )
+            );
+            _mockCaseEntity.Verify
+                (
+                    tracker => tracker.SetDocumentStatus
+                    (
+                        It.Is<(string, DocumentStatus, string)>
+                        (
+                            a => a.Item2 == DocumentStatus.PdfUploadedToBlob
+                        )
+                    ),
+                    Times.Never
+                );
+            _mockCaseEntity.Verify
+            (
+                tracker => tracker.SetDocumentStatus
+                (
+                    It.Is<(string, DocumentStatus, string)>
+                    (
+                        a => a.Item2 == DocumentStatus.Indexed
+                    )
+                ),
+                Times.Never
+            );
+        }
+
+        [Fact]
         public async Task Run_Tracker_RegistersIndexed_WhenNotAlreadyProcessed()
         {
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync(It.IsAny<string>(), It.IsAny<object>()));
+                .Setup(context => context.CallActivityAsync<bool>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(true);
 
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);

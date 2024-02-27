@@ -91,7 +91,8 @@ namespace coordinator.tests.Services.DocumentToggle
           new PolarisDocumentId("3"),
           "3",
           null,
-          new PresentationFlagsDto());
+          new PresentationFlagsDto(),
+          false);
       document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
       // Assert
@@ -121,7 +122,8 @@ namespace coordinator.tests.Services.DocumentToggle
           new PolarisDocumentId("3"),
           "3",
           null,
-          new PresentationFlagsDto());
+          new PresentationFlagsDto(),
+          false);
       document.PresentationFlags.Read = ReadFlag.Ok;
 
       // Assert
@@ -151,7 +153,8 @@ namespace coordinator.tests.Services.DocumentToggle
           new PolarisDocumentId("3"),
           "3",
           null,
-          new PresentationFlagsDto());
+          new PresentationFlagsDto(),
+          false);
       document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
 
@@ -182,7 +185,8 @@ namespace coordinator.tests.Services.DocumentToggle
           new PolarisDocumentId("3"),
           "3",
           null,
-          new PresentationFlagsDto());
+          new PresentationFlagsDto(),
+          false);
       document.PresentationFlags.Write = WriteFlag.Ok;
 
       // Assert

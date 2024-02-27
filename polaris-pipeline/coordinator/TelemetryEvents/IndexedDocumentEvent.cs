@@ -15,6 +15,9 @@ namespace text_extractor.coordinator
         public string CaseUrn { get; set; }
         public long CaseId { get; set; }
         public string DocumentId { get; set; }
+        public string DocumentTypeId { get; set; }
+        public string DocumentType { get; set; }
+        public string DocumentCategory { get; set; }
         public long VersionId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime OcrCompletedTime { get; set; }
@@ -41,6 +44,9 @@ namespace text_extractor.coordinator
                     { nameof(CaseUrn), CaseUrn },
                     { nameof(CaseId), CaseId.ToString() },
                     { nameof(DocumentId), DocumentId.ToString() },
+                    { nameof(DocumentTypeId), DocumentTypeId?.ToString() },
+                    { nameof(DocumentType), DocumentType?.ToString()},
+                    { nameof(DocumentCategory), DocumentCategory?.ToString()},
                     { nameof(VersionId), VersionId.ToString() },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
