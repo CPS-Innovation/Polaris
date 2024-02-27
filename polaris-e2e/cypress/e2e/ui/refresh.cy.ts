@@ -7,7 +7,7 @@ describe("Refresh via guid-controlled ", () => {
 
     cy.clearCaseTracker(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID)
 
-    cy.visit("/polaris-ui")
+    cy.visit("/polaris-ui/case-search?redactionLog=false")
     cy.setPolarisInstrumentationGuid("PHASE_1")
     cy.findByTestId("input-search-urn").type(`${REFRESH_TARGET_URN}{enter}`)
     cy.findByTestId(`link-${REFRESH_TARGET_URN}`).click()
@@ -21,15 +21,16 @@ describe("Refresh via guid-controlled ", () => {
     cy.findByTestId("btn-redact").click({ force: true })
 
     cy.findByTestId("btn-save-redaction-0").click(
-    // The user cannot submit a redaction until the current pipeline refresh is complete.
-    //  In this instance, we forgive a long running process
-      {timeout: 5 * 60 * 1000}
+      // The user cannot submit a redaction until the current pipeline refresh is complete.
+      //  In this instance, we forgive a long running process
+      { timeout: 5 * 60 * 1000 }
     )
+
+    // we need to add redaction log modal functionality here
     cy.findByTestId("pdfTab-spinner-0").should("exist")
     cy.findByTestId("pdfTab-spinner-0").should("not.exist")
     cy.findByTestId("div-pdfviewer-0").should("exist")
     cy.selectPDFTextElement("Four")
-    
   })
 })
 
