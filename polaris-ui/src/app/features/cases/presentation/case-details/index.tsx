@@ -243,7 +243,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
             additionalData={{
               originalFileName: getActiveTabDocument.cmsOriginalFileName,
-              documentId: getActiveTabDocument.cmsDocumentId,
+              documentId: getActiveTabDocument.documentId,
               documentType: getActiveTabDocument.cmsDocType.documentType,
               fileCreatedDate: getActiveTabDocument.cmsFileCreatedDate,
             }}

@@ -1,7 +1,5 @@
 ﻿---
 parameters:
-  - name: targetBuild
-    type: string
   - name: targetLabel
     type: string
   - name: buildDefinitionId
@@ -14,7 +12,7 @@ steps:
     displayName: 'Schedule a Release: ${{ parameters.targetLabel }}'
     inputs:
       buildDefinition: ${{ parameters.buildDefinitionId }}
-      buildParameters: "target_build: $(targetBuild)"
       waitForQueuedBuildsToFinish: false
       cancelBuildsIfAnyFails: false
       password: "${{ parameters.devOpsPatToken }}"
+      useSameSourceVersion: true

@@ -26,6 +26,7 @@ import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionL
 import {
   getDefaultValuesFromMappings,
   redactString,
+  removeNonDigits,
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
@@ -385,6 +386,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
       cmsValues: {
         ...additionalData,
+        documentId: parseInt(removeNonDigits(additionalData.documentId)),
         documentTypeId: cmsDocumentTypeId,
         originalFileName: redactString(additionalData.originalFileName),
       },
