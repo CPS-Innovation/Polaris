@@ -553,7 +553,9 @@ describe("Case Details Search", () => {
           .first()
           .click({ force: true });
         cy.findByTestId("btn-save-redaction-0").should("not.exist");
-        cy.findByTestId("btn-redact").should("have.length", 1);
+        cy.findByTestId("btn-redact").should("be.disabled");
+        cy.findByTestId("select-redaction-type").should("have.length", 1);
+        cy.findByTestId("select-redaction-type").select("2");
         cy.findByTestId("btn-redact").click({ force: true });
         cy.findByTestId("btn-save-redaction-0").should("exist");
       });

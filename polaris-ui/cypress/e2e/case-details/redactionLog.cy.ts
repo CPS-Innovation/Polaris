@@ -32,7 +32,7 @@ const redactionTypeLabels = [
 describe("Redaction Log", () => {
   describe("Feature Flag On Under Redaction", () => {
     it("Should show the redaction types select input along with the redaction button and show under redaction modal on clicking save redaction with correct redaction type summary in descending order of redaction types count", () => {
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401   ");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -94,7 +94,7 @@ describe("Redaction Log", () => {
     });
 
     it("Should be able to open and close the guidance and show the relevant guidance text", () => {
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -135,7 +135,7 @@ describe("Redaction Log", () => {
         },
         "put"
       );
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -184,7 +184,7 @@ describe("Redaction Log", () => {
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
 
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -244,7 +244,7 @@ describe("Redaction Log", () => {
         },
         "put"
       );
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -279,7 +279,7 @@ describe("Redaction Log", () => {
         "post",
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -315,7 +315,7 @@ describe("Redaction Log", () => {
         "get",
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -330,7 +330,7 @@ describe("Redaction Log", () => {
     it("Should verify the save redaction log request data for under-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -358,7 +358,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedUnderRedactionType1Payload)
         );
@@ -368,7 +370,7 @@ describe("Redaction Log", () => {
 
   describe("Feature Flag On Under Over Redaction", () => {
     it(`should be a able to open and close the Under Over Redaction Modal`, () => {
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -401,7 +403,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("have.length", 0);
     });
     it("should show the Under Over redaction contents correctly", () => {
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -530,7 +532,7 @@ describe("Redaction Log", () => {
         "get",
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -597,7 +599,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
     });
     it("Under Over redaction modal should throw error for empty  checkboxes values and should be able to successfully save an over redaction log", () => {
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -648,7 +650,7 @@ describe("Redaction Log", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
 
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -673,7 +675,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedUnderRedactionType2Payload)
         );
@@ -683,7 +687,7 @@ describe("Redaction Log", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
 
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -708,7 +712,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedOverRedactionLogPayload)
         );
@@ -718,7 +724,7 @@ describe("Redaction Log", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
 
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -747,7 +753,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("div-modal").should("not.exist");
 
       //assertion on the redaction log save request
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return saveRequestObject.body;
+      }).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedOverUnderRedactionLogPayload)
         );
@@ -764,7 +772,7 @@ describe("Redaction Log", () => {
         "post",
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -806,7 +814,7 @@ describe("Redaction Log", () => {
         "get",
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -821,7 +829,7 @@ describe("Redaction Log", () => {
     it("Should throw error if the supporting notes crosses the maximum character limit", () => {
       const notes400CharacterText =
         "Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Inve";
-      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -867,8 +875,8 @@ describe("Redaction Log", () => {
   });
 
   describe("Feature Flag Off", () => {
-    it("Should not show the redaction types select input along with the redaction button ", () => {
-      cy.visit("/case-details/12AB1111111/13401?");
+    it("Should not show the redaction types select input along with the redaction button", () => {
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -880,7 +888,7 @@ describe("Redaction Log", () => {
     });
 
     it(`Should not show the "Log an Under/Over redaction" item in action dropdown menu`, () => {
-      cy.visit("/case-details/12AB1111111/13401?");
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")

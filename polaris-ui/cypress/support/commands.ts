@@ -25,6 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 import "@testing-library/cypress/add-commands";
 import { rest as mswRest } from "msw";
+import "cypress-wait-until";
 
 const apiPath = (path: string, baseUrl: string) =>
   new URL(path, baseUrl).toString();

@@ -12,7 +12,8 @@
       "cypress",
       "@testing-library/cypress",
       "cypress-real-events",
-      "cypress-axe"
+      "cypress-axe",
+      "cypress-wait-until"
     ]
   },
   "include": ["./**/*.ts"]
