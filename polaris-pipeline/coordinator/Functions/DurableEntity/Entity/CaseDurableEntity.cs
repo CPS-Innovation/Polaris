@@ -279,7 +279,9 @@ namespace coordinator.Functions.DurableEntity.Entity
                 changedDocuments.Add((trackerDocument, caseDeltaType));
             }
 
-            return changedDocuments;
+            return changedDocuments
+                .Where(d => d.Item2 != DocumentDeltaType.DoesNotRequireRefresh)
+                .ToList();
         }
 
         private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<string> documentIdsToDelete)
