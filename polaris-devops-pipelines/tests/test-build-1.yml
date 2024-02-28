@@ -12,15 +12,15 @@ variables:
     value: "1.0"
   - name: semanticVersion
     value: "$[counter(variables['majorMinorVersion'], 1)]"
-
+    
 pool:
-  name: $(dev-build-agent)
+  name: $(qa-build-agent)
 
 stages:
   - stage: Publish_Artifacts
-    displayName: Publish artifacts
+    displayName: Publish Pipeline Scripts
     jobs:
-      - job: Build_Text_Extractor_Artifact
+      - job: Build_Pipeline_Scripts
         steps:
           - task: PublishPipelineArtifact@1
             displayName: "Publish pipeline scripts"
@@ -29,6 +29,8 @@ stages:
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
               
+      - job: Build_Text_Extractor_Artifact
+        steps:
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -36,10 +38,10 @@ stages:
               projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
-            displayName: "Create Text-Extractor package to publish"
+            displayName: "Build Text-Extractor artifact"
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
               artifact: "polaris-text-extractor-drop"
-            displayName: "Publish Text-Extractor codebase artifact"
+            displayName: "Publish Text-Extractor artifact"

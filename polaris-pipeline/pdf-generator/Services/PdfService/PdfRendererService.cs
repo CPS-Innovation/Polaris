@@ -27,11 +27,17 @@ public class PdfRendererService : IPdfService
             var doc = _asposeItemFactory.CreateRenderedPdfDocument(inputStream, correlationId);
             if (doc.IsEncrypted)
                 throw new PdfEncryptionException();
-            
+
             doc.Save(pdfStream, SaveFormat.Pdf);
             pdfStream.Seek(0, SeekOrigin.Begin);
-        
+
             conversionResult.RecordConversionSuccess(pdfStream);
+        }
+        catch (IndexOutOfRangeException)
+        {
+            // Aspose.Pdf 24.2.0 throws IndexOutOfRangeException exception when converting
+            // otherwise healthy PDFs
+            conversionResult.RecordConversionQualifiedSuccess(inputStream);
         }
         catch (InvalidPasswordException ex)
         {
@@ -53,7 +59,7 @@ public class PdfRendererService : IPdfService
             inputStream?.Dispose();
             conversionResult.RecordConversionFailure(PdfConversionStatus.PdfEncrypted, ex.ToFormattedString());
         }
-        
+
         return conversionResult;
     }
 }

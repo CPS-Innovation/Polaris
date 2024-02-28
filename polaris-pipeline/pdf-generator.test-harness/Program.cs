@@ -15,6 +15,7 @@ using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
 using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
+using Newtonsoft.Json;
 
 namespace pdf_generator.test_harness;
 
@@ -95,12 +96,8 @@ internal static class Program
       Console.WriteLine("Enter the output file path:");
       var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
 
-      Console.WriteLine("Enter the number of pages to redact:");
-      if (!int.TryParse(Console.ReadLine(), out int numberOfPagesToRedact) || numberOfPagesToRedact <= 0)
-      {
-        Console.WriteLine("Invalid input for the number of pages. Exiting.");
-        return;
-      }
+      Console.WriteLine("Enter the path to the JSON file containing redaction data:");
+      var jsonFilePath = Console.ReadLine() ?? throw new Exception("json file path is required");
 
       if (File.Exists(filePath))
       {
@@ -109,25 +106,31 @@ internal static class Program
           using var fileStream = File.OpenRead(filePath);
 
           Guid currentCorrelationId = default;
+
+          // Deserialize JSON data
+          var jsonData = File.ReadAllText(jsonFilePath);
+          var redactionData = JsonConvert.DeserializeObject<RedactionData>(jsonData) ?? throw new Exception("Redaction data is required, pass a json file");
+
           var redactionDefinitions = new List<RedactionDefinitionDto>();
-          for (var pageIndex = 1; pageIndex <= numberOfPagesToRedact; pageIndex++)
+
+
+          foreach (var redaction in redactionData.Redactions)
           {
-            redactionDefinitions.Add(new RedactionDefinitionDto
+            var redactionDefinition = new RedactionDefinitionDto
             {
-              PageIndex = pageIndex,
-              Width = 842,
-              Height = 595,
-              RedactionCoordinates =
-              [
-                new RedactionCoordinatesDto
-                {
-                  X1 = 228.5,
-                  Y1 = 241.5,
-                  X2 = 475.71,
-                  Y2 = 441.5
-                }
-              ]
-            });
+              PageIndex = redaction.PageIndex,
+              Width = redaction.Width,
+              Height = redaction.Height,
+              RedactionCoordinates = redaction.RedactionCoordinates.Select(rc => new RedactionCoordinatesDto
+              {
+                X1 = rc.X1,
+                Y1 = rc.Y1,
+                X2 = rc.X2,
+                Y2 = rc.Y2
+              }).ToList()
+            };
+
+            redactionDefinitions.Add(redactionDefinition);
           }
 
           var redactPdf = new RedactPdfRequestDto
@@ -287,4 +290,10 @@ internal static class PdfManager
       Console.WriteLine($"PDF conversion failed: {e.Message}");
     }
   }
+}
+
+public class RedactionData
+{
+  public required string DocumentId { get; set; }
+  public required List<RedactionDefinitionDto> Redactions { get; set; }
 }

@@ -597,16 +597,20 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
 
     const rects = getClientRects(range, pages);
+    //for multi-page text selection only handle the starting page redaction
+    const samePageRects = rects.filter(
+      (rect) => rect?.pageNumber === pages[0].number
+    );
 
-    if (rects.length === 0) {
+    if (samePageRects.length === 0) {
       return;
     }
 
-    const boundingRect = getBoundingRect(rects);
+    const boundingRect = getBoundingRect(samePageRects);
 
     const viewportPosition: Position = {
       boundingRect,
-      rects,
+      rects: samePageRects,
       pageNumber: pages[0].number,
     };
 

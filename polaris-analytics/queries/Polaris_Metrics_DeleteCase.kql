@@ -1,0 +1,41 @@
+AppEvents
+| where Name == "DeletedCase"
+| extend IsFailure = Properties.isFailure == true
+| extend IndexWaitRecordCounts = parse_json(strcat("[",Properties.waitRecordCounts, "]"))
+| extend IndexDidRecordCountWobble = tostring(array_sort_desc(IndexWaitRecordCounts)) != tostring(IndexWaitRecordCounts),
+         IndexWaitRecordCount = array_length(IndexWaitRecordCounts)
+| project 
+    TimeGenerated,
+    OperationId,
+    PolarisCorrelationId = tostring(Properties.correlationId),
+    CaseId = tostring(Properties.caseId),
+    IsE2e = Properties.correlationId startswith "e2e",
+    StartTime = todatetime(Properties.startTime),
+    EndTime = todatetime(Properties.endTime),
+    IsFailure, 
+    DurationSeconds = round(todecimal(Measurements.durationSeconds), 2),
+
+    BlobsDidClearBlobs = tobool(Properties.didClearBlobs),
+    BlobsDeletedDurationSeconds = round(todecimal(Measurements.blobsDeletedDurationSeconds), 2),
+
+    IndexAttemptedRemovedDocumentCount = toint(Measurements.attemptedRemovedDocumentCount),
+    IndexSuccessfulRemovedDocumentCount = toint(Measurements.successfulRemovedDocumentCount),
+    IndexFailedRemovedDocumentCount = toint(Measurements.failedRemovedDocumentCount),
+    IndexDeletedDurationSeconds = round(todecimal(Measurements.indexDeletedDurationSeconds), 2),
+    IndexDidWaitForIndexToSettle = tobool(Properties.didWaitForIndexToSettle),
+    IndexDidIndexSettle = tobool(Properties.didIndexSettle),
+    IndexWaitRecordCounts,
+    IndexWaitRecordCount,
+    IndexDidRecordCountWobble,
+    IndexSettledDurationSeconds = round(todecimal(Measurements.indexSettledDurationSeconds), 2),
+    
+    
+    DurableGetInstancesToTerminateDurationSeconds = round(todecimal(Measurements.getInstancesToTerminateDurationSeconds), 2),
+    DurableTerminateInstancesDurationSeconds = round(todecimal(Measurements.terminateInstancesDurationSeconds), 2),
+    DurableDidOrchestrationsTerminate = tobool(Properties.didOrchestrationsTerminate),
+    DurableTerminatedInstancesCount = toint(Measurements.terminatedInstancesCount),
+    DurableTerminatedInstancesSettledDurationSeconds = round(todecimal(Measurements.terminatedInstancesSettledDurationSeconds), 2),
+    DurableGetInstancesToPurgeDurationSeconds = round(todecimal(Measurements.getInstancesToPurgeDurationSeconds), 2),
+    DurablePurgedInstancesDurationSeconds = round(todecimal(Measurements.purgedInstancesDurationSeconds), 2),
+    DurablePurgeInstancesCount = toint(Measurements.purgeInstancesCount),
+    DurablePurgedInstancesCount = toint(Measurements.purgedInstancesCount)

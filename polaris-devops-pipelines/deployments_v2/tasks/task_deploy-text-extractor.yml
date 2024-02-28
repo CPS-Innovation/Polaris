@@ -1,0 +1,49 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetName
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: azureSubscription
+    type: string
+  
+steps:
+  # download scripts artifact
+  - download: ${{ parameters.targetBuild }}
+    displayName: Download Scripts
+    artifact: 'polaris-script-files'
+
+  # send custom event to AppInsights
+  - template: task_send-to-app-insights.yml
+    parameters:
+      appInsightsKey: ${{ parameters.appInsightsKey }}
+      targetBuild: ${{ parameters.targetBuild }}
+      message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Started"
+
+  # download text-extractor build artifact
+  - download: ${{ parameters.targetBuild }}
+    displayName: Deploy > Download Text Extractor Codebase Build
+    artifact: "polaris-text-extractor-drop"
+
+  # Deploy Related Codebase to Env
+  - task: AzureFunctionApp@1
+    displayName: 'Deploy Text Extractor Azure Function App to ${{ parameters.targetLabel }}'
+    inputs:
+      azureSubscription: ${{ parameters.azureSubscription }}
+      appType: functionAppLinux
+      appName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+      package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
+      resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+
+  # send custom event to AppInsights
+  - template: task_send-to-app-insights.yml
+    parameters:
+      appInsightsKey: ${{ parameters.appInsightsKey }}
+      targetBuild: ${{ parameters.targetBuild }}
+      message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Completed"

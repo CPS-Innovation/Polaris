@@ -64,6 +64,28 @@ stages:
           targetLabel: ${{ parameters.targetLabel }}
           targetName: "Terraform CI Deployment"
           appInsightsKey: ${{ parameters.appInsightsKey }}
+          
+      - template: jobs/job_apply-terraform.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetTerraformArtifact: "networking-terraform-files"
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "Networking Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetPlanName: ${{ parameters.targetPlanName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+          terraformContainerName: ${{ parameters.terraformNetworkingContainerName }}
+          terraformStateKey: ${{ parameters.terraformStateKey }}
+          terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          terraformType: "Networking"
+          jobDependsOn:
+            - LogStart
 
       - template: jobs/job_apply-terraform.yml
         parameters:
@@ -85,7 +107,7 @@ stages:
           armSubscriptionId: ${{ parameters.armSubscriptionId }}
           terraformType: "Pipeline"
           jobDependsOn:
-            - LogStart
+            - ApplyNetworkingTerraform
 
       - template: jobs/job_apply-terraform.yml
         parameters:
@@ -185,28 +207,6 @@ stages:
           jobDependsOn:
             - ApplyUITerraform
             
-      - template: jobs/job_apply-terraform.yml
-        parameters:
-          envLabel: ${{ parameters.envLabel }}
-          targetBuild: ${{ parameters.targetBuild }}
-          targetTerraformArtifact: "networking-terraform-files"
-          targetLabel: ${{ parameters.targetLabel }}
-          targetName: "Networking Terraform CI Deployment"
-          targetSuffix: ${{ parameters.targetSuffix }}
-          targetPlanName: ${{ parameters.targetPlanName }}
-          appInsightsKey: ${{ parameters.appInsightsKey }}
-          terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-          terraformContainerName: ${{ parameters.terraformNetworkingContainerName }}
-          terraformStateKey: ${{ parameters.terraformStateKey }}
-          terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
-          armClientId: ${{ parameters.armClientId }}
-          armClientSecret: ${{ parameters.armClientSecret }}
-          armTenantId: ${{ parameters.armTenantId }}
-          armSubscriptionId: ${{ parameters.armSubscriptionId }}
-          terraformType: "Networking"
-          jobDependsOn:
-            - SetLogAnalyticsArchivalPeriods
-
       - template: jobs/job_log-result-deployment.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
