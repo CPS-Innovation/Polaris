@@ -27,16 +27,16 @@ import {
   RedactionLogMappingData,
   RedactionTypeData,
 } from "../../domain/redactionLog/RedactionLogData";
-import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 import {
   addToLocalStorage,
   deleteFromLocalStorage,
   readFromLocalStorage,
-  ReadData,
+  ReadUnreadData,
   RedactionsData,
 } from "../../presentation/case-details/utils/localStorageUtils";
+import { StoredUserData } from "../../domain//gateway/StoredUserData";
 
 export const reducer = (
   state: CombinedState,
@@ -178,6 +178,12 @@ export const reducer = (
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           enableAreaOnlyMode: boolean;
+        };
+      }
+    | {
+        type: "UPDATE_STORED_USER_DATA";
+        payload: {
+          storedUserData: StoredUserData;
         };
       }
 ): CombinedState => {
@@ -550,54 +556,9 @@ export const reducer = (
                 : existingItem
             );
 
-      const accordionsData =
-        state.accordionState.status === "succeeded"
-          ? state.accordionState.data
-          : [];
-      const isDocUnread = accordionsData.some((accordion) => {
-        return accordion.docs.some(
-          (doc) => doc.documentId === documentId && !doc.docRead
-        );
-      });
-
-      if (isDocUnread && state.accordionState.status === "succeeded") {
-        const newAccordionsData = accordionsData.map((accordion) => {
-          const docs = accordion.docs.map((document) => {
-            if (document.documentId === documentId) {
-              return { ...document, docRead: true };
-            }
-            return document;
-          });
-          return { ...accordion, docs: docs };
-        });
-
-        const docReadData = newAccordionsData.reduce((acc, accordion) => {
-          accordion.docs.forEach((document) => {
-            if (document.docRead) {
-              acc[document.documentId] = true;
-            }
-          });
-          return acc;
-        }, {} as ReadData);
-
-        addToLocalStorage(state.caseId, "read", docReadData);
-
-        return {
-          ...coreNewState,
-          tabsState: {
-            ...coreNewState.tabsState,
-            items: nextItemsArray,
-          },
-          searchState: {
-            ...state.searchState,
-            isResultsVisible: false,
-          },
-          accordionState: {
-            ...state.accordionState,
-            data: newAccordionsData,
-          },
-        };
-      }
+      const isUnread =
+        state.storedUserData.status !== "loading" &&
+        !state.storedUserData.data.readUnread.includes(documentId);
 
       return {
         ...coreNewState,
@@ -609,6 +570,20 @@ export const reducer = (
           ...state.searchState,
           isResultsVisible: false,
         },
+        ...(isUnread && state.storedUserData.status !== "loading"
+          ? {
+              storedUserData: {
+                ...state.storedUserData,
+                data: {
+                  ...state.storedUserData.data,
+                  readUnread: [
+                    ...state.storedUserData.data.readUnread,
+                    documentId,
+                  ],
+                },
+              },
+            }
+          : {}),
       };
 
     case "CLOSE_PDF": {
@@ -1012,6 +987,13 @@ export const reducer = (
               : item
           ),
         },
+      };
+    }
+    case "UPDATE_STORED_USER_DATA": {
+      const { storedUserData } = action.payload;
+      return {
+        ...state,
+        storedUserData: { status: "succeeded", data: storedUserData },
       };
     }
 

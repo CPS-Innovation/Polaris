@@ -8,29 +8,20 @@ import { Witness } from "../../domain/gateway/CaseDetails";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 import { getCategory } from "./document-category-definitions";
 import { getDocumentAttachments } from "./document-category-helpers";
-import {
-  readFromLocalStorage,
-  ReadData,
-} from "../../presentation/case-details/utils/localStorageUtils";
 
 export const mapDocumentsState = (
   result: PresentationDocumentProperties[],
   witnesses: Witness[],
   caseId: number
 ): AsyncResult<MappedCaseDocument[]> => {
-  const docReadData = readFromLocalStorage(caseId, "read") as ReadData | null;
   const data = result.map((item) => {
     const { category, subCategory } = getCategory(item);
     const witnessesForDoc = witnesses.find((w) => w.id === item.witnessId);
-    const docRead = docReadData
-      ? docReadData[`${item.documentId}`] ?? false
-      : false;
     return {
       ...item,
       presentationFileName: item.presentationTitle,
       presentationCategory: category,
       presentationSubCategory: subCategory,
-      docRead: docRead,
       attachments: getDocumentAttachments(item, result),
       witnessIndicators: witnessesForDoc
         ? mapWitnessIndicators(witnessesForDoc)

@@ -34,7 +34,6 @@ describe("mapDocumentsState", () => {
           presentationCategory: "category0",
           presentationFileName: "foo",
           presentationSubCategory: null,
-          docRead: false,
           witnessIndicators: [],
         },
         {
@@ -43,7 +42,6 @@ describe("mapDocumentsState", () => {
           presentationCategory: "category1",
           presentationFileName: "bar",
           presentationSubCategory: null,
-          docRead: false,
           witnessIndicators: [],
         },
       ] as MappedCaseDocument[],

@@ -64,6 +64,7 @@ export const initialState = {
     savedRedactionTypes: [],
   },
   featureFlags: { redactionLog: false, fullScreen: false },
+  storedUserData: { status: "loading" },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -94,6 +95,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [],
     combinedState.featureFlags.redactionLog
   );
+
+  useEffect(() => {
+    if (combinedState.storedUserData.status === "loading") {
+      console.log("hiii000000000000");
+      dispatch({
+        type: "GET_STORED_USER_DATA",
+      });
+    }
+  }, [combinedState.storedUserData.status, dispatch]);
 
   useEffect(() => {
     if (redactionLogLookUpsData.status !== "initial")
@@ -188,6 +198,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         },
       });
       handleTabSelection(caseDocument.documentId);
+      handleSaveReadUnreadData(caseDocument.documentId);
     },
     [dispatch]
   );
@@ -370,6 +381,23 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleGetStoredUserData = useCallback(
+    (caseId) =>
+      dispatch({
+        type: "GET_STORED_USER_DATA",
+      }),
+    [dispatch]
+  );
+
+  const handleSaveReadUnreadData = useCallback(
+    (documentId) =>
+      dispatch({
+        type: "SAVE_READ_UNREAD_DATA",
+        payload: { documentId },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -391,5 +419,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
     handleSaveRedactionLog,
+    handleGetStoredUserData,
+    handleSaveReadUnreadData,
   };
 };

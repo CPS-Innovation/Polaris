@@ -18,6 +18,7 @@ import {
 } from "../../../domain/WitnessIndicators";
 
 type Props = {
+  readUnreadData: string[];
   caseDocument: MappedCaseDocument;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export const AccordionDocument: React.FC<Props> = ({
+  readUnreadData,
   caseDocument,
   handleOpenPdf,
 }) => {
@@ -42,7 +44,7 @@ export const AccordionDocument: React.FC<Props> = ({
   return (
     <li
       className={`${classes["accordion-document-list-item"]} ${
-        caseDocument.docRead ? classes.docRead : ""
+        readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
       }`}
     >
       <div className={classes.listItemWrapper}>

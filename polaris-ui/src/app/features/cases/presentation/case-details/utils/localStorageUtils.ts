@@ -1,7 +1,7 @@
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 
-export type LocalStorageKey = "redactions" | "read";
-export type ReadData = Record<string, boolean>;
+export type LocalStorageKey = "redactions" | "readUnread";
+export type ReadUnreadData = string[];
 export type RedactionsData = {
   documentId: string;
   redactionHighlights: IPdfHighlight[];
@@ -9,7 +9,7 @@ export type RedactionsData = {
 
 type StorageData = {
   redactions: RedactionsData;
-  read: ReadData;
+  readUnread: ReadUnreadData;
 };
 
 export const addToLocalStorage = (
@@ -17,6 +17,7 @@ export const addToLocalStorage = (
   featureKey: LocalStorageKey,
   value: any
 ) => {
+  console.log("hiii");
   const storageKey = `${caseId}`;
 
   const storedData = localStorage.getItem(storageKey);

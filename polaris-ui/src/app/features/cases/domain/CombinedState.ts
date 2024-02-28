@@ -15,6 +15,7 @@ import {
   RedactionTypeData,
 } from "./redactionLog/RedactionLogData";
 import { RedactionLogTypes } from "../domain/redactionLog/RedactionLogTypes";
+import { StoredUserData } from "./gateway/StoredUserData";
 
 export type CombinedState = {
   urn: string;
@@ -71,4 +72,5 @@ export type CombinedState = {
     savedRedactionTypes: RedactionTypeData[];
   };
   featureFlags: FeatureFlagData;
+  storedUserData: AsyncResult<StoredUserData>;
 };

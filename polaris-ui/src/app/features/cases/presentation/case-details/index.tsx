@@ -64,6 +64,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentIssueModal,
     redactionLog,
     featureFlags,
+    storedUserData,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -331,6 +332,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <AccordionWait />
                 ) : (
                   <Accordion
+                    readUnreadData={
+                      storedUserData.status === "succeeded"
+                        ? storedUserData.data.readUnread
+                        : []
+                    }
                     accordionState={accordionState.data}
                     handleOpenPdf={(caseDoc) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
