@@ -42,7 +42,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
         private readonly Guid _correlationId;
         private readonly (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _caseDocuments;
         private readonly string _transactionId;
-        private readonly List<CmsDocumentEntity> _trackerCmsDocuments;
+        private readonly List<(CmsDocumentEntity, DocumentDeltaType)> _trackerCmsDocuments;
         private readonly CaseDeltasEntity _deltaDocuments;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
@@ -77,15 +77,15 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
             fixture.Customize<CmsDocumentEntity>(c =>
                 c.With(doc => doc.CmsOriginalFileName, $"{fixture.Create<string>()}.{fixture.Create<string>().Substring(0, 3)}"));
 
-            _trackerCmsDocuments = fixture.CreateMany<CmsDocumentEntity>(11)
+            _trackerCmsDocuments = fixture.CreateMany<(CmsDocumentEntity, DocumentDeltaType)>(11)
                 .ToList();
 
             for (int i = 0; i < _trackerCmsDocuments.Count; i++)
-                _trackerCmsDocuments[i].CmsDocumentId = $"CMS-{i + 1}";
+                _trackerCmsDocuments[i].Item1.CmsDocumentId = $"CMS-{i + 1}";
             _deltaDocuments = new CaseDeltasEntity
             {
-                CreatedCmsDocuments = _trackerCmsDocuments.Where(d => d.Status == DocumentStatus.New).ToList(),
-                UpdatedCmsDocuments = fixture.Create<CmsDocumentEntity[]>().ToList(),
+                CreatedCmsDocuments = _trackerCmsDocuments.Where(d => d.Item1.Status == DocumentStatus.New).ToList(),
+                UpdatedCmsDocuments = fixture.Create<(CmsDocumentEntity, DocumentDeltaType)[]>().ToList(),
                 DeletedCmsDocuments = fixture.Create<CmsDocumentEntity[]>().ToList(),
                 CreatedPcdRequests = new List<PcdRequestEntity> { },
                 UpdatedPcdRequests = new List<PcdRequestEntity> { },
@@ -175,8 +175,8 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
                 .ReturnsAsync(new CaseDeltasEntity
                 {
-                    CreatedCmsDocuments = new List<CmsDocumentEntity>(),
-                    UpdatedCmsDocuments = new List<CmsDocumentEntity>(),
+                    CreatedCmsDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>(),
+                    UpdatedCmsDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>(),
                     DeletedCmsDocuments = new List<CmsDocumentEntity>(),
                     CreatedPcdRequests = new List<PcdRequestEntity>(),
                     UpdatedPcdRequests = new List<PcdRequestEntity>(),
@@ -194,7 +194,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
         [Fact]
         public async Task Run_CallsSubOrchestratorForEachNewOrChangedDocument()
         {
-            List<CmsDocumentEntity> newCmsDocuments = _trackerCmsDocuments.Where(t => t.Status == DocumentStatus.New).ToList();
+            List<(CmsDocumentEntity, DocumentDeltaType)> newCmsDocuments = _trackerCmsDocuments.Where(t => t.Item1.Status == DocumentStatus.New).ToList();
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
             foreach (var document in newCmsDocuments)
@@ -208,8 +208,8 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                         payload =>
                             payload.CmsCaseId == _payload.CmsCaseId &&
                             (
-                                (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.CmsDocumentId) ||
-                                (payload.DefendantAndChargesTracker != null && payload.DefendantAndChargesTracker.CmsDocumentId == document.CmsDocumentId)
+                                (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.Item1.CmsDocumentId) ||
+                                (payload.DefendantAndChargesTracker != null && payload.DefendantAndChargesTracker.CmsDocumentId == document.Item1.CmsDocumentId)
                             ))
                 ));
             }

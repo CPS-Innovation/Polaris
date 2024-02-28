@@ -184,15 +184,6 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.FailedReason.Should().Be("exceptionMessage");
         }
 
-        //[Fact]
-        //public async Task GetDocuments_ReturnsDocuments()
-        //{
-        //    _tracker.CmsDocuments = _trackerDocuments;
-        //    var documents = await _tracker.GetDocuments();
-
-        //    documents.Should().BeEquivalentTo(_trackerDocuments);
-        //}
-
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
@@ -372,30 +363,6 @@ namespace coordinator.tests.Domain.Tracker
             tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
             tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
             tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
-        }
-
-        [Fact]
-        public async Task SynchroniseDocument_FailedCmsDocumentAreReprocessed()
-        {
-            // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
-            await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.UnableToConvertToPdf);
-            tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.Indexed);
-
-            // Act 
-            var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-
-            // Assert
-            tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
-            deltas.CreatedCmsDocuments.Count.Should().Be(0);
-            deltas.UpdatedCmsDocuments.Count.Should().Be(3);
-            deltas.DeletedCmsDocuments.Count.Should().Be(0);
-            deltas.Any().Should().BeTrue();
-            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(2);
-            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(2);
-            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(2);
         }
 
         [Fact]

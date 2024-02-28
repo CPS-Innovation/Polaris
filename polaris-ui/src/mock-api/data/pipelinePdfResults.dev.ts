@@ -15,7 +15,7 @@ const pipelinePdfResult: PipelineResults = {
       documentId: "1",
       cmsDocumentId: "1",
       pdfBlobName: "MCLOVEMG3",
-      status: "Indexed",
+      status: "PdfUploadedToBlob",
       cmsOriginalFileName: "MCLOVEMG3 very long .docx",
       presentationTitle: "UM MCLOVEMG3 very long",
       cmsOriginalFileExtension: ".pdf",

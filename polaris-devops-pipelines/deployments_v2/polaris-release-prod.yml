@@ -298,7 +298,7 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(not(or(failed(), canceled())), eq(variables.runCodebase, 'true'))
         dependsOn: 
           - Log_Result_Terraform_Ended
           - Wait_For_Running_Builds
@@ -317,7 +317,7 @@ stages:
 
       - job: Start_Pipeline_Slots
         dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
             Coordinator:
@@ -341,7 +341,7 @@ stages:
 
       - job: Start_UI_Slots
         dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
             SPA:
@@ -366,7 +366,7 @@ stages:
       - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
         workspace:
           clean: all
@@ -386,7 +386,7 @@ stages:
       - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
         strategy:
           runOnce:
@@ -404,7 +404,7 @@ stages:
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
         strategy:
           runOnce:
@@ -422,7 +422,7 @@ stages:
       - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
         workspace:
           clean: all
@@ -442,7 +442,7 @@ stages:
       - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
         strategy:
           runOnce:
@@ -458,7 +458,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
 
       - deployment: Log_Result_Codebase_Ended
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
