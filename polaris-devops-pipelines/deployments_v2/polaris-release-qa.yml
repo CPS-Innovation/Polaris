@@ -44,63 +44,38 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - deployment: Log_Start
-        displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+      - deployment: Deploy_Polaris
         environment: "QA"
+        timeoutInMinutes: 240
         strategy:
           runOnce:
             deploy:
               steps:
                 - template: tasks/task_log-start-deployment.yml
+                  displayName: Log Start
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    
-      - job: Wait_For_Running_Builds
-        dependsOn: Log_Start
-        displayName: 'Checking for Running Releases'
-        timeoutInMinutes: 240
-        pool:
-          vmImage: 'windows-latest'
-        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
-        steps:
-          - template: tasks/task_wait-for-running-releases.yml
-            parameters:
-              devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: Log_Start_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: 
-          - Log_Start
-          - Wait_For_Running_Builds
-        displayName: Log Terraform Start
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
+                - template: tasks/task_wait-for-running-releases.yml
+                  displayName: 'Checking for Running Releases'
+                  parameters:
+                    devOpsPatToken: "$(devops-pat-token)"
+
                 - template: tasks/task_log-start-deployment.yml
+                  displayName: Log Terraform Start
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - deployment: Apply_Networking_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        displayName: Apply Networking Terraform
-        dependsOn: Log_Start_Terraform
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_apply-terraform.yml
+                  displayName: Apply Networking Terraform
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetTerraformArtifact: "networking-terraform-files"
@@ -117,18 +92,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: Apply_Pipeline_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: Apply_Networking_Terraform
-        displayName: Apply Pipeline Terraform
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_apply-terraform.yml
+                  displayName: Apply Pipeline Terraform
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetTerraformArtifact: "pipeline-terraform-files"
@@ -145,18 +111,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: Apply_Pipeline_Events_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: Apply_Pipeline_Terraform
-        displayName: Apply Pipeline Events Terraform
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_apply-terraform.yml
+                  displayName: Apply Pipeline Events Terraform
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetTerraformArtifact: "pipeline-events-terraform-files"
@@ -173,16 +130,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: Update_Pipeline_Component_App_Keys
-        dependsOn: Apply_Pipeline_Terraform
-        displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_update-app-keys-in-pipeline-components.yml
+                  displayName: Update Component Keys
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -194,18 +144,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: Apply_UI_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: Update_Pipeline_Component_App_Keys
-        displayName: Apply UI Terraform
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_apply-terraform.yml
+                  displayName: Apply UI Terraform
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetTerraformArtifact: "ui-terraform-files"
@@ -222,18 +163,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: Apply_UI_Events_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: Apply_UI_Terraform
-        displayName: Apply UI Events Terraform
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_apply-terraform.yml
+                  displayName: Apply UI Events Terraform
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetTerraformArtifact: "ui-events-terraform-files"
@@ -250,16 +182,9 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: Set_Log_Analytics_Archival_Periods
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: Apply_UI_Terraform
-        displayName: Update Analytics Archival Periods
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_set-log-analytics-archival-periods.yml
+                  displayName: Update Analytics Archival Periods
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -273,23 +198,9 @@ stages:
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
 
-      - deployment: Log_Result_Terraform_Ended
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        displayName: Log Terraform End
-        dependsOn:
-          - Apply_Pipeline_Terraform
-          - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
-          - Apply_UI_Terraform
-          - Apply_UI_Events_Terraform
-          - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_log-result-deployment.yml
+                  displayName: Log Terraform End
+                  condition: and(succeeded(),eq(variables.runTerraform, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -297,84 +208,18 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: Log_Start_Codebase
-        condition: and(not(or(failed(), canceled())), eq(variables.runCodebase, 'true'))
-        dependsOn: 
-          - Log_Result_Terraform_Ended
-          - Wait_For_Running_Builds
-        displayName: Log Codebase Start
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_log-start-deployment.yml
+                  displayName: Log Codebase Start
+                  condition: and(succeeded(),eq(variables.runCodebase, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - job: Start_Pipeline_Slots
-        dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            Coordinator:
-              Name: "Coordinator"
-              AppServiceName: "fa-polaris-qa-coordinator"
-            PDFGenerator:
-              Name: "PDF Generator"
-              AppServiceName: "fa-polaris-qa-pdf-generator"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start Slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(qa-azure-subscription)
-              ResourceGroupName: "rg-polaris-pipeline-qa"
-              WebAppName: $(AppServiceName)
-
-      - job: Start_UI_Slots
-        dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            SPA:
-              Name: "SPA"
-              AppServiceName: "as-web-polaris-qa"
-            PolarisGateway:
-              Name: "Polaris Gateway"
-              AppServiceName: "fa-polaris-qa-gateway"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(qa-azure-subscription)
-              ResourceGroupName: "rg-polaris-qa"
-              WebAppName: $(AppServiceName)
-
-      - deployment: Deploy_Coordinator
-        dependsOn: Start_Pipeline_Slots
-        displayName: Deploy Coordinator
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_deploy-coordinator.yml
+                  displayName: Deploy Coordinator
+                  condition: and(succeeded(),eq(variables.runCodebase, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -383,16 +228,9 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: Deploy_Pdf_Generator
-        dependsOn: Start_Pipeline_Slots
-        displayName: Deploy PDF Generator
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_deploy-pdf-generator.yml
+                  displayName: Deploy PDF Generator
+                  condition: and(succeeded(),eq(variables.runCodebase, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -401,16 +239,9 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: Deploy_Text_Extractor
-        dependsOn: Start_Pipeline_Slots
-        displayName: Deploy Text Extractor
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_deploy-text-extractor.yml
+                  displayName: Deploy Text Extractor
+                  condition: and(succeeded(),eq(variables.runCodebase, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -419,18 +250,9 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: Deploy_Spa
-        dependsOn: Start_UI_Slots
-        displayName: Deploy SPA
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_deploy-spa.yml
+                  displayName: Deploy SPA
+                  condition: and(succeeded(),eq(variables.runCodebase, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -439,16 +261,9 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: Deploy_Gateway
-        dependsOn: Start_UI_Slots
-        displayName: Deploy Gateway
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_deploy-gateway.yml
+                  displayName: Deploy Gateway
+                  condition: and(succeeded(),eq(variables.runCodebase, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -457,21 +272,9 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
-      - deployment: Log_Result_Codebase_Ended
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        displayName: Log Codebase End
-        dependsOn:
-          - Deploy_Coordinator
-          - Deploy_Pdf_Generator
-          - Deploy_Text_Extractor
-          - Deploy_Spa
-          - Deploy_Gateway
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_log-result-deployment.yml
+                  displayName: Log Codebase End
+                  condition: and(succeeded(),eq(variables.runCodebase, 'true'))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
@@ -479,28 +282,9 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(devops-pat-token)"
 
-      - deployment: Log_Result_Ended
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        displayName: Log Deployment End
-        dependsOn:
-          - Apply_Pipeline_Terraform
-          - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
-          - Apply_UI_Terraform
-          - Apply_UI_Events_Terraform
-          - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
-          - Deploy_Coordinator
-          - Deploy_Pdf_Generator
-          - Deploy_Text_Extractor
-          - Deploy_Spa
-          - Deploy_Gateway
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
                 - template: tasks/task_log-result-deployment.yml
+                  displayName: Log Deployment End
+                  condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "QA"
