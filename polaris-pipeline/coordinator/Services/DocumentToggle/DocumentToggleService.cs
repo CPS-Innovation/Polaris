@@ -10,7 +10,7 @@ using coordinator.Domain.Exceptions;
 using Common.Dto.Document;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
-using Common.Domain.Entity;
+using coordinator.Domain.Entity;
 
 namespace coordinator.Services.DocumentToggle
 {

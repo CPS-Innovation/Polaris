@@ -6,12 +6,12 @@ using Common.Configuration;
 using Common.Domain.Exceptions;
 using Common.Dto.Request.Search;
 using Common.Extensions;
-using Common.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using text_extractor.Mappers.Contracts;
 
 namespace text_extractor.Functions
 {

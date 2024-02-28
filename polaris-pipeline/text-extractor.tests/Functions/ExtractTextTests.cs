@@ -22,8 +22,8 @@ using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Telemetry.Contracts;
 using System.IO;
-using Common.Mappers.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
+using text_extractor.Mappers.Contracts;
 
 namespace text_extractor.tests.Functions
 {
