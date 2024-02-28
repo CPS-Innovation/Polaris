@@ -5,7 +5,7 @@ parameters:
 
 steps:
   - task: PowerShell@2
-    displayName: Querying Status
+    displayName: Checking for Running Releases
     inputs:
       targetType: 'inline'
       script: |

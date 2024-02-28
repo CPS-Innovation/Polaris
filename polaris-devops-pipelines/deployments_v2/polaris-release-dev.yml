@@ -51,7 +51,6 @@ stages:
             deploy:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
-                  displayName: 'Checking for Running Releases'
                   parameters:
                     devOpsPatToken: "$(devops-pat-token)"
                       
