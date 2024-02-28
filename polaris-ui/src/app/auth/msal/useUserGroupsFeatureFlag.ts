@@ -1,7 +1,5 @@
 import { msalInstance } from "./msalInstance";
-import { useMemo } from "react";
 import {
-  PRIVATE_BETA_REDACTION_LOG_USER_GROUP,
   FEATURE_FLAG_REDACTION_LOG,
   PRIVATE_BETA_CHECK_IGNORE_USER,
   FEATURE_FLAG_FULL_SCREEN,
@@ -29,25 +27,19 @@ const isUIIntegrationTestUser = (username: string) => {
   );
 };
 
-const showRedactionLogFeature = (
-  groupClaims: string[],
-  username: string,
-  queryParam: string
-) => {
+const showRedactionLogFeature = (username: string, queryParam: string) => {
   if (!FEATURE_FLAG_REDACTION_LOG) {
     return false;
   }
 
   const isInCypressQueryParamFeatureFlag =
-    queryParam === "true" &&
-    !!window.Cypress &&
+    queryParam === "false" &&
+    window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
-  const isInPrivateBetaGroup = !!groupClaims?.includes(
-    PRIVATE_BETA_REDACTION_LOG_USER_GROUP
-  );
+  if (isInCypressQueryParamFeatureFlag) return false;
 
-  return isInPrivateBetaGroup || isInCypressQueryParamFeatureFlag;
+  return true;
 };
 
 const showFullScreenFeature = (username: string, queryParam: string) => {
@@ -71,11 +63,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
   const groupClaims = account?.idTokenClaims?.groups as string[];
 
   return {
-    redactionLog: showRedactionLogFeature(
-      groupClaims,
-      userDetails?.username,
-      redactionLog
-    ),
+    redactionLog: showRedactionLogFeature(userDetails?.username, redactionLog),
     fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
   };
 };

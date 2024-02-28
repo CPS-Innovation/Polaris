@@ -1,0 +1,38 @@
+
+// The time range we are missing gateway AppReqeusts, based on the last 
+//  recorded time before the gap and the first recorded time after
+let startTime = todatetime('2024-02-15T10:23:25.593181Z');
+let endTime = todatetime('2024-02-15T18:18:00.5307418Z');
+
+
+// Get requests via the coordinator that can be used as a proxy for user
+//  requests to get case details and to get a case document
+AppRequests
+| where AppRoleName == "fa-polaris-coordinator"
+| where TimeGenerated between (startTime .. endTime) 
+| where Name in ( "CaseClient", "GetDocumentClient")
+// ignore slifding case cleardown case deletes via CaseClient
+| where tostring(Properties.HttpMethod) in ("GET", "POST")
+| join kind=leftouter ( 
+    // join via OperationId to ddei calls which will have CmsUserId stamped
+    AppRequests
+    | where AppRoleName == "fa-polaris-ddei"
+    | extend CmsUserId = tostring(Properties.CmsUserId), PolarisCorrelationId = tostring(Properties.PolarisCorrelationId)
+    | where CmsUserId != ""
+    | distinct OperationId, CmsUserId
+
+) on OperationId
+// ignore e2e tests
+| where CmsUserId != "-2147483648"
+// if CmsUserId is empty these are automation tests too
+| where CmsUserId != ""
+| project TimeGenerated, CmsUserId, Url, ResultCode
+| join kind=leftouter (
+    // join to gateway activity to map from CmsUserId to User
+    AppRequests
+    | where AppRoleName == "fa-polaris-gateway"
+    | where Name != "Status"
+    | distinct CmsUserId = tostring(Properties.CmsUserId), User = tostring(Properties.User)
+    | where User != ""
+
+) on CmsUserId

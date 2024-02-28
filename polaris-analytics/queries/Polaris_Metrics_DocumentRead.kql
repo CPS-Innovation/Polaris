@@ -1,0 +1,12 @@
+AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineGetDocument"
+| project 
+    TimeGenerated, 
+    OperationId,
+    PolarisCorrelationId = tostring(Properties.PolarisCorrelationId), 
+    User = tostring(Properties.User),
+    CaseId = toint(extract("/cases/([^/]+)", 1, Url)),
+    DocumentIdAsString = tostring(extract("documents/(.+)", 1, Url))
+| extend DocumentId = tolong(extract("-(.+)", 1, DocumentIdAsString))
+

@@ -1,0 +1,60 @@
+let binFactor = 5;
+
+let QualifyingPolarisCorrelationIds = Polaris_Metrics_CaseRefresh
+| where CmsDocsProcessedCount > 2
+| project PolarisCorrelationId, TimeGenerated, StartTime
+;
+
+let StartTimesConversion = Polaris_Metrics_Conversion
+| where not(IsFailure == true)
+| summarize 
+    MinPdfAvailable = min(TimeGenerated), 
+    MaxPdfAvailable = max(TimeGenerated) 
+by PolarisCorrelationId
+;
+
+let LastDocAvailable = QualifyingPolarisCorrelationIds
+| join StartTimesConversion on PolarisCorrelationId
+| extend DurationSeconds = datetime_diff("second", MaxPdfAvailable, StartTime) 
+| where DurationSeconds >= 0
+| summarize Count = count() by bin(DurationSeconds, binFactor)
+| as T
+| order by DurationSeconds asc
+| extend Percentage = 100.0 * Count / toscalar(T | summarize sum(Count))
+| extend LastDocPercentage = row_cumsum(Percentage)
+| project-away Count, Percentage
+;
+// LastDocAvailable
+
+let FirstDocAvailable = QualifyingPolarisCorrelationIds
+| join StartTimesConversion on PolarisCorrelationId
+| extend DurationSeconds = datetime_diff("second", MinPdfAvailable, StartTime) 
+| where DurationSeconds >= 0
+| summarize Count = count() by bin(DurationSeconds, binFactor)
+| as T
+| order by DurationSeconds asc
+| extend Percentage = 100.0 * Count / toscalar(T | summarize sum(Count))
+| extend FirstDocPercentage = row_cumsum(Percentage)
+| project-away Count, Percentage
+;
+//FirstDocAvailable
+
+let SearchAvailable =  Polaris_Metrics_CaseRefresh
+| join QualifyingPolarisCorrelationIds on PolarisCorrelationId
+| summarize Count = count() by  bin(tolong(DurationSeconds), binFactor)
+| as T
+| order by DurationSeconds asc
+| extend Percentage = 100.0 * Count / toscalar(T | summarize sum(Count))
+| extend SearchAvailablePercentage = row_cumsum(Percentage)
+| project-away Count, Percentage
+;
+
+SearchAvailable
+| join kind=fullouter LastDocAvailable on DurationSeconds
+| join kind=fullouter FirstDocAvailable on DurationSeconds
+
+| project Seconds = coalesce(DurationSeconds, DurationSeconds1, DurationSeconds2), FirstDocPercentage, LastDocPercentage, SearchAvailablePercentage
+| order by Seconds asc
+| where Seconds <= 90
+| render columnchart kind=unstacked 
+

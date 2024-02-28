@@ -1,0 +1,40 @@
+Polaris_Metrics_RedactionRequest
+// empty GUID is 
+//| where PolarisCorrelationId != "00000000-0000-0000-0000-000000000000"
+
+| summarize TotalCount = count() by Date = format_datetime(TimeGenerated, "yyyy-MM-dd")
+
+| join kind=leftouter (
+
+Polaris_Metrics_RedactionRequest 
+| where IsFailure 
+| summarize 
+    FailCount = count(), 
+    arg_max(TimeGenerated, *) 
+    by DocumentId
+
+| join kind=leftouter (
+    Polaris_Metrics_RedactionRequest 
+    | where not(IsFailure) 
+    | summarize arg_max(TimeGenerated, *) 
+    by DocumentId
+) on DocumentId
+| where TimeGenerated1 > TimeGenerated or isnull(TimeGenerated1)
+
+
+| join kind=leftouter (
+AppExceptions
+| where AppRoleName startswith "fa-polaris-ddei"
+| distinct PolarisCorrelationId = tostring(Properties.prop__CorrelationId)
+) on PolarisCorrelationId
+| project 
+    Date = format_datetime(TimeGenerated, "yyyy-MM-dd"),
+    FailCount,
+    DidRecover = DocumentId1 != "",
+    WasDdeiError = PolarisCorrelationId2 != ""
+| summarize FailCount=sum(FailCount), DistinctDocumentCount = count(), DocumentUnrecoveredCount = count() - countif(DidRecover), DocumentHadDdeiErrorCount = countif(WasDdeiError) by Date
+
+
+) on Date
+| project-away Date1
+| order by Date desc
