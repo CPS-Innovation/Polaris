@@ -55,11 +55,6 @@ stages:
                   parameters:
                     devOpsPatToken: "$(devops-pat-token)"
 
-                #download templates artifact
-                - download: PolarisBuild
-                  displayName: Download Templates
-                  artifact: 'polaris-template-files'
-
                 #download scripts artifact
                 - download: PolarisBuild
                   displayName: Download Scripts
@@ -79,6 +74,85 @@ stages:
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Networking Terraform - Started"
+
+                #download pipeline terraform build artifact
+                - download: PolarisBuild
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  displayName: Terraform > Download Networking terraform build
+                  artifact: "networking-terraform-files"
+
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init Networking
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/networking-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_LOG: "ERROR"
+
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                  displayName: Terraform > Write Networking Plan
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/networking-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: "ERROR"
+
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve qa.tfplan
+                  displayName: Terraform > Apply Main Pipeline
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/networking-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: "ERROR"
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Networking Terraform - Completed"
 
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -148,8 +222,8 @@ stages:
                 - bash: |
                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
                     az account set --subscription $ARM_SUBSCRIPTION_ID
-                    durable_code=$(az functionapp keys list --resource-group rg-polaris-qa --name fa-polaris-qa-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
-                    az functionapp config appsettings set --name fa-polaris-qa-coordinator --resource-group rg-polaris-qa --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-qa-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-qa-coordinator --resource-group rg-polaris-pipeline-qa --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
                   displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   condition: and(succeeded(), eq(variables.runTerraform, 'true'))
@@ -206,7 +280,7 @@ stages:
                     appName: "fa-polaris-qa-coordinator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris-qa"
+                    resourceGroupName: "rg-polaris-pipeline-qa"
                     slotName: "staging1"
 
                 #send custom event to AppInsights
@@ -255,7 +329,7 @@ stages:
                     appName: "fa-polaris-qa-pdf-generator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris-qa"
+                    resourceGroupName: "rg-polaris-pipeline-qa"
                     slotName: "staging1"
 
                 #send custom event to AppInsights

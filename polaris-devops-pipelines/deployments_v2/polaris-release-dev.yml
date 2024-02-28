@@ -54,11 +54,6 @@ stages:
                   parameters:
                     devOpsPatToken: "$(devops-pat-token)"
                       
-                #download templates artifact
-                - download: PolarisBuild
-                  displayName: Download Templates
-                  artifact: 'polaris-template-files'
-                
                 #download scripts artifact
                 - download: PolarisBuild
                   displayName: Download Scripts
@@ -78,6 +73,85 @@ stages:
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Networking Terraform - Started"
+
+                #download pipeline terraform build artifact
+                - download: PolarisBuild
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  displayName: Terraform > Download Networking terraform build
+                  artifact: "networking-terraform-files"
+
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init Networking
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/networking-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: "ERROR"
+
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+                  displayName: Terraform > Write Networking Plan
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/networking-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: "ERROR"
+
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve dev.tfplan
+                  displayName: Terraform > Apply Main Pipeline
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/networking-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: "ERROR"
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Networking Terraform - Completed"
                 
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -147,8 +221,8 @@ stages:
                 - bash: |
                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
                     az account set --subscription $ARM_SUBSCRIPTION_ID
-                    durable_code=$(az functionapp keys list --resource-group rg-polaris-dev --name fa-polaris-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
-                    az functionapp config appsettings set --name fa-polaris-dev-coordinator --resource-group rg-polaris-dev --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-dev-coordinator --resource-group rg-polaris-pipeline-dev --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
                   displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   condition: and(succeeded(), eq(variables.runTerraform, 'true'))
@@ -205,7 +279,7 @@ stages:
                     appName: "fa-polaris-dev-coordinator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris-dev"
+                    resourceGroupName: "rg-polaris-pipeline-dev"
                     slotName: "staging1"
                 
                 #send custom event to AppInsights
@@ -254,7 +328,7 @@ stages:
                     appName: "fa-polaris-dev-pdf-generator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris-dev"
+                    resourceGroupName: "rg-polaris-pipeline-dev"
                     slotName: "staging1"
                 
                 #send custom event to AppInsights
@@ -786,7 +860,7 @@ stages:
               SpecifySlotOrASE: true
               Slot: "staging1"
               azureSubscription: $(dev-azure-subscription)
-              ResourceGroupName: "rg-polaris-dev"
+              ResourceGroupName: "rg-polaris-pipeline-dev"
               WebAppName: $(AppServiceName)
 
       - job: Start_UI_Slots
@@ -833,7 +907,7 @@ stages:
               action: "Swap Slots"
               sourceSlot: "staging1"
               azureSubscription: $(dev-azure-subscription)
-              resourceGroupName: "rg-polaris-dev"
+              resourceGroupName: "rg-polaris-pipeline-dev"
               webAppName: $(AppServiceName)
               PreserveVnet: true
 
