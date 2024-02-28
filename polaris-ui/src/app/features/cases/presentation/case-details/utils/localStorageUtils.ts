@@ -17,8 +17,7 @@ export const addToLocalStorage = (
   featureKey: LocalStorageKey,
   value: any
 ) => {
-  console.log("hiii");
-  const storageKey = `${caseId}`;
+  const storageKey = `caseworkApp-${caseId}`;
 
   const storedData = localStorage.getItem(storageKey);
   if (storedData) {
@@ -26,7 +25,7 @@ export const addToLocalStorage = (
     const newData = {
       ...parsedData,
       modifiedDate: Date.now(),
-      value: { ...parsedData.value, [featureKey]: value },
+      [featureKey]: value,
     };
     localStorage.setItem(storageKey, JSON.stringify(newData));
     return;
@@ -34,7 +33,7 @@ export const addToLocalStorage = (
 
   localStorage.setItem(
     storageKey,
-    JSON.stringify({ modifiedDate: Date.now(), value: { [featureKey]: value } })
+    JSON.stringify({ modifiedDate: Date.now(), [featureKey]: value })
   );
 };
 
@@ -62,10 +61,10 @@ export const readFromLocalStorage = (
   caseId: number,
   featureKey: LocalStorageKey
 ) => {
-  const storageKey = `${caseId}`;
+  const storageKey = `caseworkApp-${caseId}`;
   const storedData = localStorage.getItem(storageKey);
   if (storedData) {
-    const data: StorageData = JSON.parse(storedData).value;
+    const data: StorageData = JSON.parse(storedData);
     if (data[featureKey]) {
       return data[featureKey];
     }
@@ -78,11 +77,11 @@ export const deleteFromLocalStorage = (
   caseId: number,
   featureKey: LocalStorageKey
 ) => {
-  const storageKey = `${caseId}`;
+  const storageKey = `caseworkApp-${caseId}`;
   const storedData = localStorage.getItem(storageKey);
   if (storedData) {
     const parsedData = JSON.parse(storedData);
-    delete parsedData.value[featureKey];
+    delete parsedData[featureKey];
     const newData = {
       ...parsedData,
       modifiedDate: Date.now(),
