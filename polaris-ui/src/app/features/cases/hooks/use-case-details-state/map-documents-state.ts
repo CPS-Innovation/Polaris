@@ -11,8 +11,7 @@ import { getDocumentAttachments } from "./document-category-helpers";
 
 export const mapDocumentsState = (
   result: PresentationDocumentProperties[],
-  witnesses: Witness[],
-  caseId: number
+  witnesses: Witness[]
 ): AsyncResult<MappedCaseDocument[]> => {
   const data = result.map((item) => {
     const { category, subCategory } = getCategory(item);

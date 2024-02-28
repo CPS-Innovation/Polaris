@@ -47,7 +47,7 @@ describe("mapDocumentsState", () => {
       ] as MappedCaseDocument[],
     };
 
-    const result = mapDocumentsState(input, [], 123);
+    const result = mapDocumentsState(input, []);
 
     expect(result).toEqual(expectedResult);
   });
@@ -110,7 +110,7 @@ describe("mapDocumentsState", () => {
       ] as MappedCaseDocument[],
     };
 
-    const result = mapDocumentsState(input, witnessesInput, 123);
+    const result = mapDocumentsState(input, witnessesInput);
 
     expect(result).toEqual(expectedResult);
   });

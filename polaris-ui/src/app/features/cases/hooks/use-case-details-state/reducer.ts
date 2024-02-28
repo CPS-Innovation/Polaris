@@ -265,8 +265,7 @@ export const reducer = (
             : [];
         const documentsState = mapDocumentsState(
           action.payload.data.documents,
-          witnesses,
-          state.caseId
+          witnesses
         );
         const accordionState = mapAccordionState(documentsState);
         nextState = {
@@ -819,20 +818,6 @@ export const reducer = (
     case "SAVING_REDACTION": {
       const { documentId, saveStatus } = action.payload;
 
-      const redactionHighlights = state.tabsState.items.find(
-        (item) => item.documentId === documentId
-      )?.redactionHighlights;
-
-      if (saveStatus === "saving") {
-        //save redaction here
-      }
-
-      // if (saveStatus === "saved") {
-      //   //clear saved redaction here
-
-      // }
-
-      console.log("redactionHighlights>>>>", redactionHighlights);
       return {
         ...state,
         tabsState: {
