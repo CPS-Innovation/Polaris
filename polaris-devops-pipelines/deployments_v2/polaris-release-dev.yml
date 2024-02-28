@@ -297,7 +297,7 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
                     
       - deployment: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(not(or(failed(), canceled())), eq(variables.runCodebase, 'true'))
         dependsOn: 
           - Log_Result_Terraform_Ended
           - Wait_For_Running_Builds
