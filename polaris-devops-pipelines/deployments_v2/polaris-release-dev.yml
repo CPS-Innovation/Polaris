@@ -221,8 +221,8 @@ stages:
                 - bash: |
                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
                     az account set --subscription $ARM_SUBSCRIPTION_ID
-                    durable_code=$(az functionapp keys list --resource-group rg-polaris-dev --name fa-polaris-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
-                    az functionapp config appsettings set --name fa-polaris-dev-coordinator --resource-group rg-polaris-dev --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-dev-coordinator --resource-group rg-polaris-pipeline-dev --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
                   displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   condition: and(succeeded(), eq(variables.runTerraform, 'true'))
@@ -279,7 +279,7 @@ stages:
                     appName: "fa-polaris-dev-coordinator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris-dev"
+                    resourceGroupName: "rg-polaris-pipeline-dev"
                     slotName: "staging1"
                 
                 #send custom event to AppInsights
@@ -328,7 +328,7 @@ stages:
                     appName: "fa-polaris-dev-pdf-generator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris-dev"
+                    resourceGroupName: "rg-polaris-pipeline-dev"
                     slotName: "staging1"
                 
                 #send custom event to AppInsights
@@ -860,7 +860,7 @@ stages:
               SpecifySlotOrASE: true
               Slot: "staging1"
               azureSubscription: $(dev-azure-subscription)
-              ResourceGroupName: "rg-polaris-dev"
+              ResourceGroupName: "rg-polaris-pipeline-dev"
               WebAppName: $(AppServiceName)
 
       - job: Start_UI_Slots
@@ -907,7 +907,7 @@ stages:
               action: "Swap Slots"
               sourceSlot: "staging1"
               azureSubscription: $(dev-azure-subscription)
-              resourceGroupName: "rg-polaris-dev"
+              resourceGroupName: "rg-polaris-pipeline-dev"
               webAppName: $(AppServiceName)
               PreserveVnet: true
 

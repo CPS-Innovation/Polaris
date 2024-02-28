@@ -222,8 +222,8 @@ stages:
                 - bash: |
                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
                     az account set --subscription $ARM_SUBSCRIPTION_ID
-                    durable_code=$(az functionapp keys list --resource-group rg-polaris --name fa-polaris-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
-                    az functionapp config appsettings set --name fa-polaris-coordinator --resource-group rg-polaris --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-coordinator --resource-group rg-polaris-pipeline --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
                   displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   condition: and(succeeded(), eq(variables.runTerraform, 'true'))
@@ -280,7 +280,7 @@ stages:
                     appName: "fa-polaris-coordinator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris"
+                    resourceGroupName: "rg-polaris-pipeline"
                     slotName: "staging1"
 
                 #send custom event to AppInsights
@@ -329,7 +329,7 @@ stages:
                     appName: "fa-polaris-pdf-generator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
                     deployToSlotOrASE: true
-                    resourceGroupName: "rg-polaris"
+                    resourceGroupName: "rg-polaris-pipeline"
                     slotName: "staging1"
 
                 #send custom event to AppInsights
