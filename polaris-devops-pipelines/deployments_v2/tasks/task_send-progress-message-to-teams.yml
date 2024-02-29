@@ -1,0 +1,151 @@
+﻿---
+parameters:
+  - name: webhookUrl
+    type: string
+  - name: approvedBy
+    type: string
+  - name: commitId
+    type: string
+  - name: buildVersion
+    type: string
+  - name: pipelineTerraformCount
+    type: string
+  - name: uiTerraformCount
+    type: string
+  - name: networkingTerraformCount
+    type: string
+  - name: coordinatorCount
+    type: string
+  - name: pdfGeneratorCount
+    type: string
+  - name: textExtractorCount
+    type: string
+  - name: gatewayCount
+    type: string
+  - name: uiCount
+    type: string
+  - name: ddeiClientCount
+    type: string
+  - name: commonLibraryCount
+    type: string
+  - name: messageTitle
+    type: string
+  - name: buildResultsTitle
+    type: string
+  - name: buildResultsUrl
+    type: string
+  
+steps:
+  - bash: |
+      curl -v -X POST ${{ parameters.webhookUrl }} -H 'Content-Type: application/json; charset=utf-8' \
+        --data-binary @- << EOF
+        {
+          "type": "message",
+          "attachments": [
+            {
+              "contentType": "application/vnd.microsoft.card.adaptive",
+              "contentUrl": null,
+              "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.2",
+                "actions": [
+                  {
+                    "type": "Action.OpenUrl",
+                    "title": "${{ parameters.buildResultsTitle }}",
+                    "url": "${{ parameters.buildResultsUrl }}"
+                  }
+                ],
+                "body": [
+                  {
+                    "type": "TextBlock",
+                    "size": "Medium",
+                    "weight": "Bolder",
+                    "text": "${{ parameters.messageTitle }}"
+                  },
+                  {
+                    "type": "ColumnSet",
+                    "columns": [
+                      {
+                        "type": "Column",
+                        "items": [
+                          {
+                            "type": "FactSet",
+                            "facts": [
+                              {
+                                "title": "Approved By",
+                                "value": "${{ parameters.approvedBy }}"
+                              },
+                              {
+                                "title": "Commit Id",
+                                "value": "${{ parameters.commitId }}"
+                              },
+                              {
+                                "title": "Build Version",
+                                "value": "${{ parameters.buildVersion }}"
+                              }
+                            ]
+                          },
+                          {
+                              "type": "TextBlock",
+                              "weight": "Bolder",
+                              "text": "Areas Affected:",
+                              "wrap": true
+                          },
+                          {
+                            "type": "FactSet",
+                            "facts": [
+                              {
+                                "title": "Pipeline TF Changes",
+                                "value": "${{ parameters.pipelineTerraformCount }}"
+                              },
+                              {
+                                "title": "UI TF Changes",
+                                "value": "${{ parameters.uiTerraformCount }}"
+                              },
+                              {
+                                "title": "Network TF Changes",
+                                "value": "${{ parameters.networkingTerraformCount }}"
+                              },
+                              {
+                                "title": "Coordinator Changes",
+                                "value": "${{ parameters.coordinatorCount }}"
+                              },
+                              {
+                                "title": "PDF Gen Changes",
+                                "value": "${{ parameters.pdfGeneratorCount }}"
+                              },
+                              {
+                                "title": "Text Ext Changes",
+                                "value": "${{ parameters.textExtractorCount }}"
+                              },
+                              {
+                                "title": "Gateway Changes",
+                                "value": "${{ parameters.gatewayCount }}"
+                              },
+                              {
+                                "title": "SPA Changes",
+                                "value": "${{ parameters.uiCount }}"
+                              },
+                              {
+                                "title": "DDEI Client Changes",
+                                "value": "${{ parameters.ddeiClientCount }}"
+                              },
+                              {
+                                "title": "Common Lib Changes",
+                                "value": "${{ parameters.commonLibraryCount }}"
+                              }
+                            ]
+                          }
+                        ],
+                        "width": "stretch"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      EOF
+    displayName: Sending message to Teams
