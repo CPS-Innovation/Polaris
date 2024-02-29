@@ -2,7 +2,6 @@
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
-using coordinator.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -20,16 +19,16 @@ using coordinator.Providers;
 using coordinator.Services.CleardownService;
 using coordinator.Durable.Payloads;
 
-namespace coordinator.Functions.Orchestration.Client.Case
+namespace coordinator.Functions
 {
-    public class CaseClient
+    public class DeleteCase
     {
-        private readonly ILogger<CaseClient> _logger;
+        private readonly ILogger<DeleteCase> _logger;
         private readonly IOrchestrationProvider _orchestrationProvider;
         private readonly ICleardownService _cleardownService;
 
-        public CaseClient(
-            ILogger<CaseClient> logger,
+        public DeleteCase(
+            ILogger<DeleteCase> logger,
             IOrchestrationProvider orchestrationProvider,
             ICleardownService cleardownService)
         {
@@ -38,20 +37,20 @@ namespace coordinator.Functions.Orchestration.Client.Case
             _cleardownService = cleardownService;
         }
 
-        [FunctionName(nameof(CaseClient))]
+        [FunctionName(nameof(DeleteCase))]
         [ProducesResponseType((int)HttpStatusCode.Accepted)]
         [ProducesResponseType((int)HttpStatusCode.Locked)] // Refresh already running
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<HttpResponseMessage> Run
             (
-                [HttpTrigger(AuthorizationLevel.Anonymous, "put", "delete", "post", Route = RestApi.Case)] HttpRequestMessage req,
+                [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequestMessage req,
                 string caseUrn,
                 string caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
             )
         {
             Guid currentCorrelationId = default;
-            const string loggingName = $"{nameof(CaseClient)} - {nameof(Run)}";
+            const string loggingName = $"{nameof(DeleteCase)} - {nameof(Run)}";
 
             try
             {
@@ -89,22 +88,13 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
                 var casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, baseUrl, extensionCode, cmsAuthValues, currentCorrelationId);
 
-                switch (req.Method.Method)
-                {
-                    case "POST":
-                        return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
+                await _cleardownService.DeleteCaseAsync(orchestrationClient,
+                     caseUrn,
+                     caseIdNum,
+                     currentCorrelationId,
+                     waitForIndexToSettle: true);
+                return new HttpResponseMessage(HttpStatusCode.OK);
 
-                    case "DELETE":
-                        await _cleardownService.DeleteCaseAsync(orchestrationClient,
-                                                                     caseUrn,
-                                                                     caseIdNum,
-                                                                     currentCorrelationId,
-                                                                     waitForIndexToSettle: true);
-                        return new HttpResponseMessage(HttpStatusCode.OK);
-
-                    default:
-                        throw new BadRequestException("Unexpected HTTP Verb", req.Method.Method);
-                }
             }
             catch (Exception exception)
             {

@@ -5,7 +5,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 
-namespace coordinator.Functions.Orchestration.Functions.Maintenance;
+namespace coordinator.Functions.Maintenance;
 
 // See https://github.com/CPS-Innovation/Polaris/blob/d770812285c46b214d9f65fad45204e149113a88/polaris-pipeline/coordinator/Functions/Orchestration/Functions/Maintenance/ResetDurableState.cs#L13
 //  for the original implementation of an overnight clear down based on time range

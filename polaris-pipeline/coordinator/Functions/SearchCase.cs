@@ -19,7 +19,7 @@ using coordinator.Durable.Entity;
 using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
 
-namespace coordinator.Functions.DurableEntity.Client.Case
+namespace coordinator.Functions
 {
     public class SearchCaseClient
     {

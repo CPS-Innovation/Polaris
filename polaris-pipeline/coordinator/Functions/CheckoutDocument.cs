@@ -14,20 +14,18 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.DurableEntity.Client.Document
+namespace coordinator.Functions
 {
-    public class CheckoutDocumentClient : BaseClient
+    public class CheckoutDocument : BaseClient
     {
         private readonly IDdeiClient _ddeiClient;
 
-        public CheckoutDocumentClient(IDdeiClient ddeiClient)
+        public CheckoutDocument(IDdeiClient ddeiClient)
         {
             _ddeiClient = ddeiClient;
         }
 
-        const string loggingName = $"{nameof(CheckoutDocumentClient)} - {nameof(HttpStart)}";
-
-        [FunctionName(nameof(CheckoutDocumentClient))]
+        [FunctionName(nameof(CheckoutDocument))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
             string caseUrn,
@@ -46,7 +44,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
 
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
+                var response = await GetTrackerDocument(req, client, nameof(CheckoutDocument), caseId, new PolarisDocumentId(polarisDocumentId), log);
 
                 if (!response.Success)
                     return response.Error;
@@ -79,7 +77,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                log.LogMethodError(currentCorrelationId, nameof(CheckoutDocument), ex.Message, ex);
                 return new StatusCodeResult(500);
             }
         }

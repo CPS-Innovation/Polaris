@@ -11,7 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.DurableEntity.Client.Document
+namespace coordinator.Functions
 {
     public class GetDocumentClient : BaseClient
     {

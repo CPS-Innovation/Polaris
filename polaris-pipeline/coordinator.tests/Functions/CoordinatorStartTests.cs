@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Durable.Payloads;
-using coordinator.Functions.Orchestration.Client.Case;
+using coordinator.Functions;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.Providers;
 using coordinator.Services.CleardownService;
@@ -34,7 +34,7 @@ namespace coordinator.tests.Functions
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
         private readonly Mock<ICleardownService> _mockCleardownService;
 
-        private readonly CaseClient _coordinatorStart;
+        private readonly RefreshCase _coordinatorStart;
 
         public CoordinatorStartTests()
         {
@@ -53,7 +53,7 @@ namespace coordinator.tests.Functions
             _httpResponseMessage = new HttpResponseMessage();
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
-            var mockLogger = new Mock<ILogger<CaseClient>>();
+            var mockLogger = new Mock<ILogger<RefreshCase>>();
             var mockBlobStorageClient = new Mock<IPolarisBlobStorageService>();
             _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
             _mockCleardownService = new Mock<ICleardownService>();
@@ -78,7 +78,7 @@ namespace coordinator.tests.Functions
 
             _mockCleardownService.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<bool>()));
-            _coordinatorStart = new CaseClient(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
+            _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
         }
 
         [Fact]

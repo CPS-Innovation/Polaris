@@ -14,20 +14,18 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.DurableEntity.Client.Document
+namespace coordinator.Functions
 {
-    public class CancelCheckoutDocumentClient : BaseClient
+    public class CancelCheckoutDocument : BaseClient
     {
         private readonly IDdeiClient _ddeiClient;
 
-        public CancelCheckoutDocumentClient(IDdeiClient ddeiClient)
+        public CancelCheckoutDocument(IDdeiClient ddeiClient)
         {
             _ddeiClient = ddeiClient;
         }
 
-        const string loggingName = $"{nameof(CancelCheckoutDocumentClient)} - {nameof(HttpStart)}";
-
-        [FunctionName(nameof(CancelCheckoutDocumentClient))]
+        [FunctionName(nameof(CancelCheckoutDocument))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
             string caseUrn,
@@ -40,7 +38,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
+                var response = await GetTrackerDocument(req, client, nameof(CancelCheckoutDocument), caseId, new PolarisDocumentId(polarisDocumentId), log);
 
                 if (!response.Success)
                     return response.Error;
@@ -77,7 +75,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                log.LogMethodError(currentCorrelationId, nameof(CancelCheckoutDocument), ex.Message, ex);
                 return new StatusCodeResult(500);
             }
         }

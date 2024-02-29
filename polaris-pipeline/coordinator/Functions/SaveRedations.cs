@@ -21,7 +21,7 @@ using DdeiClient.Services.Contracts;
 using Common.ValueObjects;
 using Common.Services.BlobStorageService.Contracts;
 
-namespace coordinator.Functions.DurableEntity.Client.Document
+namespace coordinator.Functions
 {
     public class SaveRedactionsClient : BaseClient
     {
