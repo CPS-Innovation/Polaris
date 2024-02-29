@@ -2,11 +2,11 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using coordinator.Clients.Contracts;
+using coordinator.Clients;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Services.BlobStorageService.Contracts;
-using coordinator.Services.RenderHtmlService.Contract;
+using coordinator.Services.RenderHtmlService;
 using Common.Wrappers.Contracts;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;

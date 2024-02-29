@@ -10,7 +10,6 @@ using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
-using coordinator.Clients.Contracts;
 using coordinator.Factories;
 using Microsoft.Extensions.Configuration;
 using Common.Handlers;

@@ -6,7 +6,7 @@ using Common.Dto.Response;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Telemetry;
 using Common.Telemetry.Contracts;
-using coordinator.Clients.Contracts;
+using coordinator.Clients;
 using coordinator.Providers;
 using coordinator.Services.TextExtractService;
 using coordinator.Services.CleardownService;

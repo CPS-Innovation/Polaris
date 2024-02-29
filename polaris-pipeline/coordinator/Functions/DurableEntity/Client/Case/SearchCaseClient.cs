@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using coordinator.Clients.Contracts;
+using coordinator.Clients;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
