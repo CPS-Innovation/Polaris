@@ -59,14 +59,14 @@ public class RedactionAssuranceTests
     var redactionData = LoadRedactionDataFromJson(originalDocument.FileName);
 
     // Act
-    var outputStream = await _asposeRedactionProvider.Redact(inputStream, _caseId, _documentId, redactionData, _correlationId);
+    using var outputStream = await _asposeRedactionProvider.Redact(inputStream, _caseId, _documentId, redactionData, _correlationId);
     var redactedDocument = new Document(outputStream);
 
     var redactedImageStreams = await PdfConversionHelper.ConvertAndSavePdfToImages(redactedDocument);
 
     // Assert
-    var assertionImageStreamOne = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_one.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_one.png not found");
-    var assertionImageStreamTwo = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_two.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_two.png not found");
+    using var assertionImageStreamOne = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_one.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_one.png not found");
+    using var assertionImageStreamTwo = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_two.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_two.png not found");
 
     redactedImageStreams[0].Position = 0;
     assertionImageStreamOne.Position = 0;
@@ -77,11 +77,6 @@ public class RedactionAssuranceTests
 
     var pageTwoDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[1], assertionImageStreamTwo, ResizeOption.Resize);
     pageTwoDiff.AbsoluteError.Should().BeLessThan(1);
-
-    // Dispose of the streams manually
-    outputStream.Dispose();
-    assertionImageStreamOne.Dispose();
-    assertionImageStreamTwo.Dispose();
   }
 
   private RedactPdfRequestDto LoadRedactionDataFromJson(string fileName)
