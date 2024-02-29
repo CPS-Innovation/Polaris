@@ -45,16 +45,25 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   }, [buttonOpen]);
 
   const handleOutsideClick = useCallback((event: MouseEvent) => {
-    if (panelRef.current && event.target && buttonOpenRef.current) {
-      if (!panelRef.current?.contains(event.target as Node)) {
-        setButtonOpen(false);
-        event.stopPropagation();
-      }
+    if (
+      event.target === dropDownBtnRef.current ||
+      dropDownBtnRef.current?.contains(event.target as Node)
+    ) {
+      return;
+    }
+
+    if (
+      panelRef.current &&
+      event.target &&
+      !panelRef.current?.contains(event.target as Node)
+    ) {
+      setButtonOpen(false);
+      event.stopPropagation();
     }
   }, []);
 
   const keyDownHandler = useCallback((event: KeyboardEvent) => {
-    if (event.code === "Escape" && buttonOpenRef.current) {
+    if (event.code === "Escape" && panelRef.current) {
       setButtonOpen(false);
       dropDownBtnRef.current?.focus();
     }
