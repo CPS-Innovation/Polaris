@@ -8,7 +8,6 @@ using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
 using coordinator.Factories;
-using coordinator.Clients.Contracts;
 using coordinator.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -21,10 +20,8 @@ using Ddei.Services.Extensions;
 using Common.Handlers.Contracts;
 using Common.Handlers;
 using coordinator.Constants;
-using coordinator.Domain;
 using coordinator.Services.RenderHtmlService;
-using coordinator.Domain.Mapper;
-using coordinator.Services.RenderHtmlService.Contract;
+using coordinator.Mappers;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using coordinator.Providers;
@@ -33,7 +30,8 @@ using coordinator.Services.DocumentToggle;
 using Common.Streaming;
 using coordinator.Services.TextExtractService;
 using coordinator.Services.CleardownService;
-using coordinator.Mappers;
+using coordinator.Durable.Payloads;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -46,12 +44,11 @@ namespace coordinator
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
@@ -70,7 +67,7 @@ namespace coordinator
 
             services.AddTransient<ITextExtractService, TextExtractService>();
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
@@ -84,6 +81,7 @@ namespace coordinator
             ));
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
         }
     }
 }

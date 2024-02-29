@@ -6,10 +6,10 @@ using Common.Constants;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Linq;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Durable.Entity;
 using Common.ValueObjects;
-using coordinator.Domain.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Functions.DurableEntity.Client
 {

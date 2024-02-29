@@ -2,11 +2,10 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using coordinator.Clients.Contracts;
+using coordinator.Clients;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
-using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -16,15 +15,15 @@ using Microsoft.Extensions.Logging;
 using Common.Telemetry.Contracts;
 using coordinator.TelemetryEvents;
 using coordinator.Helpers.ChunkHelper;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Entity;
 using coordinator.Mappers;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Functions.DurableEntity.Client.Case
 {
     public class SearchCaseClient
     {
         private readonly ITextExtractorClient _textExtractorClient;
-
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly ITelemetryClient _telemetryClient;
 
