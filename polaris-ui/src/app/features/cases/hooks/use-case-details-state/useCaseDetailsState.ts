@@ -17,6 +17,10 @@ import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsight
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import {
+  readFromLocalStorage,
+  ReadUnreadData,
+} from "../../presentation/case-details/utils/localStorageUtils";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -98,11 +102,18 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
 
   useEffect(() => {
     if (combinedState.storedUserData.status === "loading") {
+      const docReadData = readFromLocalStorage(
+        caseId,
+        "readUnread"
+      ) as ReadUnreadData | null;
       dispatch({
-        type: "GET_STORED_USER_DATA",
+        type: "UPDATE_STORED_USER_DATA",
+        payload: {
+          storedUserData: { readUnread: docReadData ?? [] },
+        },
       });
     }
-  }, [combinedState.storedUserData.status, dispatch]);
+  }, [combinedState.storedUserData.status, caseId, dispatch]);
 
   useEffect(() => {
     if (redactionLogLookUpsData.status !== "initial")
@@ -380,14 +391,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleGetStoredUserData = useCallback(
-    (caseId) =>
-      dispatch({
-        type: "GET_STORED_USER_DATA",
-      }),
-    [dispatch]
-  );
-
   const handleSaveReadUnreadData = useCallback(
     (documentId) =>
       dispatch({
@@ -418,7 +421,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
     handleSaveRedactionLog,
-    handleGetStoredUserData,
     handleSaveReadUnreadData,
   };
 };

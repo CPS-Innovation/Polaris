@@ -77,9 +77,6 @@ type AsyncActions =
       };
     }
   | {
-      type: "GET_STORED_USER_DATA";
-    }
-  | {
       type: "SAVE_READ_UNREAD_DATA";
       payload: {
         documentId: string;
@@ -405,22 +402,5 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           ...storedUserData.data.readUnread,
           payload.documentId,
         ]);
-    },
-
-  GET_STORED_USER_DATA:
-    ({ dispatch, getState }) =>
-    async (action) => {
-      const { caseId } = getState();
-      //here we add the async api call
-      const docReadData = readFromLocalStorage(
-        caseId,
-        "readUnread"
-      ) as ReadUnreadData | null;
-      dispatch({
-        type: "UPDATE_STORED_USER_DATA",
-        payload: {
-          storedUserData: { readUnread: docReadData ?? [] },
-        },
-      });
     },
 };
