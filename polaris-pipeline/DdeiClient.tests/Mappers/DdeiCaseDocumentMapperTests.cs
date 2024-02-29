@@ -1,7 +1,7 @@
 using AutoFixture;
 using Common.Constants;
 using Common.Dto.Response;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Mappers;
 using Ddei.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;

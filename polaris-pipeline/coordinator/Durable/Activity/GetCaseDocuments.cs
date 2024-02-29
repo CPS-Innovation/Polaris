@@ -4,35 +4,35 @@ using System.Threading.Tasks;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
-using Common.Logging;
 using coordinator.Services.DocumentToggle;
-using coordinator.Domain;
 using Ddei.Domain.CaseData.Args;
-using DdeiClient.Services.Contracts;
+using DdeiClient.Services;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
+using Ddei.Factories;
 
 namespace coordinator.Durable.Activity
 {
     public class GetCaseDocuments
     {
         private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IDocumentToggleService _documentToggleService;
         private readonly ILogger<GetCaseDocuments> _log;
         private readonly IConfiguration _configuration;
 
-        const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
-
         public GetCaseDocuments(
                  IDdeiClient ddeiClient,
+                 IDdeiArgFactory ddeiArgFactory,
                  IDocumentToggleService documentToggleService,
                  ILogger<GetCaseDocuments> logger,
                  IConfiguration configuration)
         {
             _ddeiClient = ddeiClient;
+            _ddeiArgFactory = ddeiArgFactory;
             _documentToggleService = documentToggleService;
             _log = logger;
             _configuration = configuration;
@@ -43,9 +43,6 @@ namespace coordinator.Durable.Activity
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
-            #region Validate-Inputs
-            if (payload == null)
-                throw new ArgumentException("Payload cannot be null.");
             if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
                 throw new ArgumentException("CaseUrn cannot be empty");
             if (payload.CmsCaseId == 0)
@@ -54,28 +51,40 @@ namespace coordinator.Durable.Activity
                 throw new ArgumentException("Cms Auth Token cannot be null");
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
-            #endregion
 
-            CmsDocumentDto[] documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
+            var getDocumentsTask = _ddeiClient.ListDocumentsAsync(
+                payload.CmsCaseUrn,
+                payload.CmsCaseId.ToString(),
+                payload.CmsAuthValues,
+                payload.CorrelationId
+            );
 
-            var cmsDocuments = documents
+            var arg = _ddeiArgFactory.CreateCaseArg(
+                payload.CmsAuthValues,
+                payload.CorrelationId,
+                payload.CmsCaseUrn,
+                payload.CmsCaseId);
+
+            var getCaseTask = _ddeiClient.GetCaseAsync(arg);
+
+            var cmsDocuments = getDocumentsTask.Result
                 .Select(doc => MapPresentationFlags(doc))
                 .ToArray();
 
-            var caseArgDto = new DdeiCmsCaseArgDto
-            {
-                Urn = payload.CmsCaseUrn,
-                CaseId = payload.CmsCaseId,
-                CmsAuthValues = payload.CmsAuthValues,
-                CorrelationId = payload.CorrelationId
-            };
-            var @case = await _ddeiClient.GetCaseAsync(caseArgDto);
+            // todo: rather than a call the get case, we should consider making separate calls to the 
+            //  pcd and defendants endpoints. 
+            var @case = getCaseTask.Result;
 
             var pcdRequests = @case.PreChargeDecisionRequests
                        .Select(MapPresentationFlags)
                        .ToArray();
 
-            var defendantsAndCharges = new DefendantsAndChargesListDto { CaseId = @case.Id, DefendantsAndCharges = @case.DefendantsAndCharges.OrderBy(dac => dac.ListOrder) };
+            var defendantsAndCharges = new DefendantsAndChargesListDto
+            {
+                CaseId = @case.Id,
+                DefendantsAndCharges = @case.DefendantsAndCharges.OrderBy(dac => dac.ListOrder)
+            };
+
             defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
 
             return (cmsDocuments, pcdRequests, defendantsAndCharges);

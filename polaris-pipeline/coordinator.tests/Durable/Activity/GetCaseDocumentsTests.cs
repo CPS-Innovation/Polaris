@@ -9,12 +9,13 @@ using Xunit;
 using coordinator.Durable.Activity;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using DdeiClient.Services.Contracts;
+using DdeiClient.Services;
 using coordinator.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Payloads;
+using Ddei.Factories;
 
 namespace coordinator.tests.Durable.Activity
 {
@@ -71,18 +72,10 @@ namespace coordinator.tests.Durable.Activity
 
             _getCaseDocuments = new GetCaseDocuments(
                 mockDocumentExtractionService.Object,
+                new DdeiArgFactory(), // todo: this should be a mock
                 mockDocumentToggleService.Object,
                 mockLogger.Object,
                 _mockConfiguration.Object);
-        }
-
-        [Fact]
-        public async Task Run_ThrowsWhenPayloadIsNull()
-        {
-            _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
-                .Returns(default(GetCaseDocumentsActivityPayload));
-
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
 
         [Fact]

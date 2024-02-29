@@ -52,12 +52,10 @@ namespace pdf_generator.Functions
             {
                 #region Validate-Inputs
 
-                currentCorrelationId = request.Headers.GetCorrelation();
+                currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
-
-                request.Headers.CheckForCmsAuthValues();
 
                 var fileType = request.Headers.GetFileType();
 

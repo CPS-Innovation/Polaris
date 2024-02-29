@@ -133,7 +133,6 @@ namespace coordinator.tests.Domain.Tracker
 
         [Theory]
         [InlineData(DocumentStatus.Indexed)]
-        [InlineData(DocumentStatus.DocumentAlreadyProcessed)]
         [InlineData(DocumentStatus.UnableToConvertToPdf)]
         [InlineData(DocumentStatus.PdfUploadedToBlob)]
         [InlineData(DocumentStatus.OcrAndIndexFailure)]

@@ -16,9 +16,8 @@ using Common.Dto.Tracker;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers.Contracts;
-using coordinator.Domain;
 using coordinator.Durable.Activity;
-using DdeiClient.Services.Contracts;
+using DdeiClient.Services;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -56,7 +55,7 @@ namespace pdf_generator.tests.Functions
                     _fixture.Create<string>(),
                     Guid.NewGuid(),
                     _fixture.Create<string>(),
-                    _fixture.Create<long>(),
+                    _fixture.Create<int>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
                     null,
                     null,
@@ -125,16 +124,6 @@ namespace pdf_generator.tests.Functions
                                 _mockDDeiClient.Object,
                                 _mockBlobStorageService.Object,
                                 _mockLogger.Object);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsExceptionWhenPayloadIsNull()
-        {
-            _mockDurableActivityContext
-                .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())
-                .Returns((CaseDocumentOrchestrationPayload)null);
-
-            await Assert.ThrowsAsync<ArgumentException>(() => _generatePdf.Run(_mockDurableActivityContext.Object));
         }
 
         [Fact]

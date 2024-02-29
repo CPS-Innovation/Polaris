@@ -4,7 +4,7 @@ namespace coordinator.Durable.Payloads
 {
     public class CaseOrchestrationPayload : BasePipelinePayload
     {
-        public CaseOrchestrationPayload(string cmsCaseUrn, long cmsCaseId, string baseUrl, string extensionCode, string cmsAuthValues, Guid correlationId)
+        public CaseOrchestrationPayload(string cmsCaseUrn, int cmsCaseId, string baseUrl, string extensionCode, string cmsAuthValues, Guid correlationId)
             : base(cmsCaseUrn, cmsCaseId, correlationId)
         {
             BaseUrl = baseUrl;

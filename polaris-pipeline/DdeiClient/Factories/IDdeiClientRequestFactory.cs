@@ -1,6 +1,6 @@
 using Ddei.Domain.CaseData.Args;
 
-namespace Ddei.Factories.Contracts
+namespace Ddei.Factories
 {
     public interface IDdeiClientRequestFactory
     {

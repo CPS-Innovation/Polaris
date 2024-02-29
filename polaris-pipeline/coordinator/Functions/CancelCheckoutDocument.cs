@@ -7,7 +7,8 @@ using Common.Constants;
 using Common.Logging;
 using Common.ValueObjects;
 using Ddei.Domain.CaseData.Args;
-using DdeiClient.Services.Contracts;
+using Ddei.Factories;
+using DdeiClient.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -19,10 +20,12 @@ namespace coordinator.Functions
     public class CancelCheckoutDocument : BaseClient
     {
         private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
 
-        public CancelCheckoutDocument(IDdeiClient ddeiClient)
+        public CancelCheckoutDocument(IDdeiClient ddeiClient, IDdeiArgFactory ddeiArgFactory)
         {
             _ddeiClient = ddeiClient;
+            _ddeiArgFactory = ddeiArgFactory;
         }
 
         [FunctionName(nameof(CancelCheckoutDocument))]
@@ -59,16 +62,16 @@ namespace coordinator.Functions
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
 
-                DdeiCmsDocumentArgDto arg = new DdeiCmsDocumentArgDto
-                {
-                    CmsAuthValues = cmsAuthValues,
-                    CorrelationId = currentCorrelationId,
-                    Urn = caseUrn,
-                    CaseId = long.Parse(caseId),
-                    CmsDocCategory = document.CmsDocType.DocumentCategory,
-                    DocumentId = int.Parse(document.CmsDocumentId),
-                    VersionId = document.CmsVersionId
-                };
+                var arg = _ddeiArgFactory.CreateDocumentArgDto(
+
+                    cmsAuthValues: cmsAuthValues,
+                    correlationId: currentCorrelationId,
+                    urn: caseUrn,
+                    caseId: int.Parse(caseId),
+                    documentCategory: document.CmsDocType.DocumentCategory,
+                    documentId: int.Parse(document.CmsDocumentId),
+                    versionId: document.CmsVersionId
+                );
                 await _ddeiClient.CancelCheckoutDocumentAsync(arg);
 
                 return new OkResult();

@@ -21,23 +21,23 @@ using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Functions
 {
-    public class SearchCaseClient
+    public class SearchCase
     {
         private readonly ITextExtractorClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly ITelemetryClient _telemetryClient;
 
-        public SearchCaseClient(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper, ITelemetryClient telemetryClient)
+        public SearchCase(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper, ITelemetryClient telemetryClient)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
             _telemetryClient = telemetryClient;
         }
 
-        const string loggingName = $"{nameof(SearchCaseClient)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(SearchCase)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        [FunctionName(nameof(SearchCaseClient))]
+        [FunctionName(nameof(SearchCase))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseSearch)] HttpRequestMessage req,
             string caseUrn,

@@ -13,18 +13,18 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions
 {
-    public class GetDocumentClient : BaseClient
+    public class GetDocument : BaseClient
     {
         private readonly IPolarisBlobStorageService _blobStorageService;
 
-        const string loggingName = $"{nameof(GetDocumentClient)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
 
-        public GetDocumentClient(IPolarisBlobStorageService blobStorageService)
+        public GetDocument(IPolarisBlobStorageService blobStorageService)
         {
             _blobStorageService = blobStorageService;
         }
 
-        [FunctionName(nameof(GetDocumentClient))]
+        [FunctionName(nameof(GetDocument))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Consistent API parameters")]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Document)] HttpRequestMessage req,
