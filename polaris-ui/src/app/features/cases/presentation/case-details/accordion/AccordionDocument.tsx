@@ -46,6 +46,9 @@ export const AccordionDocument: React.FC<Props> = ({
       className={`${classes["accordion-document-list-item"]} ${
         readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
       }`}
+      data-read={`${
+        readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
+      }`}
     >
       <div className={classes.listItemWrapper}>
         <div className={`${classes["accordion-document-item-wrapper"]}`}>

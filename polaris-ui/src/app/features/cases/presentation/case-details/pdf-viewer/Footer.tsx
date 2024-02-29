@@ -56,7 +56,10 @@ export const Footer: React.FC<Props> = ({
         Remove all redactions
       </LinkButton>
 
-      <div className={classes.summary} data-testid={`redaction-count-text`}>
+      <div
+        className={classes.summary}
+        data-testid={`redaction-count-text-${tabIndex}`}
+      >
         {redactionHighlights.length === 1 ? (
           <>There is 1 redaction</>
         ) : (

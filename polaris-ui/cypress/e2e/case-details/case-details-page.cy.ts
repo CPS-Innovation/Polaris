@@ -796,7 +796,9 @@ describe("case details page", () => {
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Enter");
       cy.findByTestId("btn-redact").should("have.length", 0);
-      cy.findByTestId("redaction-count-text").contains("There is 1 redaction");
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There is 1 redaction"
+      );
       cy.findByTestId("btn-save-redaction-0").should("exist");
       keyPressAndVerifySelection("forward", "Y");
       cy.findByTestId("btn-redact").should("have.length", 1);
@@ -807,7 +809,7 @@ describe("case details page", () => {
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Enter");
-      cy.findByTestId("redaction-count-text").contains(
+      cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
       cy.findByTestId("btn-link-removeAll-0").click();
