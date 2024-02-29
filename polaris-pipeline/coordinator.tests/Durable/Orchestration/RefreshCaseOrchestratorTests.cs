@@ -27,7 +27,8 @@ using Common.ValueObjects;
 using coordinator.Durable.Entity;
 using Common.Telemetry.Contracts;
 using coordinator.Validators;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.tests.Durable.Orchestration
 {

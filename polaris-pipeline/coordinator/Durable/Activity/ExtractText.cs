@@ -5,6 +5,7 @@ using Common.Services.BlobStorageService.Contracts;
 using Common.Telemetry.Contracts;
 using coordinator.Clients.Contracts;
 using coordinator.Domain;
+using coordinator.Durable.Payloads;
 using coordinator.Services.TextExtractService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

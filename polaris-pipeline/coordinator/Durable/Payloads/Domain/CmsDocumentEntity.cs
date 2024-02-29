@@ -4,7 +4,7 @@ using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
 
-namespace coordinator.Domain.Entity
+namespace coordinator.Durable.Payloads.Domain
 {
     public class CmsDocumentEntity : BaseDocumentEntity
     {

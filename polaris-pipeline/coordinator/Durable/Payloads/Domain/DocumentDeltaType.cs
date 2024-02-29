@@ -1,4 +1,4 @@
-namespace coordinator.Domain.Entity;
+namespace coordinator.Durable.Payloads.Domain;
 
 public enum DocumentDeltaType
 {

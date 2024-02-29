@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Web;
 using coordinator.Providers;
 using coordinator.Services.CleardownService;
+using coordinator.Durable.Payloads;
 
 namespace coordinator.Functions.Orchestration.Client.Case
 {

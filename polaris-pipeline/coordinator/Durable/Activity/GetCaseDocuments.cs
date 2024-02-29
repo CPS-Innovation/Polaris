@@ -13,6 +13,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using coordinator.Durable.Payloads;
 
 namespace coordinator.Durable.Activity
 {

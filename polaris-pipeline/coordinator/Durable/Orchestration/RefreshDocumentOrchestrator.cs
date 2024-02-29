@@ -4,10 +4,11 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.ValueObjects;
-using coordinator.Domain;
-using coordinator.Domain.Entity;
+
 using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Payloads.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;

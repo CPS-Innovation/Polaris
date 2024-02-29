@@ -1,6 +1,6 @@
 using System;
 
-namespace coordinator.Domain
+namespace coordinator.Durable.Payloads
 {
     public class CaseOrchestrationPayload : BasePipelinePayload
     {

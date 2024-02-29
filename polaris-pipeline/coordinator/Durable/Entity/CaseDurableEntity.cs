@@ -3,9 +3,7 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
-
 using coordinator.Functions.Orchestration.Functions.Case;
-using coordinator.Domain.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -14,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Durable.Entity
 {
@@ -498,6 +497,11 @@ namespace coordinator.Durable.Entity
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
             return context.DispatchAsync<CaseDurableEntity>();
+        }
+
+        Task<CaseDeltasEntity> ICaseDurableEntity.GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

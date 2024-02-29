@@ -5,7 +5,7 @@ using Common.Domain.SearchIndex;
 
 namespace coordinator.Factories
 {
-    public interface IPipelineClientSearchRequestFactory
+    public interface ITextExtractorClientRequestFactory
     {
         HttpRequestMessage Create(string caseUrn, long cmsCaseId, string searchTerm, Guid correlationId, IEnumerable<SearchFilterDocument> documents);
     }

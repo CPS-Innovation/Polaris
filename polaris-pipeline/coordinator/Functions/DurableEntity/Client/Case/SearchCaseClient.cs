@@ -16,8 +16,8 @@ using Common.Telemetry.Contracts;
 using coordinator.TelemetryEvents;
 using coordinator.Helpers.ChunkHelper;
 using coordinator.Durable.Entity;
-using coordinator.Domain.Entity;
 using coordinator.Mappers;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Functions.DurableEntity.Client.Case
 {

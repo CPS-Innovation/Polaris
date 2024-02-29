@@ -4,11 +4,11 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace coordinator.Domain;
+namespace coordinator.Durable.Payloads;
 
 public abstract class BasePipelinePayload
 {
-    protected BasePipelinePayload(string cmsCaseUrn, long cmsCaseId, Guid correlationId, PolarisDocumentId polarisDocumentId=null)
+    protected BasePipelinePayload(string cmsCaseUrn, long cmsCaseId, Guid correlationId, PolarisDocumentId polarisDocumentId = null)
     {
         CmsCaseUrn = cmsCaseUrn;
         CmsCaseId = cmsCaseId;
@@ -32,8 +32,8 @@ public abstract class BasePipelinePayload
     public string PolarisDocumentIdValue
     {
         get
-        { 
-            return PolarisDocumentId?.ToString(); 
+        {
+            return PolarisDocumentId?.ToString();
         }
         set
         {

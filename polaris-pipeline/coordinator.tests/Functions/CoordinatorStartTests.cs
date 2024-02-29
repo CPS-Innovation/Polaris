@@ -6,7 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Services.BlobStorageService.Contracts;
-using coordinator.Domain;
+using coordinator.Durable.Payloads;
 using coordinator.Functions.Orchestration.Client.Case;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.Providers;
@@ -57,7 +57,7 @@ namespace coordinator.tests.Functions
             var mockBlobStorageClient = new Mock<IPolarisBlobStorageService>();
             _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
             _mockCleardownService = new Mock<ICleardownService>();
-            
+
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 

@@ -2,7 +2,7 @@
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Payloads.Domain;
 using System;
 using System.Threading.Tasks;
 

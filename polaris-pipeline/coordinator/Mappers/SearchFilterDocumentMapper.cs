@@ -1,6 +1,6 @@
 
 using Common.Domain.SearchIndex;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Mappers
 {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Payloads.Domain;
 
-namespace coordinator.Domain
+namespace coordinator.Durable.Payloads
 {
     public class CaseDocumentOrchestrationPayload : BasePipelinePayload
     {

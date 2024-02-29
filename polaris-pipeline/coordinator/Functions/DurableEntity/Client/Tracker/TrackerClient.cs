@@ -22,10 +22,12 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
 
-        public TrackerClient(IJsonConvertWrapper jsonConvertWrapper)
+        public TrackerClient(IJsonConvertWrapper jsonConvertWrapper, ICaseDurableEntityMapper caseDurableEntityMapper)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
+            _caseDurableEntityMapper = caseDurableEntityMapper;
         }
 
         [FunctionName(nameof(TrackerClient))]
@@ -65,7 +67,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 switch (req.Method.Method)
                 {
                     case "GET":
-                        var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
+                        var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity);
                         return new OkObjectResult(trackerDto);
 
                     default:

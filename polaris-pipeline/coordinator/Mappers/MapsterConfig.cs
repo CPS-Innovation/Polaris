@@ -1,15 +1,15 @@
 ﻿using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Durable.Entity;
-using coordinator.Domain.Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using coordinator.Durable.Payloads.Domain;
 
-namespace coordinator.Domain.Mapper
+namespace coordinator.Mappers
 {
     public static class MapsterConfig
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Dto.Response;
-using coordinator.Domain;
+using coordinator.Durable.Payloads;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 namespace coordinator.Providers;

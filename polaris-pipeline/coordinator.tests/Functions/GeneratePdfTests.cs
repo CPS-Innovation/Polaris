@@ -24,7 +24,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Payloads.Domain;
 
 namespace pdf_generator.tests.Functions
 {

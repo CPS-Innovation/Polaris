@@ -1,4 +1,5 @@
 ﻿using System;
+using coordinator.Durable.Payloads;
 
 namespace coordinator.Domain
 {

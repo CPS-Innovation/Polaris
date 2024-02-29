@@ -5,7 +5,7 @@ using AutoFixture;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Payloads.Domain;
 using FluentAssertions;
 using Xunit;
 

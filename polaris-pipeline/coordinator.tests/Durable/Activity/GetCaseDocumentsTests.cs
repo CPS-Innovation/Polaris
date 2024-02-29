@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Domain;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -15,6 +14,7 @@ using coordinator.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;
+using coordinator.Durable.Payloads;
 
 namespace coordinator.tests.Durable.Activity
 {

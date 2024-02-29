@@ -1,7 +1,7 @@
 ﻿using Common.Dto.Case.PreCharge;
 using Common.ValueObjects;
 
-namespace coordinator.Domain.Entity
+namespace coordinator.Durable.Payloads.Domain
 {
     public class PcdRequestEntity : BaseDocumentEntity
     {

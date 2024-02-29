@@ -1,4 +1,5 @@
 ﻿using coordinator.Durable.Entity;
+using coordinator.Durable.Payloads;
 
 namespace coordinator.Domain
 {

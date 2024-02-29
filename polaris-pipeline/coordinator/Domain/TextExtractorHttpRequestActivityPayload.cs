@@ -1,4 +1,5 @@
 ﻿using Common.ValueObjects;
+using coordinator.Durable.Payloads;
 using System;
 
 namespace coordinator.Domain
@@ -12,7 +13,7 @@ namespace coordinator.Domain
             VersionId = cmsVersionId;
             BlobName = blobName;
         }
-        
+
         public string DocumentId { get; set; }
 
         public long VersionId { get; set; }

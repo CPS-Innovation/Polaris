@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Domain.Mapper;
+using coordinator.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +24,8 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.ValueObjects;
 using Newtonsoft.Json;
-using coordinator.Domain.Entity;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -44,8 +44,6 @@ namespace coordinator.tests.Domain.Tracker
         private readonly long _caseId;
         private readonly Guid _correlationId;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IServiceCollection _services;
-
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
         private readonly Mock<ILogger> _mockLogger;
@@ -79,7 +77,6 @@ namespace coordinator.tests.Domain.Tracker
             _synchroniseDocumentsArg = new(_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
             _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState = _caseEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
-            _services = new ServiceCollection();
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
@@ -102,7 +99,7 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.TransactionId = _transactionId;
             _caseEntity.CmsDocuments = _trackerCmsDocuments;
             _caseEntity.PcdRequests = _trackerPcdRequests;
-            _trackerStatus = new TrackerClient(_jsonConvertWrapper);
+            _trackerStatus = new TrackerClient(_jsonConvertWrapper, new CaseDurableEntityMapper());
         }
 
         [Fact]
@@ -563,52 +560,5 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         #endregion
-
-        [Fact]
-        public void Populated_TrackerEntity_MapsTo_TrackerDto()
-        {
-            // Arrange
-            _services.RegisterMapsterConfiguration();
-            var caseEntity = _fixture.Create<CaseDurableEntity>();
-            caseEntity.CmsDocuments[0].CategoryListOrder = 1;
-
-            // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
-
-
-            // Assert
-            trackerDto.Documents.Count.Should().Be(caseEntity.CmsDocuments.Count + caseEntity.PcdRequests.Count + 1);
-            trackerDto.Documents.Count(d => d.CategoryListOrder != null).Should().BeGreaterThan(0);
-        }
-
-        [Fact]
-        public void Empty_TrackerEntity_MapsTo_TrackerDto()
-        {
-            // Arrange
-            _services.RegisterMapsterConfiguration();
-            var caseEntity = new CaseDurableEntity();
-
-            // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
-
-            // Assert
-            trackerDto.Documents.Count.Should().Be(0);
-            trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
-        }
-
-        [Fact]
-        public void Null_TrackerEntity_MapsTo_TrackerDto()
-        {
-            // Arrange
-            _services.RegisterMapsterConfiguration();
-            CaseDurableEntity caseEntity = null;
-
-            // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
-
-            // Assert
-            trackerDto.Documents.Count.Should().Be(0);
-            trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
-        }
     }
 }

@@ -5,7 +5,7 @@ using Mapster;
 using Common.ValueObjects;
 using Common.Dto.Tracker;
 
-namespace coordinator.Domain.Entity
+namespace coordinator.Durable.Payloads.Domain
 {
     public class BaseDocumentEntity
     {
