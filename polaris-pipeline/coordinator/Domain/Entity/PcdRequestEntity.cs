@@ -1,6 +1,5 @@
 ﻿using Common.Dto.Case.PreCharge;
 using Common.ValueObjects;
-using Common.Domain.Entity;
 
 namespace coordinator.Domain.Entity
 {

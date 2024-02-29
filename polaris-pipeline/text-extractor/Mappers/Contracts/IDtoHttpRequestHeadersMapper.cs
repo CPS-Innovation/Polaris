@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 
-namespace Common.Mappers.Contracts
+namespace text_extractor.Mappers.Contracts
 {
     public interface IDtoHttpRequestHeadersMapper
     {
