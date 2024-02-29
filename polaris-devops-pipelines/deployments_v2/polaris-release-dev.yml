@@ -39,6 +39,16 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
+      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
+      networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
+      coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
+      pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
+      gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
+      uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
+      ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
+      commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
     dependsOn: Determine_Changes
     pool:
       name: $(dev-build-agent)
