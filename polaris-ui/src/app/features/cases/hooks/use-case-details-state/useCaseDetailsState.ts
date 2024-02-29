@@ -98,7 +98,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
 
   useEffect(() => {
     if (combinedState.storedUserData.status === "loading") {
-      console.log("hiii000000000000");
       dispatch({
         type: "GET_STORED_USER_DATA",
       });

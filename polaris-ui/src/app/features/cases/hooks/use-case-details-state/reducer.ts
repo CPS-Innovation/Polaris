@@ -379,8 +379,6 @@ export const reducer = (
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
 
-      console.log("OPEN_PDF>>>>");
-
       const coreNewState = {
         ...state,
         searchState: {
@@ -419,7 +417,6 @@ export const reducer = (
         return coreNewState;
       }
 
-      console.log("OPEN_PDF>>>>1111");
       const alreadyOpenedTabIndex = state.tabsState.items.findIndex(
         (item) => item.documentId === documentId
       );
@@ -556,8 +553,8 @@ export const reducer = (
             );
 
       const isUnread =
-        state.storedUserData.status !== "loading" &&
-        !state.storedUserData.data.readUnread.includes(documentId);
+        state.storedUserData?.status === "succeeded" &&
+        !state.storedUserData?.data.readUnread.includes(documentId);
 
       return {
         ...coreNewState,
@@ -569,7 +566,7 @@ export const reducer = (
           ...state.searchState,
           isResultsVisible: false,
         },
-        ...(isUnread && state.storedUserData.status !== "loading"
+        ...(isUnread && state.storedUserData?.status === "succeeded"
           ? {
               storedUserData: {
                 ...state.storedUserData,

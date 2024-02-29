@@ -95,7 +95,6 @@ describe("mapDocumentsState", () => {
           attachments: [],
           presentationCategory: "category0",
           presentationFileName: "foo",
-          docRead: false,
           presentationSubCategory: null,
           witnessIndicators: ["V"],
         },

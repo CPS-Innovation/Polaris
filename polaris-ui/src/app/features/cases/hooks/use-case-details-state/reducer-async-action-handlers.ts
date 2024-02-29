@@ -400,7 +400,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       if (storedUserData.status !== "succeeded") {
         return;
       }
-      console.log("storedUserData>>>", storedUserData.data.readUnread);
       if (!storedUserData.data.readUnread.includes(payload.documentId))
         addToLocalStorage(caseId, "readUnread", [
           ...storedUserData.data.readUnread,
