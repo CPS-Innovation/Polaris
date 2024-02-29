@@ -14,8 +14,7 @@ using Common.Dto.Tracker;
 using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
-using coordinator.Functions.ActivityFunctions.Case;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Durable.Activity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.Functions.Orchestration.Functions.Document;
 using FluentAssertions;
@@ -25,12 +24,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Common.ValueObjects;
-using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Durable.Entity;
 using Common.Telemetry.Contracts;
 using coordinator.Validators;
 using coordinator.Domain.Entity;
 
-namespace coordinator.tests.Functions.Orchestration.Functions.Case
+namespace coordinator.tests.Durable.Orchestration
 {
     public class RefreshCaseOrchestratorTests
     {

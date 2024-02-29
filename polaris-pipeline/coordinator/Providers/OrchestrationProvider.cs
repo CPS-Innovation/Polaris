@@ -1,5 +1,5 @@
 ﻿using coordinator.Domain;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Durable.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;

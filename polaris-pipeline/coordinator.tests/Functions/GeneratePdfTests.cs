@@ -17,7 +17,7 @@ using Common.Services.BlobStorageService.Contracts;
 using coordinator.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
-using coordinator.Functions.ActivityFunctions.Document;
+using coordinator.Durable.Activity;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;

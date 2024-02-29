@@ -15,8 +15,8 @@ using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Domain.Entity;
 using coordinator.Domain.Exceptions;
-using coordinator.Functions.ActivityFunctions.Case;
-using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Durable.Activity;
+using coordinator.Durable.Entity;
 using coordinator.Functions.Orchestration.Functions.Document;
 using coordinator.TelemetryEvents;
 using coordinator.Validators;
@@ -28,7 +28,7 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Case
 {
-    public class RefreshCaseOrchestrator : PolarisOrchestrator
+    public class RefreshCaseOrchestrator : BaseOrchestrator
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;

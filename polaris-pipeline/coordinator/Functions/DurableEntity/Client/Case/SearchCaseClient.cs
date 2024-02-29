@@ -8,7 +8,6 @@ using Common.Constants;
 using Common.Domain.Entity;
 using Common.Logging;
 using Common.Mappers.Contracts;
-using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -18,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Common.Telemetry.Contracts;
 using coordinator.TelemetryEvents;
 using coordinator.Helpers.ChunkHelper;
+using coordinator.Durable.Entity;
 
 namespace coordinator.Functions.DurableEntity.Client.Case
 {

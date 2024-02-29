@@ -6,7 +6,7 @@ using coordinator.Domain.Entity;
 using System;
 using System.Threading.Tasks;
 
-namespace coordinator.Functions.DurableEntity.Entity.Contract
+namespace coordinator.Durable.Entity
 {
     // n.b. Entity proxy interface methods must define at most one argument for operation input.
     // (A single tuple is acceptable)

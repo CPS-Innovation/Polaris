@@ -15,7 +15,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 
-namespace coordinator.Functions.ActivityFunctions.Document
+namespace coordinator.Durable.Activity
 {
     public class GeneratePdf
     {

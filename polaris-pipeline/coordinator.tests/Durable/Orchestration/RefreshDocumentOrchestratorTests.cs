@@ -6,9 +6,8 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using coordinator.Domain;
 using coordinator.Domain.Entity;
-using coordinator.Functions.ActivityFunctions.Document;
-using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Durable.Activity;
+using coordinator.Durable.Entity;
 using coordinator.Functions.Orchestration.Functions.Document;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -16,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace coordinator.tests.Functions.SubOrchestrators
+namespace coordinator.tests.Durable.Orchestration
 {
     public class RefreshDocumentOrchestratorTests
     {

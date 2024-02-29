@@ -14,7 +14,7 @@ using Moq;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Wrappers;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Durable.Entity;
 using coordinator.Functions.DurableEntity.Client.Tracker;
 using Common.Dto.Tracker;
 using Common.Dto.Document;

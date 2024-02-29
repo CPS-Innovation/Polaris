@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using text_extractor.coordinator;
 
-namespace coordinator.Functions.Orchestration.Functions.Document
+namespace coordinator.Durable.Activity
 {
     public class ExtractText
     {

@@ -4,7 +4,7 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
-using coordinator.Functions.DurableEntity.Entity.Contract;
+
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.Domain.Entity;
 using Microsoft.Azure.WebJobs;
@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace coordinator.Functions.DurableEntity.Entity
+namespace coordinator.Durable.Entity
 {
     // n.b. Entity proxy interface methods must define at most one argument for operation input.
     // (A single tuple is acceptable)

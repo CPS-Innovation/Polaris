@@ -1,14 +1,13 @@
 ﻿using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using System;
-using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Durable.Entity;
 using System.Threading.Tasks;
 using coordinator.Functions.Orchestration.Functions.Case;
 
 namespace coordinator.Functions.Orchestration.Functions
 {
-    public class PolarisOrchestrator
+    public class BaseOrchestrator
     {
         protected async Task<ICaseDurableEntity> CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, long caseId, bool newVersion, Guid correlationId, ILogger log)
         {

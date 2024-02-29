@@ -1,6 +1,6 @@
 ﻿using Common.Dto.Document;
 using Common.Dto.Tracker;
-using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Durable.Entity;
 using coordinator.Domain.Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,16 +48,16 @@ namespace coordinator.Domain.Mapper
         {
             var documents = new List<CmsDocumentEntity>();
 
-            if(caseEntity.CmsDocuments?.Any() == true)
+            if (caseEntity.CmsDocuments?.Any() == true)
                 documents.AddRange(caseEntity.CmsDocuments);
 
-            if(caseEntity.DefendantsAndCharges != null)
+            if (caseEntity.DefendantsAndCharges != null)
             {
                 var defendantsAndChargesDocument = ConvertToTrackerCmsDocumentDto(caseEntity.DefendantsAndCharges);
                 documents.AddRange(defendantsAndChargesDocument);
             }
 
-            if(caseEntity.PcdRequests?.Any() == true)
+            if (caseEntity.PcdRequests?.Any() == true)
             {
                 var pcdRequestDocuments = caseEntity.PcdRequests.Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest));
                 documents.AddRange(pcdRequestDocuments);
@@ -68,7 +68,7 @@ namespace coordinator.Domain.Mapper
 
         private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity)
         {
-            if(caseEntity.Running != null && caseEntity.Retrieved.HasValue)
+            if (caseEntity.Running != null && caseEntity.Retrieved.HasValue)
                 return caseEntity.Running?.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime();
 
             return null;
@@ -103,10 +103,10 @@ namespace coordinator.Domain.Mapper
 
         private static CmsDocumentEntity[] ConvertToTrackerCmsDocumentDto(DefendantsAndChargesEntity defendantsAndCharges)
         {
-            if(defendantsAndCharges == null) 
+            if (defendantsAndCharges == null)
                 return new CmsDocumentEntity[0];
 
-            return new CmsDocumentEntity[1] 
+            return new CmsDocumentEntity[1]
             {
                 new CmsDocumentEntity
                 {
@@ -121,7 +121,7 @@ namespace coordinator.Domain.Mapper
                     PresentationFlags = defendantsAndCharges.PresentationFlags,
                     PdfBlobName = defendantsAndCharges.PdfBlobName,
                     IsPdfAvailable = defendantsAndCharges.IsPdfAvailable,
-                    Status = defendantsAndCharges.Status 
+                    Status = defendantsAndCharges.Status
                 }
             };
         }

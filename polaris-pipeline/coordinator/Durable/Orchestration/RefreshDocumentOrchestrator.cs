@@ -6,15 +6,15 @@ using Common.Logging;
 using Common.ValueObjects;
 using coordinator.Domain;
 using coordinator.Domain.Entity;
-using coordinator.Functions.ActivityFunctions.Document;
-using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Durable.Activity;
+using coordinator.Durable.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Document
 {
-    public class RefreshDocumentOrchestrator : PolarisOrchestrator
+    public class RefreshDocumentOrchestrator : BaseOrchestrator
     {
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
         const string loggingName = $"{nameof(RefreshDocumentOrchestrator)} - {nameof(Run)}";

@@ -6,11 +6,10 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using coordinator.Domain.Entity;
-using coordinator.Functions.DurableEntity.Entity;
 using FluentAssertions;
 using Xunit;
 
-namespace coordinator.tests.Functions.DurableEntity.Entity;
+namespace coordinator.Durable.Entity;
 
 public class CaseDurableEntityTests
 {

@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using coordinator.Functions.ActivityFunctions.Case;
+using coordinator.Durable.Activity;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using DdeiClient.Services.Contracts;
@@ -16,7 +16,7 @@ using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;
 
-namespace coordinator.tests.Functions.ActivityFunctions
+namespace coordinator.tests.Durable.Activity
 {
     public class GetCaseDocumentsTests
     {
