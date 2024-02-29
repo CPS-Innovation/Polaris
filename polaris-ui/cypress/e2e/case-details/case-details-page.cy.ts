@@ -468,6 +468,62 @@ describe("case details page", () => {
         .contains("Issue reported")
         .should("be.disabled");
     });
+    it("User should be able to open multiple documents and handle its own `Report an issue`", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("div-pdfviewer-0").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "MCLOVEMG3"`);
+      cy.findByTestId("btn-modal-close").click();
+
+      cy.findByTestId("div-pdfviewer-1").should("not.exist");
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("document-actions-dropdown-1").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-1").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "PortraitLandscape"`);
+      cy.findByTestId("btn-modal-close").click();
+    });
+    it("User should be able to open document actions dropdown when multiple documents are open", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("document-actions-dropdown-1").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-1").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("document-actions-dropdown-2").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-2").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("btn-tab-0").click();
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("btn-tab-2").click();
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-2").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+    });
   });
 
   describe("Unsaved redactions accessibility through keyboard", () => {
