@@ -1,5 +1,4 @@
-﻿using Common.Domain.Entity;
-using Common.Dto.Case;
+﻿using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;

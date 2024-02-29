@@ -10,12 +10,12 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Extensions;
 using Common.Handlers.Contracts;
-using Common.Mappers.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using text_extractor.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Services.OcrService;
 
