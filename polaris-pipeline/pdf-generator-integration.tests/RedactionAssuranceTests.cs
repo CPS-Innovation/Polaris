@@ -64,6 +64,17 @@ public class RedactionAssuranceTests
 
     var redactedImageStreams = await PdfConversionHelper.ConvertAndSavePdfToImages(redactedDocument);
 
+    var pdfOutputPath = "/Users/rhysbridges/Documents/CPS/Polaris/polaris-pipeline/pdf-generator-integration.tests/TestResources/redacted_document.pdf";
+    using var pdfFileStream = File.Create(pdfOutputPath);
+    outputStream.CopyTo(pdfFileStream);
+
+    for (int i = 0; i < redactedImageStreams.Count; i++)
+    {
+      var imagePath = $"/Users/rhysbridges/Documents/CPS/Polaris/polaris-pipeline/pdf-generator-integration.tests/TestResources/redacted_page_{i + 1}.png";
+      using var fileStream = File.Create(imagePath);
+      redactedImageStreams[i].CopyTo(fileStream);
+    }
+
     // Assert
     using var assertionImageStreamOne = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_one.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_one.png not found");
     using var assertionImageStreamTwo = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_two.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_two.png not found");
