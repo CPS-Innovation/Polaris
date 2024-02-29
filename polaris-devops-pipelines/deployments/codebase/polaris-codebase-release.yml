@@ -19,13 +19,12 @@ variables:
   - group: kv-prod-terraform
   - group: polaris-global
   - group: polaris-status-check-endpoints
-  - group: terraform-containers
 
 stages:
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
-      stageDependsOn:
+      stageDependsOn: 
       envLabel: "Dev"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
@@ -45,7 +44,7 @@ stages:
       azureSubscription: $(dev-azure-subscription)
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
-
+      
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
@@ -66,7 +65,7 @@ stages:
       armClientSecret: $(innovation-development-spn-secret)
       armTenantId: $(innovation-development-spn-tenant-id)
       armSubscriptionId: $(innovation-development-subscription-id)
-
+      
   - template: ../templates/stages/stage_create-commit-report.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
@@ -111,7 +110,7 @@ stages:
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       azureSubscription: $(qa-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
-
+      
   - template: ../templates/stages/stage_swap-slots.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
@@ -122,7 +121,7 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
-
+      
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
@@ -143,7 +142,7 @@ stages:
       armClientSecret: $(innovation-qa-spn-secret)
       armTenantId: $(innovation-qa-spn-tenant-id)
       armSubscriptionId: $(innovation-qa-subscription-id)
-
+      
   - template: ../templates/stages/stage_create-commit-report.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
@@ -175,7 +174,7 @@ stages:
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
-
+      
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
@@ -188,7 +187,7 @@ stages:
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       azureSubscription: $(prod-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
-
+      
   - template: ../templates/stages/stage_swap-slots.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
@@ -199,7 +198,7 @@ stages:
       azureSubscription: $(prod-azure-subscription)
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
-
+      
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
@@ -220,7 +219,7 @@ stages:
       armClientSecret: $(innovation-prod-spn-secret)
       armTenantId: $(innovation-prod-spn-tenant-id)
       armSubscriptionId: $(innovation-prod-subscription-id)
-
+      
   - template: ../templates/stages/stage_create-commit-report.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
