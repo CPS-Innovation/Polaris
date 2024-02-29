@@ -61,7 +61,6 @@ namespace text_extractor.Functions
 
             try
             {
-                #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
@@ -77,8 +76,6 @@ namespace text_extractor.Functions
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
-
-                #endregion
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
