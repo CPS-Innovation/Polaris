@@ -104,15 +104,15 @@ steps:
           }
         }
 
-        Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT;isOutput=true]$pipelineTerraformCountDEV"
-        Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT;isOutput=true]$uiTerraformCountDEV"
-        Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT;isOutput=true]$networkingTerraformCountDEV"
-        Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT;isOutput=true]$coordinatorCountDEV"
-        Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT;isOutput=true]$pdfGeneratorCountDEV"
-        Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT;isOutput=true]$textExtractorCountDEV"
-        Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT;isOutput=true]$gatewayCountDEV"
-        Write-Host "##vso[task.setvariable variable=UI_COUNT;isOutput=true]$uiCountDEV"
-        Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT;isOutput=true]$ddeiClientCountDEV"
-        Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT;isOutput=true]$commonCountDEV"
+        Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT;isOutput=true]$pipelineTerraformCount"
+        Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT;isOutput=true]$uiTerraformCount"
+        Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT;isOutput=true]$networkingTerraformCount"
+        Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT;isOutput=true]$coordinatorCount"
+        Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT;isOutput=true]$pdfGeneratorCount"
+        Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT;isOutput=true]$textExtractorCount"
+        Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT;isOutput=true]$gatewayCount"
+        Write-Host "##vso[task.setvariable variable=UI_COUNT;isOutput=true]$uiCount"
+        Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT;isOutput=true]$ddeiClientCount"
+        Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT;isOutput=true]$commonCount"
     name: Change_Results
     displayName: Processing changes to repo
