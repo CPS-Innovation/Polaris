@@ -479,21 +479,11 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Result_Ended
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Deployment End
         dependsOn:
-          - Apply_Pipeline_Terraform
-          - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
-          - Apply_UI_Terraform
-          - Apply_UI_Events_Terraform
-          - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
-          - Deploy_Coordinator
-          - Deploy_Pdf_Generator
-          - Deploy_Text_Extractor
-          - Deploy_Spa
-          - Deploy_Gateway
+          - Log_Result_Terraform_Ended
+          - Log_Result_Codebase_Ended
         environment: "QA"
         strategy:
           runOnce:
