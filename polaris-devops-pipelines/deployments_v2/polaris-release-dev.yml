@@ -77,29 +77,25 @@ stages:
           - Wait_For_Running_Builds
         continueOnError: false
         steps:
-          - job: Send_Success_Report
-            displayName: Send Success Report
-            condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), succeeded())
-            steps:
-              - template: tasks/task_send-progress-message-to-teams.yml
-                parameters:
-                  webhookUrl: $(ddei-webhook-url)
-                  approvedBy: $(Build.QueuedBy)
-                  commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
-                  buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
-                  pipelineTerraformCount: $(pipelineTerraformCount)
-                  uiTerraformCount: $(uiTerraformCount)
-                  networkingTerraformCount: $(networkingTerraformCount)
-                  coordinatorCount: $(coordinatorCount)
-                  pdfGeneratorCount: $(pdfGeneratorCount)
-                  textExtractorCount: $(textExtractorCount)
-                  gatewayCount: $(gatewayCount)
-                  uiCount: $(uiCount)
-                  ddeiClientCount: $(ddeiClientCount)
-                  commonLibraryCount: $(commonLibraryCount)
-                  messageTitle: "Polaris Release to DEV started"
-                  buildResultsTitle: "View Progress"
-                  buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
+          - template: tasks/task_send-progress-message-to-teams.yml
+            parameters:
+              webhookUrl: $(ddei-webhook-url)
+              approvedBy: $(Build.QueuedBy)
+              commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
+              buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
+              pipelineTerraformCount: $(pipelineTerraformCount)
+              uiTerraformCount: $(uiTerraformCount)
+              networkingTerraformCount: $(networkingTerraformCount)
+              coordinatorCount: $(coordinatorCount)
+              pdfGeneratorCount: $(pdfGeneratorCount)
+              textExtractorCount: $(textExtractorCount)
+              gatewayCount: $(gatewayCount)
+              uiCount: $(uiCount)
+              ddeiClientCount: $(ddeiClientCount)
+              commonLibraryCount: $(commonLibraryCount)
+              messageTitle: "Polaris Release to DEV started"
+              buildResultsTitle: "View Progress"
+              buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
 
       - deployment: Log_Start_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
