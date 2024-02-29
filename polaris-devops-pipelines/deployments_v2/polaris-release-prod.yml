@@ -32,7 +32,7 @@ stages:
           - template: tasks/task_determine-changes.yml
             parameters:
               targetLabel: "PROD"
-  
+
   # PROD: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
   - stage: Deploy
     displayName: Deploy > PROD
@@ -40,6 +40,16 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
+      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
+      networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
+      coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
+      pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
+      gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
+      uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
+      ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
+      commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
     dependsOn: Determine_Changes
     pool:
       name: $(prod-build-agent)
@@ -69,6 +79,38 @@ stages:
                     targetLabel: "PROD"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+                    
+      - job: Send_Start_Message
+        displayName: Send Message to Teams
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        dependsOn:
+          - Log_Start
+          - Wait_For_Running_Builds
+        continueOnError: false
+        steps:
+          - job: Send_Success_Report
+            displayName: Send Success Report
+            condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), succeeded())
+            steps:
+              - template: tasks/task_send-progress-message-to-teams.yml
+                parameters:
+                  webhookUrl: $(ddei-webhook-url)
+                  approvedBy: $(Build.QueuedBy)
+                  commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
+                  buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
+                  pipelineTerraformCount: $(pipelineTerraformCount)
+                  uiTerraformCount: $(uiTerraformCount)
+                  networkingTerraformCount: $(networkingTerraformCount)
+                  coordinatorCount: $(coordinatorCount)
+                  pdfGeneratorCount: $(pdfGeneratorCount)
+                  textExtractorCount: $(textExtractorCount)
+                  gatewayCount: $(gatewayCount)
+                  uiCount: $(uiCount)
+                  ddeiClientCount: $(ddeiClientCount)
+                  commonLibraryCount: $(commonLibraryCount)
+                  messageTitle: "Polaris Release to PROD started"
+                  buildResultsTitle: "View Progress"
+                  buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
 
       - deployment: Log_Start_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
@@ -946,3 +988,73 @@ stages:
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
               devOpsPatToken: "$(devops-pat-token)"
+              
+  - stage: Send_Report
+    displayName: Send Report
+    dependsOn:
+      - Run_e2e_Tests
+      - Determine_Changes
+    variables:
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
+      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
+      networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
+      coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
+      pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
+      gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
+      uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
+      ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
+      commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
+    condition: or(succeeded(),failed())
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - job: Send_Success_Report
+        displayName: Send Success Report
+        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), succeeded())
+        steps:
+          - template: tasks/task_send-progress-message-to-teams.yml
+            parameters:
+              webhookUrl: $(ddei-webhook-url)
+              approvedBy: $(Build.QueuedBy)
+              commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
+              buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
+              pipelineTerraformCount: $(pipelineTerraformCount)
+              uiTerraformCount: $(uiTerraformCount)
+              networkingTerraformCount: $(networkingTerraformCount)
+              coordinatorCount: $(coordinatorCount)
+              pdfGeneratorCount: $(pdfGeneratorCount)
+              textExtractorCount: $(textExtractorCount)
+              gatewayCount: $(gatewayCount)
+              uiCount: $(uiCount)
+              ddeiClientCount: $(ddeiClientCount)
+              commonLibraryCount: $(commonLibraryCount)
+              messageTitle: "✔ Polaris Release to PROD Completed!"
+              buildResultsTitle: "View Release Commits"
+              buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
+
+      - job: Send_Failure_Report
+        displayName: Send Failure Report
+        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), failed())
+        steps:
+          - template: tasks/task_send-progress-message-to-teams.yml
+            parameters:
+              webhookUrl: $(ddei-webhook-url)
+              approvedBy: $(Build.QueuedBy)
+              commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
+              buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
+              pipelineTerraformCount: $(pipelineTerraformCount)
+              uiTerraformCount: $(uiTerraformCount)
+              networkingTerraformCount: $(networkingTerraformCount)
+              coordinatorCount: $(coordinatorCount)
+              pdfGeneratorCount: $(pdfGeneratorCount)
+              textExtractorCount: $(textExtractorCount)
+              gatewayCount: $(gatewayCount)
+              uiCount: $(uiCount)
+              ddeiClientCount: $(ddeiClientCount)
+              commonLibraryCount: $(commonLibraryCount)
+              messageTitle: "❗ Polaris Release to PROD failed!"
+              buildResultsTitle: "View Failure Details"
+              buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=results"
