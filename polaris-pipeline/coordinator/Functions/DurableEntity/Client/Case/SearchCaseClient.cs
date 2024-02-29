@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
-using Common.Domain.Entity;
 using Common.Logging;
-using Common.Mappers.Contracts;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +16,8 @@ using Microsoft.Extensions.Logging;
 using Common.Telemetry.Contracts;
 using coordinator.TelemetryEvents;
 using coordinator.Helpers.ChunkHelper;
+using coordinator.Domain.Entity;
+using coordinator.Mappers;
 
 namespace coordinator.Functions.DurableEntity.Client.Case
 {

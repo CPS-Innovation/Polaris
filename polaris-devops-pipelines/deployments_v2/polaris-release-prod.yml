@@ -19,7 +19,7 @@ variables:
   - group: polaris-global
   - group: polaris-status-check-endpoints
   - group: terraform-containers
-    
+
 stages:
   # DETERMINE CHANGES FOR PROD
   - stage: Determine_Changes
@@ -44,8 +44,19 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
+      - deployment: Wait_For_Running_Builds
+        environment: "Prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_wait-for-running-releases.yml
+                  parameters:
+                    devOpsPatToken: "$(devops-pat-token)"
+
       - deployment: Log_Start
         displayName: Log Start
+        dependsOn: Wait_For_Running_Builds
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         environment: "Prod"
         strategy:
@@ -58,22 +69,10 @@ stages:
                     targetLabel: "PROD"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    
-      - job: Wait_For_Running_Builds
-        dependsOn: Log_Start
-        displayName: 'Checking for Running Releases'
-        timeoutInMinutes: 240
-        pool:
-          vmImage: 'windows-latest'
-        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
-        steps:
-          - template: tasks/task_wait-for-running-releases.yml
-            parameters:
-              devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Start_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: 
+        dependsOn:
           - Log_Start
           - Wait_For_Running_Builds
         displayName: Log Terraform Start
@@ -298,9 +297,9 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Start_Codebase
-        condition: and(not(or(failed(), canceled())), eq(variables.runCodebase, 'true'))
-        dependsOn: 
-          - Log_Result_Terraform_Ended
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        dependsOn:
+          - Log_Start
           - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "Prod"
@@ -480,21 +479,11 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Result_Ended
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Deployment End
         dependsOn:
-          - Apply_Pipeline_Terraform
-          - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
-          - Apply_UI_Terraform
-          - Apply_UI_Events_Terraform
-          - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
-          - Deploy_Coordinator
-          - Deploy_Pdf_Generator
-          - Deploy_Text_Extractor
-          - Deploy_Spa
-          - Deploy_Gateway
+          - Log_Result_Terraform_Ended
+          - Log_Result_Codebase_Ended
         environment: "Prod"
         strategy:
           runOnce:
@@ -683,7 +672,7 @@ stages:
               armClientSecret: $(innovation-prod-spn-secret)
               armTenantId: $(innovation-prod-spn-tenant-id)
               armSubscriptionId: $(innovation-prod-subscription-id)
-              
+
       - job: Check_Coordinator
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -702,7 +691,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
-              
+
       - job: Check_PDF_Generator
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -721,7 +710,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
-              
+
       - job: Check_Text_Extractor
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -740,7 +729,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
-              
+
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -759,7 +748,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
-              
+
       - job: Check_Proxy
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -778,7 +767,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: "Polaris Proxy is online"
-              
+
       - job: Check_SPA
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))

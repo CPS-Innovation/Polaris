@@ -4,8 +4,6 @@ using System.Net.Http.Headers;
 using Common.Configuration;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Mappers;
-using Common.Mappers.Contracts;
 using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
@@ -35,6 +33,7 @@ using coordinator.Services.DocumentToggle;
 using Common.Streaming;
 using coordinator.Services.TextExtractService;
 using coordinator.Services.CleardownService;
+using coordinator.Mappers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
