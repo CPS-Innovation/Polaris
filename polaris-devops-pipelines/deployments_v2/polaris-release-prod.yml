@@ -92,8 +92,8 @@ stages:
             parameters:
               webhookUrl: $(ddei-webhook-url)
               approvedBy: $(Build.QueuedBy)
-              commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
-              buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
+              commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
+              buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
               uiTerraformCount: $(uiTerraformCount)
               networkingTerraformCount: $(networkingTerraformCount)
@@ -1015,8 +1015,8 @@ stages:
             parameters:
               webhookUrl: $(ddei-webhook-url)
               approvedBy: $(Build.QueuedBy)
-              commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
-              buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
+              commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
+              buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
               uiTerraformCount: $(uiTerraformCount)
               networkingTerraformCount: $(networkingTerraformCount)
@@ -1039,8 +1039,8 @@ stages:
             parameters:
               webhookUrl: $(ddei-webhook-url)
               approvedBy: $(Build.QueuedBy)
-              commitId: $(resources.pipeline.PolarisDDEIBuild.sourceCommit)
-              buildVersion: $(resources.pipeline.PolarisDDEIBuild.runName)
+              commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
+              buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
               uiTerraformCount: $(uiTerraformCount)
               networkingTerraformCount: $(networkingTerraformCount)
