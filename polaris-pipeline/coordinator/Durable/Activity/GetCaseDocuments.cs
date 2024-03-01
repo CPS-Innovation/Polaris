@@ -67,6 +67,8 @@ namespace coordinator.Durable.Activity
 
             var getCaseTask = _ddeiClient.GetCaseAsync(arg);
 
+            await Task.WhenAll(getDocumentsTask, getCaseTask);
+
             var cmsDocuments = getDocumentsTask.Result
                 .Select(doc => MapPresentationFlags(doc))
                 .ToArray();
