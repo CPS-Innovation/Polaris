@@ -44,12 +44,12 @@ namespace Gateway.Clients
             _logger = logger;
         }
 
-        public async Task<IEnumerable<CaseDto>> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId)
+        public async Task<IList<CaseDto>> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId)
         {
             var url = $"{RestApi.GetCasesPath(caseUrn)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
             var response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
             var stringContent = await response.Content.ReadAsStringAsync();
-            return _jsonConvertWrapper.DeserializeObject<IEnumerable<CaseDto>>(stringContent);
+            return _jsonConvertWrapper.DeserializeObject<IList<CaseDto>>(stringContent);
         }
 
         public async Task<CaseDto> GetCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
