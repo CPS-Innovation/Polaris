@@ -3,12 +3,7 @@ namespace coordinator.Helpers;
 // This is temporary code to help us through the current refactor
 public static class PdfBlobNameHelper
 {
-    public static string GetPdfBlobName(long caseId, string cmsOrPolarisDocumentId)
-    {
-        return GetPdfBlobName(caseId.ToString(), cmsOrPolarisDocumentId);
-    }
-
-    public static string GetPdfBlobName(string caseId, string cmsOrPolarisDocumentId)
+    public static string GetPdfBlobName(int caseId, string cmsOrPolarisDocumentId)
     {
         // Each case has only one defendants and charges (DAC) document.
         //  If the caseId is then the PolarisDocumentId for a DAC is DAC-12345

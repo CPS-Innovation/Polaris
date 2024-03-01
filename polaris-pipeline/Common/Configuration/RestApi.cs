@@ -34,6 +34,11 @@ namespace Common.Configuration
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
 
+        public static string GetCasesPath(string caseUrn)
+        {
+            var url = $"urns/{caseUrn}/cases";
+            return url;
+        }
         public static string GetCasePath(string caseUrn, long caseId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}";
@@ -52,33 +57,10 @@ namespace Common.Configuration
             return url;
         }
 
-        public static string GetDocumentsPath(string caseUrn, long caseId)
-        {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents";
-            return url;
-        }
-
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
             return url;
-        }
-
-        public static string GetInstancePath(string instanceId)
-        {
-            var url = $"runtime/webhooks/durabletask/instances/{instanceId}";
-            return url;
-        }
-
-        public static string GetDurableEntityPath(string durableEntityType, string instanceId)
-        {
-            var url = $"runtime/webhooks/durabletask/entities/{durableEntityType}/{instanceId}";
-            return url;
-        }
-
-        public static string GetInstancesPath()
-        {
-            return "runtime/webhooks/durabletask/instances";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)

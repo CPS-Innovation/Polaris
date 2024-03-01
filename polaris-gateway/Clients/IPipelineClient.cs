@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Common.Domain.SearchIndex;
+using Common.Dto.Case;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
@@ -10,6 +11,8 @@ namespace Gateway.Clients
 {
     public interface IPipelineClient
     {
+        Task<IEnumerable<CaseDto>> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId);
+        Task<CaseDto> GetCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
         Task<HttpStatusCode> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
         Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId);
         Task<IActionResult> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);

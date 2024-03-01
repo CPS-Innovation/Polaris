@@ -13,6 +13,7 @@ using PolarisGateway;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Common.Dto.Case;
 
 namespace Gateway.Clients
 {
@@ -43,6 +44,22 @@ namespace Gateway.Clients
             _logger = logger;
         }
 
+        public async Task<IEnumerable<CaseDto>> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId)
+        {
+            var url = $"{RestApi.GetCasesPath(caseUrn)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
+            var response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
+            var stringContent = await response.Content.ReadAsStringAsync();
+            return _jsonConvertWrapper.DeserializeObject<IEnumerable<CaseDto>>(stringContent);
+        }
+
+        public async Task<CaseDto> GetCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            var url = $"{RestApi.GetCasePath(caseUrn, caseId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
+            var response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
+            var stringContent = await response.Content.ReadAsStringAsync();
+            return _jsonConvertWrapper.DeserializeObject<CaseDto>(stringContent);
+        }
+
         public async Task<HttpStatusCode> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
             var url = $"{RestApi.GetCasePath(caseUrn, caseId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
@@ -66,7 +83,7 @@ namespace Gateway.Clients
             var response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
 
             var stringContent = await response.Content.ReadAsStringAsync();
-            return _jsonConvertWrapper.DeserializeObject<TrackerDto>(stringContent, correlationId);
+            return _jsonConvertWrapper.DeserializeObject<TrackerDto>(stringContent);
         }
 
         public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
@@ -117,12 +134,12 @@ namespace Gateway.Clients
 
         public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
         {
-            var content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
+            var content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
             var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
             using var response = await SendRequestAsync(HttpMethod.Put, url, cmsAuthValues, correlationId, content);
             var stringContent = await response.Content.ReadAsStringAsync();
 
-            var result = _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent, correlationId);
+            var result = _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent);
 
             if (!result.Succeeded)
             {
@@ -154,7 +171,7 @@ namespace Gateway.Clients
 
             var stringContent = await response.Content.ReadAsStringAsync();
 
-            return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(stringContent, correlationId);
+            return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(stringContent);
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, string cmsAuthValues, Guid correlationId, HttpContent content = null, HttpStatusCode[] expectedResponseCodes = null)

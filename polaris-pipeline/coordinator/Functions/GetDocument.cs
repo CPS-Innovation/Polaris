@@ -28,7 +28,7 @@ namespace coordinator.Functions
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Document)] HttpRequestMessage req,
             string caseUrn,
-            string caseId,
+            int caseId,
             string polarisDocumentId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)

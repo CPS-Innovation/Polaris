@@ -85,7 +85,7 @@ namespace PolarisGateway.Tests.Clients
                 .Returns(_httpRequestMessage);
 
             var stringContent = _getTrackerHttpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<TrackerDto>(stringContent, It.IsAny<Guid>())).Returns(_tracker);
+            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<TrackerDto>(stringContent)).Returns(_tracker);
 
             _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 

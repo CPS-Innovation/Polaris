@@ -67,7 +67,7 @@ namespace coordinator.Clients
             HttpResponseMessage response;
             try
             {
-                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
+                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
                 var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
                 request.Content = requestMessage;
@@ -88,7 +88,7 @@ namespace coordinator.Clients
             }
 
             var stringContent = await response.Content.ReadAsStringAsync();
-            return _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent, correlationId);
+            return _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent);
         }
     }
 }
