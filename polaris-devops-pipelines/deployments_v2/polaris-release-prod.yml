@@ -14,7 +14,6 @@ resources:
           - Publish_Artifacts
 
 variables:
-  - group: kv-dev-terraform
   - group: kv-prod-terraform
   - group: polaris-global
   - group: polaris-status-check-endpoints
@@ -62,7 +61,7 @@ stages:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Start
         displayName: Log Start
@@ -91,7 +90,8 @@ stages:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
               webhookUrl: $(ddei-webhook-url)
-              approvedBy: $(Build.QueuedBy)
+              devOpsPatToken: "$(System.AccessToken)"
+              stageName: "Deploy > PROD"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
@@ -332,7 +332,7 @@ stages:
                     targetLabel: "PROD"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Start_Codebase
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
@@ -514,7 +514,7 @@ stages:
                     targetLabel: "PROD"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
         condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -533,7 +533,7 @@ stages:
                     targetLabel: "PROD"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
   # PROD: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -673,7 +673,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # PROD: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check
@@ -843,7 +843,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # PROD: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
@@ -890,7 +890,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # PROD: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
@@ -935,7 +935,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   #PROD: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
@@ -969,7 +969,7 @@ stages:
             parameters:
               targetLabel: "PROD"
               buildDefinitionId: 210
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -983,7 +983,7 @@ stages:
               targetLabel: "PROD"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
               
   - stage: Send_Report
     displayName: Send Report
@@ -1014,7 +1014,8 @@ stages:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
               webhookUrl: $(ddei-webhook-url)
-              approvedBy: $(Build.QueuedBy)
+              devOpsPatToken: "$(System.AccessToken)"
+              stageName: "Deploy > PROD"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
@@ -1038,7 +1039,8 @@ stages:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
               webhookUrl: $(ddei-webhook-url)
-              approvedBy: $(Build.QueuedBy)
+              devOpsPatToken: "$(System.AccessToken)"
+              stageName: "Deploy > PROD"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
