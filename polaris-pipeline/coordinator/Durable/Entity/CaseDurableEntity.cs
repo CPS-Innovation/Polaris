@@ -151,7 +151,9 @@ namespace coordinator.Durable.Entity
                          cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId ||
                          cmsDocument.PresentationTitle != incomingDocument.PresentationTitle ||
                          cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
-                         cmsDocument.WitnessId != incomingDocument.WitnessId
+                         cmsDocument.WitnessId != incomingDocument.WitnessId ||
+                         cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
+                         cmsDocument.IsDispatched != incomingDocument.IsDispatched
                      )
                  )
                  select incomingDocument).ToList();
