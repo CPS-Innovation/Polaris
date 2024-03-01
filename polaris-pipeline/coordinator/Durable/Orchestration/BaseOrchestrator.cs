@@ -3,9 +3,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using coordinator.Durable.Entity;
 using System.Threading.Tasks;
-using coordinator.Functions.Orchestration.Functions.Case;
 
-namespace coordinator.Functions.Orchestration.Functions
+namespace coordinator.Durable.Orchestration
 {
     public class BaseOrchestrator
     {

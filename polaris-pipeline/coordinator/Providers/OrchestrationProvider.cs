@@ -1,5 +1,5 @@
 ﻿using coordinator.Durable.Entity;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Orchestration;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Collections.Generic;

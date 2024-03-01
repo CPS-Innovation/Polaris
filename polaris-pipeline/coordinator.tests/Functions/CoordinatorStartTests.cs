@@ -8,7 +8,7 @@ using AutoFixture;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Durable.Payloads;
 using coordinator.Functions;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Orchestration;
 using coordinator.Providers;
 using coordinator.Services.CleardownService;
 using FluentAssertions;

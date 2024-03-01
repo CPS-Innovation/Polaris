@@ -6,7 +6,7 @@ using coordinator.Clients;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Orchestration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

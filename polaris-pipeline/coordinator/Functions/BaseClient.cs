@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Durable.Entity;
 using Common.ValueObjects;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Functions

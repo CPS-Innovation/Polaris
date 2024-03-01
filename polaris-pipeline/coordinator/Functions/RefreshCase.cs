@@ -54,8 +54,6 @@ namespace coordinator.Functions
 
             try
             {
-                #region Validate-Inputs
-
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                     throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(req));
@@ -81,12 +79,7 @@ namespace coordinator.Functions
                 if (req.RequestUri == null)
                     throw new BadRequestException("Expected querystring value", nameof(req));
 
-                var baseUrl = req.RequestUri.GetLeftPart(UriPartial.Authority);
-                var extensionCode = HttpUtility.ParseQueryString(req.RequestUri.Query).Get("code");
-
-                #endregion
-
-                var casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, baseUrl, extensionCode, cmsAuthValues, currentCorrelationId);
+                var casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId);
 
                 return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
             }
