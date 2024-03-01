@@ -6,6 +6,7 @@ import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 
 type Props = {
+  activeDocumentId: string;
   sectionId: string;
   sectionLabel: string;
   docs: MappedCaseDocument[];
@@ -25,6 +26,7 @@ const formatTestIdText = (id: string) => {
 };
 
 export const AccordionSection: React.FC<Props> = ({
+  activeDocumentId,
   sectionId,
   sectionLabel,
   docs,
@@ -81,6 +83,7 @@ export const AccordionSection: React.FC<Props> = ({
                     key={caseDocument.documentId}
                     caseDocument={caseDocument}
                     readUnreadData={readUnreadData}
+                    activeDocumentId={activeDocumentId}
                     handleOpenPdf={handleOpenPdf}
                   />
                 ))}

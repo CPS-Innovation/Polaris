@@ -341,6 +341,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     handleOpenPdf={(caseDoc) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
+                    activeDocumentId={getActiveTabDocument?.documentId ?? ""}
                   />
                 )}
               </div>

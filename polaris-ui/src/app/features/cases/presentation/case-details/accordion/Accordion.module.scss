@@ -158,6 +158,13 @@
 .listItemWrapper :last-child {
   border-bottom: none;
 }
+.accordion .tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
 
 .accordion .docActive {
   background-color: #fff;
@@ -169,7 +176,7 @@
   border-left: none;
   padding: 0;
   & .listItemWrapper {
-    padding: 0.3125rem 0;
+    padding: 0.625rem 0;
     border-bottom: 0.0625rem solid #bfc1c3;
   }
   & .accordion-document-link-button {

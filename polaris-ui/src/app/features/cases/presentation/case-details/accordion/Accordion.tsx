@@ -8,6 +8,7 @@ import { AccordionDocumentSection } from "./types";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
+  activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
   handleOpenPdf: (caseDocument: {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export const Accordion: React.FC<Props> = ({
+  activeDocumentId,
   accordionState: sections,
   readUnreadData,
   handleOpenPdf,
@@ -60,6 +62,7 @@ export const Accordion: React.FC<Props> = ({
           docs={docs}
           isOpen={state.sections[sectionId]}
           readUnreadData={readUnreadData}
+          activeDocumentId={activeDocumentId}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
         />
