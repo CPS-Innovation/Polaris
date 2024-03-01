@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +14,10 @@ using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Wrappers;
 using coordinator.Durable.Entity;
-using coordinator.Functions.DurableEntity.Client.Tracker;
+using coordinator.Functions;
 using Common.Dto.Tracker;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Microsoft.Extensions.DependencyInjection;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.ValueObjects;
@@ -50,7 +48,7 @@ namespace coordinator.tests.Domain.Tracker
 
         private readonly CaseDurableEntity _caseEntity;
         private readonly EntityStateResponse<CaseDurableEntity> _entityStateResponse;
-        private readonly TrackerClient _trackerStatus;
+        private readonly GetTracker _trackerStatus;
 
         public TrackerTests()
         {
@@ -99,7 +97,7 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.TransactionId = _transactionId;
             _caseEntity.CmsDocuments = _trackerCmsDocuments;
             _caseEntity.PcdRequests = _trackerPcdRequests;
-            _trackerStatus = new TrackerClient(_jsonConvertWrapper, new CaseDurableEntityMapper());
+            _trackerStatus = new GetTracker(_jsonConvertWrapper, new CaseDurableEntityMapper());
         }
 
         [Fact]
@@ -135,7 +133,6 @@ namespace coordinator.tests.Domain.Tracker
 
         [Theory]
         [InlineData(DocumentStatus.Indexed)]
-        [InlineData(DocumentStatus.DocumentAlreadyProcessed)]
         [InlineData(DocumentStatus.UnableToConvertToPdf)]
         [InlineData(DocumentStatus.PdfUploadedToBlob)]
         [InlineData(DocumentStatus.OcrAndIndexFailure)]

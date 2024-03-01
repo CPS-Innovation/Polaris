@@ -2,8 +2,8 @@
 using Ddei.Factories.Contracts;
 using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Mappers.Contract;
-using DdeiClient.Services.Contracts;
+using DdeiClient.Mappers;
+using DdeiClient.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
@@ -24,7 +24,7 @@ namespace Ddei.Services.Extensions
 
         public static void AddDdeiClient(this IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
+            services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
 
             services.AddHttpClient<IDdeiClient, DdeiClient>((service, client) =>
             {

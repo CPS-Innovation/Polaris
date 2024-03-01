@@ -1,6 +1,6 @@
 using Common.Dto.Case;
 using Ddei.Domain;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Mappers;
 
 namespace Ddei.Mappers;
 

@@ -1,9 +1,8 @@
 using Ddei.Domain.CaseData.Args;
-using Ddei.Factories.Contracts;
 
 namespace Ddei.Factories
 {
-    public class CaseDataArgFactory : ICaseDataArgFactory
+    public class DdeiArgFactory : IDdeiArgFactory
     {
         public DdeiCmsCaseDataArgDto CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId)
         {
@@ -42,6 +41,27 @@ namespace Ddei.Factories
                 CorrelationId = arg.CorrelationId,
                 Urn = arg.Urn,
                 CaseId = caseId
+            };
+        }
+
+        public DdeiCmsDocumentArgDto CreateDocumentArgDto(
+            string cmsAuthValues,
+            Guid correlationId,
+            string urn,
+            int caseId,
+            string documentCategory,
+            int documentId,
+            long versionId)
+        {
+            return new DdeiCmsDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                CmsDocCategory = documentCategory,
+                DocumentId = documentId,
+                VersionId = versionId
             };
         }
     }

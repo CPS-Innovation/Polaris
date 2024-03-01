@@ -6,9 +6,9 @@ using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Wrappers.Contracts;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Factories.Contracts;
+using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
@@ -78,7 +78,7 @@ public class DdeiClientTests
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
-        var mockCaseDataArgFactory = new Mock<ICaseDataArgFactory>();
+        var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
         var mockCaseDetailsMapper = new Mock<ICaseDetailsMapper>();
         var mockCaseIdentifiersMapper = new Mock<ICaseIdentifiersMapper>();
         var mockCmsAuthValuesMapper = new Mock<ICmsAuthValuesMapper>();
@@ -86,7 +86,7 @@ public class DdeiClientTests
             (
                 httpClient,
                 mockHttpRequestFactory.Object,
-                mockCaseDataArgFactory.Object,
+                mockDdeiArgFactory.Object,
                 mockCaseDetailsMapper.Object,
                 new CaseDocumentMapper(),
                 mockCaseIdentifiersMapper.Object,

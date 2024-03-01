@@ -2,7 +2,7 @@ using Common.Dto.Case;
 using Common.Dto.Document;
 using Ddei.Domain.CaseData.Args;
 
-namespace DdeiClient.Services.Contracts
+namespace DdeiClient.Services
 {
     public interface IDdeiClient
     {

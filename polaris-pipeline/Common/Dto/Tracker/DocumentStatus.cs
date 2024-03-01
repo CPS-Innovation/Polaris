@@ -7,6 +7,5 @@
         PdfUploadedToBlob,
         UnableToConvertToPdf,
         OcrAndIndexFailure,
-        DocumentAlreadyProcessed,
     }
 }

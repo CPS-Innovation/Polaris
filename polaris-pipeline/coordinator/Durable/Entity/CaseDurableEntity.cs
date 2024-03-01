@@ -463,7 +463,7 @@ namespace coordinator.Durable.Entity
             {
                 document.IsPdfAvailable = true;
             }
-            if (status == DocumentStatus.PdfUploadedToBlob || status == DocumentStatus.DocumentAlreadyProcessed)
+            if (status == DocumentStatus.PdfUploadedToBlob)
             {
                 document.PdfBlobName = pdfBlobName;
             }

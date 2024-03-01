@@ -9,7 +9,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.Orchestration.Functions.Maintenance;
+namespace coordinator.Functions.Maintenance;
 
 public class SlidingCaseClearDown
 {

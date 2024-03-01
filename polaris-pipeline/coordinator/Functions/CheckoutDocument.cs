@@ -7,27 +7,28 @@ using Common.Constants;
 using Common.Logging;
 using Common.ValueObjects;
 using Ddei.Domain.CaseData.Args;
-using DdeiClient.Services.Contracts;
+using Ddei.Factories;
+using DdeiClient.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.DurableEntity.Client.Document
+namespace coordinator.Functions
 {
-    public class CheckoutDocumentClient : BaseClient
+    public class CheckoutDocument : BaseClient
     {
         private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
 
-        public CheckoutDocumentClient(IDdeiClient ddeiClient)
+        public CheckoutDocument(IDdeiClient ddeiClient, IDdeiArgFactory ddeiArgFactory)
         {
             _ddeiClient = ddeiClient;
+            _ddeiArgFactory = ddeiArgFactory;
         }
 
-        const string loggingName = $"{nameof(CheckoutDocumentClient)} - {nameof(HttpStart)}";
-
-        [FunctionName(nameof(CheckoutDocumentClient))]
+        [FunctionName(nameof(CheckoutDocument))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
             string caseUrn,
@@ -46,7 +47,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
 
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
+                var response = await GetTrackerDocument(req, client, nameof(CheckoutDocument), caseId, new PolarisDocumentId(polarisDocumentId), log);
 
                 if (!response.Success)
                     return response.Error;
@@ -60,16 +61,16 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 currentCorrelationId = response.CorrelationId;
                 var document = response.CmsDocument;
 
-                DdeiCmsDocumentArgDto arg = new DdeiCmsDocumentArgDto
-                {
-                    CmsAuthValues = cmsAuthValues,
-                    CorrelationId = currentCorrelationId,
-                    Urn = caseUrn,
-                    CaseId = long.Parse(caseId),
-                    CmsDocCategory = document.CmsDocType.DocumentCategory,
-                    DocumentId = int.Parse(document.CmsDocumentId),
-                    VersionId = document.CmsVersionId
-                };
+                var arg = _ddeiArgFactory.CreateDocumentArgDto(
+                         cmsAuthValues: cmsAuthValues,
+                         correlationId: currentCorrelationId,
+                         urn: caseUrn,
+                         caseId: int.Parse(caseId),
+                         documentCategory: document.CmsDocType.DocumentCategory,
+                         documentId: int.Parse(document.CmsDocumentId),
+                         versionId: document.CmsVersionId
+                 );
+
                 var result = await _ddeiClient.CheckoutDocumentAsync(arg);
 
                 return result.IsSuccess
@@ -79,7 +80,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                log.LogMethodError(currentCorrelationId, nameof(CheckoutDocument), ex.Message, ex);
                 return new StatusCodeResult(500);
             }
         }

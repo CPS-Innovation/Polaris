@@ -14,25 +14,25 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 
-namespace coordinator.Functions.DurableEntity.Client.Tracker
+namespace coordinator.Functions
 {
-    public class TrackerClient : BaseClient
+    public class GetTracker : BaseClient
     {
-        const string loggingName = $"{nameof(TrackerClient)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(GetTracker)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
 
-        public TrackerClient(IJsonConvertWrapper jsonConvertWrapper, ICaseDurableEntityMapper caseDurableEntityMapper)
+        public GetTracker(IJsonConvertWrapper jsonConvertWrapper, ICaseDurableEntityMapper caseDurableEntityMapper)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _caseDurableEntityMapper = caseDurableEntityMapper;
         }
 
-        [FunctionName(nameof(TrackerClient))]
+        [FunctionName(nameof(GetTracker))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "put", Route = RestApi.CaseTracker)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             [DurableClient] IDurableEntityClient client,
@@ -42,7 +42,6 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 
             try
             {
-                #region Validate-Inputs
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
@@ -55,7 +54,6 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                     {
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
-                #endregion
 
                 var (caseEntity, errorMessage) = await GetCaseTrackerForEntity(client, caseId);
 
@@ -64,15 +62,8 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                     return new NotFoundObjectResult(errorMessage);
                 }
 
-                switch (req.Method.Method)
-                {
-                    case "GET":
-                        var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity);
-                        return new OkObjectResult(trackerDto);
-
-                    default:
-                        throw new BadRequestException("Unexpected HTTP Verb", req.Method.Method);
-                }
+                var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity);
+                return new OkObjectResult(trackerDto);
             }
             catch (Exception ex)
             {

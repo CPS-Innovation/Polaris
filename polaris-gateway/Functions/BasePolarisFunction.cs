@@ -38,7 +38,7 @@ namespace PolarisGateway.Functions
         protected async Task Initiate(HttpRequest req)
         {
             // todo: can we get this from nameof(superclass) or something
-            CorrelationId = req.Headers.GetCorrelation();
+            CorrelationId = req.Headers.GetCorrelationId();
             _telemetryAugmentationWrapper.RegisterCorrelationId(CorrelationId);
 
             var username = await AuthenticateRequest(req, CorrelationId);

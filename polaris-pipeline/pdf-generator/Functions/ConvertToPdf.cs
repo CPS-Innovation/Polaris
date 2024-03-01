@@ -50,14 +50,10 @@ namespace pdf_generator.Functions
             ConvertedDocumentEvent telemetryEvent = default;
             try
             {
-                #region Validate-Inputs
-
-                currentCorrelationId = request.Headers.GetCorrelation();
+                currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
-
-                request.Headers.CheckForCmsAuthValues();
 
                 var fileType = request.Headers.GetFileType();
 
@@ -71,8 +67,6 @@ namespace pdf_generator.Functions
 
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 telemetryEvent.VersionId = versionId;
-
-                #endregion
 
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;

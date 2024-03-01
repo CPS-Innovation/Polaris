@@ -8,7 +8,7 @@ using Common.Domain.Exceptions;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers.Contracts;
-using DdeiClient.Services.Contracts;
+using DdeiClient.Services;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -51,16 +51,13 @@ namespace coordinator.Durable.Activity
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
-            if (payload == null)
-                throw new ArgumentException($"{nameof(payload)} cannot be null.");
-
             var results = _validatorWrapper.Validate(payload);
             if (results?.Any() == true)
                 throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
 
             var fileType = GetFileType(payload);
 
-            var documentStream = await GetDocumentStreamAsync(payload);
+            using var documentStream = await GetDocumentStreamAsync(payload);
 
             Stream pdfStream = Stream.Null;
             try
@@ -94,6 +91,7 @@ namespace coordinator.Durable.Activity
                     payload.CorrelationId
                 );
 
+            pdfStream.Dispose();
             return true;
         }
 

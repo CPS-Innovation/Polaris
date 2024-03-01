@@ -12,7 +12,7 @@ namespace coordinator.Durable.Payloads
                 string cmsAuthValues,
                 Guid correlationId,
                 string cmsCaseUrn,
-                long cmsCaseId,
+                int cmsCaseId,
                 string serializedTrackerCmsDocumentDto,
                 string serializedTrackerPcdRequestDto,
                 string serializedTrackerDefendantAndChargesDto,

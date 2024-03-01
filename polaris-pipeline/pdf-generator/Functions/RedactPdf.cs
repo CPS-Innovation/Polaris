@@ -1,8 +1,5 @@
 using System;
 using System.IO;
-using System.Net.Http;
-using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Domain.Exceptions;
@@ -11,7 +8,6 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Extensions;
 using Common.Handlers.Contracts;
-using Common.Logging;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using FluentValidation;
@@ -57,12 +53,8 @@ namespace pdf_generator.Functions
 
             try
             {
-                #region Validate-Inputs
-
-                currentCorrelationId = request.Headers.GetCorrelation();
+                currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
-
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 request.EnableBuffering();
 
@@ -81,8 +73,6 @@ namespace pdf_generator.Functions
                     throw new BadRequestException("Request body cannot be null or an empty JSON message", nameof(request));
                 }
 
-                #endregion
-
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(redactions.VersionId.ToString());
@@ -91,7 +81,6 @@ namespace pdf_generator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{documentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(caseId, documentId, redactions, currentCorrelationId);
 
                 return new OkObjectResult(_jsonConvertWrapper.SerializeObject(redactPdfResponse));
@@ -99,11 +88,6 @@ namespace pdf_generator.Functions
             catch (Exception ex)
             {
                 return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RedactPdf), _logger);
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName,
-                    redactPdfResponse != null ? redactPdfResponse.ToJson() : string.Empty);
             }
         }
     }

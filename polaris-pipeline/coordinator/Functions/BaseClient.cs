@@ -11,7 +11,7 @@ using Common.ValueObjects;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.Durable.Payloads.Domain;
 
-namespace coordinator.Functions.DurableEntity.Client
+namespace coordinator.Functions
 {
     public record GetTrackerDocumentResponse
     {
