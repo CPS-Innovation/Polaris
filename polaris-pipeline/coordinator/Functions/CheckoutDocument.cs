@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Constants;
+using Common.Extensions;
 using Common.Logging;
 using Common.ValueObjects;
-using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using DdeiClient.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -41,24 +39,10 @@ namespace coordinator.Functions
 
             try
             {
-                var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
-                if (string.IsNullOrEmpty(cmsAuthValues))
-                {
-                    throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
-                }
+                currentCorrelationId = req.Headers.GetCorrelationId();
+                var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
                 var response = await GetTrackerDocument(req, client, nameof(CheckoutDocument), caseId, new PolarisDocumentId(polarisDocumentId), log);
-
-                if (!response.Success)
-                    return response.Error;
-
-                var docType = response.CmsDocument.CmsDocType.DocumentType;
-                if (docType == "PCD" || docType == "DAC")
-                {
-                    return new BadRequestObjectResult($"Invalid document type specified : {docType}");
-                }
-
-                currentCorrelationId = response.CorrelationId;
                 var document = response.CmsDocument;
 
                 var arg = _ddeiArgFactory.CreateDocumentArgDto(

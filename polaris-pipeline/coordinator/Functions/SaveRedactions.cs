@@ -20,30 +20,33 @@ using Common.Dto.Request;
 using DdeiClient.Services;
 using Common.ValueObjects;
 using Common.Services.BlobStorageService.Contracts;
+using Common.Extensions;
+using Ddei.Factories;
 
 namespace coordinator.Functions
 {
     public class SaveRedactions : BaseClient
     {
-        const string loggingName = $"{nameof(SaveRedactions)} - {nameof(HttpStart)}";
-
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
         private readonly IPdfGeneratorClient _redactionClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
 
         public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestDto> requestValidator,
                               IPdfGeneratorClient redactionClient,
                               IPolarisBlobStorageService blobStorageService,
-                              IDdeiClient ddeiClient)
+                              IDdeiClient ddeiClient,
+                              IDdeiArgFactory ddeiArgFactory)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _redactionClient = redactionClient;
             _blobStorageService = blobStorageService;
             _ddeiClient = ddeiClient;
+            _ddeiArgFactory = ddeiArgFactory;
         }
 
         [FunctionName(nameof(SaveRedactions))]
@@ -60,26 +63,18 @@ namespace coordinator.Functions
 
             try
             {
-                #region Validate-Inputs
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
+                currentCorrelationId = req.Headers.GetCorrelationId();
 
-                if (!response.Success)
-                    return response.Error;
-
-                currentCorrelationId = response.CorrelationId;
+                var response = await GetTrackerDocument(req, client, nameof(SaveRedactions), caseId, new PolarisDocumentId(polarisDocumentId), log);
                 var document = response.CmsDocument;
+
                 var content = await req.Content.ReadAsStringAsync();
-                if (string.IsNullOrWhiteSpace(content))
-                {
-                    throw new BadRequestException("Request body cannot be null.", nameof(req));
-                }
                 var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
                 redactPdfRequest.FileName = document.PdfBlobName;
                 var validationResult = await _requestValidator.ValidateAsync(redactPdfRequest);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
-                #endregion
 
                 var redactionResult = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactPdfRequest, currentCorrelationId);
                 if (!redactionResult.Succeeded)
@@ -90,29 +85,26 @@ namespace coordinator.Functions
 
                 using var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
-                var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
-                if (string.IsNullOrEmpty(cmsAuthValues))
-                {
-                    throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
-                }
+                var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                DdeiCmsDocumentArgDto arg = new DdeiCmsDocumentArgDto
-                {
-                    CmsAuthValues = cmsAuthValues,
-                    CorrelationId = currentCorrelationId,
-                    Urn = caseUrn,
-                    CaseId = long.Parse(caseId),
-                    CmsDocCategory = document.CmsDocType.DocumentCategory,
-                    DocumentId = int.Parse(document.CmsDocumentId),
-                    VersionId = document.CmsVersionId
-                };
+                var arg = _ddeiArgFactory.CreateDocumentArgDto
+                (
+                    cmsAuthValues: cmsAuthValues,
+                     correlationId: currentCorrelationId,
+                     urn: caseUrn,
+                     caseId: int.Parse(caseId),
+                     documentCategory: document.CmsDocType.DocumentCategory,
+                     documentId: int.Parse(document.CmsDocumentId),
+                     versionId: document.CmsVersionId
+                );
+
                 await _ddeiClient.UploadPdfAsync(arg, pdfStream);
 
                 return new ObjectResult(redactionResult);
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                log.LogMethodError(currentCorrelationId, nameof(SaveRedactions), ex.Message, ex);
                 return new StatusCodeResult(500);
             }
         }

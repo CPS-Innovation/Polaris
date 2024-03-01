@@ -24,7 +24,7 @@ using coordinator.Services.RenderHtmlService;
 using coordinator.Mappers;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
-using coordinator.Providers;
+using coordinator.Durable.Providers;
 using coordinator.Validators;
 using coordinator.Services.DocumentToggle;
 using Common.Streaming;
@@ -32,6 +32,7 @@ using coordinator.Services.TextExtractService;
 using coordinator.Services.CleardownService;
 using coordinator.Durable.Payloads;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -82,6 +83,8 @@ namespace coordinator
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
+
+            services.AddDurableClientFactory();
         }
     }
 }

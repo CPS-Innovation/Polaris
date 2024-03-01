@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 using Common.Dto.Response;
 using coordinator.Durable.Payloads;
 
-namespace coordinator.Providers;
+namespace coordinator.Durable.Providers;
 
 public class OrchestrationProvider : IOrchestrationProvider
 {

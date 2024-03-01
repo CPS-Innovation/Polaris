@@ -6,6 +6,7 @@ using coordinator.Clients;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
+using Common.Extensions;
 using coordinator.Durable.Orchestration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -34,9 +35,6 @@ namespace coordinator.Functions
             _telemetryClient = telemetryClient;
         }
 
-        const string loggingName = $"{nameof(SearchCase)} - {nameof(HttpStart)}";
-        const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
-
         [FunctionName(nameof(SearchCase))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseSearch)] HttpRequestMessage req,
@@ -49,35 +47,19 @@ namespace coordinator.Functions
 
             try
             {
-
+                currentCorrelationId = req.Headers.GetCorrelationId();
                 var searchTerm = req.RequestUri.ParseQueryString()["query"];
                 if (string.IsNullOrWhiteSpace(searchTerm))
-                    return new BadRequestObjectResult("Search term not supplied.");
-
-                req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-                if (correlationIdValues == null)
                 {
-                    return new BadRequestObjectResult(correlationErrorMessage);
+                    return new BadRequestObjectResult("Search term not supplied.");
                 }
-
-                var correlationId = correlationIdValues.FirstOrDefault();
-                if (!Guid.TryParse(correlationId, out currentCorrelationId))
-                    if (currentCorrelationId == Guid.Empty)
-                    {
-                        return new BadRequestObjectResult(correlationErrorMessage);
-                    }
 
 
                 var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
-                if (!trackerState.EntityExists)
-                {
-                    var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                    return new NotFoundObjectResult(baseMessage);
-                }
-
-                CaseDurableEntity entityState = trackerState.EntityState;
+                var entityState = trackerState.EntityState;
+                // todo: temporary code, need an AllDocuments method as per first refactor
                 var documents =
                     entityState.CmsDocuments.OfType<BaseDocumentEntity>()
                         .Concat(entityState.PcdRequests)
@@ -87,7 +69,10 @@ namespace coordinator.Functions
 
                 var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId, documents);
 
-                var documentIds = searchResults.Select(result => result.PolarisDocumentId).Distinct().ToList();
+                var documentIds = searchResults
+                    .Select(result => result.PolarisDocumentId)
+                    .Distinct()
+                    .ToList();
 
                 // the max string length of Application Insights custom properties is 8192
                 // so we chunk the docIds and create multiple events as some cases could exceed this limit
@@ -107,7 +92,7 @@ namespace coordinator.Functions
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                log.LogMethodError(currentCorrelationId, nameof(SearchCase), ex.Message, ex);
                 return new StatusCodeResult(500);
             }
 

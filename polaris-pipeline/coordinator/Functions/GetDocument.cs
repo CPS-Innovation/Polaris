@@ -4,20 +4,19 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
-using Common.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Common.Extensions;
+using coordinator.Domain;
 
 namespace coordinator.Functions
 {
     public class GetDocument : BaseClient
     {
         private readonly IPolarisBlobStorageService _blobStorageService;
-
-        const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
 
         public GetDocument(IPolarisBlobStorageService blobStorageService)
         {
@@ -38,24 +37,18 @@ namespace coordinator.Functions
 
             try
             {
-                var polarisDocumentIdValue = new PolarisDocumentId(polarisDocumentId);
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, polarisDocumentIdValue, log);
+                currentCorrelationId = req.Headers.GetCorrelationId();
 
-                if (!response.Success)
-                    return response.Error;
-
-                currentCorrelationId = response.CorrelationId;
-
-                var blobName = response.GetBlobName();
+                var blobName = PdfBlobNameHelper.GetPdfBlobName(caseId, polarisDocumentId);
                 var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
 
                 return blobStream != null
                     ? new OkObjectResult(blobStream)
-                    : null;
+                    : new NotFoundObjectResult($"No document blob found with id '{polarisDocumentId}'");
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                log.LogMethodError(currentCorrelationId, nameof(GetDocument), ex.Message, ex);
                 return new StatusCodeResult(500);
             }
         }
