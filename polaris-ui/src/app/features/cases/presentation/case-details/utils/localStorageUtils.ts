@@ -1,5 +1,7 @@
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 
+const LOCAL_STORAGE_EXPIRY_DAYS = 30;
+
 export type LocalStorageKey = "redactions" | "readUnread";
 export type ReadUnreadData = string[];
 export type RedactionsData = {
@@ -39,19 +41,21 @@ export const addToLocalStorage = (
 
 export const clearDownStorage = () => {
   const currentDate = new Date();
-  const oneMonthAgo = new Date(
-    currentDate.getTime() - 30 * 24 * 60 * 60 * 1000
+  const expiryTime = new Date(
+    currentDate.getTime() - LOCAL_STORAGE_EXPIRY_DAYS * 24 * 60 * 60 * 1000
   );
 
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)!;
+    if (key && !key.includes("caseworkApp-")) {
+      return;
+    }
     const value = localStorage.getItem(key)!;
-
     const item = JSON.parse(value);
     const itemTimestamp = new Date(item.modifiedDate);
 
-    // Check if the item is older than 30 days
-    if (itemTimestamp < oneMonthAgo) {
+    // Check if the item is older than LOCAL_STORAGE_EXPIRY_DAYS days
+    if (itemTimestamp < expiryTime) {
       localStorage.removeItem(key);
     }
   }

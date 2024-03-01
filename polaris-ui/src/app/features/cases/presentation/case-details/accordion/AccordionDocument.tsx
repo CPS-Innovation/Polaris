@@ -77,11 +77,14 @@ export const AccordionDocument: React.FC<Props> = ({
           <div className={`${classes["accordion-document-date"]}`}>
             <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
             <DateIcon className={classes.dateIcon} />
-            {caseDocument.cmsFileCreatedDate &&
-              formatDate(
-                caseDocument.cmsFileCreatedDate,
-                CommonDateTimeFormats.ShortDateTextMonth
-              )}
+            {caseDocument.cmsFileCreatedDate && (
+              <span>
+                {formatDate(
+                  caseDocument.cmsFileCreatedDate,
+                  CommonDateTimeFormats.ShortDateTextMonth
+                )}
+              </span>
+            )}
             {formattedFileCreatedTime && (
               <>
                 <span className={`${classes["visuallyHidden"]}`}>
