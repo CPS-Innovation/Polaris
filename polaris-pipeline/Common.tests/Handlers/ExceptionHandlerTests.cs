@@ -33,14 +33,6 @@ namespace Common.Tests.Handlers
         }
 
         [Fact]
-        public void HandleException_ReturnsUnauthorizedWhenUnauthorizedExceptionOccurs()
-        {
-            var httpResponseMessage = _exceptionHandler.HandleExceptionNew(new UnauthorizedException("Test unauthorized exception"), _correlationId, _source, _loggerMock.Object);
-
-            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.Unauthorized);
-        }
-
-        [Fact]
         public void HandleException_ReturnsBadRequestWhenBadRequestExceptionOccurs()
         {
             var httpResponseMessage = _exceptionHandler.HandleExceptionNew(new BadRequestException("Test bad request exception", "id"), _correlationId, _source, _loggerMock.Object);

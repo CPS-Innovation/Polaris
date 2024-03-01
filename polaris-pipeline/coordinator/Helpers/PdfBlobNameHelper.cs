@@ -1,4 +1,4 @@
-namespace coordinator.Domain;
+namespace coordinator.Helpers;
 
 // This is temporary code to help us through the current refactor
 public static class PdfBlobNameHelper

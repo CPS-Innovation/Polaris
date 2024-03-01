@@ -64,6 +64,11 @@ namespace coordinator.Functions
                     return new NotFoundObjectResult($"No Case Entity found with id '{caseId}' with exception '{ex.GetType().Name}: {ex.Message}");
                 }
 
+                if (!caseEntity.EntityExists)
+                {
+                    return new NotFoundObjectResult($"No Case Entity found with id '{caseId}'");
+                }
+
                 var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity.EntityState);
                 return new OkObjectResult(trackerDto);
             }

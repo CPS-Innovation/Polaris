@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Extensions;
-using coordinator.Domain;
+using coordinator.Helpers;
 
 namespace coordinator.Functions
 {

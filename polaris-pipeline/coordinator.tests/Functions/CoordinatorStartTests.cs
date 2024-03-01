@@ -22,7 +22,6 @@ namespace coordinator.tests.Functions
     public class CoordinatorStartTests
     {
         private readonly string _caseUrn;
-        private readonly int _caseIdNum;
         private readonly int _caseId;
         private readonly string _instanceId;
         private readonly Guid _correlationId;
@@ -92,14 +91,6 @@ namespace coordinator.tests.Functions
         }
 
         [Fact]
-        public async Task Run_ReturnsBadRequestWhenInvalidCaseUrn()
-        {
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, "", _caseId, _mockDurableOrchestrationClient.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledErrorOccurs()
         {
             _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CaseOrchestrationPayload>()))
@@ -150,7 +141,7 @@ namespace coordinator.tests.Functions
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
                     _caseId.ToString(),
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum),
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId),
                     _httpRequestMessage));
         }
 
@@ -178,7 +169,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
                     _caseId.ToString(),
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum)),
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId)),
                 Times.Never);
         }
 

@@ -63,12 +63,7 @@ namespace coordinator.Functions
                 var rootCauseMessage = "An unhandled exception occurred";
                 var httpStatusCode = HttpStatusCode.InternalServerError;
 
-                if (exception is UnauthorizedException)
-                {
-                    rootCauseMessage = "Unauthorized";
-                    httpStatusCode = HttpStatusCode.Unauthorized;
-                }
-                else if (exception is BadRequestException)
+                if (exception is BadRequestException)
                 {
                     rootCauseMessage = "Invalid request";
                     httpStatusCode = HttpStatusCode.BadRequest;

@@ -54,7 +54,6 @@ namespace coordinator.Functions
                     return new BadRequestObjectResult("Search term not supplied.");
                 }
 
-
                 var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 

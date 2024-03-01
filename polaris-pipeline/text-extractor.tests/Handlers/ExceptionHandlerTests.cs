@@ -30,14 +30,6 @@ namespace text_extractor.tests.Handlers
         }
 
         [Fact]
-        public void HandleException_ReturnsUnauthorizedWhenUnauthorizedExceptionOccurs()
-        {
-            var httpResponseMessage = _exceptionHandler.HandleException(new UnauthorizedException("Test unauthorized exception"), _correlationId, _source, _mockLogger.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
-
-        [Fact]
         public void HandleException_ReturnsBadRequestWhenBadRequestExceptionOccurs()
         {
             var httpResponseMessage = _exceptionHandler.HandleException(new BadRequestException("Test bad request exception", "id"), _correlationId, _source, _mockLogger.Object);
