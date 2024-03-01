@@ -13,13 +13,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Factories
 {
-    public class PipelineClientSearchRequestFactory : IPipelineClientSearchRequestFactory
+    public class TextExtractorClientRequestFactory : ITextExtractorClientRequestFactory
     {
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
         private readonly IConfiguration _configuration;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public PipelineClientSearchRequestFactory(
+        public TextExtractorClientRequestFactory(
             IPipelineClientRequestFactory pipelineClientRequestFactory,
             IConfiguration configuration,
             IJsonConvertWrapper jsonConvertWrapper)

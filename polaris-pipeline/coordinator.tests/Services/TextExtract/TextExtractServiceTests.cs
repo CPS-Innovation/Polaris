@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Dto.Response;
-using coordinator.Clients.Contracts;
+using coordinator.Clients;
 using coordinator.Services.TextExtractService;
 using Microsoft.Extensions.Logging;
 using Moq;

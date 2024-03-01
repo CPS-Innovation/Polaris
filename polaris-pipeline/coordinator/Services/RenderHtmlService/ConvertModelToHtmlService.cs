@@ -1,5 +1,4 @@
-﻿using coordinator.Services.RenderHtmlService.Contract;
-using RazorLight;
+﻿using RazorLight;
 using System.IO;
 using System.Reflection;
 using System.Text;

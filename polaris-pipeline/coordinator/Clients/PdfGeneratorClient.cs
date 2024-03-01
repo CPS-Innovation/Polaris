@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;

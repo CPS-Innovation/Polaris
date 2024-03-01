@@ -17,7 +17,6 @@ using System.IO;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Handlers;
-using Common.Mappers.Contracts;
 using Common.Mappers;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Telemetry.Wrappers;

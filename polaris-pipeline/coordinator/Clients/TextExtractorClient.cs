@@ -10,7 +10,6 @@ using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
-using coordinator.Clients.Contracts;
 using coordinator.Factories;
 using Microsoft.Extensions.Configuration;
 using Common.Handlers;
@@ -22,14 +21,14 @@ namespace coordinator.Clients
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
-        private readonly IPipelineClientSearchRequestFactory _pipelineClientSearchRequestFactory;
+        private readonly ITextExtractorClientRequestFactory _pipelineClientSearchRequestFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         public TextExtractorClient(
             HttpClient httpClient,
             IConfiguration configuration,
             IPipelineClientRequestFactory pipelineClientRequestFactory,
-            IPipelineClientSearchRequestFactory pipelineClientSearchRequestFactory,
+            ITextExtractorClientRequestFactory pipelineClientSearchRequestFactory,
             IJsonConvertWrapper jsonConvertWrapper
             )
         {

@@ -19,7 +19,7 @@ variables:
   - group: polaris-global
   - group: polaris-status-check-endpoints
   - group: terraform-containers
-    
+
 stages:
   # DETERMINE CHANGES FOR QA
   - stage: Determine_Changes
@@ -44,8 +44,19 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
+      - deployment: Wait_For_Running_Builds
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_wait-for-running-releases.yml
+                  parameters:
+                    devOpsPatToken: "$(devops-pat-token)"
+
       - deployment: Log_Start
         displayName: Log Start
+        dependsOn: Wait_For_Running_Builds
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         environment: "QA"
         strategy:
@@ -58,22 +69,10 @@ stages:
                     targetLabel: "QA"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    
-      - job: Wait_For_Running_Builds
-        dependsOn: Log_Start
-        displayName: 'Checking for Running Releases'
-        timeoutInMinutes: 240
-        pool:
-          vmImage: 'windows-latest'
-        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
-        steps:
-          - template: tasks/task_wait-for-running-releases.yml
-            parameters:
-              devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Start_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: 
+        dependsOn:
           - Log_Start
           - Wait_For_Running_Builds
         displayName: Log Terraform Start
@@ -298,9 +297,9 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: 
-          - Log_Result_Terraform_Ended
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        dependsOn:
+          - Log_Start
           - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "QA"
@@ -317,7 +316,7 @@ stages:
 
       - job: Start_Pipeline_Slots
         dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
             Coordinator:
@@ -341,7 +340,7 @@ stages:
 
       - job: Start_UI_Slots
         dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
             SPA:
@@ -366,7 +365,7 @@ stages:
       - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "QA"
         workspace:
           clean: all
@@ -386,7 +385,7 @@ stages:
       - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "QA"
         strategy:
           runOnce:
@@ -404,7 +403,7 @@ stages:
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "QA"
         strategy:
           runOnce:
@@ -422,7 +421,7 @@ stages:
       - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "QA"
         workspace:
           clean: all
@@ -442,7 +441,7 @@ stages:
       - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "QA"
         strategy:
           runOnce:
@@ -458,7 +457,7 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
 
       - deployment: Log_Result_Codebase_Ended
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
@@ -480,21 +479,11 @@ stages:
                     devOpsPatToken: "$(devops-pat-token)"
 
       - deployment: Log_Result_Ended
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Deployment End
         dependsOn:
-          - Apply_Pipeline_Terraform
-          - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
-          - Apply_UI_Terraform
-          - Apply_UI_Events_Terraform
-          - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
-          - Deploy_Coordinator
-          - Deploy_Pdf_Generator
-          - Deploy_Text_Extractor
-          - Deploy_Spa
-          - Deploy_Gateway
+          - Log_Result_Terraform_Ended
+          - Log_Result_Codebase_Ended
         environment: "QA"
         strategy:
           runOnce:

@@ -18,7 +18,7 @@ parameters:
     type: string
   - name: armSubscriptionId
     type: string
-  
+
 steps:
   # download scripts artifact
   - download: ${{ parameters.targetBuild }}
@@ -37,7 +37,6 @@ steps:
       az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
       az account set --subscription $ARM_SUBSCRIPTION_ID
       durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris$ARM_SUFFIX-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
-      az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
       az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
     displayName: Script > Update Keys in Pipeline Component Config
     env:

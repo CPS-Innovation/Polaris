@@ -10,12 +10,12 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Extensions;
 using Common.Handlers.Contracts;
-using Common.Mappers.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using text_extractor.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Services.OcrService;
 
@@ -61,7 +61,6 @@ namespace text_extractor.Functions
 
             try
             {
-                #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
@@ -77,8 +76,6 @@ namespace text_extractor.Functions
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
-
-                #endregion
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
