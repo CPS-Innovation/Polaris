@@ -51,7 +51,7 @@ stages:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
                     
       - deployment: Log_Start
         displayName: Log Start
@@ -293,7 +293,7 @@ stages:
                     targetLabel: "DEV"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Start_Codebase
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
@@ -475,7 +475,7 @@ stages:
                     targetLabel: "DEV"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
         condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -494,7 +494,7 @@ stages:
                     targetLabel: "DEV"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
   
   # DEV: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -634,7 +634,7 @@ stages:
               targetLabel: "DEV"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # DEV: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check
@@ -804,7 +804,7 @@ stages:
               targetLabel: "DEV"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
   
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
@@ -851,7 +851,7 @@ stages:
               targetLabel: "DEV"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
   
   # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
@@ -896,7 +896,7 @@ stages:
               targetLabel: "DEV"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
   
   #DEV: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
@@ -930,7 +930,7 @@ stages:
             parameters:
               targetLabel: "DEV"
               buildDefinitionId: 129
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -944,7 +944,7 @@ stages:
               targetLabel: "DEV"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   - stage: Schedule_Releases
     displayName: Schedule Releases
@@ -977,7 +977,7 @@ stages:
             parameters:
               targetLabel: "QA"
               buildDefinitionId: 352
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
       - job: Schedule_Release_PROD
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -987,7 +987,7 @@ stages:
             parameters:
               targetLabel: "PROD"
               buildDefinitionId: 353
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -1002,4 +1002,4 @@ stages:
               targetLabel: "DEV"
               targetName: "Schedule Releases"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"

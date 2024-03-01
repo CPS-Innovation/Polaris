@@ -14,7 +14,6 @@ resources:
           - Publish_Artifacts
 
 variables:
-  - group: kv-dev-terraform
   - group: kv-qa-terraform
   - group: polaris-global
   - group: polaris-status-check-endpoints
@@ -52,7 +51,7 @@ stages:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Start
         displayName: Log Start
@@ -294,7 +293,7 @@ stages:
                     targetLabel: "QA"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Start_Codebase
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
@@ -476,7 +475,7 @@ stages:
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
         condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -495,7 +494,7 @@ stages:
                     targetLabel: "QA"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
   
   # QA: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -635,7 +634,7 @@ stages:
               targetLabel: "QA"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # QA: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check
@@ -805,7 +804,7 @@ stages:
               targetLabel: "QA"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
@@ -852,7 +851,7 @@ stages:
               targetLabel: "QA"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # QA: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
@@ -897,7 +896,7 @@ stages:
               targetLabel: "QA"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   #QA: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
@@ -931,7 +930,7 @@ stages:
             parameters:
               targetLabel: "QA"
               buildDefinitionId: 210
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -945,4 +944,4 @@ stages:
               targetLabel: "QA"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
