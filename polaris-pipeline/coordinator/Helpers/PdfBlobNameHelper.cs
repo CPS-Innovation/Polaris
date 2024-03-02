@@ -16,6 +16,11 @@ public static class PdfBlobNameHelper
         {
             cmsOrPolarisDocumentId = "DAC";
         }
+
+        if (cmsOrPolarisDocumentId.StartsWith("CMS-"))
+        {
+            cmsOrPolarisDocumentId = cmsOrPolarisDocumentId.Substring(4);
+        }
         return $"{caseId}/pdfs/CMS-{cmsOrPolarisDocumentId}.pdf";
     }
 }
