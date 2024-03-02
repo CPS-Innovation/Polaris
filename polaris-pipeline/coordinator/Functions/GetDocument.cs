@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Extensions;
 using coordinator.Helpers;
+using Common.ValueObjects;
 
 namespace coordinator.Functions
 {
@@ -38,8 +39,9 @@ namespace coordinator.Functions
             try
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
+                var response = await GetTrackerDocument(req, client, nameof(CheckoutDocument), caseId.ToString(), new PolarisDocumentId(polarisDocumentId), log);
+                var blobName = response.GetBlobName();
 
-                var blobName = PdfBlobNameHelper.GetPdfBlobName(caseId, polarisDocumentId);
                 var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
 
                 return blobStream != null

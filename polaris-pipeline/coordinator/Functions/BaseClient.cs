@@ -44,7 +44,6 @@ namespace coordinator.Functions
         {
             var response = new GetTrackerDocumentResponse { Success = false };
 
-            #region Validate Inputs
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
@@ -59,7 +58,6 @@ namespace coordinator.Functions
                     response.Error = new BadRequestObjectResult(correlationErrorMessage);
                     return response;
                 }
-            #endregion
 
             var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
