@@ -280,7 +280,7 @@ namespace coordinator.tests.Domain.Tracker
             var message = new HttpRequestMessage();
             var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(500);
         }
 
         #region SynchroniseDocument

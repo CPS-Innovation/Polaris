@@ -1,5 +1,5 @@
 ﻿using coordinator.Durable.Entity;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Orchestration;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 using Common.Dto.Response;
 using coordinator.Durable.Payloads;
 
-namespace coordinator.Providers;
+namespace coordinator.Durable.Providers;
 
 public class OrchestrationProvider : IOrchestrationProvider
 {

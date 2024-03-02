@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Common.Logging;
 using coordinator.Constants;
-using coordinator.Providers;
+using coordinator.Durable.Providers;
 using coordinator.Services.CleardownService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

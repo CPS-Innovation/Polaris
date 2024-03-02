@@ -53,11 +53,6 @@ namespace Common.Handlers
 
             switch (exception)
             {
-                case UnauthorizedException:
-                    baseErrorMessage = "Unauthorized";
-                    statusCode = HttpStatusCode.Unauthorized;
-                    break;
-
                 case BadRequestException or UnsupportedFileTypeException:
                     baseErrorMessage = "Invalid request";
                     statusCode = HttpStatusCode.BadRequest;

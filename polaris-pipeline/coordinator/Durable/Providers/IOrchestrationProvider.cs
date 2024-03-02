@@ -6,7 +6,7 @@ using Common.Dto.Response;
 using coordinator.Durable.Payloads;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace coordinator.Providers;
+namespace coordinator.Durable.Providers;
 
 public interface IOrchestrationProvider
 {

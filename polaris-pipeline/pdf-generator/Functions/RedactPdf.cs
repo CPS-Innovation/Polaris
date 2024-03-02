@@ -48,7 +48,6 @@ namespace pdf_generator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequest request, string caseUrn, string caseId, string documentId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RedactPdf - Run";
             RedactPdfResponse redactPdfResponse = null;
 
             try

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Text.Json;
+using coordinator.Helpers;
 using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Durable.Payloads
@@ -105,26 +105,9 @@ namespace coordinator.Durable.Payloads
         {
             get
             {
-                string docId;
-
-                if (CmsDocumentTracker != null)
-                {
-                    docId = CmsDocumentTracker.CmsDocumentId;
-                }
-                else if (PcdRequestTracker != null)
-                {
-                    docId = PcdRequestTracker.CmsDocumentId;
-                }
-                else if (DefendantAndChargesTracker != null)
-                {
-                    docId = DefendantAndChargesTracker.CmsDocumentId;
-                }
-                else
-                {
-                    throw new Exception("No document tracker found");
-                }
-
-                return $"{CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(docId)}.pdf";
+                return !string.IsNullOrEmpty(CmsDocumentId)
+                    ? PdfBlobNameHelper.GetPdfBlobName(CmsCaseId, CmsDocumentId)
+                    : throw new Exception("No document tracker found");
             }
         }
 

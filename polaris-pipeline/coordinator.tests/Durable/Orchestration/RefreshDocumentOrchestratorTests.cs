@@ -8,7 +8,7 @@ using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using coordinator.Functions.Orchestration.Functions.Document;
+using coordinator.Durable.Orchestration;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;

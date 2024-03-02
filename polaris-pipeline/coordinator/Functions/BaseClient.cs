@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Durable.Entity;
 using Common.ValueObjects;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Functions
@@ -32,42 +32,6 @@ namespace coordinator.Functions
     {
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        protected async Task<(CaseDurableEntity CaseEntity, string errorMessage)> GetCaseTrackerForEntity
-            (
-                IDurableEntityClient client,
-                string caseId
-            )
-        {
-            var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
-            var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
-
-            EntityStateResponse<CaseDurableEntity> caseEntity = default;
-            try
-            {
-                caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
-            }
-            catch (Exception ex)
-            {
-                // #23618 - Race condition: if a case orchestrator has just been kicked off then there is a possibility that 
-                //  the entity calls that create (or reset) the entity are still queued up by the time the UI calls
-                //  this endpoint. In this scenario, a StorageException is thrown and we are told the blob does not exist.
-                //  AppInsights so far shows the orchestrator eventually executes and the entity becomes available, so
-                //  lets just let the caller have the same experience as `!caseEntity.EntityExists`.
-                // Note: the first implementation for the fix was to catch StorageException (which was what was in the App Insights logs).
-                //  Falling back to catch Exception as we are not sure if the StorageException is the only exception that can be thrown.
-                var errorMessage = $"No Case Entity found with id '{caseId}' with exception '{ex.GetType().Name}: {ex.Message}";
-                return (null, errorMessage);
-            }
-
-            if (!caseEntity.EntityExists)
-            {
-                var errorMessage = $"No Case Entity found with id '{caseId}'";
-                return (null, errorMessage);
-            }
-
-            return (caseEntity.EntityState, null);
-        }
-
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
                 HttpRequestMessage req,
@@ -80,7 +44,6 @@ namespace coordinator.Functions
         {
             var response = new GetTrackerDocumentResponse { Success = false };
 
-            #region Validate Inputs
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
@@ -95,7 +58,6 @@ namespace coordinator.Functions
                     response.Error = new BadRequestObjectResult(correlationErrorMessage);
                     return response;
                 }
-            #endregion
 
             var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);

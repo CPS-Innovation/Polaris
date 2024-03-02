@@ -8,8 +8,8 @@ using AutoFixture;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Durable.Payloads;
 using coordinator.Functions;
-using coordinator.Functions.Orchestration.Functions.Case;
-using coordinator.Providers;
+using coordinator.Durable.Orchestration;
+using coordinator.Durable.Providers;
 using coordinator.Services.CleardownService;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -22,8 +22,7 @@ namespace coordinator.tests.Functions
     public class CoordinatorStartTests
     {
         private readonly string _caseUrn;
-        private readonly int _caseIdNum;
-        private readonly string _caseId;
+        private readonly int _caseId;
         private readonly string _instanceId;
         private readonly Guid _correlationId;
         private readonly HttpRequestMessage _httpRequestMessage;
@@ -40,11 +39,11 @@ namespace coordinator.tests.Functions
         {
             var fixture = new Fixture();
             _caseUrn = fixture.Create<string>();
-            _caseIdNum = fixture.Create<int>();
-            _caseId = _caseIdNum.ToString();
+            _caseId = fixture.Create<int>();
+
             var cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
-            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId);
+            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId.ToString());
             _httpRequestMessage = new HttpRequestMessage();
 
             _httpRequestMessage.Method = HttpMethod.Post;
@@ -92,22 +91,6 @@ namespace coordinator.tests.Functions
         }
 
         [Fact]
-        public async Task Run_ReturnsBadRequestWhenInvalidCaseUrn()
-        {
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, "", _caseId, _mockDurableOrchestrationClient.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsBadRequestWhenInvalidCaseId()
-        {
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, "invalid", _mockDurableOrchestrationClient.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledErrorOccurs()
         {
             _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CaseOrchestrationPayload>()))
@@ -137,7 +120,7 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId,
+                    _caseId.ToString(),
                     It.IsAny<CaseOrchestrationPayload>(),
                     _httpRequestMessage));
         }
@@ -157,8 +140,8 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum),
+                    _caseId.ToString(),
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId),
                     _httpRequestMessage));
         }
 
@@ -176,7 +159,7 @@ namespace coordinator.tests.Functions
 
             foreach (var runtimeStatus in notStartingRuntimeStatuses)
             {
-                _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_caseId, false, false, true))
+                _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_caseId.ToString(), false, false, true))
                     .ReturnsAsync(new DurableOrchestrationStatus { RuntimeStatus = runtimeStatus });
 
                 await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
@@ -185,8 +168,8 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Verify(
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
-                    _caseId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum)),
+                    _caseId.ToString(),
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId)),
                 Times.Never);
         }
 
