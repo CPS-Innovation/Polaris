@@ -23,7 +23,7 @@ namespace Common.Extensions
             return currentCorrelationId;
         }
 
-        public static Guid GetCorrelation(this IHeaderDictionary headers)
+        public static Guid GetCorrelationId(this IHeaderDictionary headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
@@ -37,16 +37,19 @@ namespace Common.Extensions
             return correlationId;
         }
 
-        public static void CheckForCmsAuthValues(this IHeaderDictionary headers)
+        public static string GetCmsAuthValues(this HttpRequestHeaders headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
 
-            if (!headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var value))
-                throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(headers));
+            if (!headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", nameof(headers));
 
-            if (string.IsNullOrWhiteSpace(value[0]))
-                throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", value);
+            var value = values.First();
+            if (string.IsNullOrWhiteSpace(value))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", value);
+
+            return value;
         }
 
         public static FileType GetFileType(this IHeaderDictionary headers)
@@ -66,84 +69,6 @@ namespace Common.Extensions
             Enum.TryParse(filetypeValue, true, out FileType filetype);
 
             return filetype;
-        }
-
-        public static string GetCaseId(this IHeaderDictionary headers)
-        {
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-
-            if (!headers.TryGetValue(HttpHeaderKeys.CaseId, out var value))
-                throw new BadRequestException("Missing CaseIds", nameof(headers));
-
-            var caseId = value[0];
-            if (string.IsNullOrEmpty(caseId))
-                throw new BadRequestException("Invalid CaseId", caseId);
-
-            return caseId;
-        }
-
-        public static string GetDocumentId(this IHeaderDictionary headers)
-        {
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-
-            if (!headers.TryGetValue(HttpHeaderKeys.DocumentId, out var value))
-                throw new BadRequestException("Missing DocumentIds", nameof(headers));
-
-            var documentId = value[0];
-            if (string.IsNullOrEmpty(documentId))
-                throw new BadRequestException("Invalid DocumentId", documentId);
-
-            return documentId;
-        }
-
-        public static string GetVersionId(this IHeaderDictionary headers)
-        {
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-
-            if (!headers.TryGetValue(HttpHeaderKeys.VersionId, out var value))
-                throw new BadRequestException("Missing VersionIds", nameof(headers));
-
-            var versionId = value[0];
-            if (string.IsNullOrEmpty(versionId))
-                throw new BadRequestException("Invalid VersionId", versionId);
-
-            return versionId;
-        }
-
-        public static string GetDocumentTypeId(this HttpRequestHeaders headers)
-        {
-            headers.TryGetValues(HttpHeaderKeys.DocumentTypeId, out var documentTypeIdValues);
-            if (documentTypeIdValues == null)
-                throw new BadRequestException("Invalid documentTypeId.", nameof(headers));
-
-            var documentTypeId = documentTypeIdValues.First();
-
-            return documentTypeId ?? string.Empty;
-        }
-
-        public static string GetDocumentType(this HttpRequestHeaders headers)
-        {
-            headers.TryGetValues(HttpHeaderKeys.DocumentType, out var documentTypeValues);
-            if (documentTypeValues == null)
-                throw new BadRequestException("Invalid documentType.", nameof(headers));
-
-            var documentType = documentTypeValues.First();
-
-            return documentType ?? string.Empty;
-        }
-
-        public static string GetDocumentCategory(this HttpRequestHeaders headers)
-        {
-            headers.TryGetValues(HttpHeaderKeys.DocumentCategory, out var documentCategoryValues);
-            if (documentCategoryValues == null)
-                throw new BadRequestException("Invalid documentCategory.", nameof(headers));
-
-            var documentCategory = documentCategoryValues.First();
-
-            return documentCategory ?? string.Empty;
         }
     }
 }

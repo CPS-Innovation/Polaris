@@ -28,8 +28,8 @@ parameters:
     type: string
   - name: armSubscriptionId
     type: string
-  
-  
+
+
 steps:
   # download scripts artifact
   - download: ${{ parameters.targetBuild }}

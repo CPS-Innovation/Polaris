@@ -18,6 +18,8 @@ let isKnownBug = (
     let lbd = tostring(loadBalancedDestination);
 
     case(
+                me contains "polaris_ddei.Factories.PreCharge.PcdRequestSummaryFactory.WalkTable",
+        "25170 - DDEI walktable mapping error on PCD request",
                 csc contains "502",
         "BadGateway - proxy cannot reach CMS",
                 op contains "Ping",
@@ -101,11 +103,17 @@ let isKnownBug = (
         and im contains "The specified blob does not exist",
         "23618 - Blob does not exist",
 
+        om contains "Buffer too small for CLOB to CHAR or BLOB to RAW conversion",
+        "24757 - CLOB to CHAR or BLOB to RAW conversion",
+
             (csc == '' or csc == 200 or csc == 401) and et contains "GraphQL.Client.Http.GraphQLHttpRequestException",
         "23616 - Auth fail CmsModern post-InitiateCookies",
 
             me contains "Netherite" and om contains "Timeout",
         "23754 - Netherite timeouts",
+
+            op contains "SlidingCaseClearDown" and (om contains "Value must be between 0 and 100000"),
+        "25042 - SlidingCaseCleardown broken on large case index",
 
             op contains "SlidingCaseClearDown" and (om contains "Timeout" or om contains "502"),
         "23755 - SlidingCaseClearDown timeouts",
@@ -119,8 +127,14 @@ let isKnownBug = (
         "24709 - Pdf generator rejects coordinator http connection",
             et contains "Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException",
         "24710 - AD token expiry",
+            et contains "CmsModernAuthorizationException" and om  contains "User is not authorized to access this case",
+        "25015 - User not authorised to view a case",
             op contains "PolarisPipelineSaveDocumentRedactions",
         "24767 - Save Redactions(unclassified elsewhere)",
+            op contains "polaris-ui/",
+        "25171 - UI exceptions",
+            et contains "System.IndexOutOfRangeException",
+        "25834 - IndexOutOfRengeException",
     "");
 };
 
@@ -132,7 +146,8 @@ Polaris_Exceptions_Core
     and strcmp(format_datetime(EarliestExceptionTimeGenerated, 'yyyy-MM-dd-HH:mm'), '2023-08-30-10:09') < 0
 )
 | extend 
-    IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination )
+    IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination ),
+    PolarisCorrelationId = tostring(PolarisCorrelationId)    
 
 // filter out known fixes
 | where not (IsKnownBug startswith("22624")) 
@@ -141,4 +156,8 @@ Polaris_Exceptions_Core
     // historical Aspose licence errors
 | where not (IsKnownBug startswith "ASPOSE" and strcmp(format_datetime(EarliestExceptionTimeGenerated, 'yyyy-MM-dd-HH:mm'), '2023-09-07-10:00') < 0)
 | where InnermostMessage notcontains "HTE" and OuterMessage notcontains "HTE" 
+| where IsKnownBug !startswith "25042"
+| where not(IsKnownBug startswith "23502" and OuterMessage contains "Pdf is encrypted")
 
+// filter out e2e tests that are intentionally omitting CmsAuthValues
+| where not( IsKnownBug == "" and ExceptionType contains "CmsAuthenticationException" and User == "")

@@ -1,6 +1,6 @@
 using Common.Dto.Document;
 using Common.Dto.Response;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Mappers;
 
 namespace Ddei.Mappers;
 

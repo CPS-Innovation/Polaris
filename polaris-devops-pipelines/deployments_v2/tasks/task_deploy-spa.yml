@@ -12,7 +12,7 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
-  
+
 steps:
   # download scripts artifact
   - download: ${{ parameters.targetBuild }}

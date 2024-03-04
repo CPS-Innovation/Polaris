@@ -3,11 +3,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Domain.Exceptions;
-using Common.Dto.Request;
 using Common.Extensions;
 using Common.Handlers.Contracts;
-using Common.Logging;
 using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
@@ -45,12 +42,7 @@ namespace text_extractor.Functions
                 correlationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-
-                _log.LogMethodFlow(correlationId, loggingName, $"Begin removing case indexes for case ID {caseId}");
-
                 var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);
-
-                _log.LogMethodFlow(correlationId, loggingName, $"Case indexes removed for case ID {caseId}");
 
                 return new HttpResponseMessage
                 {
@@ -61,10 +53,6 @@ namespace text_extractor.Functions
             catch (Exception exception)
             {
                 return _exceptionHandler.HandleException(exception, correlationId, loggingName, _log);
-            }
-            finally
-            {
-                _log.LogMethodExit(correlationId, loggingName, string.Empty);
             }
         }
     }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using DdeiClient.Services.Contracts;
+using DdeiClient.Services;
 using Common.Configuration;
 using Common.Wrappers.Contracts;
 using Common.Domain.Extensions;
@@ -13,27 +13,27 @@ using Common.Telemetry.Wrappers.Contracts;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Ddei.Factories.Contracts;
+using Ddei.Factories;
 
 namespace PolarisGateway.Functions.CmsAuthentication
 {
     public class InitiateCookies
     {
         private readonly IDdeiClient _ddeiClient;
-        private readonly ICaseDataArgFactory _caseDataArgFactory;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly ILogger<InitiateCookies> _logger;
 
         public InitiateCookies(
             IDdeiClient ddeiClient,
-            ICaseDataArgFactory caseDataArgFactory,
+            IDdeiArgFactory ddeiArgFactory,
             IJsonConvertWrapper jsonConvertWrapper,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
             ILogger<InitiateCookies> logger)
         {
             _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-            _caseDataArgFactory = caseDataArgFactory ?? throw new ArgumentNullException(nameof(caseDataArgFactory));
+            _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -162,7 +162,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
                 var partialCmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{req.GetClientIpAddress()}\"}}";
 
                 var fullCmsAuthValues = await _ddeiClient.GetFullCmsAuthValuesAsync(
-                    _caseDataArgFactory.CreateCmsAuthValuesArg(partialCmsAuthValues, correlationId)
+                    _ddeiArgFactory.CreateCmsAuthValuesArg(partialCmsAuthValues, correlationId)
                 );
                 // Note 1 of 2:  two things may be happening if have got this far.
                 //  a) we have new cookies that correspond to a live Modern session and we are on the happy path.

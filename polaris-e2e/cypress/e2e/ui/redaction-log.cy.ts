@@ -9,9 +9,7 @@ describe("Redaction Log Feature", { tags: "@ci" }, () => {
 
     cy.clearCaseTracker(HAPPY_PATH_URN, HAPPY_PATH_CASE_ID)
 
-    cy.visit(
-      `polaris-ui/case-details/${HAPPY_PATH_URN}/${HAPPY_PATH_CASE_ID}?redactionLog=true`
-    )
+    cy.visit(`polaris-ui/case-details/${HAPPY_PATH_URN}/${HAPPY_PATH_CASE_ID}`)
     cy.setPolarisInstrumentationGuid("PHASE_1")
 
     cy.findByTestId("btn-accordion-open-close-all").click()
@@ -29,9 +27,7 @@ describe("Redaction Log Feature", { tags: "@ci" }, () => {
 
     cy.clearCaseTracker(HAPPY_PATH_URN, HAPPY_PATH_CASE_ID)
 
-    cy.visit(
-      `polaris-ui/case-details/${HAPPY_PATH_URN}/${HAPPY_PATH_CASE_ID}?redactionLog=true`
-    )
+    cy.visit(`polaris-ui/case-details/${HAPPY_PATH_URN}/${HAPPY_PATH_CASE_ID}`)
     cy.setPolarisInstrumentationGuid("PHASE_1")
 
     cy.findByTestId("btn-accordion-open-close-all").click()

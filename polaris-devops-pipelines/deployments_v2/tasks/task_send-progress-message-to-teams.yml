@@ -1,0 +1,186 @@
+﻿---
+parameters:
+  - name: webhookUrl
+    type: string
+  - name: devOpsPatToken
+    type: string
+  - name: stageName
+    type: string
+  - name: commitId
+    type: string
+  - name: buildVersion
+    type: string
+  - name: pipelineTerraformCount
+    type: string
+  - name: uiTerraformCount
+    type: string
+  - name: networkingTerraformCount
+    type: string
+  - name: coordinatorCount
+    type: string
+  - name: pdfGeneratorCount
+    type: string
+  - name: textExtractorCount
+    type: string
+  - name: gatewayCount
+    type: string
+  - name: uiCount
+    type: string
+  - name: ddeiClientCount
+    type: string
+  - name: commonLibraryCount
+    type: string
+  - name: messageTitle
+    type: string
+  - name: buildResultsTitle
+    type: string
+  - name: buildResultsUrl
+    type: string
+  
+steps:
+  - task: PowerShell@2
+    displayName: Get Approver Details
+    name: Approver_Details
+    inputs:
+      targetType: 'inline'
+      script: |
+        $token = "${{ parameters.devOpsPatToken }}"
+        $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $user,$token)))
+        $buildID = $(Build.BuildId)
+
+        try {
+            # we need to stage ID which is only available via a REST call
+            $getUri = "https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$buildId/timeline?api-version=6.0"
+            $response = Invoke-RestMethod -Uri $getUri -Method get -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -ContentType application/json
+            $stage = $response.records | where-object -property name -eq "${{ parameters.stageName}}"
+
+            # now we can get the approval
+            $postUri = "https://dev.azure.com/CPSDTS/_apis/Contribution/HierarchyQuery/project/Information%20Management?api-version=6.1-preview.1"
+            $payload = "{`"contributionIds`":[`"ms.vss-build-web.checks-panel-data-provider`"],`"dataProviderContext`":{`"properties`":{`"buildId`":`"$buildId`",`"stageIds`":`"$($stage.id)`",`"checkListItemType`":1,`"sourcePage`":{`"url`":`"https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$buildId&view=results`",`"routeId`":`"ms.vss-build-web.ci-results-hub-route`",`"routeValues`":{`"project`":`"Information Management`",`"viewname`":`"build-results`",`"controller`":`"ContributedPage`",`"action`":`"Execute`"}}}}}"
+
+            $postResponse = Invoke-RestMethod -Uri $postUri -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method 'Post' -Body $payload -ContentType application/json
+
+            # to get here someone must have done the approval and allowed the stage to be run, so we don't need to null check
+            $approverEmail = $postResponse.dataProviders."ms.vss-build-web.checks-panel-data-provider".approvals.steps.actualApprover.uniqueName
+        } catch {
+            Write-Warning ("Cannot find the approver: " + $_)
+            $approverEmail = "Cannot access approver"
+        }
+        Write-Host "The environment approver was $approverEmail"
+
+        #output the result
+        Write-Host "##vso[task.setvariable variable=Email;isOutput=true]$approverEmail"
+
+  - bash: |
+      curl -v -X POST ${{ parameters.webhookUrl }} -H 'Content-Type: application/json; charset=utf-8' \
+        --data-binary @- << EOF
+        {
+          "type": "message",
+          "attachments": [
+            {
+              "contentType": "application/vnd.microsoft.card.adaptive",
+              "contentUrl": null,
+              "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.2",
+                "actions": [
+                  {
+                    "type": "Action.OpenUrl",
+                    "title": "${{ parameters.buildResultsTitle }}",
+                    "url": "${{ parameters.buildResultsUrl }}"
+                  }
+                ],
+                "body": [
+                  {
+                    "type": "TextBlock",
+                    "size": "Medium",
+                    "weight": "Bolder",
+                    "text": "${{ parameters.messageTitle }}"
+                  },
+                  {
+                    "type": "ColumnSet",
+                    "columns": [
+                      {
+                        "type": "Column",
+                        "items": [
+                          {
+                            "type": "FactSet",
+                            "facts": [
+                              {
+                                "title": "Approved By",
+                                "value": "$(Approver_Details.Email)"
+                              },
+                              {
+                                "title": "Commit Id",
+                                "value": "${{ parameters.commitId }}"
+                              },
+                              {
+                                "title": "Build Version",
+                                "value": "${{ parameters.buildVersion }}"
+                              }
+                            ]
+                          },
+                          {
+                              "type": "TextBlock",
+                              "weight": "Bolder",
+                              "text": "Areas Affected:",
+                              "wrap": true
+                          },
+                          {
+                            "type": "FactSet",
+                            "facts": [
+                              {
+                                "title": "Pipeline TF Changes",
+                                "value": "${{ parameters.pipelineTerraformCount }}"
+                              },
+                              {
+                                "title": "UI TF Changes",
+                                "value": "${{ parameters.uiTerraformCount }}"
+                              },
+                              {
+                                "title": "Network TF Changes",
+                                "value": "${{ parameters.networkingTerraformCount }}"
+                              },
+                              {
+                                "title": "Coordinator Changes",
+                                "value": "${{ parameters.coordinatorCount }}"
+                              },
+                              {
+                                "title": "PDF Gen Changes",
+                                "value": "${{ parameters.pdfGeneratorCount }}"
+                              },
+                              {
+                                "title": "Text Ext Changes",
+                                "value": "${{ parameters.textExtractorCount }}"
+                              },
+                              {
+                                "title": "Gateway Changes",
+                                "value": "${{ parameters.gatewayCount }}"
+                              },
+                              {
+                                "title": "SPA Changes",
+                                "value": "${{ parameters.uiCount }}"
+                              },
+                              {
+                                "title": "DDEI Client Changes",
+                                "value": "${{ parameters.ddeiClientCount }}"
+                              },
+                              {
+                                "title": "Common Lib Changes",
+                                "value": "${{ parameters.commonLibraryCount }}"
+                              }
+                            ]
+                          }
+                        ],
+                        "width": "stretch"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      EOF
+    displayName: Sending message to Teams

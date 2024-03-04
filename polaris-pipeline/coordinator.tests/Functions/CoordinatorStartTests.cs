@@ -6,10 +6,10 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Services.BlobStorageService.Contracts;
-using coordinator.Domain;
-using coordinator.Functions.Orchestration.Client.Case;
-using coordinator.Functions.Orchestration.Functions.Case;
-using coordinator.Providers;
+using coordinator.Durable.Payloads;
+using coordinator.Functions;
+using coordinator.Durable.Orchestration;
+using coordinator.Durable.Providers;
 using coordinator.Services.CleardownService;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -22,8 +22,7 @@ namespace coordinator.tests.Functions
     public class CoordinatorStartTests
     {
         private readonly string _caseUrn;
-        private readonly int _caseIdNum;
-        private readonly string _caseId;
+        private readonly int _caseId;
         private readonly string _instanceId;
         private readonly Guid _correlationId;
         private readonly HttpRequestMessage _httpRequestMessage;
@@ -34,17 +33,17 @@ namespace coordinator.tests.Functions
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
         private readonly Mock<ICleardownService> _mockCleardownService;
 
-        private readonly CaseClient _coordinatorStart;
+        private readonly RefreshCase _coordinatorStart;
 
         public CoordinatorStartTests()
         {
             var fixture = new Fixture();
             _caseUrn = fixture.Create<string>();
-            _caseIdNum = fixture.Create<int>();
-            _caseId = _caseIdNum.ToString();
+            _caseId = fixture.Create<int>();
+
             var cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
-            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId);
+            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId.ToString());
             _httpRequestMessage = new HttpRequestMessage();
 
             _httpRequestMessage.Method = HttpMethod.Post;
@@ -53,11 +52,11 @@ namespace coordinator.tests.Functions
             _httpResponseMessage = new HttpResponseMessage();
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
-            var mockLogger = new Mock<ILogger<CaseClient>>();
+            var mockLogger = new Mock<ILogger<RefreshCase>>();
             var mockBlobStorageClient = new Mock<IPolarisBlobStorageService>();
             _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
             _mockCleardownService = new Mock<ICleardownService>();
-            
+
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 
@@ -78,7 +77,7 @@ namespace coordinator.tests.Functions
 
             _mockCleardownService.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<bool>()));
-            _coordinatorStart = new CaseClient(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
+            _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
         }
 
         [Fact]
@@ -87,22 +86,6 @@ namespace coordinator.tests.Functions
             _httpRequestHeaders.Clear();
 
             var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsBadRequestWhenInvalidCaseUrn()
-        {
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, "", _caseId, _mockDurableOrchestrationClient.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsBadRequestWhenInvalidCaseId()
-        {
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, "invalid", _mockDurableOrchestrationClient.Object);
 
             httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -137,7 +120,7 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId,
+                    _caseId.ToString(),
                     It.IsAny<CaseOrchestrationPayload>(),
                     _httpRequestMessage));
         }
@@ -157,8 +140,8 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum),
+                    _caseId.ToString(),
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId),
                     _httpRequestMessage));
         }
 
@@ -176,7 +159,7 @@ namespace coordinator.tests.Functions
 
             foreach (var runtimeStatus in notStartingRuntimeStatuses)
             {
-                _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_caseId, false, false, true))
+                _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_caseId.ToString(), false, false, true))
                     .ReturnsAsync(new DurableOrchestrationStatus { RuntimeStatus = runtimeStatus });
 
                 await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
@@ -185,8 +168,8 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Verify(
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
-                    _caseId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum)),
+                    _caseId.ToString(),
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId)),
                 Times.Never);
         }
 

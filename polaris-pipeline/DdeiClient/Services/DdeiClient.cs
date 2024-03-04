@@ -1,10 +1,9 @@
-using Ddei.Factories.Contracts;
 using Ddei.Exceptions;
 using Domain.Exceptions;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
-using DdeiClient.Services.Contracts;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Services;
+using DdeiClient.Mappers;
 using Common.Wrappers.Contracts;
 using Ddei.Domain;
 using Common.Dto.Document;
@@ -12,12 +11,13 @@ using Common.Dto.Response;
 using Microsoft.Extensions.Logging;
 using Common.Exceptions;
 using System.Net;
+using Ddei.Factories;
 
 namespace Ddei.Services
 {
     public class DdeiClient : IDdeiClient
     {
-        private readonly ICaseDataArgFactory _caseDataServiceArgFactory;
+        private readonly IDdeiArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
         private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _caseDocumentMapper;
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
@@ -30,7 +30,7 @@ namespace Ddei.Services
         public DdeiClient(
             HttpClient httpClient,
             IDdeiClientRequestFactory ddeiClientRequestFactory,
-            ICaseDataArgFactory caseDataServiceArgFactory,
+            IDdeiArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
             ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper,
             ICaseIdentifiersMapper caseIdentifiersMapper,

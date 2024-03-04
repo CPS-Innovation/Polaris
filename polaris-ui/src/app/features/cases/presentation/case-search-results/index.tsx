@@ -56,7 +56,10 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   } = useQueryParamsState<CaseSearchQueryParams>();
 
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
-    useSearchInputLogic({ urnFromSearchParams, setParams });
+    useSearchInputLogic({ urnFromSearchParams, setParams, search });
+
+  const linkParams = new URLSearchParams(search);
+  linkParams.delete("urn");
 
   const state = useApi(searchUrn, [urnFromSearchParams])!;
 
@@ -163,6 +166,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                           id: item.id,
                         }),
                         state: search,
+                        search: `${linkParams}`,
                       }}
                       data-testid={`link-${item.uniqueReferenceNumber}`}
                       className="govuk-link"

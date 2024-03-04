@@ -1,7 +1,7 @@
 ﻿using Common.Configuration;
 using PolarisGateway.Domain.Validators;
-using Ddei.Factories.Contracts;
-using DdeiClient.Services.Contracts;
+using Ddei.Factories;
+using DdeiClient.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -14,17 +14,17 @@ namespace PolarisGateway.Functions
     public class Case : BasePolarisFunction
     {
         private readonly IDdeiClient _ddeiClient;
-        private readonly ICaseDataArgFactory _caseDataArgFactory;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
 
         public Case(ILogger<Case> logger,
                     IDdeiClient ddeiService,
                     IAuthorizationValidator tokenValidator,
-                    ICaseDataArgFactory caseDataArgFactory,
+                    IDdeiArgFactory ddeiArgFactory,
                     ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
             : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _ddeiClient = ddeiService;
-            _caseDataArgFactory = caseDataArgFactory;
+            _ddeiArgFactory = ddeiArgFactory;
         }
 
         [FunctionName(nameof(Case))]
@@ -36,7 +36,7 @@ namespace PolarisGateway.Functions
             {
                 await Initiate(req);
 
-                var arg = _caseDataArgFactory.CreateCaseArg(CmsAuthValues, CorrelationId, caseUrn, caseId);
+                var arg = _ddeiArgFactory.CreateCaseArg(CmsAuthValues, CorrelationId, caseUrn, caseId);
                 var result = await _ddeiClient.GetCaseAsync(arg);
 
                 return new OkObjectResult(result);

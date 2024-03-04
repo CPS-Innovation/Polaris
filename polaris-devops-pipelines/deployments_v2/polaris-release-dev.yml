@@ -18,7 +18,7 @@ variables:
   - group: polaris-global
   - group: polaris-status-check-endpoints
   - group: terraform-containers
-    
+
 stages:
   # DETERMINE CHANGES FOR DEV
   - stage: Determine_Changes
@@ -43,9 +43,20 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
+      - deployment: Wait_For_Running_Builds
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_wait-for-running-releases.yml
+                  parameters:
+                    devOpsPatToken: "$(System.AccessToken)"
+                    
       - deployment: Log_Start
         displayName: Log Start
-        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
+        dependsOn: Wait_For_Running_Builds
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         environment: "Dev"
         strategy:
           runOnce:
@@ -57,22 +68,10 @@ stages:
                     targetLabel: "DEV"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    
-      - job: Wait_For_Running_Builds
-        dependsOn: Log_Start
-        displayName: 'Checking for Running Releases'
-        timeoutInMinutes: 240
-        pool:
-          vmImage: 'windows-latest'
-        continueOnError: false  # 'true' if future jobs should run even if this job fails; defaults to 'false'
-        steps:
-          - template: tasks/task_wait-for-running-releases.yml
-            parameters:
-              devOpsPatToken: "$(devops-pat-token)"
-                    
+
       - deployment: Log_Start_Terraform
-        condition: eq(variables.runTerraform, 'true')
-        dependsOn: 
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        dependsOn:
           - Log_Start
           - Wait_For_Running_Builds
         displayName: Log Terraform Start
@@ -87,9 +86,9 @@ stages:
                     targetLabel: "DEV"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    
+
       - deployment: Apply_Networking_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         displayName: Apply Networking Terraform
         dependsOn: Log_Start_Terraform
         environment: "Dev"
@@ -117,7 +116,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_Pipeline_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Terraform
         environment: "Dev"
@@ -126,7 +125,7 @@ stages:
         strategy:
           runOnce:
             deploy:
-              steps:      
+              steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -145,7 +144,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_Pipeline_Events_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_Pipeline_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "Dev"
@@ -171,11 +170,11 @@ stages:
                     armClientSecret: $(innovation-development-spn-secret)
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
-                
+
       - deployment: Update_Pipeline_Component_App_Keys
         dependsOn: Apply_Pipeline_Terraform
         displayName: Update Component Keys
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -192,9 +191,9 @@ stages:
                     armClientSecret: $(innovation-development-spn-secret)
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
-                  
+
       - deployment: Apply_UI_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Update_Pipeline_Component_App_Keys
         displayName: Apply UI Terraform
         environment: "Dev"
@@ -222,7 +221,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_UI_Events_Terraform
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "Dev"
@@ -250,7 +249,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Set_Log_Analytics_Archival_Periods
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn: Apply_UI_Terraform
         displayName: Update Analytics Archival Periods
         environment: "Dev"
@@ -271,9 +270,9 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
-                  
+
       - deployment: Log_Result_Terraform_Ended
-        condition: eq(variables.runTerraform, 'true')
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         displayName: Log Terraform End
         dependsOn:
           - Apply_Pipeline_Terraform
@@ -294,12 +293,12 @@ stages:
                     targetLabel: "DEV"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
-                    
+                    devOpsPatToken: "$(System.AccessToken)"
+
       - deployment: Log_Start_Codebase
-        condition: eq(variables.runCodebase, 'true')
-        dependsOn: 
-          - Log_Result_Terraform_Ended
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        dependsOn:
+          - Log_Start
           - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "Dev"
@@ -313,10 +312,10 @@ stages:
                     targetLabel: "DEV"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    
+
       - job: Start_Pipeline_Slots
         dependsOn: Log_Start_Codebase
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
             Coordinator:
@@ -340,7 +339,7 @@ stages:
 
       - job: Start_UI_Slots
         dependsOn: Log_Start_Codebase
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
             SPA:
@@ -365,7 +364,7 @@ stages:
       - deployment: Deploy_Coordinator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Coordinator
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
         workspace:
           clean: all
@@ -385,7 +384,7 @@ stages:
       - deployment: Deploy_Pdf_Generator
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy PDF Generator
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -403,7 +402,7 @@ stages:
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -421,7 +420,7 @@ stages:
       - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
         displayName: Deploy SPA
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
         workspace:
           clean: all
@@ -441,7 +440,7 @@ stages:
       - deployment: Deploy_Gateway
         dependsOn: Start_UI_Slots
         displayName: Deploy Gateway
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -457,7 +456,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
 
       - deployment: Log_Result_Codebase_Ended
-        condition: eq(variables.runCodebase, 'true')
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
@@ -476,24 +475,14 @@ stages:
                     targetLabel: "DEV"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
-        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
+        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Deployment End
         dependsOn:
-          - Apply_Pipeline_Terraform
-          - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
-          - Apply_UI_Terraform
-          - Apply_UI_Events_Terraform
-          - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
-          - Deploy_Coordinator
-          - Deploy_Pdf_Generator
-          - Deploy_Text_Extractor
-          - Deploy_Spa
-          - Deploy_Gateway
+          - Log_Result_Terraform_Ended
+          - Log_Result_Codebase_Ended
         environment: "Dev"
         strategy:
           runOnce:
@@ -505,12 +494,12 @@ stages:
                     targetLabel: "DEV"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"    
-
+                    devOpsPatToken: "$(System.AccessToken)"
+  
   # DEV: BEGIN SLOT SWAP PROCESS
   - stage: Swap
     displayName: Swap Slots > DEV
-    dependsOn: 
+    dependsOn:
       - Deploy
       - Determine_Changes
     variables:
@@ -529,7 +518,7 @@ stages:
               targetLabel: "DEV"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-          
+
       - job: Pause_Pipeline
         dependsOn: Log_Start
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
@@ -645,12 +634,12 @@ stages:
               targetLabel: "DEV"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # DEV: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check
     displayName: Status Checks > DEV
-    dependsOn: 
+    dependsOn:
       - Swap
       - Determine_Changes
     condition: succeeded()
@@ -670,7 +659,7 @@ stages:
               targetLabel: "DEV"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-        
+
       - job: Get_Status_URIs
         dependsOn: Log_Start
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -796,7 +785,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
-          
+
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn:
@@ -815,12 +804,12 @@ stages:
               targetLabel: "DEV"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
-            
+              devOpsPatToken: "$(System.AccessToken)"
+  
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
     displayName: Save Report > DEV
-    dependsOn: 
+    dependsOn:
       - Check
       - Determine_Changes
     condition: succeeded()
@@ -862,12 +851,12 @@ stages:
               targetLabel: "DEV"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
   
   # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
     displayName: Update Tag > DEV
-    dependsOn: 
+    dependsOn:
       - Create_Commit_Report
       - Determine_Changes
     condition: succeeded()
@@ -887,7 +876,7 @@ stages:
               targetLabel: "DEV"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              
+
       - job: Update_Github_Tag
         dependsOn: Log_Start
         steps:
@@ -907,12 +896,12 @@ stages:
               targetLabel: "DEV"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
   
   #DEV: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
     displayName: e2e tests > DEV
-    dependsOn: 
+    dependsOn:
       - Update_GitHub_Tag
       - Determine_Changes
     condition: succeeded()
@@ -941,8 +930,8 @@ stages:
             parameters:
               targetLabel: "DEV"
               buildDefinitionId: 129
-              devOpsPatToken: "$(devops-pat-token)"
-      
+              devOpsPatToken: "$(System.AccessToken)"
+
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn:
@@ -955,8 +944,8 @@ stages:
               targetLabel: "DEV"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
-              
+              devOpsPatToken: "$(System.AccessToken)"
+
   - stage: Schedule_Releases
     displayName: Schedule Releases
     dependsOn:
@@ -988,8 +977,8 @@ stages:
             parameters:
               targetLabel: "QA"
               buildDefinitionId: 352
-              devOpsPatToken: "$(devops-pat-token)"
-              
+              devOpsPatToken: "$(System.AccessToken)"
+
       - job: Schedule_Release_PROD
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn: Log_Start
@@ -998,7 +987,7 @@ stages:
             parameters:
               targetLabel: "PROD"
               buildDefinitionId: 353
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -1013,4 +1002,4 @@ stages:
               targetLabel: "DEV"
               targetName: "Schedule Releases"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"

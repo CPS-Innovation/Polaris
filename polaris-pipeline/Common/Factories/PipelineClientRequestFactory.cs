@@ -7,7 +7,7 @@ namespace Common.Factories
 {
     public class PipelineClientRequestFactory : IPipelineClientRequestFactory
     {
-        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null)
+        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues)
         {
             var request = new HttpRequestMessage(httpMethod, requestUri);
             request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());

@@ -175,7 +175,9 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click({ force: true });
       cy.findByTestId("tab-remove").click();
       cy.findByTestId("div-modal")
@@ -235,7 +237,9 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.reload();
       cy.get("@beforeunloadCallback").should("have.been.calledOnce");
@@ -260,7 +264,9 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("link-homepage").click();
       cy.get("@beforeunloadCallback").should("have.been.calledOnce");
@@ -274,7 +280,9 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("link-back-link").click();
       cy.get("@beforeunloadCallback").should("not.have.been.called");
@@ -305,7 +313,9 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.go(-1);
       //two times back button to reach the search page , first one was for the hash urls change with the pdf safeid
@@ -458,6 +468,62 @@ describe("case details page", () => {
         .contains("Issue reported")
         .should("be.disabled");
     });
+    it("User should be able to open multiple documents and handle its own `Report an issue`", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("div-pdfviewer-0").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "MCLOVEMG3"`);
+      cy.findByTestId("btn-modal-close").click();
+
+      cy.findByTestId("div-pdfviewer-1").should("not.exist");
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("document-actions-dropdown-1").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-1").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("dropdown-panel").contains("Report an issue").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "PortraitLandscape"`);
+      cy.findByTestId("btn-modal-close").click();
+    });
+    it("User should be able to open document actions dropdown when multiple documents are open", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("document-actions-dropdown-1").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-1").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("document-actions-dropdown-2").should("exist");
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-2").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("btn-tab-0").click();
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+      cy.findByTestId("btn-tab-2").click();
+      cy.findByTestId("dropdown-panel").should("not.exist");
+      cy.findByTestId("document-actions-dropdown-2").click();
+      cy.findByTestId("dropdown-panel").should("exist");
+    });
   });
 
   describe("Unsaved redactions accessibility through keyboard", () => {
@@ -477,25 +543,46 @@ describe("case details page", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
       cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("document-actions-dropdown-0").focus();
 
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("PC Blaynee");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("EOIN MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Approved for referral to CPS:");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Instructions to Court Prosecutor:");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("POCA case");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.get("#document-actions-dropdown-0").focus();
@@ -542,24 +629,45 @@ describe("case details page", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
       cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("EOIN MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Approved for referral to CPS:");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("PC Blaynee");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Instructions to Court Prosecutor:");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("POCA case");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.get("#btn-link-removeAll-0").focus();
@@ -601,21 +709,39 @@ describe("case details page", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
       cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Dangerous offender:");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Date of birth:");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Police incident log:");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("PC JONES");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
 
       cy.get("#document-actions-dropdown-0").focus();
@@ -652,6 +778,9 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
       cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
@@ -715,6 +844,10 @@ describe("case details page", () => {
         .contains("WEST YORKSHIRE POLICE");
       keyPressAndVerifySelection("forward", "W");
       cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "select-redaction-type");
+      cy.findByTestId("select-redaction-type").select("2");
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Enter");
@@ -723,7 +856,11 @@ describe("case details page", () => {
       cy.findByTestId("btn-save-redaction-0").should("exist");
       keyPressAndVerifySelection("forward", "Y");
       cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
       cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "select-redaction-type");
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Enter");
       cy.findByTestId("redaction-count-text").contains(
@@ -743,8 +880,14 @@ describe("case details page", () => {
       cy.realPress(["Control", ","]);
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
+      cy.focused().should("have.id", "select-redaction-type");
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "select-redaction-type");
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Escape");
       cy.focused().should("have.id", "active-tab-panel");

@@ -11,7 +11,7 @@ using System.Threading;
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using coordinator.Clients.Contracts;
+using coordinator.Clients;
 using coordinator.Constants;
 using Common.Wrappers.Contracts;
 using Common.Factories.Contracts;
@@ -73,8 +73,8 @@ namespace coordinator.Clients.Tests.Clients
             };
 
             var stringContent = _httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent, It.IsAny<Guid>())).Returns(response);
-            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>(), It.IsAny<Guid>())).Returns(JsonConvert.SerializeObject(_request));
+            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent)).Returns(response);
+            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>())).Returns(JsonConvert.SerializeObject(_request));
 
             var mockRedactionClientLogger = new Mock<ILogger<PdfGeneratorClient>>();
 

@@ -1,7 +1,7 @@
 using Common.Services.BlobStorageService.Contracts;
 using Common.Telemetry.Contracts;
-using coordinator.Clients.Contracts;
-using coordinator.Providers;
+using coordinator.Clients;
+using coordinator.Durable.Providers;
 using coordinator.Services.TextExtractService;
 using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
