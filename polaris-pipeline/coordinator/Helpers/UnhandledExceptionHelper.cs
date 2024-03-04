@@ -14,11 +14,10 @@ public static class UnhandledExceptionHelper
     {
         logger.LogMethodError(correlationId, logName, ex.Message, ex);
 
-        if (ex is BadRequestException)
+        return ex switch
         {
-            return new StatusCodeResult(StatusCodes.Status400BadRequest);
-        }
-
-        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            BadRequestException => new StatusCodeResult(StatusCodes.Status400BadRequest),
+            _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
+        };
     }
 }
