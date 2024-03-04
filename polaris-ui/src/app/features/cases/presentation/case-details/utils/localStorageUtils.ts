@@ -1,6 +1,7 @@
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { LOCAL_STORAGE_EXPIRY_DAYS } from "../../../../../config";
 
-const LOCAL_STORAGE_EXPIRY_DAYS = 30;
+const LOCAL_STORAGE_PREFIX = "polaris-";
 
 export type LocalStorageKey = "redactions" | "readUnread";
 export type ReadUnreadData = string[];
@@ -19,7 +20,7 @@ export const addToLocalStorage = (
   featureKey: LocalStorageKey,
   value: any
 ) => {
-  const storageKey = `caseworkApp-${caseId}`;
+  const storageKey = `${LOCAL_STORAGE_PREFIX}${caseId}`;
 
   const storedData = localStorage.getItem(storageKey);
   if (storedData) {
@@ -40,6 +41,9 @@ export const addToLocalStorage = (
 };
 
 export const clearDownStorage = () => {
+  if (!LOCAL_STORAGE_EXPIRY_DAYS) {
+    return;
+  }
   const currentDate = new Date();
   const expiryTime = new Date(
     currentDate.getTime() - LOCAL_STORAGE_EXPIRY_DAYS * 24 * 60 * 60 * 1000
@@ -47,7 +51,7 @@ export const clearDownStorage = () => {
 
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)!;
-    if (key && !key.includes("caseworkApp-")) {
+    if (key && !key.includes(LOCAL_STORAGE_PREFIX)) {
       return;
     }
     const value = localStorage.getItem(key)!;
@@ -65,7 +69,7 @@ export const readFromLocalStorage = (
   caseId: number,
   featureKey: LocalStorageKey
 ) => {
-  const storageKey = `caseworkApp-${caseId}`;
+  const storageKey = `${LOCAL_STORAGE_PREFIX}${caseId}`;
   const storedData = localStorage.getItem(storageKey);
   if (storedData) {
     const data: StorageData = JSON.parse(storedData);
@@ -81,7 +85,7 @@ export const deleteFromLocalStorage = (
   caseId: number,
   featureKey: LocalStorageKey
 ) => {
-  const storageKey = `caseworkApp-${caseId}`;
+  const storageKey = `${LOCAL_STORAGE_PREFIX}${caseId}`;
   const storedData = localStorage.getItem(storageKey);
   if (storedData) {
     const parsedData = JSON.parse(storedData);

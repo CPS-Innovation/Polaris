@@ -24,6 +24,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_REDACTION_LOG"            = var.feature_flag_redaction_log
     "REACT_APP_FEATURE_FLAG_REDACTION_LOG_UNDER_OVER" = var.feature_flag_redaction_log_under_over
     "REACT_APP_FEATURE_FLAG_FULL_SCREEN"              = var.feature_flag_full_screen
+    "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
     "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"          = var.is_redaction_service_offline
