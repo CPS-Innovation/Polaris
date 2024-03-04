@@ -56,13 +56,13 @@ public class RedactionAssuranceTests
   }
 
   [Fact]
-  public async Task RedactionAssurance_ImagesNotLostAsync()
+  public async Task RedactionAssurance_ImagesNotLost()
   {
     // Arrange
     using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.document.pdf") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document.pdf not found");
     using var originalDocument = new Document(inputStream);
 
-    var redactionData = LoadRedactionDataFromJson(originalDocument.FileName);
+    var redactionData = LoadRedactionDataFromJson(originalDocument.FileName, "pdf_generator.integration.tests.TestResources.document_redactions.json");
 
     // Act
     using var outputStream = await _asposeRedactionProvider.Redact(inputStream, _caseId, _documentId, redactionData, _correlationId);
@@ -81,9 +81,31 @@ public class RedactionAssuranceTests
     pageTwoDiff.AbsoluteError.Should().BeLessThan(1);
   }
 
-  private RedactPdfRequestDto LoadRedactionDataFromJson(string fileName)
+  [Fact]
+  public async Task RedactionAssurance_Overlapping_Redaction()
   {
-    using var redactedStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.document_redactions.json") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_redactions.json not found");
+    // Arrange
+    using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.overlapping_redaction.pdf") ?? throw new Exception("pdf_generator_integration.tests.TestResources.overlapping_redaction.pdf not found");
+    using var originalDocument = new Document(inputStream);
+
+    var redactionData = LoadRedactionDataFromJson(originalDocument.FileName, "pdf_generator.integration.tests.TestResources.overlapping_redaction_redactions.json");
+
+    // Act
+    using var outputStream = await _asposeRedactionProvider.Redact(inputStream, _caseId, _documentId, redactionData, _correlationId);
+    var redactedDocument = new Document(outputStream);
+
+    var redactedImageStreams = await PdfConversionHelper.ConvertAndSavePdfToImages(redactedDocument);
+
+    // Assert
+    using var assertionImageStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.overlapping_redaction_page_1.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.overlapping_redaction_page_1.png not found");
+
+    var pageOneDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[0], assertionImageStream, ResizeOption.Resize);
+    pageOneDiff.AbsoluteError.Should().BeLessThan(1);
+  }
+
+  private RedactPdfRequestDto LoadRedactionDataFromJson(string fileName, string jsonPath)
+  {
+    using var redactedStream = GetType().Assembly.GetManifestResourceStream(jsonPath) ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_redactions.json not found");
     using var streamReader = new StreamReader(redactedStream);
     var jsonText = streamReader.ReadToEnd();
     var redactionData = JsonSerializer.Deserialize<RedactionData>(jsonText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new Exception("Failed to deserialize redaction data");

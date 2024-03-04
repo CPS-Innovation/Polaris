@@ -15,6 +15,9 @@
     <EmbeddedResource Include="TestResources\redacted_page_1.png" />
     <EmbeddedResource Include="TestResources\redacted_page_2.png" />
     <EmbeddedResource Include="TestResources\document_redactions.json" />
+    <EmbeddedResource Include="TestResources\overlapping_redaction_redactions.json" />
+    <EmbeddedResource Include="TestResources\overlapping_redaction.pdf" />
+    <EmbeddedResource Include="TestResources\overlapping_redaction_page_1.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aspose.PDF.Drawing" Version="24.2.0" />
