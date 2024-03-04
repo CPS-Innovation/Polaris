@@ -1,7 +1,6 @@
 ﻿using Xunit;
 using Moq;
 using AutoFixture;
-using Aspose.Pdf;
 using pdf_generator.Services.DocumentRedaction.Aspose;
 using pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using Common.Telemetry.Contracts;
@@ -12,6 +11,7 @@ using Codeuctivity.ImageSharpCompare;
 using FluentAssertions;
 using Common.Dto.Request.Redaction;
 using Common.Dto.Request;
+using Aspose.Pdf;
 
 namespace pdf_generator_integration.tests;
 
@@ -31,7 +31,13 @@ public class RedactionAssuranceTests
     _documentId = _fixture.Create<string>();
 
     const string licenceFileName = "Aspose.Total.NET.lic";
-    new License().SetLicense(licenceFileName);
+    new Aspose.Cells.License().SetLicense(licenceFileName);
+    new Aspose.Diagram.License().SetLicense(licenceFileName);
+    new Aspose.Email.License().SetLicense(licenceFileName);
+    new Aspose.Imaging.License().SetLicense(licenceFileName);
+    new Aspose.Pdf.License().SetLicense(licenceFileName);
+    new Aspose.Slides.License().SetLicense(licenceFileName);
+    new Aspose.Words.License().SetLicense(licenceFileName);
 
     var redactionImplementation = new ImageConversionImplementation(
       Options.Create(new ImageConversionOptions
@@ -53,7 +59,7 @@ public class RedactionAssuranceTests
   public async Task RedactionAssurance_ImagesNotLostAsync()
   {
     // Arrange
-    using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document.pdf") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document.pdf not found");
+    using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.document.pdf") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document.pdf not found");
     using var originalDocument = new Document(inputStream);
 
     var redactionData = LoadRedactionDataFromJson(originalDocument.FileName);
@@ -64,24 +70,9 @@ public class RedactionAssuranceTests
 
     var redactedImageStreams = await PdfConversionHelper.ConvertAndSavePdfToImages(redactedDocument);
 
-    var pdfOutputPath = "/Users/rhysbridges/Documents/CPS/Polaris/polaris-pipeline/pdf-generator-integration.tests/TestResources/redacted_document.pdf";
-    using var pdfFileStream = File.Create(pdfOutputPath);
-    outputStream.CopyTo(pdfFileStream);
-
-    for (int i = 0; i < redactedImageStreams.Count; i++)
-    {
-      var imagePath = $"/Users/rhysbridges/Documents/CPS/Polaris/polaris-pipeline/pdf-generator-integration.tests/TestResources/redacted_page_{i + 1}.png";
-      using var fileStream = File.Create(imagePath);
-      redactedImageStreams[i].CopyTo(fileStream);
-    }
-
     // Assert
-    using var assertionImageStreamOne = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_one.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_one.png not found");
-    using var assertionImageStreamTwo = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_page_two.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_two.png not found");
-
-    redactedImageStreams[0].Position = 0;
-    assertionImageStreamOne.Position = 0;
-    redactedImageStreams[1].Position = 0;
+    using var assertionImageStreamOne = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.redacted_page_1.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_one.png not found");
+    using var assertionImageStreamTwo = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.redacted_page_2.png") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_page_two.png not found");
 
     var pageOneDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[0], assertionImageStreamOne, ResizeOption.Resize);
     pageOneDiff.AbsoluteError.Should().BeLessThan(1);
@@ -92,7 +83,7 @@ public class RedactionAssuranceTests
 
   private RedactPdfRequestDto LoadRedactionDataFromJson(string fileName)
   {
-    using var redactedStream = GetType().Assembly.GetManifestResourceStream("pdf_generator_integration.tests.TestResources.document_redactions.json") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_redactions.json not found");
+    using var redactedStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.integration.tests.TestResources.document_redactions.json") ?? throw new Exception("pdf_generator_integration.tests.TestResources.document_redactions.json not found");
     using var streamReader = new StreamReader(redactedStream);
     var jsonText = streamReader.ReadToEnd();
     var redactionData = JsonSerializer.Deserialize<RedactionData>(jsonText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new Exception("Failed to deserialize redaction data");

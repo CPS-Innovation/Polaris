@@ -1,18 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>pdf_generator_integration.tests</RootNamespace>
+    <RootNamespace>pdf_generator.integration.tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\pdf-generator\pdf-generator.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="TestResources\document.pdf" />
-    <EmbeddedResource Include="TestResources\document_page_one.png" />
-    <EmbeddedResource Include="TestResources\document_page_two.png" />
+    <EmbeddedResource Include="TestResources\redacted_page_1.png" />
+    <EmbeddedResource Include="TestResources\redacted_page_2.png" />
     <EmbeddedResource Include="TestResources\document_redactions.json" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Aspose.PDF.Drawing" Version="24.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
     <PackageReference Include="xunit" Version="2.5.0" />
@@ -24,8 +29,5 @@
     <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.234" />
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\pdf-generator\pdf-generator.csproj" />
   </ItemGroup>
 </Project>

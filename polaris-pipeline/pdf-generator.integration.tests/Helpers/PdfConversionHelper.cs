@@ -16,7 +16,7 @@ public class PdfConversionHelper
       tasks.Add(Task.Run(() =>
       {
         pngDevice.Process(page, ms);
-        ms.Position = 0; // Reset the stream position to the beginning
+        ms.Position = 0;
         return ms;
       }));
     });

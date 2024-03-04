@@ -44,7 +44,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway.tests", "po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway", "polaris-gateway\polaris-gateway.csproj", "{62EBAA3E-9787-491E-8B5C-78C981163E5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator-integration.tests", "polaris-pipeline\pdf-generator-integration.tests\pdf-generator-integration.tests.csproj", "{87FB82A3-EA1C-4411-B31F-D42B38A3AD58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator.integration.tests", "polaris-pipeline\pdf-generator.integration.tests\pdf-generator.integration.tests.csproj", "{E7C87682-105B-411C-8110-6EAFC7CBBF8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,12 +137,12 @@ Global
 		{62EBAA3E-9787-491E-8B5C-78C981163E5B}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
 		{62EBAA3E-9787-491E-8B5C-78C981163E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62EBAA3E-9787-491E-8B5C-78C981163E5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58}.Integration Tests|Any CPU.ActiveCfg = Debug|Any CPU
-		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
-		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7C87682-105B-411C-8110-6EAFC7CBBF8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7C87682-105B-411C-8110-6EAFC7CBBF8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7C87682-105B-411C-8110-6EAFC7CBBF8D}.Integration Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7C87682-105B-411C-8110-6EAFC7CBBF8D}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
+		{E7C87682-105B-411C-8110-6EAFC7CBBF8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7C87682-105B-411C-8110-6EAFC7CBBF8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,7 +160,7 @@ Global
 		{56B9FB84-6ABB-4F1E-BFB1-461427617250} = {21188A20-E627-4785-986E-6A9486D324D3}
 		{2B74B1CD-3739-48EF-AC63-9BCE6F5F3DB4} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{D2C07576-2FCE-482B-AB22-D902E7282BDF} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{E7C87682-105B-411C-8110-6EAFC7CBBF8D} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CCE1AB69-A62F-420B-88D0-216C65C26EAD}
