@@ -346,26 +346,234 @@ describe("DocumentCategory Helpers", () => {
       const result = isUnusedCommunicationMaterial("UN CM01", 1030);
       expect(result).toEqual(false);
     });
+
     it("Should return false, if the presentationTitle is not empty", () => {
       expect(isUnusedCommunicationMaterial(" ", 1030)).toEqual(false);
     });
-    it(`Should return false, if the presentationTitle is does not contain "UM " or "Item N" where N represent digits and documentTypeId is 1029`, () => {
-      expect(isUnusedCommunicationMaterial("CM01 ", 1029)).toEqual(false);
-      expect(isUnusedCommunicationMaterial("CM01 Item a", 1029)).toEqual(false);
+
+    it("Should return false, if the presentationTitle contains `UM/`", () => {
+      expect(isUnusedCommunicationMaterial("abcUM/def", 1030)).toEqual(false);
     });
-    it(`Should return true, if the presentationTitle is does contain "UM " or "Item N" where N represent digits and documentTypeId is 1029`, () => {
-      expect(isUnusedCommunicationMaterial("CM01 UM", 1029)).toEqual(true);
-      expect(isUnusedCommunicationMaterial("CM01 Item 4", 1029)).toEqual(true);
-      expect(isUnusedCommunicationMaterial("CM01 Item 45 6", 1029)).toEqual(
+
+    it("Should return true, if the presentationTitle contains `UM` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcUMdef", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc UM /def", 1029)).toEqual(true);
+      expect(isUnusedCommunicationMaterial("UM abcr /def", 1029)).toEqual(true);
+      expect(isUnusedCommunicationMaterial("abcr /def UM", 1029)).toEqual(true);
+    });
+
+    it("Should return true, if the presentationTitle contains `UM+digit` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcUM12def", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc UM12 /def", 1029)).toEqual(
         true
       );
-      expect(isUnusedCommunicationMaterial("CM01 Item4abc", 1029)).toEqual(
+      expect(isUnusedCommunicationMaterial("UM34 abcr /def", 1029)).toEqual(
         true
       );
-      expect(isUnusedCommunicationMaterial("UMCM01 Item 56", 1029)).toEqual(
+      expect(isUnusedCommunicationMaterial("abcr /def UM54", 1029)).toEqual(
         true
       );
-      expect(isUnusedCommunicationMaterial("UMCM01 rttr", 1029)).toEqual(true);
+    });
+
+    it("Should return true, if the presentationTitle contains `UNUSED` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcUNUSEDdef", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc UNUSED /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("UNUSED abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def UNUSED", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `UNUSED+digit` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcUNUSED12def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc UNUSED11 /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("UNUSED34 abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def UNUSED33", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `-UM` as a suffix to a word", () => {
+      expect(isUnusedCommunicationMaterial("abcdef -UM bcd", 1029)).toEqual(
+        false
+      );
+      expect(
+        isUnusedCommunicationMaterial("abcdef ad-UMabd bcd", 1029)
+      ).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abcdef 23-UM bcd", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abc-UM dbab def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcm abcr-UM", 1029)).toEqual(true);
+      expect(
+        isUnusedCommunicationMaterial("abcr /def-UM UNUSED33", 1029)
+      ).toEqual(true);
+    });
+
+    it("Should return true, if the presentationTitle contains `-UM+digit` as a suffix to a word", () => {
+      expect(isUnusedCommunicationMaterial("abcdef -UM233 bcd", 1029)).toEqual(
+        false
+      );
+      expect(
+        isUnusedCommunicationMaterial("abcdef -UM233ee bcd", 1029)
+      ).toEqual(false);
+      expect(
+        isUnusedCommunicationMaterial("abcdef 123-UM12r bcd", 1029)
+      ).toEqual(false);
+      expect(
+        isUnusedCommunicationMaterial("abcdef 12-UM123 bcd", 1029)
+      ).toEqual(true);
+      expect(isUnusedCommunicationMaterial("abc-UM12 dbab def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcm abcr-UM133", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `MG6C` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcMG6Cdef", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc MG6C /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abc -MG6C /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc ?MG6C /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("MG6C abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def MG6C", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `MG6D` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcMG6Ddef", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc MG6D /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abc -MG6D /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc ?MG6D /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("MG6D abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def MG6D", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `MG6E` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcMG6Edef", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc MG6E /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abc -MG6E /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc ?MG6E /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("MG6E abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def MG6E", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `MG06C` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcMG06Cef", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc MG06C /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abc -MG06C /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc ?MG06C /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("MG06C abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def MG06C", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `MG06D` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcMG06Def", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc MG06D /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abc -MG06D /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc ?MG06D /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("MG06D abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def MG06D", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `MG06E` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcMG06Eef", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc MG06E /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abc -MG06E /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc ?MG06E /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("MG06E abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def MG06E", 1029)).toEqual(
+        true
+      );
+    });
+
+    it("Should return true, if the presentationTitle contains `SDC` as standalone word", () => {
+      expect(isUnusedCommunicationMaterial("abcSDCef", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("abc SDC /def", 1029)).toEqual(true);
+      expect(isUnusedCommunicationMaterial("abc -SDC /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("abc ?SDC /def", 1029)).toEqual(
+        false
+      );
+      expect(isUnusedCommunicationMaterial("SDC abcr /def", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("abcr /def SDC", 1029)).toEqual(
+        true
+      );
     });
   });
 });
