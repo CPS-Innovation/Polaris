@@ -24,6 +24,7 @@ using Common.ValueObjects;
 using Newtonsoft.Json;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Payloads.Domain;
+using Microsoft.AspNetCore.Http;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -44,7 +45,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
-        private readonly Mock<ILogger> _mockLogger;
+        private readonly Mock<ILogger<GetTracker>> _mockLogger;
 
         private readonly CaseDurableEntity _caseEntity;
         private readonly EntityStateResponse<CaseDurableEntity> _entityStateResponse;
@@ -78,7 +79,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
-            _mockLogger = new Mock<ILogger>();
+            _mockLogger = new Mock<ILogger<GetTracker>>();
 
             _mockDurableEntityClient
                 .Setup
@@ -97,7 +98,7 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.TransactionId = _transactionId;
             _caseEntity.CmsDocuments = _trackerCmsDocuments;
             _caseEntity.PcdRequests = _trackerPcdRequests;
-            _trackerStatus = new GetTracker(_jsonConvertWrapper, new CaseDurableEntityMapper());
+            _trackerStatus = new GetTracker(_jsonConvertWrapper, new CaseDurableEntityMapper(), _mockLogger.Object);
         }
 
         [Fact]
@@ -221,11 +222,11 @@ namespace coordinator.tests.Domain.Tracker
         public async Task HttpStart_TrackerStatus_ReturnsOK()
         {
             // Arrange
-            var message = new HttpRequestMessage();
+            var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
 
             // Act
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
             // Assert
             response.Should().BeOfType<OkObjectResult>();
@@ -234,9 +235,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsTrackerDto()
         {
-            var message = new HttpRequestMessage();
+            var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
             var okObjectResult = response as OkObjectResult;
 
@@ -260,9 +261,9 @@ namespace coordinator.tests.Domain.Tracker
                     )
                 .ReturnsAsync(entityStateResponse);
 
-            var message = new HttpRequestMessage();
+            var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
             response.Should().BeOfType<NotFoundObjectResult>();
         }
@@ -277,10 +278,11 @@ namespace coordinator.tests.Domain.Tracker
                         null, null))
                 .ReturnsAsync(entityStateResponse);
 
-            var message = new HttpRequestMessage();
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var message = new DefaultHttpContext().Request;
+            //message.Headers.Add("Correlation-Id", _correlationId.ToString());
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
-            response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(500);
+            response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(400);
         }
 
         #region SynchroniseDocument

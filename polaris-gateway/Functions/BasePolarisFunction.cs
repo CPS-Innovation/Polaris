@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Domain.Exceptions;
-using Ddei.Exceptions;
+using Common.Exceptions;
 
 namespace PolarisGateway.Functions
 {
@@ -61,8 +61,9 @@ namespace PolarisGateway.Functions
             {
                 ArgumentNullException or BadRequestException _ => 400,
                 CpsAuthenticationException _ => 401,
+                // todo: as refactor goes on we will lose reference to DdeiClientException
                 // must be 403, client will react to a 403 to trigger reauthentication
-                CaseDataServiceException or CmsAuthenticationException _ => 403,
+                DdeiClientException or CmsAuthenticationException _ => 403,
                 _ => 500,
             };
 

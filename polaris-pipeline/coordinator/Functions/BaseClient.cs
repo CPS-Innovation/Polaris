@@ -10,6 +10,7 @@ using coordinator.Durable.Entity;
 using Common.ValueObjects;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads.Domain;
+using Microsoft.AspNetCore.Http;
 
 namespace coordinator.Functions
 {
@@ -34,30 +35,12 @@ namespace coordinator.Functions
 
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
-                HttpRequestMessage req,
                 IDurableEntityClient client,
-                string loggingName,
                 string caseId,
-                PolarisDocumentId polarisDocumentId,
-                ILogger log
+                PolarisDocumentId polarisDocumentId
             )
         {
             var response = new GetTrackerDocumentResponse { Success = false };
-
-            req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-            if (correlationIdValues == null)
-            {
-                response.Error = new BadRequestObjectResult(correlationErrorMessage);
-                return response;
-            }
-
-            var correlationId = correlationIdValues.FirstOrDefault();
-            if (!Guid.TryParse(correlationId, out response.CorrelationId))
-                if (response.CorrelationId == Guid.Empty)
-                {
-                    response.Error = new BadRequestObjectResult(correlationErrorMessage);
-                    return response;
-                }
 
             var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);

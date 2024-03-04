@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Services.BlobStorageService.Contracts;
@@ -16,6 +15,8 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace coordinator.tests.Functions
 {
@@ -25,14 +26,12 @@ namespace coordinator.tests.Functions
         private readonly int _caseId;
         private readonly string _instanceId;
         private readonly Guid _correlationId;
-        private readonly HttpRequestMessage _httpRequestMessage;
-        private readonly HttpRequestHeaders _httpRequestHeaders;
-        private readonly HttpResponseMessage _httpResponseMessage;
-
+        private readonly HttpRequest _httpRequest;
+        private readonly IHeaderDictionary _httpRequestHeaders;
+        private readonly IActionResult _actionResult;
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
         private readonly Mock<ICleardownService> _mockCleardownService;
-
         private readonly RefreshCase _coordinatorStart;
 
         public CoordinatorStartTests()
@@ -44,12 +43,11 @@ namespace coordinator.tests.Functions
             var cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
             _instanceId = RefreshCaseOrchestrator.GetKey(_caseId.ToString());
-            _httpRequestMessage = new HttpRequestMessage();
 
-            _httpRequestMessage.Method = HttpMethod.Post;
-            _httpRequestMessage.RequestUri = new Uri("https://www.test.co.uk");
-            _httpRequestHeaders = _httpRequestMessage.Headers;
-            _httpResponseMessage = new HttpResponseMessage();
+            _httpRequest = new DefaultHttpContext().Request;
+            _httpRequest.Method = "POST";
+            _httpRequestHeaders = _httpRequest.Headers;
+            _actionResult = new StatusCodeResult(200);
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
             var mockLogger = new Mock<ILogger<RefreshCase>>();
@@ -66,12 +64,12 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(default(DurableOrchestrationStatus));
 
-            _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequestMessage, _instanceId, false))
-                .Returns(_httpResponseMessage);
+            _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequest, _instanceId, false))
+                .Returns(_actionResult);
 
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequestMessage))
-                .ReturnsAsync(_httpResponseMessage);
+                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                .ReturnsAsync(_actionResult);
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseOrchestrationAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<int>()));
 
@@ -85,9 +83,9 @@ namespace coordinator.tests.Functions
         {
             _httpRequestHeaders.Clear();
 
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+            var result = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (result as StatusCodeResult).StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
 
         [Fact]
@@ -96,12 +94,12 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CaseOrchestrationPayload>()))
                 .Throws(new Exception());
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequestMessage))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                .ReturnsAsync(new StatusCodeResult(500));
 
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+            var result = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            (result as StatusCodeResult).StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
         }
 
         [Fact]
@@ -113,7 +111,7 @@ namespace coordinator.tests.Functions
                 .ReturnsAsync(default(DurableOrchestrationStatus));
 
             // Act
-            await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+            await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
             // Assert
             _mockOrchestrationProvider.Verify(
@@ -122,7 +120,7 @@ namespace coordinator.tests.Functions
                     _correlationId,
                     _caseId.ToString(),
                     It.IsAny<CaseOrchestrationPayload>(),
-                    _httpRequestMessage));
+                    _httpRequest));
         }
 
         [Theory]
@@ -134,7 +132,7 @@ namespace coordinator.tests.Functions
         {
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(new DurableOrchestrationStatus { RuntimeStatus = runtimeStatus });
-            await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+            await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
             _mockOrchestrationProvider.Verify(
                 client => client.RefreshCaseAsync(
@@ -142,7 +140,7 @@ namespace coordinator.tests.Functions
                     _correlationId,
                     _caseId.ToString(),
                     It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId),
-                    _httpRequestMessage));
+                    _httpRequest));
         }
 
         [Fact]
@@ -162,7 +160,7 @@ namespace coordinator.tests.Functions
                 _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_caseId.ToString(), false, false, true))
                     .ReturnsAsync(new DurableOrchestrationStatus { RuntimeStatus = runtimeStatus });
 
-                await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+                await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
             }
 
             _mockDurableOrchestrationClient.Verify(
@@ -177,10 +175,10 @@ namespace coordinator.tests.Functions
         public async Task Run_ReturnsExpectedHttpResponseMessage()
         {
             // Act
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+            var httpResponseMessage = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
             // Assert
-            httpResponseMessage.Should().Be(_httpResponseMessage);
+            httpResponseMessage.Should().Be(_actionResult);
         }
     }
 }
