@@ -48,6 +48,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator-integration.t
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor", "polaris-pipeline\pdf-redactor\pdf-redactor.csproj", "{0911AA3D-D9BA-4F86-9AED-E0C176824455}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor.tests", "polaris-pipeline\pdf-redactor.tests\pdf-redactor.tests.csproj", "{41925855-62F0-41F0-9213-65DFCD074924}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +153,12 @@ Global
 		{0911AA3D-D9BA-4F86-9AED-E0C176824455}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
 		{0911AA3D-D9BA-4F86-9AED-E0C176824455}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0911AA3D-D9BA-4F86-9AED-E0C176824455}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41925855-62F0-41F0-9213-65DFCD074924}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41925855-62F0-41F0-9213-65DFCD074924}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41925855-62F0-41F0-9213-65DFCD074924}.Integration Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{41925855-62F0-41F0-9213-65DFCD074924}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
+		{41925855-62F0-41F0-9213-65DFCD074924}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41925855-62F0-41F0-9213-65DFCD074924}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +178,7 @@ Global
 		{D2C07576-2FCE-482B-AB22-D902E7282BDF} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{87FB82A3-EA1C-4411-B31F-D42B38A3AD58} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{0911AA3D-D9BA-4F86-9AED-E0C176824455} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{41925855-62F0-41F0-9213-65DFCD074924} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CCE1AB69-A62F-420B-88D0-216C65C26EAD}
