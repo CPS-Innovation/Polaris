@@ -27,7 +27,6 @@ namespace coordinator.Functions
 
         [FunctionName(nameof(GetDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Consistent API parameters")]
         public async Task<IActionResult> HttpStart(
@@ -46,10 +45,7 @@ namespace coordinator.Functions
                 var blobName = response.GetBlobName();
 
                 var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
-
-                return blobStream != null
-                    ? new OkObjectResult(blobStream)
-                    : new NotFoundObjectResult($"No document blob found with id '{polarisDocumentId}'");
+                return new OkObjectResult(blobStream);
             }
             catch (Exception ex)
             {

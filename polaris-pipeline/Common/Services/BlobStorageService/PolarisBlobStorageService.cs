@@ -74,7 +74,9 @@ namespace Common.Services.BlobStorageService
 
             var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
             if (!await blobClient.ExistsAsync())
-                return null;
+            {
+                throw new StorageException($"Blob '{decodedBlobName}' does not exist");
+            }
 
             // We could use `DownloadStreamingAsync` as per https://github.com/Azure/azure-sdk-for-net/issues/22022#issuecomment-870054035
             //  as we are in Azure calling Azure so streaming should be no problem without having to do chunking.

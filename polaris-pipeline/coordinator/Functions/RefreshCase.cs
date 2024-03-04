@@ -33,6 +33,7 @@ namespace coordinator.Functions
 
         [FunctionName(nameof(RefreshCase))]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status423Locked)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run
             (
@@ -50,7 +51,6 @@ namespace coordinator.Functions
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
                 var casePayload = new CaseOrchestrationPayload(caseUrn, caseId, cmsAuthValues, currentCorrelationId);
-
                 return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId.ToString(), casePayload, req);
             }
             catch (Exception ex)

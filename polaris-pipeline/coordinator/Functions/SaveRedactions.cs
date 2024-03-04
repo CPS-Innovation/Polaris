@@ -52,8 +52,8 @@ namespace coordinator.Functions
 
         [FunctionName(nameof(SaveRedactions))]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(StatusCodes.Status511NetworkAuthenticationRequired)]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.Document)]
             HttpRequestMessage req,
@@ -83,13 +83,12 @@ namespace coordinator.Functions
                 if (!redactionResult.Succeeded)
                 {
                     string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
-                    throw new ArgumentException(error);
+                    throw new Exception(error);
                 }
 
                 using var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
-
                 var arg = _ddeiArgFactory.CreateDocumentArgDto
                 (
                     cmsAuthValues: cmsAuthValues,
@@ -103,7 +102,7 @@ namespace coordinator.Functions
 
                 await _ddeiClient.UploadPdfAsync(arg, pdfStream);
 
-                return new ObjectResult(redactionResult);
+                return new OkResult();
             }
             catch (Exception ex)
             {
