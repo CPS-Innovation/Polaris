@@ -76,17 +76,11 @@ namespace Ddei.Services
             }
         }
 
-        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiCmsUrnArgDto arg)
-        {
-            // todo: should this return a CaseDataServiceException?
-            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
-        }
-
         public async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg)
         {
             try
             {
-                var caseIdentifiers = await ListCaseIdsAsync(arg);
+                var caseIdentifiers = await ListCaseIdsInternalAsync(arg);
 
                 var calls = caseIdentifiers.Select(async caseIdentifier =>
                      await GetCaseInternalAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
@@ -211,6 +205,11 @@ namespace Ddei.Services
             {
                 throw new DocumentServiceException("Exception in UploadPdf", exception);
             }
+        }
+
+        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsInternalAsync(DdeiCmsUrnArgDto arg)
+        {
+            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
