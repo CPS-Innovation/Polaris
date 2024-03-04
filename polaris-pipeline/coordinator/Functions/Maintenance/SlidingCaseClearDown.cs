@@ -4,6 +4,8 @@ using Common.Logging;
 using coordinator.Constants;
 using coordinator.Durable.Providers;
 using coordinator.Services.CleardownService;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +29,8 @@ public class SlidingCaseClearDown
     }
 
     [FunctionName(nameof(SlidingCaseClearDown))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%")] TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();

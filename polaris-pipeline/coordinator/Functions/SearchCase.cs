@@ -4,8 +4,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using coordinator.Clients;
 using Common.Configuration;
-using Common.Constants;
-using Common.Logging;
 using Common.Extensions;
 using coordinator.Durable.Orchestration;
 using Microsoft.AspNetCore.Mvc;
@@ -15,40 +13,50 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry.Contracts;
 using coordinator.TelemetryEvents;
-using coordinator.Helpers.ChunkHelper;
+using coordinator.Helpers;
 using coordinator.Durable.Entity;
 using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
+using Microsoft.AspNetCore.Http;
 
 namespace coordinator.Functions
 {
     public class SearchCase
     {
+        private const string QueryStringSearchParam = "query";
         private readonly ITextExtractorClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly ITelemetryClient _telemetryClient;
+        private readonly ILogger<SearchCase> _logger;
 
-        public SearchCase(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper, ITelemetryClient telemetryClient)
+        public SearchCase(
+            ITextExtractorClient textExtractorClient,
+            ISearchFilterDocumentMapper searchFilterDocumentMapper,
+            ITelemetryClient telemetryClient,
+            ILogger<SearchCase> logger)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
             _telemetryClient = telemetryClient;
+            _logger = logger;
         }
 
         [FunctionName(nameof(SearchCase))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseSearch)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseSearch)] HttpRequest req,
             string caseUrn,
             int caseId,
-            [DurableClient] IDurableEntityClient client,
-            ILogger log)
+            [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
 
             try
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
-                var searchTerm = req.RequestUri.ParseQueryString()["query"];
+                var searchTerm = req.Query[QueryStringSearchParam];
                 if (string.IsNullOrWhiteSpace(searchTerm))
                 {
                     return new BadRequestObjectResult("Search term not supplied.");
@@ -91,8 +99,7 @@ namespace coordinator.Functions
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, nameof(SearchCase), ex.Message, ex);
-                return new StatusCodeResult(500);
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(SearchCase), currentCorrelationId, ex);
             }
 
         }
