@@ -36,44 +36,38 @@ namespace Common.Configuration
 
         public static string GetCasesPath(string caseUrn)
         {
-            var url = $"urns/{caseUrn}/cases";
-            return url;
+            return $"urns/{caseUrn}/cases";
         }
+
         public static string GetCasePath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}";
         }
 
         public static string GetCaseTrackerPath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/tracker";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/tracker";
         }
 
         public static string GetCaseSearchQueryPath(string caseUrn, long caseId, string searchTerm)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
         }
 
         // todo: delete following
         public static string GetCaseSearchPath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/search";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
         }
 
         public static string GetDocumentCheckoutPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)
