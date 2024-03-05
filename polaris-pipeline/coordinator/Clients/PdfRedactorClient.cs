@@ -19,18 +19,15 @@ namespace coordinator.Clients
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly IJsonConvertWrapper _jsonConvertWrapper;
-    private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
 
     public PdfRedactorClient(IPipelineClientRequestFactory pipelineClientRequestFactory,
         HttpClient httpClient,
         IConfiguration configuration,
-        IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory,
         IJsonConvertWrapper jsonConvertWrapper)
     {
       _pipelineClientRequestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
       _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
       _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-      _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory ?? throw new ArgumentNullException(nameof(httpResponseMessageStreamFactory));
       _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
     }
 
@@ -41,7 +38,7 @@ namespace coordinator.Clients
       {
         var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
-        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
+        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactorPdfFunctionAppKey]}", correlationId);
         request.Content = requestMessage;
 
         response = await _httpClient.SendAsync(request);

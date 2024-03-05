@@ -54,7 +54,6 @@ namespace coordinator.Clients.Tests.Clients
 
             _polarisPipelineRedactPdfFunctionAppKey = _fixture.Create<string>();
             var mockConfiguration = new Mock<IConfiguration>();
-            var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 
             mockConfiguration.Setup(config => config[ConfigKeys.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
@@ -73,8 +72,6 @@ namespace coordinator.Clients.Tests.Clients
             };
 
             var stringContent = _httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent)).Returns(response);
-            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>())).Returns(JsonConvert.SerializeObject(_request));
 
             var mockRedactionClientLogger = new Mock<ILogger<PdfGeneratorClient>>();
 
@@ -88,8 +85,7 @@ namespace coordinator.Clients.Tests.Clients
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
-                _mockHttpResponseMessageStreamFactory.Object,
-                mockJsonConvertWrapper.Object);
+                _mockHttpResponseMessageStreamFactory.Object);
         }
 
         [Fact]

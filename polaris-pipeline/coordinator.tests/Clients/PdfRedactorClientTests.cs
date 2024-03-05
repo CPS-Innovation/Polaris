@@ -11,7 +11,6 @@ using System.Threading;
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using coordinator.Clients;
 using coordinator.Constants;
 using Common.Wrappers.Contracts;
 using Common.Factories.Contracts;
@@ -19,7 +18,6 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Configuration;
 using Common.Streaming;
-using System.IO;
 
 namespace coordinator.Clients.Tests.Clients
 {
@@ -33,10 +31,7 @@ namespace coordinator.Clients.Tests.Clients
         private readonly string _caseUrn;
         private readonly string _caseId;
         private readonly string _documentId;
-        private readonly string _versionId;
         private readonly IPdfRedactorClient _pdfRedactorClient;
-        private Mock<HttpMessageHandler> _mockHttpMessageHandler;
-        private Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _httpResponseMessage;
 
@@ -50,14 +45,12 @@ namespace coordinator.Clients.Tests.Clients
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<string>();
             _documentId = _fixture.Create<string>();
-            _versionId = _fixture.Create<string>();
 
             _polarisPipelineRedactPdfFunctionAppKey = _fixture.Create<string>();
             var mockConfiguration = new Mock<IConfiguration>();
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
-            _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 
-            mockConfiguration.Setup(config => config[ConfigKeys.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
+            mockConfiguration.Setup(config => config[ConfigKeys.PipelineRedactorPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
 
             _httpRequestMessage = new HttpRequestMessage
             {
@@ -88,7 +81,6 @@ namespace coordinator.Clients.Tests.Clients
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
-                _mockHttpResponseMessageStreamFactory.Object,
                 mockJsonConvertWrapper.Object);
         }
 

@@ -2,13 +2,10 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
-using Common.Dto.Request;
-using Common.Dto.Response;
 using Common.Factories.Contracts;
 using Common.Wrappers.Contracts;
 using Common.Streaming;
@@ -21,20 +18,17 @@ namespace coordinator.Clients
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
 
         public PdfGeneratorClient(IPipelineClientRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
             IConfiguration configuration,
-            IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory,
-            IJsonConvertWrapper jsonConvertWrapper)
+            IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory)
         {
             _pipelineClientRequestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory ?? throw new ArgumentNullException(nameof(httpResponseMessageStreamFactory));
-            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
         public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
