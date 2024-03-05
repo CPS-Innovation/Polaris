@@ -3,19 +3,17 @@ using System.Text;
 using Common.Configuration;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request;
-using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Factories.Contracts;
 using Common.Streaming;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
-using PolarisGateway;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Common.Dto.Case;
 
-namespace Gateway.Clients
+namespace PolarisGateway.Clients
 {
     public class PipelineClient : IPipelineClient
     {

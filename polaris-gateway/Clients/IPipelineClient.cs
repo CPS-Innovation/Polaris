@@ -2,12 +2,11 @@
 using Common.Domain.SearchIndex;
 using Common.Dto.Case;
 using Common.Dto.Request;
-using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gateway.Clients
+namespace PolarisGateway.Clients
 {
     public interface IPipelineClient
     {

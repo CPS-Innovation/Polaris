@@ -6,37 +6,35 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry.Wrappers.Contracts;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 
 namespace PolarisGateway.Functions
 {
     public class Cases : BasePolarisFunction
     {
-        private readonly IPipelineClient _pipelineClient;
+        private readonly ICoordinatorClient _coordinatorClient;
 
         public Cases(ILogger<Cases> logger,
-                        IPipelineClient pipelineClient,
+                        ICoordinatorClient coordinatorClient,
                         IAuthorizationValidator tokenValidator,
                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
-            _pipelineClient = pipelineClient;
+            _coordinatorClient = coordinatorClient;
         }
 
         [FunctionName(nameof(Cases))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             try
             {
                 await Initiate(req);
-
-                var result = await _pipelineClient.GetCasesAsync(caseUrn, CmsAuthValues, CorrelationId);
-                return new OkObjectResult(result);
+                return await _coordinatorClient.GetCasesAsync(caseUrn, CmsAuthValues, CorrelationId);
             }
             catch (Exception exception)
             {
-                return HandleUnhandledException(exception);
+                return HandleUnhandledExceptionHttpResponseMessage(exception);
             }
         }
     }

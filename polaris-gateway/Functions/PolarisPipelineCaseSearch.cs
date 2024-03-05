@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Domain.Exceptions;
 
