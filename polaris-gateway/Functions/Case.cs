@@ -1,30 +1,27 @@
 ﻿using Common.Configuration;
 using PolarisGateway.Domain.Validators;
 using Ddei.Factories;
-using DdeiClient.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry.Wrappers.Contracts;
+using Gateway.Clients;
 
 namespace PolarisGateway.Functions
 {
     public class Case : BasePolarisFunction
     {
-        private readonly IDdeiClient _ddeiClient;
-        private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly IPipelineClient _pipelineClient;
 
         public Case(ILogger<Case> logger,
-                    IDdeiClient ddeiService,
+                    IPipelineClient pipelineClient,
                     IAuthorizationValidator tokenValidator,
-                    IDdeiArgFactory ddeiArgFactory,
                     ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
             : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
-            _ddeiClient = ddeiService;
-            _ddeiArgFactory = ddeiArgFactory;
+            _pipelineClient = pipelineClient;
         }
 
         [FunctionName(nameof(Case))]
@@ -36,9 +33,7 @@ namespace PolarisGateway.Functions
             {
                 await Initiate(req);
 
-                var arg = _ddeiArgFactory.CreateCaseArg(CmsAuthValues, CorrelationId, caseUrn, caseId);
-                var result = await _ddeiClient.GetCaseAsync(arg);
-
+                var result = await _pipelineClient.GetCaseAsync(caseUrn, caseId, CmsAuthValues, CorrelationId);
                 return new OkObjectResult(result);
             }
             catch (Exception exception)

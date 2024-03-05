@@ -15,7 +15,7 @@ public interface IOrchestrationProvider
                                                  DateTime createdTimeTo,
                                                  int batchSize);
 
-    Task<IActionResult> RefreshCaseAsync(IDurableOrchestrationClient client,
+    Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client,
                                                Guid correlationId,
                                                string caseId,
                                                CaseOrchestrationPayload casePayload,
