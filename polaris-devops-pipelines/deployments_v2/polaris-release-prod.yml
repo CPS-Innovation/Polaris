@@ -44,6 +44,7 @@ stages:
       networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
       textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
       gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
       uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
@@ -99,6 +100,7 @@ stages:
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
+              pdfRedactorCount: $(pdfRedactorCount)
               textExtractorCount: $(textExtractorCount)
               gatewayCount: $(gatewayCount)
               uiCount: $(uiCount)
@@ -363,6 +365,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-pdf-redactor"
         displayName: Start Staging1
         steps:
           - checkout: none
@@ -438,6 +443,24 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
 
+      - deployment: Deploy_Pdf_Redactor
+        dependsOn: Start_Pipeline_Slots
+        displayName: Deploy PDF Redactor
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        environment: "Prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-pdf-redactor.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "PROD"
+                    targetName: "Codebase CI Deployment"
+                    targetSuffix: ""
+                    appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+                    azureSubscription: $(prod-azure-subscription)
+
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
@@ -500,6 +523,7 @@ stages:
         dependsOn:
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
           - Deploy_Spa
           - Deploy_Gateway
@@ -576,6 +600,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-pdf-redactor"
         displayName: Start Staging1
         steps:
           - checkout: none
@@ -624,6 +651,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-pdf-redactor"
         displayName: Swap
         steps:
           - checkout: none
@@ -749,6 +779,25 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
+      - job: Check_PDF_Redactor
+        dependsOn: Get_Status_URIs
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetAppName: "PDF Redactor"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
       - job: Check_Text_Extractor
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -832,6 +881,7 @@ stages:
           - Get_Status_URIs
           - Check_Coordinator
           - Check_PDF_Generator
+          - Check_PDF_Redactor
           - Check_Text_Extractor
           - Check_Gateway
           - Check_Proxy
@@ -998,6 +1048,7 @@ stages:
       networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
       textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
       gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
       uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
@@ -1023,6 +1074,7 @@ stages:
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
+              pdfRedactorCount: $(pdfRedactorCount)
               textExtractorCount: $(textExtractorCount)
               gatewayCount: $(gatewayCount)
               uiCount: $(uiCount)
@@ -1048,6 +1100,7 @@ stages:
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
+              pdfRedactorCount: $(pdfRedactorCount)
               textExtractorCount: $(textExtractorCount)
               gatewayCount: $(gatewayCount)
               uiCount: $(uiCount)

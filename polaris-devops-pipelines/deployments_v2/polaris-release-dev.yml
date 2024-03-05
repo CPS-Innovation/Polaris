@@ -324,6 +324,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-dev-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-dev-pdf-redactor"
         displayName: Start Staging1
         steps:
           - checkout: none
@@ -399,6 +402,24 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
 
+      - deployment: Deploy_Pdf_Redactor
+        dependsOn: Start_Pipeline_Slots
+        displayName: Deploy PDF Redactor
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-pdf-redactor.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    azureSubscription: $(dev-azure-subscription)
+
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
@@ -461,6 +482,7 @@ stages:
         dependsOn:
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
           - Deploy_Spa
           - Deploy_Gateway
@@ -537,6 +559,10 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-dev-pdf-generator"
+              AppServiceName: "fa-polaris-dev-coordinator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-dev-pdf-redactor"
         displayName: Start Staging1
         steps:
           - checkout: none
@@ -585,6 +611,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-dev-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-dev-pdf-redactor"
         displayName: Swap
         steps:
           - checkout: none
@@ -702,6 +731,26 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "DEV"
               targetAppName: "PDF Generator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+
+      - job: Check_PDF_Redactor
+        dependsOn: Get_Status_URIs
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetAppName: "PDF Redactor"
               targetScript: "InvokeRequestWithRetry.ps1"
               endpointUri: "$(uri)/api/status"
               statusCheckMethod: $(status-check-method)
