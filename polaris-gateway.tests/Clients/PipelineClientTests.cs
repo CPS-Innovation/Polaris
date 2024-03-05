@@ -7,7 +7,7 @@ using AutoFixture;
 using Common.Factories.Contracts;
 using Common.Wrappers.Contracts;
 using FluentAssertions;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
