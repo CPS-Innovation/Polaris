@@ -28,7 +28,6 @@ namespace coordinator.tests.Functions
         private readonly Guid _correlationId;
         private readonly HttpRequest _httpRequest;
         private readonly IHeaderDictionary _httpRequestHeaders;
-        private readonly IActionResult _actionResult;
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
         private readonly Mock<ICleardownService> _mockCleardownService;
@@ -47,7 +46,6 @@ namespace coordinator.tests.Functions
             _httpRequest = new DefaultHttpContext().Request;
             _httpRequest.Method = "POST";
             _httpRequestHeaders = _httpRequest.Headers;
-            _actionResult = new StatusCodeResult(200);
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
             var mockLogger = new Mock<ILogger<RefreshCase>>();
@@ -64,12 +62,9 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(default(DurableOrchestrationStatus));
 
-            _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequest, _instanceId, false))
-                .Returns(_actionResult);
-
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
-                .ReturnsAsync(_actionResult);
+                .ReturnsAsync(true);
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseOrchestrationAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<int>()));
 
@@ -95,11 +90,11 @@ namespace coordinator.tests.Functions
                 .Throws(new Exception());
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
-                .ReturnsAsync(new StatusCodeResult(500));
+                .ReturnsAsync(false);
 
             var result = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
-            (result as StatusCodeResult).StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+            (result as ObjectResult).StatusCode.Should().Be((int)HttpStatusCode.Locked);
         }
 
         [Fact]
@@ -178,7 +173,7 @@ namespace coordinator.tests.Functions
             var httpResponseMessage = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
             // Assert
-            httpResponseMessage.Should().Be(_actionResult);
+            httpResponseMessage.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be((int)HttpStatusCode.OK);
         }
     }
 }

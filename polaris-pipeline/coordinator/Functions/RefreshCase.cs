@@ -12,6 +12,7 @@ using coordinator.Services.CleardownService;
 using coordinator.Durable.Payloads;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
+using coordinator.Domain;
 
 namespace coordinator.Functions
 {
@@ -51,7 +52,14 @@ namespace coordinator.Functions
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
                 var casePayload = new CaseOrchestrationPayload(caseUrn, caseId, cmsAuthValues, currentCorrelationId);
-                return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId.ToString(), casePayload, req);
+                var isAccepted = await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId.ToString(), casePayload, req);
+
+                return new ObjectResult(new RefreshCaseResponse())
+                {
+                    StatusCode = isAccepted
+                        ? StatusCodes.Status200OK
+                        : StatusCodes.Status423Locked
+                };
             }
             catch (Exception ex)
             {
