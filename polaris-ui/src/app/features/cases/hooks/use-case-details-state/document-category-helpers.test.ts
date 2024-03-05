@@ -6,6 +6,7 @@ import {
   isUnusedCommunicationMaterial,
 } from "./document-category-helpers";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import { unusedCommunicationMaterialTestData } from "./unused-communication-material_test_data";
 
 describe("DocumentCategory Helpers", () => {
   describe("sortDocumentsByCreatedDate", () => {
@@ -574,6 +575,14 @@ describe("DocumentCategory Helpers", () => {
       expect(isUnusedCommunicationMaterial("abcr /def SDC", 1029)).toEqual(
         true
       );
+    });
+
+    it("Should successfully run against expected results for unusedCommunicationMaterial test data", () => {
+      unusedCommunicationMaterialTestData.forEach((data) => {
+        expect(isUnusedCommunicationMaterial(data.name, 1029)).toEqual(
+          data.result
+        );
+      });
     });
   });
 });
