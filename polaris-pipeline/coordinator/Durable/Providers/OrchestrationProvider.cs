@@ -13,6 +13,8 @@ using coordinator.Factories;
 using System.Text.RegularExpressions;
 using Common.Dto.Response;
 using coordinator.Durable.Payloads;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace coordinator.Durable.Providers;
 
@@ -65,15 +67,15 @@ public class OrchestrationProvider : IOrchestrationProvider
             .ToList();
     }
 
-    public async Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
-        string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req)
+    public async Task<IActionResult> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
+        string caseId, CaseOrchestrationPayload casePayload, HttpRequest req)
     {
         var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
         var existingInstance = await client.GetStatusAsync(instanceId);
 
         if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
         {
-            return new HttpResponseMessage(HttpStatusCode.Locked);
+            return new StatusCodeResult((int)HttpStatusCode.Locked);
         }
 
         await client.StartNewAsync(nameof(RefreshCaseOrchestrator), instanceId, casePayload);

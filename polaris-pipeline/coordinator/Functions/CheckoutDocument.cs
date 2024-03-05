@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using Common.Logging;
 using Common.ValueObjects;
+using coordinator.Helpers;
 using Ddei.Factories;
 using DdeiClient.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -19,21 +19,25 @@ namespace coordinator.Functions
     {
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly ILogger<CheckoutDocument> _logger;
 
-        public CheckoutDocument(IDdeiClient ddeiClient, IDdeiArgFactory ddeiArgFactory)
+        public CheckoutDocument(IDdeiClient ddeiClient, IDdeiArgFactory ddeiArgFactory, ILogger<CheckoutDocument> logger)
         {
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
+            _logger = logger;
         }
 
         [FunctionName(nameof(CheckoutDocument))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.DocumentCheckout)] HttpRequest req,
             string caseUrn,
             string caseId,
             string polarisDocumentId,
-            [DurableClient] IDurableEntityClient client,
-            ILogger log)
+            [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
 
@@ -42,7 +46,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var response = await GetTrackerDocument(req, client, nameof(CheckoutDocument), caseId, new PolarisDocumentId(polarisDocumentId), log);
+                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId));
                 var document = response.CmsDocument;
 
                 var arg = _ddeiArgFactory.CreateDocumentArgDto(
@@ -64,8 +68,7 @@ namespace coordinator.Functions
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, nameof(CheckoutDocument), ex.Message, ex);
-                return new StatusCodeResult(500);
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(CheckoutDocument), currentCorrelationId, ex);
             }
         }
     }

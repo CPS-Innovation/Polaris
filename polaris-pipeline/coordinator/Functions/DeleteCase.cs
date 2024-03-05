@@ -1,22 +1,16 @@
 ﻿using Common.Configuration;
-using Common.Constants;
-using Common.Domain.Exceptions;
-using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
 using coordinator.Durable.Providers;
 using coordinator.Services.CleardownService;
 using Common.Extensions;
+using Microsoft.AspNetCore.Http;
+using coordinator.Helpers;
 
 namespace coordinator.Functions
 {
@@ -37,12 +31,12 @@ namespace coordinator.Functions
         }
 
         [FunctionName(nameof(DeleteCase))]
-        [ProducesResponseType((int)HttpStatusCode.Accepted)]
-        [ProducesResponseType((int)HttpStatusCode.Locked)] // Refresh already running
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<HttpResponseMessage> Run
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status423Locked)] // Refresh already running
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Run
             (
-                [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequestMessage req,
+                [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req,
                 string caseUrn,
                 int caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
@@ -60,28 +54,12 @@ namespace coordinator.Functions
                      currentCorrelationId,
                      waitForIndexToSettle: true);
 
-                return new HttpResponseMessage(HttpStatusCode.OK);
+                return new AcceptedResult();
 
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                var rootCauseMessage = "An unhandled exception occurred";
-                var httpStatusCode = HttpStatusCode.InternalServerError;
-
-                if (exception is BadRequestException)
-                {
-                    rootCauseMessage = "Invalid request";
-                    httpStatusCode = HttpStatusCode.BadRequest;
-                }
-
-                var errorMessage = $"{rootCauseMessage}. {exception.Message}.  Base exception message: {exception.GetBaseException().Message}";
-
-                _logger.LogMethodError(currentCorrelationId, nameof(DeleteCase), errorMessage, exception);
-
-                return new HttpResponseMessage(httpStatusCode)
-                {
-                    Content = new StringContent(errorMessage, Encoding.UTF8, MediaTypeNames.Application.Json)
-                };
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(DeleteCase), currentCorrelationId, ex);
             }
         }
     }

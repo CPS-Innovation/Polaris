@@ -52,6 +52,21 @@ namespace Common.Extensions
             return value;
         }
 
+        public static string GetCmsAuthValues(this IHeaderDictionary headers)
+        {
+            if (headers == null)
+                throw new ArgumentNullException(nameof(headers));
+
+            if (!headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var values))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", nameof(headers));
+
+            var value = values.First();
+            if (string.IsNullOrWhiteSpace(value))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", value);
+
+            return value;
+        }
+
         public static FileType GetFileType(this IHeaderDictionary headers)
         {
             if (headers == null)

@@ -13,6 +13,7 @@ namespace Common.Domain.Extensions
         {
             return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
         }
+
         public static string GetBaseUrl(this string value)
         {
             var uri = new Uri(value);
