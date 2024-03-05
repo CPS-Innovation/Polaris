@@ -559,7 +559,6 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-dev-pdf-generator"
-              AppServiceName: "fa-polaris-dev-coordinator"
             PDFRedactor:
               Name: "PDF Redactor"
               AppServiceName: "fa-polaris-dev-pdf-redactor"
