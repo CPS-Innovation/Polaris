@@ -32,6 +32,7 @@ namespace coordinator.Clients.Tests.Clients
         private readonly string _caseId;
         private readonly string _documentId;
         private readonly IPdfRedactorClient _pdfRedactorClient;
+        private Mock<HttpMessageHandler> _mockHttpMessageHandler;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _httpResponseMessage;
 
