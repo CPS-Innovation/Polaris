@@ -29,14 +29,14 @@ namespace coordinator.Functions
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
-        private readonly IPdfGeneratorClient _redactionClient;
+        private readonly IPdfRedactorClient _redactionClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
 
         public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestDto> requestValidator,
-                              IPdfGeneratorClient redactionClient,
+                              IPdfRedactorClient redactionClient,
                               IPolarisBlobStorageService blobStorageService,
                               IDdeiClient ddeiClient,
                               IDdeiArgFactory ddeiArgFactory)

@@ -61,34 +61,5 @@ namespace coordinator.Clients
             response.EnsureSuccessStatusCode();
             return await _httpResponseMessageStreamFactory.Create(response);
         }
-
-        public async Task<RedactPdfResponse> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
-        {
-            HttpResponseMessage response;
-            try
-            {
-                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
-
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
-                request.Content = requestMessage;
-
-                response = await _httpClient.SendAsync(request);
-
-                response.EnsureSuccessStatusCode();
-            }
-            catch (HttpRequestException exception)
-            {
-                if (exception.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // todo: check if ok to swallow a not found response?
-                    return null;
-                }
-
-                throw;
-            }
-
-            var stringContent = await response.Content.ReadAsStringAsync();
-            return _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent);
-        }
     }
 }

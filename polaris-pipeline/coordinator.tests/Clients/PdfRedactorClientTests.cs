@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
@@ -23,7 +23,7 @@ using System.IO;
 
 namespace coordinator.Clients.Tests.Clients
 {
-    public class PdfGeneratorClientTests
+    public class PdfRedactorClientTests
     {
         private readonly RedactPdfRequestDto _request;
         private readonly Mock<IPipelineClientRequestFactory> _mockRequestFactory;
@@ -34,13 +34,13 @@ namespace coordinator.Clients.Tests.Clients
         private readonly string _caseId;
         private readonly string _documentId;
         private readonly string _versionId;
-        private readonly IPdfGeneratorClient _pdfGeneratorClient;
+        private readonly IPdfRedactorClient _pdfRedactorClient;
         private Mock<HttpMessageHandler> _mockHttpMessageHandler;
         private Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _httpResponseMessage;
 
-        public PdfGeneratorClientTests()
+        public PdfRedactorClientTests()
         {
             _fixture = new Fixture();
 
@@ -84,7 +84,7 @@ namespace coordinator.Clients.Tests.Clients
                 .ReturnsAsync(_httpResponseMessage);
             var redactPdfHttpClient = new HttpClient(_mockHttpMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
 
-            _pdfGeneratorClient = new PdfGeneratorClient(
+            _pdfRedactorClient = new PdfRedactorClient(
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
@@ -93,65 +93,43 @@ namespace coordinator.Clients.Tests.Clients
         }
 
         [Fact]
-        public async Task ConvertToPdfAsync_ReturnsAStream()
+        public async Task RedactPdf_CreatesTheRequestCorrectly()
         {
-            // Arrange
-            var expectedContent = _fixture.Create<string>();
-            _httpResponseMessage.Content = new StringContent(expectedContent);
+            await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
 
-            _mockRequestFactory
-                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
-                .Returns(_httpRequestMessage);
-
-            _mockHttpResponseMessageStreamFactory
-                            .Setup(factory => factory.Create(It.Is<HttpResponseMessage>(h => h == _httpResponseMessage)))
-                            .Returns(HttpResponseMessageStream.Create(_httpResponseMessage));
-
-            // Act
-            var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
-
-            // Assert
-            var responseText = new StreamReader(response, System.Text.Encoding.UTF8).ReadToEnd();
-            responseText.Should().Be(expectedContent);
+            _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", _correlationId, null));
         }
 
         [Fact]
-        public async Task ConvertToPdfAsync_WhenUnsupportedMediaTypeIsReceived_DoesNotThrowAndReturnsUnsuccessfulResponse()
+        public async Task RedactPdf_WhenHttpRequestExceptionThrown_IsCaughtAsException()
         {
-            // Arrange
-            var expectedContent = _fixture.Create<string>();
-            _httpResponseMessage.Content = new StringContent(expectedContent);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>(), null)).Throws<Exception>();
 
-            _mockRequestFactory
-                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
-                .Returns(_httpRequestMessage);
+            var results = async () => await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
 
-            _mockHttpResponseMessageStreamFactory
-                            .Setup(factory => factory.Create(It.Is<HttpResponseMessage>(h => h == _httpResponseMessage)))
-                            .Returns(HttpResponseMessageStream.Create(_httpResponseMessage));
-
-            _httpResponseMessage.StatusCode = HttpStatusCode.UnsupportedMediaType;
-
-            // Act
-            var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
-
-            // Assert
-            await act.Should().ThrowAsync<UnsupportedMediaTypeException>();
+            await results.Should().ThrowAsync<Exception>();
         }
+
         [Fact]
-        public async Task ConvertToPdfAsync_WhenHttpRequestExceptionThrown_IsCaughtAsException()
+        public async Task RedactPdf_WhenHttpRequestExceptionThrownAsNotFound_ReturnsNullResponse()
         {
-            // Arrange
-            _mockRequestFactory
-                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
-                .Returns(_httpRequestMessage);
-            _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
+            var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.NotFound);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>(), null)).Throws(specificException);
 
-            // Act
-            var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new System.IO.MemoryStream(), Common.Domain.Document.FileType.MSG);
+            var results = await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
 
+            results.Should().BeNull();
+        }
 
-            await act.Should().ThrowAsync<HttpRequestException>();
+        [Fact]
+        public async Task RedactPdf_WhenHttpRequestExceptionThrownAsSomethingOtherThanNotFound_IsRethrownAsException()
+        {
+            var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.UnprocessableEntity);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>(), null)).Throws(specificException);
+
+            var results = async () => await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
+
+            await results.Should().ThrowAsync<Exception>();
         }
     }
 }

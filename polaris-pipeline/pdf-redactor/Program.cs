@@ -17,6 +17,8 @@ using pdf_redactor;
 using pdf_redactor.Services.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Common.Wrappers;
+using Common.Wrappers.Contracts;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -53,6 +55,7 @@ var host = new HostBuilder()
 
         services.AddSingleton(context.Configuration);
         services.AddRedactionServices(context.Configuration);
+        services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();

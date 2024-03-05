@@ -60,6 +60,11 @@ namespace coordinator
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
+            services.AddHttpClient<IPdfRedactorClient, PdfRedactorClient>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineRedactorPdfBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
             services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
             {
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineTextExtractorBaseUrl));
