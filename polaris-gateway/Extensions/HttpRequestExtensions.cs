@@ -3,12 +3,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace Common.Extensions
+using System.Text.RegularExpressions;
+
+namespace PolarisGateway.Extensions
 {
     public static class HttpRequestExtensions
     {

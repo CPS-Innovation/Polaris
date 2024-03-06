@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Xunit;
-using Common.Extensions;
+using PolarisGateway.Extensions;
 
-namespace Common.tests.Extensions;
+namespace PolarisGateway.tests.Extensions;
 
 public class HttpRequestExtensionsTests
 {

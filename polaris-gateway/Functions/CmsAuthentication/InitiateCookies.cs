@@ -1,5 +1,6 @@
 using Common.Constants;
 using Common.Extensions;
+using PolarisGateway.Extensions;
 using Ddei.Domain.CaseData.Args;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

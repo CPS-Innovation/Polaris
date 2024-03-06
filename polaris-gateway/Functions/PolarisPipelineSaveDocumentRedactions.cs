@@ -7,57 +7,62 @@ using Common.Configuration;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Clients;
 using PolarisGateway.common.Mappers;
-using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.ValueObjects;
 using Common.Telemetry.Contracts;
 using PolarisGateway.TelemetryEvents;
-using Common.Extensions;
+using PolarisGateway.Extensions;
+using System.Net;
+using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineSaveDocumentRedactions : BasePolarisFunction
+    public class PolarisPipelineSaveDocumentRedactions
     {
         private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
-        private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
+        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
         private readonly ITelemetryClient _telemetryClient;
 
         public PolarisPipelineSaveDocumentRedactions
             (
-                IRedactPdfRequestMapper redactPdfRequestMapper,
-                IPipelineClient pipelineClient,
-                ILogger<PolarisPipelineSaveDocumentRedactions> logger,
-                IAuthorizationValidator tokenValidator,
-                ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
-                ITelemetryClient telemetryClient
-            )
+            IRedactPdfRequestMapper redactPdfRequestMapper,
+            ICoordinatorClient coordinatorClient,
+            ILogger<PolarisPipelineSaveDocumentRedactions> logger,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler,
+            ITelemetryClient telemetryClient)
 
-        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
-            _pipelineClient = pipelineClient ?? throw new ArgumentNullException(nameof(pipelineClient));
+            _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
+            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient)); ;
         }
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);
 
-            IActionResult sendTelemetryAndReturn(IActionResult result)
+            HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
             {
                 _telemetryClient.TrackEvent(telemetryEvent);
                 return result;
             }
 
+            (Guid CorrelationId, string CmsAuthValues) context = default;
             try
             {
-                await Initiate(req);
+                context = await _initializationHandler.Initialize(req);
                 telemetryEvent.IsRequestValid = true;
-                telemetryEvent.CorrelationId = CorrelationId;
+                telemetryEvent.CorrelationId = context.CorrelationId;
+
                 var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
                 var isRequestJsonValid = redactions.IsValid;
                 telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
@@ -66,25 +71,34 @@ namespace PolarisGateway.Functions
                 if (!isRequestJsonValid)
                 {
                     // todo: log these errors to telemetry event
-                    var result = new BadRequestObjectResult(redactions.Errors.Select(e => new
+                    return SendTelemetryAndReturn(new HttpResponseMessage()
                     {
-                        Field = e.PropertyName,
-                        Error = e.ErrorMessage
-                    }));
-
-                    return sendTelemetryAndReturn(result);
+                        StatusCode = HttpStatusCode.BadRequest
+                    });
                 }
 
                 var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value);
-                await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), redactPdfRequest, CmsAuthValues, CorrelationId);
-                telemetryEvent.IsSuccess = true;
+                var response = await _coordinatorClient.SaveRedactionsAsync(
+                    caseUrn,
+                    caseId,
+                    new PolarisDocumentId(polarisDocumentId),
+                    redactPdfRequest,
+                    context.CmsAuthValues,
+                    context.CorrelationId);
 
-                return sendTelemetryAndReturn(new OkResult());
+                telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
+
+                return SendTelemetryAndReturn(response);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
                 _telemetryClient.TrackEventFailure(telemetryEvent);
-                return HandleUnhandledException(exception);
+                return _unhandledExceptionHandler.HandleUnhandledException(
+                  _logger,
+                  nameof(PolarisPipelineSaveDocumentRedactions),
+                  context.CorrelationId,
+                  ex
+                );
             }
         }
     }
