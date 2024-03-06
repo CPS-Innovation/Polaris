@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Common.Logging;
 using Common.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Common.Exceptions;
 
 namespace coordinator.Helpers;
 
@@ -16,6 +17,11 @@ public static class UnhandledExceptionHelper
 
         return ex switch
         {
+            // For the time being if we get 401 from DDEI, we transmit this to the client,
+            //  otherwise this is an unexpected error and we return 500
+            DdeiClientException e => new StatusCodeResult(e.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                                        ? StatusCodes.Status401Unauthorized
+                                        : StatusCodes.Status500InternalServerError),
             BadRequestException => new StatusCodeResult(StatusCodes.Status400BadRequest),
             _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
         };

@@ -90,9 +90,10 @@ namespace Ddei.Services
                 CaseId = long.Parse(caseId),
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId
-            };
-            var request = _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg);
-            var ddeiResults = await CallDdei<List<DdeiCaseDocumentResponse>>(request);
+            }; ;
+            var ddeiResults = await CallDdei<List<DdeiCaseDocumentResponse>>(
+                _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg)
+            );
 
             return ddeiResults
                 .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
@@ -132,19 +133,20 @@ namespace Ddei.Services
 
         public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentArgDto arg)
         {
-            var request = _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg);
-            var response = await CallDdei(request, new List<HttpStatusCode> { HttpStatusCode.Conflict });
+            var response = await CallDdei(
+                _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg),
+                HttpStatusCode.Conflict);
 
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.OK:
-                    return new CheckoutDocumentDto { IsSuccess = true };
-                case HttpStatusCode.Conflict:
-                    var lockingUser = await response.Content.ReadAsStringAsync();
-                    return new CheckoutDocumentDto { IsSuccess = false, LockingUserName = lockingUser };
-                default:
-                    throw new Exception($"Unexpected status code {response.StatusCode} in CheckoutDocumentAsync");
-            }
+            return response.StatusCode == HttpStatusCode.Conflict
+                ? new CheckoutDocumentDto
+                {
+                    IsSuccess = false,
+                    LockingUserName = await response.Content.ReadAsStringAsync()
+                }
+                : new CheckoutDocumentDto
+                {
+                    IsSuccess = true
+                };
         }
 
         public async Task CancelCheckoutDocumentAsync(DdeiCmsDocumentArgDto arg)
@@ -169,12 +171,12 @@ namespace Ddei.Services
             return _jsonConvertWrapper.DeserializeObject<T>(content);
         }
 
-        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, List<HttpStatusCode> expectedStatusCodes = null)
+        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, params HttpStatusCode[] expectedUnhappyStatusCodes)
         {
             var response = await _httpClient.SendAsync(request);
             try
             {
-                if (response.IsSuccessStatusCode || (expectedStatusCodes?.Contains(response.StatusCode) == true))
+                if (response.IsSuccessStatusCode || expectedUnhappyStatusCodes.Contains(response.StatusCode))
                     return response;
 
                 var content = await response.Content.ReadAsStringAsync();

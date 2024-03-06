@@ -5,7 +5,7 @@ using AutoFixture;
 using PolarisGateway.Domain.Validators;
 using Common.ValueObjects;
 using FluentAssertions;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
