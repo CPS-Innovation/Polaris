@@ -25,10 +25,13 @@ public class UnhandledExceptionHandler : IUnhandledExceptionHandler
             CpsAuthenticationException _ => HttpStatusCode.Unauthorized,
             // todo: as refactor goes on we will lose reference to DdeiClientException
             // must be 403, client will react to a 403 to trigger reauthentication
-            DdeiClientException or CmsAuthenticationException _ => HttpStatusCode.Forbidden,
+            CmsAuthenticationException _ => HttpStatusCode.Forbidden,
             _ => HttpStatusCode.InternalServerError,
         };
 
-        return new HttpResponseMessage() { StatusCode = statusCode };
+        return new HttpResponseMessage()
+        {
+            StatusCode = statusCode
+        };
     }
 }

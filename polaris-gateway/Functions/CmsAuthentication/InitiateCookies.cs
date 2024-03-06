@@ -1,6 +1,4 @@
 using Common.Constants;
-using Common.Extensions;
-using PolarisGateway.Extensions;
 using Ddei.Domain.CaseData.Args;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,12 +7,13 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using DdeiClient.Services;
 using Common.Configuration;
 using Common.Wrappers.Contracts;
-using Common.Domain.Extensions;
+using Common.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Ddei.Factories;
+using PolarisGateway.Extensions;
 
 namespace PolarisGateway.Functions.CmsAuthentication
 {
@@ -47,11 +46,11 @@ namespace PolarisGateway.Functions.CmsAuthentication
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req)
         {
             var correlationId = Guid.NewGuid();
-            _telemetryAugmentationWrapper.RegisterClientIp(req.GetClientIpAddress());
+            _telemetryAugmentationWrapper.RegisterClientIp(Helpers.GetClientIpAddress(req));
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
             _logger.LogMethodFlow(correlationId, nameof(Get), $"Referrer: {req.Headers[HeaderNames.Referer]}");
-            _logger.LogMethodFlow(correlationId, nameof(Get), $"Query: {req.GetLogSafeQueryString()}");
+            _logger.LogMethodFlow(correlationId, nameof(Get), $"Query: {Helpers.GetLogSafeQueryString(req)}");
 
             try
             {
@@ -160,7 +159,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
         {
             try
             {
-                var partialCmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{req.GetClientIpAddress()}\"}}";
+                var partialCmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{Helpers.GetClientIpAddress(req)}\"}}";
 
                 var fullCmsAuthValues = await _ddeiClient.GetFullCmsAuthValuesAsync(
                     _ddeiArgFactory.CreateCmsAuthValuesArg(partialCmsAuthValues, correlationId)

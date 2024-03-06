@@ -9,7 +9,7 @@ using pdf_generator.Domain.Document;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
 using Common.Domain.Exceptions;
-using Common.Domain.Extensions;
+using pdf_generator.Extensions;
 using Common.Extensions;
 using Common.Logging;
 using Common.Telemetry.Contracts;

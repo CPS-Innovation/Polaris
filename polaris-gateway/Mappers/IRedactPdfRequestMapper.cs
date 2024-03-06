@@ -1,6 +1,6 @@
 ﻿using Common.Dto.Request;
 
-namespace PolarisGateway.common.Mappers
+namespace PolarisGateway.Mappers
 {
     public interface IRedactPdfRequestMapper
     {

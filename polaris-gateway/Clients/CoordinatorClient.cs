@@ -5,7 +5,6 @@ using System.Text;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Factories.Contracts;
-using Common.Streaming;
 using Common.ValueObjects;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -22,8 +21,7 @@ namespace PolarisGateway.Clients
         public CoordinatorClient(
             IPipelineClientRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
-            IConfiguration configuration,
-            IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory)
+            IConfiguration configuration)
         {
             _pipelineClientRequestFactory = pipelineClientRequestFactory;
             _httpClient = httpClient;
@@ -77,24 +75,11 @@ namespace PolarisGateway.Clients
 
         public async Task<HttpResponseMessage> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
-            // do not dispose of the response here
-            var response = await SendRequestAsync(
+            return await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId),
                 null,
                 correlationId);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return response;
-            }
-            // todo: verify we actually need to do this
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StreamContent(await response.Content.ReadAsStreamAsync())
-            };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue(PdfContentType);
-            return result;
         }
 
         public async Task<HttpResponseMessage> CheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)

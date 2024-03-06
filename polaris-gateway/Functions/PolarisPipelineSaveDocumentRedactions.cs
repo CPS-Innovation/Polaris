@@ -4,16 +4,17 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using PolarisGateway.Domain.Validators;
+using PolarisGateway.Validators;
 using PolarisGateway.Clients;
-using PolarisGateway.common.Mappers;
+using PolarisGateway.Mappers;
 using Common.Dto.Request;
 using Common.ValueObjects;
 using Common.Telemetry.Contracts;
 using PolarisGateway.TelemetryEvents;
-using PolarisGateway.Extensions;
 using System.Net;
 using PolarisGateway.Handlers;
+using FluentValidation;
+using Newtonsoft.Json;
 
 namespace PolarisGateway.Functions
 {
@@ -63,7 +64,7 @@ namespace PolarisGateway.Functions
                 telemetryEvent.IsRequestValid = true;
                 telemetryEvent.CorrelationId = context.CorrelationId;
 
-                var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
+                var redactions = await GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>(req);
                 var isRequestJsonValid = redactions.IsValid;
                 telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
                 telemetryEvent.RequestJson = redactions.RequestJson;
@@ -100,6 +101,23 @@ namespace PolarisGateway.Functions
                   ex
                 );
             }
+        }
+
+        public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(HttpRequest request)
+    where V : AbstractValidator<T>, new()
+        {
+            var requestJson = await request.ReadAsStringAsync();
+            var requestObject = JsonConvert.DeserializeObject<T>(requestJson);
+
+            var validator = new V();
+            var validationResult = await validator.ValidateAsync(requestObject);
+
+            return new ValidatableRequest<T>
+            {
+                Value = requestObject,
+                IsValid = validationResult.IsValid,
+                RequestJson = requestJson
+            };
         }
     }
 }

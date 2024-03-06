@@ -12,7 +12,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
-using Common.Domain.Extensions;
+
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -47,7 +47,7 @@ namespace pdf_generator.tests.Functions
             _serializedRedactPdfRequest = JsonConvert.SerializeObject(request);
 
             var redactPdfResponse = _fixture.Create<RedactPdfResponse>();
-            _serializedRedactPdfResponse = redactPdfResponse.ToJson();
+            _serializedRedactPdfResponse = JsonConvert.SerializeObject(redactPdfResponse);
 
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();

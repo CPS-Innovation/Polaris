@@ -1,9 +1,10 @@
 using Common.Telemetry.Wrappers.Contracts;
 using Microsoft.AspNetCore.Http;
-using PolarisGateway.Domain.Validators;
+using PolarisGateway.Validators;
 using Common.Extensions;
 using Common.Constants;
 using PolarisGateway.Exceptions;
+using PolarisGateway.Extensions;
 
 namespace PolarisGateway.Handlers;
 
