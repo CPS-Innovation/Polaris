@@ -5,7 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Domain.Validators;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using Common.Telemetry.Wrappers.Contracts;
 using PolarisGateway.Factories;
 

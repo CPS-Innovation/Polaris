@@ -6,7 +6,7 @@ using Azure;
 using Common.Domain.SearchIndex;
 using PolarisGateway.Domain.Validators;
 using FluentAssertions;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

@@ -67,7 +67,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             .ToList();
     }
 
-    public async Task<IActionResult> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
+    public async Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
         string caseId, CaseOrchestrationPayload casePayload, HttpRequest req)
     {
         var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
@@ -75,11 +75,11 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
         {
-            return new StatusCodeResult((int)HttpStatusCode.Locked);
+            return false;
         }
 
         await client.StartNewAsync(nameof(RefreshCaseOrchestrator), instanceId, casePayload);
-        return client.CreateCheckStatusResponse(req, instanceId);
+        return true;
     }
 
     public async Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(IDurableOrchestrationClient client, int caseId)

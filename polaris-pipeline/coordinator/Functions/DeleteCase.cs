@@ -32,7 +32,6 @@ namespace coordinator.Functions
 
         [FunctionName(nameof(DeleteCase))]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        [ProducesResponseType(StatusCodes.Status423Locked)] // Refresh already running
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run
             (
