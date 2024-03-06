@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Domain.Exceptions;
-using Ddei.Exceptions;
+using Common.Exceptions;
+using System.Net;
 
 namespace PolarisGateway.Functions
 {
@@ -61,12 +62,31 @@ namespace PolarisGateway.Functions
             {
                 ArgumentNullException or BadRequestException _ => 400,
                 CpsAuthenticationException _ => 401,
+                // todo: as refactor goes on we will lose reference to DdeiClientException
                 // must be 403, client will react to a 403 to trigger reauthentication
-                CaseDataServiceException or CmsAuthenticationException _ => 403,
+                DdeiClientException or CmsAuthenticationException _ => 403,
                 _ => 500,
             };
 
             return new ObjectResult(ex.Message) { StatusCode = statusCode };
+        }
+
+        protected HttpResponseMessage HandleUnhandledExceptionHttpResponseMessage(Exception ex, string additionalMessage = "")
+        {
+            _logger.LogMethodError(CorrelationId, LoggingSource, additionalMessage, ex);
+
+            // todo: PipelineClient exceptions
+            var statusCode = ex switch
+            {
+                ArgumentNullException or BadRequestException _ => HttpStatusCode.BadRequest,
+                CpsAuthenticationException _ => HttpStatusCode.Unauthorized,
+                // todo: as refactor goes on we will lose reference to DdeiClientException
+                // must be 403, client will react to a 403 to trigger reauthentication
+                DdeiClientException or CmsAuthenticationException _ => HttpStatusCode.Forbidden,
+                _ => HttpStatusCode.InternalServerError,
+            };
+
+            return new HttpResponseMessage() { StatusCode = statusCode };
         }
 
         private async Task<string> AuthenticateRequest(HttpRequest req, Guid correlationId)

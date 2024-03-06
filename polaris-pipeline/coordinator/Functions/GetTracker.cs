@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using Common.Logging;
 using Common.Wrappers.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -13,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Entity;
+using Microsoft.AspNetCore.Http;
+using coordinator.Helpers;
 
 namespace coordinator.Functions
 {
@@ -23,20 +23,24 @@ namespace coordinator.Functions
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
+        private readonly ILogger<GetTracker> _logger;
 
-        public GetTracker(IJsonConvertWrapper jsonConvertWrapper, ICaseDurableEntityMapper caseDurableEntityMapper)
+        public GetTracker(IJsonConvertWrapper jsonConvertWrapper, ICaseDurableEntityMapper caseDurableEntityMapper, ILogger<GetTracker> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _caseDurableEntityMapper = caseDurableEntityMapper;
+            _logger = logger;
         }
 
         [FunctionName(nameof(GetTracker))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequest req,
             string caseUrn,
             string caseId,
-            [DurableClient] IDurableEntityClient client,
-            ILogger log)
+            [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
 
@@ -74,8 +78,7 @@ namespace coordinator.Functions
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
-                return new StatusCodeResult(500);
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(GetTracker), currentCorrelationId, ex);
             }
         }
     }

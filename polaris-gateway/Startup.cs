@@ -2,7 +2,7 @@
 using Common.Factories.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +59,13 @@ namespace PolarisGateway
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
+
+            services.AddHttpClient<ICoordinatorClient, CoordinatorClient>(client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+
 
             services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 

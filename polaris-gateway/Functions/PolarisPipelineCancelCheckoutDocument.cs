@@ -1,7 +1,7 @@
 ﻿using Common.Configuration;
 using PolarisGateway.Domain.Validators;
 using Common.ValueObjects;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;

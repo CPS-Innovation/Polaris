@@ -7,7 +7,7 @@ using Common.Telemetry.Wrappers.Contracts;
 using PolarisGateway.Domain.Validators;
 using Common.Configuration;
 using Common.ValueObjects;
-using Gateway.Clients;
+using PolarisGateway.Clients;
 using System.Net;
 
 namespace PolarisGateway.Functions
