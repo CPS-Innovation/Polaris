@@ -91,7 +91,7 @@ module "azurerm_app_reg_fa_pdf_redactor" {
   /*app_role = [
     {
       allowed_member_types = ["Application"]
-      description          = "Can create PDF resources using the ${local.resource_name} PDF Generator"
+      description          = "Can create PDF resources using the ${local.resource_name} PDF Redactor"
       display_name         = "Create PDF resources"
       id                   = element(random_uuid.random_id[*].result, 2)
       value                = "application.create"
