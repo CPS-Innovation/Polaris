@@ -1,31 +1,22 @@
-﻿
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
+﻿using System.Text;
 using Common.Configuration;
 using Common.Dto.Request;
-using Common.Factories.Contracts;
 using Common.ValueObjects;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace PolarisGateway.Clients
 {
     public class CoordinatorClient : ICoordinatorClient
     {
-        private const string PdfContentType = "application/pdf";
-        private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
+        private readonly ICoordinatorRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
 
         public CoordinatorClient(
-            IPipelineClientRequestFactory pipelineClientRequestFactory,
-            HttpClient httpClient,
-            IConfiguration configuration)
+            ICoordinatorRequestFactory requestFactory,
+            HttpClient httpClient)
         {
-            _pipelineClientRequestFactory = pipelineClientRequestFactory;
+            _requestFactory = requestFactory;
             _httpClient = httpClient;
-            _configuration = configuration;
         }
 
         public async Task<HttpResponseMessage> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId)
@@ -33,8 +24,8 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetCasesPath(caseUrn),
-                cmsAuthValues,
-                correlationId);
+                correlationId,
+                cmsAuthValues);
         }
 
         public async Task<HttpResponseMessage> GetCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
@@ -42,8 +33,8 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetCasePath(caseUrn, caseId),
-                cmsAuthValues,
-                correlationId);
+                correlationId,
+                cmsAuthValues);
         }
 
         public async Task<HttpResponseMessage> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
@@ -51,8 +42,8 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Post,
                 RestApi.GetCasePath(caseUrn, caseId),
-                cmsAuthValues,
-                correlationId);
+                correlationId,
+                cmsAuthValues);
         }
 
         public async Task<HttpResponseMessage> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
@@ -60,8 +51,8 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Delete,
                 RestApi.GetCasePath(caseUrn, caseId),
-                cmsAuthValues,
-                correlationId);
+                correlationId,
+                cmsAuthValues);
         }
 
         public async Task<HttpResponseMessage> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
@@ -69,7 +60,6 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetCaseTrackerPath(caseUrn, caseId),
-                null,
                 correlationId);
         }
 
@@ -78,7 +68,6 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId),
-                null,
                 correlationId);
         }
 
@@ -87,8 +76,8 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Post,
                 RestApi.GetDocumentCheckoutPath(caseUrn, caseId, polarisDocumentId),
-                cmsAuthValues,
-                correlationId);
+                correlationId,
+                cmsAuthValues);
         }
 
         public async Task<HttpResponseMessage> CancelCheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
@@ -96,8 +85,8 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Delete,
                 RestApi.GetDocumentCheckoutPath(caseUrn, caseId, polarisDocumentId),
-                cmsAuthValues,
-                correlationId);
+                correlationId,
+                cmsAuthValues);
         }
 
         public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
@@ -105,8 +94,8 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Put,
                 RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId),
-                cmsAuthValues,
                 correlationId,
+                cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json"));
         }
 
@@ -115,15 +104,12 @@ namespace PolarisGateway.Clients
             return await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetCaseSearchQueryPath(caseUrn, caseId, searchTerm),
-                null,
                 correlationId);
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, string cmsAuthValues, Guid correlationId, HttpContent content = null)
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null)
         {
-            using var request = _pipelineClientRequestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues);
-            request.Content = content;
-            request.Headers.Add("x-functions-key", _configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]);
+            var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
             return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
     }

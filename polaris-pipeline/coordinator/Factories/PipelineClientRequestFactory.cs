@@ -1,9 +1,8 @@
 ﻿using Common.Constants;
-using Common.Factories.Contracts;
 using System;
 using System.Net.Http;
 
-namespace Common.Factories
+namespace coordinator.Factories
 {
     public class PipelineClientRequestFactory : IPipelineClientRequestFactory
     {

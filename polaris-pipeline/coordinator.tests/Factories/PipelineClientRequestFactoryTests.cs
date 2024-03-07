@@ -1,6 +1,7 @@
-﻿using AutoFixture;
-using Common.Factories;
-using Common.Factories.Contracts;
+﻿using System;
+using System.Net.Http;
+using AutoFixture;
+using coordinator.Factories;
 using FluentAssertions;
 using Xunit;
 

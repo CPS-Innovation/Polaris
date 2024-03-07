@@ -18,8 +18,6 @@ using Common.Configuration;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using PolarisGateway.Handlers;
-using Common.Factories.Contracts;
-using Common.Factories;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -61,7 +59,7 @@ namespace PolarisGateway
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
             services.AddSingleton<IInitializationHandler, InitializationHandler>();
-            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            services.AddTransient<ICoordinatorRequestFactory, CoordinatorRequestFactory>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

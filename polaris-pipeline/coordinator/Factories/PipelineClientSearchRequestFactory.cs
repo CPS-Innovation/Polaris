@@ -8,7 +8,6 @@ using coordinator.Constants;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request.Search;
 using Common.Wrappers.Contracts;
-using Common.Factories.Contracts;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Factories
