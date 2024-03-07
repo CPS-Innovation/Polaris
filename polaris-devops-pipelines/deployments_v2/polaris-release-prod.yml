@@ -968,7 +968,7 @@ stages:
           - template: tasks/task_run-e2e-tests.yml
             parameters:
               targetLabel: "PROD"
-              buildDefinitionId: 210
+              buildDefinitionId: 240
               devOpsPatToken: "$(System.AccessToken)"
 
       - job: Log_Result
