@@ -8,7 +8,7 @@ using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Common.Domain.SearchIndex;
-using Common.Extensions;
+using text_extractor.Extensions;
 using Common.Dto.Response;
 using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Factories.Contracts;

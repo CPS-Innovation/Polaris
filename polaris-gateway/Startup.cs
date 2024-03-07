@@ -1,16 +1,12 @@
-﻿using Common.Factories;
-using Common.Factories.Contracts;
-using Common.Wrappers;
+﻿using Common.Wrappers;
 using Common.Wrappers.Contracts;
 using PolarisGateway.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using PolarisGateway.common.Mappers;
-using PolarisGateway.Factories;
 using PolarisGateway.Mappers;
-using PolarisGateway.Domain.Validators;
+using PolarisGateway.Validators;
 using Common.Telemetry.Wrappers;
 using Common.Telemetry.Wrappers.Contracts;
 using System.Diagnostics.CodeAnalysis;
@@ -21,7 +17,9 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Common.Configuration;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
-using Common.Streaming;
+using PolarisGateway.Handlers;
+using Common.Factories.Contracts;
+using Common.Factories;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -39,26 +37,16 @@ namespace PolarisGateway
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddSingleton<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddSingleton(_ =>
             {
                 // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
                 return new ConfigurationManager<OpenIdConnectConfiguration>(
-                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(Common.Constants.OAuthSettings.TenantId)}/.well-known/openid-configuration",
+                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
             services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
             services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddSingleton<ITrackerResponseFactory, TrackerResponseFactory>();
-            //services.AddTransient<IPipelineClient, PipelineClient>();
-
-            services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
-            {
-                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
 
             services.AddHttpClient<ICoordinatorClient, CoordinatorClient>(client =>
             {
@@ -66,12 +54,14 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-
             services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
+            services.AddSingleton<IInitializationHandler, InitializationHandler>();
+            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

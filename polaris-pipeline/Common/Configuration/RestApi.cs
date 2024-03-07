@@ -16,9 +16,6 @@ namespace Common.Configuration
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
 
-        // Admin
-        public const string ResetDurableState = "maintenance/resetDurableState";
-
         // Other
         public const string AuthInitialisation = "init";
         public const string Status = "status";

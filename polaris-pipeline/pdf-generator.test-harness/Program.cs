@@ -1,6 +1,6 @@
 ﻿using Common.Constants;
 using Common.Domain.Document;
-using Common.Domain.Extensions;
+using pdf_generator.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Factories;
