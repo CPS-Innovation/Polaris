@@ -146,6 +146,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           dispatch({
             type: "SHOW_ERROR_MODAL",
             payload: {
+              type: "documentalreadycheckedout",
               title: "Failed to redact document",
               message: `It is not possible to redact as the document is already checked out by ${username}. Please try again later.`,
             },
@@ -162,6 +163,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
+            type: "documentcheckout",
             title: "Something went wrong!",
             message: "Failed to checkout document. Please try again later.",
           },
@@ -312,6 +314,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
+            type: "saveredaction",
             title: "Something went wrong!",
             message: "Failed to save redaction. Please try again later.",
           },
@@ -368,6 +371,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
+            type: "saveredactionlog",
             title: "Something went wrong!",
             message:
               redactionLogType === RedactionLogTypes.UNDER_OVER
