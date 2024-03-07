@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace Common.Factories.Contracts
+namespace coordinator.Factories
 {
     public interface IPipelineClientRequestFactory
     {

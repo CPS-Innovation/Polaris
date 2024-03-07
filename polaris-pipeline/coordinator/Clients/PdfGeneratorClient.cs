@@ -9,7 +9,7 @@ using Common.Constants;
 using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using Common.Factories.Contracts;
+using coordinator.Factories;
 using Common.Wrappers.Contracts;
 using Common.Streaming;
 using Microsoft.Extensions.Configuration;

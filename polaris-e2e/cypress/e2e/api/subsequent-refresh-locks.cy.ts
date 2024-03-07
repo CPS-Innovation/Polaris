@@ -19,7 +19,9 @@ describe("Subsequent Refresh Locks", { tags: "@ci" }, () => {
       )
       .then(({ status, body }) => {
         expect(status).to.equal(200)
-        expect(body.trackerUrl).to.equal("/api/tracker")
+        expect(body.trackerUrl).to.equal(
+          `/api/urns/${REFRESH_LOCK_URN}/cases/${REFRESH_LOCK_CASE_ID}/tracker`
+        )
       })
       .api({
         ...routes.TRACKER_START(
