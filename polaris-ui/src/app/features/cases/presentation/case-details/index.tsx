@@ -204,6 +204,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
       {documentIssueModal.show && (
         <ReportAnIssueModal
+          documentTypeId={getActiveTabDocument?.cmsDocType?.documentTypeId}
           documentId={getActiveTabDocument?.documentId!}
           presentationTitle={getActiveTabDocument?.presentationTitle!}
           polarisDocumentVersionId={
