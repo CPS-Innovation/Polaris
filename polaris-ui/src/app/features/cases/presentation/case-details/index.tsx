@@ -168,7 +168,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           <ErrorModalContent
             title={errorModal.title}
             message={errorModal.message}
+            type={errorModal.type}
             handleClose={handleCloseErrorModal}
+            contextData={{ documentId: getActiveTabDocument?.documentId }}
           />
         </Modal>
       )}
