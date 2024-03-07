@@ -4,7 +4,7 @@ import { ErrorModalTypes } from "../../../features/cases/domain/ErrorModalTypes"
 import { useAppInsightsTrackEvent } from "../../../common/hooks/useAppInsightsTracks";
 import classes from "./ErrorModalContent.module.scss";
 
-export type ErrorModalContentProps = {
+type ErrorModalContentProps = {
   title: string;
   message: string;
   type: ErrorModalTypes;
