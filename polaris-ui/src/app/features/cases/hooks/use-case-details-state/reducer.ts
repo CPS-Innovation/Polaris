@@ -27,9 +27,9 @@ import {
   RedactionLogMappingData,
   RedactionTypeData,
 } from "../../domain/redactionLog/RedactionLogData";
-import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 
 export const reducer = (
   state: CombinedState,
@@ -135,6 +135,7 @@ export const reducer = (
         payload: {
           message: string;
           title: string;
+          type: ErrorModalTypes;
         };
       }
     | {
@@ -833,13 +834,14 @@ export const reducer = (
       };
     }
     case "SHOW_ERROR_MODAL": {
-      const { message, title } = action.payload;
+      const { message, title, type } = action.payload;
       return {
         ...state,
         errorModal: {
           show: true,
           message: message,
           title: title,
+          type: type,
         },
       };
     }
@@ -850,6 +852,7 @@ export const reducer = (
           show: false,
           message: "",
           title: "",
+          type: "",
         },
       };
     }
