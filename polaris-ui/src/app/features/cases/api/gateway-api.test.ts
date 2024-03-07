@@ -298,7 +298,7 @@ describe("gateway-apis", () => {
 
     it("initiatePipeline should call fetch and should not call reauthentication", async () => {
       fetchMock.mockResponseOnce(
-        JSON.stringify({ trackerUrl: "http://tracker_url/" }),
+        JSON.stringify({ trackerUrl: "https://tracker_url/" }),
         {
           status: 200,
         }
@@ -312,13 +312,13 @@ describe("gateway-apis", () => {
       expect(response).toEqual({
         correlationId: "correlationId_1",
         status: 200,
-        trackerUrl: "http://tracker_url/",
+        trackerUrl: "https://tracker_url/",
       });
     });
 
     it("initiatePipeline should not throw error if response status is 423", async () => {
       fetchMock.mockResponseOnce(
-        JSON.stringify({ trackerUrl: "http://tracker_url/" }),
+        JSON.stringify({ trackerUrl: "https://tracker_url/" }),
         {
           status: 423,
         }
@@ -333,7 +333,7 @@ describe("gateway-apis", () => {
       expect(response).toEqual({
         correlationId: "correlationId_1",
         status: 423,
-        trackerUrl: "http://tracker_url/",
+        trackerUrl: "https://tracker_url/",
       });
     });
 

@@ -15,9 +15,7 @@ namespace Common.Domain.Extensions
             if (int.TryParse(fileTypeToExamine, out _) || !Enum.TryParse(typeof(FileType), fileTypeToExamine, true, out var type))
                 throw new UnsupportedFileTypeException(fileTypeToExamine);
 
-            return type == null
-                ? FileType.TXT
-                : (FileType)type;
+            return (FileType)type;
         }
     }
 }
