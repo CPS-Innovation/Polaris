@@ -62,6 +62,7 @@ variable "pipeline_logging" {
     coordinator_scale_controller    = string
     pdf_generator_scale_controller  = string
     text_extractor_scale_controller = string
+    pdf_redactor_scale_controller   = string
   })
 }
 
