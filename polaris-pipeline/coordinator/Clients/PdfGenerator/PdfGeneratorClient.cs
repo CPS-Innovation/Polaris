@@ -9,28 +9,27 @@ using Common.Constants;
 using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using coordinator.Factories;
 using Common.Wrappers.Contracts;
 using Common.Streaming;
 using Microsoft.Extensions.Configuration;
 
-namespace coordinator.Clients
+namespace coordinator.Clients.PdfGenerator
 {
     public class PdfGeneratorClient : IPdfGeneratorClient
     {
-        private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
+        private readonly IRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
 
-        public PdfGeneratorClient(IPipelineClientRequestFactory pipelineClientRequestFactory,
+        public PdfGeneratorClient(IRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
             IConfiguration configuration,
             IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory,
             IJsonConvertWrapper jsonConvertWrapper)
         {
-            _pipelineClientRequestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
+            _requestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory ?? throw new ArgumentNullException(nameof(httpResponseMessageStreamFactory));
@@ -39,7 +38,7 @@ namespace coordinator.Clients
 
         public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
+            var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
@@ -69,7 +68,7 @@ namespace coordinator.Clients
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
+                var request = _requestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
                 request.Content = requestMessage;
 
                 response = await _httpClient.SendAsync(request);

@@ -9,33 +9,28 @@ using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
-using coordinator.Factories;
-using Microsoft.Extensions.Configuration;
 using Common.Handlers;
 
-namespace coordinator.Clients
+namespace coordinator.Clients.TextExtractor
 {
     public class TextExtractorClient : ITextExtractorClient
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
-        private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
-        private readonly ITextExtractorClientRequestFactory _pipelineClientSearchRequestFactory;
+        private readonly IRequestFactory _requestFactory;
+        private readonly ISearchDtoContentFactory _searchDtoContentFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         public TextExtractorClient(
             HttpClient httpClient,
-            IConfiguration configuration,
-            IPipelineClientRequestFactory pipelineClientRequestFactory,
-            ITextExtractorClientRequestFactory pipelineClientSearchRequestFactory,
+            IRequestFactory requestFactory,
+            ISearchDtoContentFactory searchDtoContentFactory,
             IJsonConvertWrapper jsonConvertWrapper
             )
         {
-            _httpClient = httpClient;
-            _configuration = configuration;
-            _pipelineClientRequestFactory = pipelineClientRequestFactory;
-            _pipelineClientSearchRequestFactory = pipelineClientSearchRequestFactory;
-            _jsonConvertWrapper = jsonConvertWrapper;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _requestFactory = requestFactory ?? throw new ArgumentNullException(nameof(requestFactory));
+            _searchDtoContentFactory = searchDtoContentFactory ?? throw new ArgumentNullException(nameof(searchDtoContentFactory));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
         public async Task<ExtractTextResult> ExtractTextAsync(
@@ -48,7 +43,7 @@ namespace coordinator.Clients
             Guid correlationId,
             Stream documentStream)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
 
@@ -81,18 +76,20 @@ namespace coordinator.Clients
             IEnumerable<SearchFilterDocument> documents
             )
         {
-            var request = _pipelineClientSearchRequestFactory.Create(caseUrn, cmsCaseId, searchTerm, correlationId, documents);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetSearchPath(caseUrn, cmsCaseId), correlationId);
+            request.Content = _searchDtoContentFactory.Create(searchTerm, documents);
+
             using (var response = await _httpClient.SendAsync(request))
             {
                 response.EnsureSuccessStatusCode();
-                var content = await response.Content.ReadAsStringAsync();
-                return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(responseContent);
             }
         }
 
         public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetRemoveCaseIndexesPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetRemoveCaseIndexesPath(caseUrn, cmsCaseId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -104,7 +101,7 @@ namespace coordinator.Clients
 
         public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetWaitForCaseEmptyResultsPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetWaitForCaseEmptyResultsPath(caseUrn, cmsCaseId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -116,7 +113,7 @@ namespace coordinator.Clients
 
         public async Task<SearchIndexCountResult> GetCaseIndexCount(string caseUrn, long cmsCaseId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetCaseIndexCountResultsPath(caseUrn, cmsCaseId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetCaseIndexCountResultsPath(caseUrn, cmsCaseId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -128,7 +125,7 @@ namespace coordinator.Clients
 
         public async Task<SearchIndexCountResult> GetDocumentIndexCount(string caseUrn, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RestApi.GetDocumentIndexCountResultsPath(caseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetDocumentIndexCountResultsPath(caseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {

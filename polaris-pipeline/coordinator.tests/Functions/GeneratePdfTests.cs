@@ -9,7 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Clients;
+using coordinator.Clients.PdfGenerator;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Dto.Tracker;

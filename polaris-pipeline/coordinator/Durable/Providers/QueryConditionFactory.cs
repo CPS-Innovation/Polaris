@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace coordinator.Factories;
+namespace coordinator.Durable.Providers;
 
 public class QueryConditionFactory : IQueryConditionFactory
 {

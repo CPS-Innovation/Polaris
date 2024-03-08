@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Services.BlobStorageService.Contracts;
@@ -14,6 +13,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using coordinator.Durable.Payloads;
+using coordinator.Clients.PdfGenerator;
 
 namespace coordinator.Durable.Activity
 {

@@ -4,15 +4,15 @@ using Common.Dto.Request;
 using Common.ValueObjects;
 using Newtonsoft.Json;
 
-namespace PolarisGateway.Clients
+namespace PolarisGateway.Clients.Coordinator
 {
     public class CoordinatorClient : ICoordinatorClient
     {
-        private readonly ICoordinatorRequestFactory _requestFactory;
+        private readonly IRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
 
         public CoordinatorClient(
-            ICoordinatorRequestFactory requestFactory,
+            IRequestFactory requestFactory,
             HttpClient httpClient)
         {
             _requestFactory = requestFactory;

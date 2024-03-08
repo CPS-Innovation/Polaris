@@ -1,7 +1,7 @@
 using Common.Dto.Request;
 using Common.ValueObjects;
 
-namespace PolarisGateway.Clients;
+namespace PolarisGateway.Clients.Coordinator;
 
 public interface ICoordinatorClient
 {

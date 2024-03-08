@@ -1,6 +1,6 @@
 ﻿using Common.Configuration;
 using Common.ValueObjects;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;

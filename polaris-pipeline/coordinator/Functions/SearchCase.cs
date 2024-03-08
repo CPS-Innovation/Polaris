@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Configuration;
 using Common.Extensions;
 using coordinator.Durable.Orchestration;
@@ -17,6 +16,7 @@ using coordinator.Durable.Entity;
 using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
+using coordinator.Clients.TextExtractor;
 
 namespace coordinator.Functions
 {

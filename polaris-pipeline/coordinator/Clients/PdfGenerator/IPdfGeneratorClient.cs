@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Clients
+namespace coordinator.Clients.PdfGenerator
 {
     public interface IPdfGeneratorClient
     {

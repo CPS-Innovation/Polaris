@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -19,6 +18,7 @@ using Common.Services.BlobStorageService.Contracts;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
+using coordinator.Clients.PdfGenerator;
 
 namespace coordinator.Functions
 {

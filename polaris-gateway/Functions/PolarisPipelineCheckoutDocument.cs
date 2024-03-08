@@ -4,7 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using Common.ValueObjects;
 using PolarisGateway.Handlers;
 
