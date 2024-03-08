@@ -35,6 +35,12 @@ data "azurerm_subnet" "polaris_pdfgenerator_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_pdfredactor_subnet" {
+  name                 = "${var.resource_name_prefix}-pdfredactor-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_subnet" "polaris_textextractor_subnet" {
   name                 = "${var.resource_name_prefix}-textextractor-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
@@ -148,4 +154,11 @@ data "azurerm_function_app_host_keys" "fa_text_extractor_host_keys" {
   resource_group_name = "rg-${local.resource_name}"
 
   depends_on = [azurerm_linux_function_app.fa_text_extractor]
+}
+
+data "azurerm_function_app_host_keys" "fa_pdf_redactor_host_keys" {
+  name                = "fa-${local.global_name}-pdf-redactor"
+  resource_group_name = "rg-${local.resource_name}"
+
+  depends_on = [azurerm_windows_function_app.fa_pdf_redactor]
 }

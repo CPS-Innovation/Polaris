@@ -8,6 +8,7 @@ pipeline_logging = {
   coordinator_scale_controller    = "AppInsights:Verbose"
   pdf_generator_scale_controller  = "AppInsights:Verbose"
   text_extractor_scale_controller = "AppInsights:Verbose"
+  pdf_redactor_scale_controller   = "AppInsights:Verbose"
 }
 
 pipeline_component_service_plans = {
@@ -23,6 +24,10 @@ pipeline_component_service_plans = {
   text_extractor_always_ready_instances  = 3
   text_extractor_maximum_scale_out_limit = 10
   text_extractor_plan_maximum_burst      = 10
+  pdf_redactor_service_plan_sku          = "EP2"
+  pdf_redactor_always_ready_instances    = 3
+  pdf_redactor_maximum_scale_out_limit   = 15
+  pdf_redactor_plan_maximum_burst        = 15
 }
 
 overnight_clear_down = {
