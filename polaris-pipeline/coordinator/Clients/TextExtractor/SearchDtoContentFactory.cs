@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Text;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request.Search;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 
 namespace coordinator.Clients.TextExtractor
 {

@@ -1,5 +1,4 @@
 ﻿using Common.Wrappers;
-using Common.Wrappers.Contracts;
 using PolarisGateway.Clients.Coordinator;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -7,15 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using PolarisGateway.Mappers;
 using PolarisGateway.Validators;
-using Common.Telemetry.Wrappers;
-using Common.Telemetry.Wrappers.Contracts;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Common.Configuration;
-using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using PolarisGateway.Handlers;
 

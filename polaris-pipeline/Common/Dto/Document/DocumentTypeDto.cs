@@ -1,14 +1,14 @@
-﻿using Common.Constants;
-
-namespace Common.Dto.Document
+﻿namespace Common.Dto.Document
 {
     public class DocumentTypeDto
     {
+        public static string UnknownDocumentType = "1029";
+
         public DocumentTypeDto() { }
 
         public DocumentTypeDto(string documentType, string documentTypeId, string documentCategory)
         {
-            DocumentTypeId = documentTypeId ?? MiscCategories.UnknownDocumentType;
+            DocumentTypeId = documentTypeId ?? UnknownDocumentType;
             DocumentType = documentType;
             DocumentCategory = documentCategory;
         }

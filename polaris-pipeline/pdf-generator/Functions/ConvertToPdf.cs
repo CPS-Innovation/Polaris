@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Http;
 using pdf_generator.Domain.Document;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using pdf_generator.Extensions;
 using Common.Extensions;
 using Common.Logging;
-using Common.Telemetry.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry;
 using Common.Streaming;
 using System.Threading.Tasks;
+using Common.Domain.Document;
 
 namespace pdf_generator.Functions
 {
@@ -55,7 +55,7 @@ namespace pdf_generator.Functions
 
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
 
-                var fileType = request.Headers.GetFileType();
+                var fileType = ConvertToPdfHelper.GetFileType(request.Headers);
 
                 telemetryEvent.FileType = fileType.ToString();
 
@@ -134,5 +134,7 @@ namespace pdf_generator.Functions
                 };
             }
         }
+
+
     }
 }

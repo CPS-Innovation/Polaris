@@ -6,46 +6,22 @@ using text_extractor.Services.OcrService;
 using text_extractor.Factories;
 using text_extractor.Factories.Contracts;
 using text_extractor.Services.CaseSearchService;
-using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Mappers.Contracts;
 using text_extractor.Mappers;
 using System.Diagnostics.CodeAnalysis;
-using Common.Constants;
 using Azure.Search.Documents;
-using Common.Wrappers.Contracts;
-using System.IO;
 using Common.Dto.Request;
-using Common.Handlers.Contracts;
 using Common.Handlers;
 using Common.Mappers;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Telemetry.Wrappers;
-using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using Common.Configuration;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : FunctionsStartup
+    internal class Startup : BaseDependencyInjectionStartup
     {
-        protected IConfigurationRoot Configuration { get; set; }
-
-        // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
-        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
-        {
-            FunctionsHostBuilderContext context = builder.GetContext();
-
-            var configurationBuilder = builder.ConfigurationBuilder
-                .AddEnvironmentVariables()
-#if DEBUG
-                .SetBasePath(Directory.GetCurrentDirectory())
-#endif
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
-
-            Configuration = configurationBuilder.Build();
-        }
-
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var services = builder.Services;

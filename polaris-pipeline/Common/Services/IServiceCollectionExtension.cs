@@ -6,11 +6,10 @@ using Common.Constants;
 using System;
 using Azure.Identity;
 using Azure.Storage.Blobs;
-using Common.Services.BlobStorageService.Contracts;
-using Microsoft.Extensions.Logging;
 using Common.Services.BlobStorageService;
+using Microsoft.Extensions.Logging;
 
-namespace Common.Services.Extensions
+namespace Common.Services
 {
     public static class IServiceCollectionExtension
     {

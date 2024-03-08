@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Common.ValueObjects;
 
-namespace Common.Services.BlobStorageService.Contracts
+namespace Common.Services.BlobStorageService
 {
     public interface IPolarisBlobStorageService
     {

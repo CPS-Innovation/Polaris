@@ -10,7 +10,7 @@ using Azure.Search.Documents.Models;
 using Common.Domain.SearchIndex;
 using text_extractor.Extensions;
 using Common.Dto.Response;
-using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService;
 using text_extractor.Factories.Contracts;
 using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;

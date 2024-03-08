@@ -9,7 +9,7 @@ using Common.Constants;
 using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 using Common.Streaming;
 using Microsoft.Extensions.Configuration;
 
@@ -17,6 +17,7 @@ namespace coordinator.Clients.PdfGenerator
 {
     public class PdfGeneratorClient : IPdfGeneratorClient
     {
+        private const string FiletypeKey = "Filetype";
         private readonly IRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
@@ -40,7 +41,7 @@ namespace coordinator.Clients.PdfGenerator
         {
             var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
-            request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
+            request.Headers.Add(FiletypeKey, fileType.ToString());
 
             using var requestContent = new StreamContent(documentStream);
             request.Content = requestContent;

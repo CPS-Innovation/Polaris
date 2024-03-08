@@ -9,7 +9,7 @@ using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Mappers;
 using Common.Dto.Request;
 using Common.ValueObjects;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using PolarisGateway.TelemetryEvents;
 using System.Net;
 using PolarisGateway.Handlers;

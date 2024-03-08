@@ -4,15 +4,7 @@
     {
         public const string CorrelationId = "Correlation-Id";
         public const string CmsAuthValues = "Cms-Auth-Values";
-        public const string Filetype = nameof(Filetype);
-        public const string PolarisDocumentId = nameof(PolarisDocumentId);
-        public const string BlobName = nameof(BlobName);
         public const string FunctionsKey = "x-functions-key";
-    }
-
-    public static class MiscCategories
-    {
-        public const string UnknownDocumentType = "1029";
     }
 
     public static class ConfigKeys

@@ -22,7 +22,7 @@ using Moq;
 using Xunit;
 using Common.ValueObjects;
 using coordinator.Durable.Entity;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using coordinator.Validators;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
