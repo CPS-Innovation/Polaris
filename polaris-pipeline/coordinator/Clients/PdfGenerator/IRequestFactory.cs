@@ -2,6 +2,7 @@
 using System.Net.Http;
 
 namespace coordinator.Clients.PdfGenerator
+
 {
     public interface IRequestFactory
     {

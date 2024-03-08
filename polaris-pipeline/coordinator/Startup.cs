@@ -5,7 +5,6 @@ using Common.Configuration;
 using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
-using coordinator.Factories;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,8 +47,8 @@ namespace coordinator
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
-            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddTransient<IRequestFactory, RequestFactory>();
+            services.AddTransient<TextExtractor.IRequestFactory, TextExtractor.RequestFactory>();
+            services.AddTransient<PdfGenerator.IRequestFactory, PdfGenerator.RequestFactory>();
             services.AddTransient<ISearchDtoContentFactory, SearchDtoContentFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();

@@ -11,7 +11,6 @@ using System.Threading;
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using coordinator.Factories;
 using coordinator.Constants;
 using Common.Wrappers.Contracts;
 

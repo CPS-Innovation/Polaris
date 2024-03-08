@@ -4,7 +4,7 @@ using System.Net.Http;
 
 namespace coordinator.Clients.PdfGenerator
 {
-    public class PipelineClientRequestFactory : IRequestFactory
+    public class RequestFactory : IRequestFactory
     {
         public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues)
         {
