@@ -12,13 +12,13 @@ namespace PolarisGateway.Functions
     public class PolarisPipelineGetCaseTracker
     {
         private readonly ILogger<PolarisPipelineGetCaseTracker> _logger;
-        private readonly IClient _coordinatorClient;
+        private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineGetCaseTracker(
             ILogger<PolarisPipelineGetCaseTracker> logger,
-            IClient coordinatorClient,
+            ICoordinatorClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Clients.PdfGenerator
 {
-    public class Client : IClient
+    public class PdfGeneratorClient : IPdfGeneratorClient
     {
         private readonly IRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
@@ -23,7 +23,7 @@ namespace coordinator.Clients.PdfGenerator
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
 
-        public Client(IRequestFactory pipelineClientRequestFactory,
+        public PdfGeneratorClient(IRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
             IConfiguration configuration,
             IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory,

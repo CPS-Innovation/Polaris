@@ -12,13 +12,13 @@ namespace PolarisGateway.Functions
     public class Cases
     {
         private readonly ILogger<Cases> _logger;
-        private readonly IClient _coordinatorClient;
+        private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public Cases(
             ILogger<Cases> logger,
-            IClient coordinatorClient,
+            ICoordinatorClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

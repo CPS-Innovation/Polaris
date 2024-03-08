@@ -23,13 +23,13 @@ namespace coordinator.Functions
     public class SearchCase
     {
         private const string QueryStringSearchParam = "query";
-        private readonly IClient _textExtractorClient;
+        private readonly ITextExtractorClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ILogger<SearchCase> _logger;
 
         public SearchCase(
-            IClient textExtractorClient,
+            ITextExtractorClient textExtractorClient,
             ISearchFilterDocumentMapper searchFilterDocumentMapper,
             ITelemetryClient telemetryClient,
             ILogger<SearchCase> logger)

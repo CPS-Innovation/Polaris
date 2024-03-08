@@ -31,7 +31,6 @@ using coordinator.Functions.DurableEntity.Entity.Mapper;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
-using coordinator.Clients.TextExtractor;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -49,18 +48,18 @@ namespace coordinator
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<TextExtractor.IRequestFactory, TextExtractor.RequestFactory>();
             services.AddTransient<PdfGenerator.IRequestFactory, PdfGenerator.RequestFactory>();
-            services.AddTransient<ISearchDtoContentFactory, SearchDtoContentFactory>();
+            services.AddTransient<TextExtractor.ISearchDtoContentFactory, TextExtractor.SearchDtoContentFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
-            services.AddHttpClient<PdfGenerator.IClient, PdfGenerator.Client>(client =>
+            services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>
             {
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            services.AddHttpClient<TextExtractor.IClient, TextExtractor.Client>(client =>
+            services.AddHttpClient<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(client =>
             {
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
@@ -68,7 +67,6 @@ namespace coordinator
 
             services.AddTransient<ITextExtractService, TextExtractService>();
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            services.AddTransient<IRequestFactory, RequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();

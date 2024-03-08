@@ -46,7 +46,7 @@ namespace PolarisGateway
             services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
             services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
 
-            services.AddHttpClient<IClient, Client>(client =>
+            services.AddHttpClient<ICoordinatorClient, CoordinatorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };

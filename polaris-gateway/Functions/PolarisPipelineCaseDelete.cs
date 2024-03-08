@@ -12,13 +12,13 @@ namespace PolarisGateway.Functions
     public class PolarisPipelineCaseDelete
     {
         private readonly ILogger<PolarisPipelineCaseDelete> _logger;
-        private readonly IClient _coordinatorClient;
+        private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineCaseDelete(
             ILogger<PolarisPipelineCaseDelete> logger,
-            IClient coordinatorClient,
+            ICoordinatorClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

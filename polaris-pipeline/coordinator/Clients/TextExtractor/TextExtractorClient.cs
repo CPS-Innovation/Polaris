@@ -9,19 +9,18 @@ using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
-using Microsoft.Extensions.Configuration;
 using Common.Handlers;
 
 namespace coordinator.Clients.TextExtractor
 {
-    public class Client : IClient
+    public class TextExtractorClient : ITextExtractorClient
     {
         private readonly HttpClient _httpClient;
         private readonly IRequestFactory _requestFactory;
         private readonly ISearchDtoContentFactory _searchDtoContentFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public Client(
+        public TextExtractorClient(
             HttpClient httpClient,
             IRequestFactory requestFactory,
             ISearchDtoContentFactory searchDtoContentFactory,

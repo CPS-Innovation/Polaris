@@ -15,11 +15,11 @@ namespace coordinator.Durable.Activity
     public class ExtractText
     {
         private readonly IPolarisBlobStorageService _blobStorageService;
-        private readonly IClient _textExtractorClient;
+        private readonly ITextExtractorClient _textExtractorClient;
         private readonly ITextExtractService _textExtractService;
         private readonly ITelemetryClient _telemetryClient;
 
-        public ExtractText(IPolarisBlobStorageService blobStorageService, IClient textExtractorClient,
+        public ExtractText(IPolarisBlobStorageService blobStorageService, ITextExtractorClient textExtractorClient,
             ITextExtractService textExtractService, ITelemetryClient telemetryClient)
         {
             _blobStorageService = blobStorageService;

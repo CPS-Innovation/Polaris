@@ -3,7 +3,7 @@ using Common.ValueObjects;
 
 namespace PolarisGateway.Clients.Coordinator;
 
-public interface IClient
+public interface ICoordinatorClient
 {
 
     Task<HttpResponseMessage> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId);

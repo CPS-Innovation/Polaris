@@ -13,13 +13,13 @@ namespace PolarisGateway.Functions
     {
         private const string Query = "query";
         private readonly ILogger<PolarisPipelineCaseSearch> _logger;
-        private readonly IClient _coordinatorClient;
+        private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineCaseSearch(
             ILogger<PolarisPipelineCaseSearch> logger,
-            IClient coordinatorClient,
+            ICoordinatorClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

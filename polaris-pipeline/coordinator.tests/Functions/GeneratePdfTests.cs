@@ -42,7 +42,7 @@ namespace pdf_generator.tests.Functions
         private readonly Mock<ILogger<GeneratePdf>> _mockLogger;
         private readonly Mock<IValidatorWrapper<CaseDocumentOrchestrationPayload>> _mockValidatorWrapper;
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
-        private readonly Mock<IClient> _mockPdfGeneratorClient;
+        private readonly Mock<IPdfGeneratorClient> _mockPdfGeneratorClient;
         private readonly GeneratePdf _generatePdf;
 
         public GeneratePdfTests()
@@ -103,7 +103,7 @@ namespace pdf_generator.tests.Functions
                 .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())
                 .Returns(_generatePdfRequest);
 
-            _mockPdfGeneratorClient = new Mock<IClient>();
+            _mockPdfGeneratorClient = new Mock<IPdfGeneratorClient>();
 
             _mockPdfGeneratorClient
                 .Setup(client => client.ConvertToPdfAsync(

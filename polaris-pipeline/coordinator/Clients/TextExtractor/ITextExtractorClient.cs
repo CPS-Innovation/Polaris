@@ -8,7 +8,7 @@ using Common.ValueObjects;
 
 namespace coordinator.Clients.TextExtractor
 {
-    public interface IClient
+    public interface ITextExtractorClient
     {
         Task<ExtractTextResult> ExtractTextAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream documentStream);
         Task<IList<StreamlinedSearchLine>> SearchTextAsync(string caseUrn, long cmsCaseId, string searchTerm, Guid correlationId, IEnumerable<SearchFilterDocument> documents);

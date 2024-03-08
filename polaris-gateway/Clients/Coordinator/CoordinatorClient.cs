@@ -6,12 +6,12 @@ using Newtonsoft.Json;
 
 namespace PolarisGateway.Clients.Coordinator
 {
-    public class Client : IClient
+    public class CoordinatorClient : ICoordinatorClient
     {
         private readonly IRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
 
-        public Client(
+        public CoordinatorClient(
             IRequestFactory requestFactory,
             HttpClient httpClient)
         {

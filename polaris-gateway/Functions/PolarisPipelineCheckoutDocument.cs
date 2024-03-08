@@ -13,13 +13,13 @@ namespace PolarisGateway.Functions
     public class PolarisPipelineCheckoutDocument
     {
         private readonly ILogger<PolarisPipelineCheckoutDocument> _logger;
-        private readonly IClient _coordinatorClient;
+        private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineCheckoutDocument(
             ILogger<PolarisPipelineCheckoutDocument> logger,
-            IClient coordinatorClient,
+            ICoordinatorClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

@@ -26,7 +26,7 @@ namespace coordinator.Functions
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
-        private readonly IClient _redactionClient;
+        private readonly IPdfGeneratorClient _redactionClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
@@ -34,7 +34,7 @@ namespace coordinator.Functions
 
         public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestDto> requestValidator,
-                              IClient redactionClient,
+                              IPdfGeneratorClient redactionClient,
                               IPolarisBlobStorageService blobStorageService,
                               IDdeiClient ddeiClient,
                               IDdeiArgFactory ddeiArgFactory,

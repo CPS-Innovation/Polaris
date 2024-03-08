@@ -13,13 +13,13 @@ namespace coordinator.Services.CleardownService
   public class CleardownService : ICleardownService
   {
     private readonly IPolarisBlobStorageService _blobStorageService;
-    private readonly IClient _textExtractorClient;
+    private readonly ITextExtractorClient _textExtractorClient;
     private readonly ITextExtractService _textExtractorService;
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly ITelemetryClient _telemetryClient;
 
     public CleardownService(IPolarisBlobStorageService blobStorageService,
-      IClient textExtractorClient,
+      ITextExtractorClient textExtractorClient,
       ITextExtractService textExtractorService,
       IOrchestrationProvider orchestrationProvider,
       ITelemetryClient telemetryClient)

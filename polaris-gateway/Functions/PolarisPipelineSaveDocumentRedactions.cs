@@ -22,7 +22,7 @@ namespace PolarisGateway.Functions
     {
         private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
         private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
-        private readonly IClient _coordinatorClient;
+        private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
         private readonly ITelemetryClient _telemetryClient;
@@ -30,7 +30,7 @@ namespace PolarisGateway.Functions
         public PolarisPipelineSaveDocumentRedactions
             (
             IRedactPdfRequestMapper redactPdfRequestMapper,
-            IClient coordinatorClient,
+            ICoordinatorClient coordinatorClient,
             ILogger<PolarisPipelineSaveDocumentRedactions> logger,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,

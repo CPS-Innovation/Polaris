@@ -34,7 +34,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
         private readonly string _caseId;
         private readonly string _documentId;
         private readonly string _versionId;
-        private readonly IClient _pdfGeneratorClient;
+        private readonly IPdfGeneratorClient _pdfGeneratorClient;
         private Mock<HttpMessageHandler> _mockHttpMessageHandler;
         private Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
         private readonly HttpRequestMessage _httpRequestMessage;
@@ -76,7 +76,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent)).Returns(response);
             mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>())).Returns(JsonConvert.SerializeObject(_request));
 
-            var mockRedactionClientLogger = new Mock<ILogger<Client>>();
+            var mockRedactionClientLogger = new Mock<ILogger<PdfGeneratorClient>>();
 
             _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             _mockHttpMessageHandler.Protected()
@@ -84,7 +84,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
                 .ReturnsAsync(_httpResponseMessage);
             var redactPdfHttpClient = new HttpClient(_mockHttpMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
 
-            _pdfGeneratorClient = new Client(
+            _pdfGeneratorClient = new PdfGeneratorClient(
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,

@@ -17,11 +17,11 @@ namespace coordinator.Services.TextExtractService
         private const int RetryDelayInMilliseconds = 500;
         private const int MaxRetryInMilliseconds = 10000;
         private readonly ILogger<TextExtractService> _log;
-        private readonly IClient _textExtractorClient;
+        private readonly ITextExtractorClient _textExtractorClient;
         private long _targetCount;
         private readonly List<long> _recordCounts;
 
-        public TextExtractService(ILogger<TextExtractService> log, IClient textExtractorClient)
+        public TextExtractService(ILogger<TextExtractService> log, ITextExtractorClient textExtractorClient)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _textExtractorClient = textExtractorClient ?? throw new ArgumentNullException(nameof(textExtractorClient));

@@ -20,7 +20,7 @@ namespace coordinator.Durable.Activity
     public class GeneratePdf
     {
         private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
-        private readonly IClient _pdfGeneratorClient;
+        private readonly IPdfGeneratorClient _pdfGeneratorClient;
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
         private readonly IDdeiClient _ddeiClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
@@ -30,7 +30,7 @@ namespace coordinator.Durable.Activity
 
         public GeneratePdf(
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
-            IClient pdfGeneratorCLient,
+            IPdfGeneratorClient pdfGeneratorCLient,
             IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
             IDdeiClient ddeiClient,
             IPolarisBlobStorageService blobStorageService,
