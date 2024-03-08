@@ -6,14 +6,7 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
-<<<<<<< HEAD
-using Common.Factories.Contracts;
-=======
-using Common.Dto.Request;
-using Common.Dto.Response;
 using coordinator.Factories;
->>>>>>> main
-using Common.Wrappers.Contracts;
 using Common.Streaming;
 using Microsoft.Extensions.Configuration;
 
