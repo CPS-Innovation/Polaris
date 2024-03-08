@@ -107,7 +107,7 @@ export const initiatePipeline = async (
   const { trackerUrl }: { trackerUrl: string } = await response.json();
 
   return {
-    trackerUrl,
+    trackerUrl: fullUrl(trackerUrl),
     correlationId: Object.values(correlationIdHeader)[0],
     status: response.status,
   };

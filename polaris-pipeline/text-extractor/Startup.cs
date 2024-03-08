@@ -83,7 +83,7 @@ namespace text_extractor
         private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
         {
 #if DEBUG
-            if (configuration.IsSettingEnabled(DebugSettings.MockOcrService))
+            if (configuration.IsSettingEnabled(MockOcrService.MockOcrServiceSetting))
             {
                 services.AddSingleton<IOcrService, MockOcrService>();
             }

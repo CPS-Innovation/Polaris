@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using PolarisGateway.Domain.Validators;
+using PolarisGateway.Validators;
 using Xunit;
 using FluentValidation.TestHelper;
 using Common.Dto.Request;

@@ -1,5 +1,5 @@
 using AutoFixture;
-using Common.Domain.Extensions;
+using Common.Extensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentValidation.Results;
@@ -15,7 +15,7 @@ public class ValidationResultExtensionsTests
     {
         _fixture = new Fixture();
     }
-    
+
     [Fact]
     public void FlattenErrors_NoErrors_ShouldStillBeFlattened_AsExpected()
     {
@@ -26,7 +26,7 @@ public class ValidationResultExtensionsTests
 
         test.Should().BeEmpty();
     }
-    
+
     [Fact]
     public void FlattenErrors_WithErrors_ShouldBeFlattened_AsExpected()
     {

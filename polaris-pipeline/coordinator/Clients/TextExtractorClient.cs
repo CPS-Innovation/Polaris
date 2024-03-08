@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Domain.SearchIndex;
-using Common.Factories.Contracts;
 using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;

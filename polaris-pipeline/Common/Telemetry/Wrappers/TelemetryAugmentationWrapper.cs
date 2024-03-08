@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics;
-using Common.Constants;
-using Common.Domain.Exceptions;
 using Common.Telemetry.Wrappers.Contracts;
 
 namespace Common.Telemetry.Wrappers

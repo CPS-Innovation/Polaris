@@ -5,17 +5,6 @@ namespace Common.Configuration
 {
     public static class IConfigurationExtension
     {
-        public static bool IsConfigSettingEnabled(this IConfiguration configuration, string settingName)
-        {
-            string text = configuration[settingName];
-            if (!string.IsNullOrEmpty(text) && (string.Compare(text, "1", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(text, "true", StringComparison.OrdinalIgnoreCase) == 0))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         public static string GetValueFromConfig(this IConfiguration configuration, string secretName)
         {
             var secret = configuration[secretName];
@@ -26,6 +15,5 @@ namespace Common.Configuration
 
             return secret;
         }
-
     }
 }

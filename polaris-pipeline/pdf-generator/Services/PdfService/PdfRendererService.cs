@@ -3,7 +3,7 @@ using System.IO;
 using Aspose.Pdf;
 using pdf_generator.Domain.Document;
 using Common.Exceptions;
-using Common.Extensions;
+using pdf_generator.Extensions;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService;

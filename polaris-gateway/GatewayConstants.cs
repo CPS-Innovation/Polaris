@@ -19,3 +19,12 @@ public static class CmsAuthConstants
     public const string CmsLaunchModeFallbackRedirectUrl = "/polaris-ui/";
     public const string CmsLaunchModeUiRootUrl = "/polaris-ui/case-details";
 }
+
+public static class OAuthSettings
+{
+    public const string TenantId = "TenantId";
+    public const string ValidAudience = "CallingAppValidAudience";
+    public const string Bearer = "Bearer";
+    public const string Authorization = "Authorization";
+    //public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
+}

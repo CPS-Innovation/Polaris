@@ -2,8 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Common.Configuration;
-using Common.Factories;
-using Common.Factories.Contracts;
 using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
