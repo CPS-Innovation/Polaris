@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -13,13 +13,13 @@ namespace PolarisGateway.Functions
     {
         private const string Query = "query";
         private readonly ILogger<PolarisPipelineCaseSearch> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineCaseSearch(
             ILogger<PolarisPipelineCaseSearch> logger,
-            ICoordinatorClient coordinatorClient,
+            IClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

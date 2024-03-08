@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Services.BlobStorageService.Contracts;
@@ -14,13 +13,14 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using coordinator.Durable.Payloads;
+using coordinator.Clients.PdfGenerator;
 
 namespace coordinator.Durable.Activity
 {
     public class GeneratePdf
     {
         private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
-        private readonly IPdfGeneratorClient _pdfGeneratorClient;
+        private readonly IClient _pdfGeneratorClient;
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
         private readonly IDdeiClient _ddeiClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
@@ -30,7 +30,7 @@ namespace coordinator.Durable.Activity
 
         public GeneratePdf(
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
-            IPdfGeneratorClient pdfGeneratorCLient,
+            IClient pdfGeneratorCLient,
             IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
             IDdeiClient ddeiClient,
             IPolarisBlobStorageService blobStorageService,

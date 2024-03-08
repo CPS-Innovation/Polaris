@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Dto.Response;
-using coordinator.Clients;
+using coordinator.Clients.TextExtractor;
 using coordinator.Services.TextExtractService;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -17,7 +17,7 @@ namespace coordinator.tests.Services.TextExtract
     {
         private readonly Fixture _fixture;
         private readonly Mock<ILogger<TextExtractService>> _mockLogger;
-        private readonly Mock<ITextExtractorClient> _mockTextExtractorClient;
+        private readonly Mock<IClient> _mockTextExtractorClient;
         private readonly TextExtractService _textExtractService;
         private readonly ResiliencePipeline<SearchIndexCountResult> _resiliencePipeline;
         private readonly ResiliencePipelineDescriptor _resiliencePipelineDescriptor;
@@ -27,7 +27,7 @@ namespace coordinator.tests.Services.TextExtract
         {
             _fixture = new Fixture();
             _mockLogger = new Mock<ILogger<TextExtractService>>();
-            _mockTextExtractorClient = new Mock<ITextExtractorClient>();
+            _mockTextExtractorClient = new Mock<IClient>();
             _textExtractService = new TextExtractService(_mockLogger.Object, _mockTextExtractorClient.Object);
 
             _resiliencePipeline = _textExtractService.GetIndexCountResiliencePipeline(_fixture.Create<Guid>());

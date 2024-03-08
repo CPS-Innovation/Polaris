@@ -1,6 +1,6 @@
 ﻿using Common.Configuration;
 using Common.ValueObjects;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -14,13 +14,13 @@ namespace PolarisGateway.Functions
     public class PolarisPipelineCancelCheckoutDocument
     {
         private readonly ILogger<PolarisPipelineCancelCheckoutDocument> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineCancelCheckoutDocument(
             ILogger<PolarisPipelineCancelCheckoutDocument> logger,
-            ICoordinatorClient coordinatorClient,
+            IClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

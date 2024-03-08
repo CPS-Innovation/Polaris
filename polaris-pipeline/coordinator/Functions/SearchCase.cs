@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Configuration;
 using Common.Extensions;
 using coordinator.Durable.Orchestration;
@@ -17,19 +16,20 @@ using coordinator.Durable.Entity;
 using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
+using coordinator.Clients.TextExtractor;
 
 namespace coordinator.Functions
 {
     public class SearchCase
     {
         private const string QueryStringSearchParam = "query";
-        private readonly ITextExtractorClient _textExtractorClient;
+        private readonly IClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ILogger<SearchCase> _logger;
 
         public SearchCase(
-            ITextExtractorClient textExtractorClient,
+            IClient textExtractorClient,
             ISearchFilterDocumentMapper searchFilterDocumentMapper,
             ITelemetryClient telemetryClient,
             ILogger<SearchCase> logger)

@@ -4,7 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -14,13 +14,13 @@ namespace PolarisGateway.Functions
     public class PolarisPipelineCase
     {
         private readonly ILogger<PolarisPipelineCase> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineCase(
             ILogger<PolarisPipelineCase> logger,
-            ICoordinatorClient coordinatorClient,
+            IClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

@@ -6,7 +6,6 @@ using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
 using coordinator.Factories;
-using coordinator.Clients;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +30,9 @@ using coordinator.Services.CleardownService;
 using coordinator.Durable.Payloads;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using PdfGenerator = coordinator.Clients.PdfGenerator;
+using TextExtractor = coordinator.Clients.TextExtractor;
+using coordinator.Clients.TextExtractor;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -47,18 +49,19 @@ namespace coordinator
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
+            services.AddTransient<IRequestFactory, RequestFactory>();
+            services.AddTransient<ISearchDtoContentFactory, SearchDtoContentFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
-            services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
+            services.AddHttpClient<PdfGenerator.IClient, PdfGenerator.Client>(client =>
             {
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
+            services.AddHttpClient<TextExtractor.IClient, TextExtractor.Client>(client =>
             {
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(ConfigKeys.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
@@ -66,7 +69,7 @@ namespace coordinator
 
             services.AddTransient<ITextExtractService, TextExtractService>();
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
+            services.AddTransient<IRequestFactory, RequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();

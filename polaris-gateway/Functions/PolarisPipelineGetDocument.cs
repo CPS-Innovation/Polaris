@@ -5,7 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using Common.ValueObjects;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -14,13 +14,13 @@ namespace PolarisGateway.Functions
     {
         private const string PdfContentType = "application/pdf";
         private readonly ILogger<PolarisPipelineGetDocument> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public PolarisPipelineGetDocument(
             ILogger<PolarisPipelineGetDocument> logger,
-            ICoordinatorClient coordinatorClient,
+            IClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

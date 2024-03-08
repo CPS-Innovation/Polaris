@@ -1,6 +1,6 @@
 ﻿using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +46,7 @@ namespace PolarisGateway
             services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
             services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
 
-            services.AddHttpClient<ICoordinatorClient, CoordinatorClient>(client =>
+            services.AddHttpClient<IClient, Client>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
@@ -59,7 +59,7 @@ namespace PolarisGateway
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
             services.AddSingleton<IInitializationHandler, InitializationHandler>();
-            services.AddTransient<ICoordinatorRequestFactory, CoordinatorRequestFactory>();
+            services.AddTransient<IRequestFactory, RequestFactory>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

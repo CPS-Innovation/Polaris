@@ -6,7 +6,7 @@ using Common.Dto.Response;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Telemetry;
 using Common.Telemetry.Contracts;
-using coordinator.Clients;
+using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
 using coordinator.Services.TextExtractService;
 using coordinator.Services.CleardownService;
@@ -20,7 +20,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
     private readonly int _caseId;
     private readonly Guid _correlationId;
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
-    private readonly Mock<ITextExtractorClient> _mockTextExtractorClient;
+    private readonly Mock<IClient> _mockTextExtractorClient;
     private readonly Mock<ITextExtractService> _mockTextExtractorService;
     private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
     private readonly Mock<ITelemetryClient> _mockTelemetryClient;
@@ -37,7 +37,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
 
       _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
       _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
-      _mockTextExtractorClient = new Mock<ITextExtractorClient>();
+      _mockTextExtractorClient = new Mock<IClient>();
       _mockTextExtractorClient.Setup(m => m.RemoveCaseIndexesAsync(_caseUrn, _caseId, _correlationId))
         .ReturnsAsync(new IndexDocumentsDeletedResult());
       _mockTextExtractorService = new Mock<ITextExtractService>();

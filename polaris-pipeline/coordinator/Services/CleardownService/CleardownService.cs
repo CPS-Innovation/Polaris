@@ -1,6 +1,6 @@
 using Common.Services.BlobStorageService.Contracts;
 using Common.Telemetry.Contracts;
-using coordinator.Clients;
+using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
 using coordinator.Services.TextExtractService;
 using coordinator.TelemetryEvents;
@@ -13,13 +13,13 @@ namespace coordinator.Services.CleardownService
   public class CleardownService : ICleardownService
   {
     private readonly IPolarisBlobStorageService _blobStorageService;
-    private readonly ITextExtractorClient _textExtractorClient;
+    private readonly IClient _textExtractorClient;
     private readonly ITextExtractService _textExtractorService;
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly ITelemetryClient _telemetryClient;
 
     public CleardownService(IPolarisBlobStorageService blobStorageService,
-      ITextExtractorClient textExtractorClient,
+      IClient textExtractorClient,
       ITextExtractService textExtractorService,
       IOrchestrationProvider orchestrationProvider,
       ITelemetryClient telemetryClient)

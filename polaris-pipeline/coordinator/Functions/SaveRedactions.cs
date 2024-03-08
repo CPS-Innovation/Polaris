@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -19,6 +18,7 @@ using Common.Services.BlobStorageService.Contracts;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
+using coordinator.Clients.PdfGenerator;
 
 namespace coordinator.Functions
 {
@@ -26,7 +26,7 @@ namespace coordinator.Functions
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
-        private readonly IPdfGeneratorClient _redactionClient;
+        private readonly IClient _redactionClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
@@ -34,7 +34,7 @@ namespace coordinator.Functions
 
         public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestDto> requestValidator,
-                              IPdfGeneratorClient redactionClient,
+                              IClient redactionClient,
                               IPolarisBlobStorageService blobStorageService,
                               IDdeiClient ddeiClient,
                               IDdeiArgFactory ddeiArgFactory,

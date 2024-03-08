@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace coordinator.Factories
+namespace coordinator.Clients.PdfGenerator
 {
-    public interface IPipelineClientRequestFactory
+    public interface IRequestFactory
     {
         HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null);
     }

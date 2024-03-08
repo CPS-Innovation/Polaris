@@ -5,7 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Validators;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Mappers;
 using Common.Dto.Request;
 using Common.ValueObjects;
@@ -22,7 +22,7 @@ namespace PolarisGateway.Functions
     {
         private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
         private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
         private readonly ITelemetryClient _telemetryClient;
@@ -30,7 +30,7 @@ namespace PolarisGateway.Functions
         public PolarisPipelineSaveDocumentRedactions
             (
             IRedactPdfRequestMapper redactPdfRequestMapper,
-            ICoordinatorClient coordinatorClient,
+            IClient coordinatorClient,
             ILogger<PolarisPipelineSaveDocumentRedactions> logger,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,

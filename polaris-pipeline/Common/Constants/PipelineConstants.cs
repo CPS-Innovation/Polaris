@@ -7,6 +7,7 @@
         public const string Filetype = nameof(Filetype);
         public const string PolarisDocumentId = nameof(PolarisDocumentId);
         public const string BlobName = nameof(BlobName);
+        public const string FunctionsKey = "x-functions-key";
     }
 
     public static class MiscCategories

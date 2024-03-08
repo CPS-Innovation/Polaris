@@ -5,9 +5,9 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Clients
+namespace coordinator.Clients.PdfGenerator
 {
-    public interface IPdfGeneratorClient
+    public interface IClient
     {
         Task<RedactPdfResponse> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId);
 

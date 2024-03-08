@@ -6,9 +6,9 @@ using Common.Domain.SearchIndex;
 using Common.Dto.Response;
 using Common.ValueObjects;
 
-namespace coordinator.Clients
+namespace coordinator.Clients.TextExtractor
 {
-    public interface ITextExtractorClient
+    public interface IClient
     {
         Task<ExtractTextResult> ExtractTextAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream documentStream);
         Task<IList<StreamlinedSearchLine>> SearchTextAsync(string caseUrn, long cmsCaseId, string searchTerm, Guid correlationId, IEnumerable<SearchFilterDocument> documents);

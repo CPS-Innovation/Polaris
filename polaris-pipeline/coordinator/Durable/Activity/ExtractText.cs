@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Common.Dto.Response;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Telemetry.Contracts;
-using coordinator.Clients;
+using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Payloads;
 using coordinator.Services.TextExtractService;
 using Microsoft.Azure.WebJobs;
@@ -15,11 +15,11 @@ namespace coordinator.Durable.Activity
     public class ExtractText
     {
         private readonly IPolarisBlobStorageService _blobStorageService;
-        private readonly ITextExtractorClient _textExtractorClient;
+        private readonly IClient _textExtractorClient;
         private readonly ITextExtractService _textExtractService;
         private readonly ITelemetryClient _telemetryClient;
 
-        public ExtractText(IPolarisBlobStorageService blobStorageService, ITextExtractorClient textExtractorClient,
+        public ExtractText(IPolarisBlobStorageService blobStorageService, IClient textExtractorClient,
             ITextExtractService textExtractService, ITelemetryClient telemetryClient)
         {
             _blobStorageService = blobStorageService;

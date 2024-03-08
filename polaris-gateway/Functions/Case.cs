@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -12,13 +12,13 @@ namespace PolarisGateway.Functions
     public class Case
     {
         private readonly ILogger<Case> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public Case(
             ILogger<Case> logger,
-            ICoordinatorClient coordinatorClient,
+            IClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {

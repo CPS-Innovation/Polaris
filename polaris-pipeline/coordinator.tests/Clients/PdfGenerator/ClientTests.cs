@@ -20,13 +20,14 @@ using Common.Dto.Response;
 using Common.Configuration;
 using Common.Streaming;
 using System.IO;
+using coordinator.Clients.PdfGenerator;
 
-namespace coordinator.Clients.Tests.Clients
+namespace coordinator.Tests.Clients.PdfGenerator
 {
-    public class PdfGeneratorClientTests
+    public class ClientTests
     {
         private readonly RedactPdfRequestDto _request;
-        private readonly Mock<IPipelineClientRequestFactory> _mockRequestFactory;
+        private readonly Mock<IRequestFactory> _mockRequestFactory;
         private readonly string _polarisPipelineRedactPdfFunctionAppKey;
         private readonly Fixture _fixture;
         private readonly Guid _correlationId;
@@ -34,18 +35,18 @@ namespace coordinator.Clients.Tests.Clients
         private readonly string _caseId;
         private readonly string _documentId;
         private readonly string _versionId;
-        private readonly IPdfGeneratorClient _pdfGeneratorClient;
+        private readonly IClient _pdfGeneratorClient;
         private Mock<HttpMessageHandler> _mockHttpMessageHandler;
         private Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _httpResponseMessage;
 
-        public PdfGeneratorClientTests()
+        public ClientTests()
         {
             _fixture = new Fixture();
 
             _request = _fixture.Create<RedactPdfRequestDto>();
-            _mockRequestFactory = new Mock<IPipelineClientRequestFactory>();
+            _mockRequestFactory = new Mock<IRequestFactory>();
             _correlationId = _fixture.Create<Guid>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<string>();
@@ -76,7 +77,7 @@ namespace coordinator.Clients.Tests.Clients
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent)).Returns(response);
             mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>())).Returns(JsonConvert.SerializeObject(_request));
 
-            var mockRedactionClientLogger = new Mock<ILogger<PdfGeneratorClient>>();
+            var mockRedactionClientLogger = new Mock<ILogger<Client>>();
 
             _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             _mockHttpMessageHandler.Protected()
@@ -84,7 +85,7 @@ namespace coordinator.Clients.Tests.Clients
                 .ReturnsAsync(_httpResponseMessage);
             var redactPdfHttpClient = new HttpClient(_mockHttpMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
 
-            _pdfGeneratorClient = new PdfGeneratorClient(
+            _pdfGeneratorClient = new Client(
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
