@@ -28,6 +28,10 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"          = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
+    # "PolarisPipelineRedactorPdfBaseUrl"             = https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/
+    # "PolarisPipelineRedactorPdfFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_pdf_redactor_host_keys.default_function_key
+    "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
+    "PolarisPipelineRedactorPdfFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_text_extractor_host_keys.default_function_key
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller

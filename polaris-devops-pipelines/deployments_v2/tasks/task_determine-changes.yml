@@ -20,6 +20,7 @@ steps:
         $networkingTerraformCount=0
         $coordinatorCount=0
         $pdfGeneratorCount=0
+        $pdfRedactorCount=0
         $textExtractorCount=0
         $gatewayCount=0
         $uiCount=0
@@ -71,6 +72,12 @@ steps:
             echo "run pdf generator..."
             Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
             $pdfGeneratorCount++
+          }
+          if ($name -like 'polaris-pipeline/pdf-redactor/*' -Or $name -like 'polaris-pipeline/pdf-redactor.tests/*')
+          {
+            echo "run pdf redactor..."
+            Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+            $pdfRedactorCount++
           }
           if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
           {
