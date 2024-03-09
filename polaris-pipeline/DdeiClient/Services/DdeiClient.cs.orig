@@ -60,6 +60,13 @@ namespace Ddei.Services
             return _caseIdentifiersMapper.MapCaseIdentifiers(result);
         }
 
+<<<<<<< HEAD
+        public async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg)
+        {
+            try
+            {
+                var caseIdentifiers = await ListCaseIdsInternalAsync(arg);
+=======
         private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiCmsUrnArgDto arg)
         {
             return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
@@ -68,6 +75,7 @@ namespace Ddei.Services
         public async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg)
         {
             var caseIdentifiers = await ListCaseIdsAsync(arg);
+>>>>>>> main
 
             var calls = caseIdentifiers.Select(async caseIdentifier =>
                  await GetCaseInternalAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
@@ -157,6 +165,11 @@ namespace Ddei.Services
         public async Task UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream)
         {
             await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream));
+        }
+
+        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsInternalAsync(DdeiCmsUrnArgDto arg)
+        {
+            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)

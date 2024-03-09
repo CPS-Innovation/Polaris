@@ -1,0 +1,38 @@
+﻿using System;
+
+namespace Common.Extensions
+{
+    public static class StringExtensions
+    {
+        public static string UrlDecodeString(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
+        }
+
+        public static string ToLowerFirstChar(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToLower(input[0]) + input.Substring(1);
+        }
+    }
+<<<<<<< HEAD
+
+    // todo: delete post refactor
+    public static string ExtractLoadBalancerCookies(this string cookieString)
+    {
+      if (string.IsNullOrWhiteSpace(cookieString))
+      {
+        return string.Empty;
+      }
+
+      var pattern = new Regex(@$"(BIGipServer[^;]*)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
+      var matches = pattern.Matches(cookieString);
+      var cookies = matches.ToList().Select(m => m.Value);
+      return string.Join("; ", cookies);
+    }
+  }
+=======
+>>>>>>> main
+}
