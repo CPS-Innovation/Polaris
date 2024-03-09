@@ -81,13 +81,26 @@ namespace Common.Telemetry
 
         private static string CleanPropertyName(string name)
         {
-            return name
+            var propertyName = name
                 // If the fields being captured are private and follow  _foo convention
                 // then we need to remove the leading underscore
-                .Replace("_", string.Empty)
-                // If the fields being captured are public and follow Foo convention
-                // then we need to lowercase the first character
-                .ToLowerFirstChar();
+                .Replace("_", string.Empty);
+
+            // If the fields being captured are public and follow Foo convention
+            // then we need to lowercase the first character
+
+            // Later note: going to lower case first char was not a good idea. In Log Analytics
+            //  the convention seems to be Title case, and so in our Log Analytics functions (views)
+            //  we are always converting back to title case.  A bit late now to change this.
+            return ToLowerFirstChar(propertyName);
+        }
+
+        public static string ToLowerFirstChar(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToLower(input[0]) + input.Substring(1);
         }
     }
 }

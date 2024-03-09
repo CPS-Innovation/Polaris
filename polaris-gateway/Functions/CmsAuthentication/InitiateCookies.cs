@@ -215,7 +215,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
                 return null;
             }
 
-            var decodedCmsRedirectParam = cmsRedirectParam.ToString().UrlDecodeString();
+            var decodedCmsRedirectParam = UrlDecodeString(cmsRedirectParam.ToString());
             var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CmsHandoverParams>(decodedCmsRedirectParam);
             if (cmsParamObject == null)
             {
@@ -286,6 +286,11 @@ namespace PolarisGateway.Functions.CmsAuthentication
               ".CMSAUTH",
               "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
             };
+        }
+
+        private static string UrlDecodeString(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
         }
     }
 }
