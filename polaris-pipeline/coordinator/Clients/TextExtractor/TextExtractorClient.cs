@@ -8,13 +8,14 @@ using Common.Domain.SearchIndex;
 using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 using Common.Handlers;
 
 namespace coordinator.Clients.TextExtractor
 {
     public class TextExtractorClient : ITextExtractorClient
     {
+        private const string PolarisDocumentId = nameof(PolarisDocumentId);
         private readonly HttpClient _httpClient;
         private readonly IRequestFactory _requestFactory;
         private readonly ISearchDtoContentFactory _searchDtoContentFactory;
@@ -44,8 +45,10 @@ namespace coordinator.Clients.TextExtractor
             Stream documentStream)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
-            request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
-            request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
+            request.Headers.Add(PolarisDocumentId, polarisDocumentId.ToString());
+
+            // BlobName header is deprecated and will be removed in the future
+            request.Headers.Add("BlobName", blobName);
 
             using var requestContent = new StreamContent(documentStream);
             request.Content = requestContent;

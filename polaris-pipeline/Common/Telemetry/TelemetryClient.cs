@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.Extensions;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using AppInsights = Microsoft.ApplicationInsights;
 
 namespace Common.Telemetry

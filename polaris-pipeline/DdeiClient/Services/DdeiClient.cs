@@ -2,14 +2,14 @@ using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using DdeiClient.Services;
 using DdeiClient.Mappers;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 using Ddei.Domain;
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Microsoft.Extensions.Logging;
-using Common.Exceptions;
 using System.Net;
 using Ddei.Factories;
+using DdeiClient.Exceptions;
 
 namespace Ddei.Services
 {

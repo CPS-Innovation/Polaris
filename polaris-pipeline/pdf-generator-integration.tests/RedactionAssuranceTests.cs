@@ -4,7 +4,7 @@ using AutoFixture;
 using Aspose.Pdf;
 using pdf_generator.Services.DocumentRedaction.Aspose;
 using pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;

@@ -1,5 +1,5 @@
 
-namespace Common.Telemetry.Contracts
+namespace Common.Telemetry
 {
     public interface ITelemetryClient
     {

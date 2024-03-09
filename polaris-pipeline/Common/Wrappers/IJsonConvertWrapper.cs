@@ -1,4 +1,4 @@
-﻿namespace Common.Wrappers.Contracts
+﻿namespace Common.Wrappers
 {
     public interface IJsonConvertWrapper
     {

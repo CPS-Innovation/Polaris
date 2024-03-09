@@ -3,7 +3,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Handlers.Contracts
+namespace Common.Handlers
 {
     public interface IExceptionHandler
     {

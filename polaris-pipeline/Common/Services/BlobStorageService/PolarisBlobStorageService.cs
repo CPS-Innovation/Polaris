@@ -7,7 +7,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Common.Extensions;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using Common.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;

@@ -1,5 +1,5 @@
-using Common.Services.BlobStorageService.Contracts;
-using Common.Telemetry.Contracts;
+using Common.Services.BlobStorageService;
+using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
 using coordinator.Services.TextExtractService;

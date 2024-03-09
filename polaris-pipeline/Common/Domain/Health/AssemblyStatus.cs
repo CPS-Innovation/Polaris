@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Common.Health.Status
+namespace Common.Domain.Health
 {
 	public class AssemblyStatus
 	{
 		public string Name { get; set; }
-		
+
 		public string BuildVersion { get; set; }
 
 		public string SourceVersion { get; set; }

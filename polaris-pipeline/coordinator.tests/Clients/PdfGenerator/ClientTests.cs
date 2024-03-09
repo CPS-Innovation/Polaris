@@ -12,7 +12,7 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using coordinator.Constants;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 
 using Common.Dto.Request;
 using Common.Dto.Response;

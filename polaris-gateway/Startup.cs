@@ -1,5 +1,4 @@
 ﻿using Common.Wrappers;
-using Common.Wrappers.Contracts;
 using PolarisGateway.Clients.Coordinator;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -7,15 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using PolarisGateway.Mappers;
 using PolarisGateway.Validators;
-using Common.Telemetry.Wrappers;
-using Common.Telemetry.Wrappers.Contracts;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Common.Configuration;
-using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using PolarisGateway.Handlers;
 
@@ -24,8 +19,25 @@ using PolarisGateway.Handlers;
 namespace PolarisGateway
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : BaseDependencyInjectionStartup
+    internal class Startup : FunctionsStartup
     {
+        protected IConfigurationRoot Configuration { get; set; }
+
+        // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
+        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
+        {
+            FunctionsHostBuilderContext context = builder.GetContext();
+
+            var configurationBuilder = builder.ConfigurationBuilder
+                .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
+
+            Configuration = configurationBuilder.Build();
+        }
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
 #if DEBUG

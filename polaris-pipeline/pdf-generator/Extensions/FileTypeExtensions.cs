@@ -1,8 +1,7 @@
 ﻿using System;
 using Common.Domain.Document;
-using Common.Domain.Exceptions;
 
-namespace Common.Domain.Extensions
+namespace pdf_generator.Domain.Extensions
 {
     public static class FileTypeExtensions
     {
@@ -13,7 +12,7 @@ namespace Common.Domain.Extensions
                 : fileType;
 
             if (int.TryParse(fileTypeToExamine, out _) || !Enum.TryParse(typeof(FileType), fileTypeToExamine, true, out var type))
-                throw new UnsupportedFileTypeException(fileTypeToExamine);
+                throw new FileTypeException(fileTypeToExamine);
 
             return (FileType)type;
         }

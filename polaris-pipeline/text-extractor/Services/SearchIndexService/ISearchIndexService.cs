@@ -6,7 +6,7 @@ using Common.ValueObjects;
 using Common.Dto.Response;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace text_extractor.Services.CaseSearchService.Contracts
+namespace text_extractor.Services.CaseSearchService
 {
     public interface ISearchIndexService
     {

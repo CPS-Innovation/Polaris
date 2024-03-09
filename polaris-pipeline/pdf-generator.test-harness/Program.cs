@@ -4,7 +4,6 @@ using pdf_generator.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Telemetry;
-using Common.Telemetry.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -208,7 +207,7 @@ internal static class Program
           var fileType = Enum.Parse<FileType>(extension);
 
           var request = pipelineClientRequestFactory.Create(HttpMethod.Post, "urns/test-case-urn/cases/test-case-id/documents/test-document-id/versions/test-version-id/test-convert-to-pdf", currentCorrelationId);
-          request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
+          request.Headers.Add("Filetype", fileType.ToString());
 
           using (var requestContent = new StreamContent(fileStream))
           {

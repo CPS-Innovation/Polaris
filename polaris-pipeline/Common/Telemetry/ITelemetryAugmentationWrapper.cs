@@ -1,6 +1,6 @@
 using System;
 
-namespace Common.Telemetry.Wrappers.Contracts
+namespace Common.Telemetry
 {
     public interface ITelemetryAugmentationWrapper
     {

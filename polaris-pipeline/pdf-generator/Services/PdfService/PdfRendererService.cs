@@ -2,7 +2,6 @@
 using System.IO;
 using Aspose.Pdf;
 using pdf_generator.Domain.Document;
-using Common.Exceptions;
 using pdf_generator.Extensions;
 using pdf_generator.Factories.Contracts;
 

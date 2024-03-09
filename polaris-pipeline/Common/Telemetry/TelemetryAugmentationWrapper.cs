@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry;
 
-namespace Common.Telemetry.Wrappers
+namespace Common.Telemetry
 {
     public class TelemetryAugmentationWrapper : ITelemetryAugmentationWrapper
     {

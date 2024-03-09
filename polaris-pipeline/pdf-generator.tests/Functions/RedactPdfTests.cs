@@ -3,7 +3,7 @@ using Moq;
 using pdf_generator.Functions;
 using System.Net;
 using System.Threading.Tasks;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using FluentAssertions;
 using Newtonsoft.Json;
 using pdf_generator.Services.DocumentRedaction;
@@ -18,11 +18,11 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using Common.Handlers.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
 
 namespace pdf_generator.tests.Functions
 {

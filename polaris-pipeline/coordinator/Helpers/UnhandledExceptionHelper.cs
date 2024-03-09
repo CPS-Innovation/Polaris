@@ -2,9 +2,9 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Logging;
-using Common.Domain.Exceptions;
-using Microsoft.AspNetCore.Http;
 using Common.Exceptions;
+using Microsoft.AspNetCore.Http;
+using DdeiClient.Exceptions;
 
 namespace coordinator.Helpers;
 

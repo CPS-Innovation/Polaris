@@ -2,7 +2,6 @@
 using System.IO;
 using Aspose.Slides;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Moq;
 using pdf_generator.Factories.Contracts;
 using pdf_generator.Services.PdfService;
