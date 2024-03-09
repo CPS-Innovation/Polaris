@@ -1,21 +1,18 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
-using Common.Domain.Exceptions;
-using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
 using coordinator.Durable.Providers;
 using coordinator.Services.CleardownService;
 using coordinator.Durable.Payloads;
+using Microsoft.AspNetCore.Http;
+using coordinator.Helpers;
+using coordinator.Domain;
 
 namespace coordinator.Functions
 {
@@ -36,12 +33,12 @@ namespace coordinator.Functions
         }
 
         [FunctionName(nameof(RefreshCase))]
-        [ProducesResponseType((int)HttpStatusCode.Accepted)]
-        [ProducesResponseType((int)HttpStatusCode.Locked)] // Refresh already running
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<HttpResponseMessage> Run
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status423Locked)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Run
             (
-                [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequestMessage req,
+                [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req,
                 string caseUrn,
                 int caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
@@ -55,28 +52,18 @@ namespace coordinator.Functions
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
                 var casePayload = new CaseOrchestrationPayload(caseUrn, caseId, cmsAuthValues, currentCorrelationId);
+                var isAccepted = await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId.ToString(), casePayload, req);
 
-                return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId.ToString(), casePayload, req);
-            }
-            catch (Exception exception)
-            {
-                var rootCauseMessage = "An unhandled exception occurred";
-                var httpStatusCode = HttpStatusCode.InternalServerError;
-
-                if (exception is BadRequestException)
+                return new ObjectResult(new RefreshCaseResponse(caseUrn, caseId))
                 {
-                    rootCauseMessage = "Invalid request";
-                    httpStatusCode = HttpStatusCode.BadRequest;
-                }
-
-                var errorMessage = $"{rootCauseMessage}. {exception.Message}.  Base exception message: {exception.GetBaseException().Message}";
-
-                _logger.LogMethodError(currentCorrelationId, nameof(RefreshCase), errorMessage, exception);
-
-                return new HttpResponseMessage(httpStatusCode)
-                {
-                    Content = new StringContent(errorMessage, Encoding.UTF8, MediaTypeNames.Application.Json)
+                    StatusCode = isAccepted
+                        ? StatusCodes.Status200OK
+                        : StatusCodes.Status423Locked
                 };
+            }
+            catch (Exception ex)
+            {
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(RefreshCase), currentCorrelationId, ex);
             }
         }
     }

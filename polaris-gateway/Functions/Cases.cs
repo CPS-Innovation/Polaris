@@ -1,48 +1,54 @@
 ﻿using Common.Configuration;
-using PolarisGateway.Domain.Validators;
-using DdeiClient.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Common.Telemetry.Wrappers.Contracts;
-using Ddei.Factories;
+using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class Cases : BasePolarisFunction
+    public class Cases
     {
-        private readonly IDdeiClient _ddeiClient;
-        private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly ILogger<Cases> _logger;
+        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        public Cases(ILogger<Cases> logger,
-                        IDdeiClient caseDataService,
-                        IAuthorizationValidator tokenValidator,
-                        IDdeiArgFactory ddeiArgFactory,
-                        ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
-        : base(logger, tokenValidator, telemetryAugmentationWrapper)
+        public Cases(
+            ILogger<Cases> logger,
+            ICoordinatorClient coordinatorClient,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _ddeiClient = caseDataService;
-            _ddeiArgFactory = ddeiArgFactory;
+            _logger = logger;
+            _coordinatorClient = coordinatorClient;
+            _initializationHandler = initializationHandler;
+            _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
         [FunctionName(nameof(Cases))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
+            (Guid CorrelationId, string CmsAuthValues) context = default;
             try
             {
-                await Initiate(req);
-
-                var arg = _ddeiArgFactory.CreateUrnArg(CmsAuthValues, CorrelationId, caseUrn);
-                var result = await _ddeiClient.ListCasesAsync(arg);
-
-                return new OkObjectResult(result);
+                context = await _initializationHandler.Initialize(req);
+                return await _coordinatorClient.GetCasesAsync(
+                    caseUrn,
+                    context.CmsAuthValues,
+                    context.CorrelationId);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return HandleUnhandledException(exception);
+                return _unhandledExceptionHandler.HandleUnhandledException(
+                      _logger,
+                      nameof(Cases),
+                      context.CorrelationId,
+                      ex
+                    );
             }
         }
     }

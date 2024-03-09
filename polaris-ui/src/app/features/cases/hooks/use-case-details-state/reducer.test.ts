@@ -2239,6 +2239,7 @@ describe("useCaseDetailsState reducer", () => {
       const result = reducer(existingState as CombinedState, {
         type: "SHOW_ERROR_MODAL",
         payload: {
+          type: "saveredaction",
           message: "error message",
           title: "error title",
         },
@@ -2249,6 +2250,7 @@ describe("useCaseDetailsState reducer", () => {
           show: true,
           message: "error message",
           title: "error title",
+          type: "saveredaction",
         },
       });
     });
@@ -2272,6 +2274,7 @@ describe("useCaseDetailsState reducer", () => {
           show: false,
           message: "",
           title: "",
+          type: "",
         },
       });
     });

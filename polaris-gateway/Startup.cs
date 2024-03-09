@@ -1,35 +1,43 @@
-﻿using Common.Factories;
-using Common.Factories.Contracts;
-using Common.Wrappers;
-using Common.Wrappers.Contracts;
-using Gateway.Clients;
+﻿using Common.Wrappers;
+using PolarisGateway.Clients.Coordinator;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using PolarisGateway.common.Mappers;
-using PolarisGateway.Factories;
 using PolarisGateway.Mappers;
-using PolarisGateway.Domain.Validators;
-using Common.Telemetry.Wrappers;
-using Common.Telemetry.Wrappers.Contracts;
+using PolarisGateway.Validators;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Common.Configuration;
-using Common.Telemetry.Contracts;
 using Common.Telemetry;
-using Common.Streaming;
+using PolarisGateway.Handlers;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
 namespace PolarisGateway
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : BaseDependencyInjectionStartup
+    internal class Startup : FunctionsStartup
     {
+        protected IConfigurationRoot Configuration { get; set; }
+
+        // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
+        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
+        {
+            FunctionsHostBuilderContext context = builder.GetContext();
+
+            var configurationBuilder = builder.ConfigurationBuilder
+                .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
+
+            Configuration = configurationBuilder.Build();
+        }
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
 #if DEBUG
@@ -39,22 +47,18 @@ namespace PolarisGateway
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddSingleton<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddSingleton(_ =>
             {
                 // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
                 return new ConfigurationManager<OpenIdConnectConfiguration>(
-                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(Common.Constants.OAuthSettings.TenantId)}/.well-known/openid-configuration",
+                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
             services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
             services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddSingleton<ITrackerResponseFactory, TrackerResponseFactory>();
-            //services.AddTransient<IPipelineClient, PipelineClient>();
 
-            services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
+            services.AddHttpClient<ICoordinatorClient, CoordinatorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
@@ -65,6 +69,9 @@ namespace PolarisGateway
             services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
+            services.AddSingleton<IInitializationHandler, InitializationHandler>();
+            services.AddTransient<IRequestFactory, RequestFactory>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

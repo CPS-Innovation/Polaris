@@ -1,6 +1,5 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
-using Common.Logging;
 using DdeiClient.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Ddei.Factories;
 using System.Threading.Tasks;
 using System;
-using System.Net.Http;
+using coordinator.Helpers;
 
 namespace PolarisGateway.Functions
 {
@@ -31,8 +30,9 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(GetCases))]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequestMessage req, string caseUrn)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             Guid currentCorrelationId = default;
 
@@ -48,8 +48,7 @@ namespace PolarisGateway.Functions
             }
             catch (Exception ex)
             {
-                _logger.LogMethodError(currentCorrelationId, nameof(GetCase), ex.Message, ex);
-                return new StatusCodeResult(500);
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(GetCases), currentCorrelationId, ex);
             }
         }
     }

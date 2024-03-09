@@ -4,13 +4,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using Common.Handlers.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
+using Common.Wrappers;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService;
 
 namespace text_extractor.Functions
 {

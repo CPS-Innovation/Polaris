@@ -6,22 +6,15 @@ using text_extractor.Services.OcrService;
 using text_extractor.Factories;
 using text_extractor.Factories.Contracts;
 using text_extractor.Services.CaseSearchService;
-using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Mappers.Contracts;
 using text_extractor.Mappers;
 using System.Diagnostics.CodeAnalysis;
-using Common.Constants;
 using Azure.Search.Documents;
-using Common.Wrappers.Contracts;
-using System.IO;
 using Common.Dto.Request;
-using Common.Handlers.Contracts;
 using Common.Handlers;
 using Common.Mappers;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Telemetry.Wrappers;
-using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -83,7 +76,7 @@ namespace text_extractor
         private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
         {
 #if DEBUG
-            if (configuration.IsSettingEnabled(DebugSettings.MockOcrService))
+            if (configuration.IsSettingEnabled(MockOcrService.MockOcrServiceSetting))
             {
                 services.AddSingleton<IOcrService, MockOcrService>();
             }

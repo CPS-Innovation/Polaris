@@ -4,7 +4,6 @@ using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
-using PolarisGateway.common.Mappers;
 using PolarisGateway.Mappers;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;

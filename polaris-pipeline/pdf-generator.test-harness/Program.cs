@@ -1,12 +1,9 @@
 ﻿using Common.Constants;
 using Common.Domain.Document;
-using Common.Domain.Extensions;
+using pdf_generator.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using Common.Factories;
-using Common.Factories.Contracts;
 using Common.Telemetry;
-using Common.Telemetry.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +13,7 @@ using pdf_generator.Services.PdfService;
 using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
+using coordinator.Clients.PdfGenerator;
 
 namespace pdf_generator.test_harness;
 
@@ -42,7 +40,7 @@ internal static class Program
       {
         client.BaseAddress = new Uri("http://localhost:7073/api/");
       });
-    builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+    builder.Services.AddTransient<IRequestFactory, RequestFactory>();
     using var host = builder.Build();
 
     var mode = args[0];
@@ -189,7 +187,7 @@ internal static class Program
 
     static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
     {
-      var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IPipelineClientRequestFactory>();
+      var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IRequestFactory>();
       var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
 
       Console.WriteLine("Enter the input file path:");
@@ -209,7 +207,7 @@ internal static class Program
           var fileType = Enum.Parse<FileType>(extension);
 
           var request = pipelineClientRequestFactory.Create(HttpMethod.Post, "urns/test-case-urn/cases/test-case-id/documents/test-document-id/versions/test-version-id/test-convert-to-pdf", currentCorrelationId);
-          request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
+          request.Headers.Add("Filetype", fileType.ToString());
 
           using (var requestContent = new StreamContent(fileStream))
           {

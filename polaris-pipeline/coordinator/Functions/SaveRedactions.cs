@@ -1,27 +1,24 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Configuration;
-using Common.Constants;
-using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Common.Domain.Extensions;
-using Common.Wrappers.Contracts;
-using Common.Domain.Exceptions;
+using Common.Extensions;
+using Common.Wrappers;
+using Common.Exceptions;
 using FluentValidation;
-using Ddei.Domain.CaseData.Args;
 using Common.Dto.Request;
 using DdeiClient.Services;
 using Common.ValueObjects;
-using Common.Services.BlobStorageService.Contracts;
-using Common.Extensions;
+using Common.Services.BlobStorageService;
 using Ddei.Factories;
+using Microsoft.AspNetCore.Http;
+using coordinator.Helpers;
+using coordinator.Clients.PdfGenerator;
 
 namespace coordinator.Functions
 {
@@ -33,13 +30,15 @@ namespace coordinator.Functions
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly ILogger<SaveRedactions> _logger;
 
         public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestDto> requestValidator,
                               IPdfGeneratorClient redactionClient,
                               IPolarisBlobStorageService blobStorageService,
                               IDdeiClient ddeiClient,
-                              IDdeiArgFactory ddeiArgFactory)
+                              IDdeiArgFactory ddeiArgFactory,
+                              ILogger<SaveRedactions> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
@@ -47,17 +46,20 @@ namespace coordinator.Functions
             _blobStorageService = blobStorageService;
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
+            _logger = logger;
         }
 
         [FunctionName(nameof(SaveRedactions))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.Document)]
             HttpRequestMessage req,
             string caseUrn,
             string caseId,
             string polarisDocumentId,
-            [DurableClient] IDurableEntityClient client,
-            ILogger log)
+            [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
 
@@ -65,7 +67,7 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(req, client, nameof(SaveRedactions), caseId, new PolarisDocumentId(polarisDocumentId), log);
+                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId));
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
@@ -80,13 +82,12 @@ namespace coordinator.Functions
                 if (!redactionResult.Succeeded)
                 {
                     string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
-                    throw new ArgumentException(error);
+                    throw new Exception(error);
                 }
 
                 using var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
-
                 var arg = _ddeiArgFactory.CreateDocumentArgDto
                 (
                     cmsAuthValues: cmsAuthValues,
@@ -100,12 +101,11 @@ namespace coordinator.Functions
 
                 await _ddeiClient.UploadPdfAsync(arg, pdfStream);
 
-                return new ObjectResult(redactionResult);
+                return new OkResult();
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, nameof(SaveRedactions), ex.Message, ex);
-                return new StatusCodeResult(500);
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(SaveRedactions), currentCorrelationId, ex);
             }
         }
     }
