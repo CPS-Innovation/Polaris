@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
-using Common.Configuration;
-using Common.Constants;
 using System;
 using Azure.Identity;
 using Azure.Storage.Blobs;
@@ -13,11 +11,14 @@ namespace Common.Services
 {
     public static class IServiceCollectionExtension
     {
+        public const string BlobServiceContainerName = "BlobServiceContainerName";
+        public const string BlobServiceUrl = nameof(BlobServiceUrl);
+
         public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                var blobServiceUrl = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl);
+                var blobServiceUrl = GetValueFromConfig(configuration, BlobServiceUrl);
                 var credentials = new DefaultAzureCredential();
                 if (blobServiceUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
@@ -37,9 +38,20 @@ namespace Common.Services
             {
                 var logger = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                var blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
+                var blobServiceContainerName = GetValueFromConfig(configuration, BlobServiceContainerName);
                 return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName, logger);
             }));
+        }
+
+        public static string GetValueFromConfig(IConfiguration configuration, string secretName)
+        {
+            var secret = configuration[secretName];
+            if (string.IsNullOrWhiteSpace(secret))
+            {
+                throw new Exception($"Secret cannot be null: {secretName}");
+            }
+
+            return secret;
         }
     }
 }

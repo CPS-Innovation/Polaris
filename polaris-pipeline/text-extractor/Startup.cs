@@ -14,14 +14,31 @@ using Common.Dto.Request;
 using Common.Handlers;
 using Common.Mappers;
 using Common.Telemetry;
-using Common.Configuration;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : BaseDependencyInjectionStartup
+    internal class Startup : FunctionsStartup
     {
+        protected IConfigurationRoot Configuration { get; set; }
+
+        // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
+        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
+        {
+            FunctionsHostBuilderContext context = builder.GetContext();
+
+            var configurationBuilder = builder.ConfigurationBuilder
+                .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
+
+            Configuration = configurationBuilder.Build();
+        }
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var services = builder.Services;
