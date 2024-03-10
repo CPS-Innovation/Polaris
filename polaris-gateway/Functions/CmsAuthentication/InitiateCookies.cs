@@ -7,7 +7,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using DdeiClient.Services;
 using Common.Configuration;
 using Common.Wrappers;
-using Common.Extensions;
 using Common.Telemetry;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
