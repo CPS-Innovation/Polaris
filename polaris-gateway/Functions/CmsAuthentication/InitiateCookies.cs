@@ -7,7 +7,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using DdeiClient.Services;
 using Common.Configuration;
 using Common.Wrappers;
-using Common.Extensions;
 using Common.Telemetry;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
@@ -215,7 +214,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
                 return null;
             }
 
-            var decodedCmsRedirectParam = cmsRedirectParam.ToString().UrlDecodeString();
+            var decodedCmsRedirectParam = UrlDecodeString(cmsRedirectParam.ToString());
             var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CmsHandoverParams>(decodedCmsRedirectParam);
             if (cmsParamObject == null)
             {
@@ -286,6 +285,11 @@ namespace PolarisGateway.Functions.CmsAuthentication
               ".CMSAUTH",
               "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
             };
+        }
+
+        private static string UrlDecodeString(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
         }
     }
 }
