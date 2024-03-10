@@ -1,7 +1,7 @@
-const { AUTH_HANDOVER_URL, TARGET_CASE_ID } = Cypress.env()
+const { AUTH_HANDOVER_VIA_DDEI_URL, TARGET_CASE_ID } = Cypress.env()
 
 const getUrlWithCookieParam = (cookies: string) =>
-  AUTH_HANDOVER_URL + "?cookie=" + encodeURIComponent(cookies)
+  AUTH_HANDOVER_VIA_DDEI_URL + "?cookie=" + encodeURIComponent(cookies)
 
 const appendQParams = (url: string, qParamObject: {}) =>
   url + "&q=" + encodeURIComponent(JSON.stringify(qParamObject))
