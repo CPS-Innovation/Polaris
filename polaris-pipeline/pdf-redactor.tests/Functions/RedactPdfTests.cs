@@ -7,7 +7,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using pdf_redactor.Services.DocumentRedaction;
 using Xunit;
-using Common.Domain.Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -42,7 +41,7 @@ namespace pdf_redactor.tests.Functions
             _serializedRedactPdfRequest = JsonConvert.SerializeObject(request);
 
             var redactPdfResponse = _fixture.Create<RedactPdfResponse>();
-            _serializedRedactPdfResponse = redactPdfResponse.ToJson();
+            _serializedRedactPdfResponse = JsonConvert.SerializeObject(redactPdfResponse);
 
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();

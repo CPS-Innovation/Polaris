@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using Common.Factories.Contracts;
+using coordinator.Factories;
 using Common.Wrappers.Contracts;
-using Common.Streaming;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Clients

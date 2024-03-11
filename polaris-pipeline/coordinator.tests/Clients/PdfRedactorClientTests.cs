@@ -13,11 +13,10 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using coordinator.Constants;
 using Common.Wrappers.Contracts;
-using Common.Factories.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Configuration;
-using Common.Streaming;
+using coordinator.Factories;
 
 namespace coordinator.Clients.Tests.Clients
 {
