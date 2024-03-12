@@ -10,7 +10,7 @@ using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;

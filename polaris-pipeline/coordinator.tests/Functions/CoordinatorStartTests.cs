@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using coordinator.Durable.Payloads;
 using coordinator.Functions;
 using coordinator.Durable.Orchestration;

@@ -1,5 +1,4 @@
-﻿using Common.Wrappers.Contracts;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Common.Wrappers
 {

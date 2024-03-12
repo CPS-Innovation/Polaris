@@ -1,5 +1,5 @@
 using Common.Constants;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Extensions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -54,7 +54,7 @@ namespace Common.tests.Extensions
         [Fact]
         public void WhenGettingCorrelation_AndTheHeaderDoesNotExist_AnExceptionIsThrown()
         {
-            _headers.Add(HttpHeaderKeys.BlobName, "BlobName");
+            _headers.Add("BlobName", "BlobName");
 
             _headers.Invoking(x => x.GetCorrelationId())
                 .Should().Throw<BadRequestException>()
@@ -79,49 +79,6 @@ namespace Common.tests.Extensions
             _headers.Add(HttpHeaderKeys.CorrelationId, headerValue.ToString());
 
             var result = _headers.GetCorrelationId();
-
-            result.Should().Be(headerValue);
-        }
-
-        [Fact]
-        public void WhenGettingFileType_AndTheHeaderDoesNotExist_AnExceptionIsThrown()
-        {
-            _headers.Add(HttpHeaderKeys.BlobName, "BlobName");
-
-            _headers.Invoking(x => x.GetFileType())
-                .Should().Throw<BadRequestException>()
-                .WithMessage("Missing Filetype Value (Parameter 'headers')");
-        }
-
-        [Fact]
-        public void WhenGettingFileType_AndTheHeaderValueIsEmpty_AnExceptionIsThrown()
-        {
-            var headerValue = "";
-            _headers.Add(HttpHeaderKeys.Filetype, headerValue);
-
-            _headers.Invoking(x => x.GetFileType())
-                .Should().Throw<BadRequestException>()
-                .WithMessage("Null Filetype Value");
-        }
-
-        [Fact]
-        public void WhenGettingFileType_AndTheHeaderValueIsInvalid_AnExceptionIsThrown()
-        {
-            var headerValue = 99;
-            _headers.Add(HttpHeaderKeys.Filetype, headerValue.ToString());
-
-            _headers.Invoking(x => x.GetFileType())
-                .Should().Throw<BadRequestException>()
-                .WithMessage($"Invalid Filetype Enum Value (Parameter '{headerValue}')");
-        }
-
-        [Fact]
-        public void WhenGettingFileType_AndTheHeaderValueIsValid_AnEnumValueIsReturned()
-        {
-            var headerValue = Domain.Document.FileType.PNG;
-            _headers.Add(HttpHeaderKeys.Filetype, headerValue.ToString());
-
-            var result = _headers.GetFileType();
 
             result.Should().Be(headerValue);
         }

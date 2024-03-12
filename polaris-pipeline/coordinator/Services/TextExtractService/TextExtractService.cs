@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Dto.Response;
 using Common.Logging;
-using coordinator.Clients;
+using coordinator.Clients.TextExtractor;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;

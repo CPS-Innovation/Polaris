@@ -1,6 +1,6 @@
 using System;
 using AutoFixture;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using coordinator.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;

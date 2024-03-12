@@ -198,6 +198,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "SHOW_ERROR_MODAL",
           payload: {
+            type: "documentcheckout",
             title: "Something went wrong!",
             message: "Failed to checkout document. Please try again later.",
           },
@@ -271,6 +272,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "SHOW_ERROR_MODAL",
           payload: {
+            type: "documentalreadycheckedout",
             title: "Failed to redact document",
             message:
               "It is not possible to redact as the document is already checked out by test_username. Please try again later.",

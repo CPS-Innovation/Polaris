@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.Extensions;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.Dto.Document;
@@ -23,10 +22,11 @@ using Moq;
 using Xunit;
 using Common.ValueObjects;
 using coordinator.Durable.Entity;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using coordinator.Validators;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
+using Newtonsoft.Json;
 
 namespace coordinator.tests.Durable.Orchestration
 {
@@ -133,7 +133,7 @@ namespace coordinator.tests.Durable.Orchestration
                 .Setup(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>(nameof(RefreshDocumentOrchestrator), It.IsAny<string>(), It.IsAny<CaseDocumentOrchestrationPayload>()))
                 .Returns(Task.FromResult(fixture.Create<RefreshDocumentResult>()));
 
-            var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: redactPdfResponse.ToJson());
+            var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: JsonConvert.SerializeObject(redactPdfResponse));
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
 
             _mockCmsDocumentsResponseValidator.Setup(validator => validator.Validate(It.IsAny<CmsDocumentDto[]>())).Returns(true);

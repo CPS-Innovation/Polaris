@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Common.Dto.Response;
-using Common.Services.BlobStorageService.Contracts;
-using Common.Telemetry.Contracts;
-using coordinator.Clients;
+using Common.Services.BlobStorageService;
+using Common.Telemetry;
+using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Payloads;
 using coordinator.Services.TextExtractService;
 using Microsoft.Azure.WebJobs;

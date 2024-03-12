@@ -6,14 +6,14 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Common.Domain.Exceptions;
-using Common.Constants;
 using System.IO;
 
 namespace text_extractor.Services.OcrService
 {
     public class MockOcrService : IOcrService
     {
+        public static string MockOcrServiceSetting = "POLARIS_MOCK_OCR_SERVICE";
+        private const string MockOcrServiceResults = nameof(MockOcrServiceResults);
         private readonly IConfiguration _configuration;
         private readonly ILogger<OcrService> _log;
 
@@ -29,7 +29,7 @@ namespace text_extractor.Services.OcrService
 
             try
             {
-                var resultsValue = _configuration[DebugSettings.MockOcrServiceResults];
+                var resultsValue = _configuration[MockOcrServiceResults];
                 AnalyzeResults results = JsonConvert.DeserializeObject<AnalyzeResults>(resultsValue);
 
                 _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), "Mock OCR process completed successfully");

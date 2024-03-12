@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -18,6 +18,7 @@ namespace coordinator.Functions
     {
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly ILogger<GetDocument> _logger;
+        private const string PdfContentType = "application/pdf";
 
         public GetDocument(IPolarisBlobStorageService blobStorageService, ILogger<GetDocument> logger)
         {
@@ -45,7 +46,7 @@ namespace coordinator.Functions
                 var blobName = response.GetBlobName();
 
                 var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
-                return new OkObjectResult(blobStream);
+                return new FileStreamResult(blobStream, PdfContentType);
             }
             catch (Exception ex)
             {

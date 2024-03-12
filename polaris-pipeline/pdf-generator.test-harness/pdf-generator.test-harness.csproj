@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\pdf-generator\pdf-generator.csproj" />
+    <ProjectReference Include="..\coordinator\coordinator.csproj" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

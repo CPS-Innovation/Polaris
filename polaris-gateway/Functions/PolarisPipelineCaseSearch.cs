@@ -1,52 +1,58 @@
 ﻿using Common.Configuration;
-using PolarisGateway.Domain.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Clients;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Domain.Exceptions;
+using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineCaseSearch : BasePolarisFunction
+    public class PolarisPipelineCaseSearch
     {
-        private readonly IPipelineClient _pipelineClient;
-
         private const string Query = "query";
+        private readonly ILogger<PolarisPipelineCaseSearch> _logger;
+        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        public PolarisPipelineCaseSearch(ILogger<PolarisPipelineCaseSearch> logger,
-                                               IPipelineClient pipelineClient,
-                                               IAuthorizationValidator tokenValidator,
-                                               ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
-            : base(logger, tokenValidator, telemetryAugmentationWrapper)
+        public PolarisPipelineCaseSearch(
+            ILogger<PolarisPipelineCaseSearch> logger,
+            ICoordinatorClient coordinatorClient,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _pipelineClient = pipelineClient;
+            _logger = logger;
+            _coordinatorClient = coordinatorClient;
+            _initializationHandler = initializationHandler;
+            _unhandledExceptionHandler = unhandledExceptionHandler;
         }
+
 
         [FunctionName(nameof(PolarisPipelineCaseSearch))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req, string caseUrn, int caseId)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req, string caseUrn, int caseId)
         {
+            (Guid CorrelationId, string CmsAuthValues) context = default;
             try
             {
-                await Initiate(req);
-
-                string searchTerm = req.Query[Query];
-                if (string.IsNullOrWhiteSpace(searchTerm))
-                {
-                    throw new BadRequestException("Search query term is not supplied.", Query);
-                }
-
-                var result = await _pipelineClient.SearchCase(caseUrn, caseId, searchTerm, CorrelationId);
-
-                return new OkObjectResult(result);
+                context = await _initializationHandler.Initialize(req);
+                return await _coordinatorClient.SearchCase(
+                    caseUrn,
+                    caseId,
+                    req.Query[Query],
+                    context.CorrelationId);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return HandleUnhandledException(exception);
+                return _unhandledExceptionHandler.HandleUnhandledException(
+                  _logger,
+                  nameof(PolarisPipelineCaseSearch),
+                  context.CorrelationId,
+                  ex
+                );
             }
         }
     }
