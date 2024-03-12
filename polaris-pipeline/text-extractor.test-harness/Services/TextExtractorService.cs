@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using coordinator.Clients.Contracts;
+using coordinator.Clients.TextExtractor;
 using Common.Dto.Document;
 using Common.ValueObjects;
-using coordinator.Domain;
 using TextExtractor.TestHarness.Constants;
 using TextExtractor.TestHarness.Extensions;
-using coordinator.Domain.Entity;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Payloads.Domain;
 
 namespace TextExtractor.TestHarness.Services
 {
@@ -31,7 +31,7 @@ namespace TextExtractor.TestHarness.Services
                 new PolarisDocumentId(PolarisDocumentType.CmsDocument, documentRef),
                     documentRef, fileExtension, filename);
 
-            var payload = new CaseDocumentOrchestrationPayload(null, Guid.NewGuid(), TestProperties.CaseUrn, TestProperties.CmsCaseId, cmsDocumentEntity, null, null);
+            var payload = new CaseDocumentOrchestrationPayload(null, Guid.NewGuid(), TestProperties.CaseUrn, TestProperties.CmsCaseId, cmsDocumentEntity, null, null, DocumentDeltaType.RequiresIndexing);
 
             try
             {
@@ -74,7 +74,8 @@ namespace TextExtractor.TestHarness.Services
                 polarisParentDocumentId: null,
                 cmsParentDocumentId: null,
                 witnessId: null,
-                presentationFlags: new Common.Dto.FeatureFlags.PresentationFlagsDto());
+                presentationFlags: new Common.Dto.FeatureFlags.PresentationFlagsDto(),
+                hasFailedAttachments: false);
 
             return JsonSerializer.Serialize(cmsDocumentEntity);
         }

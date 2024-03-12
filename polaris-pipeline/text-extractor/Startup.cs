@@ -69,6 +69,7 @@ namespace text_extractor
             services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
             services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
             services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
+            services.AddTransient<ILineMapper, LineMapper>();
             services.AddTransient<ISearchLineFactory, SearchLineFactory>();
             services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
         }
