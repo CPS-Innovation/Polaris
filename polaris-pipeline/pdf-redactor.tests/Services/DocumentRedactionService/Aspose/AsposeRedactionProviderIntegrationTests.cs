@@ -1,8 +1,11 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Aspose.Pdf;
 using AutoFixture;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,7 +14,7 @@ using pdf_redactor.Services.DocumentRedaction.Aspose;
 using pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using Xunit;
 
-namespace pdf_redactor.tests.Services.DocumentRedaction.Aspose;
+namespace pdf_generator.tests.Services.DocumentRedaction.Aspose;
 
 public class AsposeRedactionProviderIntegrationTests
 {

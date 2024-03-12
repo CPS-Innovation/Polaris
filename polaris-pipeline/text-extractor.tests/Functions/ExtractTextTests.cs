@@ -7,9 +7,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Dto.Response;
-using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
@@ -17,12 +17,11 @@ using Moq;
 using text_extractor.Functions;
 using text_extractor.Services.OcrService;
 using Xunit;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 using Common.Dto.Request;
-using Common.Handlers.Contracts;
-using Common.Telemetry.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
 using System.IO;
-using Common.Telemetry.Wrappers.Contracts;
 using text_extractor.Mappers.Contracts;
 
 namespace text_extractor.tests.Functions

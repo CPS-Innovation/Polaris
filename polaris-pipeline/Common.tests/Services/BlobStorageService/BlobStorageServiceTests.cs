@@ -1,11 +1,8 @@
-﻿using System.Net;
-using AutoFixture;
+﻿using AutoFixture;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Common.Constants;
 using Common.Services.BlobStorageService;
-using Common.Services.BlobStorageService.Contracts;
 using Common.ValueObjects;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

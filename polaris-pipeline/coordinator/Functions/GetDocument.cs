@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

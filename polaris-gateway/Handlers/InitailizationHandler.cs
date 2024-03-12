@@ -1,4 +1,4 @@
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using PolarisGateway.Validators;
 using Common.Extensions;

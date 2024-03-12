@@ -2,11 +2,9 @@
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Handlers.Contracts;
-using Common.Services.Extensions;
 using Common.Telemetry;
-using Common.Telemetry.Contracts;
-using Common.Telemetry.Wrappers;
+using Common.Wrappers;
+using Common.Services;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
@@ -15,10 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pdf_redactor;
 using pdf_redactor.Services.Extensions;
-using Common.Telemetry.Wrappers.Contracts;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Common.Wrappers;
-using Common.Wrappers.Contracts;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

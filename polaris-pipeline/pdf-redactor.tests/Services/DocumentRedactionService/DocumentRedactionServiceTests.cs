@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Dto.Request;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using Common.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -12,7 +12,7 @@ using Moq;
 using pdf_redactor.Services.DocumentRedaction;
 using Xunit;
 
-namespace pdf_redactor.tests.Services.DocumentRedaction;
+namespace pdf_generator.tests.Services.DocumentRedaction;
 
 public class DocumentRedactionServiceTests
 {

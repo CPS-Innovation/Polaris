@@ -6,7 +6,6 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Common.Domain.Exceptions;
 using System.IO;
 
 namespace text_extractor.Services.OcrService

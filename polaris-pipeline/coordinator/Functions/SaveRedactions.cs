@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -9,16 +8,17 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Extensions;
-using Common.Wrappers.Contracts;
-using Common.Domain.Exceptions;
+using Common.Wrappers;
+using Common.Exceptions;
 using FluentValidation;
 using Common.Dto.Request;
 using DdeiClient.Services;
 using Common.ValueObjects;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
+using coordinator.Clients.PdfRedactor;
 
 namespace coordinator.Functions
 {

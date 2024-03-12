@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Logging;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using Microsoft.Extensions.Logging;
 
 namespace pdf_redactor.Services.DocumentRedaction

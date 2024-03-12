@@ -4,16 +4,16 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Dto.Response;
-using Common.Handlers.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
+using Common.Wrappers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Functions;
-using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService;
 using Xunit;
 
 namespace text_extractor.tests.Functions

@@ -2,21 +2,27 @@
 using Moq;
 using pdf_redactor.Functions;
 using System.Net;
-using Common.Domain.Exceptions;
+using System.Threading.Tasks;
+using Common.Exceptions;
 using FluentAssertions;
 using Newtonsoft.Json;
 using pdf_redactor.Services.DocumentRedaction;
 using Xunit;
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading;
+
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using Common.Handlers.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
 
 namespace pdf_redactor.tests.Functions
 {

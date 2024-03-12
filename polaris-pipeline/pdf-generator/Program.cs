@@ -3,11 +3,8 @@ using System.Linq;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Handlers.Contracts;
-using Common.Services.Extensions;
+using Common.Services;
 using Common.Telemetry;
-using Common.Telemetry.Contracts;
-using Common.Telemetry.Wrappers;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +13,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pdf_generator;
 using pdf_generator.Services.Extensions;
-using Common.Telemetry.Wrappers.Contracts;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var host = new HostBuilder()

@@ -6,9 +6,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using DdeiClient.Services;
 using Common.Configuration;
-using Common.Wrappers.Contracts;
-using Common.Extensions;
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Wrappers;
+using Common.Telemetry;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -215,7 +214,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
                 return null;
             }
 
-            var decodedCmsRedirectParam = cmsRedirectParam.ToString().UrlDecodeString();
+            var decodedCmsRedirectParam = UrlDecodeString(cmsRedirectParam.ToString());
             var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CmsHandoverParams>(decodedCmsRedirectParam);
             if (cmsParamObject == null)
             {
@@ -279,13 +278,18 @@ namespace PolarisGateway.Functions.CmsAuthentication
         private class AuthHandoverConstants
         {
             public static readonly string[] WhitelistedCookieNameRoots = new[] {
-          "ASP.NET_SessionId",
-          "UID",
-          "WindowID",
-          "CMSUSER", // the cookie name itself is not fixed e.g. CMSUSER246814=foo
-          ".CMSAUTH",
-          "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
-        };
+              "ASP.NET_SessionId",
+              "UID",
+              "WindowID",
+              "CMSUSER", // the cookie name itself is not fixed e.g. CMSUSER246814=foo
+              ".CMSAUTH",
+              "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
+            };
+        }
+
+        private static string UrlDecodeString(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
         }
     }
 }

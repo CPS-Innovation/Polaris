@@ -3,7 +3,7 @@ using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Facades;
 using Common.Dto.Request;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using pdf_redactor.TelemetryEvents;
 using Aspose.Pdf.Text;
 using System.Linq;

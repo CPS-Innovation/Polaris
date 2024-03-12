@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using coordinator.Clients;
 using Common.Configuration;
 using Common.Extensions;
 using coordinator.Durable.Orchestration;
@@ -10,13 +9,14 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using coordinator.TelemetryEvents;
 using coordinator.Helpers;
 using coordinator.Durable.Entity;
 using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
+using coordinator.Clients.TextExtractor;
 
 namespace coordinator.Functions
 {

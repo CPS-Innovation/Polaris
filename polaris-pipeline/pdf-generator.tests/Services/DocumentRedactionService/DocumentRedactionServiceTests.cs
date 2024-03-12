@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Dto.Request;
-using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
 using Common.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Execution;
