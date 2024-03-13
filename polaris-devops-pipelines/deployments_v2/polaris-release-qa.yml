@@ -176,27 +176,6 @@ stages:
                     armTenantId: $(innovation-qa-spn-tenant-id)
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
-      - deployment: Update_Pipeline_Component_App_Keys
-        dependsOn: Apply_Pipeline_Terraform
-        displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runPipelineTerraform, 'true'))
-        environment: "QA"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_update-app-keys-in-pipeline-components.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "QA"
-                    targetName: "Pipeline Terraform CI Deployment"
-                    targetSuffix: "-qa"
-                    appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    armClientId: $(innovation-qa-spn-client-id)
-                    armClientSecret: $(innovation-qa-spn-secret)
-                    armTenantId: $(innovation-qa-spn-tenant-id)
-                    armSubscriptionId: $(innovation-qa-subscription-id)
-
       - deployment: Apply_UI_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUITerraform, 'true'))
         dependsOn: Update_Pipeline_Component_App_Keys
@@ -282,7 +261,6 @@ stages:
         dependsOn:
           - Apply_Pipeline_Terraform
           - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
           - Apply_UI_Terraform
           - Apply_UI_Events_Terraform
           - Set_Log_Analytics_Archival_Periods
@@ -442,6 +420,31 @@ stages:
                     targetSuffix: "-qa"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
+                    
+      - deployment: Update_Pipeline_Component_App_Keys
+        dependsOn:
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
+          - Deploy_Text_Extractor
+        displayName: Update Component Keys
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_update-app-keys-in-pipeline-components.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "QA"
+                    targetName: "Codebase CI Deployment"
+                    targetSuffix: "-qa"
+                    appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+                    armClientId: $(innovation-qa-spn-client-id)
+                    armClientSecret: $(innovation-qa-spn-secret)
+                    armTenantId: $(innovation-qa-spn-tenant-id)
+                    armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Deploy_Spa
         dependsOn: Start_UI_Slots
@@ -489,6 +492,7 @@ stages:
           - Deploy_Pdf_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
+          - Update_Pipeline_Component_App_Keys
           - Deploy_Spa
           - Deploy_Gateway
         environment: "QA"
