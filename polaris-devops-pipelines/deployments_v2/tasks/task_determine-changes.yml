@@ -34,30 +34,37 @@ steps:
           {
             echo "run pipeline terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
             $pipelineTerraformCount++
           }
           if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
           {
             echo "run pipeline events terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
             $pipelineTerraformCount++
           }
           if ($name -like 'polaris-terraform/ui-terraform/*')
           {
             echo "run ui terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
             $uiTerraformCount++
           }
           if ($name -like 'polaris-terraform/ui-events-terraform/*')
           {
             echo "run ui events terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
             $uiTerraformCount++
           }
           if ($name -like 'polaris-terraform/networking-terraform/*')
           {
             echo "run networking terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_TERRAFORM;isOutput=true]true"
             $networkingTerraformCount++
           }
           if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
