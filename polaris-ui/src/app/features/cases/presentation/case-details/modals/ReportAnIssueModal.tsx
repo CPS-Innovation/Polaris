@@ -12,6 +12,7 @@ import classes from "./ReportAnIssueModal.module.scss";
 
 type Props = {
   documentId: string;
+  documentTypeId: number;
   correlationId: string;
   polarisDocumentVersionId: number;
   presentationTitle: string;
@@ -21,6 +22,7 @@ type Props = {
 
 export const ReportAnIssueModal: React.FC<Props> = ({
   documentId,
+  documentTypeId,
   presentationTitle,
   correlationId,
   polarisDocumentVersionId,
@@ -33,8 +35,10 @@ export const ReportAnIssueModal: React.FC<Props> = ({
   const handleIssueReporting = () => {
     trackEvent("Report Document Issue", {
       documentId: documentId,
+      documentTypeId: documentTypeId,
       polarisVersionId: correlationId,
       correlationId: polarisDocumentVersionId,
+      fileName: presentationTitle,
       moreDetails: issueDescription,
     });
     setShowConfirmationModal(true);

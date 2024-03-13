@@ -52,6 +52,7 @@ export const initialState = {
     show: false,
     message: "",
     title: "",
+    type: "",
   },
   confirmationModal: {
     show: false,

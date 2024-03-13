@@ -16,9 +16,6 @@ namespace Common.Configuration
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
 
-        // Admin
-        public const string ResetDurableState = "maintenance/resetDurableState";
-
         // Other
         public const string AuthInitialisation = "init";
         public const string Status = "status";
@@ -34,51 +31,40 @@ namespace Common.Configuration
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
 
+        public static string GetCasesPath(string caseUrn)
+        {
+            return $"urns/{caseUrn}/cases";
+        }
+
         public static string GetCasePath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}";
         }
 
         public static string GetCaseTrackerPath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/tracker";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/tracker";
         }
 
+        public static string GetCaseSearchQueryPath(string caseUrn, long caseId, string searchTerm)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
+        }
+
+        // todo: delete following
         public static string GetCaseSearchPath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/search";
-            return url;
-        }
-
-        public static string GetDocumentsPath(string caseUrn, long caseId)
-        {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
         }
 
-        public static string GetInstancePath(string instanceId)
+        public static string GetDocumentCheckoutPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
-            var url = $"runtime/webhooks/durabletask/instances/{instanceId}";
-            return url;
-        }
-
-        public static string GetDurableEntityPath(string durableEntityType, string instanceId)
-        {
-            var url = $"runtime/webhooks/durabletask/entities/{durableEntityType}/{instanceId}";
-            return url;
-        }
-
-        public static string GetInstancesPath()
-        {
-            return "runtime/webhooks/durabletask/instances";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)

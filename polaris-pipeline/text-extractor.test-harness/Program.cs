@@ -1,24 +1,17 @@
 ﻿using System;
 using System.Net.Http.Headers;
-using Azure.Search.Documents;
 using System.Threading.Tasks;
-using coordinator.Clients;
-using coordinator.Clients.Contracts;
-using Common.Configuration;
-using Common.Factories;
-using Common.Factories.Contracts;
-using text_extractor.Services.CaseSearchService;
-using text_extractor.Factories.Contracts;
-using text_extractor.Services.CaseSearchService.Contracts;
-using text_extractor.Factories;
-using text_extractor.Mappers;
-using text_extractor.Mappers.Contracts;
-using text_extractor.Constants;
-using coordinator.Factories;
-using Common.Wrappers;
-using Common.Wrappers.Contracts;
+using Azure.Search.Documents;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Common.Wrappers;
+using coordinator.Clients.TextExtractor;
+using text_extractor.Constants;
+using text_extractor.Factories;
+using text_extractor.Factories.Contracts;
+using text_extractor.Mappers;
+using text_extractor.Mappers.Contracts;
+using text_extractor.Services.CaseSearchService;
 using text_extractor.Services.OcrService;
 using TextExtractor.TestHarness.Constants;
 using TextExtractor.TestHarness.Services;
@@ -55,7 +48,6 @@ namespace TextExtractor.TestHarness
                 Console.WriteLine("[S]mall: 100 lines");
                 Console.WriteLine("[M]edium: 10,000 lines");
                 Console.WriteLine("[L]arge: > 100,000 lines");
-
 
                 string fileInput = Console.ReadLine();
 
@@ -115,8 +107,9 @@ namespace TextExtractor.TestHarness
             services.AddSingleton<IConfiguration>(configuration);
             services.AddSingleton<ITextExtractorService, TextExtractorService>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            services.AddTransient<ITextExtractorClientRequestFactory, TextExtractorClientRequestFactory>();
+            services.AddTransient<ISearchDtoContentFactory, SearchDtoContentFactory>();
+            services.AddTransient<IRequestFactory, RequestFactory>();
+            services.AddTransient<ILineMapper, LineMapper>();
             services.AddSingleton<ITestOcrService, TestOcrService>();
             services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddSingleton<IOcrService, OcrService>();
@@ -129,6 +122,7 @@ namespace TextExtractor.TestHarness
 
             return services.BuildServiceProvider();
         }
+
         private static void AddSearchClient(IServiceCollection services, IConfigurationRoot configuration)
         {
             services.AddOptions<SearchClientOptions>().Configure<IConfiguration>((settings, _) =>
@@ -145,5 +139,15 @@ namespace TextExtractor.TestHarness
             services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
         }
 
+        public static string GetValueFromConfig(this IConfiguration configuration, string secretName)
+        {
+            var secret = configuration[secretName];
+            if (string.IsNullOrWhiteSpace(secret))
+            {
+                throw new Exception($"Secret cannot be null: {secretName}");
+            }
+
+            return secret;
+        }
     }
 }

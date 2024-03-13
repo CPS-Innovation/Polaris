@@ -90,6 +90,12 @@ stages:
                     Write-Host "##vso[task.setvariable variable=RUN_PDF_GENERATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
                   }
+                  if ($name -like 'polaris-pipeline/pdf-redactor/*' -Or $name -like 'polaris-pipeline/pdf-redactor.tests/*')
+                  {
+                    echo "run pdf redactor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PDF_REDACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
+                  }
                   if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
                   {
                     echo "run text extractor..."
@@ -121,6 +127,7 @@ stages:
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COMMON;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PDF_GENERATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PDF_REDACTOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_TEXT_EXTRACTOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_DDEI_CLIENT;isOutput=true]true"
@@ -141,6 +148,7 @@ stages:
       runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
       runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_COORDINATOR']]
       runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PDF_GENERATOR']]
+      runPdfRedactor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PDF_REDACTOR']]
       runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TEXT_EXTRACTOR']]
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY']]
       runUI: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI']]
@@ -546,6 +554,46 @@ stages:
           - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
             name: result
                 
+      - job: Validate_PDF_Redactor_Codebase
+        condition: eq(variables.runPdfRedactor, 'true')
+        displayName: Test - PDF Redactor
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: "Aspose.Total.NET.lic"
+            displayName: "Download Aspose Licence"
+      
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: "polaris-pipeline/pdf-redactor"
+            displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
+      
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/pdf-redactor/pdf-redactor.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build PDF Redactor"
+      
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/pdf-redactor.tests/pdf-redactor.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Pdf-Redactor tests"
+      
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.tests/coverage.cobertura.xml
+            artifact: PdfRedactorTestResults
+            displayName: Publish Pdf-Redactor Test Results
+            
+          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+            name: result
+
       - job: Validate_Text_Extractor_Codebase
         condition: eq(variables.runTextExtractor, 'true')
         displayName: Test - Text Extractor
@@ -758,6 +806,7 @@ stages:
       gatewayTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Gateway_Codebase.outputs['result.testsAvailable']]
       coordinatorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Coordinator_Codebase.outputs['result.testsAvailable']]
       pdfGeneratorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_PDF_Generator_Codebase.outputs['result.testsAvailable']]
+      pdfRedactorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_PDF_Redactor_Codebase.outputs['result.testsAvailable']]
       textExtractorTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Text_Extractor_Codebase.outputs['result.testsAvailable']]
       commonLibraryTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_Pipeline_Common_Library.outputs['result.testsAvailable']]
       ddeiClientTestsAvailable: $[stageDependencies.Validate_Polaris.Validate_DDEI_Client_Library.outputs['result.testsAvailable']]
@@ -765,7 +814,7 @@ stages:
     jobs:
       - job:
         displayName: Test - UI
-        condition: or(eq(variables.gatewayTestsAvailable, 'true'),eq(variables.coordinatorTestsAvailable, 'true'),eq(variables.pdfGeneratorTestsAvailable, 'true'),eq(variables.textExtractorTestsAvailable, 'true'),eq(variables.commonLibraryTestsAvailable, 'true'),eq(variables.ddeiClientTestsAvailable, 'true'),eq(variables.uiTestsAvailable, 'true'))
+        condition: or(eq(variables.gatewayTestsAvailable, 'true'),eq(variables.coordinatorTestsAvailable, 'true'),eq(variables.pdfGeneratorTestsAvailable, 'true'),eq(variables.pdfRedactorTestsAvailable, 'true'),eq(variables.textExtractorTestsAvailable, 'true'),eq(variables.commonLibraryTestsAvailable, 'true'),eq(variables.ddeiClientTestsAvailable, 'true'),eq(variables.uiTestsAvailable, 'true'))
         pool:
           vmImage: ubuntu-latest
         steps:

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Aspose.Cells;
-using Common.Extensions;
+using pdf_generator.Extensions;
 using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
 
@@ -26,7 +26,7 @@ namespace pdf_generator.Services.PdfService
                 using var workbook = _asposeItemFactory.CreateWorkbook(inputStream, correlationId);
                 workbook.Save(pdfStream, new PdfSaveOptions { OnePagePerSheet = true });
                 pdfStream.Seek(0, SeekOrigin.Begin);
-            
+
                 conversionResult.RecordConversionSuccess(pdfStream);
             }
             catch (CellsException ex)
@@ -35,7 +35,7 @@ namespace pdf_generator.Services.PdfService
                 conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeCellsGeneralError,
                     ex.ToFormattedString());
             }
-            
+
             return conversionResult;
         }
     }

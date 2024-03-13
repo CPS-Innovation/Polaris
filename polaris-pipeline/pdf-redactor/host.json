@@ -1,0 +1,27 @@
+{
+    "version": "2.0",
+    "logging": {
+        "fileLoggingMode": "debugOnly",
+        "logLevel": {
+            "default": "Warning",
+            "Function": "Information",
+            "Host.Aggregator": "Error",
+            "Host.Results": "Information"
+        },
+        "applicationInsights": {
+            "samplingSettings": {
+                "isEnabled": true,
+                "maxTelemetryItemsPerSecond": 20,
+                "excludedTypes": "Request;Exception;Event"
+            },
+            "enableLiveMetrics": true,
+            "enableDependencyTracking": true,
+            "enablePerformanceCountersCollection": true,
+            "httpAutoCollectionOptions": {
+                "enableHttpTriggerExtendedInfoCollection": true,
+                "enableW3CDistributedTracing": true,
+                "enableResponseHeaderInjection": true
+            }
+        }
+    }
+}

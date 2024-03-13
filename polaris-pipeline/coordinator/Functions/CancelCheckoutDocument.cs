@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Constants;
-using Common.Logging;
 using Common.ValueObjects;
-using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using DdeiClient.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +9,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Common.Extensions;
+using Microsoft.AspNetCore.Http;
+using coordinator.Helpers;
 
 namespace coordinator.Functions
 {
@@ -21,46 +19,35 @@ namespace coordinator.Functions
     {
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly ILogger<CancelCheckoutDocument> _logger;
 
-        public CancelCheckoutDocument(IDdeiClient ddeiClient, IDdeiArgFactory ddeiArgFactory)
+        public CancelCheckoutDocument(IDdeiClient ddeiClient, IDdeiArgFactory ddeiArgFactory, ILogger<CancelCheckoutDocument> logger)
         {
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
+            _logger = logger;
         }
 
         [FunctionName(nameof(CancelCheckoutDocument))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req,
             string caseUrn,
             string caseId,
             string polarisDocumentId,
-            [DurableClient] IDurableEntityClient client,
-            ILogger log)
+            [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
 
             try
             {
-                var response = await GetTrackerDocument(req, client, nameof(CancelCheckoutDocument), caseId, new PolarisDocumentId(polarisDocumentId), log);
+                currentCorrelationId = req.Headers.GetCorrelationId();
+                var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                if (!response.Success)
-                    return response.Error;
-
-                var docType = response.CmsDocument.CmsDocType.DocumentType;
-                if (docType == "PCD" || docType == "DAC")
-                {
-                    return new BadRequestObjectResult($"Invalid document type specified : {docType}");
-                }
-
-                currentCorrelationId = response.CorrelationId;
+                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId));
                 var document = response.CmsDocument;
-                var blobName = document.PdfBlobName;
-
-                var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
-                if (string.IsNullOrEmpty(cmsAuthValues))
-                {
-                    throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
-                }
 
                 var arg = _ddeiArgFactory.CreateDocumentArgDto(
 
@@ -78,8 +65,7 @@ namespace coordinator.Functions
             }
             catch (Exception ex)
             {
-                log.LogMethodError(currentCorrelationId, nameof(CancelCheckoutDocument), ex.Message, ex);
-                return new StatusCodeResult(500);
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(CancelCheckoutDocument), currentCorrelationId, ex);
             }
         }
     }

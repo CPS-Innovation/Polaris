@@ -3,7 +3,7 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
-using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Durable.Orchestration;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -151,7 +151,9 @@ namespace coordinator.Durable.Entity
                          cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId ||
                          cmsDocument.PresentationTitle != incomingDocument.PresentationTitle ||
                          cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
-                         cmsDocument.WitnessId != incomingDocument.WitnessId
+                         cmsDocument.WitnessId != incomingDocument.WitnessId ||
+                         cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
+                         cmsDocument.IsDispatched != incomingDocument.IsDispatched
                      )
                  )
                  select incomingDocument).ToList();

@@ -2,9 +2,8 @@
 using System.Net;
 using AutoFixture;
 using Azure;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Handlers;
-using Common.Handlers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -27,14 +26,6 @@ namespace text_extractor.tests.Handlers
             _mockLogger = new Mock<ILogger>();
 
             _exceptionHandler = new ExceptionHandler();
-        }
-
-        [Fact]
-        public void HandleException_ReturnsUnauthorizedWhenUnauthorizedExceptionOccurs()
-        {
-            var httpResponseMessage = _exceptionHandler.HandleException(new UnauthorizedException("Test unauthorized exception"), _correlationId, _source, _mockLogger.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Fact]
@@ -71,14 +62,6 @@ namespace text_extractor.tests.Handlers
                 new RequestFailedException((int)expectedStatusCode, "Test request failed exception"), _correlationId, _source, _mockLogger.Object);
 
             httpResponseMessage.StatusCode.Should().Be(expectedStatusCode);
-        }
-
-        [Fact]
-        public void HandleException_ReturnsInternalServerErrorWhenOcrServiceExceptionOccurs()
-        {
-            var httpResponseMessage = _exceptionHandler.HandleException(new OcrServiceException("Test message"), _correlationId, _source, _mockLogger.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
 
         [Fact]

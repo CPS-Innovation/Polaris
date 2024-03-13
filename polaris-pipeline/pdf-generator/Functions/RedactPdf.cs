@@ -2,14 +2,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Domain.Exceptions;
-using Common.Domain.Extensions;
+using Common.Exceptions;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Extensions;
-using Common.Handlers.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
+using Common.Wrappers;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Services.DocumentRedaction;
@@ -48,7 +47,6 @@ namespace pdf_generator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequest request, string caseUrn, string caseId, string documentId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RedactPdf - Run";
             RedactPdfResponse redactPdfResponse = null;
 
             try

@@ -10,14 +10,13 @@ using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
-using Common.Telemetry.Contracts;
+using Common.Telemetry;
 using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using coordinator.Functions.Orchestration.Functions.Document;
 using coordinator.TelemetryEvents;
 using coordinator.Validators;
 using Mapster;
@@ -26,7 +25,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.Orchestration.Functions.Case
+namespace coordinator.Durable.Orchestration
 {
     public class RefreshCaseOrchestrator : BaseOrchestrator
     {
@@ -35,12 +34,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-        const string loggingName = $"{nameof(RefreshCaseOrchestrator)} - {nameof(Run)}";
 
-        public static string GetKey(string caseId)
-        {
-            return $"[{caseId}]";
-        }
+        public static string GetKey(string caseId) => $"[{caseId}]";
 
         public RefreshCaseOrchestrator(
             ILogger<RefreshCaseOrchestrator> log,
@@ -58,9 +53,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         [FunctionName(nameof(RefreshCaseOrchestrator))]
         public async Task<TrackerDto> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var payload = context.GetInput<CaseOrchestrationPayload>();
-            if (payload == null)
-                throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
+            var payload = context.GetInput<CaseOrchestrationPayload>()
+                ?? throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var log = context.CreateReplaySafeLogger(_log);
 
@@ -98,7 +92,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             {
                 caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed, exception.Message));
 
-                log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshCaseOrchestrator), $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;
             }
@@ -142,7 +136,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
             var deltaLogMessage = deltas.GetLogMessage();
-            log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, deltaLogMessage);
+            log.LogMethodFlow(caseDocumentPayload.CorrelationId, nameof(RefreshCaseOrchestrator), deltaLogMessage);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
             var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();

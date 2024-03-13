@@ -14,7 +14,6 @@ resources:
           - Publish_Artifacts
 
 variables:
-  - group: kv-dev-terraform
   - group: kv-qa-terraform
   - group: polaris-global
   - group: polaris-status-check-endpoints
@@ -39,6 +38,11 @@ stages:
     condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
+      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
+      runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     dependsOn: Determine_Changes
     pool:
@@ -52,7 +56,7 @@ stages:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Start
         displayName: Log Start
@@ -89,7 +93,7 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
       - deployment: Apply_Networking_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runNetworkingTerraform, 'true'))
         displayName: Apply Networking Terraform
         dependsOn: Log_Start_Terraform
         environment: "QA"
@@ -117,7 +121,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_Pipeline_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runPipelineTerraform, 'true'))
         dependsOn: Apply_Networking_Terraform
         displayName: Apply Pipeline Terraform
         environment: "QA"
@@ -145,7 +149,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_Pipeline_Events_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'))
         dependsOn: Apply_Pipeline_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "QA"
@@ -175,7 +179,7 @@ stages:
       - deployment: Update_Pipeline_Component_App_Keys
         dependsOn: Apply_Pipeline_Terraform
         displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runPipelineTerraform, 'true'))
         environment: "QA"
         strategy:
           runOnce:
@@ -194,7 +198,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_UI_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUITerraform, 'true'))
         dependsOn: Update_Pipeline_Component_App_Keys
         displayName: Apply UI Terraform
         environment: "QA"
@@ -222,7 +226,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Apply_UI_Events_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'))
         dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "QA"
@@ -250,7 +254,7 @@ stages:
                     armSubscriptionId: $(innovation-qa-subscription-id)
 
       - deployment: Set_Log_Analytics_Archival_Periods
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUITerraform, 'true'))
         dependsOn: Apply_UI_Terraform
         displayName: Update Analytics Archival Periods
         environment: "QA"
@@ -294,7 +298,7 @@ stages:
                     targetLabel: "QA"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Start_Codebase
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
@@ -325,6 +329,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-qa-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-qa-pdf-redactor"
         displayName: Start Staging1
         steps:
           - checkout: none
@@ -400,6 +407,24 @@ stages:
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     azureSubscription: $(qa-azure-subscription)
 
+      - deployment: Deploy_Pdf_Redactor
+        dependsOn: Start_Pipeline_Slots
+        displayName: Deploy PDF Redactor
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_deploy-pdf-redactor.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "QA"
+                    targetName: "Codebase CI Deployment"
+                    targetSuffix: "-qa"
+                    appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+                    azureSubscription: $(qa-azure-subscription)
+
       - deployment: Deploy_Text_Extractor
         dependsOn: Start_Pipeline_Slots
         displayName: Deploy Text Extractor
@@ -462,6 +487,7 @@ stages:
         dependsOn:
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
           - Deploy_Spa
           - Deploy_Gateway
@@ -476,7 +502,7 @@ stages:
                     targetLabel: "QA"
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
         condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -495,7 +521,7 @@ stages:
                     targetLabel: "QA"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(devops-pat-token)"
+                    devOpsPatToken: "$(System.AccessToken)"
   
   # QA: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -538,6 +564,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-qa-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-qa-pdf-redactor"
         displayName: Start Staging1
         steps:
           - checkout: none
@@ -586,6 +615,9 @@ stages:
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-qa-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-qa-pdf-redactor"
         displayName: Swap
         steps:
           - checkout: none
@@ -635,7 +667,7 @@ stages:
               targetLabel: "QA"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # QA: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check
@@ -703,6 +735,25 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "QA"
               targetAppName: "PDF Generator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: Check_PDF_Redactor
+        dependsOn: Get_Status_URIs
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetAppName: "PDF Redactor"
               targetScript: "InvokeRequestWithRetry.ps1"
               endpointUri: "$(uri)/api/status"
               statusCheckMethod: $(status-check-method)
@@ -794,6 +845,7 @@ stages:
           - Get_Status_URIs
           - Check_Coordinator
           - Check_PDF_Generator
+          - Check_PDF_Redactor
           - Check_Text_Extractor
           - Check_Gateway
           - Check_Proxy
@@ -805,7 +857,7 @@ stages:
               targetLabel: "QA"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
@@ -852,7 +904,7 @@ stages:
               targetLabel: "QA"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   # QA: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
@@ -897,7 +949,7 @@ stages:
               targetLabel: "QA"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
   #QA: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
@@ -931,7 +983,7 @@ stages:
             parameters:
               targetLabel: "QA"
               buildDefinitionId: 210
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -945,4 +997,4 @@ stages:
               targetLabel: "QA"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(devops-pat-token)"
+              devOpsPatToken: "$(System.AccessToken)"

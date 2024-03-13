@@ -10,6 +10,7 @@ using Common.Dto.Response;
 using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Factories.Contracts;
+using text_extractor.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService;
 using Xunit;
 
@@ -27,6 +28,7 @@ namespace text_extractor.tests.Services
         private readonly Mock<ISearchIndexingBufferedSenderFactory> _searchIndexingBufferedSenderFactory;
         private readonly Mock<IStreamlinedSearchResultFactory> _streamlinedSearchResultFactory;
         private readonly Mock<SearchIndexingBufferedSender<ISearchable>> _searchIndexingBufferedSender;
+        private readonly Mock<ILineMapper> _lineMapper;
         private readonly Mock<ILogger<SearchIndexService>> _logger;
         private readonly SearchIndexService _searchIndexService;
 
@@ -77,10 +79,11 @@ namespace text_extractor.tests.Services
             _searchIndexingBufferedSenderFactory = new Mock<ISearchIndexingBufferedSenderFactory>();
             _searchIndexingBufferedSenderFactory.Setup(x => x.Create(_azureSearchClient.Object)).Returns(_searchIndexingBufferedSender.Object);
             _streamlinedSearchResultFactory = new Mock<IStreamlinedSearchResultFactory>();
+            _lineMapper = new Mock<ILineMapper>();
 
             _logger = new Mock<ILogger<SearchIndexService>>();
 
-            _searchIndexService = new SearchIndexService(_searchClientFactory.Object, _searchLineFactory.Object, _searchIndexingBufferedSenderFactory.Object, _streamlinedSearchResultFactory.Object, _logger.Object);
+            _searchIndexService = new SearchIndexService(_searchClientFactory.Object, _searchLineFactory.Object, _searchIndexingBufferedSenderFactory.Object, _streamlinedSearchResultFactory.Object, _lineMapper.Object, _logger.Object);
         }
 
         [Fact]

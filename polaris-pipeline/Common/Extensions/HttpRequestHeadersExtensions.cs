@@ -2,8 +2,7 @@ using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using Common.Constants;
-using Common.Domain.Document;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 
 namespace Common.Extensions
@@ -37,23 +36,34 @@ namespace Common.Extensions
             return correlationId;
         }
 
-        public static FileType GetFileType(this IHeaderDictionary headers)
+        public static string GetCmsAuthValues(this HttpRequestHeaders headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
 
-            if (!headers.TryGetValue(HttpHeaderKeys.Filetype, out var value))
-                throw new BadRequestException("Missing Filetype Value", nameof(headers));
+            if (!headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", nameof(headers));
 
-            var filetypeValue = value[0];
-            if (string.IsNullOrEmpty(filetypeValue))
-                throw new BadRequestException("Null Filetype Value", filetypeValue);
-            if (!Enum.IsDefined(typeof(FileType), filetypeValue))
-                throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
+            var value = values.First();
+            if (string.IsNullOrWhiteSpace(value))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", value);
 
-            Enum.TryParse(filetypeValue, true, out FileType filetype);
+            return value;
+        }
 
-            return filetype;
+        public static string GetCmsAuthValues(this IHeaderDictionary headers)
+        {
+            if (headers == null)
+                throw new ArgumentNullException(nameof(headers));
+
+            if (!headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var values))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", nameof(headers));
+
+            var value = values.First();
+            if (string.IsNullOrWhiteSpace(value))
+                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", value);
+
+            return value;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Common.Validators;
 using Common.ValueObjects;
 
 namespace Common.Dto.Request

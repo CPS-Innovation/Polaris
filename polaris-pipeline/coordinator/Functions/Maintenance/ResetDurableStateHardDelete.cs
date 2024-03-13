@@ -1,6 +1,8 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using DurableTask.AzureStorage;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -27,6 +29,8 @@ public class ResetDurableStateHardDelete
     }
 
     [FunctionName(nameof(ResetDurableStateHardDelete))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<HttpResponseMessage> ResetDurableState(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestMessage req,
         [DurableClient] IDurableClient client)

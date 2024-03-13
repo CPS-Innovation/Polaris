@@ -4,49 +4,51 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using PolarisGateway.Domain.Validators;
-using Gateway.Clients;
-using Common.Telemetry.Wrappers.Contracts;
-using PolarisGateway.Factories;
+using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
     // note: the analytics KQL queries refer to "PolarisPipelineCase" as the function name,
     //  if we change this then we must change the KQL queries to be `| ... ("PolarisPipelineCase" or "NewName")
-    public class PolarisPipelineCase : BasePolarisFunction
+    public class PolarisPipelineCase
     {
-        private readonly IPipelineClient _pipelineClient;
-        private readonly ITrackerResponseFactory _triggerCoordinatorResponseFactory;
+        private readonly ILogger<PolarisPipelineCase> _logger;
+        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        public PolarisPipelineCase(ILogger<PolarisPipelineCase> logger,
-                                    IPipelineClient pipelineClient,
-                                    IAuthorizationValidator tokenValidator,
-                                    ITrackerResponseFactory triggerCoordinatorResponseFactory,
-                                    ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
-        : base(logger, tokenValidator, telemetryAugmentationWrapper)
+        public PolarisPipelineCase(
+            ILogger<PolarisPipelineCase> logger,
+            ICoordinatorClient coordinatorClient,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _pipelineClient = pipelineClient;
-            _triggerCoordinatorResponseFactory = triggerCoordinatorResponseFactory;
+            _logger = logger;
+            _coordinatorClient = coordinatorClient;
+            _initializationHandler = initializationHandler;
+            _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
         [FunctionName(nameof(PolarisPipelineCase))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
+            (Guid CorrelationId, string CmsAuthValues) context = default;
+
             try
             {
-                await Initiate(req);
-
-                var responseCode = await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, CmsAuthValues, CorrelationId);
-                var result = _triggerCoordinatorResponseFactory.Create(req, CorrelationId);
-                return new ObjectResult(result)
-                {
-                    StatusCode = (int)responseCode
-                };
+                context = await _initializationHandler.Initialize(req);
+                return await _coordinatorClient.RefreshCaseAsync(caseUrn, caseId, context.CmsAuthValues, context.CorrelationId);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return HandleUnhandledException(exception);
+                return _unhandledExceptionHandler.HandleUnhandledException(
+                      _logger,
+                      nameof(PolarisPipelineCase),
+                      context.CorrelationId,
+                      ex
+                    );
             }
         }
     }

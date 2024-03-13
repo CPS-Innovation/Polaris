@@ -298,7 +298,7 @@ describe("gateway-apis", () => {
 
     it("initiatePipeline should call fetch and should not call reauthentication", async () => {
       fetchMock.mockResponseOnce(
-        JSON.stringify({ trackerUrl: "tracker_url" }),
+        JSON.stringify({ trackerUrl: "https://tracker_url/" }),
         {
           status: 200,
         }
@@ -312,13 +312,13 @@ describe("gateway-apis", () => {
       expect(response).toEqual({
         correlationId: "correlationId_1",
         status: 200,
-        trackerUrl: "tracker_url",
+        trackerUrl: "https://tracker_url/",
       });
     });
 
     it("initiatePipeline should not throw error if response status is 423", async () => {
       fetchMock.mockResponseOnce(
-        JSON.stringify({ trackerUrl: "tracker_url" }),
+        JSON.stringify({ trackerUrl: "https://tracker_url/" }),
         {
           status: 423,
         }
@@ -333,8 +333,19 @@ describe("gateway-apis", () => {
       expect(response).toEqual({
         correlationId: "correlationId_1",
         status: 423,
-        trackerUrl: "tracker_url",
+        trackerUrl: "https://tracker_url/",
       });
+    });
+
+    it("initiatePipeline should resolve a relative tracker url to a fully-qualified url", async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({ trackerUrl: "tracker_url" }),
+        {
+          status: 200,
+        }
+      );
+      const response = await initiatePipeline("abc", 123, "correlationId_1");
+      expect(response.trackerUrl).toEqual("https://gateway-url/tracker_url");
     });
 
     it("initiatePipeline should throw error if for any other failed response status", async () => {

@@ -169,7 +169,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           <ErrorModalContent
             title={errorModal.title}
             message={errorModal.message}
+            type={errorModal.type}
             handleClose={handleCloseErrorModal}
+            contextData={{ documentId: getActiveTabDocument?.documentId }}
           />
         </Modal>
       )}
@@ -205,6 +207,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
       {documentIssueModal.show && (
         <ReportAnIssueModal
+          documentTypeId={getActiveTabDocument?.cmsDocType?.documentTypeId}
           documentId={getActiveTabDocument?.documentId!}
           presentationTitle={getActiveTabDocument?.presentationTitle!}
           polarisDocumentVersionId={
