@@ -32,9 +32,9 @@ stages:
             parameters:
               targetLabel: "DEV"
   
-  # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
-  - stage: Deploy
-    displayName: Deploy > DEV
+  # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND
+  - stage: Apply
+    displayName: Apply Terraform > DEV
     condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
@@ -43,7 +43,6 @@ stages:
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
       runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
       runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     dependsOn: Determine_Changes
     pool:
       name: $(dev-build-agent)
@@ -57,11 +56,11 @@ stages:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
                     devOpsPatToken: "$(System.AccessToken)"
-                    
+
       - deployment: Log_Start
         displayName: Log Start
         dependsOn: Wait_For_Running_Builds
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: succeeded()
         environment: "Dev"
         strategy:
           runOnce:
@@ -75,7 +74,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
 
       - deployment: Log_Start_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: succeeded()
         dependsOn:
           - Log_Start
           - Wait_For_Running_Builds
@@ -256,7 +255,7 @@ stages:
                     totalLogRetentionTime: $(total-log-retention-time)
 
       - deployment: Log_Result_Terraform_Ended
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: succeeded()
         displayName: Log Terraform End
         dependsOn:
           - Apply_Pipeline_Terraform
@@ -278,11 +277,18 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(System.AccessToken)"
 
+  - stage: Deploy
+    displayName: Deploy > DEV
+    condition: succeeded()
+    variables:
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+    dependsOn: 
+      - Determine_Changes
+      - Apply
+    pool:
+      name: $(dev-build-agent)
+    jobs:
       - deployment: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        dependsOn:
-          - Log_Start
-          - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "Dev"
         strategy:
@@ -485,7 +491,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
               
       - deployment: Log_Result_Codebase_Ended
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: succeeded()
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
@@ -509,11 +515,9 @@ stages:
                     devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
-        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: succeeded()
         displayName: Log Deployment End
-        dependsOn:
-          - Log_Result_Terraform_Ended
-          - Log_Result_Codebase_Ended
+        dependsOn: Log_Result_Codebase_Ended
         environment: "Dev"
         strategy:
           runOnce:
@@ -531,8 +535,9 @@ stages:
   - stage: Swap
     displayName: Swap Slots > DEV
     dependsOn:
-      - Deploy
       - Determine_Changes
+      - Apply
+      - Deploy
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     condition: succeeded()
