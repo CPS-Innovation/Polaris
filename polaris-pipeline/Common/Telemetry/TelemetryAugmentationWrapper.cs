@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using Common.Telemetry;
 
 namespace Common.Telemetry
 {
