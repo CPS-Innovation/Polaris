@@ -9,7 +9,7 @@ namespace text_extractor.Factories;
 
 public class SearchLineFactory : ISearchLineFactory
 {
-    public SearchLine Create(long cmsCaseId, string cmsDocumentId, PolarisDocumentId polarisDocumentId, long versionId, string blobName, ReadResult readResult, Line line, int index)
+    public SearchLine Create(long cmsCaseId, string cmsDocumentId, PolarisDocumentId polarisDocumentId, long versionId, string blobName, ReadResult readResult, Common.Domain.SearchIndex.Line line, int index)
     {
         var id = $"{cmsCaseId}:{polarisDocumentId}:{readResult.Page}:{index}";
         var bytes = Encoding.UTF8.GetBytes(id);

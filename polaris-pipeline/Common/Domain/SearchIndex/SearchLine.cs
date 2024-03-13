@@ -53,3 +53,34 @@ public class SearchLine : Line, ISearchable
     [JsonProperty("pageWidth")]
     public double PageWidth { get; set; }
 }
+
+public class Line
+{
+    [JsonProperty(PropertyName = "language")]
+    public string Language { get; set; }
+
+    [JsonProperty(PropertyName = "boundingBox")]
+    public IList<double?> BoundingBox { get; set; }
+
+    [JsonProperty(PropertyName = "appearance")]
+    public Appearance Appearance { get; set; }
+
+    [JsonProperty(PropertyName = "text")]
+    public string Text { get; set; }
+
+    [JsonProperty(PropertyName = "words")]
+    public IList<Word> Words { get; set; }
+
+    public Line()
+    {
+    }
+
+    public Line(IList<double?> boundingBox, string text, IList<Word> words, string language = null, Appearance appearance = null)
+    {
+        Language = language;
+        BoundingBox = boundingBox;
+        Appearance = appearance;
+        Text = text;
+        Words = words;
+    }
+}

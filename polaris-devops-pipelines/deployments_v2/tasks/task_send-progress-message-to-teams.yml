@@ -20,6 +20,8 @@ parameters:
     type: string
   - name: pdfGeneratorCount
     type: string
+  - name: pdfRedactorCount
+    type: string
   - name: textExtractorCount
     type: string
   - name: gatewayCount
@@ -149,6 +151,10 @@ steps:
                               {
                                 "title": "PDF Gen Changes",
                                 "value": "${{ parameters.pdfGeneratorCount }}"
+                              },
+                              {
+                                "title": "PDF Redactor Changes",
+                                "value": "${{ parameters.pdfRedactorCount }}"
                               },
                               {
                                 "title": "Text Ext Changes",

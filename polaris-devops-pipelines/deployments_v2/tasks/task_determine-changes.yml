@@ -20,6 +20,7 @@ steps:
         $networkingTerraformCount=0
         $coordinatorCount=0
         $pdfGeneratorCount=0
+        $pdfRedactorCount=0
         $textExtractorCount=0
         $gatewayCount=0
         $uiCount=0
@@ -34,30 +35,37 @@ steps:
           {
             echo "run pipeline terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
             $pipelineTerraformCount++
           }
           if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
           {
             echo "run pipeline events terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
             $pipelineTerraformCount++
           }
           if ($name -like 'polaris-terraform/ui-terraform/*')
           {
             echo "run ui terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
             $uiTerraformCount++
           }
           if ($name -like 'polaris-terraform/ui-events-terraform/*')
           {
             echo "run ui events terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
             $uiTerraformCount++
           }
           if ($name -like 'polaris-terraform/networking-terraform/*')
           {
             echo "run networking terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+            Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_TERRAFORM;isOutput=true]true"
             $networkingTerraformCount++
           }
           if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
@@ -71,6 +79,12 @@ steps:
             echo "run pdf generator..."
             Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
             $pdfGeneratorCount++
+          }
+          if ($name -like 'polaris-pipeline/pdf-redactor/*' -Or $name -like 'polaris-pipeline/pdf-redactor.tests/*')
+          {
+            echo "run pdf redactor..."
+            Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+            $pdfRedactorCount++
           }
           if ($name -like 'polaris-pipeline/text-extractor/*' -Or $name -like 'polaris-pipeline/text-extractor.tests/*')
           {

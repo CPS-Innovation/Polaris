@@ -54,7 +54,6 @@ namespace coordinator.Tests.Clients.PdfGenerator
 
             _polarisPipelineRedactPdfFunctionAppKey = _fixture.Create<string>();
             var mockConfiguration = new Mock<IConfiguration>();
-            var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 
             mockConfiguration.Setup(config => config[ConfigKeys.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
@@ -73,8 +72,6 @@ namespace coordinator.Tests.Clients.PdfGenerator
             };
 
             var stringContent = _httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent)).Returns(response);
-            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>())).Returns(JsonConvert.SerializeObject(_request));
 
             var mockRedactionClientLogger = new Mock<ILogger<PdfGeneratorClient>>();
 
@@ -88,48 +85,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
-                _mockHttpResponseMessageStreamFactory.Object,
-                mockJsonConvertWrapper.Object);
-        }
-
-        [Fact]
-        public async Task RedactPdf_CreatesTheRequestCorrectly()
-        {
-            await _pdfGeneratorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
-
-            _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", _correlationId, null));
-        }
-
-        [Fact]
-        public async Task RedactPdf_WhenHttpRequestExceptionThrown_IsCaughtAsException()
-        {
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>(), null)).Throws<Exception>();
-
-            var results = async () => await _pdfGeneratorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
-
-            await results.Should().ThrowAsync<Exception>();
-        }
-
-        [Fact]
-        public async Task RedactPdf_WhenHttpRequestExceptionThrownAsNotFound_ReturnsNullResponse()
-        {
-            var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.NotFound);
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>(), null)).Throws(specificException);
-
-            var results = await _pdfGeneratorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
-
-            results.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task RedactPdf_WhenHttpRequestExceptionThrownAsSomethingOtherThanNotFound_IsRethrownAsException()
-        {
-            var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.UnprocessableEntity);
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>(), null)).Throws(specificException);
-
-            var results = async () => await _pdfGeneratorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
-
-            await results.Should().ThrowAsync<Exception>();
+                _mockHttpResponseMessageStreamFactory.Object);
         }
 
         [Fact]

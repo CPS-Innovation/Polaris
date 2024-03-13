@@ -1,4 +1,3 @@
-using System.Net.Mail;
 namespace Common.Dto.FeatureFlags
 {
     public enum WriteFlag

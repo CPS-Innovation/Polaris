@@ -129,6 +129,37 @@ stages:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
+
+      - job: Build_Pdf_Redactor_Artifact
+        steps:
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-redactor'
+              OverWrite: true
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/pdf-redactor/pdf-redactor.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Build PDF-Redactor artifact"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-redactor"
+              artifact: "polaris-pdf-redactor-drop"
+            displayName: "Publish PDF-Redactor codebase artifact"
             
       - job: Build_Text_Extractor_Artifact
         steps:
