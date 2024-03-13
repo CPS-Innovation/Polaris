@@ -33,9 +33,9 @@ import {
   addToLocalStorage,
   deleteFromLocalStorage,
   readFromLocalStorage,
-  ReadUnreadData,
   RedactionsData,
 } from "../../presentation/case-details/utils/localStorageUtils";
+import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 
@@ -805,13 +805,12 @@ export const reducer = (
         },
       };
       //adding redaction highlight to local storage
-      const redactionHighlights = newState.tabsState.items.map((item) => {
-        return {
-          documentId: item.documentId,
-          redactionHighlights: item.redactionHighlights,
-        };
-      });
-      addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items
+      );
+      if (redactionHighlights.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      }
       return newState;
     }
     case "SAVING_REDACTION": {
@@ -852,13 +851,12 @@ export const reducer = (
         },
       };
       //adding redaction highlight to local storage
-      const redactionHighlights = newState.tabsState.items.map((item) => {
-        return {
-          documentId: item.documentId,
-          redactionHighlights: item.redactionHighlights,
-        };
-      });
-      addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }

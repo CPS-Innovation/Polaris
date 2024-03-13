@@ -1,5 +1,5 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
-import { RedactionSaveRequest } from "../../../cases/domain/gateway/RedactionSaveRequest";
+import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { round } from "lodash";
 
 /**
@@ -57,3 +57,16 @@ export const roundToFixedDecimalPlaces = (
   num: number,
   precisionCount: number = 2
 ) => round(num, precisionCount);
+
+export const getRedactionsToSaveLocally = (items: CaseDocumentViewModel[]) => {
+  const redactionHighlights = items.reduce((acc, item) => {
+    if (item.redactionHighlights.length) {
+      acc.push({
+        documentId: item.documentId,
+        redactionHighlights: item.redactionHighlights,
+      });
+    }
+    return acc;
+  }, [] as any);
+  return redactionHighlights;
+};

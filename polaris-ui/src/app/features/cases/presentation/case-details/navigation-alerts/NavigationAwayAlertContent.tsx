@@ -10,12 +10,12 @@ type Props =
       type: "document";
       documentId: string;
       handleCancelAction: () => void;
-      handleContinueAction: (documentIds: string[]) => void;
+      handleContinueAction: () => void;
     }
   | {
       type: "casefile";
       handleCancelAction: () => void;
-      handleContinueAction: (documentIds: string[]) => void;
+      handleContinueAction: () => void;
       unSavedRedactionDocs: UnSavedRedactionDoc[];
       handleOpenPdf: (doc: {
         documentId: CaseDocumentViewModel["documentId"];
@@ -34,11 +34,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = (props) => {
         } with unsaved redactions`;
 
   const handleIgnoreBtnClick = () => {
-    let documentIds =
-      props.type === "document"
-        ? [props.documentId]
-        : props.unSavedRedactionDocs.map(({ documentId }) => documentId);
-    handleContinueAction(documentIds);
+    handleContinueAction();
   };
   return (
     <div className={classes.alertContent}>
