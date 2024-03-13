@@ -177,7 +177,7 @@ stages:
 
       - deployment: Apply_UI_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUITerraform, 'true'))
-        dependsOn: Update_Pipeline_Component_App_Keys
+        dependsOn: Apply_Pipeline_Terraform
         displayName: Apply UI Terraform
         environment: "Dev"
         workspace:
@@ -233,7 +233,7 @@ stages:
 
       - deployment: Set_Log_Analytics_Archival_Periods
         condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUITerraform, 'true'))
-        dependsOn: Apply_UI_Terraform
+        dependsOn: Apply_UI_Events_Terraform
         displayName: Update Analytics Archival Periods
         environment: "Dev"
         strategy:
