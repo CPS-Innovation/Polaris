@@ -38,6 +38,7 @@ stages:
     condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
       runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
@@ -60,7 +61,7 @@ stages:
       - deployment: Log_Start
         displayName: Log Start
         dependsOn: Wait_For_Running_Builds
-        condition: succeeded()
+        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         environment: "Dev"
         strategy:
           runOnce:
@@ -74,7 +75,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
 
       - deployment: Log_Start_Terraform
-        condition: succeeded()
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
         dependsOn:
           - Log_Start
           - Wait_For_Running_Builds
@@ -282,6 +283,7 @@ stages:
     condition: succeeded()
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
     dependsOn: 
       - Determine_Changes
       - Apply
@@ -289,6 +291,7 @@ stages:
       name: $(dev-build-agent)
     jobs:
       - deployment: Log_Start_Codebase
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         displayName: Log Codebase Start
         environment: "Dev"
         strategy:
@@ -464,7 +467,7 @@ stages:
                     devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
-        condition: succeeded()
+        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Deployment End
         dependsOn: Log_Result_Codebase_Ended
         environment: "Dev"
