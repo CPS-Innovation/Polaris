@@ -28,8 +28,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"          = "" #set by script
-    # "PolarisPipelineRedactorPdfBaseUrl"             = https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/
-    # "PolarisPipelineRedactorPdfFunctionAppKey"      = "" #set by script
+    # "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
+    # "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
