@@ -32,9 +32,9 @@ stages:
             parameters:
               targetLabel: "DEV"
   
-  # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
-  - stage: Deploy
-    displayName: Deploy > DEV
+  # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND
+  - stage: Apply
+    displayName: Apply Terraform > DEV
     condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
@@ -43,7 +43,6 @@ stages:
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
       runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
       runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     dependsOn: Determine_Changes
     pool:
       name: $(dev-build-agent)
@@ -57,11 +56,11 @@ stages:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
                     devOpsPatToken: "$(System.AccessToken)"
-                    
+
       - deployment: Log_Start
         displayName: Log Start
         dependsOn: Wait_For_Running_Builds
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: succeeded()
         environment: "Dev"
         strategy:
           runOnce:
@@ -75,7 +74,7 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
 
       - deployment: Log_Start_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: succeeded()
         dependsOn:
           - Log_Start
           - Wait_For_Running_Builds
@@ -176,30 +175,9 @@ stages:
                     armTenantId: $(innovation-development-spn-tenant-id)
                     armSubscriptionId: $(innovation-development-subscription-id)
 
-      - deployment: Update_Pipeline_Component_App_Keys
-        dependsOn: Apply_Pipeline_Terraform
-        displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runPipelineTerraform, 'true'))
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_update-app-keys-in-pipeline-components.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Pipeline Terraform CI Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    armClientId: $(innovation-development-spn-client-id)
-                    armClientSecret: $(innovation-development-spn-secret)
-                    armTenantId: $(innovation-development-spn-tenant-id)
-                    armSubscriptionId: $(innovation-development-subscription-id)
-
       - deployment: Apply_UI_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUITerraform, 'true'))
-        dependsOn: Update_Pipeline_Component_App_Keys
+        dependsOn: Apply_Pipeline_Terraform
         displayName: Apply UI Terraform
         environment: "Dev"
         workspace:
@@ -255,7 +233,7 @@ stages:
 
       - deployment: Set_Log_Analytics_Archival_Periods
         condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUITerraform, 'true'))
-        dependsOn: Apply_UI_Terraform
+        dependsOn: Apply_UI_Events_Terraform
         displayName: Update Analytics Archival Periods
         environment: "Dev"
         strategy:
@@ -277,12 +255,11 @@ stages:
                     totalLogRetentionTime: $(total-log-retention-time)
 
       - deployment: Log_Result_Terraform_Ended
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: succeeded()
         displayName: Log Terraform End
         dependsOn:
           - Apply_Pipeline_Terraform
           - Apply_Pipeline_Events_Terraform
-          - Update_Pipeline_Component_App_Keys
           - Apply_UI_Terraform
           - Apply_UI_Events_Terraform
           - Set_Log_Analytics_Archival_Periods
@@ -300,11 +277,18 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(System.AccessToken)"
 
+  - stage: Deploy
+    displayName: Deploy > DEV
+    condition: succeeded()
+    variables:
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+    dependsOn: 
+      - Determine_Changes
+      - Apply
+    pool:
+      name: $(dev-build-agent)
+    jobs:
       - deployment: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        dependsOn:
-          - Log_Start
-          - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "Dev"
         strategy:
@@ -318,59 +302,8 @@ stages:
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
 
-      - job: Start_Pipeline_Slots
-        dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            Coordinator:
-              Name: "Coordinator"
-              AppServiceName: "fa-polaris-dev-coordinator"
-            PDFGenerator:
-              Name: "PDF Generator"
-              AppServiceName: "fa-polaris-dev-pdf-generator"
-            PDFRedactor:
-              Name: "PDF Redactor"
-              AppServiceName: "fa-polaris-dev-pdf-redactor"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start Slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(dev-azure-subscription)
-              ResourceGroupName: "rg-polaris-pipeline-dev"
-              WebAppName: $(AppServiceName)
-
-      - job: Start_UI_Slots
-        dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            SPA:
-              Name: "SPA"
-              AppServiceName: "as-web-polaris-dev"
-            PolarisGateway:
-              Name: "Polaris Gateway"
-              AppServiceName: "fa-polaris-dev-gateway"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(dev-azure-subscription)
-              ResourceGroupName: "rg-polaris-dev"
-              WebAppName: $(AppServiceName)
-
       - deployment: Deploy_Coordinator
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy Coordinator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
@@ -390,7 +323,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
 
       - deployment: Deploy_Pdf_Generator
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Generator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
@@ -408,7 +341,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
 
       - deployment: Deploy_Pdf_Redactor
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Redactor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
@@ -426,7 +359,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
 
       - deployment: Deploy_Text_Extractor
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy Text Extractor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
@@ -442,9 +375,34 @@ stages:
                     targetSuffix: "-dev"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
+                    
+      - deployment: Update_Pipeline_Component_App_Keys
+        dependsOn:
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
+          - Deploy_Text_Extractor
+        displayName: Update Component Keys
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_update-app-keys-in-pipeline-components.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "DEV"
+                    targetName: "Codebase CI Deployment"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    armClientId: $(innovation-development-spn-client-id)
+                    armClientSecret: $(innovation-development-spn-secret)
+                    armTenantId: $(innovation-development-spn-tenant-id)
+                    armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Deploy_Spa
-        dependsOn: Start_UI_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy SPA
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
@@ -464,7 +422,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
 
       - deployment: Deploy_Gateway
-        dependsOn: Start_UI_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy Gateway
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
@@ -480,15 +438,16 @@ stages:
                     targetSuffix: "-dev"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
-
+              
       - deployment: Log_Result_Codebase_Ended
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: succeeded()
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
+          - Update_Pipeline_Component_App_Keys
           - Deploy_Spa
           - Deploy_Gateway
         environment: "Dev"
@@ -505,11 +464,9 @@ stages:
                     devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
-        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: succeeded()
         displayName: Log Deployment End
-        dependsOn:
-          - Log_Result_Terraform_Ended
-          - Log_Result_Codebase_Ended
+        dependsOn: Log_Result_Codebase_Ended
         environment: "Dev"
         strategy:
           runOnce:
@@ -527,8 +484,9 @@ stages:
   - stage: Swap
     displayName: Swap Slots > DEV
     dependsOn:
-      - Deploy
       - Determine_Changes
+      - Apply
+      - Deploy
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     condition: succeeded()
@@ -553,59 +511,8 @@ stages:
         steps:
           - template: tasks/task_pause-pipeline.yml
 
-      - job: Start_Pipeline_Slots
-        dependsOn: Pause_Pipeline
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            Coordinator:
-              Name: "Coordinator"
-              AppServiceName: "fa-polaris-dev-coordinator"
-            PDFGenerator:
-              Name: "PDF Generator"
-              AppServiceName: "fa-polaris-dev-pdf-generator"
-            PDFRedactor:
-              Name: "PDF Redactor"
-              AppServiceName: "fa-polaris-dev-pdf-redactor"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start Slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(dev-azure-subscription)
-              ResourceGroupName: "rg-polaris-pipeline-dev"
-              WebAppName: $(AppServiceName)
-
-      - job: Start_UI_Slots
-        dependsOn: Pause_Pipeline
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            SPA:
-              Name: "SPA"
-              AppServiceName: "as-web-polaris-dev"
-            PolarisGateway:
-              Name: "Polaris Gateway"
-              AppServiceName: "fa-polaris-dev-gateway"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(dev-azure-subscription)
-              ResourceGroupName: "rg-polaris-dev"
-              WebAppName: $(AppServiceName)
-
       - job: Swap_Pipeline_Slots
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Pause_Pipeline
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
@@ -632,7 +539,7 @@ stages:
               PreserveVnet: true
 
       - job: Swap_UI_Slots
-        dependsOn: Start_UI_Slots
+        dependsOn: Pause_Pipeline
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
         strategy:
           matrix:

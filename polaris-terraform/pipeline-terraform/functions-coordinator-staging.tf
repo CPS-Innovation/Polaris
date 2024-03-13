@@ -21,19 +21,19 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging1"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiAccessKey"                                   = "" #set by script
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"          = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
+    "PolarisPipelineRedactPdfFunctionAppKey"          = "" #set by script
     # "PolarisPipelineRedactorPdfBaseUrl"             = https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/
-    # "PolarisPipelineRedactorPdfFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_pdf_redactor_host_keys.default_function_key
+    # "PolarisPipelineRedactorPdfFunctionAppKey"      = "" #set by script
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactorPdfFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
+    "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
-    "PolarisPipelineTextExtractorFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_text_extractor_host_keys.default_function_key
+    "PolarisPipelineTextExtractorFunctionAppKey"      = "" #set by script
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
     "SlidingClearDownInputHours"                      = var.sliding_clear_down.look_back_hours
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
