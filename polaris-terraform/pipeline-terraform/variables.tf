@@ -33,6 +33,10 @@ variable "pipeline_component_service_plans" {
     text_extractor_always_ready_instances  = number
     text_extractor_maximum_scale_out_limit = number
     text_extractor_plan_maximum_burst      = number
+    pdf_redactor_service_plan_sku          = string
+    pdf_redactor_always_ready_instances    = number
+    pdf_redactor_maximum_scale_out_limit   = number
+    pdf_redactor_plan_maximum_burst        = number
   })
 }
 
@@ -58,6 +62,7 @@ variable "pipeline_logging" {
     coordinator_scale_controller    = string
     pdf_generator_scale_controller  = string
     text_extractor_scale_controller = string
+    pdf_redactor_scale_controller   = string
   })
 }
 

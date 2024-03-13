@@ -28,6 +28,7 @@ using coordinator.Functions.DurableEntity.Entity.Mapper;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
+using PdfRedactor = coordinator.Clients.PdfRedactor;
 using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -74,6 +75,13 @@ namespace coordinator
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
+            services.AddHttpClient<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactorPdfBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+
+
             services.AddHttpClient<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineTextExtractorBaseUrl));
