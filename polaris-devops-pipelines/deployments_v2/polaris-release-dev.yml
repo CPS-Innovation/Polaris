@@ -149,7 +149,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_Pipeline_Events_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'),or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true')))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'))
         dependsOn: Apply_Pipeline_Terraform
         displayName: Apply Pipeline Events Terraform
         environment: "Dev"
@@ -226,7 +226,7 @@ stages:
                     armSubscriptionId: $(innovation-development-subscription-id)
 
       - deployment: Apply_UI_Events_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'),or(eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'))
         dependsOn: Apply_UI_Terraform
         displayName: Apply UI Events Terraform
         environment: "Dev"
