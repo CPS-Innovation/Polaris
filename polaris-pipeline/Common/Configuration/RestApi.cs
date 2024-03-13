@@ -26,6 +26,7 @@ namespace Common.Configuration
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
+        public const string PdfRedactor = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/pdf-redactor";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId:min(1)}/wait-for-case-empty-results";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
@@ -95,6 +96,11 @@ namespace Common.Configuration
         public static string GetRedactPdfPath(string caseUrn, string caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
+        }
+
+        public static string GetPdfRedactorPath(string caseUrn, string caseId, string documentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/pdf-redactor";
         }
 
         public static string GetCaseIndexCountResultsPath(string caseUrn, long caseId)

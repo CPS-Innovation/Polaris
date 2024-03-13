@@ -60,5 +60,38 @@ namespace pdf_redactor.Services.DocumentRedaction
                 };
             }
         }
+
+        public async Task<Stream> RedactAsync(string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+        {
+            try
+            {
+                byte[] documentBytes = Convert.FromBase64String(redactPdfRequest.Document);
+                using var documentStream = new MemoryStream(documentBytes);
+
+                RedactPdfRequestDto pdfRedact = new RedactPdfRequestDto
+                {
+                    RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
+                    VersionId = redactPdfRequest.VersionId,
+                };
+                
+                using var redactedDocumentStream = await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);
+
+                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactPdfRequest.FileName);
+                await _polarisBlobStorageService.UploadDocumentAsync(
+                    redactedDocumentStream,
+                    uploadFileName,
+                    caseId,
+                    documentId,
+                    redactPdfRequest.VersionId.ToString(),
+                    correlationId);
+
+                return redactedDocumentStream;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMethodError(correlationId, nameof(RedactAsync), ex.Message, ex);
+                throw;
+            }
+        }
     }
 }
