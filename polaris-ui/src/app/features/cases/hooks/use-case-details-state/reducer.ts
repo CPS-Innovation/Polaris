@@ -864,7 +864,7 @@ export const reducer = (
     case "REMOVE_ALL_REDACTIONS": {
       const { documentId } = action.payload;
       deleteFromLocalStorage(state.caseId, "redactions");
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -878,6 +878,16 @@ export const reducer = (
           ),
         },
       };
+       //adding redaction highlight to local storage
+       const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
+       
     }
     case "UPDATE_DOCUMENT_LOCK_STATE": {
       const { documentId, lockedState } = action.payload;
