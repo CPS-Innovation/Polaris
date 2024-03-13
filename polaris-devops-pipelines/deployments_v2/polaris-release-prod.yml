@@ -511,59 +511,8 @@ stages:
         steps:
           - template: tasks/task_pause-pipeline.yml
 
-      - job: Start_Pipeline_Slots
-        dependsOn: Pause_Pipeline
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            Coordinator:
-              Name: "Coordinator"
-              AppServiceName: "fa-polaris-coordinator"
-            PDFGenerator:
-              Name: "PDF Generator"
-              AppServiceName: "fa-polaris-pdf-generator"
-            PDFRedactor:
-              Name: "PDF Redactor"
-              AppServiceName: "fa-polaris-pdf-redactor"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start Slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(prod-azure-subscription)
-              ResourceGroupName: "rg-polaris-pipeline"
-              WebAppName: $(AppServiceName)
-
-      - job: Start_UI_Slots
-        dependsOn: Pause_Pipeline
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            SPA:
-              Name: "SPA"
-              AppServiceName: "as-web-polaris"
-            PolarisGateway:
-              Name: "Polaris Gateway"
-              AppServiceName: "fa-polaris-gateway"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(prod-azure-subscription)
-              ResourceGroupName: "rg-polaris"
-              WebAppName: $(AppServiceName)
-
       - job: Swap_Pipeline_Slots
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Pause_Pipeline
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
@@ -590,7 +539,7 @@ stages:
               PreserveVnet: true
 
       - job: Swap_UI_Slots
-        dependsOn: Start_UI_Slots
+        dependsOn: Pause_Pipeline
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
         strategy:
           matrix:
