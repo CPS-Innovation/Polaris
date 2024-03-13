@@ -45,7 +45,7 @@ steps:
       az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
       az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineTextExtractorFunctionAppKey=$text_extractor_default_code"
       az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineRedactPdfFunctionAppKey=$pdf_generator_default_code"
-      az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineRedactorPdfBaseUrl=$pdf_generator_default_code"
+      az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineRedactorPdfFunctionAppKey=$pdf_generator_default_code"
       az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "DdeiAccessKey=$ddei_default_code"
     displayName: Script > Update Keys in Pipeline Component Config
     env:

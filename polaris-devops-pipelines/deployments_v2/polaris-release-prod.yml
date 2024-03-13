@@ -33,8 +33,8 @@ stages:
               targetLabel: "PROD"
 
   # PROD: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
-  - stage: Deploy
-    displayName: Deploy > PROD
+  - stage: Apply
+    displayName: Apply Terraform > PROD
     condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
@@ -43,18 +43,6 @@ stages:
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
       runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
       runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
-      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
-      networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
-      coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
-      pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
-      pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
-      textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
-      gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
-      uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
-      ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
-      commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
     dependsOn: Determine_Changes
     pool:
       name: $(prod-build-agent)
@@ -72,7 +60,7 @@ stages:
       - deployment: Log_Start
         displayName: Log Start
         dependsOn: Wait_For_Running_Builds
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: succeeded()
         environment: "Prod"
         strategy:
           runOnce:
@@ -84,39 +72,9 @@ stages:
                     targetLabel: "PROD"
                     targetName: "CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    
-      - job: Send_Start_Message
-        displayName: Send Message to Teams
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn:
-          - Log_Start
-          - Wait_For_Running_Builds
-        continueOnError: false
-        steps:
-          - template: tasks/task_send-progress-message-to-teams.yml
-            parameters:
-              webhookUrl: $(ddei-webhook-url)
-              devOpsPatToken: "$(System.AccessToken)"
-              stageName: "Deploy > PROD"
-              commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
-              buildVersion: $(resources.pipeline.PolarisBuild.runName)
-              pipelineTerraformCount: $(pipelineTerraformCount)
-              uiTerraformCount: $(uiTerraformCount)
-              networkingTerraformCount: $(networkingTerraformCount)
-              coordinatorCount: $(coordinatorCount)
-              pdfGeneratorCount: $(pdfGeneratorCount)
-              pdfRedactorCount: $(pdfRedactorCount)
-              textExtractorCount: $(textExtractorCount)
-              gatewayCount: $(gatewayCount)
-              uiCount: $(uiCount)
-              ddeiClientCount: $(ddeiClientCount)
-              commonLibraryCount: $(commonLibraryCount)
-              messageTitle: "Polaris Release to PROD started"
-              buildResultsTitle: "View Progress"
-              buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
 
       - deployment: Log_Start_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: succeeded()
         dependsOn:
           - Log_Start
           - Wait_For_Running_Builds
@@ -297,7 +255,7 @@ stages:
                     totalLogRetentionTime: $(total-log-retention-time)
 
       - deployment: Log_Result_Terraform_Ended
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: succeeded()
         displayName: Log Terraform End
         dependsOn:
           - Apply_Pipeline_Terraform
@@ -319,11 +277,18 @@ stages:
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(System.AccessToken)"
 
+  - stage: Deploy
+    displayName: Deploy > PROD
+    condition: succeeded()
+    variables:
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+    dependsOn:
+      - Determine_Changes
+      - Apply
+    pool:
+      name: $(prod-build-agent)
+    jobs:
       - deployment: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        dependsOn:
-          - Log_Start
-          - Wait_For_Running_Builds
         displayName: Log Codebase Start
         environment: "Prod"
         strategy:
@@ -337,59 +302,8 @@ stages:
                     targetName: "Codebase CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
 
-      - job: Start_Pipeline_Slots
-        dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            Coordinator:
-              Name: "Coordinator"
-              AppServiceName: "fa-polaris-coordinator"
-            PDFGenerator:
-              Name: "PDF Generator"
-              AppServiceName: "fa-polaris-pdf-generator"
-            PDFRedactor:
-              Name: "PDF Redactor"
-              AppServiceName: "fa-polaris-pdf-redactor"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start Slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(prod-azure-subscription)
-              ResourceGroupName: "rg-polaris-pipeline"
-              WebAppName: $(AppServiceName)
-
-      - job: Start_UI_Slots
-        dependsOn: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        strategy:
-          matrix:
-            SPA:
-              Name: "SPA"
-              AppServiceName: "as-web-polaris"
-            PolarisGateway:
-              Name: "Polaris Gateway"
-              AppServiceName: "fa-polaris-gateway"
-        displayName: Start Staging1
-        steps:
-          - checkout: none
-          - task: AzureAppServiceManage@0
-            displayName: Start slot
-            inputs:
-              Action: "Start Azure App Service"
-              SpecifySlotOrASE: true
-              Slot: "staging1"
-              azureSubscription: $(prod-azure-subscription)
-              ResourceGroupName: "rg-polaris"
-              WebAppName: $(AppServiceName)
-
       - deployment: Deploy_Coordinator
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy Coordinator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
@@ -409,7 +323,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
 
       - deployment: Deploy_Pdf_Generator
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Generator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
@@ -427,7 +341,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
 
       - deployment: Deploy_Pdf_Redactor
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Redactor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
@@ -445,7 +359,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
 
       - deployment: Deploy_Text_Extractor
-        dependsOn: Start_Pipeline_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy Text Extractor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
@@ -461,7 +375,7 @@ stages:
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
-                    
+
       - deployment: Update_Pipeline_Component_App_Keys
         dependsOn:
           - Deploy_Coordinator
@@ -488,7 +402,7 @@ stages:
                     armSubscriptionId: $(innovation-prod-subscription-id)
 
       - deployment: Deploy_Spa
-        dependsOn: Start_UI_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy SPA
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
@@ -508,7 +422,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
 
       - deployment: Deploy_Gateway
-        dependsOn: Start_UI_Slots
+        dependsOn: Log_Start_Codebase
         displayName: Deploy Gateway
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Prod"
@@ -526,7 +440,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
 
       - deployment: Log_Result_Codebase_Ended
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: succeeded()
         displayName: Log Codebase End
         dependsOn:
           - Deploy_Coordinator
@@ -550,11 +464,9 @@ stages:
                     devOpsPatToken: "$(System.AccessToken)"
 
       - deployment: Log_Result_Ended
-        condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: succeeded()
         displayName: Log Deployment End
-        dependsOn:
-          - Log_Result_Terraform_Ended
-          - Log_Result_Codebase_Ended
+        dependsOn: Log_Result_Codebase_Ended
         environment: "Prod"
         strategy:
           runOnce:
@@ -572,8 +484,9 @@ stages:
   - stage: Swap
     displayName: Swap Slots > PROD
     dependsOn:
-      - Deploy
       - Determine_Changes
+      - Apply
+      - Deploy
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     condition: succeeded()
@@ -1049,6 +962,7 @@ stages:
     dependsOn:
       - Run_e2e_Tests
       - Determine_Changes
+      - Apply
       - Deploy
       - Swap
       - Check
