@@ -30,7 +30,7 @@ type AsyncActions =
       type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
-        redaction: NewPdfHighlight;
+        redactions: NewPdfHighlight[];
       };
     }
   | {

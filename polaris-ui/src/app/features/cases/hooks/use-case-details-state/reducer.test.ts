@@ -1964,10 +1964,12 @@ describe("useCaseDetailsState reducer", () => {
           type: "ADD_REDACTION",
           payload: {
             documentId: "1",
-            redaction: {
-              type: "redaction",
-              position: { pageNumber: 1 },
-            } as NewPdfHighlight,
+            redactions: [
+              {
+                type: "redaction",
+                position: { pageNumber: 1 },
+              },
+            ] as NewPdfHighlight[],
           },
         }
       );
@@ -1986,7 +1988,7 @@ describe("useCaseDetailsState reducer", () => {
                 {
                   type: "redaction",
                   position: { pageNumber: 1 },
-                  id: "1640995200000",
+                  id: "1640995200000-0",
                 },
               ],
             },

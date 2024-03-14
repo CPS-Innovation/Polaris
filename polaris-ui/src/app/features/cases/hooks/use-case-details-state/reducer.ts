@@ -112,7 +112,7 @@ export const reducer = (
         type: "ADD_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
-          redaction: NewPdfHighlight;
+          redactions: NewPdfHighlight[];
         };
       }
     | {
@@ -783,7 +783,12 @@ export const reducer = (
         },
       };
     case "ADD_REDACTION": {
-      const { documentId, redaction } = action.payload;
+      const { documentId, redactions } = action.payload;
+
+      const newRedactions = redactions.map((redaction, index) => ({
+        ...redaction,
+        id: String(`${+new Date()}-${index}`),
+      }));
 
       const newState = {
         ...state,
@@ -795,10 +800,7 @@ export const reducer = (
                   ...item,
                   redactionHighlights: [
                     ...item.redactionHighlights,
-                    {
-                      ...redaction,
-                      id: String(+new Date()),
-                    },
+                    ...newRedactions,
                   ],
                 }
               : item

@@ -42,7 +42,7 @@ type Props = {
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
-  handleAddRedaction: (newRedaction: NewPdfHighlight) => void;
+  handleAddRedaction: (newRedaction: NewPdfHighlight[]) => void;
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -109,7 +109,7 @@ export const PdfViewer: React.FC<Props> = ({
         redactionType: redactionType,
       };
 
-      handleAddRedaction(newRedaction);
+      handleAddRedaction([newRedaction]);
       window.getSelection()?.removeAllRanges();
     },
     [handleAddRedaction]

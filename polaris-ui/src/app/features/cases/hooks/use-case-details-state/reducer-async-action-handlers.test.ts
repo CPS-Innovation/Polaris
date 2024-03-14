@@ -105,7 +105,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 
@@ -176,7 +176,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 
@@ -250,7 +250,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 
@@ -310,7 +310,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 

@@ -289,11 +289,11 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const handleAddRedaction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      redaction: NewPdfHighlight
+      redactions: NewPdfHighlight[]
     ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { documentId, redaction },
+        payload: { documentId, redactions },
       }),
     [dispatch]
   );

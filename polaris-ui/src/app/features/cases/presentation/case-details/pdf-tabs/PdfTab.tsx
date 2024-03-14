@@ -84,7 +84,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
 
   const localHandleAddRedaction = useCallback(
-    (redaction: NewPdfHighlight) => handleAddRedaction(documentId, redaction),
+    (redactions: NewPdfHighlight[]) =>
+      handleAddRedaction(documentId, redactions),
     [documentId, handleAddRedaction]
   );
 
