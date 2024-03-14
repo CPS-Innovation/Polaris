@@ -119,7 +119,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
         expect(dispatchMock.mock.calls[1][0]).toEqual({
           type: "ADD_REDACTION",
-          payload: { documentId: "1", redaction: { type: "redaction" } },
+          payload: { documentId: "1", redactions: [{ type: "redaction" }] },
         });
 
         expect(dispatchMock.mock.calls[2][0]).toEqual({
@@ -320,7 +320,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(1);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "ADD_REDACTION",
-          payload: { documentId: "1", redaction: { type: "redaction" } },
+          payload: { documentId: "1", redactions: [{ type: "redaction" }] },
         });
       }
     );
