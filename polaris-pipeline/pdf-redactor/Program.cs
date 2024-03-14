@@ -1,5 +1,4 @@
 
-using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
 using Common.Telemetry;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pdf_redactor;
 using pdf_redactor.Services.Extensions;
+using pdf_redactor.Domain.Validators;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var host = new HostBuilder()
@@ -54,6 +54,7 @@ var host = new HostBuilder()
 
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+        services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

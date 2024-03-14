@@ -73,17 +73,19 @@ namespace pdf_redactor.Services.DocumentRedaction
                     RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
                     VersionId = redactPdfRequest.VersionId,
                 };
-                
-                using var redactedDocumentStream = await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);
+
+                var redactedDocumentStream = await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);
 
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactPdfRequest.FileName);
-                await _polarisBlobStorageService.UploadDocumentAsync(
-                    redactedDocumentStream,
-                    uploadFileName,
-                    caseId,
-                    documentId,
-                    redactPdfRequest.VersionId.ToString(),
-                    correlationId);
+
+                // await _polarisBlobStorageService.UploadDocumentAsync(
+                //     redactedDocumentStream,
+                //     uploadFileName,
+                //     caseId,
+                //     documentId,
+                //     redactPdfRequest.VersionId.ToString(),
+                //     correlationId);
+
 
                 return redactedDocumentStream;
             }

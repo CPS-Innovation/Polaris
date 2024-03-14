@@ -1,12 +1,10 @@
-﻿using Common.Configuration;
-using Common.Dto.Request;
-using Common.Dto.Request.Redaction;
-using coordinator.Clients.PdfRedactor;
+﻿using coordinator.Clients.PdfRedactor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Text;
-using System.Text.Json;
+using Codeuctivity.ImageSharpCompare;
+using Aspose.Pdf;
+using Common.Streaming;
+using PdfRedactorClient = pdf_redactor.Clients.PdfRedactor;
 
 namespace pdf_redactor.integration.tests
 {
@@ -14,98 +12,73 @@ namespace pdf_redactor.integration.tests
     {
         public static async Task Main(string[] args)
         {
-            var builder = Host.CreateApplicationBuilder(args);
-
-            builder.Configuration.AddEnvironmentVariables();
-            builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
-            builder.Configuration.AddJsonFile("local.settings.json", optional: false, reloadOnChange: true);
-
-            builder.Services.AddHttpClient(
-              "testClient",
-              client =>
-              {
-                  client.BaseAddress = new Uri(builder.Configuration["RedactorUrl"]);
-              });
-
-            builder.Services.AddTransient<IRequestFactory, RequestFactory>();
+            var serviceProvider = BuildServiceProvider(args);
 
             StartupHelpers.SetAsposeLicence();
 
-            using var host = builder.Build();
-            using var serviceScope = host.Services.CreateScope();
 
-            // call http function for redaction
-            using var redactedPdf = await RedactPdfUsingFunctionCall(serviceScope.ServiceProvider, builder.Configuration["RedactorKey"]);
+            var redactorClient = serviceProvider.GetRequiredService<PdfRedactorClient.IPdfRedactorClient>();
 
+            await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.image_document_redactions.json", "pdf_redactor.integration.tests.Resources.image_document.pdf", "pdf_redactor.integration.tests.Resources.image_document_page_1.png", "pdf_redactor.integration.tests.Resources.image_document_page_2.png");
+            await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.overlapping_redaction_redactions.json", "pdf_redactor.integration.tests.Resources.overlapping_redaction.pdf", "pdf_redactor.integration.tests.Resources.overlapping_redaction_page_1.png", null);
+            await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.broken_ocr_redactions.json", "pdf_redactor.integration.tests.Resources.broken_ocr.pdf", "pdf_redactor.integration.tests.Resources.broken_ocr_page_1.png", null);
 
-            // convert to images
-
-            // compare stream from call to local assertion file
+            Console.WriteLine("Successfully asserted all pdf test cases");
         }
 
-        private static async Task<Stream> RedactPdfUsingFunctionCall(IServiceProvider serviceProvider, string redactorKey)
+        private static async Task AssertRedactedPdf(PdfRedactorClient.IPdfRedactorClient redactorClient, string redactionsResourceName, string pdfResourceName, string assertionOneResourceName, string? assertionTwoResourceName)
         {
-            Guid currentCorrelationId = Guid.NewGuid();
+            var redactionJsonStream = typeof(Program).Assembly.GetManifestResourceStream(redactionsResourceName) ?? throw new Exception($"{redactionsResourceName} not found");
+            var documentStream = typeof(Program).Assembly.GetManifestResourceStream(pdfResourceName) ?? throw new Exception($"{pdfResourceName} not found");
 
-            var requestFactory = serviceProvider.GetRequiredService<IRequestFactory>();
-            var client = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("testClient");
+            var redactionData = RedactionHelper.LoadRedactionDataForPdf(redactionJsonStream, documentStream, pdfResourceName);
+            var redactedPdfStream = await redactorClient.RedactPdfAsync(redactionData);
 
-            // get pdf coordinates from dto
-            var redactionData = LoadRedactionData("pdf_redactor.integration.tests.redactionData.json", "pdf_redactor.integration.tests.document.pdf");
+            var fullStream = await redactedPdfStream.EnsureSeekableAsync();
+            var redactedDocument = new Document(fullStream);
 
-            var requestMessage = new StringContent(JsonSerializer.Serialize(redactionData), Encoding.UTF8, "application/json");
+            var redactedImageStreams = await PdfConversionHelper.ConvertAndSavePdfToImages(redactedDocument);
 
-            var redactRequest = requestFactory.Create(HttpMethod.Put, $"{RestApi.GetPdfRedactorPath("pdf-redactor.integration.tests.urn", "pdf-redactor.integration.tests.caseId", "pdf-redactor.integration.tests.documentId")}?code={redactorKey}", currentCorrelationId);
-            redactRequest.Content = requestMessage;
+            using var assertionImageStreamOne = typeof(Program).Assembly.GetManifestResourceStream(assertionOneResourceName) ?? throw new Exception($"{assertionOneResourceName} not found");
+            var pageOneDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[0], assertionImageStreamOne, ResizeOption.Resize);
 
-            using var pdfStream = new MemoryStream();
-            using (var response = await client.SendAsync(redactRequest, HttpCompletionOption.ResponseHeadersRead))
+            if (pageOneDiff.AbsoluteError > 0)
             {
-                response.EnsureSuccessStatusCode();
-                await response.Content.CopyToAsync(pdfStream);
-                pdfStream.Seek(0, SeekOrigin.Begin);
+                throw new Exception($"Mean ImageComparison diff for page 1 is {pageOneDiff.AbsoluteError} should be 0");
             }
 
-            return pdfStream;
-        }
-
-        private static RedactPdfRequestWithDocumentDto LoadRedactionData(string jsonPath, string documentPath)
-        {
-            using var redactedStream = typeof(Program).Assembly.GetManifestResourceStream(jsonPath) ?? throw new Exception($"{jsonPath} not found");
-            using var streamReader = new StreamReader(redactedStream);
-            var jsonText = streamReader.ReadToEnd();
-            var redactionData = JsonSerializer.Deserialize<RedactionData>(jsonText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new Exception("Failed to deserialize redaction data");
-
-            var redactionDefinitions = new List<RedactionDefinitionDto>();
-
-            foreach (var redaction in redactionData.Redactions)
+            if (assertionTwoResourceName != null)
             {
-                var redactionDefinition = new RedactionDefinitionDto
+                using var assertionImageStreamTwo = typeof(Program).Assembly.GetManifestResourceStream(assertionTwoResourceName) ?? throw new Exception($"{assertionTwoResourceName} not found");
+                var pageTwoDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[1], assertionImageStreamTwo, ResizeOption.Resize);
+
+                if (pageTwoDiff.AbsoluteError > 0)
                 {
-                    PageIndex = redaction.PageIndex,
-                    Width = redaction.Width,
-                    Height = redaction.Height,
-                    RedactionCoordinates = redaction.RedactionCoordinates.Select(rc => new RedactionCoordinatesDto
-                    {
-                        X1 = rc.X1,
-                        Y1 = rc.Y1,
-                        X2 = rc.X2,
-                        Y2 = rc.Y2
-                    }).ToList()
-                };
-
-                redactionDefinitions.Add(redactionDefinition);
+                    throw new Exception($"Mean ImageComparison diff for page 2 is {pageTwoDiff.AbsoluteError} should be 0");
+                }
             }
+        }
 
-            var base64Document = Convert.ToBase64String(File.ReadAllBytes(documentPath));
+        static ServiceProvider BuildServiceProvider(string[] args)
+        {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
 
-            return new RedactPdfRequestWithDocumentDto
+            var services = new ServiceCollection();
+
+            var redactorUrl = configuration.GetSection("Values")["PdfRedactorUrl"] ?? throw new Exception("PdfRedactorUrl not found in configuration");
+
+            services.AddSingleton<IConfiguration>(configuration);
+            services.AddTransient<IRequestFactory, RequestFactory>();
+            services.AddHttpClient<PdfRedactorClient.IPdfRedactorClient, PdfRedactorClient.PdfRedactorClient>(client =>
             {
-                //FileName = fileName,
-                Document = base64Document,
-                VersionId = 1,
-                RedactionDefinitions = redactionDefinitions
-            };
+                client.BaseAddress = new Uri(redactorUrl);
+            });
+            services.AddTransient<IRequestFactory, RequestFactory>();
+
+            return services.BuildServiceProvider();
         }
     }
 }

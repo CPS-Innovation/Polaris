@@ -15,6 +15,7 @@ using pdf_redactor.Services.DocumentRedaction;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Common.Streaming;
 
 namespace pdf_redactor.Functions
 {
@@ -79,7 +80,7 @@ namespace pdf_redactor.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
 
-                using var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, documentId, redactions, currentCorrelationId);
+                var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, documentId, redactions, currentCorrelationId);
 
                 return new FileStreamResult(redactPdfStream, PdfContentType);
             }
