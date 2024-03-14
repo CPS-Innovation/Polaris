@@ -878,8 +878,8 @@ export const reducer = (
           ),
         },
       };
-       //adding redaction highlight to local storage
-       const redactionHighlights = getRedactionsToSaveLocally(
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
         newState.tabsState.items
       );
       redactionHighlights.length
@@ -887,7 +887,6 @@ export const reducer = (
         : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
-       
     }
     case "UPDATE_DOCUMENT_LOCK_STATE": {
       const { documentId, lockedState } = action.payload;
