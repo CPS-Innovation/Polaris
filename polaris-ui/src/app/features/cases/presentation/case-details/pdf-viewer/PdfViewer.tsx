@@ -92,6 +92,10 @@ export const PdfViewer: React.FC<Props> = ({
       contextData.caseId
     );
     if (locallySavedRedactionHighlights.length) {
+      trackEvent("Add Unsaved Redactions", {
+        documentId: contextData.documentId,
+        redactionsCount: locallySavedRedactionHighlights.length,
+      });
       handleAddRedaction(locallySavedRedactionHighlights);
     }
   }, []);
