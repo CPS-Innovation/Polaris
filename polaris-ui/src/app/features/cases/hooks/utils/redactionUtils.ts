@@ -1,5 +1,9 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
+import {
+  RedactionsData,
+  readFromLocalStorage,
+} from "../../presentation/case-details/utils/localStorageUtils";
 import { round } from "lodash";
 
 /**
@@ -58,15 +62,28 @@ export const roundToFixedDecimalPlaces = (
   precisionCount: number = 2
 ) => round(num, precisionCount);
 
-export const getRedactionsToSaveLocally = (items: CaseDocumentViewModel[]) => {
-  const redactionHighlights = items.reduce((acc, item) => {
-    if (item.redactionHighlights.length) {
-      acc.push({
-        documentId: item.documentId,
-        redactionHighlights: item.redactionHighlights,
-      });
-    }
-    return acc;
-  }, [] as any);
-  return redactionHighlights;
+export const getRedactionsToSaveLocally = (
+  items: CaseDocumentViewModel[],
+  documentId: string,
+  caseId: number
+) => {
+  const locallySavedRedactions =
+    (readFromLocalStorage(caseId, "redactions") as RedactionsData) ?? [];
+
+  const redactionHighlights = items.find(
+    (item) => item.documentId === documentId
+  )?.redactionHighlights;
+
+  const filteredRedactions = locallySavedRedactions.filter(
+    (redaction) => redaction.documentId !== documentId
+  );
+
+  if (redactionHighlights?.length) {
+    filteredRedactions.push({
+      documentId: documentId,
+      redactionHighlights: redactionHighlights,
+    });
+  }
+
+  return filteredRedactions;
 };

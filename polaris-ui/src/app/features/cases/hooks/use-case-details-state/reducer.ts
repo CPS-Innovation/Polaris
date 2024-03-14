@@ -806,7 +806,9 @@ export const reducer = (
       };
       //adding redaction highlight to local storage
       const redactionHighlights = getRedactionsToSaveLocally(
-        newState.tabsState.items
+        newState.tabsState.items,
+        documentId,
+        state.caseId
       );
       if (redactionHighlights.length) {
         addToLocalStorage(state.caseId, "redactions", redactionHighlights);
@@ -852,7 +854,9 @@ export const reducer = (
       };
       //adding redaction highlight to local storage
       const redactionHighlights = getRedactionsToSaveLocally(
-        newState.tabsState.items
+        newState.tabsState.items,
+        documentId,
+        state.caseId
       );
       redactionHighlights.length
         ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
@@ -863,7 +867,6 @@ export const reducer = (
 
     case "REMOVE_ALL_REDACTIONS": {
       const { documentId } = action.payload;
-      deleteFromLocalStorage(state.caseId, "redactions");
       const newState = {
         ...state,
         tabsState: {
@@ -880,7 +883,9 @@ export const reducer = (
       };
       //adding redaction highlight to local storage
       const redactionHighlights = getRedactionsToSaveLocally(
-        newState.tabsState.items
+        newState.tabsState.items,
+        documentId,
+        state.caseId
       );
       redactionHighlights.length
         ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
