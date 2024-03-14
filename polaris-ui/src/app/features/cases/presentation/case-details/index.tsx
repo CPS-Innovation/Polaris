@@ -191,8 +191,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleCancelAction={() => {
               setShowAlert(false);
             }}
-            handleContinueAction={() => {
+            handleContinueAction={(documentIds) => {
               setShowAlert(false);
+              handleUnLockDocuments(documentIds);
               navigationUnblockHandle.current();
               history.push(newPath);
             }}

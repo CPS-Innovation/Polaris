@@ -59,9 +59,10 @@ export const Tabs: React.FC<TabsProps> = ({
     setShowDocumentNavAlert(false);
   };
 
-  const handleNavigateAwayContinueAction = () => {
+  const handleNavigateAwayContinueAction = (documentIds: string[]) => {
     setShowDocumentNavAlert(false);
     localHandleClosePdf();
+    handleUnLockDocuments(documentIds);
   };
 
   const panels = items.map((item, index) => {
