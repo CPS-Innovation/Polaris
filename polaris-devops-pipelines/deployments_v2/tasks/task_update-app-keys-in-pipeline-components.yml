@@ -37,7 +37,16 @@ steps:
       az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
       az account set --subscription $ARM_SUBSCRIPTION_ID
       durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris$ARM_SUFFIX-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+      text_extractor_default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris$ARM_SUFFIX-text-extractor --query 'functionKeys.default' --output tsv)
+      pdf_generator_default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris$ARM_SUFFIX-pdf-generator --query 'functionKeys.default' --output tsv)
+      pdf_redactor_default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris$ARM_SUFFIX-pdf-redactor --query 'functionKeys.default' --output tsv)
+      ddei_default_code=$(az functionapp keys list --resource-group rg-polaris-ddei$ARM_SUFFIX --name fa-polaris-ddei$ARM_SUFFIX --query 'functionKeys.default' --output tsv)
+
       az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+      az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineTextExtractorFunctionAppKey=$text_extractor_default_code"
+      az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineRedactPdfFunctionAppKey=$pdf_generator_default_code"
+      az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineRedactorPdfFunctionAppKey=$pdf_generator_default_code"
+      az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "DdeiAccessKey=$ddei_default_code"
     displayName: Script > Update Keys in Pipeline Component Config
     env:
       ARM_CLIENT_ID: ${{ parameters.armClientId }}

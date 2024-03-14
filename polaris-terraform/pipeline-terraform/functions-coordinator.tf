@@ -25,19 +25,19 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiAccessKey"                                   = "" #set by script
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"          = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
+    "PolarisPipelineRedactPdfFunctionAppKey"          = "" #set by script
     # "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
-    # "PolarisPipelineRedactorPdfFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_pdf_redactor_host_keys.default_function_key
+    # "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactorPdfFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
+    "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
-    "PolarisPipelineTextExtractorFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_text_extractor_host_keys.default_function_key
+    "PolarisPipelineTextExtractorFunctionAppKey"      = "" #set by script
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
     "SlidingClearDownInputHours"                      = var.sliding_clear_down.look_back_hours
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
@@ -92,7 +92,44 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["AzureWebJobs.ResetDurableState.Disabled"],
+      app_settings["AzureWebJobs.SlidingCaseClearDown.Disabled"],
+      app_settings["AzureWebJobsStorage"],
+      app_settings["BlobExpirySecs"],
+      app_settings["BlobServiceContainerName"],
+      app_settings["BlobServiceUrl"],
+      app_settings["BlobUserDelegationKeyExpirySecs"],
+      app_settings["CoordinatorOrchestratorTimeoutSecs"],
+      app_settings["CoordinatorTaskHub"],
+      app_settings["DdeiBaseUrl"],
+      app_settings["DdeiAccessKey"],
+      app_settings["OvernightClearDownSchedule"],
+      app_settings["PolarisPipelineRedactPdfBaseUrl"],
+      app_settings["PolarisPipelineRedactPdfFunctionAppKey"],
+      app_settings["PolarisPipelineRedactorPdfBaseUrl"],
+      app_settings["PolarisPipelineRedactorPdfFunctionAppKey"],
+      app_settings["PolarisPipelineTextExtractorBaseUrl"],
+      app_settings["PolarisPipelineTextExtractorFunctionAppKey"],
+      app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
+      app_settings["SlidingClearDownInputHours"],
+      app_settings["SlidingClearDownProtectBlobs"],
+      app_settings["SlidingClearDownSchedule"],
+      app_settings["SlidingClearDownBatchSize"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
+      app_settings["WEBSITE_CONTENTOVERVNET"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_DNS_ALT_SERVER"],
+      app_settings["WEBSITE_DNS_SERVER"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_RUN_FROM_PACKAGE"],
+      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
+      app_settings["WEBSITE_WARMUP_PATH"],
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
     ]
   }
 }

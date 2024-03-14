@@ -64,6 +64,7 @@ namespace coordinator
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<TextExtractor.IRequestFactory, TextExtractor.RequestFactory>();
             services.AddTransient<PdfGenerator.IRequestFactory, PdfGenerator.RequestFactory>();
+            services.AddTransient<PdfRedactor.IRequestFactory, PdfRedactor.RequestFactory>();
             services.AddTransient<TextExtractor.ISearchDtoContentFactory, TextExtractor.SearchDtoContentFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
