@@ -9,13 +9,13 @@ using Xunit;
 using coordinator.Durable.Activity;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using DdeiClient.Services;
 using coordinator.Services.DocumentToggle;
-using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Payloads;
-using Ddei.Factories;
+using coordinator.Clients.Ddei.Domain.CaseData.Args;
+using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei.Factories;
 
 namespace coordinator.tests.Durable.Activity
 {

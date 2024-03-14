@@ -1,0 +1,11 @@
+namespace coordinator.Clients.Ddei.Domain
+{
+    public class DdeiCaseIdentifiersDto
+    {
+        public int Id { get; set; }
+
+        public string Urn { get; set; }
+
+        public string UrnRoot { get; set; }
+    }
+}

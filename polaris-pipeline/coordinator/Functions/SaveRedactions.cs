@@ -12,13 +12,13 @@ using Common.Wrappers;
 using Common.Exceptions;
 using FluentValidation;
 using Common.Dto.Request;
-using DdeiClient.Services;
 using Common.ValueObjects;
 using Common.Services.BlobStorageService;
-using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
 using coordinator.Clients.PdfRedactor;
+using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei.Factories;
 
 namespace coordinator.Functions
 {

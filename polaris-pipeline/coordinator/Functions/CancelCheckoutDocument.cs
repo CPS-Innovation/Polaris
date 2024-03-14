@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.ValueObjects;
-using Ddei.Factories;
-using DdeiClient.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -12,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Common.Extensions;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
+using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei.Factories;
 
 namespace coordinator.Functions
 {

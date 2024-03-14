@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Common.Configuration;
 using Common.Services;
 using Common.Wrappers;
 using coordinator;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using Common.Domain.Validators;
 using Common.Dto.Request;
-using Ddei.Services.Extensions;
 using Common.Handlers;
 using coordinator.Constants;
 using coordinator.Services.RenderHtmlService;
@@ -30,6 +28,7 @@ using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 using System.IO;
+using coordinator.Clients.Ddei.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -81,7 +80,6 @@ namespace coordinator
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactorPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-
 
             services.AddHttpClient<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(client =>
             {

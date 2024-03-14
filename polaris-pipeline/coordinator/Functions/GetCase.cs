@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
+using coordinator.Clients.Ddei.Factories;
+using coordinator.Clients.Ddei.Services;
 using coordinator.Helpers;
-using Ddei.Factories;
-using DdeiClient.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;

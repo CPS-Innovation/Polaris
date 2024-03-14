@@ -1,15 +1,15 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
-using DdeiClient.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Ddei.Factories;
 using System.Threading.Tasks;
 using System;
 using coordinator.Helpers;
+using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei.Factories;
 
 namespace PolarisGateway.Functions
 {

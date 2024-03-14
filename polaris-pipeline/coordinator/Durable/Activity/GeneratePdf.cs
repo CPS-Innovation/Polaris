@@ -7,13 +7,13 @@ using Common.Exceptions;
 using Common.Services.BlobStorageService;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers;
-using DdeiClient.Services;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using coordinator.Durable.Payloads;
 using coordinator.Clients.PdfGenerator;
+using coordinator.Clients.Ddei.Services;
 
 namespace coordinator.Durable.Activity
 {
