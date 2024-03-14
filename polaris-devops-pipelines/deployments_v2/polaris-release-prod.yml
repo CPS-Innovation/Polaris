@@ -360,7 +360,7 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "Coordinator"
-              targetScript: "InvokeRequestWithRetry.ps1"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
               endpointUri: "$(uri)/api/status"
               statusCheckMethod: $(status-check-method)
               statusCheckRetries: $(status-check-retries)
@@ -379,7 +379,7 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "PDF Generator"
-              targetScript: "InvokeRequestWithRetry.ps1"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
               endpointUri: "$(uri)/api/status"
               statusCheckMethod: $(status-check-method)
               statusCheckRetries: $(status-check-retries)
@@ -399,7 +399,7 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "PDF Redactor"
-              targetScript: "InvokeRequestWithRetry.ps1"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
               endpointUri: "$(uri)/api/status"
               statusCheckMethod: $(status-check-method)
               statusCheckRetries: $(status-check-retries)
@@ -418,7 +418,7 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "Text Extractor"
-              targetScript: "InvokeRequestWithRetry.ps1"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
               endpointUri: "$(uri)/api/status"
               statusCheckMethod: $(status-check-method)
               statusCheckRetries: $(status-check-retries)
@@ -437,7 +437,7 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "Gateway"
-              targetScript: "InvokeRequestWithRetry.ps1"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
               endpointUri: "$(uri)/api/status"
               statusCheckMethod: $(status-check-method)
               statusCheckRetries: $(status-check-retries)
@@ -475,7 +475,7 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetAppName: "UI"
-              targetScript: "InvokeRequestWithRetry.ps1"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
               endpointUri: "$(uri)/polaris-ui/build-version.txt"
               statusCheckMethod: $(status-check-method)
               statusCheckRetries: $(status-check-retries)
