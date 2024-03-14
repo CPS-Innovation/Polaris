@@ -12,7 +12,7 @@ using Common.Streaming;
 using System;
 using System.Net.Http;
 
-namespace coordinator.Clients.Ddei.Services.Extensions
+namespace coordinator.Clients.Ddei
 {
     public static class IServiceCollectionExtension
     {
@@ -24,7 +24,9 @@ namespace coordinator.Clients.Ddei.Services.Extensions
 
         public static void AddDdeiClient(this IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
+            services.AddSingleton<IDdeiArgFactory, DdeiArgFactory>();
+            services.AddSingleton<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
 
             services.AddHttpClient<IDdeiClient, DdeiClient>((service, client) =>
             {
@@ -34,13 +36,11 @@ namespace coordinator.Clients.Ddei.Services.Extensions
             }).SetHandlerLifetime(TimeSpan.FromMinutes(5))
               .AddPolicyHandler(GetRetryPolicy());
 
-            services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
-            services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
-            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
-            services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
-            services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
-            services.AddTransient<ICaseIdentifiersMapper, CaseIdentifiersMapper>();
-            services.AddTransient<ICmsAuthValuesMapper, CmsAuthValuesMapper>();
+            services.AddSingleton<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
+            services.AddSingleton<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
+            services.AddSingleton<ICaseDetailsMapper, CaseDetailsMapper>();
+            services.AddSingleton<ICaseIdentifiersMapper, CaseIdentifiersMapper>();
+            services.AddSingleton<ICmsAuthValuesMapper, CmsAuthValuesMapper>();
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()

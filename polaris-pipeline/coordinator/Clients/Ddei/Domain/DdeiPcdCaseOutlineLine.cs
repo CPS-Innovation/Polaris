@@ -1,6 +1,6 @@
-namespace coordinator.Clients.Ddei.Domain.PreCharge
+namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiPcdCaseOutlineLineDto
+    public class DdeiPcdCaseOutlineLine
     {
         public string Heading { get; set; }
         public string Text { get; set; }

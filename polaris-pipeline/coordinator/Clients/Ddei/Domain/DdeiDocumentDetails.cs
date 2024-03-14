@@ -4,7 +4,7 @@ using Newtonsoft.Json.Converters;
 
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiDocumentDetailsDto
+    public class DdeiDocumentDetails
     {
         public int Id { get; set; }
 
@@ -26,7 +26,7 @@ namespace coordinator.Clients.Ddei.Domain
         [JsonIgnore()]
         public string Path { get; set; }
 
-        public bool Equals([AllowNull] DdeiDocumentDetailsDto other)
+        public bool Equals([AllowNull] DdeiDocumentDetails other)
         {
             if (ReferenceEquals(other, null)) return false;
             if (ReferenceEquals(this, other)) return true;

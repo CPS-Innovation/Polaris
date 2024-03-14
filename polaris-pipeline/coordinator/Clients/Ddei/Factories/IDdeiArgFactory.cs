@@ -5,11 +5,11 @@ namespace coordinator.Clients.Ddei.Factories
 {
     public interface IDdeiArgFactory
     {
-        DdeiCmsCaseDataArgDto CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId);
-        DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn);
-        DdeiCmsCaseArgDto CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId);
-        DdeiCmsCaseArgDto CreateCaseArgFromUrnArg(DdeiCmsUrnArgDto arg, int caseId);
-        DdeiCmsDocumentArgDto CreateDocumentArgDto(
+        DdeiBaseArg CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId);
+        DdeiUrnArg CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn);
+        DdeiCaseIdArg CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId);
+        DdeiCaseIdArg CreateCaseArgFromUrnArg(DdeiUrnArg arg, int caseId);
+        DdeiDocumentArg CreateDocumentArgDto(
             string cmsAuthValues,
             Guid correlationId,
             string urn,

@@ -5,6 +5,6 @@ namespace coordinator.Clients.Ddei.Mappers
 {
     public interface ICaseIdentifiersMapper
     {
-        CaseIdentifiersDto MapCaseIdentifiers(DdeiCaseIdentifiersDto caseIdentifiers);
+        CaseIdentifiersDto MapCaseIdentifiers(DdeiCaseIdentifiers caseIdentifiers);
     }
 }

@@ -5,6 +5,6 @@ namespace coordinator.Clients.Ddei.Mappers
 {
     public interface ICmsAuthValuesMapper
     {
-        CmsAuthValuesDto MapCmsAuthValues(DdeiCmsAuthValuesDto cmsAuthValues);
+        CmsAuthValuesDto MapCmsAuthValues(DdeiCmsAuthValues cmsAuthValues);
     }
 }

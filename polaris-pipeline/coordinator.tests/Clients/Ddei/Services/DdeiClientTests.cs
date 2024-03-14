@@ -15,7 +15,7 @@ using coordinator.Clients.Ddei.Domain.CaseData.Args;
 using coordinator.Clients.Ddei.Exceptions;
 using coordinator.Clients.Ddei.Factories;
 using coordinator.Clients.Ddei.Mappers;
-using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
@@ -77,11 +77,11 @@ public class DdeiClientTests
         var mockHttpRequestFactory = new Mock<IDdeiClientRequestFactory>();
 
         mockHttpRequestFactory
-            .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCmsCaseArgDto>()))
+            .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCaseIdArg>()))
             .Returns(httpRequestMessage);
 
         mockHttpRequestFactory
-            .Setup(factory => factory.CreateDocumentRequest(It.IsAny<DdeiCmsDocumentArgDto>()))
+            .Setup(factory => factory.CreateDocumentRequest(It.IsAny<DdeiDocumentArg>()))
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();

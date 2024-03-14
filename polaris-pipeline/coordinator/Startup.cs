@@ -28,7 +28,7 @@ using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 using System.IO;
-using coordinator.Clients.Ddei.Services.Extensions;
+using coordinator.Clients.Ddei;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator

@@ -24,7 +24,7 @@ using Moq.Protected;
 using Xunit;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei;
 
 namespace pdf_generator.tests.Functions
 {

@@ -1,7 +1,7 @@
 
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiOffenceDto
+    public class DdeiOffence
     {
         public int Id { get; set; }
         public int? ListOrder { get; set; }
@@ -16,6 +16,6 @@ namespace coordinator.Clients.Ddei.Domain
         public string DisposedReason { get; set; }
         public string LastHearingOutcome { get; set; }
 
-        public DdeiCustodyTimeLimitDto CustodyTimeLimit { get; set; }
+        public DdeiCustodyTimeLimit CustodyTimeLimit { get; set; }
     }
 }

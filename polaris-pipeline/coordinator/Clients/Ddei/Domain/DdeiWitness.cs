@@ -1,6 +1,6 @@
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiWitnessDto
+    public class DdeiWitness
     {
         public int Id { get; set; }
         public string ShoulderNumber { get; set; }

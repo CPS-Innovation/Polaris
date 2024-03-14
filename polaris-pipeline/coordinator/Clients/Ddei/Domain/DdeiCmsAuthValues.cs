@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiCmsAuthValuesDto
+    public class DdeiCmsAuthValues
     {
         public string Cookies { get; set; }
 

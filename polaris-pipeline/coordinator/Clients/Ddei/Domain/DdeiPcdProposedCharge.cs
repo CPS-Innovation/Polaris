@@ -1,6 +1,6 @@
-namespace coordinator.Clients.Ddei.Domain.PreCharge
+namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiPcdProposedChargeDto
+    public class DdeiPcdProposedCharge
     {
         public string Charge { get; set; }
         public string EarlyDate { get; set; }

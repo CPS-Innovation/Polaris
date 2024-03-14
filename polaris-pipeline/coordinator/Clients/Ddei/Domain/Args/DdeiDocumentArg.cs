@@ -1,6 +1,6 @@
 namespace coordinator.Clients.Ddei.Domain.CaseData.Args
 {
-    public class DdeiCmsDocumentArgDto : DdeiCmsCaseArgDto
+    public class DdeiDocumentArg : DdeiCaseIdArg
     {
         public string CmsDocCategory { get; set; }
 

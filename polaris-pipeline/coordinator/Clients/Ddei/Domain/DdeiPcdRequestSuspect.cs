@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 
-namespace coordinator.Clients.Ddei.Domain.PreCharge
+namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiPcdRequestSuspectDto
+    public class DdeiPcdRequestSuspect
     {
-        public DdeiPcdRequestSuspectDto()
+        public DdeiPcdRequestSuspect()
         {
-            ProposedCharges = new List<DdeiPcdProposedChargeDto>();
+            ProposedCharges = new List<DdeiPcdProposedCharge>();
         }
 
         public string Surname { get; set; }
@@ -21,6 +21,6 @@ namespace coordinator.Clients.Ddei.Domain.PreCharge
 
         public string RemandStatus { get; set; }
 
-        public List<DdeiPcdProposedChargeDto> ProposedCharges { get; set; }
+        public List<DdeiPcdProposedCharge> ProposedCharges { get; set; }
     }
 }

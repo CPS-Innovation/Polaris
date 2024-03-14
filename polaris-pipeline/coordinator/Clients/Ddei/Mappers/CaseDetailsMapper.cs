@@ -4,8 +4,6 @@ using System.Linq;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using coordinator.Clients.Ddei.Domain;
-using coordinator.Clients.Ddei.Domain.PreCharge;
-using coordinator.Clients.Ddei.Mappers;
 
 namespace coordinator.Clients.Ddei.Mappers
 {
@@ -13,7 +11,7 @@ namespace coordinator.Clients.Ddei.Mappers
     {
         private const string NotYetChargedCode = "NYC";
 
-        public CaseDto MapCaseDetails(DdeiCaseDetailsDto caseDetails)
+        public CaseDto MapCaseDetails(DdeiCaseDetails caseDetails)
         {
             var summary = caseDetails.Summary;
 
@@ -39,12 +37,12 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private IEnumerable<DefendantAndChargesDto> MapDefendants(DdeiCaseDetailsDto caseDetails)
+        private IEnumerable<DefendantAndChargesDto> MapDefendants(DdeiCaseDetails caseDetails)
         {
             return caseDetails.Defendants.Select(defendant => MapDefendant(defendant, caseDetails.PreChargeDecisionRequests));
         }
 
-        private DefendantAndChargesDto MapDefendant(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
+        private DefendantAndChargesDto MapDefendant(DdeiCaseDefendant defendant, IEnumerable<DdeiPcdRequest> pcdRequests)
         {
             return new DefendantAndChargesDto
             {
@@ -57,7 +55,7 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private DefendantDetailsDto MapDefendantDetails(DdeiCaseDefendantDto defendant)
+        private DefendantDetailsDto MapDefendantDetails(DdeiCaseDefendant defendant)
         {
             return new DefendantDetailsDto
             {
@@ -73,7 +71,7 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private CustodyTimeLimitDto MapCustodyTimeLimit(DdeiCustodyTimeLimitDto custodyTimeLimit)
+        private CustodyTimeLimitDto MapCustodyTimeLimit(DdeiCustodyTimeLimit custodyTimeLimit)
         {
             return new CustodyTimeLimitDto
             {
@@ -83,12 +81,12 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private IEnumerable<WitnessDto> MapWitnesses(DdeiCaseDetailsDto caseDetails)
+        private IEnumerable<WitnessDto> MapWitnesses(DdeiCaseDetails caseDetails)
         {
             return caseDetails.Witnesses.Select(witness => MapWitness(witness));
         }
 
-        private WitnessDto MapWitness(DdeiWitnessDto witness)
+        private WitnessDto MapWitness(DdeiWitness witness)
         {
             return new WitnessDto
             {
@@ -112,7 +110,7 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private IEnumerable<ChargeDto> MapCharges(DdeiCaseDefendantDto defendant)
+        private IEnumerable<ChargeDto> MapCharges(DdeiCaseDefendant defendant)
         {
             var charges = new List<ChargeDto>();
             var nextHearingDate = defendant.NextHearing.Date;
@@ -121,7 +119,7 @@ namespace coordinator.Clients.Ddei.Mappers
                 .Select(offence => MapCharge(offence, nextHearingDate));
         }
 
-        private IEnumerable<ProposedChargeDto> MapProposedCharges(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
+        private IEnumerable<ProposedChargeDto> MapProposedCharges(DdeiCaseDefendant defendant, IEnumerable<DdeiPcdRequest> pcdRequests)
         {
             return pcdRequests
                       .SelectMany(pcdRequest => pcdRequest.Suspects)
@@ -135,7 +133,7 @@ namespace coordinator.Clients.Ddei.Mappers
                       .Select(proposedCharge => MapProposedCharge(proposedCharge));
         }
 
-        private ChargeDto MapCharge(DdeiOffenceDto offence, string nextHearingDate)
+        private ChargeDto MapCharge(DdeiOffence offence, string nextHearingDate)
         {
             return new ChargeDto
             {
@@ -152,7 +150,7 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private ProposedChargeDto MapProposedCharge(DdeiPcdProposedChargeDto proposedCharge)
+        private ProposedChargeDto MapProposedCharge(DdeiPcdProposedCharge proposedCharge)
         {
             return new ProposedChargeDto
             {
@@ -181,7 +179,7 @@ namespace coordinator.Clients.Ddei.Mappers
                 LateDate = proposedCharge.LateDate
             };
         }
-        private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, DdeiCaseSummaryDto caseSummary)
+        private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, DdeiCaseSummary caseSummary)
         {
 
             // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
@@ -236,12 +234,12 @@ namespace coordinator.Clients.Ddei.Mappers
                 .Any();
         }
 
-        private IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> preChargeDecisionRequests)
+        private IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequest> preChargeDecisionRequests)
         {
             return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
         }
 
-        private PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)
+        private PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequest pcdr)
         {
             return new PcdRequestDto
             {
@@ -254,7 +252,7 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(DdeiPcdCaseOutlineLineDto ol)
+        private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(DdeiPcdCaseOutlineLine ol)
         {
             return new PcdCaseOutlineLineDto
             {
@@ -263,7 +261,7 @@ namespace coordinator.Clients.Ddei.Mappers
                 TextWithCmsMarkup = ol.TextWithCmsMarkup
             };
         }
-        private PcdCommentsDto MapPreChargeDecisionComments(DdeiPcdCommentsDto comments)
+        private PcdCommentsDto MapPreChargeDecisionComments(DdeiPcdComments comments)
         {
             return new PcdCommentsDto
             {
@@ -272,7 +270,7 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private PcdRequestSuspectDto MapPcdSuspect(DdeiPcdRequestSuspectDto requestSuspectDto)
+        private PcdRequestSuspectDto MapPcdSuspect(DdeiPcdRequestSuspect requestSuspectDto)
         {
             return new PcdRequestSuspectDto
             {
@@ -286,7 +284,7 @@ namespace coordinator.Clients.Ddei.Mappers
             };
         }
 
-        private PcdProposedChargeDto MapPcdProposedCharge(DdeiPcdProposedChargeDto ddeiPcdProposedChargeDto)
+        private PcdProposedChargeDto MapPcdProposedCharge(DdeiPcdProposedCharge ddeiPcdProposedChargeDto)
         {
             return new PcdProposedChargeDto
             {

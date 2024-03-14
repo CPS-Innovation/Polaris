@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiActionPlanDto
+    public class DdeiActionPlan
     {
         public int Id { get; set; }
 

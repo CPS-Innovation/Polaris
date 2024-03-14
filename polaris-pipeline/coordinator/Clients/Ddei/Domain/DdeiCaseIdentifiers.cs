@@ -1,6 +1,6 @@
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiCaseIdentifiersDto
+    public class DdeiCaseIdentifiers
     {
         public int Id { get; set; }
 

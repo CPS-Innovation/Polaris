@@ -4,7 +4,7 @@ using Common.Configuration;
 using Common.Extensions;
 using Common.ValueObjects;
 using coordinator.Clients.Ddei.Factories;
-using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei;
 using coordinator.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

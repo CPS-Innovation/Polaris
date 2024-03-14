@@ -1,6 +1,6 @@
-namespace coordinator.Clients.Ddei.Domain.PreCharge
+namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiPcdCommentsDto
+    public class DdeiPcdComments
     {
         public string Text { get; set; }
         public string TextWithCmsMarkup { get; set; }

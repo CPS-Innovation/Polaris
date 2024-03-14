@@ -1,6 +1,6 @@
 namespace coordinator.Clients.Ddei.Domain.CaseData.Args
 {
-    public class DdeiCmsCaseArgDto : DdeiCmsUrnArgDto
+    public class DdeiGetUrnArg : DdeiBaseArg
     {
         public long CaseId { get; set; }
     }

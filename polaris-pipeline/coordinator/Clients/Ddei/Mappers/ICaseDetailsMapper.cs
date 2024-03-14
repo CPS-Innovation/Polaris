@@ -5,6 +5,6 @@ namespace coordinator.Clients.Ddei.Mappers
 {
     public interface ICaseDetailsMapper
     {
-        CaseDto MapCaseDetails(DdeiCaseDetailsDto caseDetails);
+        CaseDto MapCaseDetails(DdeiCaseDetails caseDetails);
     }
 }

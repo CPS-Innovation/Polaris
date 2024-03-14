@@ -1,6 +1,6 @@
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiCaseSummaryDto
+    public class DdeiCaseSummary
     {
         public string Urn { get; set; }
         public int Id { get; set; }

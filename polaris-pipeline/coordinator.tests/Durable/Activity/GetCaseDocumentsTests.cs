@@ -14,7 +14,7 @@ using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Payloads;
 using coordinator.Clients.Ddei.Domain.CaseData.Args;
-using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei;
 using coordinator.Clients.Ddei.Factories;
 
 namespace coordinator.tests.Durable.Activity
@@ -54,7 +54,7 @@ namespace coordinator.tests.Durable.Activity
                 .Returns(_payload);
 
             mockDocumentExtractionService
-                .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCmsCaseArgDto>()))
+                .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdArg>()))
                 .ReturnsAsync(_case);
             mockDocumentExtractionService
                 .Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(), _payload.CmsAuthValues, _payload.CorrelationId))

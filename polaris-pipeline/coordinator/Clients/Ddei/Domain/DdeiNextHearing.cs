@@ -1,7 +1,7 @@
 
 namespace coordinator.Clients.Ddei.Domain
 {
-    public class DdeiNextHearingDto
+    public class DdeiNextHearing
     {
         public string Date { get; set; }
         public bool Recorded { get; set; }

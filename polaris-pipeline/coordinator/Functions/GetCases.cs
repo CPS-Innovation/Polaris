@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System;
 using coordinator.Helpers;
-using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei;
 using coordinator.Clients.Ddei.Factories;
 
 namespace PolarisGateway.Functions

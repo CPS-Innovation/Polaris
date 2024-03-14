@@ -17,7 +17,7 @@ using Common.Services.BlobStorageService;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
 using coordinator.Clients.PdfRedactor;
-using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei;
 using coordinator.Clients.Ddei.Factories;
 
 namespace coordinator.Functions

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using coordinator.Durable.Payloads;
 using coordinator.Clients.PdfGenerator;
-using coordinator.Clients.Ddei.Services;
+using coordinator.Clients.Ddei;
 
 namespace coordinator.Durable.Activity
 {

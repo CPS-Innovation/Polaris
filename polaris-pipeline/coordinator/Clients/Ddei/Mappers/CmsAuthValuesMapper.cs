@@ -1,12 +1,11 @@
 using Common.Dto.Case;
 using coordinator.Clients.Ddei.Domain;
-using coordinator.Clients.Ddei.Mappers;
 
 namespace coordinator.Clients.Ddei.Mappers;
 
 public class CmsAuthValuesMapper : ICmsAuthValuesMapper
 {
-    public CmsAuthValuesDto MapCmsAuthValues(DdeiCmsAuthValuesDto cmsAuthValues)
+    public CmsAuthValuesDto MapCmsAuthValues(DdeiCmsAuthValues cmsAuthValues)
     {
         return new CmsAuthValuesDto
         {

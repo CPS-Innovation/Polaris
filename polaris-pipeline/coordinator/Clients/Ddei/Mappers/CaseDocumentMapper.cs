@@ -1,6 +1,5 @@
 using Common.Dto.Document;
 using Common.Dto.Response;
-using coordinator.Clients.Ddei.Mappers;
 
 namespace coordinator.Clients.Ddei.Mappers;
 

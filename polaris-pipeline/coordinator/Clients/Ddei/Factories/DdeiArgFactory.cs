@@ -5,17 +5,17 @@ namespace coordinator.Clients.Ddei.Factories
 {
     public class DdeiArgFactory : IDdeiArgFactory
     {
-        public DdeiCmsCaseDataArgDto CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId)
+        public DdeiBaseArg CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId)
         {
-            return new DdeiCmsCaseDataArgDto
+            return new DdeiBaseArg
             {
                 CorrelationId = correlationId,
                 CmsAuthValues = partialCmsAuthValues
             };
         }
-        public DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
+        public DdeiUrnArg CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
         {
-            return new DdeiCmsUrnArgDto
+            return new DdeiUrnArg
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -23,9 +23,9 @@ namespace coordinator.Clients.Ddei.Factories
             };
         }
 
-        public DdeiCmsCaseArgDto CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
+        public DdeiCaseIdArg CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
         {
-            return new DdeiCmsCaseArgDto
+            return new DdeiCaseIdArg
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -34,9 +34,9 @@ namespace coordinator.Clients.Ddei.Factories
             };
         }
 
-        public DdeiCmsCaseArgDto CreateCaseArgFromUrnArg(DdeiCmsUrnArgDto arg, int caseId)
+        public DdeiCaseIdArg CreateCaseArgFromUrnArg(DdeiUrnArg arg, int caseId)
         {
-            return new DdeiCmsCaseArgDto
+            return new DdeiCaseIdArg
             {
                 CmsAuthValues = arg.CmsAuthValues,
                 CorrelationId = arg.CorrelationId,
@@ -45,7 +45,7 @@ namespace coordinator.Clients.Ddei.Factories
             };
         }
 
-        public DdeiCmsDocumentArgDto CreateDocumentArgDto(
+        public DdeiDocumentArg CreateDocumentArgDto(
             string cmsAuthValues,
             Guid correlationId,
             string urn,
@@ -54,7 +54,7 @@ namespace coordinator.Clients.Ddei.Factories
             int documentId,
             long versionId)
         {
-            return new DdeiCmsDocumentArgDto
+            return new DdeiDocumentArg
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,

@@ -6,16 +6,16 @@ namespace coordinator.Clients.Ddei.Factories
 {
     public interface IDdeiClientRequestFactory
     {
-        HttpRequestMessage CreateCmsAuthValuesRequest(DdeiCmsCaseDataArgDto arg);
-        HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg);
-        HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg);
-        HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg);
-        HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCmsCaseArgDto arg);
-        HttpRequestMessage CreateCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg);
-        HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg);
-        HttpRequestMessage CreateDocumentRequest(DdeiCmsDocumentArgDto arg);
-        HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiCmsFileStoreArgDto arg);
-        HttpRequestMessage CreateUploadPdfRequest(DdeiCmsDocumentArgDto arg, Stream stream);
+        HttpRequestMessage CreateCmsAuthValuesRequest(DdeiBaseArg arg);
+        HttpRequestMessage CreateUrnLookupRequest(DdeiGetUrnArg arg);
+        HttpRequestMessage CreateListCasesRequest(DdeiUrnArg arg);
+        HttpRequestMessage CreateGetCaseRequest(DdeiCaseIdArg arg);
+        HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCaseIdArg arg);
+        HttpRequestMessage CreateCheckoutDocumentRequest(DdeiDocumentArg arg);
+        HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiDocumentArg arg);
+        HttpRequestMessage CreateDocumentRequest(DdeiDocumentArg arg);
+        HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiFileStoreArg arg);
+        HttpRequestMessage CreateUploadPdfRequest(DdeiDocumentArg arg, Stream stream);
         HttpRequestMessage CreateStatusRequest();
     }
 }

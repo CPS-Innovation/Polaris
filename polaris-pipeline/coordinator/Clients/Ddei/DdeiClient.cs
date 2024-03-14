@@ -1,6 +1,5 @@
 using coordinator.Clients.Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
-using coordinator.Clients.Ddei.Services;
 using coordinator.Clients.Ddei.Mappers;
 using Common.Wrappers;
 using coordinator.Clients.Ddei.Domain;
@@ -17,7 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
-namespace coordinator.Clients.Ddei.Services
+namespace coordinator.Clients.Ddei
 {
     public class DdeiClient : IDdeiClient
     {
@@ -54,24 +53,24 @@ namespace coordinator.Clients.Ddei.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task<CmsAuthValuesDto> GetFullCmsAuthValuesAsync(DdeiCmsCaseDataArgDto arg)
+        public async Task<CmsAuthValuesDto> GetFullCmsAuthValuesAsync(DdeiBaseArg arg)
         {
-            var result = await CallDdei<DdeiCmsAuthValuesDto>(_ddeiClientRequestFactory.CreateCmsAuthValuesRequest(arg));
+            var result = await CallDdei<DdeiCmsAuthValues>(_ddeiClientRequestFactory.CreateCmsAuthValuesRequest(arg));
             return _cmsAuthValuesMapper.MapCmsAuthValues(result);
         }
 
-        public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCmsCaseIdArgDto arg)
+        public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiGetUrnArg arg)
         {
-            var result = await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
+            var result = await CallDdei<DdeiCaseIdentifiers>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
             return _caseIdentifiersMapper.MapCaseIdentifiers(result);
         }
 
-        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiCmsUrnArgDto arg)
+        private async Task<IEnumerable<DdeiCaseIdentifiers>> ListCaseIdsAsync(DdeiUrnArg arg)
         {
-            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
+            return await CallDdei<IEnumerable<DdeiCaseIdentifiers>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
         }
 
-        public async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg)
+        public async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArg arg)
         {
             var caseIdentifiers = await ListCaseIdsAsync(arg);
 
@@ -82,7 +81,7 @@ namespace coordinator.Clients.Ddei.Services
             return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
         }
 
-        public async Task<CaseDto> GetCaseAsync(DdeiCmsCaseArgDto arg)
+        public async Task<CaseDto> GetCaseAsync(DdeiCaseIdArg arg)
         {
             var @case = await GetCaseInternalAsync(arg);
             return _caseDetailsMapper.MapCaseDetails(@case);
@@ -90,7 +89,7 @@ namespace coordinator.Clients.Ddei.Services
 
         public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
         {
-            var caseArg = new DdeiCmsCaseArgDto
+            var caseArg = new DdeiCaseIdArg
             {
                 Urn = caseUrn,
                 CaseId = long.Parse(caseId),
@@ -109,7 +108,7 @@ namespace coordinator.Clients.Ddei.Services
         public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string cmsAuthValues, Guid correlationId)
         {
             var response = await CallDdei(
-                _ddeiClientRequestFactory.CreateDocumentRequest(new DdeiCmsDocumentArgDto
+                _ddeiClientRequestFactory.CreateDocumentRequest(new DdeiDocumentArg
                 {
                     Urn = caseUrn,
                     CaseId = long.Parse(caseId),
@@ -126,7 +125,7 @@ namespace coordinator.Clients.Ddei.Services
         public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
         {
             var response = await CallDdei(
-                _ddeiClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiCmsFileStoreArgDto
+                _ddeiClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiFileStoreArg
                 {
                     Path = path,
                     CmsAuthValues = cmsAuthValues,
@@ -137,7 +136,7 @@ namespace coordinator.Clients.Ddei.Services
             return await response.Content.ReadAsStreamAsync();
         }
 
-        public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentArgDto arg)
+        public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiDocumentArg arg)
         {
             var response = await CallDdei(
                 _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg),
@@ -155,19 +154,19 @@ namespace coordinator.Clients.Ddei.Services
                 };
         }
 
-        public async Task CancelCheckoutDocumentAsync(DdeiCmsDocumentArgDto arg)
+        public async Task CancelCheckoutDocumentAsync(DdeiDocumentArg arg)
         {
             await CallDdei(_ddeiClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg));
         }
 
-        public async Task UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream)
+        public async Task UploadPdfAsync(DdeiDocumentArg arg, Stream stream)
         {
             await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream));
         }
 
-        private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
+        private async Task<DdeiCaseDetails> GetCaseInternalAsync(DdeiCaseIdArg arg)
         {
-            return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
+            return await CallDdei<DdeiCaseDetails>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
         }
 
         private async Task<T> CallDdei<T>(HttpRequestMessage request)
