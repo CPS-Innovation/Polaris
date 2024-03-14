@@ -14,11 +14,7 @@ import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
-import {
-  addToLocalStorage,
-  readFromLocalStorage,
-  ReadUnreadData,
-} from "../../presentation/case-details/utils/localStorageUtils";
+import { addToLocalStorage } from "../../presentation/case-details/utils/localStorageUtils";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];

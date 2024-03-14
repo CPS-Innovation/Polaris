@@ -87,3 +87,20 @@ export const getRedactionsToSaveLocally = (
 
   return filteredRedactions;
 };
+
+export const getLocallySavedRedactionHighlights = (
+  documentId: string,
+  caseId: number
+) => {
+  const redactionsData = readFromLocalStorage(
+    caseId,
+    "redactions"
+  ) as RedactionsData | null;
+  if (!redactionsData) {
+    return [];
+  }
+  return (
+    redactionsData.find((data) => data.documentId === documentId)
+      ?.redactionHighlights ?? []
+  );
+};

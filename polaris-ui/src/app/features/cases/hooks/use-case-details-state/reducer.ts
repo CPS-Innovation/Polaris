@@ -1,6 +1,9 @@
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { resolvePdfUrl } from "../../api/gateway-api";
-import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
+import {
+  CaseDocumentViewModel,
+  ClientLockedState,
+} from "../../domain/CaseDocumentViewModel";
 import { mapAccordionState } from "./map-accordion-state";
 import { CombinedState } from "../../domain/CombinedState";
 import { CaseDetails } from "../../domain/gateway/CaseDetails";
@@ -32,10 +35,11 @@ import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 import {
   addToLocalStorage,
   deleteFromLocalStorage,
-  readFromLocalStorage,
-  RedactionsData,
 } from "../../presentation/case-details/utils/localStorageUtils";
-import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
+import {
+  getRedactionsToSaveLocally,
+  getLocallySavedRedactionHighlights,
+} from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 
@@ -423,24 +427,13 @@ export const reducer = (
         (item) => item.documentId === documentId
       );
 
-      const getLocallySavedRedactionHighlights = () => {
-        const redactionsData = readFromLocalStorage(
-          state.caseId,
-          "redactions"
-        ) as RedactionsData | null;
-        if (!redactionsData) {
-          return [];
-        }
-        return (
-          redactionsData.find((data) => data.documentId === documentId)
-            ?.redactionHighlights ?? []
-        );
-      };
+      const locallySavedRedactionHighlights =
+        getLocallySavedRedactionHighlights(documentId, state.caseId);
 
       const redactionsHighlightsToRetain =
         alreadyOpenedTabIndex !== -1
           ? state.tabsState.items[alreadyOpenedTabIndex].redactionHighlights
-          : getLocallySavedRedactionHighlights();
+          : locallySavedRedactionHighlights;
 
       const foundDocument = state.documentsState.data.find(
         (item) => item.documentId === documentId
@@ -463,11 +456,19 @@ export const reducer = (
           pipelineDocument.polarisDocumentVersionId
         );
 
+      let lockState: ClientLockedState = "unlocked";
+      if (
+        alreadyOpenedTabIndex === -1 &&
+        locallySavedRedactionHighlights.length
+      ) {
+        lockState = "locked";
+      }
+
       let item: CaseDocumentViewModel;
 
       const coreItem = {
         ...foundDocument,
-        clientLockedState: "unlocked" as const,
+        clientLockedState: lockState,
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
