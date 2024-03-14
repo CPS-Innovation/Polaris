@@ -34,7 +34,7 @@ stages:
 
   # PROD: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND  
   - stage: Apply
-    displayName: Apply Terraform > PROD
+    displayName: Apply Terraform
     condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
@@ -110,7 +110,7 @@ stages:
             parameters:
               webhookUrl: $(ddei-webhook-url)
               devOpsPatToken: "$(System.AccessToken)"
-              stageName: "Deploy > PROD"
+              stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
@@ -504,7 +504,7 @@ stages:
               devOpsPatToken: "$(System.AccessToken)"
 
   - stage: Deploy
-    displayName: Deploy > PROD
+    displayName: Deploy
     condition: succeeded()
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
@@ -711,7 +711,7 @@ stages:
 
   # PROD: BEGIN SLOT SWAP PROCESS
   - stage: Swap
-    displayName: Swap Slots > PROD
+    displayName: Swap Slots
     dependsOn:
       - Determine_Changes
       - Apply
@@ -807,7 +807,7 @@ stages:
 
   # PROD: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_Updated
-    displayName: Status Checks > PROD
+    displayName: Status Checks
     dependsOn:
       - Swap
       - Determine_Changes
@@ -997,7 +997,7 @@ stages:
 
   # PROD: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
-    displayName: Save Report > PROD
+    displayName: Save Report
     dependsOn:
       - Check_Updated
       - Determine_Changes
@@ -1044,7 +1044,7 @@ stages:
 
   # PROD: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
-    displayName: Update Tag > PROD
+    displayName: Update Tag
     dependsOn:
       - Create_Commit_Report
       - Determine_Changes
@@ -1089,7 +1089,7 @@ stages:
 
   #PROD: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
-    displayName: e2e tests > PROD
+    displayName: e2e tests
     dependsOn:
       - Update_GitHub_Tag
       - Determine_Changes
@@ -1171,7 +1171,7 @@ stages:
             parameters:
               webhookUrl: $(ddei-webhook-url)
               devOpsPatToken: "$(System.AccessToken)"
-              stageName: "Deploy > PROD"
+              stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)
@@ -1197,7 +1197,7 @@ stages:
             parameters:
               webhookUrl: $(ddei-webhook-url)
               devOpsPatToken: "$(System.AccessToken)"
-              stageName: "Deploy > PROD"
+              stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
               pipelineTerraformCount: $(pipelineTerraformCount)

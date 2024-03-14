@@ -34,7 +34,7 @@ stages:
   
   # DEV: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE, IF CHANGES FOUND
   - stage: Apply
-    displayName: Apply Terraform > DEV
+    displayName: Apply Terraform
     condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
@@ -275,7 +275,7 @@ stages:
                     
   # DEV: CHECK CURRENT STATUS RESPONSES FROM /API/STATUS ENDPOINTS FOLLOWING TERRAFORM CHANGES
   - stage: Check_Current
-    displayName: Build Checks > DEV
+    displayName: Build Checks
     dependsOn:
       - Apply
       - Determine_Changes
@@ -463,7 +463,7 @@ stages:
               devOpsPatToken: "$(System.AccessToken)"
 
   - stage: Deploy
-    displayName: Deploy > DEV
+    displayName: Deploy
     condition: succeeded()
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
@@ -670,7 +670,7 @@ stages:
   
   # DEV: BEGIN SLOT SWAP PROCESS
   - stage: Swap
-    displayName: Swap Slots > DEV
+    displayName: Swap Slots
     dependsOn:
       - Determine_Changes
       - Apply
@@ -766,7 +766,7 @@ stages:
 
   # DEV: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_Updated
-    displayName: Status Checks > DEV
+    displayName: Status Checks
     dependsOn:
       - Swap
       - Determine_Changes
@@ -955,7 +955,7 @@ stages:
   
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
-    displayName: Save Report > DEV
+    displayName: Save Report
     dependsOn:
       - Check_Updated
       - Determine_Changes
@@ -1002,7 +1002,7 @@ stages:
   
   # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
-    displayName: Update Tag > DEV
+    displayName: Update Tag
     dependsOn:
       - Create_Commit_Report
       - Determine_Changes
@@ -1047,7 +1047,7 @@ stages:
   
   #DEV: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
-    displayName: e2e tests > DEV
+    displayName: e2e tests
     dependsOn:
       - Update_GitHub_Tag
       - Determine_Changes
