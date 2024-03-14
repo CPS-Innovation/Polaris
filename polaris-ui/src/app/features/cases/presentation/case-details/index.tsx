@@ -419,6 +419,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}
+                caseId={+caseId}
                 showOverRedactionLog={
                   redactionLog.redactionLogLookUpsData.status === "succeeded"
                     ? FEATURE_FLAG_REDACTION_LOG_UNDER_OVER

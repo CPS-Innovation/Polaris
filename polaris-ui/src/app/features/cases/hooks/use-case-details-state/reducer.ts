@@ -427,13 +427,10 @@ export const reducer = (
         (item) => item.documentId === documentId
       );
 
-      const locallySavedRedactionHighlights =
-        getLocallySavedRedactionHighlights(documentId, state.caseId);
-
       const redactionsHighlightsToRetain =
         alreadyOpenedTabIndex !== -1
           ? state.tabsState.items[alreadyOpenedTabIndex].redactionHighlights
-          : locallySavedRedactionHighlights;
+          : [];
 
       const foundDocument = state.documentsState.data.find(
         (item) => item.documentId === documentId
@@ -456,19 +453,11 @@ export const reducer = (
           pipelineDocument.polarisDocumentVersionId
         );
 
-      let lockState: ClientLockedState = "unlocked";
-      if (
-        alreadyOpenedTabIndex === -1 &&
-        locallySavedRedactionHighlights.length
-      ) {
-        lockState = "locked";
-      }
-
       let item: CaseDocumentViewModel;
 
       const coreItem = {
         ...foundDocument,
-        clientLockedState: lockState,
+        clientLockedState: "unlocked" as const,
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,

@@ -12,6 +12,7 @@ import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
+  caseId: number;
   redactionTypesData: RedactionTypeData[];
   tabIndex: number;
   activeTabId: string | undefined;
@@ -44,6 +45,7 @@ type PdfTabProps = {
 
 export const PdfTab: React.FC<PdfTabProps> = ({
   tabIndex,
+  caseId,
   redactionTypesData,
   activeTabId,
   tabId,
@@ -174,6 +176,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentId,
             documentType,
             saveStatus: saveStatus,
+            caseId,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}

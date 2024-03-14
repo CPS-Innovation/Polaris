@@ -21,6 +21,7 @@ import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
+import { getLocallySavedRedactionHighlights } from "../../../../../features/cases/hooks/utils/redactionUtils";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 const SCROLL_TO_OFFSET = 120;
 
@@ -34,6 +35,7 @@ type Props = {
     documentType: string;
     documentId: string;
     saveStatus: SaveStatus;
+    caseId: number;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -83,6 +85,16 @@ export const PdfViewer: React.FC<Props> = ({
     ],
     [searchHighlights, redactionHighlights]
   );
+
+  useEffect(() => {
+    const locallySavedRedactionHighlights = getLocallySavedRedactionHighlights(
+      contextData.documentId,
+      contextData.caseId
+    );
+    if (locallySavedRedactionHighlights.length) {
+      handleAddRedaction(locallySavedRedactionHighlights);
+    }
+  }, []);
 
   useEffect(() => {
     scrollToFnRef.current &&
