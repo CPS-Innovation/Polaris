@@ -328,7 +328,7 @@ stages:
     jobs:
       - job: Log_Start
         displayName: Log Start
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         steps:
           - template: tasks/task_log-start.yml
             parameters:
@@ -339,7 +339,7 @@ stages:
 
       - job: Get_Status_URIs
         dependsOn: Log_Start
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         steps:
           - template: tasks/task_get-status-uris.yml
             parameters:
@@ -351,7 +351,7 @@ stages:
 
       - job: Check_Coordinator
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
         steps:
@@ -370,7 +370,7 @@ stages:
 
       - job: Check_PDF_Generator
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
         steps:
@@ -390,7 +390,7 @@ stages:
 
       - job: Check_PDF_Redactor
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
         steps:
@@ -409,7 +409,7 @@ stages:
 
       - job: Check_Text_Extractor
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
         steps:
@@ -428,7 +428,7 @@ stages:
 
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
         steps:
@@ -447,7 +447,7 @@ stages:
 
       - job: Check_Proxy
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
         steps:
@@ -466,7 +466,7 @@ stages:
 
       - job: Check_SPA
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
         steps:
@@ -484,7 +484,7 @@ stages:
               successTextContent: "ui"
 
       - job: Log_Result
-        condition: and(succeeded(), eq(variables.runTerraform))
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
         dependsOn:
           - Log_Start
           - Get_Status_URIs
