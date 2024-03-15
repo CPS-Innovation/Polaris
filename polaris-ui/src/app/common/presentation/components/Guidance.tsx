@@ -24,20 +24,24 @@ export const Guidance: React.FC<GuidanceProps> = ({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const guidanceCloseBtnRef = useRef<HTMLButtonElement | null>(null);
   const [buttonOpen, setButtonOpen] = useState(false);
-  const buttonOpenRef = useRef<boolean>(false);
   useFocusTrap("#guidance-panel");
 
-  useEffect(() => {
-    buttonOpenRef.current = buttonOpen;
-  }, [buttonOpen]);
-
   const handleOutsideClick = useCallback((event: MouseEvent) => {
-    if (panelRef.current && event.target && buttonOpenRef.current) {
-      if (!panelRef.current?.contains(event.target as Node)) {
-        event.stopPropagation();
-        setButtonOpen(false);
-        guidanceBtnRef.current?.focus();
-      }
+    if (
+      event.target === guidanceBtnRef.current ||
+      guidanceBtnRef.current?.contains(event.target as Node)
+    ) {
+      return;
+    }
+
+    if (
+      panelRef.current &&
+      event.target &&
+      !panelRef.current?.contains(event.target as Node)
+    ) {
+      event.stopPropagation();
+      setButtonOpen(false);
+      guidanceBtnRef.current?.focus();
     }
   }, []);
 
