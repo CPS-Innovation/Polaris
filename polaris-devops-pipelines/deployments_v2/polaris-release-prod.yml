@@ -628,7 +628,7 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
     pool:
-      name: $(dev-build-agent)
+      name: $(prod-build-agent)
     jobs:
       - job: Log_Start
         displayName: Log Start
