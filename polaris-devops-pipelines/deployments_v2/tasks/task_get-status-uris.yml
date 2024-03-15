@@ -20,6 +20,7 @@ steps:
       pdfGeneratorLocation=https://$(az webapp config hostname list --webapp-name $pdfGeneratorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
       pdfRedactorLocation=https://$(az webapp config hostname list --webapp-name $pdfRedactorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
       textExtractorLocation=https://$(az webapp config hostname list --webapp-name $textExtractorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
+      tempExtractorLocation=https://$(az webapp config hostname list --webapp-name $tempExtractorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
       gatewayLocation=https://$(az webapp config hostname list --webapp-name $gatewayAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
       spaLocation=https://$(az webapp config hostname list --webapp-name $spaAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
       proxyLocation=https://$(az webapp config hostname list --webapp-name $proxyAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
@@ -28,6 +29,7 @@ steps:
       echo "##vso[task.setvariable variable=pdfGeneratorUri;isOutput=true]$pdfGeneratorLocation"
       echo "##vso[task.setvariable variable=pdfRedactorUri;isOutput=true]$pdfRedactorLocation"
       echo "##vso[task.setvariable variable=textExtractorUri;isOutput=true]$textExtractorLocation"
+      echo "##vso[task.setvariable variable=tempExtractorUri;isOutput=true]$tempExtractorLocation"
       echo "##vso[task.setvariable variable=gatewayUri;isOutput=true]$gatewayLocation"
       echo "##vso[task.setvariable variable=spaUri;isOutput=true]$spaLocation"
       echo "##vso[task.setvariable variable=proxyUri;isOutput=true]$proxyLocation"
@@ -42,6 +44,7 @@ steps:
       pdfGeneratorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
       pdfRedactorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-redactor"
       textExtractorAppName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+      tempExtractorAppName: "fa-polaris${{ parameters.targetSuffix }}-temp-extractor"
       gatewayAppName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
       spaAppName: "as-web-polaris${{ parameters.targetSuffix }}"
       pipelineResourceGroup: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
