@@ -2,6 +2,7 @@ import {
   redactString,
   getPresentationRedactionTypeNames,
   removeNonDigits,
+  getDefaultValuesFromMappings,
 } from "./redactionLogUtils";
 
 describe("redactionLogUtils", () => {
@@ -100,6 +101,67 @@ describe("redactionLogUtils", () => {
       expect(removeNonDigits("CMS-123abc")).toEqual("123");
       expect(removeNonDigits("CMS-   123abc")).toEqual("123");
       expect(removeNonDigits("abc456abc123abc")).toEqual("456123");
+    });
+  });
+
+  describe("getDefaultValuesFromMappings", () => {
+    const mappingData = {
+      businessUnits: [
+        { ou: "Northern CJU (Bristol)", areaId: "10", unitId: null },
+        { ou: "Bristol CC", areaId: "10", unitId: "2" },
+        { ou: "Guildford Mags", areaId: "9", unitId: "1" },
+      ],
+      documentTypes: [
+        { cmsDocTypeId: "1201", docTypeId: "37" },
+        { cmsDocTypeId: "1029", docTypeId: "35" },
+        { cmsDocTypeId: "6", docTypeId: "31" },
+      ],
+      investigatingAgencies: [{ ouCode: "00AH", investigatingAgencyId: "10" }],
+    };
+    const ouCodeMapping = [
+      {
+        ouCode: "45",
+        areaCode: "9",
+        areaName: "South East",
+        investigatingAgencyCode: "61",
+        investigatingAgencyName: "Surrey",
+      },
+    ];
+    it("Should return correct default values when doctypeId is 1024", () => {
+      const docTypeId = 1029;
+      const owningUnit = "Guildford Mags";
+      const caseUrn = "45CV2911222";
+      const defaultValues = getDefaultValuesFromMappings(
+        mappingData,
+        ouCodeMapping,
+        owningUnit,
+        docTypeId,
+        caseUrn
+      );
+      expect(defaultValues).toEqual({
+        businessUnit: "1",
+        cpsArea: "9",
+        documentType: "",
+        investigatingAgency: "61",
+      });
+    });
+    it("Should return correct default values ", () => {
+      const docTypeId = 6;
+      const owningUnit = "Northern CJU (Bristol)";
+      const caseUrn = "00AH2911222";
+      const defaultValues = getDefaultValuesFromMappings(
+        mappingData,
+        ouCodeMapping,
+        owningUnit,
+        docTypeId,
+        caseUrn
+      );
+      expect(defaultValues).toEqual({
+        businessUnit: "",
+        cpsArea: "10",
+        documentType: "31",
+        investigatingAgency: "10",
+      });
     });
   });
 });
