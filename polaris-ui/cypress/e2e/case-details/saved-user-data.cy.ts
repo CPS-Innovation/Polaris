@@ -5,6 +5,10 @@ describe("Save User Data", () => {
     it("Should identify the document as read if the user has opened the document and should persist that state when user comes back and clear it if we clear local storage", () => {
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
+      cy.window().then((window) => {
+        const storedData = window.localStorage.getItem("polaris-13401");
+        expect(storedData).to.equal(null);
+      });
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-10")
         .closest("li")
@@ -30,6 +34,12 @@ describe("Save User Data", () => {
         .closest("li")
         .should("have.attr", "data-read", "true");
       cy.visit("/case-details/12AB1111111/13401");
+      cy.window().then((window) => {
+        const storedData = JSON.parse(
+          window.localStorage.getItem("polaris-13401")!
+        );
+        expect(storedData?.readUnread).to.deep.equal(["10", "2"]);
+      });
       cy.findByTestId("btn-accordion-open-close-all").click();
 
       cy.findByTestId("link-document-10")
@@ -38,6 +48,13 @@ describe("Save User Data", () => {
       cy.findByTestId("link-document-2")
         .closest("li")
         .should("have.attr", "data-read", "true");
+      cy.findByTestId("link-document-1").click();
+      cy.window().then((window) => {
+        const storedData = JSON.parse(
+          window.localStorage.getItem("polaris-13401")!
+        );
+        expect(storedData?.readUnread).to.deep.equal(["10", "2", "1"]);
+      });
 
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
@@ -52,7 +69,7 @@ describe("Save User Data", () => {
   });
 
   describe("unsaved redactions", () => {
-    it("Should store the unsaved redactions for each document if the user fail to save the redactions and need to refresh the page and clearing of local storage should clear it", () => {
+    it("Should store the unsaved redactions for each document if the user fails to save the redactions, refresh the page and clearing of local storage should clear it", () => {
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -97,6 +114,19 @@ describe("Save User Data", () => {
       cy.findByTestId("redaction-count-text-1").contains(
         "There are 3 redactions"
       );
+      const doc10CheckoutCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc10CheckoutCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401/documents/10/checkout"
+      );
+      const doc1CheckoutCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc1CheckoutCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+      );
+
       //refresh and comeback
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -107,6 +137,9 @@ describe("Save User Data", () => {
       cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
+      cy.window().then(() => {
+        expect(doc1CheckoutCounter.count).to.equal(1);
+      });
       cy.findByTestId("link-document-10").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
@@ -114,6 +147,9 @@ describe("Save User Data", () => {
       cy.findByTestId("redaction-count-text-1").contains(
         "There are 3 redactions"
       );
+      cy.window().then(() => {
+        expect(doc10CheckoutCounter.count).to.equal(1);
+      });
       //clear local storage and check
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
@@ -201,6 +237,136 @@ describe("Save User Data", () => {
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)
         );
+      });
+    });
+    it("Should load the unsaved redaction data if the user chose to close the document with unsaved redactions and open it", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click();
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There are 2 redactions"
+      );
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("You have unsaved redactions");
+      cy.findByTestId("btn-nav-ignore").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There are 2 redactions"
+      );
+    });
+    it("Should add unsaved redactions data to the localstorage in the correct format", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+
+      cy.window().then((window) => {
+        const storedData = window.localStorage.getItem("polaris-13401");
+        expect(storedData).to.equal(null);
+      });
+
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("MCLOVE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click();
+      cy.window().then((window) => {
+        const storedData = JSON.parse(
+          window.localStorage.getItem("polaris-13401")!
+        );
+        expect(storedData?.redactions?.length).to.equal(1);
+        expect(storedData?.redactions[0].documentId).to.equal("1");
+        expect(storedData?.redactions[0].redactionHighlights.length).to.equal(
+          2
+        );
+      });
+
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("Page1 Portrait");
+      cy.selectPDFTextElement("p1");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p10");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("p11");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click();
+      cy.findByTestId("redaction-count-text-1").contains(
+        "There are 3 redactions"
+      );
+      cy.window().then((window) => {
+        const storedData = JSON.parse(
+          window.localStorage.getItem("polaris-13401")!
+        );
+        expect(storedData?.redactions?.length).to.equal(2);
+        expect(storedData?.redactions[0].documentId).to.equal("1");
+        expect(storedData?.redactions[0].redactionHighlights.length).to.equal(
+          2
+        );
+        expect(storedData?.redactions[1].documentId).to.equal("10");
+        expect(storedData?.redactions[1].redactionHighlights.length).to.equal(
+          3
+        );
+      });
+      cy.findByTestId("btn-link-removeAll-1").click();
+      cy.findByTestId("redaction-count-text-1").should("not.exist");
+      cy.window().then((window) => {
+        const storedData = JSON.parse(
+          window.localStorage.getItem("polaris-13401")!
+        );
+        expect(storedData?.redactions?.length).to.equal(1);
+        expect(storedData?.redactions[0].documentId).to.equal("1");
+        expect(storedData?.redactions[0].redactionHighlights.length).to.equal(
+          2
+        );
+      });
+      cy.findByTestId("btn-tab-0").click();
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There are 2 redactions"
+      );
+      cy.findByTestId("btn-link-removeAll-0").click();
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      cy.window().then((window) => {
+        const storedData = JSON.parse(
+          window.localStorage.getItem("polaris-13401")!
+        );
+        expect(storedData?.redactions).to.equal(undefined);
+        expect(storedData?.readUnread).to.deep.equal(["1", "10"]);
       });
     });
   });

@@ -66,7 +66,7 @@ declare global {
 
       trackRequestCount(
         counter: { count: number },
-        method: "POST" | "GET" | "PUT",
+        method: "POST" | "GET" | "PUT" | "DELETE",
         pathname?: string
       ): void;
 
