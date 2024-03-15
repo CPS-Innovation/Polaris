@@ -32,8 +32,10 @@ export const getDefaultValuesFromMappings = (
   const defaultDocType = mappingData.documentTypes.find(
     (docType) => docType.cmsDocTypeId === `${docTypeId}`
   );
-
-  defaultValues.documentType = defaultDocType?.docTypeId ?? "";
+  //User should select document type manually when doctypeId is 1029
+  if (docTypeId !== 1029 && defaultDocType?.docTypeId) {
+    defaultValues.documentType = defaultDocType.docTypeId;
+  }
 
   const defaultIA = mappingData.investigatingAgencies.find(
     (ia) => ia.ouCode === caseUrn.slice(0, 4)
