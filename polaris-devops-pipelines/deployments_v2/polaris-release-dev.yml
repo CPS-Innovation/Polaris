@@ -374,24 +374,6 @@ stages:
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     azureSubscription: $(dev-azure-subscription)
                     
-      - deployment: Deploy_Temp_Extractor
-        dependsOn: Log_Start_Codebase
-        displayName: Deploy Temp Extractor
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_deploy-temp-extractor.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Codebase CI Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
-                    
       - deployment: Update_Pipeline_Component_App_Keys
         dependsOn:
           - Deploy_Coordinator
@@ -544,8 +526,8 @@ stages:
               Name: "PDF Redactor"
               AppServiceName: "fa-polaris-dev-pdf-redactor"
             TempExtractor:
-              Name: "Temp Extractor"
-              AppServiceName: "fa-polaris-dev-temp-extractor"
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-dev-text-extractor"
         displayName: Swap
         steps:
           - checkout: none
@@ -899,25 +881,6 @@ stages:
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
-      - job: Check_Temp_Extractor
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.tempExtractorUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "Temp Extractor"
-              targetScript: "InvokeRequestWithRetry.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.PolarisBuild.runName)
-
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
@@ -1093,7 +1056,7 @@ stages:
     dependsOn:
       - Update_GitHub_Tag
       - Determine_Changes
-    condition: succeeded()
+    condition: and(not(or(failed(), canceled())))
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
