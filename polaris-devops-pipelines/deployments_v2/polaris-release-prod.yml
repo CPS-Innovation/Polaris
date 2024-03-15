@@ -281,7 +281,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "UI Terraform CI Deployment"
+                    targetName: "Set Log Analytics Archival Periods"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     armClientId: $(innovation-prod-spn-client-id)
@@ -356,7 +356,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "Codebase CI Deployment"
+                    targetName: "Coordinator Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -374,7 +374,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "Codebase CI Deployment"
+                    targetName: "PDF Generator Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -392,7 +392,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "Codebase CI Deployment"
+                    targetName: "PDF Redactor Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -410,7 +410,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "Codebase CI Deployment"
+                    targetName: "Text Extractor Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -432,7 +432,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "Codebase CI Deployment"
+                    targetName: "Update Pipeline Component App Keys"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     armClientId: $(innovation-prod-spn-client-id)
@@ -455,7 +455,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "Codebase CI Deployment"
+                    targetName: "SPA Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
@@ -473,7 +473,7 @@ stages:
                   parameters:
                     targetBuild: PolarisBuild
                     targetLabel: "PROD"
-                    targetName: "Codebase CI Deployment"
+                    targetName: "Gateway Deployment"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     azureSubscription: $(prod-azure-subscription)
