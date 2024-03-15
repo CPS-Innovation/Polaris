@@ -523,6 +523,9 @@ stages:
             PDFRedactor:
               Name: "PDF Redactor"
               AppServiceName: "fa-polaris-dev-pdf-redactor"
+            TextExtractor:
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-dev-text-extractor"
         displayName: Swap
         steps:
           - checkout: none
@@ -875,7 +878,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
-
+              
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
@@ -940,6 +943,7 @@ stages:
           - Get_Status_URIs
           - Check_Coordinator
           - Check_PDF_Generator
+          - Check_PDF_Redactor
           - Check_Text_Extractor
           - Check_Gateway
           - Check_Proxy

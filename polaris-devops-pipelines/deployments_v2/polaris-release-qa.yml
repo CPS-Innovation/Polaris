@@ -523,6 +523,9 @@ stages:
             PDFRedactor:
               Name: "PDF Redactor"
               AppServiceName: "fa-polaris-qa-pdf-redactor"
+            TextExtractor:
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-qa-text-extractor"
         displayName: Swap
         steps:
           - checkout: none
@@ -584,7 +587,7 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
     pool:
-      name: $(dev-build-agent)
+      name: $(qa-build-agent)
     jobs:
       - job: Log_Start
         displayName: Log Start
