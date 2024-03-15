@@ -1145,7 +1145,9 @@ stages:
       - Apply
       - Deploy
       - Swap
-      - Check
+      - Check_Build
+      - Check_Status
+      - Create_Commit_Report
       - Update_GitHub_Tag
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
