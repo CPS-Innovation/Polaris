@@ -380,7 +380,6 @@ stages:
           - Deploy_Pdf_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
-          - Deploy_Temp_Extractor
         displayName: Update Component Keys
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         environment: "Dev"
@@ -446,7 +445,6 @@ stages:
           - Deploy_Pdf_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
-          - Deploy_Temp_Extractor
           - Update_Pipeline_Component_App_Keys
           - Deploy_Spa
           - Deploy_Gateway
