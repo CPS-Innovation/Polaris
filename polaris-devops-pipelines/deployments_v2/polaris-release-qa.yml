@@ -523,6 +523,9 @@ stages:
             PDFRedactor:
               Name: "PDF Redactor"
               AppServiceName: "fa-polaris-qa-pdf-redactor"
+            TextExtractor:
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-qa-text-extractor"
         displayName: Swap
         steps:
           - checkout: none

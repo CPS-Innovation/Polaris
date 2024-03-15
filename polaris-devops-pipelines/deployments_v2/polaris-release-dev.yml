@@ -523,7 +523,7 @@ stages:
             PDFRedactor:
               Name: "PDF Redactor"
               AppServiceName: "fa-polaris-dev-pdf-redactor"
-            TempExtractor:
+            TextExtractor:
               Name: "Text Extractor"
               AppServiceName: "fa-polaris-dev-text-extractor"
         displayName: Swap
@@ -943,6 +943,7 @@ stages:
           - Get_Status_URIs
           - Check_Coordinator
           - Check_PDF_Generator
+          - Check_PDF_Redactor
           - Check_Text_Extractor
           - Check_Gateway
           - Check_Proxy
@@ -1009,7 +1010,7 @@ stages:
     dependsOn:
       - Create_Commit_Report
       - Determine_Changes
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
@@ -1054,7 +1055,7 @@ stages:
     dependsOn:
       - Update_GitHub_Tag
       - Determine_Changes
-    condition: not(or(failed(), canceled()))
+    condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
