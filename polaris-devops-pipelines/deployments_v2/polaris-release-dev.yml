@@ -1056,7 +1056,7 @@ stages:
     dependsOn:
       - Update_GitHub_Tag
       - Determine_Changes
-    condition: and(not(or(failed(), canceled())))
+    condition: not(or(failed(), canceled()))
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
