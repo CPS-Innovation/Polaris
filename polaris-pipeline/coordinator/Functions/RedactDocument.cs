@@ -80,7 +80,10 @@ namespace coordinator.Functions
                 var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
                 using var documentStream = await _blobStorageService.GetDocumentAsync(document.PdfBlobName, currentCorrelationId);
-                var bytes = await documentStream.EnsureSeekableAndConvertToByteArrayAsync();
+
+                using var memoryStream = new MemoryStream();
+                await documentStream.CopyToAsync(memoryStream);
+                var bytes = memoryStream.ToArray();
 
                 var base64Document = Convert.ToBase64String(bytes);
 
@@ -96,8 +99,8 @@ namespace coordinator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
 
-                var redactionResult = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactionRequest, currentCorrelationId);
-                if (redactionResult == null)
+                using var redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactionRequest, currentCorrelationId);
+                if (redactedDocumentStream == null)
                 {
                     string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
                     throw new Exception(error);
@@ -106,7 +109,7 @@ namespace coordinator.Functions
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactionRequest.FileName);
 
                 await _blobStorageService.UploadDocumentAsync(
-                    redactionResult,
+                    redactedDocumentStream,
                     uploadFileName,
                     caseId,
                     polarisDocumentId,

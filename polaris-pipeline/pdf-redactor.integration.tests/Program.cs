@@ -6,6 +6,11 @@ using Aspose.Pdf;
 using Common.Streaming;
 using PdfRedactorClient = pdf_redactor.Clients.PdfRedactor;
 
+/* 
+Aspose.PDF.Drawing 24.2.0 behaves differently when running unit tests compared to in production env
+It loses JPEG2000 images when converting to pdf in xunit tests so we use a console app that hits the deployed function app to assert the redacted pdfs
+ImageSharpCompare is then used to assert the AbsoluteError is 0 comparing to our known set of redacted pngs.
+*/
 namespace pdf_redactor.integration.tests
 {
     class Program
