@@ -20,7 +20,7 @@ export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({
         aria-describedby={`redacted-text-${id}`}
         style={rect}
         className={classes[`Highlight__part__redaction`]}
-        data-redaction-added-order={id}
+        data-testid={`unsaved-redaction-${id}`}
       />
       <p
         hidden
