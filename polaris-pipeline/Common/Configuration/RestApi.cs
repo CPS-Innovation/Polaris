@@ -63,7 +63,7 @@ namespace Common.Configuration
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
         }
-        public static string RedactDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetRedactDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/redact";
         }

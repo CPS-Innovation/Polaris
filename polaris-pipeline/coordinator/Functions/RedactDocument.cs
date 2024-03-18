@@ -79,13 +79,10 @@ namespace coordinator.Functions
                 var content = await req.Content.ReadAsStringAsync();
                 var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
-                // get blob from storage
                 using var documentStream = await _blobStorageService.GetDocumentAsync(document.PdfBlobName, currentCorrelationId);
                 var bytes = await documentStream.EnsureSeekableAndConvertToByteArrayAsync();
 
                 var base64Document = Convert.ToBase64String(bytes);
-
-                // serialize into dto base 64 encode
 
                 var redactionRequest = new RedactPdfRequestWithDocumentDto
                 {
