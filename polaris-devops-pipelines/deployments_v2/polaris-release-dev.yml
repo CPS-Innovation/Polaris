@@ -285,96 +285,82 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - deployment: Log_Start_Codebase
+      - job: Log_Start_Codebase
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
         displayName: Log Codebase Start
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_log-start-deployment.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Codebase CI Deployment"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+        steps:
+          - template: tasks/task_log-start-deployment.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Codebase CI Deployment"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
 
-      - deployment: Deploy_Coordinator
+      - job: Deploy_Coordinator
         dependsOn: Log_Start_Codebase
         displayName: Deploy Coordinator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
         workspace:
           clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_deploy-coordinator.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Coordinator Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
+        steps:
+          - template: tasks/task_deploy-coordinator.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Coordinator Deployment"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              azureSubscription: $(dev-azure-subscription)
 
-      - deployment: Deploy_Pdf_Generator
+      - job: Deploy_Pdf_Generator
         dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Generator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_deploy-pdf-generator.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "PDF Generator Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
+        workspace:
+          clean: all
+        steps:
+          - template: tasks/task_deploy-pdf-generator.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "PDF Generator Deployment"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              azureSubscription: $(dev-azure-subscription)
 
-      - deployment: Deploy_Pdf_Redactor
+      - job: Deploy_Pdf_Redactor
         dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Redactor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_deploy-pdf-redactor.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "PDF Redactor Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
+        workspace:
+          clean: all
+        steps:
+          - template: tasks/task_deploy-pdf-redactor.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "PDF Redactor Deployment"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              azureSubscription: $(dev-azure-subscription)
 
-      - deployment: Deploy_Text_Extractor
+      - job: Deploy_Text_Extractor
         dependsOn: Log_Start_Codebase
         displayName: Deploy Text Extractor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_deploy-text-extractor.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Text Extractor Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
+        workspace:
+          clean: all
+        steps:
+          - template: tasks/task_deploy-text-extractor.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Text Extractor Deployment"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              azureSubscription: $(dev-azure-subscription)
                     
-      - deployment: Update_Pipeline_Component_App_Keys
+      - job: Update_Pipeline_Component_App_Keys
         dependsOn:
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
@@ -382,62 +368,52 @@ stages:
           - Deploy_Text_Extractor
         displayName: Update Component Keys
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_update-app-keys-in-pipeline-components.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Update Pipeline Component App Keys"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    armClientId: $(innovation-development-spn-client-id)
-                    armClientSecret: $(innovation-development-spn-secret)
-                    armTenantId: $(innovation-development-spn-tenant-id)
-                    armSubscriptionId: $(innovation-development-subscription-id)
+        steps:
+          - template: tasks/task_update-app-keys-in-pipeline-components.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Update Pipeline Component App Keys"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              armClientId: $(innovation-development-spn-client-id)
+              armClientSecret: $(innovation-development-spn-secret)
+              armTenantId: $(innovation-development-spn-tenant-id)
+              armSubscriptionId: $(innovation-development-subscription-id)
 
-      - deployment: Deploy_Spa
+      - job: Deploy_Spa
         dependsOn: Log_Start_Codebase
         displayName: Deploy SPA
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
         workspace:
           clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_deploy-spa.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "SPA Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
+        steps:
+          - template: tasks/task_deploy-spa.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "SPA Deployment"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              azureSubscription: $(dev-azure-subscription)
 
-      - deployment: Deploy_Gateway
+      - job: Deploy_Gateway
         dependsOn: Log_Start_Codebase
         displayName: Deploy Gateway
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_deploy-gateway.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Gateway Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
+        workspace:
+          clean: all
+        steps:
+          - template: tasks/task_deploy-gateway.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Gateway Deployment"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              azureSubscription: $(dev-azure-subscription)
               
-      - deployment: Log_Result_Codebase_Ended
+      - job: Log_Result_Codebase_Ended
         condition: succeeded()
         displayName: Log Codebase End
         dependsOn:
@@ -448,35 +424,27 @@ stages:
           - Update_Pipeline_Component_App_Keys
           - Deploy_Spa
           - Deploy_Gateway
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_log-result-deployment.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "Codebase CI Deployment"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(System.AccessToken)"
+        steps:
+          - template: tasks/task_log-result-deployment.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Codebase CI Deployment"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"
 
-      - deployment: Log_Result_Ended
+      - job: Log_Result_Ended
         condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Deployment End
         dependsOn: Log_Result_Codebase_Ended
-        environment: "Dev"
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_log-result-deployment.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetLabel: "DEV"
-                    targetName: "CI Deployment"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(System.AccessToken)"
+        steps:
+          - template: tasks/task_log-result-deployment.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "CI Deployment"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"
   
   # DEV: BEGIN SLOT SWAP PROCESS
   - stage: Swap
