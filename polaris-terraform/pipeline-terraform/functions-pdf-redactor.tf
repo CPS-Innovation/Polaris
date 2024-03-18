@@ -32,7 +32,7 @@ resource "azurerm_windows_function_app" "fa_pdf_redactor" {
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_pdf_redactor_file_share.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "0"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
@@ -77,7 +77,30 @@ resource "azurerm_windows_function_app" "fa_pdf_redactor" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["AzureWebJobsStorage"],
+      app_settings["BlobServiceContainerName"],
+      app_settings["BlobServiceUrl"],
+      app_settings["HteFeatureFlag"],
+      app_settings["HostType"],
+      app_settings["ImageConversion__Resolution"],
+      app_settings["ImageConversion__QualityPercent"],
+      app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
+      app_settings["WEBSITE_CONTENTOVERVNET"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_DNS_ALT_SERVER"],
+      app_settings["WEBSITE_DNS_SERVER"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_RUN_FROM_PACKAGE"],
+      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
+      app_settings["WEBSITE_WARMUP_PATH"],
+      app_settings["WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"],
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
     ]
   }
 }

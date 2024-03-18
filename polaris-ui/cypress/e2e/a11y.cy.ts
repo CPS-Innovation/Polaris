@@ -116,12 +116,12 @@ describe("Accessibility testing using cypress-axe", () => {
         .last()
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION ");
-      cy.wait(500);
-      cy.selectPDFTextElement("MCLOVE");
+      cy.selectPDFTextElement("Not Disclosable");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click({ force: true });
+      cy.wait(200);
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 

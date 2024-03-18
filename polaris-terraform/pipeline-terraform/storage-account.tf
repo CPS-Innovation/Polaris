@@ -334,6 +334,7 @@ resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
     data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
     data.azurerm_subnet.polaris_pdfredactor_subnet.id,
     data.azurerm_subnet.polaris_textextractor_subnet.id,
+    data.azurerm_subnet.polaris_textextractor_2_subnet.id,
     data.azurerm_subnet.polaris_gateway_subnet.id,
     data.azurerm_subnet.polaris_apps_subnet.id,
     data.azurerm_subnet.polaris_apps2_subnet.id
@@ -852,5 +853,11 @@ resource "azapi_resource" "pipeline_sa_pdf_redactor_file_share_staging1" {
 resource "azapi_resource" "pipeline_sa_text_extractor_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "pipeline-text-extractor-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_text_extractor.name}/fileServices/default"
+}
+
+resource "azapi_resource" "pipeline_sa_text_extractor_file_share_staging1" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "pipeline-text-extractor-content-share-1"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_text_extractor.name}/fileServices/default"
 }
