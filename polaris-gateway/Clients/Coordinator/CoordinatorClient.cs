@@ -93,7 +93,7 @@ namespace PolarisGateway.Clients.Coordinator
         {
             return await SendRequestAsync(
                 HttpMethod.Put,
-                RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId),
+                RestApi.RedactDocumentPath(caseUrn, caseId, polarisDocumentId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json"));

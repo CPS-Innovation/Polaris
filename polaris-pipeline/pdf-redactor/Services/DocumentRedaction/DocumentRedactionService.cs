@@ -72,22 +72,10 @@ namespace pdf_redactor.Services.DocumentRedaction
                 {
                     RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
                     VersionId = redactPdfRequest.VersionId,
+                    FileName = redactPdfRequest.FileName
                 };
 
-                var redactedDocumentStream = await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);
-
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactPdfRequest.FileName);
-
-                // await _polarisBlobStorageService.UploadDocumentAsync(
-                //     redactedDocumentStream,
-                //     uploadFileName,
-                //     caseId,
-                //     documentId,
-                //     redactPdfRequest.VersionId.ToString(),
-                //     correlationId);
-
-
-                return redactedDocumentStream;
+                return await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);
             }
             catch (Exception ex)
             {

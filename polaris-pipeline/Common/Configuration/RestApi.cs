@@ -15,6 +15,7 @@ namespace Common.Configuration
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
+        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/redact";
 
         // Other
         public const string AuthInitialisation = "init";
@@ -61,6 +62,10 @@ namespace Common.Configuration
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
+        }
+        public static string RedactDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/redact";
         }
 
         public static string GetDocumentCheckoutPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)

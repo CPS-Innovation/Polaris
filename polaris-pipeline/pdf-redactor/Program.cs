@@ -12,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pdf_redactor;
 using pdf_redactor.Services.Extensions;
-using pdf_redactor.Domain.Validators;
+using Common.Domain.Validators;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var host = new HostBuilder()
