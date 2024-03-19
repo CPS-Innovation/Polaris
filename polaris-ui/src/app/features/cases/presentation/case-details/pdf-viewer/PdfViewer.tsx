@@ -21,6 +21,7 @@ import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
+import { getLocallySavedRedactionHighlights } from "../../../../../features/cases/hooks/utils/redactionUtils";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 const SCROLL_TO_OFFSET = 120;
 
@@ -34,6 +35,7 @@ type Props = {
     documentType: string;
     documentId: string;
     saveStatus: SaveStatus;
+    caseId: number;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -42,7 +44,7 @@ type Props = {
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
-  handleAddRedaction: (newRedaction: NewPdfHighlight) => void;
+  handleAddRedaction: (newRedaction: NewPdfHighlight[]) => void;
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -85,6 +87,20 @@ export const PdfViewer: React.FC<Props> = ({
   );
 
   useEffect(() => {
+    const locallySavedRedactionHighlights = getLocallySavedRedactionHighlights(
+      contextData.documentId,
+      contextData.caseId
+    );
+    if (locallySavedRedactionHighlights.length) {
+      trackEvent("Add Unsaved Redactions", {
+        documentId: contextData.documentId,
+        redactionsCount: locallySavedRedactionHighlights.length,
+      });
+      handleAddRedaction(locallySavedRedactionHighlights);
+    }
+  }, []);
+
+  useEffect(() => {
     scrollToFnRef.current &&
       searchHighlights.length &&
       // searchHighlights *not* highlights, as the reference to highlights
@@ -109,7 +125,7 @@ export const PdfViewer: React.FC<Props> = ({
         redactionType: redactionType,
       };
 
-      handleAddRedaction(newRedaction);
+      handleAddRedaction([newRedaction]);
       window.getSelection()?.removeAllRanges();
     },
     [handleAddRedaction]

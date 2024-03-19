@@ -14,6 +14,7 @@ import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import { addToLocalStorage } from "../../presentation/case-details/utils/localStorageUtils";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -29,7 +30,7 @@ type AsyncActions =
       type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
-        redaction: NewPdfHighlight;
+        redactions: NewPdfHighlight[];
       };
     }
   | {
@@ -69,6 +70,12 @@ type AsyncActions =
       type: "UNLOCK_DOCUMENTS";
       payload: {
         documentIds: CaseDocumentViewModel["documentId"][];
+      };
+    }
+  | {
+      type: "SAVE_READ_UNREAD_DATA";
+      payload: {
+        documentId: string;
       };
     };
 
@@ -380,5 +387,20 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       }
+    },
+
+  SAVE_READ_UNREAD_DATA:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const { payload } = action;
+      const { caseId, storedUserData } = getState();
+      if (storedUserData.status !== "succeeded") {
+        return;
+      }
+      if (!storedUserData.data.readUnread.includes(payload.documentId))
+        addToLocalStorage(caseId, "readUnread", [
+          ...storedUserData.data.readUnread,
+          payload.documentId,
+        ]);
     },
 };

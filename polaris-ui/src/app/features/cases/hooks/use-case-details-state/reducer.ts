@@ -1,6 +1,9 @@
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { resolvePdfUrl } from "../../api/gateway-api";
-import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
+import {
+  CaseDocumentViewModel,
+  ClientLockedState,
+} from "../../domain/CaseDocumentViewModel";
 import { mapAccordionState } from "./map-accordion-state";
 import { CombinedState } from "../../domain/CombinedState";
 import { CaseDetails } from "../../domain/gateway/CaseDetails";
@@ -29,6 +32,15 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import {
+  addToLocalStorage,
+  deleteFromLocalStorage,
+} from "../../presentation/case-details/utils/localStorageUtils";
+import {
+  getRedactionsToSaveLocally,
+  getLocallySavedRedactionHighlights,
+} from "../utils/redactionUtils";
+import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 
 export const reducer = (
@@ -100,7 +112,7 @@ export const reducer = (
         type: "ADD_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
-          redaction: NewPdfHighlight;
+          redactions: NewPdfHighlight[];
         };
       }
     | {
@@ -172,6 +184,12 @@ export const reducer = (
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           enableAreaOnlyMode: boolean;
+        };
+      }
+    | {
+        type: "UPDATE_STORED_USER_DATA";
+        payload: {
+          storedUserData: StoredUserData;
         };
       }
 ): CombinedState => {
@@ -404,6 +422,7 @@ export const reducer = (
         //  via the url hash functionality
         return coreNewState;
       }
+
       const alreadyOpenedTabIndex = state.tabsState.items.findIndex(
         (item) => item.documentId === documentId
       );
@@ -525,6 +544,10 @@ export const reducer = (
                 : existingItem
             );
 
+      const isUnread =
+        state.storedUserData?.status === "succeeded" &&
+        !state.storedUserData?.data.readUnread.includes(documentId);
+
       return {
         ...coreNewState,
         tabsState: {
@@ -535,6 +558,20 @@ export const reducer = (
           ...state.searchState,
           isResultsVisible: false,
         },
+        ...(isUnread && state.storedUserData?.status === "succeeded"
+          ? {
+              storedUserData: {
+                ...state.storedUserData,
+                data: {
+                  ...state.storedUserData.data,
+                  readUnread: [
+                    ...state.storedUserData.data.readUnread,
+                    documentId,
+                  ],
+                },
+              },
+            }
+          : {}),
       };
 
     case "CLOSE_PDF": {
@@ -735,9 +772,14 @@ export const reducer = (
         },
       };
     case "ADD_REDACTION": {
-      const { documentId, redaction } = action.payload;
+      const { documentId, redactions } = action.payload;
 
-      return {
+      const newRedactions = redactions.map((redaction, index) => ({
+        ...redaction,
+        id: String(`${+new Date()}-${index}`),
+      }));
+
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -747,20 +789,27 @@ export const reducer = (
                   ...item,
                   redactionHighlights: [
                     ...item.redactionHighlights,
-                    {
-                      ...redaction,
-                      id: String(+new Date()),
-                      redactionAddedOrder: item.redactionHighlights.length,
-                    },
+                    ...newRedactions,
                   ],
                 }
               : item
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      if (redactionHighlights.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      }
+      return newState;
     }
     case "SAVING_REDACTION": {
       const { documentId, saveStatus } = action.payload;
+
       return {
         ...state,
         tabsState: {
@@ -779,7 +828,7 @@ export const reducer = (
     case "REMOVE_REDACTION": {
       const { redactionId, documentId } = action.payload;
 
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -795,12 +844,22 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
     }
 
     case "REMOVE_ALL_REDACTIONS": {
       const { documentId } = action.payload;
-
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -814,6 +873,17 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
     }
     case "UPDATE_DOCUMENT_LOCK_STATE": {
       const { documentId, lockedState } = action.payload;
@@ -907,6 +977,13 @@ export const reducer = (
               : item
           ),
         },
+      };
+    }
+    case "UPDATE_STORED_USER_DATA": {
+      const { storedUserData } = action.payload;
+      return {
+        ...state,
+        storedUserData: { status: "succeeded", data: storedUserData },
       };
     }
 

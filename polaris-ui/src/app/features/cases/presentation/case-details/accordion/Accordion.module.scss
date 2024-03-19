@@ -105,6 +105,7 @@
 
 .accordion .accordion-section-body {
   font-size: 1rem;
+  background-color: #fff;
 }
 
 .accordion .accordion-section-read-warning {
@@ -140,20 +141,48 @@
   padding: 0;
   border-top: 0.0625rem solid #bfc1c3;
   margin-top: 0;
-  margin-bottom: 0;
-  border-left: 5px solid #1d70b8;
-}
-
-.accordion .accordion-document-list :last-child {
-  border-bottom: none;
+  margin-bottom: 1.875rem;
 }
 
 .accordion .accordion-document-list-item {
   display: flex;
   flex-direction: column;
   background-color: rgba(29, 112, 184, 0.075);
-  padding: 10px 0 10px 10px;
+  border-left: 5px solid #1d70b8;
+}
+
+.listItemWrapper {
+  padding: 0.625rem 0 0.625rem 0.625rem;
   border-bottom: 0.0625rem solid #bfc1c3;
+}
+.listItemWrapper :last-child {
+  border-bottom: none;
+}
+.accordion .tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.accordion .docActive {
+  background-color: #fff;
+  border-left: none;
+  border-right: 5px solid #bfe3e0;
+}
+.accordion .docRead {
+  background-color: #fff;
+  border-left: none;
+  padding: 0;
+  & .listItemWrapper {
+    padding: 0.625rem 0;
+    border-bottom: 0.0625rem solid #bfc1c3;
+  }
+  & .accordion-document-link-button {
+    font-weight: normal;
+    color: #4c2c92;
+  }
 }
 
 .accordion .accordion-document-item-wrapper {
@@ -179,6 +208,7 @@
 .accordion .accordion-document-date {
   white-space: nowrap;
   display: flex;
+  font-size: 0.875rem;
 }
 
 .accordion .accordion-document-read-warning {
@@ -196,6 +226,7 @@
 }
 
 .dateIcon {
+  margin-right: 0.125rem;
   width: 1.25rem;
   vertical-align: middle;
 }

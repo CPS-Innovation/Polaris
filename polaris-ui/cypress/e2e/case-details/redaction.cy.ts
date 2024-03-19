@@ -351,7 +351,7 @@ describe("redaction refresh flow", () => {
     cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     //hovering over unsaved redaction to verify redaction tip is not removed.
-    cy.findByTestId("unsaved-redaction-0").trigger("mouseover");
+    cy.findByTestId("unsaved-redaction-0-0").trigger("mouseover");
     cy.findByTestId("remove-btn").should("not.exist");
     cy.findByTestId("btn-redact").should("exist");
 
@@ -363,9 +363,9 @@ describe("redaction refresh flow", () => {
     });
     //after redaction verifying remove redaction tip appears on hovering over unsaved redaction
     cy.findByTestId("btn-redact").should("not.exist");
-    cy.findByTestId("unsaved-redaction-1").trigger("mouseover");
+    cy.findByTestId("unsaved-redaction-1-0").trigger("mouseover");
     cy.findByTestId("remove-btn").should("exist");
-    cy.findByTestId("unsaved-redaction-0").trigger("mouseover");
+    cy.findByTestId("unsaved-redaction-0-0").trigger("mouseover");
     cy.findByTestId("remove-btn").should("exist");
   });
 });
