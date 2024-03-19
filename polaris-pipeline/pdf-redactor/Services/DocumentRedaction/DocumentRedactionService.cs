@@ -60,5 +60,28 @@ namespace pdf_redactor.Services.DocumentRedaction
                 };
             }
         }
+
+        public async Task<Stream> RedactAsync(string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+        {
+            try
+            {
+                byte[] documentBytes = Convert.FromBase64String(redactPdfRequest.Document);
+                using var documentStream = new MemoryStream(documentBytes);
+
+                RedactPdfRequestDto pdfRedact = new RedactPdfRequestDto
+                {
+                    RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
+                    VersionId = redactPdfRequest.VersionId,
+                    FileName = redactPdfRequest.FileName
+                };
+
+                return await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMethodError(correlationId, nameof(RedactAsync), ex.Message, ex);
+                throw;
+            }
+        }
     }
 }

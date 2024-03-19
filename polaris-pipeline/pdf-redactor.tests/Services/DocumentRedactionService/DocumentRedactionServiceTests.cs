@@ -19,6 +19,8 @@ public class DocumentRedactionServiceTests
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
     private readonly IDocumentRedactionService _documentRedactionService;
     private readonly RedactPdfRequestDto _redactPdfRequest;
+    private readonly RedactPdfRequestWithDocumentDto _redactPdfRequestWithDocument;
+
     private readonly Guid _correlationId;
     private readonly string _caseId;
     private readonly PolarisDocumentId _documentId;
@@ -41,6 +43,8 @@ public class DocumentRedactionServiceTests
             mockLogger.Object);
 
         _redactPdfRequest = fixture.Create<RedactPdfRequestDto>();
+        _redactPdfRequestWithDocument = fixture.Create<RedactPdfRequestWithDocumentDto>();
+        _redactPdfRequestWithDocument.Document = "base64string";
         _correlationId = fixture.Create<Guid>();
         _uploadFileName = fixture.Create<string>();
         _caseId = fixture.Create<string>();

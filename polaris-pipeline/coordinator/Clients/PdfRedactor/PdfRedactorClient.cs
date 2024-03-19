@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -56,6 +57,32 @@ namespace coordinator.Clients.PdfRedactor
 
       var stringContent = await response.Content.ReadAsStringAsync();
       return _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent);
+    }
+
+    public async Task<Stream> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+    {
+      try 
+      {
+        var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
+
+        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetPdfRedactorPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactorPdfFunctionAppKey]}", correlationId);
+        request.Content = requestMessage;
+
+        var response = await _httpClient.SendAsync(request);
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadAsStreamAsync();
+      } 
+      catch (HttpRequestException exception) 
+      {
+        if (exception.StatusCode == HttpStatusCode.NotFound) 
+        {
+          // todo: check if ok to swallow a not found response?
+          return null;
+        }
+        throw;
+      }
     }
   }
 }
