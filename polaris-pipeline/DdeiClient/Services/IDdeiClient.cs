@@ -1,5 +1,6 @@
 using Common.Dto.Case;
 using Common.Dto.Document;
+using Ddei.Domain;
 using Ddei.Domain.CaseData.Args;
 
 namespace DdeiClient.Services
@@ -15,6 +16,6 @@ namespace DdeiClient.Services
         Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId);
         Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
         Task CancelCheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
-        Task UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream);
+        Task<DdeiUploadDocumentDto> UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream);
     }
 }

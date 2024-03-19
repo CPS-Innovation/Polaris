@@ -99,7 +99,13 @@ namespace coordinator.Functions
                      versionId: document.CmsVersionId
                 );
 
-                await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+
+                if (!ddeiResult.IsSuccess)
+                {
+                    // if the document no longer exists in cms
+                    return new StatusCodeResult(StatusCodes.Status410Gone);
+                }
 
                 return new OkResult();
             }

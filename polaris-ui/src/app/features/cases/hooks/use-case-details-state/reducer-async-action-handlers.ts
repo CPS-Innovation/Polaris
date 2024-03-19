@@ -80,6 +80,8 @@ type AsyncActions =
     };
 
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
+export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
+
 export const reducerAsyncActionHandlers: AsyncActionHandlers<
   Reducer<State, Action>,
   AsyncActions
@@ -318,12 +320,16 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       } catch (e) {
+        const { code } = e as ApiError;
+
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
             type: "saveredaction",
             title: "Something went wrong!",
-            message: "Failed to save redaction. Please try again later.",
+            message: code === DOCUMENT_NOT_FOUND_STATUS_CODE ? 
+            "Failed to save redaction. The document no longer exists in CMS." :
+            "Failed to save redaction. Please try again later.",
           },
         });
         dispatch({
