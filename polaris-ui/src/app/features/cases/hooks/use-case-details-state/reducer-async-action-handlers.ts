@@ -327,9 +327,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             type: "saveredaction",
             title: "Something went wrong!",
-            message: code === DOCUMENT_NOT_FOUND_STATUS_CODE ? 
-            "Failed to save redaction. The document no longer exists in CMS." :
-            "Failed to save redaction. Please try again later.",
+            message:
+              code === DOCUMENT_NOT_FOUND_STATUS_CODE
+                ? "Failed to save redaction. The document no longer exists in CMS."
+                : "Failed to save redaction. Please try again later.",
           },
         });
         dispatch({
