@@ -880,9 +880,8 @@ describe("Redaction Log", () => {
         "have.text",
         "Error: Supporting notes must be 400 characters or less"
       );
-      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
-        cy.findByTestId("redaction-log-notes").type("{backspace}")
-      );
+      cy.findByTestId("redaction-log-notes").focus();
+      cy.realPress("{backspace}");
       cy.realPress("{backspace}");
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
