@@ -15,6 +15,7 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-build-agent
+  - group: polaris-global
   - name: "devSubscriptionName"
     value: "Innovation-Development: All-Information Management"
   - name: "qaSubscriptionName"
@@ -34,6 +35,8 @@ stages:
   - stage: image_builder_dev
     displayName: DEV - Build Custom VM Image
     dependsOn: create_version
+    pool:
+      name: $(dev-build-agent)
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
@@ -51,11 +54,13 @@ stages:
               storageAccount: $(innovation-development-build-agent-storage-account)
               versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
-              additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
+              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: image_builder_qa
     displayName: QA - Build Custom VM Image
     dependsOn: create_version
+    pool:
+      name: $(qa-build-agent)
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
@@ -73,11 +78,13 @@ stages:
               storageAccount: $(innovation-qa-build-agent-storage-account)
               versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
-              additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
+              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: image_builder_prod
     displayName: PROD - Build Custom VM Image
     dependsOn: create_version
+    pool:
+      name: $(prod-build-agent)
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
@@ -95,7 +102,7 @@ stages:
               storageAccount: $(innovation-prod-build-agent-storage-account)
               versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
-              additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
+              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-production","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: update_scale_set_dev
     displayName: Update All DEV Resources
