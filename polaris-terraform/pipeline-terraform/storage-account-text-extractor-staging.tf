@@ -152,6 +152,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_staging1_queue_p
 
 resource "azapi_resource" "pipeline_sa_text_extractor_file_share_staging1" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-text-extractor-content-share-1"
+  name      = "pipeline-text-extractor-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_text_extractor_staging1.name}/fileServices/default"
 }
