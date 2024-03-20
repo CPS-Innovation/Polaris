@@ -15,6 +15,7 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-build-agent
+  - group: polaris-global
   - name: "devSubscriptionName"
     value: "Innovation-Development: All-Information Management"
   - name: "qaSubscriptionName"
@@ -34,6 +35,8 @@ stages:
   - stage: image_builder_dev
     displayName: DEV - Build Custom VM Image
     dependsOn: create_version
+    pool:
+      name: $(dev-build-agent)
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
@@ -56,6 +59,8 @@ stages:
   - stage: image_builder_qa
     displayName: QA - Build Custom VM Image
     dependsOn: create_version
+    pool:
+      name: $(qa-build-agent)
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
@@ -78,6 +83,8 @@ stages:
   - stage: image_builder_prod
     displayName: PROD - Build Custom VM Image
     dependsOn: create_version
+    pool:
+      name: $(prod-build-agent)
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
