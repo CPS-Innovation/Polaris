@@ -274,7 +274,7 @@ stages:
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(System.AccessToken)"
-                    
+
   - stage: Deploy
     displayName: Deploy
     condition: succeeded()
@@ -354,6 +354,27 @@ stages:
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
               azureSubscription: $(qa-azure-subscription)
 
+      - job: Update_Pipeline_Component_App_Keys
+        dependsOn:
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
+          - Deploy_Text_Extractor
+        displayName: Update Component Keys
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        steps:
+          - template: tasks/task_update-app-keys-in-pipeline-components.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetName: "Update Pipeline Component App Keys"
+              targetSuffix: "-qa"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              armClientId: $(innovation-qa-spn-client-id)
+              armClientSecret: $(innovation-qa-spn-secret)
+              armTenantId: $(innovation-qa-spn-tenant-id)
+              armSubscriptionId: $(innovation-qa-subscription-id)
+
       - job: Deploy_Spa
         dependsOn: Log_Start_Codebase
         displayName: Deploy SPA
@@ -390,6 +411,7 @@ stages:
           - Deploy_Pdf_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
+          - Update_Pipeline_Component_App_Keys
           - Deploy_Spa
           - Deploy_Gateway
         steps:
@@ -474,23 +496,6 @@ stages:
               resourceGroupName: "rg-polaris-pipeline-qa"
               webAppName: $(AppServiceName)
               PreserveVnet: true
-              
-      - job: Update_Pipeline_Component_App_Keys
-        dependsOn: Swap_Pipeline_Slots
-        displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        steps:
-          - template: tasks/task_update-app-keys-in-pipeline-components.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "QA"
-              targetName: "Update Pipeline Component App Keys"
-              targetSuffix: "-qa"
-              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              armClientId: $(innovation-qa-spn-client-id)
-              armClientSecret: $(innovation-qa-spn-secret)
-              armTenantId: $(innovation-qa-spn-tenant-id)
-              armSubscriptionId: $(innovation-qa-subscription-id)
 
       - job: Swap_UI_Slots
         dependsOn: Pause_Pipeline
@@ -529,7 +534,7 @@ stages:
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
               devOpsPatToken: "$(System.AccessToken)"
-              
+  
   # QA: CHECK CURRENT STATUS RESPONSES FROM /API/STATUS ENDPOINTS FOLLOWING TERRAFORM CHANGES
   - stage: Check_Build
     displayName: Build Checks

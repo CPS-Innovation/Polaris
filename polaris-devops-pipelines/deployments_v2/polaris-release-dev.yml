@@ -274,14 +274,14 @@ stages:
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     devOpsPatToken: "$(System.AccessToken)"
-                    
+
   - stage: Deploy
     displayName: Deploy
     condition: succeeded()
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-    dependsOn: 
+    dependsOn:
       - Determine_Changes
       - Apply
     pool:
@@ -353,7 +353,28 @@ stages:
               targetSuffix: "-dev"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               azureSubscription: $(dev-azure-subscription)
-                    
+
+      - job: Update_Pipeline_Component_App_Keys
+        dependsOn:
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
+          - Deploy_Text_Extractor
+        displayName: Update Component Keys
+        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        steps:
+          - template: tasks/task_update-app-keys-in-pipeline-components.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "DEV"
+              targetName: "Update Pipeline Component App Keys"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              armClientId: $(innovation-development-spn-client-id)
+              armClientSecret: $(innovation-development-spn-secret)
+              armTenantId: $(innovation-development-spn-tenant-id)
+              armSubscriptionId: $(innovation-development-subscription-id)
+
       - job: Deploy_Spa
         dependsOn: Log_Start_Codebase
         displayName: Deploy SPA
@@ -381,7 +402,7 @@ stages:
               targetSuffix: "-dev"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               azureSubscription: $(dev-azure-subscription)
-              
+
       - job: Log_Result_Codebase_Ended
         condition: succeeded()
         displayName: Log Codebase End
@@ -390,6 +411,7 @@ stages:
           - Deploy_Pdf_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
+          - Update_Pipeline_Component_App_Keys
           - Deploy_Spa
           - Deploy_Gateway
         steps:
@@ -474,23 +496,6 @@ stages:
               resourceGroupName: "rg-polaris-pipeline-dev"
               webAppName: $(AppServiceName)
               PreserveVnet: true
-              
-      - job: Update_Pipeline_Component_App_Keys
-        dependsOn: Swap_Pipeline_Slots
-        displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        steps:
-          - template: tasks/task_update-app-keys-in-pipeline-components.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Update Pipeline Component App Keys"
-              targetSuffix: "-dev"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              armClientId: $(innovation-development-spn-client-id)
-              armClientSecret: $(innovation-development-spn-secret)
-              armTenantId: $(innovation-development-spn-tenant-id)
-              armSubscriptionId: $(innovation-development-subscription-id)
 
       - job: Swap_UI_Slots
         dependsOn: Pause_Pipeline
@@ -529,7 +534,7 @@ stages:
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
               devOpsPatToken: "$(System.AccessToken)"
-              
+  
   # DEV: CHECK CURRENT STATUS RESPONSES FROM /API/STATUS ENDPOINTS FOLLOWING TERRAFORM CHANGES
   - stage: Check_Build
     displayName: Build Checks
@@ -831,7 +836,7 @@ stages:
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
-              
+
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))
