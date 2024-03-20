@@ -79,7 +79,9 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
           </div>
           <div className={classes.contentWrapper}>
             <div>
-              <span>{description}</span>
+              <span data-testid="unsaved-redactions-description">
+                {description}
+              </span>
             </div>
 
             <div className={classes.actionWrapper}>

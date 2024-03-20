@@ -69,8 +69,21 @@ describe("Save User Data", () => {
   });
 
   describe("unsaved redactions", () => {
-    it("Should store the unsaved redactions for each document if the user fails to save the redactions, refresh the page and clearing of local storage should clear it", () => {
+    it("Should be able to apply and ignore unsaved redaction data if the user chose to refresh the page or close the document tab in the middle of redaction", () => {
       cy.clearLocalStorage();
+      const doc10CheckoutCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc10CheckoutCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401/documents/10/checkout"
+      );
+      const doc1CheckoutCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc1CheckoutCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+      );
+
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -91,7 +104,9 @@ describe("Save User Data", () => {
       cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
-
+      cy.window().then(() => {
+        expect(doc1CheckoutCounter.count).to.equal(1);
+      });
       cy.findByTestId("link-document-10").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
@@ -114,58 +129,144 @@ describe("Save User Data", () => {
       cy.findByTestId("redaction-count-text-1").contains(
         "There are 3 redactions"
       );
-      const doc10CheckoutCounter = { count: 0 };
-      cy.trackRequestCount(
-        doc10CheckoutCounter,
-        "POST",
-        "/api/urns/12AB1111111/cases/13401/documents/10/checkout"
-      );
-      const doc1CheckoutCounter = { count: 0 };
-      cy.trackRequestCount(
-        doc1CheckoutCounter,
-        "POST",
-        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
-      );
+      cy.window().then(() => {
+        expect(doc10CheckoutCounter.count).to.equal(1);
+      });
 
-      //refresh and comeback
+      //refresh,comeback and apply
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 2 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      cy.findAllByTestId("btn-apply-redaction").click();
       cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
       cy.window().then(() => {
-        expect(doc1CheckoutCounter.count).to.equal(1);
+        expect(doc1CheckoutCounter.count).to.equal(2);
       });
+      //close the tab,comeback and apply
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("You have unsaved redactions");
+      cy.findByTestId("btn-nav-ignore").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 2 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      cy.findAllByTestId("btn-apply-redaction").click();
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There are 2 redactions"
+      );
+      cy.window().then(() => {
+        expect(doc1CheckoutCounter.count).to.equal(3);
+      });
+      //close the tab, come back and ignore
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("You have unsaved redactions");
+      cy.findByTestId("btn-nav-ignore").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 2 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      cy.findAllByTestId("btn-ignore-redaction").click();
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      //checkout counter wont update this time as we have not applied the redaction
+      cy.window().then(() => {
+        expect(doc1CheckoutCounter.count).to.equal(3);
+      });
+      //second document
       cy.findByTestId("link-document-10").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("Page1 Portrait");
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 3 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-1").should("not.exist");
+      cy.findAllByTestId("btn-apply-redaction").click();
       cy.findByTestId("redaction-count-text-1").contains(
         "There are 3 redactions"
       );
       cy.window().then(() => {
-        expect(doc10CheckoutCounter.count).to.equal(1);
+        expect(doc10CheckoutCounter.count).to.equal(2);
       });
-      //clear local storage and check
-      cy.clearLocalStorage();
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
+      //close the tab,comeback and apply
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
         .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("redaction-count-text-0").should("not.exist");
+        .contains("You have unsaved redactions");
+      cy.findByTestId("btn-nav-ignore").click();
+      cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("link-document-10").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("Page1 Portrait");
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 3 unsaved redactions on this document, would you like to apply it?"
+      );
       cy.findByTestId("redaction-count-text-1").should("not.exist");
+      cy.findAllByTestId("btn-apply-redaction").click();
+      cy.findByTestId("redaction-count-text-1").contains(
+        "There are 3 redactions"
+      );
+      cy.window().then(() => {
+        expect(doc10CheckoutCounter.count).to.equal(3);
+      });
+      //close the tab, come back and ignore
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("You have unsaved redactions");
+      cy.findByTestId("btn-nav-ignore").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("Page1 Portrait");
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 3 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-1").should("not.exist");
+      cy.findAllByTestId("btn-ignore-redaction").click();
+      cy.findByTestId("redaction-count-text-1").should("not.exist");
+      //checkout counter wont update this time as we have not applied the redaction
+      cy.window().then(() => {
+        expect(doc10CheckoutCounter.count).to.equal(3);
+      });
     });
-    it("Should be able to continue with locally saved redactions and add more redactions", () => {
+    it("Should be able to apply unsaved redactions between page refresh and closing and opening of the document tab, and should be able continue adding more redactions until we successfully save the redactions ", () => {
       const expectedSaveRedactionPayload = {
         documentId: "1",
         redactions: [
@@ -189,6 +290,13 @@ describe("Save User Data", () => {
         "/api/urns/12AB1111111/cases/13401/documents/1"
       );
       cy.clearLocalStorage();
+      const doc1CheckoutCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc1CheckoutCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+      );
+
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -209,15 +317,27 @@ describe("Save User Data", () => {
       cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
+      cy.window().then(() => {
+        expect(doc1CheckoutCounter.count).to.equal(1);
+      });
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 2 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      cy.findAllByTestId("btn-apply-redaction").click();
       cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
+      cy.window().then(() => {
+        expect(doc1CheckoutCounter.count).to.equal(2);
+      });
       cy.selectPDFTextElement("Male");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
@@ -228,6 +348,31 @@ describe("Save User Data", () => {
       cy.findByTestId("select-redaction-type").should("have.length", 1);
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click();
+
+      //close the document and open it again
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("You have unsaved redactions");
+      cy.findByTestId("btn-nav-ignore").click();
+      cy.findByTestId("div-modal").should("not.exist");
+
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 4 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      cy.findAllByTestId("btn-apply-redaction").click();
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There are 4 redactions"
+      );
+      cy.window().then(() => {
+        expect(doc1CheckoutCounter.count).to.equal(3);
+      });
       cy.findByTestId("btn-save-redaction-0").click();
       //assertion on the redaction save request
       cy.waitUntil(() => {
@@ -238,8 +383,16 @@ describe("Save User Data", () => {
           JSON.parse(saveRequestObject.body)
         );
       });
+      cy.findByTestId("div-modal").should("exist");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findAllByTestId("div-modal").should("not.exist");
     });
-    it("Should load the unsaved redaction data if the user chose to close the document with unsaved redactions and open it", () => {
+    it("Clearing of the localstorage should clear the unsaved redactions data", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -269,9 +422,27 @@ describe("Save User Data", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findAllByTestId("div-modal").should("exist");
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "You have 2 unsaved redactions on this document, would you like to apply it?"
+      );
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
+      cy.findAllByTestId("btn-apply-redaction").click();
       cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
+
+      // clear local storage and check
+      cy.clearLocalStorage();
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findAllByTestId("div-modal").should("not.exist");
+      cy.findByTestId("redaction-count-text-0").should("not.exist");
     });
     it("Should add unsaved redactions data to the localstorage in the correct format", () => {
       cy.visit("/case-details/12AB1111111/13401");
