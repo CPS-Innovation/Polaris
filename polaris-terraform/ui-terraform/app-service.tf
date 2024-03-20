@@ -97,7 +97,38 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
+      app_settings["HostType"],
+      app_settings["REACT_APP_AI_KEY"],
+      app_settings["REACT_APP_CLIENT_ID"],
+      app_settings["REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"],
+      app_settings["REACT_APP_FEATURE_FLAG_REDACTION_LOG"],
+      app_settings["REACT_APP_FEATURE_FLAG_REDACTION_LOG_UNDER_OVER"],
+      app_settings["REACT_APP_FEATURE_FLAG_FULL_SCREEN"],
+      app_settings["REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"],
+      app_settings["REACT_APP_GATEWAY_BASE_URL"],
+      app_settings["REACT_APP_GATEWAY_SCOPE"],
+      app_settings["REACT_APP_IS_REDACTION_SERVICE_OFFLINE"],
+      app_settings["REACT_APP_PRIVATE_BETA_SIGN_UP_URL"],
+      app_settings["REACT_APP_PRIVATE_BETA_USER_GROUP"],
+      app_settings["REACT_APP_REDACTION_LOG_USER_GROUP"],
+      app_settings["REACT_APP_REAUTH_REDIRECT_URL"],
+      app_settings["REACT_APP_REDACTION_LOG_BASE_URL"],
+      app_settings["REACT_APP_REDACTION_LOG_SCOPE"],
+      app_settings["REACT_APP_SURVEY_LINK"],
+      app_settings["REACT_APP_TENANT_ID"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
+      app_settings["WEBSITE_CONTENTOVERVNET"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_DNS_ALT_SERVER"],
+      app_settings["WEBSITE_DNS_SERVER"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
+      app_settings["WEBSITE_WARMUP_PATH"]
     ]
   }
 }
