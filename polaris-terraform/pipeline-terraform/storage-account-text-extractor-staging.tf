@@ -1,10 +1,10 @@
-resource "azurerm_storage_account" "sa_text_extractor" {
+resource "azurerm_storage_account" "sa_text_extractor_staging1" {
   #checkov:skip=CKV_AZURE_206:Ensure that Storage Accounts use replication
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor"
+  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor2"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
@@ -67,8 +67,8 @@ resource "azurerm_storage_account" "sa_text_extractor" {
 
 # Text Extractor Storage Account Private Endpoint and DNS Config
 # Create Private Endpoint for Blobs
-resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_blob_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-blob-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_staging1_blob_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-blob-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -80,16 +80,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_blob_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-blob-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_text_extractor.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-blob-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_text_extractor_staging1.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
 }
 
 # Create Private Endpoint for Tables
-resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_table_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-table-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_staging1_table_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-table-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -101,16 +101,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_table_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-table-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_text_extractor.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-table-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_text_extractor_staging1.id
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
 }
 
 # Create Private Endpoint for Files
-resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_file_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-file-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_staging1_file_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-file-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -122,16 +122,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_file_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-file-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_text_extractor.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-file-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_text_extractor_staging1.id
     is_manual_connection           = false
     subresource_names              = ["file"]
   }
 }
 
 # Create Private Endpoint for Queues
-resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_queue_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-queue-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_staging1_queue_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-queue-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -143,15 +143,15 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_queue_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-queue-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_text_extractor.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}textextractor-staging1-queue-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_text_extractor_staging1.id
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
 }
 
-resource "azapi_resource" "pipeline_sa_text_extractor_file_share" {
+resource "azapi_resource" "pipeline_sa_text_extractor_file_share_staging1" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-text-extractor-content-share"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_text_extractor.name}/fileServices/default"
+  name      = "pipeline-text-extractor-content-share-1"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_text_extractor_staging1.name}/fileServices/default"
 }
