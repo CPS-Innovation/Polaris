@@ -1,0 +1,29 @@
+.unsavedRedactionModal {
+  width: 45%;
+  max-width: 50rem;
+  margin-left: 1rem;
+}
+.contentWrapper {
+  padding: 2rem 2rem;
+}
+
+.modalHeader {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid #b1b4b6;
+  background: #f3f2f1;
+  padding: 0 2rem;
+}
+
+.actionWrapper {
+  display: flex;
+  align-items: baseline;
+  margin-top: 2rem;
+  .applyBtn {
+    margin-right: 1rem;
+  }
+  .ignoreBtn {
+    outline: none;
+    box-shadow: none;
+  }
+}
