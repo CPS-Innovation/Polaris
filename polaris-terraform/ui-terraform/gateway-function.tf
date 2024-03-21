@@ -120,7 +120,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["DdeiBaseUrl"],
       app_settings["HostType"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
-      app_settings["PolarisPipelineCoordinatorFunctionAppKey"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["TenantId"],
       app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
