@@ -3,7 +3,6 @@ using System.Text.Json;
 using Common.Configuration;
 using Common.Dto.Request;
 using coordinator.Clients.PdfRedactor;
-using Microsoft.Extensions.Configuration;
 
 namespace pdf_redactor.integration.tests.Clients
 {
@@ -11,13 +10,11 @@ namespace pdf_redactor.integration.tests.Clients
   {
     private readonly HttpClient _httpClient;
     private readonly IRequestFactory _requestFactory;
-    private readonly IConfiguration _configuration;
 
-    public PdfRedactorClient(HttpClient httpClient, IRequestFactory requestFactory, IConfiguration configuration)
+    public PdfRedactorClient(HttpClient httpClient, IRequestFactory requestFactory)
     {
       _httpClient = httpClient;
       _requestFactory = requestFactory;
-      _configuration = configuration;
     }
 
     public async Task<Stream> RedactPdfAsync(RedactPdfRequestWithDocumentDto redactPdfRequest)

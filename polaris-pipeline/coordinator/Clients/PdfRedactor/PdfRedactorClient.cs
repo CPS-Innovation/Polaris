@@ -8,7 +8,6 @@ using Common.Configuration;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Wrappers;
-using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Clients.PdfRedactor
 {
@@ -16,17 +15,14 @@ namespace coordinator.Clients.PdfRedactor
   {
     private readonly IRequestFactory _pipelineClientRequestFactory;
     private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
     private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
     public PdfRedactorClient(IRequestFactory pipelineClientRequestFactory,
         HttpClient httpClient,
-        IConfiguration configuration,
         IJsonConvertWrapper jsonConvertWrapper)
     {
       _pipelineClientRequestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
       _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-      _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
       _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
     }
 

@@ -70,7 +70,6 @@ namespace coordinator.Tests.Clients.PdfRedactor
             _pdfRedactorClient = new PdfRedactorClient(
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
-                mockConfiguration.Object,
                 mockJsonConvertWrapper.Object);
         }
 

@@ -70,7 +70,6 @@ namespace coordinator.Tests.Clients.PdfGenerator
             _pdfGeneratorClient = new PdfGeneratorClient(
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
-                mockConfiguration.Object,
                 _mockHttpResponseMessageStreamFactory.Object);
         }
 

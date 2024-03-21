@@ -14,11 +14,11 @@ namespace pdf_redactor.integration.tests
 {
     using IPdfRedactorClient = Clients.IPdfRedactorClient;
 
-    internal class Program
+    internal static class Program
     {
         public static async Task Main(string[] args)
         {
-            var serviceProvider = BuildServiceProvider(args);
+            var serviceProvider = BuildServiceProvider();
 
             StartupHelpers.SetAsposeLicence();
 
@@ -45,7 +45,7 @@ namespace pdf_redactor.integration.tests
 
             var redactedImageStreams = await PdfConversionHelper.ConvertAndSavePdfToImages(redactedDocument);
 
-            await using var assertionImageStreamOne = typeof(Program).Assembly.GetManifestResourceStream(assertionOneResourceName) ?? throw new Exception($"{assertionOneResourceName} not found");
+            await using var assertionImageStreamOne = typeof(Program).Assembly.GetManifestResourceStream(assertionOneResourceName) ?? throw new ArgumentException($"{assertionOneResourceName} not found");
             var pageOneDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[0], assertionImageStreamOne, ResizeOption.Resize);
 
             if (pageOneDiff.AbsoluteError > 0)
@@ -55,7 +55,7 @@ namespace pdf_redactor.integration.tests
 
             if (assertionTwoResourceName != null)
             {
-                await using var assertionImageStreamTwo = typeof(Program).Assembly.GetManifestResourceStream(assertionTwoResourceName) ?? throw new Exception($"{assertionTwoResourceName} not found");
+                await using var assertionImageStreamTwo = typeof(Program).Assembly.GetManifestResourceStream(assertionTwoResourceName) ?? throw new ArgumentException($"{assertionTwoResourceName} not found");
                 var pageTwoDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[1], assertionImageStreamTwo, ResizeOption.Resize);
 
                 if (pageTwoDiff.AbsoluteError > 0)
@@ -65,7 +65,7 @@ namespace pdf_redactor.integration.tests
             }
         }
 
-        private static ServiceProvider BuildServiceProvider(string[] args)
+        private static ServiceProvider BuildServiceProvider()
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
@@ -74,7 +74,7 @@ namespace pdf_redactor.integration.tests
 
             var services = new ServiceCollection();
 
-            var redactorUrl = configuration.GetSection("Values")["PdfRedactorUrl"] ?? throw new Exception("PdfRedactorUrl not found in configuration");
+            var redactorUrl = configuration.GetSection("Values")["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
 
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IRequestFactory, RequestFactory>();
