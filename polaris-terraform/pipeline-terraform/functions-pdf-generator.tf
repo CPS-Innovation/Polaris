@@ -13,7 +13,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   https_only                    = true
   public_network_access_enabled = false
   builtin_logging_enabled       = false
-
+  
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_generator.primary_connection_string

@@ -11,7 +11,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
   public_network_access_enabled = false
   tags                          = local.common_tags
-
+  
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "HostType"                                        = "Staging1"

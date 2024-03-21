@@ -13,7 +13,7 @@ resource "azurerm_windows_function_app" "fa_pdf_redactor" {
   https_only                    = true
   public_network_access_enabled = false
   builtin_logging_enabled       = false
-
+  
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_redactor.primary_connection_string
