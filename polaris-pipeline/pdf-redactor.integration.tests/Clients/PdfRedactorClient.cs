@@ -4,7 +4,6 @@ using Common.Configuration;
 using Common.Dto.Request;
 using coordinator.Clients.PdfRedactor;
 using Microsoft.Extensions.Configuration;
-using IPdfRedactorClient = pdf_redactor.Clients.PdfRedactor.IPdfRedactorClient;
 
 namespace pdf_redactor.integration.tests.Clients
 {

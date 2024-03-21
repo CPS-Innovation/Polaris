@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Codeuctivity.ImageSharpCompare;
 using Aspose.Pdf;
 using Common.Streaming;
-using PdfRedactorClient = pdf_redactor.Clients.PdfRedactor;
 
 /* 
 Aspose.PDF.Drawing 24.2.0 behaves differently when running unit tests compared to in production env
@@ -13,7 +12,9 @@ ImageSharpCompare is then used to assert the AbsoluteError is 0 comparing to our
 */
 namespace pdf_redactor.integration.tests
 {
-    class Program
+    using IPdfRedactorClient = Clients.IPdfRedactorClient;
+
+    internal class Program
     {
         public static async Task Main(string[] args)
         {
@@ -22,7 +23,7 @@ namespace pdf_redactor.integration.tests
             StartupHelpers.SetAsposeLicence();
 
 
-            var redactorClient = serviceProvider.GetRequiredService<PdfRedactorClient.IPdfRedactorClient>();
+            var redactorClient = serviceProvider.GetRequiredService<IPdfRedactorClient>();
 
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.image_document_redactions.json", "pdf_redactor.integration.tests.Resources.image_document.pdf", "pdf_redactor.integration.tests.Resources.image_document_page_1.png", "pdf_redactor.integration.tests.Resources.image_document_page_2.png");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.overlapping_redaction_redactions.json", "pdf_redactor.integration.tests.Resources.overlapping_redaction.pdf", "pdf_redactor.integration.tests.Resources.overlapping_redaction_page_1.png", null);
@@ -31,7 +32,7 @@ namespace pdf_redactor.integration.tests
             Console.WriteLine("Successfully asserted all pdf test cases");
         }
 
-        private static async Task AssertRedactedPdf(PdfRedactorClient.IPdfRedactorClient redactorClient, string redactionsResourceName, string pdfResourceName, string assertionOneResourceName, string? assertionTwoResourceName)
+        private static async Task AssertRedactedPdf(IPdfRedactorClient redactorClient, string redactionsResourceName, string pdfResourceName, string assertionOneResourceName, string? assertionTwoResourceName)
         {
             var redactionJsonStream = typeof(Program).Assembly.GetManifestResourceStream(redactionsResourceName) ?? throw new Exception($"{redactionsResourceName} not found");
             var documentStream = typeof(Program).Assembly.GetManifestResourceStream(pdfResourceName) ?? throw new Exception($"{pdfResourceName} not found");
@@ -44,7 +45,7 @@ namespace pdf_redactor.integration.tests
 
             var redactedImageStreams = await PdfConversionHelper.ConvertAndSavePdfToImages(redactedDocument);
 
-            using var assertionImageStreamOne = typeof(Program).Assembly.GetManifestResourceStream(assertionOneResourceName) ?? throw new Exception($"{assertionOneResourceName} not found");
+            await using var assertionImageStreamOne = typeof(Program).Assembly.GetManifestResourceStream(assertionOneResourceName) ?? throw new Exception($"{assertionOneResourceName} not found");
             var pageOneDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[0], assertionImageStreamOne, ResizeOption.Resize);
 
             if (pageOneDiff.AbsoluteError > 0)
@@ -54,7 +55,7 @@ namespace pdf_redactor.integration.tests
 
             if (assertionTwoResourceName != null)
             {
-                using var assertionImageStreamTwo = typeof(Program).Assembly.GetManifestResourceStream(assertionTwoResourceName) ?? throw new Exception($"{assertionTwoResourceName} not found");
+                await using var assertionImageStreamTwo = typeof(Program).Assembly.GetManifestResourceStream(assertionTwoResourceName) ?? throw new Exception($"{assertionTwoResourceName} not found");
                 var pageTwoDiff = ImageSharpCompare.CalcDiff(redactedImageStreams[1], assertionImageStreamTwo, ResizeOption.Resize);
 
                 if (pageTwoDiff.AbsoluteError > 0)
@@ -64,9 +65,9 @@ namespace pdf_redactor.integration.tests
             }
         }
 
-        static ServiceProvider BuildServiceProvider(string[] args)
+        private static ServiceProvider BuildServiceProvider(string[] args)
         {
-            IConfigurationRoot configuration = new ConfigurationBuilder()
+            var configuration = new ConfigurationBuilder()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
@@ -77,7 +78,7 @@ namespace pdf_redactor.integration.tests
 
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IRequestFactory, RequestFactory>();
-            services.AddHttpClient<PdfRedactorClient.IPdfRedactorClient, Clients.PdfRedactorClient>(client =>
+            services.AddHttpClient<IPdfRedactorClient, Clients.PdfRedactorClient>(client =>
             {
                 client.BaseAddress = new Uri(redactorUrl);
             });
