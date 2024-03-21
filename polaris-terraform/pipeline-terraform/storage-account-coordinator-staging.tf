@@ -1,10 +1,10 @@
-resource "azurerm_storage_account" "sa_pdf_generator" {
+resource "azurerm_storage_account" "sa_coordinator_staging1" {
   #checkov:skip=CKV_AZURE_206:Ensure that Storage Accounts use replication
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator"
+  name                = "sacps${var.env != "prod" ? var.env : ""}coordinator2"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
@@ -23,7 +23,7 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
     bypass         = ["Metrics", "Logging", "AzureServices"]
     virtual_network_subnet_ids = [
       data.azurerm_subnet.polaris_ci_subnet.id,
-      data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
+      data.azurerm_subnet.polaris_coordinator_subnet.id,
       data.azurerm_subnet.polaris_apps_subnet.id,
       data.azurerm_subnet.polaris_apps2_subnet.id
     ]
@@ -64,10 +64,10 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
   tags = local.common_tags
 }
 
-# PDF Generator Storage Account Private Endpoint and DNS Config
+# Coordinator Storage Account Private Endpoint and DNS Config
 # Create Private Endpoint for Blobs
-resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_blob_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-blob-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_coordinator_staging1_blob_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-blob-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -79,16 +79,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_blob_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-blob-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_pdf_generator.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-blob-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_coordinator_staging1.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
 }
 
 # Create Private Endpoint for Tables
-resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_table_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-table-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_coordinator_staging1_table_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-table-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -100,16 +100,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_table_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-table-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_pdf_generator.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-table-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_coordinator_staging1.id
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
 }
 
 # Create Private Endpoint for Files
-resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_file_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-file-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_coordinator_staging1_file_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-file-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -121,16 +121,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_file_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-file-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_pdf_generator.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-file-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_coordinator_staging1.id
     is_manual_connection           = false
     subresource_names              = ["file"]
   }
 }
 
 # Create Private Endpoint for Queues
-resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_queue_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-queue-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_coordinator_staging1_queue_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-queue-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
@@ -142,15 +142,15 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_queue_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-queue-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_pdf_generator.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}coordinator-staging1-queue-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_coordinator_staging1.id
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
 }
 
-resource "azapi_resource" "pipeline_sa_pdf_generator_file_share" {
+resource "azapi_resource" "pipeline_sa_coordinator_file_share_staging1" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-pdf-generator-content-share"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_generator.name}/fileServices/default"
+  name      = "pipeline-coordinator-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator_staging1.name}/fileServices/default"
 }

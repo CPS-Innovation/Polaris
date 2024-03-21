@@ -172,14 +172,6 @@ resource "azurerm_private_dns_a_record" "polaris_sacpspolaris_file_dns_a" {
   tags                = local.common_tags
 }
 
-resource "azapi_resource" "polaris_sacpspolaris_gateway_file_share" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "polaris-gateway-content-share"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
-
-  depends_on = [azurerm_storage_account.sacpspolaris]
-}
-
 resource "azapi_resource" "polaris_sacpspolaris_gateway_staging1_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-gateway-content-share-1"
@@ -207,22 +199,6 @@ resource "azapi_resource" "polaris_sacpspolaris_ui_file_share" {
 resource "azapi_resource" "polaris_sacpspolaris_ui_staging1_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-ui-content-share-1"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
-
-  depends_on = [azurerm_storage_account.sacpspolaris]
-}
-
-resource "azapi_resource" "polaris_sacpspolaris_auth_handover_file_share" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "polaris-auth-handover-content-share"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
-
-  depends_on = [azurerm_storage_account.sacpspolaris]
-}
-
-resource "azapi_resource" "polaris_sacpspolaris_auth_handover_staging1_file_share" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "polaris-auth-handover-content-share-1"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
 
   depends_on = [azurerm_storage_account.sacpspolaris]

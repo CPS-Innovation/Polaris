@@ -154,9 +154,3 @@ resource "azapi_resource" "pipeline_sa_coordinator_file_share" {
   name      = "pipeline-coordinator-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
 }
-
-resource "azapi_resource" "pipeline_sa_coordinator_file_share_staging1" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-coordinator-content-share-1"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
-}
