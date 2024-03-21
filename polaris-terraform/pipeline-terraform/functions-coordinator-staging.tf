@@ -27,13 +27,9 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "HostType"                                        = "Staging1"
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"          = "" #set by script
     # "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
-    # "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
-    "PolarisPipelineTextExtractorFunctionAppKey"      = "" #set by script
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
     "SlidingClearDownInputHours"                      = var.sliding_clear_down.look_back_hours
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs

@@ -32,7 +32,7 @@ namespace coordinator.Clients.PdfGenerator
 
         public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
-            var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactPdfFunctionAppKey]}", correlationId);
+            var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             request.Headers.Add(FiletypeKey, fileType.ToString());
 

@@ -18,7 +18,6 @@ namespace coordinator.Clients.TextExtractor
         public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId)
         {
             var request = new HttpRequestMessage(httpMethod, requestUri);
-            request.Headers.Add(HttpHeaderKeys.FunctionsKey, _configuration[Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey]);
             request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
 
             return request;

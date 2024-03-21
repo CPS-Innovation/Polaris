@@ -30,8 +30,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorDurableExtensionCode"  = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.durabletask_extension_key
-    "PolarisPipelineCoordinatorFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.default_function_key
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
@@ -122,7 +120,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["DdeiBaseUrl"],
       app_settings["HostType"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
-      app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
       app_settings["PolarisPipelineCoordinatorFunctionAppKey"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["TenantId"],

@@ -77,7 +77,7 @@ namespace pdf_redactor.integration.tests
 
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IRequestFactory, RequestFactory>();
-            services.AddHttpClient<PdfRedactorClient.IPdfRedactorClient, PdfRedactorClient.PdfRedactorClient>(client =>
+            services.AddHttpClient<PdfRedactorClient.IPdfRedactorClient, Clients.PdfRedactorClient>(client =>
             {
                 client.BaseAddress = new Uri(redactorUrl);
             });

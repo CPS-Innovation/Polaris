@@ -37,7 +37,7 @@ namespace coordinator.Clients.PdfRedactor
       {
         var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
-        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactorPdfFunctionAppKey]}", correlationId);
+        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}", correlationId);
         request.Content = requestMessage;
 
         response = await _httpClient.SendAsync(request);
@@ -65,7 +65,7 @@ namespace coordinator.Clients.PdfRedactor
       {
         var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
-        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetPdfRedactorPath(caseUrn, caseId, documentId)}?code={_configuration[Constants.ConfigKeys.PipelineRedactorPdfFunctionAppKey]}", correlationId);
+        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetPdfRedactorPath(caseUrn, caseId, documentId)}", correlationId);
         request.Content = requestMessage;
 
         var response = await _httpClient.SendAsync(request);

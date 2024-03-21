@@ -10,10 +10,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Net;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using coordinator.Constants;
-using Common.Wrappers;
-
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Configuration;
@@ -25,9 +21,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
 {
     public class ClientTests
     {
-        private readonly RedactPdfRequestDto _request;
         private readonly Mock<IRequestFactory> _mockRequestFactory;
-        private readonly string _polarisPipelineRedactPdfFunctionAppKey;
         private readonly Fixture _fixture;
         private readonly Guid _correlationId;
         private readonly string _caseUrn;
@@ -35,8 +29,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
         private readonly string _documentId;
         private readonly string _versionId;
         private readonly IPdfGeneratorClient _pdfGeneratorClient;
-        private Mock<HttpMessageHandler> _mockHttpMessageHandler;
-        private Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
+        private readonly Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _httpResponseMessage;
 
@@ -44,7 +37,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
         {
             _fixture = new Fixture();
 
-            _request = _fixture.Create<RedactPdfRequestDto>();
+            _fixture.Create<RedactPdfRequestDto>();
             _mockRequestFactory = new Mock<IRequestFactory>();
             _correlationId = _fixture.Create<Guid>();
             _caseUrn = _fixture.Create<string>();
@@ -52,18 +45,15 @@ namespace coordinator.Tests.Clients.PdfGenerator
             _documentId = _fixture.Create<string>();
             _versionId = _fixture.Create<string>();
 
-            _polarisPipelineRedactPdfFunctionAppKey = _fixture.Create<string>();
             var mockConfiguration = new Mock<IConfiguration>();
             _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
-
-            mockConfiguration.Setup(config => config[ConfigKeys.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
 
             _httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Put
             };
 
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>(), null)).Returns(_httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}", It.IsAny<Guid>(), null)).Returns(_httpRequestMessage);
 
             var response = _fixture.Create<RedactPdfResponse>();
             _httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -71,15 +61,11 @@ namespace coordinator.Tests.Clients.PdfGenerator
                 Content = new StringContent(JsonConvert.SerializeObject(response))
             };
 
-            var stringContent = _httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-
-            var mockRedactionClientLogger = new Mock<ILogger<PdfGeneratorClient>>();
-
-            _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            _mockHttpMessageHandler.Protected()
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", _httpRequestMessage, ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(_httpResponseMessage);
-            var redactPdfHttpClient = new HttpClient(_mockHttpMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
+            var redactPdfHttpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
 
             _pdfGeneratorClient = new PdfGeneratorClient(
                 _mockRequestFactory.Object,
@@ -96,7 +82,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
             _httpResponseMessage.Content = new StringContent(expectedContent);
 
             _mockRequestFactory
-                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
+                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
                 .Returns(_httpRequestMessage);
 
             _mockHttpResponseMessageStreamFactory
@@ -107,7 +93,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
             // Assert
-            var responseText = new StreamReader(response, System.Text.Encoding.UTF8).ReadToEnd();
+            var responseText = await new StreamReader(response, System.Text.Encoding.UTF8).ReadToEndAsync();
             responseText.Should().Be(expectedContent);
         }
 
@@ -119,7 +105,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
             _httpResponseMessage.Content = new StringContent(expectedContent);
 
             _mockRequestFactory
-                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
+                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
                 .Returns(_httpRequestMessage);
 
             _mockHttpResponseMessageStreamFactory
@@ -139,12 +125,12 @@ namespace coordinator.Tests.Clients.PdfGenerator
         {
             // Arrange
             _mockRequestFactory
-                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}?code={_polarisPipelineRedactPdfFunctionAppKey}", It.Is<Guid>(g => g == _correlationId), null))
+                .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
                 .Returns(_httpRequestMessage);
             _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
             // Act
-            var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new System.IO.MemoryStream(), Common.Domain.Document.FileType.MSG);
+            var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
 
             await act.Should().ThrowAsync<HttpRequestException>();

@@ -516,23 +516,6 @@ stages:
               webAppName: $(AppServiceName)
               PreserveVnet: true
               
-      - job: Update_Pipeline_Component_App_Keys
-        dependsOn: Swap_Pipeline_Slots
-        displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        steps:
-          - template: tasks/task_update-app-keys-in-pipeline-components.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetName: "Update Pipeline Component App Keys"
-              targetSuffix: ""
-              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              armClientId: $(innovation-prod-spn-client-id)
-              armClientSecret: $(innovation-prod-spn-secret)
-              armTenantId: $(innovation-prod-spn-tenant-id)
-              armSubscriptionId: $(innovation-prod-subscription-id)
-
       - job: Swap_UI_Slots
         dependsOn: Pause_Pipeline
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))

@@ -31,7 +31,7 @@ namespace coordinator.Functions
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Consistent API parameters")]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Document)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req,
             string caseUrn,
             int caseId,
             string polarisDocumentId,
