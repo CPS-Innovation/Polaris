@@ -11,22 +11,22 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
-    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
-    "BlobExpirySecs"                                  = 3600
-    "BlobServiceContainerName"                        = "documents"
-    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobUserDelegationKeyExpirySecs"                 = 3600
-    "CoordinatorOrchestratorTimeoutSecs"              = "600"
-    "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging1"
-    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                   = "" #set by script
-    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
-    "HostType"                                        = "Staging1"
-    "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
-    "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
+    "AzureWebJobs.ResetDurableState.Disabled"    = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled" = var.sliding_clear_down.disabled
+    "AzureWebJobsStorage"                        = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "BlobExpirySecs"                             = 3600
+    "BlobServiceContainerName"                   = "documents"
+    "BlobServiceUrl"                             = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobUserDelegationKeyExpirySecs"            = 3600
+    "CoordinatorOrchestratorTimeoutSecs"         = "600"
+    "CoordinatorTaskHub"                         = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging1"
+    "DdeiBaseUrl"                                = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                              = "" #set by script
+    "FUNCTIONS_EXTENSION_VERSION"                = "~4"
+    "FUNCTIONS_WORKER_RUNTIME"                   = "dotnet"
+    "HostType"                                   = "Staging1"
+    "OvernightClearDownSchedule"                 = var.overnight_clear_down.schedule
+    "PolarisPipelineRedactPdfBaseUrl"            = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     # "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"

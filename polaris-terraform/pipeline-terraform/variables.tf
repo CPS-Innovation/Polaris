@@ -68,8 +68,8 @@ variable "pipeline_logging" {
 
 variable "overnight_clear_down" {
   type = object({
-    disabled      = number
-    schedule      = string
+    disabled = number
+    schedule = string
   })
 }
 

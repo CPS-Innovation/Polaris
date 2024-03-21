@@ -1,14 +1,14 @@
-env                          = "qa"
-location                     = "UK South"
-environment_tag              = "qa"
-dns_server                   = "10.7.198.164"
+env             = "qa"
+location        = "UK South"
+environment_tag = "qa"
+dns_server      = "10.7.198.164"
 
 ui_component_service_plans = {
-  gateway_service_plan_sku           = "EP1"
-  gateway_always_ready_instances     = 1
-  gateway_maximum_scale_out_limit    = 10
-  spa_service_plan_sku               = "P1v2"
-  proxy_service_plan_sku             = "P1v2"
+  gateway_service_plan_sku        = "EP1"
+  gateway_always_ready_instances  = 1
+  gateway_maximum_scale_out_limit = 10
+  spa_service_plan_sku            = "P1v2"
+  proxy_service_plan_sku          = "P1v2"
 }
 
 polaris_webapp_details = {
@@ -45,14 +45,14 @@ is_redaction_service_offline = "false"
 
 feature_flag_hte_emails_on = "true"
 
-feature_flag_redaction_log = "true"
+feature_flag_redaction_log            = "true"
 feature_flag_redaction_log_under_over = "true"
-feature_flag_full_screen = "true"
-local_storage_expiry_days="30"
-redaction_log_user_group = ""
+feature_flag_full_screen              = "true"
+local_storage_expiry_days             = "30"
+redaction_log_user_group              = ""
 
 private_beta = {
-  sign_up_url = "https://forms.office.com/e/Af374akw0Q"
-  user_group  = "" // allow any user to see qa for e.g. demo purposes 
-  redaction_log_user_group="8fc75d71-3479-4a77-b33b-41fd26ec4960"
+  sign_up_url              = "https://forms.office.com/e/Af374akw0Q"
+  user_group               = "" // allow any user to see qa for e.g. demo purposes 
+  redaction_log_user_group = "8fc75d71-3479-4a77-b33b-41fd26ec4960"
 }
