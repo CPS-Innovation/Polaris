@@ -3,6 +3,8 @@ import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import {
   RedactionsData,
   readFromLocalStorage,
+  deleteFromLocalStorage,
+  addToLocalStorage,
 } from "../../presentation/case-details/utils/localStorageUtils";
 import { round } from "lodash";
 
@@ -103,4 +105,21 @@ export const getLocallySavedRedactionHighlights = (
     redactionsData.find((data) => data.documentId === documentId)
       ?.redactionHighlights ?? []
   );
+};
+
+export const handleRemoveLocallySavedRedactions = (
+  documentId: string,
+  caseId: number
+) => {
+  const redactionsData =
+    (readFromLocalStorage(caseId, "redactions") as RedactionsData) ?? [];
+
+  const newData = redactionsData.filter(
+    (data) => data.documentId !== documentId
+  );
+  if (newData.length) {
+    addToLocalStorage(caseId, "redactions", newData);
+    return;
+  }
+  deleteFromLocalStorage(caseId, "redactions");
 };

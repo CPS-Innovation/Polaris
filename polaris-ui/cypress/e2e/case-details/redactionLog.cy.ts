@@ -262,7 +262,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("rl-under-redaction-content").should("not.exist");
       cy.findByTestId("div-modal")
         .should("exist")
-        .contains("Failed to save redaction. Please try again later.");
+        .contains("Failed to save document. Please try again.");
       cy.findByTestId("btn-error-modal-ok").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");

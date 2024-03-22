@@ -1,9 +1,6 @@
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { resolvePdfUrl } from "../../api/gateway-api";
-import {
-  CaseDocumentViewModel,
-  ClientLockedState,
-} from "../../domain/CaseDocumentViewModel";
+import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { mapAccordionState } from "./map-accordion-state";
 import { CombinedState } from "../../domain/CombinedState";
 import { CaseDetails } from "../../domain/gateway/CaseDetails";
@@ -36,10 +33,7 @@ import {
   addToLocalStorage,
   deleteFromLocalStorage,
 } from "../../presentation/case-details/utils/localStorageUtils";
-import {
-  getRedactionsToSaveLocally,
-  getLocallySavedRedactionHighlights,
-} from "../utils/redactionUtils";
+import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 
