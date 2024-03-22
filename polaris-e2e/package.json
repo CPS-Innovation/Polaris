@@ -6,7 +6,7 @@
   "scripts": {
     "cy": "cypress open",
     "cy:run": "cypress run",
-    "cy:ci": "cypress run --env grepTags=@ci",
+    "cy:ci": "cypress run",
     "copy-domain": "cp -r ../polaris-ui/src/app/features/cases/domain/gateway ."
   },
   "repository": {
