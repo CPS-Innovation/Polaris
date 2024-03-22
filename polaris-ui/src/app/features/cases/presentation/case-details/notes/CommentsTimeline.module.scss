@@ -1,0 +1,43 @@
+.commentsTimeline {
+}
+
+.commentWrapper:not(:last-child) > .commentHead {
+  &::after {
+    background-color: #1d70b8;
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    margin-top: 0.55em;
+    padding-left: 0.3em;
+    z-index: 1;
+  }
+}
+.commentWrapper {
+  position: relative;
+  padding-left: 20px;
+
+  .commentHead {
+    &::before {
+      background-color: #1d70b8;
+      content: "";
+      padding-top: 0.3em;
+      padding-right: 15px;
+      left: 0;
+      position: absolute;
+      margin-top: 0.55em;
+      z-index: 1;
+    }
+  }
+
+  display: flex;
+  flex-direction: column;
+
+  .commentBody {
+    position: relative;
+    display: flex;
+    //
+    flex-direction: column;
+    // border-left: 6px solid red; // #1d70b8;
+  }
+}

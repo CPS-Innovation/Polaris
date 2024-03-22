@@ -1,0 +1,26 @@
+.notesPanel {
+  width: 400px;
+  background: #fff;
+}
+
+.notesHeader {
+  background: #f3f2f1;
+  border-bottom: 1px solid #b1b4b6;
+}
+.btnWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  width: 100%;
+  margin-top: 1.875rem;
+  padding: 0 1.875rem;
+}
+.cancelBtn {
+  margin-left: 1rem;
+  padding: 0.625rem;
+  &:hover:not(:disabled):not(:focus) {
+    color: #003078;
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+    background: transparent;
+  }
+}
