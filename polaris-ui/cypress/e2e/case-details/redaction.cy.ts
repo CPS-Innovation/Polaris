@@ -226,7 +226,14 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("rl-under-redaction-content").should("not.exist");
     cy.findByTestId("div-modal")
       .should("exist")
-      .contains("Failed to save redaction. Please try again later.");
+      .contains("Failed to save document. Please try again.");
+    cy.findByTestId("div-modal").contains(
+      "Your redactions have been saved and it will be possible to re-apply them next time you open this document."
+    );
+    cy.findByTestId("div-modal").contains(
+      "If re-trying is not successful, please notify the Casework App product team."
+    );
+
     cy.findByTestId("btn-error-modal-ok").click();
     cy.findByTestId("div-modal").should("not.exist");
     cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
