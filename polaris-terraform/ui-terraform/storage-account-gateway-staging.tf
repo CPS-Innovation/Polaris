@@ -1,4 +1,4 @@
-﻿resource "azurerm_storage_account" "sa_gateway" {
+﻿resource "azurerm_storage_account" "sa_gateway_staging1" {
   #checkov:skip=CKV_AZURE_206:Ensure that Storage Accounts use replication
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
@@ -68,8 +68,8 @@
 
 # PDF Generator Storage Account Private Endpoint and DNS Config
 # Create Private Endpoint for Blobs
-resource "azurerm_private_endpoint" "pipeline_sa_gateway_blob_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-blob-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_gateway_staging1_blob_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-blob-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
@@ -81,16 +81,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_gateway_blob_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-blob-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_gateway.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-blob-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_gateway_staging1.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
 }
 
 # Create Private Endpoint for Tables
-resource "azurerm_private_endpoint" "pipeline_sa_gateway_table_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-table-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_gateway_staging1_table_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-table-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
@@ -102,16 +102,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_gateway_table_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-table-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_gateway.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-table-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_gateway_staging1.id
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
 }
 
 # Create Private Endpoint for Files
-resource "azurerm_private_endpoint" "pipeline_sa_gateway_file_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-file-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_gateway_staging1_file_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-file-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
@@ -123,16 +123,16 @@ resource "azurerm_private_endpoint" "pipeline_sa_gateway_file_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-file-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_gateway.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-file-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_gateway_staging1.id
     is_manual_connection           = false
     subresource_names              = ["file"]
   }
 }
 
 # Create Private Endpoint for Queues
-resource "azurerm_private_endpoint" "pipeline_sa_gateway_queue_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-queue-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_gateway_staging1_queue_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-queue-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
@@ -144,15 +144,15 @@ resource "azurerm_private_endpoint" "pipeline_sa_gateway_queue_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-queue-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_gateway.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}gateway-staging1-queue-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_gateway_staging1.id
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
 }
 
-resource "azapi_resource" "polaris_sa_gateway_file_share" {
+resource "azapi_resource" "polaris_sa_gateway_staging1_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-gateway-content-share"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_gateway.name}/fileServices/default"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_gateway_staging1.name}/fileServices/default"
 }
