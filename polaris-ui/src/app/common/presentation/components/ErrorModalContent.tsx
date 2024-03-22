@@ -41,7 +41,7 @@ export const ErrorModalContent: React.FC<ErrorModalContentProps> = ({
     }
   }, []);
   const messageParagraphs = message
-    .split("<p>")
+    .split("</p>")
     .map((item) => item.replace("</p>", ""));
   return (
     <div className={classes.errorModalContent}>

@@ -54,8 +54,17 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
 
   const description = useMemo(() => {
     return locallySavedRedactionHighlights.length === 1
-      ? "You have 1 unsaved redaction on this document, would you like to apply it?"
-      : `You have ${locallySavedRedactionHighlights.length} unsaved redactions on this document, would you like to apply it?`;
+      ? {
+          para1:
+            "You have 1 unsaved redaction on this document, select OK to apply it.",
+          para2:
+            "If you do not want to apply the unsaved redaction, select Ignore. Please note: It will not be possible to recover the unsaved redaction if you select this option.",
+        }
+      : {
+          para1: `You have ${locallySavedRedactionHighlights.length} unsaved redactions on this document, select OK to apply them.`,
+          para2:
+            "If you do not want to apply the unsaved redactions, select Ignore. Please note: It will not be possible to recover the unsaved redactions if you select this option.",
+        };
   }, [locallySavedRedactionHighlights]);
 
   return (
@@ -65,7 +74,7 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
           isVisible={true}
           className={classes.unsavedRedactionModal}
           ariaLabel="add unsaved redactions modal"
-          ariaDescription={description}
+          ariaDescription={`${description.para1}${description.para2}`}
           defaultLastFocus={
             document.querySelector("#active-tab-panel") as HTMLElement
           }
@@ -80,17 +89,18 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
           <div className={classes.contentWrapper}>
             <div>
               <span data-testid="unsaved-redactions-description">
-                {description}
+                <p>{description.para1}</p>
+                <p>{description.para2}</p>
               </span>
             </div>
 
             <div className={classes.actionWrapper}>
               <Button
-                className={classes.applyBtn}
+                className={classes.okBtn}
                 onClick={handleApplyRedaction}
                 data-testid="btn-apply-redaction"
               >
-                Apply
+                OK
               </Button>
               <LinkButton
                 className={classes.ignoreBtn}

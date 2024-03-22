@@ -144,8 +144,13 @@ describe("Save User Data", () => {
 
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 2 unsaved redactions on this document, would you like to apply it?"
+        "You have 2 unsaved redactions on this document, select OK to apply them."
       );
+
+      cy.findAllByTestId("unsaved-redactions-description").contains(
+        "If you do not want to apply the unsaved redactions, select Ignore. Please note: It will not be possible to recover the unsaved redactions if you select this option."
+      );
+
       cy.findByTestId("redaction-count-text-0").should("not.exist");
       cy.findAllByTestId("btn-apply-redaction").click();
       cy.findByTestId("redaction-count-text-0").contains(
@@ -169,7 +174,7 @@ describe("Save User Data", () => {
 
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 2 unsaved redactions on this document, would you like to apply it?"
+        "You have 2 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-0").should("not.exist");
       cy.findAllByTestId("btn-apply-redaction").click();
@@ -194,7 +199,7 @@ describe("Save User Data", () => {
 
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 2 unsaved redactions on this document, would you like to apply it?"
+        "You have 2 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-0").should("not.exist");
       cy.findAllByTestId("btn-ignore-redaction").click();
@@ -210,7 +215,7 @@ describe("Save User Data", () => {
         .contains("Page1 Portrait");
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 3 unsaved redactions on this document, would you like to apply it?"
+        "You have 3 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-1").should("not.exist");
       cy.findAllByTestId("btn-apply-redaction").click();
@@ -233,7 +238,7 @@ describe("Save User Data", () => {
         .contains("Page1 Portrait");
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 3 unsaved redactions on this document, would you like to apply it?"
+        "You have 3 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-1").should("not.exist");
       cy.findAllByTestId("btn-apply-redaction").click();
@@ -256,7 +261,7 @@ describe("Save User Data", () => {
         .contains("Page1 Portrait");
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 3 unsaved redactions on this document, would you like to apply it?"
+        "You have 3 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-1").should("not.exist");
       cy.findAllByTestId("btn-ignore-redaction").click();
@@ -328,7 +333,7 @@ describe("Save User Data", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 2 unsaved redactions on this document, would you like to apply it?"
+        "You have 2 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-0").should("not.exist");
       cy.findAllByTestId("btn-apply-redaction").click();
@@ -363,7 +368,7 @@ describe("Save User Data", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 4 unsaved redactions on this document, would you like to apply it?"
+        "You have 4 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-0").should("not.exist");
       cy.findAllByTestId("btn-apply-redaction").click();
@@ -425,7 +430,7 @@ describe("Save User Data", () => {
 
       cy.findAllByTestId("div-modal").should("exist");
       cy.findAllByTestId("unsaved-redactions-description").contains(
-        "You have 2 unsaved redactions on this document, would you like to apply it?"
+        "You have 2 unsaved redactions on this document, select OK to apply them."
       );
       cy.findByTestId("redaction-count-text-0").should("not.exist");
       cy.findAllByTestId("btn-apply-redaction").click();

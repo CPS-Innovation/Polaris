@@ -323,7 +323,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             type: "saveredaction",
             title: "Something went wrong!",
-            message: "Failed to save redaction. Please try again later.",
+            message:
+              "Failed to save document. Please try again. </p> Your redactions have been saved and it will be possible to re-apply them next time you open this document.</p> If re-trying is not successful, please notify the Casework App product team.",
           },
         });
         dispatch({
