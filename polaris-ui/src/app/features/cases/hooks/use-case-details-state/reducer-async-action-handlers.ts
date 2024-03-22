@@ -334,13 +334,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
               "Failed to save redaction. The document is too large to redact.";
             break;
         }
-        
+
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
             type: "saveredaction",
             title: "Something went wrong!",
-            message: errorMessage
+            message: errorMessage,
           },
         });
         dispatch({
