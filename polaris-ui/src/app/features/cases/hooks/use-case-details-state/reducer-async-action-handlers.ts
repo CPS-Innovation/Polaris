@@ -81,6 +81,7 @@ type AsyncActions =
 
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
+export const DOCUMENT_TOO_LARGE_STATUS_CODE = 413;
 
 export const reducerAsyncActionHandlers: AsyncActionHandlers<
   Reducer<State, Action>,
@@ -321,16 +322,25 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
       } catch (e) {
         const { code } = e as ApiError;
+        let errorMessage = "Failed to save redaction. Please try again later.";
 
+        switch (code) {
+          case DOCUMENT_NOT_FOUND_STATUS_CODE:
+            errorMessage =
+              "Failed to save redaction. The document no longer exists in CMS.";
+            break;
+          case DOCUMENT_TOO_LARGE_STATUS_CODE:
+            errorMessage =
+              "Failed to save redaction. The document is too large to redact.";
+            break;
+        }
+        
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
             type: "saveredaction",
             title: "Something went wrong!",
-            message:
-              code === DOCUMENT_NOT_FOUND_STATUS_CODE
-                ? "Failed to save redaction. The document no longer exists in CMS."
-                : "Failed to save redaction. Please try again later.",
+            message: errorMessage
           },
         });
         dispatch({

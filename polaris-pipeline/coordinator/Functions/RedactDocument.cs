@@ -22,6 +22,7 @@ using coordinator.Clients.PdfRedactor;
 using coordinator.Factories.UploadFileNameFactory;
 using System.IO;
 using Common.Streaming;
+using System.Net;
 
 namespace coordinator.Functions
 {
@@ -133,10 +134,9 @@ namespace coordinator.Functions
 
                 var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);
 
-                if (!ddeiResult.IsSuccess)
+                if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
                 {
-                    // if the document no longer exists in cms
-                    return new StatusCodeResult(StatusCodes.Status410Gone);
+                    return new StatusCodeResult((int)ddeiResult.StatusCode);
                 }
 
                 return new OkResult();

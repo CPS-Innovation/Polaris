@@ -16,6 +16,6 @@ namespace DdeiClient.Services
         Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId);
         Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
         Task CancelCheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
-        Task<DdeiUploadDocumentDto> UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream);
+        Task<HttpResponseMessage> UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream);
     }
 }
