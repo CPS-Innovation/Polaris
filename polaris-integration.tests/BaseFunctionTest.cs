@@ -12,7 +12,6 @@ namespace polaris_integration.tests
         protected static string _polarisGatewayUrl;
         protected static string _polarisGatewayCode;
         protected static string _polarisCoordinatorUrl;
-        protected static string _polarisCoordinatorCode;
 
         private string _adToken;
         private string _cmsAuth;
@@ -31,7 +30,6 @@ namespace polaris_integration.tests
             _polarisGatewayUrl = _config["BaseUrls:PolarisGatewayUrl"];
             _polarisGatewayCode = _config["BaseUrls:PolarisGatewayCode"];
             _polarisCoordinatorUrl = _config["BaseUrls:PolarisCoordinatorUrl"];
-            _polarisCoordinatorCode = _config["BaseUrls:PolarisCoordinatorCode"];
 
             //StartHost("polaris-gateway\\polaris-gateway", 7075);
             //StartHost("polaris-pipeline\\coordinator", 7072);

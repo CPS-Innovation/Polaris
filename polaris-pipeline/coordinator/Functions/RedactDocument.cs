@@ -60,7 +60,7 @@ namespace coordinator.Functions
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactDocument)]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)]
             HttpRequestMessage req,
             string caseUrn,
             string caseId,

@@ -25,19 +25,15 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                   = "" #set by script
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"          = "" #set by script
     # "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
-    # "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactorPdfFunctionAppKey"        = "" #set by script
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
-    "PolarisPipelineTextExtractorFunctionAppKey"      = "" #set by script
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
     "SlidingClearDownInputHours"                      = var.sliding_clear_down.look_back_hours
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
@@ -105,11 +101,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["DdeiAccessKey"],
       app_settings["OvernightClearDownSchedule"],
       app_settings["PolarisPipelineRedactPdfBaseUrl"],
-      app_settings["PolarisPipelineRedactPdfFunctionAppKey"],
       app_settings["PolarisPipelineRedactorPdfBaseUrl"],
-      app_settings["PolarisPipelineRedactorPdfFunctionAppKey"],
       app_settings["PolarisPipelineTextExtractorBaseUrl"],
-      app_settings["PolarisPipelineTextExtractorFunctionAppKey"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["SlidingClearDownInputHours"],
       app_settings["SlidingClearDownProtectBlobs"],

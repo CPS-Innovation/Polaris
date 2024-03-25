@@ -33,7 +33,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(WaitForCaseEmptyResults))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.WaitForCaseEmptyResults)] HttpRequestMessage request, long caseId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.WaitForCaseEmptyResults)] HttpRequestMessage request, long caseId)
         {
             Guid correlationId = default;
 

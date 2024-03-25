@@ -31,11 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DdeiServer", "DdeiServer", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-ddei-mock", "polaris-ddei-mock\polaris-ddei-mock.csproj", "{56B9FB84-6ABB-4F1E-BFB1-461427617250}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-integration.tests", "polaris-integration.tests", "{B4BB7C42-9CA4-4DC3-A4A7-57E969A8A510}"
-	ProjectSection(SolutionItems) = preProject
-		polaris-integration.tests\BaseCoordinatorScalingTest.cs = polaris-integration.tests\BaseCoordinatorScalingTest.cs
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator.test-harness", "polaris-pipeline\pdf-generator.test-harness\pdf-generator.test-harness.csproj", "{2B74B1CD-3739-48EF-AC63-9BCE6F5F3DB4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DdeiClient.tests", "polaris-pipeline\DdeiClient.tests\DdeiClient.tests.csproj", "{D2C07576-2FCE-482B-AB22-D902E7282BDF}"
