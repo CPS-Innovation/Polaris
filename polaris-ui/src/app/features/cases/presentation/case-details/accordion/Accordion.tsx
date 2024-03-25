@@ -14,6 +14,7 @@ type Props = {
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (id: string) => void;
 };
 
 export const Accordion: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const Accordion: React.FC<Props> = ({
   accordionState: sections,
   readUnreadData,
   handleOpenPdf,
+  handleOpenNotes,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
@@ -65,6 +67,7 @@ export const Accordion: React.FC<Props> = ({
           activeDocumentId={activeDocumentId}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
+          handleOpenNotes={handleOpenNotes}
         />
       ))}
     </div>

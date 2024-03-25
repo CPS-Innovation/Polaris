@@ -1,11 +1,43 @@
 .notesPanel {
-  width: 400px;
+  width: 100%;
   background: #fff;
+  position: relative;
 }
 
 .notesHeader {
   background: #f3f2f1;
   border-bottom: 1px solid #b1b4b6;
+}
+.notesTextArea {
+  position: relative;
+  padding-left: 20px;
+  & :global(.govuk-textarea) {
+    min-height: 230px;
+  }
+
+  .addNoteHeading {
+    margin-bottom: 0;
+    &::before {
+      background-color: #1d70b8;
+      content: "";
+      padding-top: 0.25em;
+      padding-right: 15px;
+      left: 0;
+      position: absolute;
+      margin-top: 8px;
+      z-index: 1;
+    }
+  }
+  &::before {
+    background-color: #1d70b8;
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    margin-top: 12px;
+    padding-left: 0.25em;
+    z-index: 1;
+  }
 }
 .btnWrapper {
   display: flex;
@@ -23,4 +55,7 @@
     text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
     background: transparent;
   }
+}
+.textAreaLabel {
+  display: none;
 }

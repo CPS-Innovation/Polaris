@@ -48,6 +48,7 @@ type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [inFullScreen, setInFullScreen] = useState(false);
+  const [openNotes, setOpenNotes] = useState(false);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -156,6 +157,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const dacDocumentId = getDACDocumentId(
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
+
+  console.log("openNotes>>>", openNotes);
 
   return (
     <>
@@ -292,7 +295,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          {!inFullScreen && (
+          {!inFullScreen && !openNotes && (
             <div
               role="region"
               aria-labelledby="side-panel-region-label"
@@ -346,12 +349,23 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
+                    handleOpenNotes={() => setOpenNotes(true)}
                   />
                 )}
               </div>
             </div>
           )}
-          <NotesPanel />
+          {openNotes && (
+            <div
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+            >
+              <NotesPanel
+                handleCloseNotes={() => {
+                  setOpenNotes(false);
+                }}
+              />
+            </div>
+          )}
           {!!tabsState.items.length && featureFlags.fullScreen && (
             <div className={classes.resizeBtnWrapper}>
               <Tooltip

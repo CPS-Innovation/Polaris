@@ -16,6 +16,7 @@ type Props = {
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (id: string) => void;
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -34,6 +35,7 @@ export const AccordionSection: React.FC<Props> = ({
   readUnreadData,
   handleToggleOpenSection,
   handleOpenPdf,
+  handleOpenNotes,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -85,6 +87,7 @@ export const AccordionSection: React.FC<Props> = ({
                     readUnreadData={readUnreadData}
                     activeDocumentId={activeDocumentId}
                     handleOpenPdf={handleOpenPdf}
+                    handleOpenNotes={handleOpenNotes}
                   />
                 ))}
               </ul>

@@ -16,8 +16,10 @@
 .commentWrapper {
   position: relative;
   padding-left: 20px;
+  padding-bottom: 30px;
 
   .commentHead {
+    margin: 0;
     &::before {
       background-color: #1d70b8;
       content: "";

@@ -34,7 +34,7 @@ export const CommentsTimeline: React.FC<CommentsTimelineProps> = ({
     <div className={classes.commentsTimeline}>
       {comments.map((comment) => (
         <div className={classes.commentWrapper}>
-          <h3 className={classes.commentHead}>{comment.username}</h3>
+          <h4 className={classes.commentHead}>{comment.username}</h4>
           <div className={classes.commentBody}>
             <span>{comment.date}</span>
             <span>{comment.description}</span>
