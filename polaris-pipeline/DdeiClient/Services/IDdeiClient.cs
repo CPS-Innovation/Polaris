@@ -16,5 +16,7 @@ namespace DdeiClient.Services
         Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
         Task CancelCheckoutDocumentAsync(DdeiCmsDocumentArgDto arg);
         Task UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream);
+        Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg);
+        Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg);
     }
 }

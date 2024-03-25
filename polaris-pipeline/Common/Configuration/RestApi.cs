@@ -15,6 +15,10 @@ namespace Common.Configuration
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
+        public const string AddNoteToDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentCategory}/{documentId}/notes";
+
+        // Documents (plural)
+        public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentCategory}/{documentId}/notes";
 
         // Other
         public const string AuthInitialisation = "init";
@@ -65,6 +69,11 @@ namespace Common.Configuration
         public static string GetDocumentCheckoutPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
+        }
+
+        public static string GetDocumentNotesPath(string caseUrn, long caseId, string documentCategory, int documentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentCategory}/{documentId}/notes";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)

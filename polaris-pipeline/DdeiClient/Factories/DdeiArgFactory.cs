@@ -64,5 +64,32 @@ namespace Ddei.Factories
                 VersionId = versionId
             };
         }
+
+        public DdeiCmsDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentCategory, string documentId)
+        {
+            return new DdeiCmsDocumentNotesArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentCategory = documentCategory,
+                DocumentId = documentId
+            };
+        }
+
+        public DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentCategory, int documentId, string text)
+        {
+            return new DdeiCmsAddDocumentNoteArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentCategory = documentCategory,
+                DocumentId = documentId,
+                Text = text
+            };
+        }
     }
 }

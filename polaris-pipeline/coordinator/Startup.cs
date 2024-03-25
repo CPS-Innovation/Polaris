@@ -1,35 +1,35 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net.Http.Headers;
-using Common.Configuration;
-using Common.Services;
-using Common.Wrappers;
-using coordinator;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FluentValidation;
+using coordinator;
+using coordinator.Constants;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Providers;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
+using coordinator.Mappers;
+using coordinator.Services.CleardownService;
+using coordinator.Services.DocumentToggle;
+using coordinator.Services.RenderHtmlService;
+using coordinator.Services.TextExtractService;
+using coordinator.Validators;
 using Common.Domain.Validators;
 using Common.Dto.Request;
-using Ddei.Services.Extensions;
 using Common.Handlers;
-using coordinator.Constants;
-using coordinator.Services.RenderHtmlService;
-using coordinator.Mappers;
-using Common.Telemetry;
-using coordinator.Durable.Providers;
-using coordinator.Validators;
-using coordinator.Services.DocumentToggle;
+using Common.Services;
 using Common.Streaming;
-using coordinator.Services.TextExtractService;
-using coordinator.Services.CleardownService;
-using coordinator.Durable.Payloads;
-using coordinator.Functions.DurableEntity.Entity.Mapper;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Common.Telemetry;
+using Common.Wrappers;
+using Ddei.Services.Extensions;
+using FluentValidation;
+
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
-using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -91,6 +91,7 @@ namespace coordinator
             services.AddTransient<ITextExtractService, TextExtractService>();
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            services.AddScoped<IValidator<AddDocumentNoteDto>, DocumentNoteValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();

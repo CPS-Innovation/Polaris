@@ -1,16 +1,16 @@
-﻿using Common.Dto.Response;
-using Ddei.Factories.Contracts;
+﻿using System.Net;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Common.Dto.Response;
+using Common.Streaming;
 using Ddei.Factories;
+using Ddei.Factories.Contracts;
 using Ddei.Mappers;
 using DdeiClient.Mappers;
 using DdeiClient.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http.Headers;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
-using System.Net;
-using Common.Streaming;
 
 namespace Ddei.Services.Extensions
 {
@@ -38,6 +38,8 @@ namespace Ddei.Services.Extensions
             services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, CaseDocumentMapper>();
+            services.AddTransient<ICaseDocumentNoteMapper, CaseDocumentNoteMapper>();
+            services.AddTransient<ICaseDocumentNoteResultMapper, CaseDocumentNoteResultMapper>();
             services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             services.AddTransient<ICaseIdentifiersMapper, CaseIdentifiersMapper>();
             services.AddTransient<ICmsAuthValuesMapper, CmsAuthValuesMapper>();
