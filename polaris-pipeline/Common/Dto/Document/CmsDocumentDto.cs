@@ -33,6 +33,9 @@ namespace Common.Dto.Document
         public int? WitnessId { get; set; }
 
         public PresentationFlagsDto PresentationFlags { get; set; }
+
         public bool HasFailedAttachments { get; set; }
+
+        public bool HasNotes { get; set; }
     }
 }

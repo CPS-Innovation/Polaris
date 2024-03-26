@@ -51,6 +51,10 @@ public class DdeiCaseDocumentResponse
 
     [JsonProperty("witnessId")]
     public int? WitnessId { get; set; }
+
     [JsonProperty("hasFailedAttachments")]
     public bool HasFailedAttachments { get; set; }
+
+    [JsonProperty("hasNotes")]
+    public bool HasNotes { get; set; }
 }
