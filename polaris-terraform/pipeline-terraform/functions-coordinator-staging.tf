@@ -1,8 +1,8 @@
 resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_coordinator.id
-  storage_account_name          = azurerm_storage_account.sa_coordinator.name
-  storage_account_access_key    = azurerm_storage_account.sa_coordinator.primary_access_key
+  storage_account_name          = azurerm_storage_account.sa_coordinator_staging1.name
+  storage_account_access_key    = azurerm_storage_account.sa_coordinator_staging1.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_coordinator_subnet.id
   functions_extension_version   = "~4"
   https_only                    = true
@@ -13,7 +13,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   app_settings = {
     "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
     "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator_staging1.primary_connection_string
     "BlobExpirySecs"                                  = 3600
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
@@ -36,7 +36,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
     "SlidingClearDownBatchSize"                       = var.sliding_clear_down.batch_size
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator_staging1.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_coordinator_file_share_staging1.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -80,7 +80,9 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["AzureWebJobsStorage"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"]
     ]
   }
 }
