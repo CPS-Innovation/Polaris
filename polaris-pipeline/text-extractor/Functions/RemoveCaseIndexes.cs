@@ -33,7 +33,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(RemoveCaseIndexes))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequestMessage request, long caseId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequestMessage request, long caseId)
         {
             Guid correlationId = default;
 

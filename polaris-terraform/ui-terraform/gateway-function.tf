@@ -4,8 +4,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
   service_plan_id               = azurerm_service_plan.asp_polaris_gateway.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
+  storage_account_name          = azurerm_storage_account.sa_gateway.name
+  storage_account_access_key    = azurerm_storage_account.sa_gateway.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_gateway_subnet.id
   functions_extension_version   = "~4"
   public_network_access_enabled = false
@@ -14,7 +14,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_gateway.primary_connection_string
     "BlobContainerName"                               = "documents"
     "BlobExpirySecs"                                  = 3600
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
@@ -30,14 +30,12 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorDurableExtensionCode"  = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.durabletask_extension_key
-    "PolarisPipelineCoordinatorFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.default_function_key
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
-    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sa_gateway_file_share.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
@@ -122,8 +120,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["DdeiBaseUrl"],
       app_settings["HostType"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
-      app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
-      app_settings["PolarisPipelineCoordinatorFunctionAppKey"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["TenantId"],
       app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
@@ -144,7 +140,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     ]
   }
 
-  depends_on = [azurerm_storage_account.sacpspolaris, azapi_resource.polaris_sacpspolaris_gateway_file_share]
+  depends_on = [azurerm_storage_account.sa_gateway, azapi_resource.polaris_sa_gateway_file_share]
 }
 
 module "azurerm_app_reg_fa_polaris" {

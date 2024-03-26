@@ -53,7 +53,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(ExtractText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Extract)] HttpRequestMessage request,
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequestMessage request,
             string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;

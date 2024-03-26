@@ -1,8 +1,8 @@
 resource "azurerm_windows_function_app_slot" "fa_pdf_redactor_staging1" {
   name                          = "staging1"
   function_app_id               = azurerm_windows_function_app.fa_pdf_redactor.id
-  storage_account_name          = azurerm_storage_account.sa_pdf_redactor.name
-  storage_account_access_key    = azurerm_storage_account.sa_pdf_redactor.primary_access_key
+  storage_account_name          = azurerm_storage_account.sa_pdf_redactor_staging1.name
+  storage_account_access_key    = azurerm_storage_account.sa_pdf_redactor_staging1.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_pdfredactor_subnet.id
   functions_extension_version   = "~4"
   https_only                    = true
@@ -11,7 +11,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_redactor_staging1" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_redactor.primary_connection_string
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_redactor_staging1.primary_connection_string
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
@@ -22,7 +22,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_redactor_staging1" {
     "ImageConversion__QualityPercent"                 = var.image_conversion_redaction.quality_percent
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.pdf_redactor_scale_controller
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_pdf_redactor.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_pdf_redactor_staging1.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_pdf_redactor_file_share_staging1.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -68,7 +68,9 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_redactor_staging1" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["AzureWebJobsStorage"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"]
     ]
   }
 }

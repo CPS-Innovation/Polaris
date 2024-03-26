@@ -32,7 +32,7 @@ public class ResetDurableStateHardDelete
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<HttpResponseMessage> ResetDurableState(
-        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestMessage req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestMessage req,
         [DurableClient] IDurableClient client)
     {
         var connString = _nameResolver.Resolve("AzureWebJobsStorage");
