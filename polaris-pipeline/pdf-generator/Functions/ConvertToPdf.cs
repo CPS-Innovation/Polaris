@@ -43,7 +43,7 @@ namespace pdf_generator.Functions
         [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [Function(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
             string caseUrn, string caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;

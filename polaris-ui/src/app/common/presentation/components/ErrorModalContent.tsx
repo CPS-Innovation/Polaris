@@ -28,10 +28,20 @@ export const ErrorModalContent: React.FC<ErrorModalContentProps> = ({
           documentId: contextData?.documentId,
         });
         break;
+      case "documentcheckout":
+        trackEvent("Document Checkout Error", {
+          documentId: contextData?.documentId,
+        });
+        break;
+      case "documentalreadycheckedout":
+        trackEvent("Document Checked Out By Another User Error", {
+          documentId: contextData?.documentId,
+        });
+        break;
     }
   }, []);
   const messageParagraphs = message
-    .split("<p>")
+    .split("</p>")
     .map((item) => item.replace("</p>", ""));
   return (
     <div className={classes.errorModalContent}>

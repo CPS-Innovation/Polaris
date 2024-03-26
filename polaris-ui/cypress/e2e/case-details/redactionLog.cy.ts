@@ -262,7 +262,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("rl-under-redaction-content").should("not.exist");
       cy.findByTestId("div-modal")
         .should("exist")
-        .contains("Failed to save redaction. Please try again later.");
+        .contains("Failed to save document. Please try again.");
       cy.findByTestId("btn-error-modal-ok").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
@@ -353,7 +353,9 @@ describe("Redaction Log", () => {
         .get("li:nth-child(1)")
         .should("contain", "2 - Relationships to others");
 
-      cy.findByTestId("redaction-log-notes").type("hello notes");
+      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
+        cy.findByTestId("redaction-log-notes").type("hello notes")
+      );
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
 
@@ -642,7 +644,9 @@ describe("Redaction Log", () => {
       );
       cy.get(`#checkbox-overRedaction-type-4`).click();
 
-      cy.findByTestId("redaction-log-notes").type("test notes");
+      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
+        cy.findByTestId("redaction-log-notes").type("test notes")
+      );
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
     });
@@ -670,7 +674,10 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-under-redaction`).click();
       cy.get(`#checkbox-underRedaction-type-1`).click();
       cy.get(`#checkbox-underRedaction-type-5`).click();
-      cy.findByTestId("redaction-log-notes").type("hello");
+      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
+        cy.findByTestId("redaction-log-notes").type("hello")
+      );
+
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
 
@@ -707,7 +714,9 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-over-redaction`).click();
       cy.get(`#checkbox-overRedaction-type-2`).click();
       cy.get(`#checkbox-overRedaction-type-6`).click();
-      cy.findByTestId("redaction-log-notes").type("hello notes");
+      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
+        cy.findByTestId("redaction-log-notes").type("hello notes")
+      );
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
 
@@ -793,7 +802,9 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-over-redaction`).click();
       cy.get(`#checkbox-overRedaction-type-2`).click();
       cy.get(`#checkbox-overRedaction-type-6`).click();
-      cy.findByTestId("redaction-log-notes").type("hello notes");
+      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
+        cy.findByTestId("redaction-log-notes").type("hello notes")
+      );
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("rl-under-over-redaction-content").should("not.exist");
 
@@ -849,7 +860,9 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-over-redaction`).click();
       cy.get(`#checkbox-overRedaction-type-2`).click();
       cy.get(`#checkbox-overRedaction-type-6`).click();
-      cy.findByTestId("redaction-log-notes").type(notes400CharacterText);
+      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
+        cy.findByTestId("redaction-log-notes").type(notes400CharacterText)
+      );
       cy.realPress(".");
       cy.get("#redaction-log-notes-info")
         .contains("You have 1 character too many")
@@ -867,7 +880,8 @@ describe("Redaction Log", () => {
         "have.text",
         "Error: Supporting notes must be 400 characters or less"
       );
-      cy.findByTestId("redaction-log-notes").type("{backspace}");
+      cy.findByTestId("redaction-log-notes").focus();
+      cy.realPress("{backspace}");
       cy.realPress("{backspace}");
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");

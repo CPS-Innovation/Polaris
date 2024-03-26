@@ -27,8 +27,6 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorDurableExtensionCode"  = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.durabletask_extension_key
-    "PolarisPipelineCoordinatorFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.default_function_key
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
@@ -37,7 +35,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_gateway_staging1_file_share.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"

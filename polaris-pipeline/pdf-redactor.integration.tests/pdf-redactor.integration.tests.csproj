@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>pdf_redactor.integration.tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\pdf-redactor\pdf-redactor.csproj" />
+    <ProjectReference Include="..\coordinator\coordinator.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\image_document.pdf" />
+    <EmbeddedResource Include="Resources\image_document_page_1.png" />
+    <EmbeddedResource Include="Resources\image_document_page_2.png" />
+    <EmbeddedResource Include="Resources\image_document_redactions.json" />
+    <EmbeddedResource Include="Resources\overlapping_redaction_redactions.json" />
+    <EmbeddedResource Include="Resources\overlapping_redaction.pdf" />
+    <EmbeddedResource Include="Resources\overlapping_redaction_page_1.png" />
+    <EmbeddedResource Include="Resources\broken_ocr.pdf" />
+    <EmbeddedResource Include="Resources\broken_ocr_page_1.png" />
+    <EmbeddedResource Include="Resources\broken_ocr_redactions.json" />
+
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.234" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

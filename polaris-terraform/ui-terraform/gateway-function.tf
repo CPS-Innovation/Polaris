@@ -30,8 +30,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorDurableExtensionCode"  = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.durabletask_extension_key
-    "PolarisPipelineCoordinatorFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.default_function_key
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
@@ -40,7 +38,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
@@ -108,7 +106,37 @@ resource "azurerm_linux_function_app" "fa_polaris" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["AzureWebJobsStorage"],
+      app_settings["BlobContainerName"],
+      app_settings["BlobExpirySecs"],
+      app_settings["BlobServiceUrl"],
+      app_settings["BlobUserDelegationKeyExpirySecs"],
+      app_settings["CallingAppValidAudience"],
+      app_settings["CallingAppValidRoles"],
+      app_settings["CallingAppValidScopes"],
+      app_settings["ClientId"],
+      app_settings["ClientSecret"],
+      app_settings["DdeiAccessKey"],
+      app_settings["DdeiBaseUrl"],
+      app_settings["HostType"],
+      app_settings["PolarisPipelineCoordinatorBaseUrl"],
+      app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
+      app_settings["TenantId"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
+      app_settings["WEBSITE_CONTENTOVERVNET"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_DNS_ALT_SERVER"],
+      app_settings["WEBSITE_DNS_SERVER"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_RUN_FROM_PACKAGE"],
+      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
+      app_settings["WEBSITE_WARMUP_PATH"],
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
     ]
   }
 

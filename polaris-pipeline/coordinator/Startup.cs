@@ -10,6 +10,7 @@ using coordinator;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
+using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
 using coordinator.Services.CleardownService;
@@ -64,12 +65,14 @@ namespace coordinator
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<TextExtractor.IRequestFactory, TextExtractor.RequestFactory>();
             services.AddTransient<PdfGenerator.IRequestFactory, PdfGenerator.RequestFactory>();
+            services.AddTransient<PdfRedactor.IRequestFactory, PdfRedactor.RequestFactory>();
             services.AddTransient<TextExtractor.ISearchDtoContentFactory, TextExtractor.SearchDtoContentFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
+            services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactPdfBaseUrl));
@@ -90,6 +93,7 @@ namespace coordinator
 
             services.AddTransient<ITextExtractService, TextExtractService>();
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
+            services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddScoped<IValidator<AddDocumentNoteDto>, DocumentNoteValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();

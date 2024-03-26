@@ -190,10 +190,19 @@ describe("case details page", () => {
       cy.findByTestId("div-modal")
         .should("exist")
         .contains("You have unsaved redactions");
+      const doc1CheckInCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc1CheckInCounter,
+        "DELETE",
+        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+      );
       // click on ignore btn
       cy.findByTestId("btn-nav-ignore").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("div-pdfviewer-0").should("not.exist");
+      cy.window().then(() => {
+        expect(doc1CheckInCounter.count).to.equal(1);
+      });
     });
 
     it("Should not show an alert modal when closing a document when there are no active redactions", () => {
@@ -299,9 +308,18 @@ describe("case details page", () => {
       cy.findByTestId("div-modal")
         .should("exist")
         .contains("You have 1 document with unsaved redactions");
+      const doc1CheckInCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc1CheckInCounter,
+        "DELETE",
+        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+      );
       cy.findByTestId("btn-nav-ignore").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.location("pathname").should("eq", "/case-search");
+      cy.window().then(() => {
+        expect(doc1CheckInCounter.count).to.equal(1);
+      });
     });
 
     it("Should show custom alert modal when navigating away using browser back button from a document with active redactions", () => {
@@ -852,7 +870,9 @@ describe("case details page", () => {
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Enter");
       cy.findByTestId("btn-redact").should("have.length", 0);
-      cy.findByTestId("redaction-count-text").contains("There is 1 redaction");
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There is 1 redaction"
+      );
       cy.findByTestId("btn-save-redaction-0").should("exist");
       keyPressAndVerifySelection("forward", "Y");
       cy.findByTestId("btn-redact").should("have.length", 1);
@@ -863,7 +883,7 @@ describe("case details page", () => {
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Enter");
-      cy.findByTestId("redaction-count-text").contains(
+      cy.findByTestId("redaction-count-text-0").contains(
         "There are 2 redactions"
       );
       cy.findByTestId("btn-link-removeAll-0").click();

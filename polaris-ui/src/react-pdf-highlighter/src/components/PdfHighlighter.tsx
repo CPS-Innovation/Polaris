@@ -132,7 +132,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   }
 
   /***
-   * This is clear up the area selection and hide tip if the user clicks outside the document
+   * This is to clear up the area selection and hide tip if the user clicks outside the document
    * clearing up of area selection, if the user clicks inside the document is already done MouseSelection component.
    */
   documentClickHandler = (event: MouseEvent) => {
@@ -409,6 +409,14 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       tipPosition: null,
       tipChildren: null,
     });
+    /*
+    This is to make sure that when hidingTip any text selection still on the document gets cleared, so that isCollapsed will also set to true.
+    This will fix fix issue of remove redaction tip is not displaying intermittently after redaction.
+    Also this will fix the issue of redaction tip gets removed when hovering of unsaved redaction, which was caused by previous fix of this issue.
+    */
+    if (window.getSelection()) {
+      window.getSelection()?.removeAllRanges();
+    }
 
     this.setState({ ghostHighlight: null, tip: null }, () =>
       this.renderHighlights()
@@ -416,15 +424,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   };
 
   setTip(position: Position, inner: JSX.Element | null) {
-    /*
-      The "isCollapsed: true" is added to fix issue of remove redaction tip is not displaying intermittently after redaction.
-      This is because, for some text selection for redact, the isCollapsed is set to false and failed to revert to true after redaction.
-      (please see `onSelectionChange()`, `showTip()`). So we set isCollapsed to true, when setting the tip.
-    */
     this.setState({
       tipPosition: position,
       tipChildren: inner,
-      isCollapsed: true,
     });
   }
 

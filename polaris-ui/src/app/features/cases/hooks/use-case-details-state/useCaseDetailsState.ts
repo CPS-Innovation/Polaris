@@ -17,6 +17,10 @@ import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsight
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import {
+  readFromLocalStorage,
+  ReadUnreadData,
+} from "../../presentation/case-details/utils/localStorageUtils";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -65,6 +69,7 @@ export const initialState = {
     savedRedactionTypes: [],
   },
   featureFlags: { redactionLog: false, fullScreen: false },
+  storedUserData: { status: "loading" },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -95,6 +100,21 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [],
     combinedState.featureFlags.redactionLog
   );
+
+  useEffect(() => {
+    if (combinedState.storedUserData.status === "loading") {
+      const docReadData = readFromLocalStorage(
+        caseId,
+        "readUnread"
+      ) as ReadUnreadData | null;
+      dispatch({
+        type: "UPDATE_STORED_USER_DATA",
+        payload: {
+          storedUserData: { readUnread: docReadData ?? [] },
+        },
+      });
+    }
+  }, [combinedState.storedUserData.status, caseId, dispatch]);
 
   useEffect(() => {
     if (redactionLogLookUpsData.status !== "initial")
@@ -189,6 +209,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         },
       });
       handleTabSelection(caseDocument.documentId);
+      handleSaveReadUnreadData(caseDocument.documentId);
     },
     [dispatch]
   );
@@ -268,11 +289,11 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const handleAddRedaction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      redaction: NewPdfHighlight
+      redactions: NewPdfHighlight[]
     ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { documentId, redaction },
+        payload: { documentId, redactions },
       }),
     [dispatch]
   );
@@ -371,6 +392,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleSaveReadUnreadData = useCallback(
+    (documentId) =>
+      dispatch({
+        type: "SAVE_READ_UNREAD_DATA",
+        payload: { documentId },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -392,5 +422,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
     handleSaveRedactionLog,
+    handleSaveReadUnreadData,
   };
 };

@@ -113,6 +113,11 @@ variable "feature_flag_full_screen" {
   type = string
 }
 
+variable "local_storage_expiry_days" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 
 variable "redaction_log_user_group" {
   # intentionally a string as this goes in to UI app service's app settings

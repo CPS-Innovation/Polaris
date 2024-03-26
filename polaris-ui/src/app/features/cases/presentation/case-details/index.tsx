@@ -64,6 +64,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentIssueModal,
     redactionLog,
     featureFlags,
+    storedUserData,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -163,7 +164,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           handleClose={handleCloseErrorModal}
           type="alert"
           ariaLabel="Error Modal"
-          ariaDescription={`${errorModal.title} ${errorModal.message}`}
+          ariaDescription={`${errorModal.title} ${errorModal.message.replaceAll(
+            "</p>",
+            ""
+          )}`}
         >
           <ErrorModalContent
             title={errorModal.title}
@@ -334,10 +338,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <AccordionWait />
                 ) : (
                   <Accordion
+                    readUnreadData={
+                      storedUserData.status === "succeeded"
+                        ? storedUserData.data.readUnread
+                        : []
+                    }
                     accordionState={accordionState.data}
                     handleOpenPdf={(caseDoc) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
+                    activeDocumentId={getActiveTabDocument?.documentId ?? ""}
                   />
                 )}
               </div>
@@ -412,6 +422,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}
+                caseId={+caseId}
                 showOverRedactionLog={
                   redactionLog.redactionLogLookUpsData.status === "succeeded"
                     ? FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
