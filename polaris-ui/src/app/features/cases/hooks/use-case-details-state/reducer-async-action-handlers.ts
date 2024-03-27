@@ -322,7 +322,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
       } catch (e) {
         const { code } = e as ApiError;
-        let errorMessage = "Failed to save document. Please try again. </p> Your redactions have been saved and it will be possible to re-apply them next time you open this document.</p> If re-trying is not successful, please notify the Casework App product team.";
+        let errorMessage =
+          "Failed to save document. Please try again. </p> Your redactions have been saved and it will be possible to re-apply them next time you open this document.</p> If re-trying is not successful, please notify the Casework App product team.";
 
         switch (code) {
           case DOCUMENT_NOT_FOUND_STATUS_CODE:
