@@ -109,25 +109,3 @@ sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/chrome-keyring.g
 sudo apt-get update -yq
 sudo apt-get install -y google-chrome-stable
 sudo apt-get clean
-
-echo '==== Install PowerShell Using PMC ===='
-# Update the list of packages
-sudo apt-get update -yq
-sudo apt-get install -y wget apt-transport-https software-properties-common
-source /etc/os-release
-wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-rm packages-microsoft-prod.deb
-sudo apt-get update -yq
-
-###################################
-# Install PowerShell
-sudo apt-get install -y powershell
-
-# Start PowerShell
-pwsh
-
-# Install Az Module in correct path
-echo '==== Install Az Module ===='
-sudo mkdir -p /usr/share/az_11.1.0
-sudo /usr/bin/pwsh -Command 'Find-Module -Name Az -RequiredVersion '11.1.0' -Repository 'PSGallery' | Save-Module -Path '/usr/share/az_11.1.0' -Force -Verbose'
