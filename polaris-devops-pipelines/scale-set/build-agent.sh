@@ -110,13 +110,22 @@ sudo apt-get update -yq
 sudo apt-get install -y google-chrome-stable
 sudo apt-get clean
 
-echo '==== Install PowerShell Core ===='
-# Install powershell core
-sudo apt-get update
-wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+echo '==== Install PowerShell Using PMC ===='
+# Update the list of packages
+sudo apt-get update -yq
+sudo apt-get install -y wget apt-transport-https software-properties-common
+source /etc/os-release
+wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
-sudo apt-get update
+rm packages-microsoft-prod.deb
+sudo apt-get update -yq
+
+###################################
+# Install PowerShell
 sudo apt-get install -y powershell
+
+# Start PowerShell
+pwsh
 
 # Install Az Module in correct path
 echo '==== Install Az Module ===='
