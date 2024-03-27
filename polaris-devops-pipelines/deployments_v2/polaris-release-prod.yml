@@ -27,6 +27,8 @@ stages:
       - job: Generate_Diff
         pool:
           name: $(prod-build-agent)
+        workspace:
+          clean: all
         steps:
           - template: tasks/task_determine-changes.yml
             parameters:
@@ -341,8 +343,6 @@ stages:
         dependsOn: Log_Start_Codebase
         displayName: Deploy Coordinator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        workspace:
-          clean: all
         steps:
           - template: tasks/task_deploy-coordinator.yml
             parameters:
@@ -357,8 +357,6 @@ stages:
         dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Generator
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        workspace:
-          clean: all
         steps:
           - template: tasks/task_deploy-pdf-generator.yml
             parameters:
@@ -373,8 +371,6 @@ stages:
         dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Redactor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        workspace:
-          clean: all
         steps:
           - template: tasks/task_deploy-pdf-redactor.yml
             parameters:
@@ -389,8 +385,6 @@ stages:
         dependsOn: Log_Start_Codebase
         displayName: Deploy Text Extractor
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        workspace:
-          clean: all
         steps:
           - template: tasks/task_deploy-text-extractor.yml
             parameters:
@@ -401,33 +395,10 @@ stages:
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
               azureSubscription: $(prod-azure-subscription)
 
-      - job: Update_Pipeline_Component_App_Keys
-        dependsOn:
-          - Deploy_Coordinator
-          - Deploy_Pdf_Generator
-          - Deploy_Pdf_Redactor
-          - Deploy_Text_Extractor
-        displayName: Update Component Keys
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        steps:
-          - template: tasks/task_update-app-keys-in-pipeline-components.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetName: "Update Pipeline Component App Keys"
-              targetSuffix: ""
-              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              armClientId: $(innovation-prod-spn-client-id)
-              armClientSecret: $(innovation-prod-spn-secret)
-              armTenantId: $(innovation-prod-spn-tenant-id)
-              armSubscriptionId: $(innovation-prod-subscription-id)
-
       - job: Deploy_Spa
         dependsOn: Log_Start_Codebase
         displayName: Deploy SPA
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        workspace:
-          clean: all
         steps:
           - template: tasks/task_deploy-spa.yml
             parameters:
@@ -442,8 +413,6 @@ stages:
         dependsOn: Log_Start_Codebase
         displayName: Deploy Gateway
         condition: and(succeeded(),eq(variables.runCodebase, 'true'))
-        workspace:
-          clean: all
         steps:
           - template: tasks/task_deploy-gateway.yml
             parameters:
@@ -462,7 +431,6 @@ stages:
           - Deploy_Pdf_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
-          - Update_Pipeline_Component_App_Keys
           - Deploy_Spa
           - Deploy_Gateway
         steps:
@@ -547,7 +515,7 @@ stages:
               resourceGroupName: "rg-polaris-pipeline"
               webAppName: $(AppServiceName)
               PreserveVnet: true
-
+              
       - job: Swap_UI_Slots
         dependsOn: Pause_Pipeline
         condition: and(succeeded(), eq(variables.runCodebase, 'true'))

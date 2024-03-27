@@ -95,7 +95,6 @@ namespace TextExtractor.TestHarness
                             .AddCommandLine(args)
                             .Build();
 
-            configuration["PolarisPipelineTextExtractorFunctionAppKey"] = configuration.GetSection("Values")[coordinator.Constants.ConfigKeys.PipelineTextExtractorFunctionAppKey];
             configuration["SearchClientEndpointUrl"] = configuration.GetSection("Values")[ConfigKeys.SearchClientEndpointUrl];
             configuration["SearchClientIndexName"] = configuration.GetSection("Values")[ConfigKeys.SearchClientIndexName];
             configuration["SearchClientAuthorizationKey"] = configuration.GetSection("Values")[ConfigKeys.SearchClientAuthorizationKey];

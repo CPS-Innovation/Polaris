@@ -39,6 +39,7 @@ type AppInsightsTrackEventNames =
   | "Redact Area Tool Off"
   | "Save Redaction Log Error"
   | "Add Unsaved Redactions"
+  | "Ignore Unsaved Redactions"
   | "Document Checkout Error"
   | "Document Checked Out By Another User Error";
 
@@ -111,7 +112,9 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Save Redaction Log Error":
     "The attempt to save the data log failed, prompting the display of an error message to the user",
   "Add Unsaved Redactions":
-    "Adding the unsaved redactions, saved in the local storage when a document is opened",
+    "User has clicked apply button on the unsaved redaction modal",
+  "Ignore Unsaved Redactions":
+    "User has clicked ignore button on the unsaved redaction modal",
   "Document Checkout Error":
     "The attempt to checkout a document failed, prompting the display of an error message to the user",
   "Document Checked Out By Another User Error":

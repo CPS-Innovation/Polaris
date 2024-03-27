@@ -90,6 +90,11 @@ data "azurerm_private_dns_zone" "dns_zone_file_storage" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_private_dns_zone" "dns_zone_queue_storage" {
+  name                = "privatelink.queue.core.windows.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_private_dns_zone" "dns_zone_apps" {
   name                = "privatelink.azurewebsites.net"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
@@ -122,11 +127,6 @@ data "azurerm_resource_group" "rg_analytics" {
 data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
   name                = "fa-${local.ddei_resource_name}"
   resource_group_name = "rg-${local.ddei_resource_name}"
-}
-
-data "azurerm_function_app_host_keys" "fa_coordinator_host_keys" {
-  name                = "fa-${local.resource_name}-coordinator"
-  resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
 data "azuread_application" "fa_redaction_log_reporting" {

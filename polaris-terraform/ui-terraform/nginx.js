@@ -15,7 +15,7 @@ function taskListAuthRedirect(r) {
   const cookie = encodeURIComponent(r.headersIn.Cookie ?? "")
   r.return(
       302,
-      `${taskListHostAddress}/POCWorkCaseManagementGOVUK/RedirectPage?Cookie=${cookie}`
+      `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
   )
 }
 

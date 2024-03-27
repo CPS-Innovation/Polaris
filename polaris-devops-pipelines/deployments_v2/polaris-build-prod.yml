@@ -12,9 +12,9 @@ variables:
     value: "1.0"
   - name: semanticVersion
     value: "$[counter(variables['majorMinorVersion'], 1)]"
-    
+      
 pool:
-  name: $(prod-build-agent)
+  vmImage: ubuntu-latest
 
 stages:
   - stage: Publish_Artifacts
