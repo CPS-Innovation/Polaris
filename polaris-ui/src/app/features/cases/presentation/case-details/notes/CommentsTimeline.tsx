@@ -1,43 +1,45 @@
 import classes from "./CommentsTimeline.module.scss";
+import { Note } from "../../../domain/gateway/NotesData";
 
 type CommentsTimelineProps = {
-  comments?: { username: string; date: string; description: string }[];
+  notes: Note[];
 };
 
-const deafultComments = [
-  {
-    username: "rrr",
-    date: "13February2022",
-    description: "abc",
-  },
-  {
-    username: "rrr1",
-    date: "13February2022",
-    description: "abc1",
-  },
-  {
-    username: "rrr1",
-    date: "13February2022",
-    description: "abc1",
-  },
-  {
-    username: "rrr1",
-    date: "13February2022",
-    description: "abc1",
-  },
-];
+// const deafultComments = [
+//   {
+//     username: "rrr",
+//     date: "13February2022",
+//     description: "abc",
+//   },
+//   {
+//     username: "rrr1",
+//     date: "13February2022",
+//     description: "abc1",
+//   },
+//   {
+//     username: "rrr1",
+//     date: "13February2022",
+//     description: "abc1",
+//   },
+//   {
+//     username: "rrr1",
+//     date: "13February2022",
+//     description: "abc1",
+//   },
+// ];
 
 export const CommentsTimeline: React.FC<CommentsTimelineProps> = ({
-  comments = deafultComments,
+  notes,
 }) => {
+  // const { notes } = notesData;
   return (
     <div className={classes.commentsTimeline}>
-      {comments.map((comment) => (
+      {notes?.map((note) => (
         <div className={classes.commentWrapper}>
-          <h4 className={classes.commentHead}>{comment.username}</h4>
+          <h4 className={classes.commentHead}>{note.createdByName}</h4>
           <div className={classes.commentBody}>
-            <span>{comment.date}</span>
-            <span>{comment.description}</span>
+            <span>{note.date}</span>
+            <span>{note.text}</span>
           </div>
         </div>
       ))}

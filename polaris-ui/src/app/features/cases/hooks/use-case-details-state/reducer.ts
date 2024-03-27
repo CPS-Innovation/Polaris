@@ -36,6 +36,7 @@ import {
 import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
+import { Note } from "../../domain/gateway/NotesData";
 
 export const reducer = (
   state: CombinedState,
@@ -184,6 +185,13 @@ export const reducer = (
         type: "UPDATE_STORED_USER_DATA";
         payload: {
           storedUserData: StoredUserData;
+        };
+      }
+    | {
+        type: "UPDATE_NOTES_DATA";
+        payload: {
+          documentId: string;
+          notesData: Note[];
         };
       }
 ): CombinedState => {
@@ -978,6 +986,16 @@ export const reducer = (
       return {
         ...state,
         storedUserData: { status: "succeeded", data: storedUserData },
+      };
+    }
+    case "UPDATE_NOTES_DATA": {
+      const { notesData, documentId } = action.payload;
+      const filteredNotes = state.notes.filter(
+        (note) => note.documentId !== documentId
+      );
+      return {
+        ...state,
+        notes: [...filteredNotes, { documentId: documentId, notes: notesData }],
       };
     }
 

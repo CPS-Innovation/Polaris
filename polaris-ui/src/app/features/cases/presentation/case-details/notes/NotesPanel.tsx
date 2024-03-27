@@ -6,14 +6,31 @@ import {
 } from "../../../../../common/presentation/components";
 import { CommentsTimeline } from "./CommentsTimeline";
 import classes from "./NotesPanel.module.scss";
+import { NotesData } from "../../../domain/gateway/NotesData";
 
 const NOTES_MAX_CHARACTERS = 500;
 type NotesPanelProps = {
+  documentId: string;
+  notesData: NotesData[];
+  handleAddNote: (
+    documentId: string,
+    documentCategory: string,
+    notesText: string
+  ) => void;
   handleCloseNotes: () => void;
 };
 
-export const NotesPanel: React.FC<NotesPanelProps> = ({ handleCloseNotes }) => {
+export const NotesPanel: React.FC<NotesPanelProps> = ({
+  notesData,
+  documentId,
+  handleCloseNotes,
+  handleAddNote,
+}) => {
   const [newNoteValue, setNewNoteValue] = useState("");
+
+  const handleAddBtnClick = () => {
+    handleAddNote(documentId, "MG3", newNoteValue);
+  };
 
   return (
     <div className={classes.notesPanel}>
@@ -54,6 +71,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({ handleCloseNotes }) => {
               type="submit"
               className={classes.saveBtn}
               data-testid="btn-save-redaction-log"
+              onClick={handleAddBtnClick}
             >
               Add note
             </Button>
@@ -68,7 +86,11 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({ handleCloseNotes }) => {
           </div>
         </div>
       </div>
-      <CommentsTimeline />
+      <CommentsTimeline
+        notes={
+          notesData.find((note) => note.documentId === documentId)?.notes ?? []
+        }
+      />
     </div>
   );
 };

@@ -5,6 +5,8 @@ import {
   checkoutDocument,
   saveRedactions,
   saveRedactionLog,
+  getNotesData,
+  addNoteData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
@@ -76,6 +78,21 @@ type AsyncActions =
       type: "SAVE_READ_UNREAD_DATA";
       payload: {
         documentId: string;
+      };
+    }
+  | {
+      type: "GET_NOTES_DATA";
+      payload: {
+        documentId: string;
+        documentCategory: string;
+      };
+    }
+  | {
+      type: "ADD_NOTE_DATA";
+      payload: {
+        documentId: string;
+        documentCategory: string;
+        noteText: string;
       };
     };
 
@@ -404,4 +421,54 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload.documentId,
         ]);
     },
+
+  GET_NOTES_DATA:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId, documentCategory },
+      } = action;
+      const { caseId, urn } = getState();
+      const notesData = await getNotesData(
+        urn,
+        caseId,
+        documentId,
+        documentCategory
+      );
+
+      dispatch({
+        type: "UPDATE_NOTES_DATA",
+        payload: { documentId, notesData },
+      });
+    },
+
+  ADD_NOTE_DATA:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId, documentCategory, noteText },
+      } = action;
+      const { caseId, urn } = getState();
+      try {
+        await addNoteData(urn, caseId, documentId, documentCategory, noteText);
+        const notesData = await getNotesData(
+          urn,
+          caseId,
+          documentId,
+          documentCategory
+        );
+
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, notesData },
+        });
+      } catch (e) {
+        console.log("failed to add notes");
+      }
+    },
 };
+
+// urn: string,
+//   caseId: number,
+//   documentId: string,
+//   documentCategory: string

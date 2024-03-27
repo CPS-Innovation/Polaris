@@ -70,6 +70,7 @@ export const initialState = {
   },
   featureFlags: { redactionLog: false, fullScreen: false },
   storedUserData: { status: "loading" },
+  notes: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -401,6 +402,31 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleGetNotes = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      documentCategory: string
+    ) =>
+      dispatch({
+        type: "GET_NOTES_DATA",
+        payload: { documentId, documentCategory },
+      }),
+    [dispatch]
+  );
+
+  const handleAddNote = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      documentCategory: string,
+      noteText: string
+    ) =>
+      dispatch({
+        type: "ADD_NOTE_DATA",
+        payload: { documentId, documentCategory, noteText },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -423,5 +449,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleAreaOnlyRedaction,
     handleSaveRedactionLog,
     handleSaveReadUnreadData,
+    handleGetNotes,
+    handleAddNote,
   };
 };

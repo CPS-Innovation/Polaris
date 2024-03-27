@@ -48,7 +48,10 @@ type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [inFullScreen, setInFullScreen] = useState(false);
-  const [openNotes, setOpenNotes] = useState(false);
+  const [openNotes, setOpenNotes] = useState<{
+    open: boolean;
+    documentId: string;
+  }>({ open: false, documentId: "" });
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -67,6 +70,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     redactionLog,
     featureFlags,
     storedUserData,
+    notes,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -86,7 +90,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
+    handleGetNotes,
+    handleAddNote,
   } = useCaseDetailsState(urn, +caseId);
+
+  console.log("notes>>>", notes);
 
   const {
     showAlert,
@@ -158,7 +166,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
-  console.log("openNotes>>>", openNotes);
+  const handleOpenNotes = (documentId: string, documentCategory: string) => {
+    setOpenNotes({ open: true, documentId: documentId });
+    handleGetNotes(documentId, documentCategory);
+  };
 
   return (
     <>
@@ -298,7 +309,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          {!inFullScreen && !openNotes && (
+          {!inFullScreen && !openNotes.open && (
             <div
               role="region"
               aria-labelledby="side-panel-region-label"
@@ -352,20 +363,23 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
-                    handleOpenNotes={() => setOpenNotes(true)}
+                    handleOpenNotes={handleOpenNotes}
                   />
                 )}
               </div>
             </div>
           )}
-          {openNotes && (
+          {openNotes.open && (
             <div
               className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
             >
               <NotesPanel
+                documentId={openNotes.documentId}
+                notesData={notes}
                 handleCloseNotes={() => {
-                  setOpenNotes(false);
+                  setOpenNotes({ open: false, documentId: "" });
                 }}
+                handleAddNote={handleAddNote}
               />
             </div>
           )}

@@ -25,7 +25,7 @@ type Props = {
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
-  handleOpenNotes: (id: string) => void;
+  handleOpenNotes: (documentId: string, documentCategory: string) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -116,7 +116,7 @@ export const AccordionDocument: React.FC<Props> = ({
               dataTestId={`btn-notes-${caseDocument.documentId}`}
               ariaLabel="notes"
               onClick={() => {
-                handleOpenNotes(caseDocument.documentId);
+                handleOpenNotes(caseDocument.documentId, "MG3");
               }}
             >
               <NotesIcon />

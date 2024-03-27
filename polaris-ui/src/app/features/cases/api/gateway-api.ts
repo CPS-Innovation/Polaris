@@ -13,6 +13,7 @@ import {
   RedactionLogMappingData,
 } from "../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
+import { Note } from "../domain/gateway/NotesData";
 const buildHeaders = async (
   ...args: (
     | Record<string, string>
@@ -276,6 +277,51 @@ export const getRedactionLogMappingData = async () => {
     throw new ApiError("Get Redaction Log mapping data failed", url, response);
   }
   return (await response.json()) as RedactionLogMappingData;
+};
+
+export const getNotesData = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  documentCategory: string
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${documentId}/notes`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Notes failed", path, response);
+  }
+
+  return (await response.json()) as Note[];
+};
+
+export const addNoteData = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  documentCategory: string,
+  text: string
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${documentId}/notes`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+    body: JSON.stringify({ documentId: documentId, text: text }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Add Notes failed", path, response);
+  }
+
+  return (await response.json()) as Note[];
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {
