@@ -154,9 +154,13 @@ namespace Ddei.Services
             await CallDdei(_ddeiClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg));
         }
 
-        public async Task UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream)
+        public async Task<HttpResponseMessage> UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream)
         {
-            await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream));
+            return await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream), new HttpStatusCode[]
+            {
+                HttpStatusCode.Gone,
+                HttpStatusCode.RequestEntityTooLarge
+            });
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
