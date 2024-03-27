@@ -4,17 +4,16 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Common.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Rest;
+using coordinator.Factories.ComputerVisionClientFactory;
+using Common.Logging;
 using Polly;
 using Polly.Retry;
-using text_extractor.Factories.Contracts;
 
-namespace text_extractor.Services.OcrService
+namespace coordinator.Services.OcrService
 {
     public class OcrService : IOcrService
     {

@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Domain.SearchIndex;
-using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers;
@@ -34,23 +33,14 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<ExtractTextResult> ExtractTextAsync(
-            PolarisDocumentId polarisDocumentId,
-            string cmsCaseUrn,
-            long cmsCaseId,
-            string cmsDocumentId,
-            long versionId,
-            string blobName,
-            Guid correlationId,
-            Stream documentStream)
+        public async Task<ExtractTextResult> StoreOcrResultsAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
             request.Headers.Add(PolarisDocumentId, polarisDocumentId.ToString());
-
             // BlobName header is deprecated and will be removed in the future
             request.Headers.Add("BlobName", blobName);
 
-            using var requestContent = new StreamContent(documentStream);
+            using var requestContent = new StreamContent(ocrResults);
             request.Content = requestContent;
 
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);

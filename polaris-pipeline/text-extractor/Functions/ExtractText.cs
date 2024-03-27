@@ -1,30 +1,30 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using Common.Exceptions;
 using Common.Dto.Request;
 using Common.Dto.Response;
+using Common.Exceptions;
 using Common.Extensions;
 using Common.Handlers;
 using Common.Telemetry;
 using Common.Wrappers;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using text_extractor.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService;
-using text_extractor.Services.OcrService;
 
 namespace text_extractor.Functions
 {
     public class ExtractText
     {
         private readonly IValidatorWrapper<ExtractTextRequestDto> _validatorWrapper;
-        private readonly IOcrService _ocrService;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
@@ -34,7 +34,6 @@ namespace text_extractor.Functions
         private const string loggingName = "ExtractText - Run";
 
         public ExtractText(IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
-                           IOcrService ocrService,
                            ISearchIndexService searchIndexService,
                            IExceptionHandler exceptionHandler,
                            IDtoHttpRequestHeadersMapper dtoHttpRequestHeadersMapper,
@@ -43,7 +42,6 @@ namespace text_extractor.Functions
                            IJsonConvertWrapper jsonConvertWrapper)
         {
             _validatorWrapper = validatorWrapper;
-            _ocrService = ocrService;
             _searchIndexService = searchIndexService;
             _exceptionHandler = exceptionHandler;
             _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper;
@@ -78,17 +76,8 @@ namespace text_extractor.Functions
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
-                var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
-                var ocrLineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
-
-                extractTextResult = new ExtractTextResult()
-                {
-                    OcrCompletedTime = DateTime.UtcNow,
-                    PageCount = ocrResults.ReadResults.Count,
-                    LineCount = ocrLineCount,
-                    WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count)),
-                    IsSuccess = true
-                };
+                var streamReader = new StreamReader(inputStream);
+                var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
 
                 await _searchIndexService.SendStoreResultsAsync
                     (

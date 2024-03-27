@@ -1,28 +1,26 @@
-﻿using System.Net.Http.Headers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using AutoFixture;
-using AutoFixture.AutoMoq;
-using Common.Exceptions;
-using Common.Dto.Response;
-using text_extractor.Services.CaseSearchService;
-using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
-using Moq;
-using text_extractor.Functions;
-using text_extractor.Services.OcrService;
-using Xunit;
-using Common.Wrappers;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using Common.Dto.Request;
+using Common.Dto.Response;
+using Common.Exceptions;
 using Common.Handlers;
 using Common.Telemetry;
-using System.IO;
+using Common.Wrappers;
+using FluentAssertions;
+using Moq;
+using text_extractor.Functions;
 using text_extractor.Mappers.Contracts;
+using text_extractor.Services.CaseSearchService;
+using Xunit;
 
 namespace text_extractor.tests.Functions
 {
@@ -61,7 +59,7 @@ namespace text_extractor.tests.Functions
             };
             _extractTextRequest = _fixture.Create<ExtractTextRequestDto>();
             _mockValidatorWrapper = new Mock<IValidatorWrapper<ExtractTextRequestDto>>();
-            var mockOcrService = new Mock<IOcrService>();
+            //var mockOcrService = new Mock<IOcrService>();
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockAnalyzeResults = Mock.Of<AnalyzeResults>(ctx => ctx.ReadResults == new List<ReadResult>());
@@ -79,8 +77,8 @@ namespace text_extractor.tests.Functions
             _mockValidatorWrapper
                 .Setup(wrapper => wrapper.Validate(_extractTextRequest))
                 .Returns(_validationResults);
-            mockOcrService.Setup(service => service.GetOcrResultsAsync(It.IsAny<Stream>(), It.IsAny<Guid>()))
-                .ReturnsAsync(_mockAnalyzeResults);
+            // mockOcrService.Setup(service => service.GetOcrResultsAsync(It.IsAny<Stream>(), It.IsAny<Guid>()))
+            //     .ReturnsAsync(_mockAnalyzeResults);
 
             _mockLogger = new Mock<ILogger<ExtractText>>();
 
@@ -91,17 +89,16 @@ namespace text_extractor.tests.Functions
                     IsSuccess = true
                 });
 
-            var mockDtoHttpRequestHeadersMapper = new Mock<IDtoHttpRequestHeadersMapper>();
+            var _mockDtoHttpRequestHeadersMapper = new Mock<IDtoHttpRequestHeadersMapper>();
 
-            mockDtoHttpRequestHeadersMapper.Setup(mapper => mapper.Map<ExtractTextRequestDto>(It.IsAny<HttpHeaders>()))
+            _mockDtoHttpRequestHeadersMapper.Setup(mapper => mapper.Map<ExtractTextRequestDto>(It.IsAny<HttpHeaders>()))
                 .Returns(_extractTextRequest);
 
             _extractText = new ExtractText(
                                 _mockValidatorWrapper.Object,
-                                mockOcrService.Object,
                                 _mockSearchIndexService.Object,
                                 _mockExceptionHandler.Object,
-                                mockDtoHttpRequestHeadersMapper.Object,
+                                _mockDtoHttpRequestHeadersMapper.Object,
                                 _mockLogger.Object,
                                 _mockTelemetryAugmentationWrapper.Object,
                                 _mockJsonConvertWrapper.Object);

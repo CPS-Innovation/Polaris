@@ -1,36 +1,38 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net.Http.Headers;
-using Common.Configuration;
-using Common.Services;
-using Common.Wrappers;
-using coordinator;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FluentValidation;
+using coordinator;
+using coordinator.Constants;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Providers;
+using coordinator.Factories.UploadFileNameFactory;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
+using coordinator.Mappers;
+using coordinator.Services.CleardownService;
+using coordinator.Services.DocumentToggle;
+using coordinator.Services.OcrService;
+using coordinator.Services.RenderHtmlService;
+using coordinator.Services.TextExtractService;
+using coordinator.Validators;
 using Common.Domain.Validators;
 using Common.Dto.Request;
-using Ddei.Services.Extensions;
 using Common.Handlers;
-using coordinator.Constants;
-using coordinator.Services.RenderHtmlService;
-using coordinator.Mappers;
-using Common.Telemetry;
-using coordinator.Durable.Providers;
-using coordinator.Validators;
-using coordinator.Services.DocumentToggle;
+using Common.Services;
 using Common.Streaming;
-using coordinator.Services.TextExtractService;
-using coordinator.Services.CleardownService;
-using coordinator.Durable.Payloads;
-using coordinator.Functions.DurableEntity.Entity.Mapper;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Common.Telemetry;
+using Common.Wrappers;
+using Ddei.Services.Extensions;
+using FluentValidation;
+
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
-using System.IO;
-using coordinator.Factories.UploadFileNameFactory;
+using coordinator.Factories.ComputerVisionClientFactory;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -60,6 +62,8 @@ namespace coordinator
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
+            BuildOcrService(services, Configuration);
+
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
@@ -70,6 +74,7 @@ namespace coordinator
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
+            services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
@@ -121,6 +126,22 @@ namespace coordinator
             }
 
             return secret;
+        }
+
+        private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
+        {
+#if DEBUG
+            if (configuration.IsSettingEnabled(MockOcrService.MockOcrServiceSetting))
+            {
+                services.AddSingleton<IOcrService, MockOcrService>();
+            }
+            else
+            {
+                services.AddSingleton<IOcrService, OcrService>();
+            }
+#else
+            services.AddSingleton<IOcrService, OcrService>();
+#endif
         }
     }
 }
