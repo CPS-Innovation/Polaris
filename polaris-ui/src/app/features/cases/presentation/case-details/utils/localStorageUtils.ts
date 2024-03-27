@@ -41,28 +41,31 @@ export const addToLocalStorage = (
 };
 
 export const clearDownStorage = () => {
-  if (!LOCAL_STORAGE_EXPIRY_DAYS) {
+  if (LOCAL_STORAGE_EXPIRY_DAYS === null) {
     return;
   }
+  const oneDayMilliseconds = 24 * 60 * 60 * 1000;
   const currentDate = new Date();
   const expiryTime = new Date(
-    currentDate.getTime() - LOCAL_STORAGE_EXPIRY_DAYS * 24 * 60 * 60 * 1000
+    currentDate.getTime() - LOCAL_STORAGE_EXPIRY_DAYS * oneDayMilliseconds
   );
-
+  const expiredKeys = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)!;
     if (key && !key.includes(LOCAL_STORAGE_PREFIX)) {
-      return;
+      continue;
     }
     const value = localStorage.getItem(key)!;
     const item = JSON.parse(value);
     const itemTimestamp = new Date(item.modifiedDate);
-
-    // Check if the item is older than LOCAL_STORAGE_EXPIRY_DAYS days
     if (itemTimestamp < expiryTime) {
-      localStorage.removeItem(key);
+      expiredKeys.push(key);
     }
   }
+  // Check if the item is older than LOCAL_STORAGE_EXPIRY_DAYS days
+  expiredKeys.forEach((key) => {
+    localStorage.removeItem(key);
+  });
 };
 
 export const readFromLocalStorage = (

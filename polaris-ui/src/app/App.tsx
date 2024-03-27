@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Routes } from "./Routes";
 import { Auth } from "./auth";
@@ -8,7 +8,9 @@ import { initializeAppInsights } from "../app/common/utils/appInsightsUtils";
 import { clearDownStorage } from "../app/features/cases/presentation/case-details/utils/localStorageUtils";
 export const App: FC = () => {
   const reactPlugin = initializeAppInsights();
-  clearDownStorage();
+  useEffect(() => {
+    clearDownStorage();
+  }, []);
 
   return (
     <AppInsightsContext.Provider value={reactPlugin}>
