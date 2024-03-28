@@ -95,6 +95,7 @@ namespace PolarisGateway.Functions
             }
             catch (Exception ex)
             {
+                _telemetryClient.TrackEventFailure(telemetryEvent);
                 return _unhandledExceptionHandler.HandleUnhandledException(
                       _logger,
                       nameof(PolarisPipelineAddDocumentNote),
