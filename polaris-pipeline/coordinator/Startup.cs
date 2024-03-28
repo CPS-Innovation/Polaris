@@ -10,11 +10,13 @@ using coordinator;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
+using coordinator.Factories.ComputerVisionClientFactory;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
 using coordinator.Services.CleardownService;
 using coordinator.Services.DocumentToggle;
+using coordinator.Services.OcrService;
 using coordinator.Services.RenderHtmlService;
 using coordinator.Services.TextExtractService;
 using coordinator.Validators;
@@ -60,6 +62,8 @@ namespace coordinator
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
+            BuildOcrService(services, Configuration);
+
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
@@ -70,6 +74,7 @@ namespace coordinator
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
+            services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
@@ -122,6 +127,22 @@ namespace coordinator
             }
 
             return secret;
+        }
+
+        private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
+        {
+#if DEBUG
+            if (configuration.IsSettingEnabled(MockOcrService.MockOcrServiceSetting))
+            {
+                services.AddSingleton<IOcrService, MockOcrService>();
+            }
+            else
+            {
+                services.AddSingleton<IOcrService, OcrService>();
+            }
+#else
+            services.AddSingleton<IOcrService, OcrService>();
+#endif
         }
     }
 }

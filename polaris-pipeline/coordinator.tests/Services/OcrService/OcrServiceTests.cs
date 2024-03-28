@@ -1,19 +1,19 @@
 using System;
 using System.Net.Http;
-using AutoFixture;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Rest;
+using AutoFixture;
+using coordinator.Factories.ComputerVisionClientFactory;
+using coordinator.Services.OcrService;
 using Moq;
 using Polly;
 using Polly.Retry;
 using Polly.Testing;
-using text_extractor.Factories.Contracts;
-using text_extractor.Services.OcrService;
 using Xunit;
 
-namespace text_extractor.tests.Services
+namespace coordinator.tests.Services
 {
     public class OcrServiceTests
     {

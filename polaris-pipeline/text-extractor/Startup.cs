@@ -2,7 +2,6 @@
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using text_extractor.Services.OcrService;
 using text_extractor.Factories;
 using text_extractor.Factories.Contracts;
 using text_extractor.Services.CaseSearchService;
@@ -44,13 +43,11 @@ namespace text_extractor
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
-            BuildOcrService(services, Configuration);
             AddSearchClient(services, Configuration);
 
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
+            services.AddTransient<IValidatorWrapper<StoreCaseIndexesRequestDto>, ValidatorWrapper<StoreCaseIndexesRequestDto>>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
@@ -72,22 +69,6 @@ namespace text_extractor
             services.AddTransient<ILineMapper, LineMapper>();
             services.AddTransient<ISearchLineFactory, SearchLineFactory>();
             services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
-        }
-
-        private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
-        {
-#if DEBUG
-            if (configuration.IsSettingEnabled(MockOcrService.MockOcrServiceSetting))
-            {
-                services.AddSingleton<IOcrService, MockOcrService>();
-            }
-            else
-            {
-                services.AddSingleton<IOcrService, OcrService>();
-            }
-#else
-            services.AddSingleton<IOcrService, OcrService>();
-#endif
         }
     }
 }

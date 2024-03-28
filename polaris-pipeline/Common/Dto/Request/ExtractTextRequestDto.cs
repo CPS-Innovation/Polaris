@@ -4,9 +4,9 @@ using Common.ValueObjects;
 
 namespace Common.Dto.Request
 {
-    public class ExtractTextRequestDto
+    public class StoreCaseIndexesRequestDto
     {
-        public ExtractTextRequestDto(PolarisDocumentId polarisDocumentId, string blobName)
+        public StoreCaseIndexesRequestDto(PolarisDocumentId polarisDocumentId, string blobName)
         {
             PolarisDocumentId = polarisDocumentId;
             BlobName = blobName;
