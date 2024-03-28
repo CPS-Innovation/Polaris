@@ -10,7 +10,6 @@ namespace pdf_redactor.Services.Extensions
     {
         public static void AddRedactionServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddSingleton<IDocumentRedactionService, DocumentRedactionService>();
             // Aspose-specific services
             services.AddSingleton<IRedactionProvider, AsposeRedactionProvider>();

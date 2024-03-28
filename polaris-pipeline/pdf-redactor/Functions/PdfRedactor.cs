@@ -86,7 +86,7 @@ namespace pdf_redactor.Functions
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RedactPdf), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(PdfRedactor), _logger);
             }
         }
     }
