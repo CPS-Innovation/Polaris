@@ -16,7 +16,7 @@ namespace pdf_redactor.integration.tests
 
     internal static class Program
     {
-        public static async Task Main(string[] args)
+        public static async Task<int> Main()
         {
             var serviceProvider = BuildServiceProvider();
 
@@ -30,6 +30,7 @@ namespace pdf_redactor.integration.tests
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.broken_ocr_redactions.json", "pdf_redactor.integration.tests.Resources.broken_ocr.pdf", "pdf_redactor.integration.tests.Resources.broken_ocr_page_1.png", null);
 
             Console.WriteLine("Successfully asserted all pdf test cases");
+            return 0;
         }
 
         private static async Task AssertRedactedPdf(IPdfRedactorClient redactorClient, string redactionsResourceName, string pdfResourceName, string assertionOneResourceName, string? assertionTwoResourceName)
