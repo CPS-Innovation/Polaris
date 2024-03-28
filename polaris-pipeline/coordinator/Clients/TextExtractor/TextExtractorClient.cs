@@ -33,7 +33,7 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<ExtractTextResult> StoreOcrResultsAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
             request.Headers.Add(PolarisDocumentId, polarisDocumentId.ToString());
@@ -46,16 +46,16 @@ namespace coordinator.Clients.TextExtractor
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            ExtractTextResult result;
+            StoreCaseIndexesResult result;
 
             if (response.IsSuccessStatusCode)
             {
-                result = _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(responseContent);
+                result = _jsonConvertWrapper.DeserializeObject<StoreCaseIndexesResult>(responseContent);
             }
             else
             {
                 var unsuccessfulResponse = _jsonConvertWrapper.DeserializeObject<ExceptionContent>(responseContent);
-                result = _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(unsuccessfulResponse?.Data.ToString());
+                result = _jsonConvertWrapper.DeserializeObject<StoreCaseIndexesResult>(unsuccessfulResponse?.Data.ToString());
             }
 
             return result;

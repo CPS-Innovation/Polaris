@@ -22,22 +22,22 @@ using text_extractor.Services.CaseSearchService;
 
 namespace text_extractor.Functions
 {
-    public class ExtractText
+    public class StoreCaseIndexes
     {
-        private readonly IValidatorWrapper<ExtractTextRequestDto> _validatorWrapper;
+        private readonly IValidatorWrapper<StoreCaseIndexesRequestDto> _validatorWrapper;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
-        private readonly ILogger<ExtractText> _log;
+        private readonly ILogger<StoreCaseIndexes> _log;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private const string loggingName = "ExtractText - Run";
+        private const string loggingName = "StoreCaseIndexes - Run";
 
-        public ExtractText(IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
+        public StoreCaseIndexes(IValidatorWrapper<StoreCaseIndexesRequestDto> validatorWrapper,
                            ISearchIndexService searchIndexService,
                            IExceptionHandler exceptionHandler,
                            IDtoHttpRequestHeadersMapper dtoHttpRequestHeadersMapper,
-                           ILogger<ExtractText> logger,
+                           ILogger<StoreCaseIndexes> logger,
                            ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
                            IJsonConvertWrapper jsonConvertWrapper)
         {
@@ -50,12 +50,12 @@ namespace text_extractor.Functions
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        [FunctionName(nameof(ExtractText))]
+        [FunctionName(nameof(StoreCaseIndexes))]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequestMessage request,
             string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
-            ExtractTextResult extractTextResult = new ExtractTextResult();
+            StoreCaseIndexesResult storeCaseIndexesResult = new StoreCaseIndexesResult();
 
             try
             {
@@ -68,7 +68,7 @@ namespace text_extractor.Functions
                 }
 
                 // map our request headers to our dto so that we can make use of the validator rules against the dto.
-                var extractTextRequest = _dtoHttpRequestHeadersMapper.Map<ExtractTextRequestDto>(request.Headers);
+                var extractTextRequest = _dtoHttpRequestHeadersMapper.Map<StoreCaseIndexesRequestDto>(request.Headers);
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
@@ -89,20 +89,21 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
-                extractTextResult.IndexStoredTime = DateTime.UtcNow;
+                storeCaseIndexesResult.IsSuccess = true;
+                storeCaseIndexesResult.IndexStoredTime = DateTime.UtcNow;
 
                 var response = new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(extractTextResult), Encoding.UTF8, "application/json")
+                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(storeCaseIndexesResult), Encoding.UTF8, "application/json")
                 };
 
                 return response;
             }
             catch (Exception exception)
             {
-                extractTextResult.IsSuccess = false;
-                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log, extractTextResult);
+                storeCaseIndexesResult.IsSuccess = false;
+                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log, storeCaseIndexesResult);
             }
         }
     }

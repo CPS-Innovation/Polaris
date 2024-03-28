@@ -88,8 +88,11 @@ namespace coordinator.Durable.Activity
                         payload.CorrelationId);
 
                     telemetryEvent.OcrResultsStoredTime = DateTime.UtcNow;
+                }
 
-                    var indexesStoredResult = await _textExtractorClient.StoreOcrResultsAsync(
+                using (var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
+                {
+                    var storeCaseIndexesResult = await _textExtractorClient.StoreCaseIndexesAsync(
                         payload.PolarisDocumentId,
                         payload.CmsCaseUrn,
                         payload.CmsCaseId,
@@ -99,7 +102,7 @@ namespace coordinator.Durable.Activity
                         payload.CorrelationId,
                         ocrStream);
 
-                    telemetryEvent.IndexStoredTime = indexesStoredResult.IndexStoredTime;
+                    telemetryEvent.IndexStoredTime = storeCaseIndexesResult.IndexStoredTime;
                 }
 
                 await Task.Delay(1000);
@@ -122,7 +125,7 @@ namespace coordinator.Durable.Activity
 
                 return extractTextResult;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;

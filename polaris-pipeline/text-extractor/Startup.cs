@@ -46,7 +46,7 @@ namespace text_extractor
             AddSearchClient(services, Configuration);
 
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
+            services.AddTransient<IValidatorWrapper<StoreCaseIndexesRequestDto>, ValidatorWrapper<StoreCaseIndexesRequestDto>>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
