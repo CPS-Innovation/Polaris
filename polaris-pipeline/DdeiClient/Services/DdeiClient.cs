@@ -1,15 +1,16 @@
-using Ddei.Domain.CaseData.Args;
+using System.Net;
 using Common.Dto.Case;
-using DdeiClient.Services;
-using DdeiClient.Mappers;
-using Common.Wrappers;
-using Ddei.Domain;
 using Common.Dto.Document;
 using Common.Dto.Response;
-using Microsoft.Extensions.Logging;
-using System.Net;
+using Common.Wrappers;
+using Ddei.Domain;
+using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using DdeiClient.Exceptions;
+using DdeiClient.Services;
+using DdeiClient.Mappers;
+using Microsoft.Extensions.Logging;
+using Ddei.Mappers;
 
 namespace Ddei.Services
 {
@@ -18,6 +19,8 @@ namespace Ddei.Services
         private readonly IDdeiArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
         private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _caseDocumentMapper;
+        private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
+        private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
         private readonly ICmsAuthValuesMapper _cmsAuthValuesMapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
@@ -31,6 +34,8 @@ namespace Ddei.Services
             IDdeiArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
             ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper,
+            ICaseDocumentNoteMapper caseDocumentNoteMapper,
+            ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
             ICaseIdentifiersMapper caseIdentifiersMapper,
             ICmsAuthValuesMapper cmsAuthValuesMapper,
             IJsonConvertWrapper jsonConvertWrapper,
@@ -40,6 +45,8 @@ namespace Ddei.Services
             _caseDataServiceArgFactory = caseDataServiceArgFactory ?? throw new ArgumentNullException(nameof(caseDataServiceArgFactory));
             _caseDetailsMapper = caseDetailsMapper ?? throw new ArgumentNullException(nameof(caseDetailsMapper));
             _caseDocumentMapper = caseDocumentMapper ?? throw new ArgumentNullException(nameof(caseDocumentMapper));
+            _caseDocumentNoteMapper = caseDocumentNoteMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteMapper));
+            _caseDocumentNoteResultMapper = caseDocumentNoteResultMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteResultMapper));
             _caseIdentifiersMapper = caseIdentifiersMapper ?? throw new ArgumentNullException(nameof(caseIdentifiersMapper));
             _cmsAuthValuesMapper = cmsAuthValuesMapper ?? throw new ArgumentNullException(nameof(cmsAuthValuesMapper));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
@@ -161,6 +168,20 @@ namespace Ddei.Services
                 HttpStatusCode.Gone,
                 HttpStatusCode.RequestEntityTooLarge
             });
+        }
+
+        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg)
+        {
+            var ddeiResults = await CallDdei<List<DdeiCaseDocumentNoteResponse>>(_ddeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
+
+            return ddeiResults.Select(ddeiResult => _caseDocumentNoteMapper.Map(ddeiResult)).ToArray();
+        }
+
+        public async Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg)
+        {
+            var response = await CallDdei<DdeiCaseDocumentNoteAddedResponse>(_ddeiClientRequestFactory.CreateAddDocumentNoteRequest(arg));
+
+            return _caseDocumentNoteResultMapper.Map(response);
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)

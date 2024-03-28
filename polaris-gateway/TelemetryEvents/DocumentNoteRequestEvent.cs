@@ -1,8 +1,8 @@
 namespace PolarisGateway.TelemetryEvents
 {
-    public class RedactionRequestEvent : BaseRequestEvent
+    public class DocumentNoteRequestEvent : BaseRequestEvent
     {
-        public RedactionRequestEvent(
+        public DocumentNoteRequestEvent(
             long caseId,
             string documentId)
         {

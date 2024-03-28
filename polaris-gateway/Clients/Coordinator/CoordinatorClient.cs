@@ -107,6 +107,25 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
+        public async Task<HttpResponseMessage> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, string documentCategory, int documentId, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentCategory, documentId),
+                correlationId,
+                cmsAuthValues);
+        }
+
+        public async Task<HttpResponseMessage> AddDocumentNote(string caseUrn, int caseId, string cmsAuthValues, string documentCategory, int documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Post,
+                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentCategory, documentId),
+                correlationId,
+                cmsAuthValues,
+                new StringContent(JsonConvert.SerializeObject(addDocumentNoteRequestDto), Encoding.UTF8, "application/json"));
+        }
+
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);

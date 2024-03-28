@@ -232,7 +232,8 @@ namespace coordinator.Durable.Entity
                         cmsParentDocumentId: newDocument.ParentDocumentId,
                         witnessId: newDocument.WitnessId,
                         presentationFlags: newDocument.PresentationFlags,
-                        hasFailedAttachments: newDocument.HasFailedAttachments
+                        hasFailedAttachments: newDocument.HasFailedAttachments,
+                        hasNotes: newDocument.HasNotes
                     );
 
                 CmsDocuments.Add(trackerDocument);

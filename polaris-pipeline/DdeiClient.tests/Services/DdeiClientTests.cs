@@ -80,8 +80,11 @@ public class DdeiClientTests
         var mockConfiguration = new Mock<IConfiguration>();
         var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
         var mockCaseDetailsMapper = new Mock<ICaseDetailsMapper>();
+        var mockCaseDocumentNoteMapper = new Mock<ICaseDocumentNoteMapper>();
+        var mockCaseDocumentNoteResultMapper = new Mock<ICaseDocumentNoteResultMapper>();
         var mockCaseIdentifiersMapper = new Mock<ICaseIdentifiersMapper>();
         var mockCmsAuthValuesMapper = new Mock<ICmsAuthValuesMapper>();
+
         _ddeiClient = new Ddei.Services.DdeiClient
             (
                 httpClient,
@@ -89,6 +92,8 @@ public class DdeiClientTests
                 mockDdeiArgFactory.Object,
                 mockCaseDetailsMapper.Object,
                 new CaseDocumentMapper(),
+                mockCaseDocumentNoteMapper.Object,
+                mockCaseDocumentNoteResultMapper.Object,
                 mockCaseIdentifiersMapper.Object,
                 mockCmsAuthValuesMapper.Object,
                 _jsonConvertWrapperMock.Object,
