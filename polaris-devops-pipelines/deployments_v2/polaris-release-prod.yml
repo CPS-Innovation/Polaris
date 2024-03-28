@@ -1190,15 +1190,8 @@ stages:
   - stage: Send_Report
     displayName: Send Report
     dependsOn:
-      - Run_e2e_Tests
       - Determine_Changes
-      - Apply
-      - Deploy
-      - Swap
-      - Check_Build
-      - Check_Status
-      - Create_Commit_Report
-      - Update_GitHub_Tag
+      - Run_e2e_Tests
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
@@ -1213,7 +1206,7 @@ stages:
       uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
-    condition: or(succeeded(),failed())
+    condition: or(succeeded(),failed(),canceled())
     pool:
       name: $(prod-build-agent)
     jobs:
@@ -1245,7 +1238,7 @@ stages:
 
       - job: Send_Failure_Report
         displayName: Send Failure Report
-        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), failed())
+        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), or(failed(), canceled()))
         steps:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
