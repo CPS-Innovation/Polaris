@@ -11,6 +11,7 @@ import { NotesData } from "../../../domain/gateway/NotesData";
 const NOTES_MAX_CHARACTERS = 500;
 type NotesPanelProps = {
   documentId: string;
+  documentCategory: string;
   notesData: NotesData[];
   handleAddNote: (
     documentId: string,
@@ -23,13 +24,14 @@ type NotesPanelProps = {
 export const NotesPanel: React.FC<NotesPanelProps> = ({
   notesData,
   documentId,
+  documentCategory,
   handleCloseNotes,
   handleAddNote,
 }) => {
   const [newNoteValue, setNewNoteValue] = useState("");
 
   const handleAddBtnClick = () => {
-    handleAddNote(documentId, "MG3", newNoteValue);
+    handleAddNote(documentId, documentCategory, newNoteValue);
   };
 
   return (

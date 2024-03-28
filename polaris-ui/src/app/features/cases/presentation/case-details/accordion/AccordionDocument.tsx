@@ -116,7 +116,10 @@ export const AccordionDocument: React.FC<Props> = ({
               dataTestId={`btn-notes-${caseDocument.documentId}`}
               ariaLabel="notes"
               onClick={() => {
-                handleOpenNotes(caseDocument.documentId, "MG3");
+                handleOpenNotes(
+                  caseDocument.documentId,
+                  caseDocument.cmsDocType.documentCategory
+                );
               }}
             >
               <NotesIcon />

@@ -51,7 +51,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [openNotes, setOpenNotes] = useState<{
     open: boolean;
     documentId: string;
-  }>({ open: false, documentId: "" });
+    documentCategory: string;
+  }>({ open: false, documentId: "", documentCategory: "" });
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -167,7 +168,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   );
 
   const handleOpenNotes = (documentId: string, documentCategory: string) => {
-    setOpenNotes({ open: true, documentId: documentId });
+    setOpenNotes({
+      open: true,
+      documentId: documentId,
+      documentCategory: documentCategory,
+    });
     handleGetNotes(documentId, documentCategory);
   };
 
@@ -374,10 +379,15 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
             >
               <NotesPanel
+                documentCategory={openNotes.documentCategory}
                 documentId={openNotes.documentId}
                 notesData={notes}
                 handleCloseNotes={() => {
-                  setOpenNotes({ open: false, documentId: "" });
+                  setOpenNotes({
+                    open: false,
+                    documentId: "",
+                    documentCategory: "",
+                  });
                 }}
                 handleAddNote={handleAddNote}
               />
