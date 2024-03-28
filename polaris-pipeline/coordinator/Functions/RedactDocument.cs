@@ -22,6 +22,7 @@ using coordinator.Clients.PdfRedactor;
 using coordinator.Factories.UploadFileNameFactory;
 using System.IO;
 using Common.Streaming;
+using System.Net;
 
 namespace coordinator.Functions
 {
@@ -131,7 +132,12 @@ namespace coordinator.Functions
                      versionId: document.CmsVersionId
                 );
 
-                await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+
+                if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+                {
+                    return new StatusCodeResult((int)ddeiResult.StatusCode);
+                }
 
                 return new OkResult();
             }

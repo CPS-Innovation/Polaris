@@ -125,7 +125,7 @@ namespace coordinator.Durable.Activity
 
                 return extractTextResult;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;

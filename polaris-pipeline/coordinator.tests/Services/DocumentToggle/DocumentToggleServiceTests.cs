@@ -92,6 +92,7 @@ namespace coordinator.tests.Services.DocumentToggle
           "3",
           null,
           new PresentationFlagsDto(),
+          false,
           false);
       document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
@@ -123,6 +124,7 @@ namespace coordinator.tests.Services.DocumentToggle
           "3",
           null,
           new PresentationFlagsDto(),
+          false,
           false);
       document.PresentationFlags.Read = ReadFlag.Ok;
 
@@ -154,6 +156,7 @@ namespace coordinator.tests.Services.DocumentToggle
           "3",
           null,
           new PresentationFlagsDto(),
+          false,
           false);
       document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
@@ -186,6 +189,7 @@ namespace coordinator.tests.Services.DocumentToggle
           "3",
           null,
           new PresentationFlagsDto(),
+          false,
           false);
       document.PresentationFlags.Write = WriteFlag.Ok;
 

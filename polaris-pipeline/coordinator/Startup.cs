@@ -10,6 +10,7 @@ using coordinator;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
+using coordinator.Factories.ComputerVisionClientFactory;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
@@ -32,7 +33,6 @@ using FluentValidation;
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
-using coordinator.Factories.ComputerVisionClientFactory;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -100,6 +100,7 @@ namespace coordinator
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            services.AddScoped<IValidator<AddDocumentNoteDto>, DocumentNoteValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
