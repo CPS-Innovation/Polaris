@@ -56,13 +56,6 @@ steps:
       secureFile: "Aspose.Total.NET.lic"
     displayName: "Download Aspose Licence"
 
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: $(Agent.TempDirectory)
-      contents: Aspose.Total.NET.lic
-      targetFolder: "polaris-pipeline/pdf-redactor.integration.tests"
-    displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
-    
   - task: DotNetCoreCLI@2
     inputs:
       command: "build"
@@ -73,9 +66,16 @@ steps:
   - task: FileTransform@2
     displayName: 'Transform Integration Test Settings'
     inputs:
-      folderPath: "polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+      folderPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
       jsonTargetFiles: "appSettings.json"
       xmlTransformationRules: '' # disabled, prevents non-windows-platform error
+      
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: $(Agent.TempDirectory)
+      contents: Aspose.Total.NET.lic
+      targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+    displayName: "Copy Aspose.Total.NET.lic"
     
   - task: PowerShell@2
     inputs:
