@@ -13,9 +13,11 @@ ImageSharpCompare is then used to assert the AbsoluteError is 0 comparing to our
 namespace pdf_redactor.integration.tests
 {
     using IPdfRedactorClient = Clients.IPdfRedactorClient;
-
+    
     internal static class Program
     {
+        private static string _pdfRedactorUrl = string.Empty;
+        
         public static async Task<int> Main()
         {
             var serviceProvider = BuildServiceProvider();
@@ -25,6 +27,7 @@ namespace pdf_redactor.integration.tests
 
             var redactorClient = serviceProvider.GetRequiredService<IPdfRedactorClient>();
 
+            Console.WriteLine($"Running tests against PDF Redactor: '{_pdfRedactorUrl}'");
             Console.WriteLine("Asserting Document Image Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.image_document_redactions.json", "pdf_redactor.integration.tests.Resources.image_document.pdf", "pdf_redactor.integration.tests.Resources.image_document_page_1.png", "pdf_redactor.integration.tests.Resources.image_document_page_2.png");
             Console.WriteLine("Asserting Document Image Redactions - Completed");
@@ -81,13 +84,13 @@ namespace pdf_redactor.integration.tests
 
             var services = new ServiceCollection();
 
-            var redactorUrl = configuration["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
+            _pdfRedactorUrl = configuration["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
 
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IRequestFactory, RequestFactory>();
             services.AddHttpClient<IPdfRedactorClient, Clients.PdfRedactorClient>(client =>
             {
-                client.BaseAddress = new Uri(redactorUrl);
+                client.BaseAddress = new Uri(_pdfRedactorUrl);
             });
             services.AddTransient<IRequestFactory, RequestFactory>();
 
