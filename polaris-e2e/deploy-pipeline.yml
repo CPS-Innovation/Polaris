@@ -37,7 +37,7 @@ resources:
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
       #ref: refs/tags/$(cypress_environment)
-      ref: refs/tags/dev
+      ref: feature/26478-add-integration-tests-and-results
       
 variables:
   PdfRedactorUrl: $(PdfRedactorLocation)
