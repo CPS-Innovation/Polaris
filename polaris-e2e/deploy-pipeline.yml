@@ -39,6 +39,9 @@ resources:
       #ref: refs/tags/$(cypress_environment)
       ref: refs/tags/dev
       
+variables:
+  PdfRedactorUrl: $(PdfRedactorUrl)
+      
 steps:
   - checkout: PolarisTagged
     clean: true
@@ -47,14 +50,11 @@ steps:
     #displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
     displayName: "Checkout polaris-e2e at dev tag"
     
-  - task: sergeyzwezdin.magic-chunks.magic.chunks.MagicChunks@2
+  - task: FileTransform@2
     displayName: 'Transform Integration Test Settings'
     inputs:
-      sourcePath: "polaris-pipeline/pdf-redactor.integration.tests/appSettings.json"
-      transformations: |
-        {
-          "PdfRedactorUrl": "$(PdfRedactorUrl)"
-        }
+      folderPath: "polaris-pipeline/pdf-redactor.integration.tests"
+      jsonTargetFiles: "appSettings.json"
 
   - task: DotNetCoreCLI@2
     inputs:
