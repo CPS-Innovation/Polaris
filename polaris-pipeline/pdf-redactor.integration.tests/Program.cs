@@ -25,9 +25,15 @@ namespace pdf_redactor.integration.tests
 
             var redactorClient = serviceProvider.GetRequiredService<IPdfRedactorClient>();
 
+            Console.WriteLine("Asserting Document Image Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.image_document_redactions.json", "pdf_redactor.integration.tests.Resources.image_document.pdf", "pdf_redactor.integration.tests.Resources.image_document_page_1.png", "pdf_redactor.integration.tests.Resources.image_document_page_2.png");
+            Console.WriteLine("Asserting Document Image Redactions - Completed");
+            Console.WriteLine("Asserting Overlapping Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.overlapping_redaction_redactions.json", "pdf_redactor.integration.tests.Resources.overlapping_redaction.pdf", "pdf_redactor.integration.tests.Resources.overlapping_redaction_page_1.png", null);
+            Console.WriteLine("Asserting Overlapping Redactions - Completed");
+            Console.WriteLine("Asserting Broken OCR Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.broken_ocr_redactions.json", "pdf_redactor.integration.tests.Resources.broken_ocr.pdf", "pdf_redactor.integration.tests.Resources.broken_ocr_page_1.png", null);
+            Console.WriteLine("Asserting Broken OCR Redactions - Completed");
 
             Console.WriteLine("Successfully asserted all pdf test cases");
             return 0;
