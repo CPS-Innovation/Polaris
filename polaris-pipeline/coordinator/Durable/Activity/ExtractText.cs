@@ -74,7 +74,7 @@ namespace coordinator.Durable.Activity
                 telemetryEvent.LineCount = extractTextResult.LineCount;
                 telemetryEvent.WordCount = extractTextResult.WordCount;
 
-                var jsonResults = JsonSerializer.Serialize(ocrResults.ReadResults);
+                var jsonResults = JsonSerializer.Serialize(ocrResults);
                 var ocrBlobName = GetOcrBlobName(payload.BlobName);
 
                 using (var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
