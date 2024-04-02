@@ -14,7 +14,7 @@ variables:
     value: "$[counter(variables['majorMinorVersion'], 1)]"
       
 pool:
-  vmImage: $(prod-build-agent)
+  name: $(prod-build-agent)
 
 stages:
   - stage: Publish_Artifacts
