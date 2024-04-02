@@ -36,49 +36,61 @@ resources:
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/tags/$(cypress_environment)
+      #ref: refs/tags/$(cypress_environment)
+      ref: refs/tags/dev
 
 steps:
   - checkout: PolarisTagged
     clean: true
     persistCredentials: true
     fetchDepth: 1
-    displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
-
-  - task: Bash@3
+    #displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
+    displayName: "Checkout polaris-e2e at dev tag"
+    
+  - task: DotNetCoreCLI@2
     inputs:
-      targetType: "inline"
-      script: "env | sort"
+      command: publish
+      projects: "polaris-pipeline/pdf-redactor.integration.tests/pdf-redactor.integration.tests.csproj"
+      arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
+      zipAfterPublish: false
+      publishWebProjects: false
+    enabled: true
+    displayName: Publish PDF Redactor Integration Tests
 
-  - task: Npm@1
-    inputs:
-      command: "install"
-      workingDir: "polaris-e2e"
-    displayName: "npm install"
+  #- task: Bash@3
+  #  inputs:
+  #    targetType: "inline"
+  #    script: "env | sort"
 
-  - task: CmdLine@2
-    env:
-      CYPRESS_CLIENTSECRET: "$(cypress_clientsecret)"
-      CYPRESS_AD_USERNAME: "$(cypress_ad_username)"
-      CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
-      CYPRESS_ENVIRONMENT: "$(cypress_environment)"
-      CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
-    condition: succeeded()
-    inputs:
-      workingDirectory: "polaris-e2e"
-      script: "npm run cy:ci"
-    displayName: "cypress run tests"
+  #- task: Npm@1
+  #  inputs:
+  #    command: "install"
+  #    workingDir: "polaris-e2e"
+  #  displayName: "npm install"
 
-  - task: PublishBuildArtifacts@1
-    condition: always() # this step will always run, helpful to diagnose failing cypress tests
-    inputs:
-      PathtoPublish: "polaris-e2e/cypress/videos"
-      ArtifactName: "Cypress failure vidoes"
-      publishLocation: "Container"
+  #- task: CmdLine@2
+  #  env:
+  #    CYPRESS_CLIENTSECRET: "$(cypress_clientsecret)"
+  #    CYPRESS_AD_USERNAME: "$(cypress_ad_username)"
+  #    CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
+  #    CYPRESS_ENVIRONMENT: "$(cypress_environment)"
+  #    CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
+  #  condition: succeeded()
+  #  inputs:
+  #    workingDirectory: "polaris-e2e"
+  #    script: "npm run cy:ci"
+  #  displayName: "cypress run tests"
 
-  - task: PublishBuildArtifacts@1
-    condition: always() # this step will always run, helpful to diagnose failing cypress tests
-    inputs:
-      PathtoPublish: "polaris-e2e/cypress/screenshots"
-      ArtifactName: "Cypress failure screenshots"
-      publishLocation: "Container"
+  #- task: PublishBuildArtifacts@1
+  #  condition: always() # this step will always run, helpful to diagnose failing cypress tests
+  #  inputs:
+  #    PathtoPublish: "polaris-e2e/cypress/videos"
+  #    ArtifactName: "Cypress failure vidoes"
+  #    publishLocation: "Container"
+
+  #- task: PublishBuildArtifacts@1
+  #  condition: always() # this step will always run, helpful to diagnose failing cypress tests
+  #  inputs:
+  #    PathtoPublish: "polaris-e2e/cypress/screenshots"
+  #    ArtifactName: "Cypress failure screenshots"
+  #    publishLocation: "Container"
