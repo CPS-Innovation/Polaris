@@ -448,7 +448,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const {
         payload: { documentId, documentCategory, noteText },
       } = action;
-      const { caseId, urn } = getState();
+      const {
+        caseId,
+        urn,
+        tabsState: { items },
+      } = getState();
+      const document = items.find((item) => item.documentId === documentId)!;
+
+      const { polarisDocumentVersionId } = document;
       try {
         await addNoteData(urn, caseId, documentId, documentCategory, noteText);
         const notesData = await getNotesData(
@@ -461,6 +468,16 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "UPDATE_NOTES_DATA",
           payload: { documentId, notesData },
+        });
+        dispatch({
+          type: "UPDATE_REFRESH_PIPELINE",
+          payload: {
+            startRefresh: true,
+            savedDocumentDetails: {
+              documentId: documentId,
+              polarisDocumentVersionId: polarisDocumentVersionId,
+            },
+          },
         });
       } catch (e) {
         console.log("failed to add notes");

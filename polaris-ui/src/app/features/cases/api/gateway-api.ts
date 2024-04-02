@@ -14,6 +14,7 @@ import {
 } from "../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
 import { Note } from "../domain/gateway/NotesData";
+import { removeNonDigits } from "../presentation/case-details/utils/redactionLogUtils";
 const buildHeaders = async (
   ...args: (
     | Record<string, string>
@@ -285,8 +286,9 @@ export const getNotesData = async (
   documentId: string,
   documentCategory: string
 ) => {
+  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${documentId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${docId}/notes`
   );
 
   const response = await internalFetch(path, {
@@ -307,14 +309,15 @@ export const addNoteData = async (
   documentCategory: string,
   text: string
 ) => {
+  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${documentId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${docId}/notes`
   );
 
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
-    body: JSON.stringify({ documentId: documentId, text: text }),
+    body: JSON.stringify({ documentId: docId, text: text }),
   });
 
   if (!response.ok) {
