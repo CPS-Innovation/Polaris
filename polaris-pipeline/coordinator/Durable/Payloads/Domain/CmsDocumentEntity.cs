@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
+using Newtonsoft.Json;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -30,7 +30,8 @@ namespace coordinator.Durable.Payloads.Domain
             string cmsParentDocumentId,
             int? witnessId,
             PresentationFlagsDto presentationFlags,
-            bool hasFailedAttachments)
+            bool hasFailedAttachments,
+            bool hasNotes)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
@@ -46,6 +47,7 @@ namespace coordinator.Durable.Payloads.Domain
             CmsParentDocumentId = cmsParentDocumentId;
             WitnessId = witnessId;
             HasFailedAttachments = hasFailedAttachments;
+            HasNotes = hasNotes;
         }
 
         [JsonProperty("path")]
@@ -98,7 +100,11 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }
+
         [JsonProperty("hasFailedAttachments")]
         public bool HasFailedAttachments { get; set; }
+
+        [JsonProperty("hasNotes")]
+        public bool HasNotes { get; set; }
     }
 }
