@@ -69,13 +69,13 @@ namespace pdf_redactor.integration.tests
         private static ServiceProvider BuildServiceProvider()
         {
             var configuration = new ConfigurationBuilder()
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
 
             var services = new ServiceCollection();
 
-            var redactorUrl = configuration.GetSection("Values")["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
+            var redactorUrl = configuration["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
 
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IRequestFactory, RequestFactory>();

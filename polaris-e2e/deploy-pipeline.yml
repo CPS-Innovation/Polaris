@@ -46,6 +46,15 @@ steps:
     fetchDepth: 1
     #displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
     displayName: "Checkout polaris-e2e at dev tag"
+    
+  - task: sergeyzwezdin.magic-chunks.magic.chunks.MagicChunks@2
+    displayName: 'Transform Integration Test Settings'
+    inputs:
+      sourcePath: "polaris-pipeline/pdf-redactor.integration.tests/appSettings.json"
+      transformations: |
+        {
+          "PdfRedactorUrl": "$(PdfRedactorUrl)"
+        }
 
   - task: DotNetCoreCLI@2
     inputs:
@@ -53,6 +62,15 @@ steps:
       projects: "polaris-pipeline/pdf-redactor.integration.tests/pdf-redactor.integration.tests.csproj"
       arguments: "--configuration Release"
     displayName: "Build PDF Redactor Integration Tests"
+    
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+      script: |
+        dotnet ./pdf-redactor.integration.tests.dll
+    failOnStderr: true
+    displayName: "Run PDF Redactor Integration Tests"
     
   #- task: Bash@3
   #  inputs:
