@@ -43,12 +43,12 @@ variables:
   PdfRedactorUrl: $(PdfRedactorLocation)
       
 steps:
-  - checkout: PolarisTagged
-    clean: true
-    persistCredentials: true
-    fetchDepth: 1
+  #- checkout: PolarisTagged
+  #  clean: true
+  #  persistCredentials: true
+  #  fetchDepth: 1
     #displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
-    displayName: "Checkout polaris-e2e at dev tag"
+  #  displayName: "Checkout polaris-e2e at dev tag"
     
   - task: DotNetCoreCLI@2
     inputs:
