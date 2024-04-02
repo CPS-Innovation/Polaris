@@ -50,19 +50,19 @@ steps:
     #displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
     displayName: "Checkout polaris-e2e at dev tag"
     
-  - task: FileTransform@2
-    displayName: 'Transform Integration Test Settings'
-    inputs:
-      folderPath: "polaris-pipeline/pdf-redactor.integration.tests"
-      jsonTargetFiles: "appSettings.json"
-      xmlTransformationRules: '' # disabled, prevents non-windows-platform error
-
   - task: DotNetCoreCLI@2
     inputs:
       command: "build"
       projects: "polaris-pipeline/pdf-redactor.integration.tests/pdf-redactor.integration.tests.csproj"
       arguments: "--configuration Release"
     displayName: "Build PDF Redactor Integration Tests"
+    
+  - task: FileTransform@2
+    displayName: 'Transform Integration Test Settings'
+    inputs:
+      folderPath: "polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+      jsonTargetFiles: "appSettings.json"
+      xmlTransformationRules: '' # disabled, prevents non-windows-platform error
     
   - task: PowerShell@2
     inputs:
