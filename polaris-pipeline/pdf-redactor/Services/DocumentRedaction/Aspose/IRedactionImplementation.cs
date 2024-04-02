@@ -8,7 +8,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
 
     void AttachAnnotation(Page page, Rectangle rect);
 
-    void FinaliseAnnotations(ref Document doc);
+    void FinaliseAnnotations(ref Document doc, Guid correlationId);
   }
 }
 
