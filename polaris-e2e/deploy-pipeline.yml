@@ -38,12 +38,51 @@ resources:
       name: CPS-Innovation/Polaris
       ref: refs/tags/$(cypress_environment)
 
+variables:
+  PdfRedactorUrl: $(PdfRedactorLocation)
+
 steps:
   - checkout: PolarisTagged
     clean: true
     persistCredentials: true
     fetchDepth: 1
     displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
+
+  - task: DownloadSecureFile@1
+    name: licence
+    inputs:
+      secureFile: "Aspose.Total.NET.lic"
+    displayName: "Download Aspose Licence"
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "build"
+      projects: "polaris-pipeline/pdf-redactor.integration.tests/pdf-redactor.integration.tests.csproj"
+      arguments: "--configuration Release"
+    displayName: "Build PDF Redactor Integration Tests"
+
+  - task: FileTransform@2
+    displayName: 'Transform Integration Test Settings'
+    inputs:
+      folderPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+      jsonTargetFiles: "appSettings.json"
+      xmlTransformationRules: '' # disabled, prevents non-windows-platform error
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: $(Agent.TempDirectory)
+      contents: Aspose.Total.NET.lic
+      targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+    displayName: "Copy Aspose.Total.NET.lic"
+
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+      script: |
+        dotnet ./pdf-redactor.integration.tests.dll
+      failOnStderr: true
+    displayName: "Run PDF Redactor Integration Tests"
 
   - task: Bash@3
     inputs:

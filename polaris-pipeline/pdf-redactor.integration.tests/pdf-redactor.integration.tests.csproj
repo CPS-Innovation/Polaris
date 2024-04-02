@@ -28,8 +28,8 @@
     <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.234" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="local.settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="appSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 </Project>

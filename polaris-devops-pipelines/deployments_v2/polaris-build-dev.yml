@@ -26,7 +26,7 @@ variables:
     value: "$[counter(variables['majorMinorVersion'], 1)]"
     
 pool:
-  vmImage: ubuntu-latest
+  vmImage: $(dev-build-agent)
 
 stages:
   - stage: Publish_Artifacts
