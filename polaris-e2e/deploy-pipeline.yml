@@ -38,7 +38,7 @@ resources:
       name: CPS-Innovation/Polaris
       #ref: refs/tags/$(cypress_environment)
       ref: refs/tags/dev
-
+      
 steps:
   - checkout: PolarisTagged
     clean: true
@@ -46,17 +46,14 @@ steps:
     fetchDepth: 1
     #displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
     displayName: "Checkout polaris-e2e at dev tag"
-    
+
   - task: DotNetCoreCLI@2
     inputs:
-      command: publish
+      command: "build"
       projects: "polaris-pipeline/pdf-redactor.integration.tests/pdf-redactor.integration.tests.csproj"
-      arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
-      zipAfterPublish: false
-      publishWebProjects: false
-    enabled: true
-    displayName: Publish PDF Redactor Integration Tests
-
+      arguments: "--configuration Release"
+    displayName: "Build PDF Redactor Integration Tests"
+    
   #- task: Bash@3
   #  inputs:
   #    targetType: "inline"
