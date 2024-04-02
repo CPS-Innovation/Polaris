@@ -136,6 +136,11 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
    * clearing up of area selection, if the user clicks inside the document is already done MouseSelection component.
    */
   documentClickHandler = (event: MouseEvent) => {
+    const { tipPosition } = this.state;
+    //only consider hide tip if there is one
+    if (!tipPosition) {
+      return;
+    }
     if (asElement(event.target).closest(".PdfHighlighter")) {
       return;
     }
