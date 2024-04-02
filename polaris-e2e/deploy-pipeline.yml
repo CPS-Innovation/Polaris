@@ -40,7 +40,7 @@ resources:
       ref: refs/tags/dev
       
 variables:
-  PdfRedactorUrl: $(PdfRedactorUrl)
+  PdfRedactorUrl: $(PdfRedactorLocation)
       
 steps:
   - checkout: PolarisTagged
@@ -55,6 +55,7 @@ steps:
     inputs:
       folderPath: "polaris-pipeline/pdf-redactor.integration.tests"
       jsonTargetFiles: "appSettings.json"
+      xmlTransformationRules: '' # disabled, prevents non-windows-platform error
 
   - task: DotNetCoreCLI@2
     inputs:
