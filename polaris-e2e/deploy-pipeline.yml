@@ -69,7 +69,7 @@ steps:
       workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
       script: |
         dotnet ./pdf-redactor.integration.tests.dll
-    failOnStderr: true
+      failOnStderr: true
     displayName: "Run PDF Redactor Integration Tests"
     
   #- task: Bash@3
