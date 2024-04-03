@@ -1,16 +1,30 @@
 ---
 trigger: none
 pr: none
+  
+pool:
+  vmImage: ubuntu-latest
 
 variables:
   - group: kv-dev-terraform
   
 stages:
-  - stage: Call_Child_Pipeline
-    pool:
-      vmImage: ubuntu-latest
+  - stage: Determine_Changes
     jobs:
-      - job:
+      - job: Generate_Diff
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Determine changes"
+                Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
+                Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+    
+  - stage: Call_Child_Pipeline
+    dependsOn: Determine_Changes
+    jobs:
+      - job: Call_Child_Pipeline
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Call Child Pipeline'
@@ -20,3 +34,25 @@ stages:
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
+              
+  - stage: Evaluate_Status
+    dependsOn:
+      - Determine_Changes
+      - Call_Child_Pipeline
+    variables:
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+    jobs:
+      - job: Send_Success_Report
+        displayName: Send Success Report
+        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), succeeded())
+        steps:
+          - bash: |
+              echo "Send a Success Message"
+
+      - job: Send_Failure_Report
+        displayName: Send Failure Report
+        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), or(failed(), canceled()))
+        steps:
+          - bash: |
+              echo "Send a Failure Message"
