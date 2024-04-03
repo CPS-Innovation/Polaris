@@ -14,6 +14,7 @@ stages:
       - job: Generate_Diff
         steps:
           - task: PowerShell@2
+            name: Change_Results
             inputs:
               targetType: 'inline'
               script: |
