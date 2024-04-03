@@ -37,25 +37,34 @@ stages:
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
               
-  - stage: Evaluate_Status
+  - stage: Send_Success_Message
     dependsOn:
       - Determine_Changes
       - Call_Child_Pipeline
-    condition: or(succeeded(),failed(),canceled())
+    condition: succeeded()
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
     jobs:
       - job: Send_Success_Report
         displayName: Send Success Report
-        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), succeeded())
+        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
         steps:
           - bash: |
               echo "Send a Success Message"
-
+              
+  - stage: Send_Failure_Message
+    dependsOn:
+      - Determine_Changes
+      - Call_Child_Pipeline
+    condition: or(failed(), canceled())
+    variables:
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+    jobs:
       - job: Send_Failure_Report
         displayName: Send Failure Report
-        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), or(failed(), canceled()))
+        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
         steps:
           - bash: |
               echo "Send a Failure Message"
