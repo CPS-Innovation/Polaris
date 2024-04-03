@@ -1187,8 +1187,8 @@ stages:
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
               devOpsPatToken: "$(System.AccessToken)"
               
-  - stage: Send_Report
-    displayName: Send Report
+  - stage: Send_Success_Report
+    displayName: Send Success Report
     dependsOn:
       - Determine_Changes
       - Run_e2e_Tests
@@ -1206,13 +1206,13 @@ stages:
       uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
-    condition: or(succeeded(),failed(),canceled())
+    condition: succeeded()
     pool:
       name: $(prod-build-agent)
     jobs:
       - job: Send_Success_Report
         displayName: Send Success Report
-        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), succeeded())
+        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
         steps:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
@@ -1235,10 +1235,33 @@ stages:
               messageTitle: "✔ Polaris Release to PROD Completed!"
               buildResultsTitle: "View Release Commits"
               buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
-
+              
+  - stage: Send_Failure_Report
+    displayName: Send Failure Report
+    dependsOn:
+      - Determine_Changes
+      - Run_e2e_Tests
+    variables:
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
+      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
+      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
+      networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
+      coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
+      pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
+      textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
+      gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
+      uiCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_COUNT']]
+      ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
+      commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
+    condition: or(failed(), canceled())
+    pool:
+      name: $(prod-build-agent)
+    jobs:
       - job: Send_Failure_Report
         displayName: Send Failure Report
-        condition: and(or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')), or(failed(), canceled()))
+        condition: or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true'))
         steps:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
