@@ -40,7 +40,7 @@ namespace coordinator.Functions
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddNote(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.AddNoteToDocument)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
             string documentCategory,
