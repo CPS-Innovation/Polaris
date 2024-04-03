@@ -1,5 +1,5 @@
 using FluentAssertions;
-using coordinator.Factories.UploadFileNameFactory;
+using pdf_redactor.Services.DocumentRedaction;
 using Xunit;
 
 namespace pdf_redactor.tests.Services.DocumentRedaction;

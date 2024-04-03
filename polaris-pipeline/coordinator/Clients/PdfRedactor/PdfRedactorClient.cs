@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Wrappers;
 
 namespace coordinator.Clients.PdfRedactor
@@ -25,9 +26,38 @@ namespace coordinator.Clients.PdfRedactor
       _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
     }
 
+    public async Task<RedactPdfResponse> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+    {
+      HttpResponseMessage response;
+      try
+      {
+        var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
+
+        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}", correlationId);
+        request.Content = requestMessage;
+
+        response = await _httpClient.SendAsync(request);
+
+        response.EnsureSuccessStatusCode();
+      }
+      catch (HttpRequestException exception)
+      {
+        if (exception.StatusCode == HttpStatusCode.NotFound)
+        {
+          // todo: check if ok to swallow a not found response?
+          return null;
+        }
+
+        throw;
+      }
+
+      var stringContent = await response.Content.ReadAsStringAsync();
+      return _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent);
+    }
+
     public async Task<Stream> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
     {
-      try
+      try 
       {
         var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
@@ -39,10 +69,10 @@ namespace coordinator.Clients.PdfRedactor
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStreamAsync();
-      }
-      catch (HttpRequestException exception)
+      } 
+      catch (HttpRequestException exception) 
       {
-        if (exception.StatusCode == HttpStatusCode.NotFound)
+        if (exception.StatusCode == HttpStatusCode.NotFound) 
         {
           // todo: check if ok to swallow a not found response?
           return null;

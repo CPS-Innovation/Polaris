@@ -1,13 +1,13 @@
-﻿using Common.Domain.Document;
+﻿using Common.Constants;
+using Common.Domain.Document;
 using pdf_generator.Extensions;
-using pdf_redactor.Services.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using pdf_redactor.Services.DocumentRedaction;
+using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
 using pdf_generator.Domain.Document;
