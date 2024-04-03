@@ -10,8 +10,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using pdf_redactor.Services.DocumentRedaction.Aspose;
-using pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementations;
+using pdf_generator.Services.DocumentRedaction.Aspose;
+using pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using Xunit;
 
 namespace pdf_generator.tests.Services.DocumentRedaction.Aspose;
@@ -57,7 +57,7 @@ public class AsposeRedactionProviderIntegrationTests
       absorber.ImagePlacements.Should().HaveCount(expectedImagesCount);
     };
 
-    using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_redactor.tests.TestResources.TestPdf.pdf");
+    using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestPdf.pdf");
     using var originalDocument = new Document(inputStream);
 
     // set up a redaction each on page 2 and page 4
