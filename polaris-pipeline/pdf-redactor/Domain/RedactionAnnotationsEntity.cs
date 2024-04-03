@@ -6,5 +6,8 @@ namespace pdf_redactor.Domain
   {
     public int PageNumber { get; set; }
     public double ImageConversionDurationSeconds { get; set; }
+    public double TotalFinaliseAnnotationsDurationSeconds { get; set; }
+    public double DeletePageDurationSeconds { get; set; }
+    public double InsertPageDurationSeconds { get; set; }
   }
 }

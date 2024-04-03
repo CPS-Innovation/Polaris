@@ -50,6 +50,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
         {
             for (var pageNumber = 1; pageNumber <= document.Pages.Count; pageNumber++)
             {
+                var stopwatch = Stopwatch.StartNew();
+
                 RedactionAnnotationsEntity redactionAnnotationsEntity = new RedactionAnnotationsEntity
                 {
                     PageNumber = pageNumber,
@@ -65,17 +67,19 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 var pageHeight = page.PageInfo.Height;
                 var pageWidth = page.PageInfo.Width;
 
-                var stopwatch = Stopwatch.StartNew();
 
                 // do not dispose `memoryStream` here, cannot be disposed until the document is saved
                 var memoryStream = new MemoryStream();
                 _imageDevice.Process(page, memoryStream);
-
                 stopwatch.Stop();
                 redactionAnnotationsEntity.ImageConversionDurationSeconds = stopwatch.Elapsed.TotalSeconds;
 
+                stopwatch.Restart();
                 document.Pages.Delete(pageNumber);
+                stopwatch.Stop();
+                redactionAnnotationsEntity.DeletePageDurationSeconds = stopwatch.Elapsed.TotalSeconds;
 
+                stopwatch.Restart();
                 var pageToSwapIn = document.Pages.Insert(pageNumber);
                 pageToSwapIn.SetPageSize(pageWidth, pageHeight);
                 pageToSwapIn.Rect = Rectangle.FromRect(pageToSwapOutRect);
@@ -93,8 +97,14 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
 
                 pageToSwapIn.Paragraphs.Add(i);
 
-                _logger.LogMethodFlow(correlationId, nameof(FinaliseAnnotations), _jsonConvertWrapper.SerializeObject(redactionAnnotationsEntity));
+                stopwatch.Stop();
+                redactionAnnotationsEntity.InsertPageDurationSeconds = stopwatch.Elapsed.TotalSeconds;
+                redactionAnnotationsEntity.TotalFinaliseAnnotationsDurationSeconds =
+                    redactionAnnotationsEntity.ImageConversionDurationSeconds +
+                    redactionAnnotationsEntity.DeletePageDurationSeconds +
+                    redactionAnnotationsEntity.InsertPageDurationSeconds;
 
+                _logger.LogMethodFlow(correlationId, nameof(FinaliseAnnotations), _jsonConvertWrapper.SerializeObject(redactionAnnotationsEntity));
             }
         }
 
