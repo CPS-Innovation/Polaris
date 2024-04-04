@@ -93,6 +93,7 @@ type AsyncActions =
         documentId: string;
         documentCategory: string;
         noteText: string;
+        createdByName: string;
       };
     };
 
@@ -463,7 +464,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory, noteText },
+        payload: { documentId, documentCategory, noteText, createdByName },
       } = action;
       const {
         caseId,
@@ -477,7 +478,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         notes.find((note) => note.documentId === documentId)?.notes ?? [];
       const newNote = {
         id: Math.random(),
-        createdByName: "rrr",
+        createdByName,
         date: new Date().toISOString(),
         text: noteText,
       };

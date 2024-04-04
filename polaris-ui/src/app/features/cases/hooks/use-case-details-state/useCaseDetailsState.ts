@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
+import { useUserDetails } from "../../../../auth";
 import {
   getCaseDetails,
   searchCase,
@@ -74,6 +75,7 @@ export const initialState = {
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
+  const userDetails = useUserDetails();
   const featureFlagData = useUserGroupsFeatureFlag();
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
@@ -422,7 +424,12 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     ) =>
       dispatch({
         type: "ADD_NOTE_DATA",
-        payload: { documentId, documentCategory, noteText },
+        payload: {
+          documentId,
+          documentCategory,
+          noteText,
+          createdByName: userDetails.name,
+        },
       }),
     [dispatch]
   );
