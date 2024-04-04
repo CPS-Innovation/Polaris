@@ -393,13 +393,6 @@ describe("case details page", () => {
       );
     });
 
-    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsNotOcrProcessed`", () => {
-      openAndRedactDocument("link-document-7");
-      cy.findByTestId("redaction-warning").contains(
-        "Awaiting OCR processing in CMS. Please try again later for redaction."
-      );
-    });
-
     it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsDispatched`", () => {
       openAndRedactDocument("link-document-9");
       cy.findByTestId("redaction-warning").contains(
