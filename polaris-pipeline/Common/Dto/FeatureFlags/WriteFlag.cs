@@ -7,7 +7,6 @@ namespace Common.Dto.FeatureFlags
         DocTypeNotAllowed,
         OriginalFileTypeNotAllowed,
         IsDispatched,
-        IsNotOcrProcessed,
         AttachmentCategoryNotAllowed,
     }
 }
