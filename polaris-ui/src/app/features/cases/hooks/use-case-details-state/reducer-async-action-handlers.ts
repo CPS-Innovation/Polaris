@@ -464,31 +464,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory, noteText, createdByName },
+        payload: { documentId, documentCategory, noteText },
       } = action;
-      const {
-        caseId,
-        urn,
-        tabsState: { items },
-        notes,
-      } = getState();
-      const document = items.find((item) => item.documentId === documentId)!;
+      const { caseId, urn } = getState();
 
-      const currentNotes =
-        notes.find((note) => note.documentId === documentId)?.notes ?? [];
-      const newNote = {
-        id: Math.random(),
-        createdByName,
-        date: new Date().toISOString(),
-        text: noteText,
-      };
-
-      dispatch({
-        type: "UPDATE_NOTES_DATA",
-        payload: { documentId, notesData: [...currentNotes, newNote] },
-      });
-
-      const { polarisDocumentVersionId } = document;
       try {
         await addNoteData(urn, caseId, documentId, documentCategory, noteText);
         const notesData = await getNotesData(
@@ -513,16 +492,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {
           startRefresh: true,
-          savedDocumentDetails: {
-            documentId: documentId,
-            polarisDocumentVersionId: polarisDocumentVersionId,
-          },
         },
       });
     },
 };
-
-// urn: string,
-//   caseId: number,
-//   documentId: string,
-//   documentCategory: string
