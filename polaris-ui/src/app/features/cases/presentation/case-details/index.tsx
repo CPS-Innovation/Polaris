@@ -385,7 +385,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               </div>
             </div>
           )}
-          {openNotes.open && (
+          {!inFullScreen && openNotes.open && (
             <div
               className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
             >
