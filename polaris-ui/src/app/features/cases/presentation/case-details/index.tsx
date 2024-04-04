@@ -52,7 +52,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     open: boolean;
     documentId: string;
     documentCategory: string;
-  }>({ open: false, documentId: "", documentCategory: "" });
+    presentationFileName: string;
+  }>({
+    open: false,
+    documentId: "",
+    documentCategory: "",
+    presentationFileName: "",
+  });
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -167,11 +173,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
-  const handleOpenNotes = (documentId: string, documentCategory: string) => {
+  const handleOpenNotes = (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => {
     setOpenNotes({
       open: true,
       documentId: documentId,
       documentCategory: documentCategory,
+      presentationFileName: presentationFileName,
     });
     handleGetNotes(documentId, documentCategory);
   };
@@ -379,6 +390,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
             >
               <NotesPanel
+                documentName={openNotes.presentationFileName}
                 documentCategory={openNotes.documentCategory}
                 documentId={openNotes.documentId}
                 notesData={notes}
@@ -387,6 +399,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     open: false,
                     documentId: "",
                     documentCategory: "",
+                    presentationFileName: "",
                   });
                 }}
                 handleAddNote={handleAddNote}

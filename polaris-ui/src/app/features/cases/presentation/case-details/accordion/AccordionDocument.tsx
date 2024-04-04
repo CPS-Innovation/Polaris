@@ -25,7 +25,11 @@ type Props = {
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
-  handleOpenNotes: (documentId: string, documentCategory: string) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -118,7 +122,8 @@ export const AccordionDocument: React.FC<Props> = ({
               onClick={() => {
                 handleOpenNotes(
                   caseDocument.documentId,
-                  caseDocument.cmsDocType.documentCategory
+                  caseDocument.cmsDocType.documentCategory,
+                  caseDocument.presentationFileName
                 );
               }}
             >

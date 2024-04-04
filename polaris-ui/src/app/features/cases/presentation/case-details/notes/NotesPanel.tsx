@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Button,
   LinkButton,
@@ -10,6 +10,7 @@ import { NotesData } from "../../../domain/gateway/NotesData";
 
 const NOTES_MAX_CHARACTERS = 500;
 type NotesPanelProps = {
+  documentName: string;
   documentId: string;
   documentCategory: string;
   notesData: NotesData[];
@@ -22,6 +23,7 @@ type NotesPanelProps = {
 };
 
 export const NotesPanel: React.FC<NotesPanelProps> = ({
+  documentName,
   notesData,
   documentId,
   documentCategory,
@@ -31,14 +33,26 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const [newNoteValue, setNewNoteValue] = useState("");
 
   const handleAddBtnClick = () => {
+    setNewNoteValue("");
     handleAddNote(documentId, documentCategory, newNoteValue);
   };
+
+  const notesList = useMemo(() => {
+    const notes =
+      notesData.find((note) => note.documentId === documentId)?.notes ?? [];
+
+    return [...notes].reverse();
+  }, [notesData, documentId]);
 
   return (
     <div className={classes.notesPanel}>
       <div className={classes.notesHeader}>
         {" "}
-        <h3>Notes Header</h3>
+        <h3 className={classes.notesTitle}>
+          {" "}
+          Notes -{" "}
+          <span className={classes.notesDocumentName}>{documentName}</span>
+        </h3>
       </div>
       <div className={classes.notesBody}>
         <div className={classes.notesTextArea}>
@@ -88,11 +102,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           </div>
         </div>
       </div>
-      <CommentsTimeline
-        notes={
-          notesData.find((note) => note.documentId === documentId)?.notes ?? []
-        }
-      />
+      <CommentsTimeline notes={notesList} />
     </div>
   );
 };

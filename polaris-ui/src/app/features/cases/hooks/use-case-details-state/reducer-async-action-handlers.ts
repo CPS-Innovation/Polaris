@@ -469,8 +469,23 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         caseId,
         urn,
         tabsState: { items },
+        notes,
       } = getState();
       const document = items.find((item) => item.documentId === documentId)!;
+
+      const currentNotes =
+        notes.find((note) => note.documentId === documentId)?.notes ?? [];
+      const newNote = {
+        id: Math.random(),
+        createdByName: "rrr",
+        date: new Date().toISOString(),
+        text: noteText,
+      };
+
+      dispatch({
+        type: "UPDATE_NOTES_DATA",
+        payload: { documentId, notesData: [...currentNotes, newNote] },
+      });
 
       const { polarisDocumentVersionId } = document;
       try {
@@ -486,19 +501,23 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "UPDATE_NOTES_DATA",
           payload: { documentId, notesData },
         });
-        dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
-          payload: {
-            startRefresh: true,
-            savedDocumentDetails: {
-              documentId: documentId,
-              polarisDocumentVersionId: polarisDocumentVersionId,
-            },
-          },
-        });
       } catch (e) {
+        // dispatch({
+        //   type: "UPDATE_NOTES_DATA",
+        //   payload: { documentId, notesData: [newNote, ...currentNotes] },
+        // });
         console.log("failed to add notes");
       }
+      dispatch({
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: true,
+          savedDocumentDetails: {
+            documentId: documentId,
+            polarisDocumentVersionId: polarisDocumentVersionId,
+          },
+        },
+      });
     },
 };
 

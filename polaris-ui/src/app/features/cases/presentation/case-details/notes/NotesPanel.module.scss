@@ -7,6 +7,14 @@
 .notesHeader {
   background: #f3f2f1;
   border-bottom: 1px solid #b1b4b6;
+  display: flex;
+}
+.notesTitle {
+  margin-left: 10px;
+  font-size: 19px;
+}
+.notesDocumentName {
+  color: #505a5f;
 }
 .notesTextArea {
   position: relative;
@@ -44,8 +52,7 @@
   justify-content: flex-start;
   align-items: baseline;
   width: 100%;
-  margin-top: 1.875rem;
-  padding: 0 1.875rem;
+  margin-top: 0;
 }
 .cancelBtn {
   margin-left: 1rem;

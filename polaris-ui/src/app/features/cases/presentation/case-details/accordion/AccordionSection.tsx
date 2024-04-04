@@ -16,7 +16,11 @@ type Props = {
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
-  handleOpenNotes: (documentId: string, documentCategory: string) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
 };
 const formatTestIdText = (id: string) => {
   return id
