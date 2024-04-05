@@ -447,17 +447,28 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, documentCategory },
       } = action;
       const { caseId, urn } = getState();
-      const notesData = await getNotesData(
-        urn,
-        caseId,
-        documentId,
-        documentCategory
-      );
-
-      dispatch({
-        type: "UPDATE_NOTES_DATA",
-        payload: { documentId, notesData },
-      });
+      try {
+        const notesData = await getNotesData(
+          urn,
+          caseId,
+          documentId,
+          documentCategory
+        );
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, notesData, addNoteStatus: "initial" },
+        });
+      } catch (e) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "getnotes",
+            title: "Something went wrong!",
+            message:
+              "Failed to get notes for the documents. Please try again later.",
+          },
+        });
+      }
     },
 
   ADD_NOTE_DATA:
@@ -470,22 +481,24 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       try {
         await addNoteData(urn, caseId, documentId, documentCategory, noteText);
-        const notesData = await getNotesData(
-          urn,
-          caseId,
-          documentId,
-          documentCategory
-        );
-
         dispatch({
           type: "UPDATE_NOTES_DATA",
-          payload: { documentId, notesData },
+          payload: { documentId, addNoteStatus: "success" },
         });
       } catch (e) {
-        // dispatch({
-        //   type: "UPDATE_NOTES_DATA",
-        //   payload: { documentId, notesData: [newNote, ...currentNotes] },
-        // });
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "addnote",
+            title: "Something went wrong!",
+            message:
+              "Failed to add note to the document. Please try again later.",
+          },
+        });
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, addNoteStatus: "failure" },
+        });
         console.log("failed to add notes");
       }
       dispatch({

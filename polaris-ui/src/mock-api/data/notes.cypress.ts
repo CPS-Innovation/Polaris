@@ -1,7 +1,7 @@
 import { NotesData } from "../../app/features/cases/domain/gateway/NotesData";
 import { NotesDataSource } from "./types/NotesDataSource";
 
-export const notes: NotesData[] = [
+export const notes = [
   {
     documentId: "1",
     notes: [

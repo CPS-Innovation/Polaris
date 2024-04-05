@@ -189,10 +189,16 @@ export const reducer = (
       }
     | {
         type: "UPDATE_NOTES_DATA";
-        payload: {
-          documentId: string;
-          notesData: Note[];
-        };
+        payload:
+          | {
+              documentId: string;
+              addNoteStatus: "failure" | "success";
+            }
+          | {
+              documentId: string;
+              notesData: Note[];
+              addNoteStatus: "initial";
+            };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -989,14 +995,38 @@ export const reducer = (
       };
     }
     case "UPDATE_NOTES_DATA": {
-      const { notesData, documentId } = action.payload;
+      const { documentId, addNoteStatus } = action.payload;
       const filteredNotes = state.notes.filter(
         (note) => note.documentId !== documentId
       );
-      return {
-        ...state,
-        notes: [...filteredNotes, { documentId: documentId, notes: notesData }],
-      };
+      const activeNotes = state.notes.find(
+        (note) => note.documentId === documentId
+      )!;
+      switch (addNoteStatus) {
+        case "success":
+        case "failure": {
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              { ...activeNotes, addNoteStatus: addNoteStatus },
+            ],
+          };
+        }
+        default:
+          const { notesData } = action.payload;
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                documentId: documentId,
+                notes: notesData,
+                addNoteStatus: addNoteStatus,
+              },
+            ],
+          };
+      }
     }
 
     default:

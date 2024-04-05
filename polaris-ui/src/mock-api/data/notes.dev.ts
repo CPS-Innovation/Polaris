@@ -1,7 +1,7 @@
 import { NotesData } from "../../app/features/cases/domain/gateway/NotesData";
 import { NotesDataSource } from "./types/NotesDataSource";
 
-export const notes: NotesData[] = [
+export const notes = [
   {
     documentId: "1",
     notes: [
@@ -9,7 +9,7 @@ export const notes: NotesData[] = [
         id: 1,
         createdByName: "rrr",
         sortOrder: 1,
-        date: "abc",
+        date: "2024-02-10",
         text: "note text",
         type: "abc",
       },
@@ -22,7 +22,7 @@ export const notes: NotesData[] = [
         id: 1,
         createdByName: "rrr_2",
         sortOrder: 1,
-        date: "abc",
+        date: "2024-02-10",
         text: "note text_2",
         type: "abc",
       },

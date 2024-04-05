@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Button,
   LinkButton,
@@ -20,6 +20,7 @@ type NotesPanelProps = {
     notesText: string
   ) => void;
   handleCloseNotes: () => void;
+  handleGetNotes: (documentId: string, documentCategory: string) => void;
 };
 
 export const NotesPanel: React.FC<NotesPanelProps> = ({
@@ -29,20 +30,41 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   documentCategory,
   handleCloseNotes,
   handleAddNote,
+  handleGetNotes,
 }) => {
   const [newNoteValue, setNewNoteValue] = useState("");
+  const [oldNoteValue, setOldNoteValue] = useState("");
 
   const handleAddBtnClick = () => {
+    setOldNoteValue(newNoteValue);
     setNewNoteValue("");
     handleAddNote(documentId, documentCategory, newNoteValue);
   };
 
-  const notesList = useMemo(() => {
-    const notes =
-      notesData.find((note) => note.documentId === documentId)?.notes ?? [];
-
-    return [...notes].reverse();
+  const noteData = useMemo(() => {
+    return notesData.find((note) => note.documentId === documentId);
   }, [notesData, documentId]);
+
+  useEffect(() => {
+    if (noteData?.addNoteStatus === "failure") {
+      setNewNoteValue(oldNoteValue);
+    }
+  }, [noteData?.addNoteStatus, oldNoteValue]);
+
+  useEffect(() => {
+    if (noteData?.addNoteStatus === "success") {
+      handleGetNotes(documentId, documentCategory);
+    }
+  }, [noteData?.addNoteStatus, documentId, documentCategory, handleGetNotes]);
+
+  useEffect(() => {
+    handleGetNotes(documentId, documentCategory);
+  }, []);
+
+  const notesList = useMemo(() => {
+    const notes = noteData?.notes ?? [];
+    return [...notes].reverse();
+  }, [noteData]);
 
   return (
     <div className={classes.notesPanel}>

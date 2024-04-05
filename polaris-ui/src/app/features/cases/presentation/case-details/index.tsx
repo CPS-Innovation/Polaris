@@ -184,7 +184,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       documentCategory: documentCategory,
       presentationFileName: presentationFileName,
     });
-    handleGetNotes(documentId, documentCategory);
   };
 
   return (
@@ -403,6 +402,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   });
                 }}
                 handleAddNote={handleAddNote}
+                handleGetNotes={handleGetNotes}
               />
             </div>
           )}
