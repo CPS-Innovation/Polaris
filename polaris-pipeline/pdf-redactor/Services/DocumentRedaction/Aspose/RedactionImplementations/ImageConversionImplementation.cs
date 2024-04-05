@@ -71,13 +71,11 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 // do not dispose `memoryStream` here, cannot be disposed until the document is saved
                 var memoryStream = new MemoryStream();
                 _imageDevice.Process(page, memoryStream);
-                stopwatch.Stop();
-                redactionAnnotationsEntity.ImageConversionDurationSeconds = stopwatch.Elapsed.TotalSeconds;
+                redactionAnnotationsEntity.ImageConversionDurationMilliseconds = stopwatch.ElapsedMilliseconds;
 
                 stopwatch.Restart();
                 document.Pages.Delete(pageNumber);
-                stopwatch.Stop();
-                redactionAnnotationsEntity.DeletePageDurationSeconds = stopwatch.Elapsed.TotalSeconds;
+                redactionAnnotationsEntity.DeletePageDurationMilliseconds = stopwatch.ElapsedMilliseconds;
 
                 stopwatch.Restart();
                 var pageToSwapIn = document.Pages.Insert(pageNumber);
@@ -98,11 +96,12 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 pageToSwapIn.Paragraphs.Add(i);
 
                 stopwatch.Stop();
-                redactionAnnotationsEntity.InsertPageDurationSeconds = stopwatch.Elapsed.TotalSeconds;
-                redactionAnnotationsEntity.TotalFinaliseAnnotationsDurationSeconds =
-                    redactionAnnotationsEntity.ImageConversionDurationSeconds +
-                    redactionAnnotationsEntity.DeletePageDurationSeconds +
-                    redactionAnnotationsEntity.InsertPageDurationSeconds;
+                redactionAnnotationsEntity.InsertPageDurationMilliseconds = stopwatch.ElapsedMilliseconds;
+
+                redactionAnnotationsEntity.TotalFinaliseAnnotationsDurationMilliseconds =
+                    redactionAnnotationsEntity.ImageConversionDurationMilliseconds +
+                    redactionAnnotationsEntity.DeletePageDurationMilliseconds +
+                    redactionAnnotationsEntity.InsertPageDurationMilliseconds;
 
                 _logger.LogMethodFlow(correlationId, nameof(FinaliseAnnotations), _jsonConvertWrapper.SerializeObject(redactionAnnotationsEntity));
             }

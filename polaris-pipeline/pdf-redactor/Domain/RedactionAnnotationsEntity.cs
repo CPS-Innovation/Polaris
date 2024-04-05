@@ -5,9 +5,9 @@ namespace pdf_redactor.Domain
   public class RedactionAnnotationsEntity
   {
     public int PageNumber { get; set; }
-    public double ImageConversionDurationSeconds { get; set; }
-    public double TotalFinaliseAnnotationsDurationSeconds { get; set; }
-    public double DeletePageDurationSeconds { get; set; }
-    public double InsertPageDurationSeconds { get; set; }
+    public double ImageConversionDurationMilliseconds { get; set; }
+    public double TotalFinaliseAnnotationsDurationMilliseconds { get; set; }
+    public double DeletePageDurationMilliseconds { get; set; }
+    public double InsertPageDurationMilliseconds { get; set; }
   }
 }
