@@ -463,6 +463,7 @@ describe("mapAccordionState", () => {
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
+          hasNotes: false,
         },
         {
           documentId: "2",
@@ -490,6 +491,7 @@ describe("mapAccordionState", () => {
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
+          hasNotes: false,
         },
       ],
     };
@@ -529,6 +531,7 @@ describe("mapAccordionState", () => {
               witnessId: null,
               witnessIndicators: [],
               hasFailedAttachments: false,
+              hasNotes: false,
             },
           ],
         },

@@ -128,6 +128,9 @@ export const AccordionDocument: React.FC<Props> = ({
               }}
             >
               <NotesIcon />
+              {caseDocument.hasNotes && (
+                <div className={classes.notesAvailable}></div>
+              )}
             </LinkButton>
           </div>
 
