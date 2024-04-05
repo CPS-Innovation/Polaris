@@ -10,5 +10,5 @@ export type Note = {
 export type NotesData = {
   documentId: string;
   notes: Note[];
-  addNoteStatus: "failure" | "success" | "initial";
+  addNoteStatus: "failure" | "saving" | "success" | "initial";
 };

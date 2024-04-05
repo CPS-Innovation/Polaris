@@ -49,7 +49,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     if (noteData?.addNoteStatus === "failure") {
       setNewNoteValue(oldNoteValue);
     }
-  }, [noteData?.addNoteStatus, oldNoteValue]);
+  }, [noteData?.addNoteStatus]);
 
   useEffect(() => {
     if (noteData?.addNoteStatus === "success") {

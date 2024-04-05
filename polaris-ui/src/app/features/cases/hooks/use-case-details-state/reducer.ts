@@ -192,7 +192,7 @@ export const reducer = (
         payload:
           | {
               documentId: string;
-              addNoteStatus: "failure" | "success";
+              addNoteStatus: "saving" | "failure" | "success";
             }
           | {
               documentId: string;
@@ -1004,12 +1004,17 @@ export const reducer = (
       )!;
       switch (addNoteStatus) {
         case "success":
-        case "failure": {
+        case "failure":
+        case "saving": {
           return {
             ...state,
             notes: [
               ...filteredNotes,
-              { ...activeNotes, addNoteStatus: addNoteStatus },
+              {
+                ...activeNotes,
+                documentId: documentId,
+                addNoteStatus: addNoteStatus,
+              },
             ],
           };
         }

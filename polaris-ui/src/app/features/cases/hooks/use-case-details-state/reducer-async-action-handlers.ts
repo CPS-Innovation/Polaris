@@ -480,6 +480,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const { caseId, urn } = getState();
 
       try {
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, addNoteStatus: "saving" },
+        });
         await addNoteData(urn, caseId, documentId, documentCategory, noteText);
         dispatch({
           type: "UPDATE_NOTES_DATA",
