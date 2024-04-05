@@ -85,10 +85,6 @@ namespace coordinator.Services.DocumentToggle
             {
                 write = WriteFlag.IsDispatched;
             }
-            else if (!document.IsOcrProcessed)
-            {
-                write = WriteFlag.IsNotOcrProcessed;
-            }
             else if (string.Equals(document.CmsDocType.DocumentCategory, AttachmentCategoryName, StringComparison.InvariantCultureIgnoreCase))
             {
                 write = WriteFlag.AttachmentCategoryNotAllowed;

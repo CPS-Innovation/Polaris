@@ -32,7 +32,6 @@ namespace coordinator.tests.Functions
         private readonly string _documentCategory;
         private readonly int _documentId;
         private readonly HttpRequestMessage _httpRequestMessage;
-        private HttpResponseMessage _errorHttpResponseMessage;
         private readonly Mock<ILogger<AddNoteToDocument>> _mockLogger;
         private readonly Mock<IDdeiClient> _mockDdeiClient;
         private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
