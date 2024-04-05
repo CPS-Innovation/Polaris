@@ -13,10 +13,12 @@ ImageSharpCompare is then used to assert the AbsoluteError is 0 comparing to our
 namespace pdf_redactor.integration.tests
 {
     using IPdfRedactorClient = Clients.IPdfRedactorClient;
-
+    
     internal static class Program
     {
-        public static async Task Main(string[] args)
+        private static string _pdfRedactorUrl = string.Empty;
+        
+        public static async Task<int> Main()
         {
             var serviceProvider = BuildServiceProvider();
 
@@ -25,11 +27,19 @@ namespace pdf_redactor.integration.tests
 
             var redactorClient = serviceProvider.GetRequiredService<IPdfRedactorClient>();
 
+            Console.WriteLine($"Running tests against PDF Redactor: '{_pdfRedactorUrl}'");
+            Console.WriteLine("Asserting Document Image Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.image_document_redactions.json", "pdf_redactor.integration.tests.Resources.image_document.pdf", "pdf_redactor.integration.tests.Resources.image_document_page_1.png", "pdf_redactor.integration.tests.Resources.image_document_page_2.png");
+            Console.WriteLine("Asserting Document Image Redactions - Completed");
+            Console.WriteLine("Asserting Overlapping Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.overlapping_redaction_redactions.json", "pdf_redactor.integration.tests.Resources.overlapping_redaction.pdf", "pdf_redactor.integration.tests.Resources.overlapping_redaction_page_1.png", null);
+            Console.WriteLine("Asserting Overlapping Redactions - Completed");
+            Console.WriteLine("Asserting Broken OCR Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.broken_ocr_redactions.json", "pdf_redactor.integration.tests.Resources.broken_ocr.pdf", "pdf_redactor.integration.tests.Resources.broken_ocr_page_1.png", null);
+            Console.WriteLine("Asserting Broken OCR Redactions - Completed");
 
             Console.WriteLine("Successfully asserted all pdf test cases");
+            return 0;
         }
 
         private static async Task AssertRedactedPdf(IPdfRedactorClient redactorClient, string redactionsResourceName, string pdfResourceName, string assertionOneResourceName, string? assertionTwoResourceName)
@@ -68,19 +78,19 @@ namespace pdf_redactor.integration.tests
         private static ServiceProvider BuildServiceProvider()
         {
             var configuration = new ConfigurationBuilder()
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
 
             var services = new ServiceCollection();
 
-            var redactorUrl = configuration.GetSection("Values")["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
+            _pdfRedactorUrl = configuration["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
 
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IRequestFactory, RequestFactory>();
             services.AddHttpClient<IPdfRedactorClient, Clients.PdfRedactorClient>(client =>
             {
-                client.BaseAddress = new Uri(redactorUrl);
+                client.BaseAddress = new Uri(_pdfRedactorUrl);
             });
             services.AddTransient<IRequestFactory, RequestFactory>();
 
