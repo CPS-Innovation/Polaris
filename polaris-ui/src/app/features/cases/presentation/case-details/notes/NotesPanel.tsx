@@ -4,7 +4,7 @@ import {
   LinkButton,
   CharacterCount,
 } from "../../../../../common/presentation/components";
-import { CommentsTimeline } from "./CommentsTimeline";
+import { NotesTimeline } from "./NotesTimeline";
 import classes from "./NotesPanel.module.scss";
 import { NotesData } from "../../../domain/gateway/NotesData";
 
@@ -124,7 +124,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           </div>
         </div>
       </div>
-      <CommentsTimeline notes={notesList} />
+      <NotesTimeline notes={notesList} />
     </div>
   );
 };
