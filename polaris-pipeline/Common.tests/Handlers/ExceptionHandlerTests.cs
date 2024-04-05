@@ -78,9 +78,11 @@ namespace Common.Tests.Handlers
         public async void HandleExceptionWithData_Returns()
         {
             var ocrCompletedTime = DateTime.Now;
+            var indexStoredTime = DateTime.Now.AddSeconds(2);
 
             var extractTextResult = new ExtractTextResult
             {
+                IndexStoredTime = indexStoredTime,
                 LineCount = 100,
                 OcrCompletedTime = ocrCompletedTime,
                 PageCount = 5,
