@@ -1,13 +1,14 @@
 ﻿using AutoFixture;
+using text_extractor.Factories;
+using text_extractor.Factories.Contracts;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
-using coordinator.Factories.ComputerVisionClientFactory;
-using coordinator.Constants;
+using text_extractor.Constants;
 
-namespace coordinator.tests.Factories;
+namespace text_extractor.tests.Factories;
 
 public class ComputerVisionClientFactoryTests
 {
@@ -22,17 +23,17 @@ public class ComputerVisionClientFactoryTests
 		var configuration = new Mock<IConfiguration>();
 
 		configuration.Setup(x => x[ConfigKeys.ComputerVisionClientServiceUrl]).Returns(_serviceUrl);
-
+			
 		_computerVisionClientFactory = new ComputerVisionClientFactory(configuration.Object);
 	}
 
-	[Fact]
+    [Fact]
 	public void Create_ReturnsComputerVisionClient()
-	{
+    {
 		var client = _computerVisionClientFactory.Create();
 
 		client.Should().BeOfType<ComputerVisionClient>();
-	}
+    }
 
 	[Fact]
 	public void Create_SetsExpectedEndpointUrl()
