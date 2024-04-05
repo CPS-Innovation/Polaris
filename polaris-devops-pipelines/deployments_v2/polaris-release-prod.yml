@@ -11,7 +11,10 @@ resources:
           include:
             - refs/heads/main
         stages:
-          - Publish_Artifacts
+          - Publish_Artifacts  
+
+pool:
+  name: $(prod-build-agent)
 
 variables:
   - group: kv-prod-terraform
@@ -25,8 +28,6 @@ stages:
     displayName: Determine Changes
     jobs:
       - job: Generate_Diff
-        pool:
-          name: $(prod-build-agent)
         workspace:
           clean: all
         steps:
@@ -53,8 +54,6 @@ stages:
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
     dependsOn: Determine_Changes
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - deployment: Wait_For_Running_Builds
         environment: "Prod"
@@ -325,11 +324,9 @@ stages:
     dependsOn:
       - Determine_Changes
       - Apply
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - job: Log_Start_Codebase
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Log Codebase Start
         steps:
           - template: tasks/task_log-start-deployment.yml
@@ -342,7 +339,7 @@ stages:
       - job: Deploy_Coordinator
         dependsOn: Log_Start_Codebase
         displayName: Deploy Coordinator
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_deploy-coordinator.yml
             parameters:
@@ -356,7 +353,7 @@ stages:
       - job: Deploy_Pdf_Generator
         dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Generator
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_deploy-pdf-generator.yml
             parameters:
@@ -370,7 +367,7 @@ stages:
       - job: Deploy_Pdf_Redactor
         dependsOn: Log_Start_Codebase
         displayName: Deploy PDF Redactor
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_deploy-pdf-redactor.yml
             parameters:
@@ -384,7 +381,7 @@ stages:
       - job: Deploy_Text_Extractor
         dependsOn: Log_Start_Codebase
         displayName: Deploy Text Extractor
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_deploy-text-extractor.yml
             parameters:
@@ -398,7 +395,7 @@ stages:
       - job: Deploy_Spa
         dependsOn: Log_Start_Codebase
         displayName: Deploy SPA
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_deploy-spa.yml
             parameters:
@@ -412,7 +409,7 @@ stages:
       - job: Deploy_Gateway
         dependsOn: Log_Start_Codebase
         displayName: Deploy Gateway
-        condition: and(succeeded(),eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_deploy-gateway.yml
             parameters:
@@ -464,13 +461,12 @@ stages:
       - Deploy
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
     condition: succeeded()
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - job: Log_Start
         displayName: Log Start
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_log-start.yml
             parameters:
@@ -481,14 +477,14 @@ stages:
 
       - job: Pause_Pipeline
         dependsOn: Log_Start
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         displayName: Pause for 2 mins
         steps:
           - template: tasks/task_pause-pipeline.yml
 
       - job: Swap_Pipeline_Slots
         dependsOn: Pause_Pipeline
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         strategy:
           matrix:
             Coordinator:
@@ -518,7 +514,7 @@ stages:
               
       - job: Swap_UI_Slots
         dependsOn: Pause_Pipeline
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         strategy:
           matrix:
             SPA:
@@ -541,7 +537,7 @@ stages:
               PreserveVnet: true
 
       - job: Log_Result
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn:
           - Swap_Pipeline_Slots
           - Swap_UI_Slots
@@ -554,211 +550,20 @@ stages:
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
               devOpsPatToken: "$(System.AccessToken)"
               
-  # PROD: CHECK CURRENT STATUS RESPONSES FROM /API/STATUS ENDPOINTS FOLLOWING TERRAFORM CHANGES
-  - stage: Check_Build
-    displayName: Build Checks
-    dependsOn:
-      - Swap
-      - Determine_Changes
-    condition: succeeded()
-    variables:
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-    pool:
-      name: $(prod-build-agent)
-    jobs:
-      - job: Log_Start
-        displayName: Log Start
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        steps:
-          - template: tasks/task_log-start.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetName: "Build Checks"
-              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-
-      - job: Get_Status_URIs
-        dependsOn: Log_Start
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        steps:
-          - template: tasks/task_get-status-uris.yml
-            parameters:
-              targetSuffix: ""
-              armClientId: $(innovation-prod-spn-client-id)
-              armClientSecret: $(innovation-prod-spn-secret)
-              armTenantId: $(innovation-prod-spn-tenant-id)
-              armSubscriptionId: $(innovation-prod-subscription-id)
-
-      - job: Check_Coordinator
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetAppName: "Coordinator"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "coordinator"
-
-      - job: Check_PDF_Generator
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetAppName: "PDF Generator"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "pdf-generator"
-
-
-      - job: Check_PDF_Redactor
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetAppName: "PDF Redactor"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "pdf-redactor"
-
-      - job: Check_Text_Extractor
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetAppName: "Text Extractor"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "text-extractor"
-
-      - job: Check_Gateway
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetAppName: "Gateway"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "polaris-gateway"
-
-      - job: Check_Proxy
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetAppName: "Proxy"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "Polaris Proxy is online"
-
-      - job: Check_SPA
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
-        steps:
-          - template: tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetAppName: "UI"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/polaris-ui/build-version.txt"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "ui"
-
-      - job: Log_Result
-        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
-        dependsOn:
-          - Log_Start
-          - Get_Status_URIs
-          - Check_Coordinator
-          - Check_PDF_Generator
-          - Check_Text_Extractor
-          - Check_Gateway
-          - Check_Proxy
-          - Check_SPA
-        steps:
-          - template: tasks/task_log-result.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "PROD"
-              targetName: "Build Checks"
-              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
-
   # PROD: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_Status
     displayName: Status Checks
     dependsOn:
       - Swap
-      - Check_Build
       - Determine_Changes
     condition: succeeded()
     variables:
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    pool:
-      name: $(prod-build-agent)
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
     jobs:
       - job: Log_Start
         displayName: Log Start
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_log-start.yml
             parameters:
@@ -769,7 +574,7 @@ stages:
 
       - job: Get_Status_URIs
         dependsOn: Log_Start
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
           - template: tasks/task_get-status-uris.yml
             parameters:
@@ -781,7 +586,7 @@ stages:
 
       - job: Check_Coordinator
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
         steps:
@@ -800,7 +605,7 @@ stages:
 
       - job: Check_PDF_Generator
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
         steps:
@@ -819,7 +624,7 @@ stages:
 
       - job: Check_PDF_Redactor
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
         steps:
@@ -838,7 +643,7 @@ stages:
 
       - job: Check_Text_Extractor
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
         steps:
@@ -857,7 +662,7 @@ stages:
 
       - job: Check_Gateway
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
         steps:
@@ -876,7 +681,7 @@ stages:
 
       - job: Check_Proxy
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
         steps:
@@ -895,7 +700,7 @@ stages:
 
       - job: Check_SPA
         dependsOn: Get_Status_URIs
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
         steps:
@@ -913,7 +718,7 @@ stages:
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Log_Result
-        condition: and(succeeded(), eq(variables.runCodebase, 'true'))
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn:
           - Log_Start
           - Get_Status_URIs
@@ -942,8 +747,6 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    pool:
-      name: $(qa-build-agent)
     jobs:
       - job: Log_Start
         displayName: Log Start
@@ -1057,8 +860,6 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - job: Log_Start
         displayName: Log Start
@@ -1104,8 +905,6 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - job: Log_Start
         displayName: Log Start
@@ -1149,8 +948,6 @@ stages:
     variables:
       runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
       runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - job: Log_Start
         displayName: Log Start
@@ -1207,8 +1004,6 @@ stages:
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
     condition: succeeded()
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - job: Send_Success_Report
         displayName: Send Success Report
@@ -1256,8 +1051,6 @@ stages:
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
     condition: or(failed(), canceled())
-    pool:
-      name: $(prod-build-agent)
     jobs:
       - job: Send_Failure_Report
         displayName: Send Failure Report
