@@ -32,7 +32,7 @@ namespace text_extractor.Services.OcrService
         {
             try
             {
-                // this trace is here to prove we are logging OK, feel free to remove once PR has merged
+                // this trace is here to prove we are logging OK, feel free to remove once PR has merged.
                 _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Attempt OCR");
                 var streamPipeline = GetReadInStreamComputerVisionResiliencePipeline(correlationId);
 
