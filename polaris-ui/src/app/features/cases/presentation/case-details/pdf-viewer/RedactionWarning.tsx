@@ -18,8 +18,6 @@ export const RedactionWarning: React.FC<Props> = ({ documentWriteStatus }) => {
         return "Redaction is not supported for this file type.";
       case "IsDispatched":
         return "This is a dispatched document.";
-      case "AttachmentCategoryNotAllowed":
-        return "This document is an email attachment. It must be housekept before it can be redacted.";
     }
   };
   return (

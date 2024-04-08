@@ -85,10 +85,6 @@ namespace coordinator.Services.DocumentToggle
             {
                 write = WriteFlag.IsDispatched;
             }
-            else if (string.Equals(document.CmsDocType.DocumentCategory, AttachmentCategoryName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                write = WriteFlag.AttachmentCategoryNotAllowed;
-            }
             else
             {
                 write = WriteFlag.Ok;
@@ -110,14 +106,6 @@ namespace coordinator.Services.DocumentToggle
         {
             return ReadOnly;
         }
-
-        //private void AssertIsInitialised()
-        //{
-        //    if (_definitions == null)
-        //    {
-        //        throw new DocumentToggleException("DocumentToggleService not initialised when processing document");
-        //    }
-        //}
 
         private string[] SplitConfigLines(string content)
         {
