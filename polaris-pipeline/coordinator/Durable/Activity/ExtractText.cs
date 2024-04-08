@@ -1,15 +1,10 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Common.Dto.Response;
 using Common.Services.BlobStorageService;
 using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Payloads;
-using coordinator.Services.OcrService;
 using coordinator.Services.TextExtractService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -21,16 +16,14 @@ namespace coordinator.Durable.Activity
     {
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly ITextExtractorClient _textExtractorClient;
-        private readonly IOcrService _ocrService;
         private readonly ITextExtractService _textExtractService;
         private readonly ITelemetryClient _telemetryClient;
 
-        public ExtractText(IPolarisBlobStorageService blobStorageService, ITextExtractorClient textExtractorClient, IOcrService ocrService,
+        public ExtractText(IPolarisBlobStorageService blobStorageService, ITextExtractorClient textExtractorClient,
             ITextExtractService textExtractService, ITelemetryClient telemetryClient)
         {
             _blobStorageService = blobStorageService;
             _textExtractorClient = textExtractorClient;
-            _ocrService = ocrService;
             _textExtractService = textExtractService;
             _telemetryClient = telemetryClient;
         }
@@ -38,7 +31,6 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(ExtractText))]
         public async Task<ExtractTextResult> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var extractTextResult = new ExtractTextResult();
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
@@ -57,53 +49,19 @@ namespace coordinator.Durable.Activity
             {
                 using var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
 
-                var ocrResults = await _ocrService.GetOcrResultsAsync(documentStream, payload.CorrelationId);
-                var ocrLineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
-
-                extractTextResult = new ExtractTextResult()
-                {
-                    OcrCompletedTime = DateTime.UtcNow,
-                    PageCount = ocrResults.ReadResults.Count,
-                    LineCount = ocrLineCount,
-                    WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count)),
-                    IsSuccess = true
-                };
+                var extractTextResult = await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+                    payload.CmsCaseUrn,
+                    payload.CmsCaseId,
+                    payload.CmsDocumentId,
+                    payload.CmsVersionId,
+                    payload.BlobName,
+                    payload.CorrelationId,
+                    documentStream);
 
                 telemetryEvent.OcrCompletedTime = extractTextResult.OcrCompletedTime;
                 telemetryEvent.PageCount = extractTextResult.PageCount;
                 telemetryEvent.LineCount = extractTextResult.LineCount;
                 telemetryEvent.WordCount = extractTextResult.WordCount;
-
-                var jsonResults = JsonSerializer.Serialize(ocrResults);
-                var ocrBlobName = GetOcrBlobName(payload.BlobName);
-
-                using (var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
-                {
-                    await _blobStorageService.UploadDocumentAsync(
-                        ocrStream,
-                        ocrBlobName,
-                        payload.CmsCaseId.ToString(),
-                        payload.PolarisDocumentId,
-                        payload.CmsVersionId.ToString(),
-                        payload.CorrelationId);
-
-                    telemetryEvent.OcrResultsStoredTime = DateTime.UtcNow;
-                }
-
-                using (var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
-                {
-                    var storeCaseIndexesResult = await _textExtractorClient.StoreCaseIndexesAsync(
-                        payload.PolarisDocumentId,
-                        payload.CmsCaseUrn,
-                        payload.CmsCaseId,
-                        payload.CmsDocumentId,
-                        payload.CmsVersionId,
-                        ocrBlobName,
-                        payload.CorrelationId,
-                        ocrStream);
-
-                    telemetryEvent.IndexStoredTime = storeCaseIndexesResult.IndexStoredTime;
-                }
 
                 await Task.Delay(1000);
 
@@ -112,7 +70,7 @@ namespace coordinator.Durable.Activity
                     payload.CmsCaseId,
                     payload.CmsDocumentId,
                     payload.CmsVersionId,
-                    ocrLineCount,
+                    extractTextResult.LineCount,
                     payload.CorrelationId
                 );
 
@@ -130,15 +88,6 @@ namespace coordinator.Durable.Activity
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;
             }
-        }
-
-        private string GetOcrBlobName(string blobName)
-        {
-            var stringBuilder = new StringBuilder(blobName);
-            stringBuilder.Replace("/pdfs/", "/ocrs/");
-            stringBuilder.Replace(".pdf", ".json");
-
-            return stringBuilder.ToString();
         }
     }
 }
