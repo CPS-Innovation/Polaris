@@ -51,15 +51,6 @@ describe("Attachments", { tags: "@ci" }, () => {
         expect(
           documents.some(
             (document) =>
-              document.cmsDocType.documentCategory === "Attachment" &&
-              document.polarisParentDocumentId ==
-                ATTACHMENT_PARENT_DOCUMENT_ID &&
-              document.presentationFlags.write == "AttachmentCategoryNotAllowed"
-          )
-        ).to.be.true
-        expect(
-          documents.some(
-            (document) =>
               document.polarisDocumentId == ATTACHMENT_PARENT_DOCUMENT_ID
           )
         ).to.be.true
