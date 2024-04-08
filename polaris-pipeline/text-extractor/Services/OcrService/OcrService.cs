@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Common.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -34,6 +32,8 @@ namespace text_extractor.Services.OcrService
         {
             try
             {
+                // this trace is here to prove we are logging OK, feel free to remove once PR has merged
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Attempt OCR");
                 var streamPipeline = GetReadInStreamComputerVisionResiliencePipeline(correlationId);
 
                 var streamResponse = await streamPipeline.ExecuteAsync(async token =>
@@ -69,17 +69,12 @@ namespace text_extractor.Services.OcrService
                     }
                 }
 
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), "OCR process completed successfully");
                 return results.AnalyzeResult;
             }
             catch (Exception ex)
             {
                 _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "An OCR Library exception occurred", ex);
                 throw new OcrServiceException(ex.Message);
-            }
-            finally
-            {
-                _log.LogMethodExit(correlationId, nameof(GetOcrResultsAsync), string.Empty);
             }
         }
 
@@ -93,7 +88,7 @@ namespace text_extractor.Services.OcrService
                     Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
                     MaxDelay = TimeSpan.FromMilliseconds(MaxRetryDelayInMilliseconds),
                     ShouldHandle = new PredicateBuilder<HttpOperationHeaderResponse<ReadInStreamHeaders>>()
-                        .Handle<HttpRequestException>()
+                        .Handle<ComputerVisionOcrErrorException>()
                         .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
                     OnRetry = retryArguments =>
                     {
@@ -113,7 +108,7 @@ namespace text_extractor.Services.OcrService
                     BackoffType = DelayBackoffType.Exponential,
                     Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
                     ShouldHandle = new PredicateBuilder<HttpOperationResponse<ReadOperationResult>>()
-                        .Handle<HttpRequestException>()
+                        .Handle<ComputerVisionOcrErrorException>()
                         .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
                     OnRetry = retryArguments =>
                     {
