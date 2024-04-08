@@ -18,8 +18,6 @@ namespace coordinator.Services.DocumentToggle
     {
         private const string ConfigResourceName = "coordinator.document-toggle.config";
 
-        private const string AttachmentCategoryName = "Attachment";
-
         private static readonly PresentationFlagsDto ReadOnly = new PresentationFlagsDto
         {
             Read = ReadFlag.Ok,
