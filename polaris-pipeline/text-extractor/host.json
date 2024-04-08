@@ -4,9 +4,10 @@
     "fileLoggingMode": "debugOnly",
     "logLevel": {
       "default": "Warning",
-      "Function": "Information",
-      "Host.Aggregator": "Error",
-      "Host.Results": "Information"
+      "Function": "Warning",
+      "Host.Aggregator": "Information",
+      "Host.Results": "Information",
+      "text_extractor.Functions.ExtractText": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
