@@ -22,6 +22,7 @@ type Props = {
   activeDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
+  showNotesFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
@@ -36,6 +37,7 @@ export const AccordionDocument: React.FC<Props> = ({
   activeDocumentId,
   readUnreadData,
   caseDocument,
+  showNotesFeature,
   handleOpenPdf,
   handleOpenNotes,
 }) => {
@@ -115,23 +117,25 @@ export const AccordionDocument: React.FC<Props> = ({
                 {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
               </>
             )}
-            <LinkButton
-              className={classes.notesBtn}
-              dataTestId={`btn-notes-${caseDocument.documentId}`}
-              ariaLabel="notes"
-              onClick={() => {
-                handleOpenNotes(
-                  caseDocument.documentId,
-                  caseDocument.cmsDocType.documentCategory,
-                  caseDocument.presentationFileName
-                );
-              }}
-            >
-              <NotesIcon />
-              {caseDocument.hasNotes && (
-                <div className={classes.notesAvailable}></div>
-              )}
-            </LinkButton>
+            {showNotesFeature && (
+              <LinkButton
+                className={classes.notesBtn}
+                dataTestId={`btn-notes-${caseDocument.documentId}`}
+                ariaLabel="notes"
+                onClick={() => {
+                  handleOpenNotes(
+                    caseDocument.documentId,
+                    caseDocument.cmsDocType.documentCategory,
+                    caseDocument.presentationFileName
+                  );
+                }}
+              >
+                <NotesIcon />
+                {caseDocument.hasNotes && (
+                  <div className={classes.notesAvailable}></div>
+                )}
+              </LinkButton>
+            )}
           </div>
 
           {!!caseDocument.attachments.length && (

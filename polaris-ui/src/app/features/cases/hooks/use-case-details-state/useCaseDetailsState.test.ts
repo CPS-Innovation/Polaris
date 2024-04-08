@@ -18,6 +18,8 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { MemoryRouter } from "react-router-dom";
 
+// import { useUserDetails } from "../../../../auth";
+
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
 }));
@@ -25,6 +27,8 @@ jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
 jest.mock(".../../../../auth/msal/useUserGroupsFeatureFlag", () => ({
   useUserGroupsFeatureFlag: () => jest.fn(),
 }));
+
+jest.mock("../../../../auth", () => ({ useUserDetails: () => jest.fn() }));
 
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;
@@ -128,6 +132,8 @@ describe("useCaseDetailsState", () => {
         handleHideRedactionLogModal,
         handleAreaOnlyRedaction,
         handleSaveReadUnreadData,
+        handleAddNote,
+        handleGetNotes,
         ...stateProperties
       } = result.current;
 

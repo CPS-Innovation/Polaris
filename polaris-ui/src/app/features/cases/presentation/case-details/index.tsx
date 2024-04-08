@@ -101,8 +101,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleAddNote,
   } = useCaseDetailsState(urn, +caseId);
 
-  console.log("notes>>>", notes);
-
   const {
     showAlert,
     setShowAlert,
@@ -379,6 +377,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     }}
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
                     handleOpenNotes={handleOpenNotes}
+                    showNotesFeature={featureFlags.notes}
                   />
                 )}
               </div>

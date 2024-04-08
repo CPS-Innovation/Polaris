@@ -21,6 +21,8 @@ const mockConfig = configModule as {
   REDACTION_LOG_USER_GROUP: string;
   FEATURE_FLAG_REDACTION_LOG: boolean;
   PRIVATE_BETA_CHECK_IGNORE_USER: string;
+  FEATURE_FLAG_NOTES: boolean;
+  PRIVATE_BETA_FEATURE_USER_GROUP: string;
 };
 
 describe("useUserGroupsFeatureFlag", () => {
@@ -133,6 +135,115 @@ describe("useUserGroupsFeatureFlag", () => {
 
       const { redactionLog } = useUserGroupsFeatureFlag();
       expect(redactionLog).toStrictEqual(true);
+    });
+  });
+
+  describe("notes feature flag", () => {
+    test("Should return notes feature false, if  FEATURE_FLAG_NOTES is false", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          username: "test_username",
+          name: "test_name",
+          idTokenClaims: {
+            groups: [],
+          },
+        },
+      ]);
+
+      mockConfig.FEATURE_FLAG_NOTES = false;
+
+      const { notes } = useUserGroupsFeatureFlag();
+      expect(notes).toStrictEqual(false);
+    });
+
+    test("Should return notes feature true, if it is a cypress integration test user and does not have notes=false in query param and FEATURE_FLAG_NOTES is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "dev_user@example.org",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+
+      windowSpy.mockImplementation(() => ({ Cypress: {} }));
+      mockConfig.FEATURE_FLAG_NOTES = true;
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+
+      const { notes } = useUserGroupsFeatureFlag();
+      expect(notes).toStrictEqual(true);
+    });
+
+    test("Should return notes feature true, if it is a cypress automation test(e2e) user, and does not have notes=false in query param and FEATURE_FLAG_NOTES is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "private_beta_ignore_user",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+
+      windowSpy.mockImplementation(() => ({ Cypress: {} }));
+
+      mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
+      mockConfig.FEATURE_FLAG_NOTES = true;
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+
+      const { notes } = useUserGroupsFeatureFlag();
+      expect(notes).toStrictEqual(true);
+    });
+
+    test("Should return notes feature false, if it is a cypress automation test(e2e) user, and have notes=false in query param and FEATURE_FLAG_NOTES is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "private_beta_ignore_user",
+      });
+
+      windowSpy.mockImplementation(() => ({ Cypress: {} }));
+      (
+        useQueryParamsStateModule.useQueryParamsState as jest.Mock
+      ).mockReturnValue({ notes: "false" });
+
+      mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
+      mockConfig.FEATURE_FLAG_NOTES = true;
+
+      const { notes } = useUserGroupsFeatureFlag();
+      expect(notes).toStrictEqual(false);
+    });
+
+    test("Should return notes feature false, if user is not in private beta feature group and FEATURE_FLAG_NOTES is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group1"],
+          },
+        },
+      ]);
+
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+
+      mockConfig.FEATURE_FLAG_NOTES = true;
+
+      const { notes } = useUserGroupsFeatureFlag();
+      expect(notes).toStrictEqual(false);
     });
   });
 });

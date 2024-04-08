@@ -69,7 +69,7 @@ export const initialState = {
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
   },
-  featureFlags: { redactionLog: false, fullScreen: false },
+  featureFlags: { redactionLog: false, fullScreen: false, notes: false },
   storedUserData: { status: "loading" },
   notes: [],
 } as Omit<CombinedState, "caseId" | "urn">;

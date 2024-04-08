@@ -11,6 +11,7 @@ type Props = {
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
+  showNotesFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
@@ -25,6 +26,7 @@ export const Accordion: React.FC<Props> = ({
   activeDocumentId,
   accordionState: sections,
   readUnreadData,
+  showNotesFeature,
   handleOpenPdf,
   handleOpenNotes,
 }) => {
@@ -69,6 +71,7 @@ export const Accordion: React.FC<Props> = ({
           isOpen={state.sections[sectionId]}
           readUnreadData={readUnreadData}
           activeDocumentId={activeDocumentId}
+          showNotesFeature={showNotesFeature}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
           handleOpenNotes={handleOpenNotes}
