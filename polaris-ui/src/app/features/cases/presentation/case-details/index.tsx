@@ -386,6 +386,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           {!inFullScreen && openNotes.open && (
             <div
               className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              id="notes-panel"
+              role="region"
+              aria-label="notes panel"
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+              tabIndex={0}
             >
               <NotesPanel
                 documentName={openNotes.presentationFileName}
