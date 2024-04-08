@@ -15,29 +15,12 @@ namespace coordinator.Services.OcrResultsService
 
             foreach (var result in analyzeResults.ReadResults)
             {
-                var pageResult = new PageResult
-                {
-                    PageNumber = result.Page,
-                    LineCount = result.Lines.Count,
-                    WordCount = result.Lines.Sum(y => y.Words.Count),
-                    Text = GetPageText(result)
-                };
+                var pageResult = new PageResult(result);
 
                 pages.Add(pageResult);
             }
 
             return new OcrResult(pages);
-        }
-
-        public static string GetPageText(ReadResult readResult)
-        {
-            var sb = new StringBuilder();
-            foreach (var line in readResult.Lines)
-            {
-                sb.AppendFormat($"{line.Text} ");
-            }
-
-            return sb.ToString().TrimEnd();
         }
     }
 
@@ -71,11 +54,28 @@ namespace coordinator.Services.OcrResultsService
 
     public class PageResult
     {
+        public PageResult(ReadResult readResult)
+        {
+            PageNumber = readResult.Page;
+            LineCount = readResult.Lines.Count;
+            WordCount = readResult.Lines.Sum(y => y.Words.Count);
+            AddLines(readResult.Lines);
+            Text = GetPageText();
+        }
+
         public IList<OcrLine> Lines { get; set; } = new List<OcrLine>();
         public int PageNumber { get; set; }
         public int LineCount { get; set; }
         public int WordCount { get; set; }
         public string Text { get; set; }
+
+        private void AddLines(IList<Line> lines)
+        {
+            foreach (var line in lines)
+            {
+                AddLine(line.Text);
+            }
+        }
 
         public void AddLine(string text)
         {
@@ -83,13 +83,24 @@ namespace coordinator.Services.OcrResultsService
             var ocrLine = new OcrLine(text, previousLine);
             Lines.Add(ocrLine);
         }
+
+        public string GetPageText()
+        {
+            var sb = new StringBuilder();
+            foreach (var line in Lines)
+            {
+                sb.AppendFormat($"{line.Text}");
+            }
+
+            return sb.ToString().TrimEnd();
+        }
     }
 
     public class OcrLine
     {
         public OcrLine(string text, OcrLine previousLine)
         {
-            Text = text;
+            Text = $"{text} ";
             SetOffsetRange(previousLine);
         }
 

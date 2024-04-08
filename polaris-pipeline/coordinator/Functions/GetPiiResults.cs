@@ -35,9 +35,9 @@ namespace coordinator.Functions
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", RestApi.PiiResults)] HttpRequestMessage req,
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", RestApi.PiiResults)] HttpRequest req,
             string caseUrn,
-            string caseId,
+            int caseId,
             string polarisDocumentId)
         {
             Guid currentCorrelationId = default;
@@ -49,6 +49,8 @@ namespace coordinator.Functions
                 using var jsonStream = await _blobStorageService.GetDocumentAsync($"documents/{caseId}/ocrs/{polarisDocumentId}.json", currentCorrelationId);
                 var streamReader = new StreamReader(jsonStream);
                 var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
+
+                var stuff = _ocrResultsService.GetDocumentText(ocrResults);
 
 
                 return null;
