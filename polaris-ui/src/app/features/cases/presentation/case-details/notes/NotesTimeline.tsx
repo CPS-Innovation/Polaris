@@ -11,21 +11,33 @@ type NotesTimelineProps = {
 
 export const NotesTimeline: React.FC<NotesTimelineProps> = ({ notes }) => {
   return (
-    <div className={classes.notesTimeline}>
+    <ul  className={classes.notesTimeline}>
       {notes?.map((note) => (
-        <div className={classes.noteWrapper} key={note.sortOrder}>
-          <h4 className={classes.noteHead}>{note.createdByName}</h4>
-          <div className={classes.noteBody}>
+        <li className={classes.noteWrapper} key={note.sortOrder}>
+             <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                 Note added by
+                </span>
+          <span className={classes.noteHead}>{note.createdByName}</span>
+          {/* <div className={classes.noteBody}> */}
+          <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                 added on
+                </span>
             <span className={classes.noteDate}>
               {formatDate(
                 note.date,
                 CommonDateTimeFormats.ShortDateFullTextMonth
               )}
             </span>
+            <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                 content
+                </span>
             <span>{note.text}</span>
-          </div>
-        </div>
+          {/* </div> */}
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };

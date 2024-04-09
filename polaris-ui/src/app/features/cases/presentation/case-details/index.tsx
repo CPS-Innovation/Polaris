@@ -341,8 +341,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 id="side-panel-region-label"
                 className={classes.sidePanelLabel}
               >
-                Case navigation panel
-              </span>
+                Case navigation panel 
+               </span>
               <div>
                 <KeyDetails
                   handleOpenPdf={() => {
@@ -394,10 +394,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
               id="notes-panel"
               role="region"
-              aria-label="notes panel"
+              aria-labelledby="notes-panel-region-label"
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
             >
+               <span
+                id="notes-panel-region-label"
+                className={classes.sidePanelLabel}
+              >
+                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName} here.`}
+               </span>
               <NotesPanel
                 documentName={openNotesData.presentationFileName}
                 documentCategory={openNotesData.documentCategory}

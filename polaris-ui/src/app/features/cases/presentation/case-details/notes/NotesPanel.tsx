@@ -78,7 +78,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
       </div>
       <div className={classes.notesBody}>
         <div className={classes.notesTextArea}>
-          <h4 className={classes.addNoteHeading}>Add a note to the document</h4>
+          {/* <h4 className={classes.addNoteHeading}>Add a note to the document</h4> */}
 
           <CharacterCount
             //   errorMessage={
@@ -98,7 +98,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
             data-testid="notes-textarea"
             label={{
               children: (
-                <span className={classes.textAreaLabel}>Notes Text Area</span>
+                <span className={classes.addNoteHeading}>Add a note to the document</span>
               ),
             }}
           />
