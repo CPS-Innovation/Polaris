@@ -1,10 +1,10 @@
 export type Note = {
   id: number;
   createdByName: string;
-  sortOrder?: number;
+  sortOrder: number;
   date: string;
   text: string;
-  type?: string;
+  type: string;
 };
 
 export type NotesData = {

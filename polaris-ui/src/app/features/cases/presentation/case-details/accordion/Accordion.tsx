@@ -3,11 +3,12 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
-import { buildInitialState, reducer } from "./reducer";
+import { buildInitialState, reducer, AccordionReducerState } from "./reducer";
 import { AccordionDocumentSection } from "./types";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
+  initialState: AccordionReducerState | null;
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
@@ -18,11 +19,13 @@ type Props = {
   handleOpenNotes: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string
+    presentationFileName: string,
+    accordionCurrentState: AccordionReducerState
   ) => void;
 };
 
 export const Accordion: React.FC<Props> = ({
+  initialState,
   activeDocumentId,
   accordionState: sections,
   readUnreadData,
@@ -33,9 +36,10 @@ export const Accordion: React.FC<Props> = ({
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
     reducer,
-    buildInitialState(sections.map((section) => section.sectionLabel))
+    initialState !== null
+      ? initialState
+      : buildInitialState(sections.map((section) => section.sectionLabel))
   );
-
   const handleToggleOpenAll = () => {
     if (state.isAllOpen) {
       trackEvent("Close All Folders");
@@ -56,6 +60,14 @@ export const Accordion: React.FC<Props> = ({
     });
   };
 
+  const openNotesHandler = (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => {
+    handleOpenNotes(documentId, documentCategory, presentationFileName, state);
+  };
+
   return (
     <div className={`${classes.accordion}`}>
       <AccordionHeader
@@ -74,7 +86,7 @@ export const Accordion: React.FC<Props> = ({
           showNotesFeature={showNotesFeature}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
-          handleOpenNotes={handleOpenNotes}
+          handleOpenNotes={openNotesHandler}
         />
       ))}
     </div>

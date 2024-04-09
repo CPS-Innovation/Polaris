@@ -13,7 +13,7 @@ export const NotesTimeline: React.FC<NotesTimelineProps> = ({ notes }) => {
   return (
     <div className={classes.notesTimeline}>
       {notes?.map((note) => (
-        <div className={classes.noteWrapper}>
+        <div className={classes.noteWrapper} key={note.sortOrder}>
           <h4 className={classes.noteHead}>{note.createdByName}</h4>
           <div className={classes.noteBody}>
             <span className={classes.noteDate}>

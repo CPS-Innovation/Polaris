@@ -26,6 +26,14 @@ export const notes = [
         text: "note text_2",
         type: "abc",
       },
+      {
+        id: 1,
+        createdByName: "rrr_2",
+        sortOrder: 2,
+        date: "2024-02-10",
+        text: "note text_3",
+        type: "abc",
+      },
     ],
   },
 ];
