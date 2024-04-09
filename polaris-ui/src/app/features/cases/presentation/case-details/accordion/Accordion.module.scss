@@ -349,7 +349,7 @@
   align-items: center;
   position: relative;
   &:hover:not(:disabled):not(:focus) {
-    background-color: #fff;
+    background-color: rgba(0, 0, 0, 0.1);
   }
   svg {
     width: 100%;
