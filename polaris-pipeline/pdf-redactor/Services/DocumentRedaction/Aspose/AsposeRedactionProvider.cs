@@ -9,32 +9,35 @@ using Aspose.Pdf.Text;
 using System.Linq;
 using Common.Streaming;
 using System.Threading.Tasks;
+using pdf_redactor.Factories.RedactionImplementationFactory;
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose
 {
     public class AsposeRedactionProvider : IRedactionProvider
     {
-        private readonly IRedactionImplementation _redactionImplementation;
+        private readonly IRedactionImplementationFactory _redactionImplementationFactory;
         private readonly ICoordinateCalculator _coordinateCalculator;
         private readonly ITelemetryClient _telemetryClient;
 
         public AsposeRedactionProvider(
-            IRedactionImplementation implementation,
+            IRedactionImplementationFactory implementationFactory,
             ICoordinateCalculator coordinateCalculator,
             ITelemetryClient telemetryClient)
         {
-            _redactionImplementation = implementation;
+            _redactionImplementationFactory = implementationFactory;
             _coordinateCalculator = coordinateCalculator ?? throw new ArgumentNullException(nameof(coordinateCalculator));
             _telemetryClient = telemetryClient;
         }
 
-        public async Task<Stream> Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        public async Task<Stream> Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId, RedactionType redactionType)
         {
             RedactedDocumentEvent telemetryEvent = default;
             try
             {
                 var inputStream = await stream.EnsureSeekableAsync();
-                var (providerType, providerDetails) = _redactionImplementation.GetProviderType();
+
+                var redactionImplementation = _redactionImplementationFactory.Create(redactionType);
+                var (providerType, providerDetails) = redactionImplementation.GetProviderType();
                 telemetryEvent = new RedactedDocumentEvent(correlationId: correlationId,
                     caseId: caseId,
                     documentId: documentId,
@@ -50,8 +53,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
                 telemetryEvent.PageCount = document.Pages.Count;
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 
-                AddAnnotations(document, redactPdfRequest, correlationId);
-                FinaliseAnnotations(document, correlationId);
+                AddAnnotations(document, redactPdfRequest, correlationId, redactionImplementation);
+                FinaliseAnnotations(document, correlationId, redactionImplementation);
                 SanitiseDocument(document);
 
                 telemetryEvent.NullCharCount = GetNullCharacterCount(document);
@@ -74,7 +77,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
             }
         }
 
-        private void AddAnnotations(Document document, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        private void AddAnnotations(Document document, RedactPdfRequestDto redactPdfRequest, Guid correlationId, IRedactionImplementation redactionImplementation)
         {
             var pdfInfo = new PdfFileInfo(document);
 
@@ -94,14 +97,14 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
                         translatedCoordinates.X2,
                         translatedCoordinates.Y2);
 
-                    _redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
+                    redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
                 }
             }
         }
 
-        private void FinaliseAnnotations(Document document, Guid correlationId)
+        private void FinaliseAnnotations(Document document, Guid correlationId, IRedactionImplementation redactionImplementation)
         {
-            _redactionImplementation.FinaliseAnnotations(ref document, correlationId);
+            redactionImplementation.FinaliseAnnotations(ref document, correlationId);
         }
 
         private static int GetNullCharacterCount(Document document)

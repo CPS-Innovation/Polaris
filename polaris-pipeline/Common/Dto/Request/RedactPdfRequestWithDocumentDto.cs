@@ -10,5 +10,15 @@ namespace Common.Dto.Request
 
         public List<RedactionDefinitionDto> RedactionDefinitions { get; set; }
         public string Document { get; set; }
+
+        public RedactionType RedactionType { get; set; }
     }
+}
+
+
+public enum RedactionType
+{
+    AsposeDirect,
+    AsposeImage,
+    SyncFusion,
 }

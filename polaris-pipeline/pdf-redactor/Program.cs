@@ -14,6 +14,7 @@ using pdf_redactor;
 using pdf_redactor.Services.Extensions;
 using Common.Domain.Validators;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Syncfusion.Pdf;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -28,6 +29,8 @@ var host = new HostBuilder()
     .ConfigureServices((context, services) =>
     {
         StartupHelpers.SetAsposeLicence();
+
+        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(context.Configuration.GetSection("SyncfusionLicenseKey").Value);
 
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();

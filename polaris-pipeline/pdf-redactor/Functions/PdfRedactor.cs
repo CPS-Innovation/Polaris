@@ -15,7 +15,6 @@ using pdf_redactor.Services.DocumentRedaction;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Common.Streaming;
 
 namespace pdf_redactor.Functions
 {
@@ -86,7 +85,7 @@ namespace pdf_redactor.Functions
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RedactPdf), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(PdfRedactor), _logger);
             }
         }
     }

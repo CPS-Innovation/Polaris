@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using pdf_redactor.Factories.RedactionImplementationFactory;
+using pdf_redactor.Factories.RedactionProviderFactory;
 using pdf_redactor.Services.DocumentRedaction;
 using pdf_redactor.Services.DocumentRedaction.Aspose;
 using pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementations;
+using pdf_redactor.Services.DocumentRedaction.SyncFusion;
 
 namespace pdf_redactor.Services.Extensions
 {
@@ -13,9 +16,13 @@ namespace pdf_redactor.Services.Extensions
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddSingleton<IDocumentRedactionService, DocumentRedactionService>();
             // Aspose-specific services
-            services.AddSingleton<IRedactionProvider, AsposeRedactionProvider>();
+            services.AddSingleton<AsposeRedactionProvider>();
+            services.AddSingleton<SyncFusionRedactionProvider>();
+            services.AddSingleton<IRedactionProviderFactory, RedactionProviderFactory>();
             services.AddSingleton<ICoordinateCalculator, CoordinateCalculator>();
-            services.AddSingleton<IRedactionImplementation, ImageConversionImplementation>();
+            services.AddSingleton<DirectImplementation>();
+            services.AddSingleton<ImageConversionImplementation>();
+            services.AddSingleton<IRedactionImplementationFactory, RedactionImplementationFactory>();
             services.Configure<ImageConversionOptions>(configuration.GetSection(ImageConversionOptions.ConfigKey));
         }
     }
