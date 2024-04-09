@@ -18,7 +18,6 @@ jest.mock("../../auth", () => ({
 }));
 
 const mockConfig = configModule as {
-  REDACTION_LOG_USER_GROUP: string;
   FEATURE_FLAG_REDACTION_LOG: boolean;
   PRIVATE_BETA_CHECK_IGNORE_USER: string;
   FEATURE_FLAG_NOTES: boolean;
@@ -81,7 +80,6 @@ describe("useUserGroupsFeatureFlag", () => {
         useQueryParamsStateModule.useQueryParamsState as jest.Mock
       ).mockReturnValue({ redactionLog: "false" });
 
-      mockConfig.REDACTION_LOG_USER_GROUP = "abc";
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "test";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
 
@@ -96,7 +94,6 @@ describe("useUserGroupsFeatureFlag", () => {
 
       windowSpy.mockImplementation(() => ({ Cypress: {} }));
 
-      mockConfig.REDACTION_LOG_USER_GROUP = "abc";
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "test";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
 
@@ -114,7 +111,6 @@ describe("useUserGroupsFeatureFlag", () => {
         useQueryParamsStateModule.useQueryParamsState as jest.Mock
       ).mockReturnValue({ redactionLog: "false" });
 
-      mockConfig.REDACTION_LOG_USER_GROUP = "abc";
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
 
@@ -129,7 +125,6 @@ describe("useUserGroupsFeatureFlag", () => {
 
       windowSpy.mockImplementation(() => ({ Cypress: {} }));
 
-      mockConfig.REDACTION_LOG_USER_GROUP = "abc";
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
 

@@ -50,12 +50,11 @@ feature_flag_redaction_log_under_over = "true"
 feature_flag_full_screen = "true"
 feature_flag_notes = "true"
 local_storage_expiry_days="30"
-redaction_log_user_group = ""
 
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
   user_group  = "" // allow any user to see qa for e.g. demo purposes 
-  redaction_log_user_group="8fc75d71-3479-4a77-b33b-41fd26ec4960"
+  feature_user_group="8fc75d71-3479-4a77-b33b-41fd26ec4960"
 }
 
 polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="

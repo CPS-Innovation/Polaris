@@ -58,9 +58,6 @@ export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
   ? parseInt(process.env.REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS)
   : null;
 
-export const REDACTION_LOG_USER_GROUP =
-  process.env.REACT_APP_REDACTION_LOG_USER_GROUP ?? "";
-
 export const PRIVATE_BETA_FEATURE_USER_GROUP =
   process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP ?? "";
 
