@@ -51,7 +51,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 
                 AddAnnotations(document, redactPdfRequest, correlationId);
-                FinaliseAnnotations(document);
+                FinaliseAnnotations(document, correlationId);
                 SanitiseDocument(document);
 
                 telemetryEvent.NullCharCount = GetNullCharacterCount(document);
@@ -99,9 +99,9 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
             }
         }
 
-        private void FinaliseAnnotations(Document document)
+        private void FinaliseAnnotations(Document document, Guid correlationId)
         {
-            _redactionImplementation.FinaliseAnnotations(ref document);
+            _redactionImplementation.FinaliseAnnotations(ref document, correlationId);
         }
 
         private static int GetNullCharacterCount(Document document)
