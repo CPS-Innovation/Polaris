@@ -50,7 +50,7 @@ namespace coordinator.Functions
                 var streamReader = new StreamReader(jsonStream);
                 var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
 
-                var stuff = _ocrResultsService.GetDocumentText(ocrResults);
+                var stuff = _ocrResultsService.GetDocumentText(ocrResults, 1000);
 
 
                 return null;

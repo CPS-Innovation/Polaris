@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Microsoft.IdentityModel.Tokens;
 
 namespace coordinator.Services.OcrResultsService
 {
@@ -9,82 +10,79 @@ namespace coordinator.Services.OcrResultsService
     {
         private const int CharacterLimit = 1000;
 
-        public OcrResult GetDocumentText(AnalyzeResults analyzeResults)
+        public List<PiiChunk> GetDocumentText(AnalyzeResults analyzeResults, int characterLimit) // char limit should be a config value
         {
-            var pages = new List<PageResult>();
+            var chunks = new List<PiiChunk>();
+            var chunkId = 1;
+            var currentCharacterLimit = characterLimit;
+            var linesToProcessCount = analyzeResults.ReadResults.Sum(x => x.Lines.Count);
+            var processedCount = 0;
 
-            foreach (var result in analyzeResults.ReadResults)
+            while (processedCount < linesToProcessCount)
             {
-                var pageResult = new PageResult(result);
-
-                pages.Add(pageResult);
+                var piiChunk = new PiiChunk(chunkId, currentCharacterLimit, processedCount);
+                processedCount = piiChunk.BuildChunk(analyzeResults);
+                piiChunk.SetChunkText();
+                chunks.Add(piiChunk);
+                chunkId++;
             }
 
-            return new OcrResult(pages);
+            return chunks;
         }
     }
 
-    public class OcrResult
+    public class PiiChunk
     {
-        // Chunk documents here?
+        private int _remainingCharacterLimit;
+        private int _processedCount;
 
-        public OcrResult(IList<PageResult> pages)
+        public PiiChunk(int id, int characterLimit, int processedCount)
         {
-            Text = GetPageText(pages);
+            ChunkId = id;
+            _remainingCharacterLimit = characterLimit;
+            _processedCount = processedCount;
         }
 
-        public IList<PageResult> Pages { get; set; }
-        public int PageCount => Pages.Count;
-        public int LineCount => Pages.Sum(x => x.LineCount);
-        public int WordCount => Pages.Sum(x => x.WordCount);
-        public int TextLength => Text.Length;
+        public int ChunkId { get; set; }
+        public IList<OcrLineResult> Lines { get; set; } = new List<OcrLineResult>();
+        public int LineCount => Lines.Count;
+        public int WordCount => Lines.Sum(x => x.WordCount);
         public string Text { get; set; }
+        public int TextLength => Text.IsNullOrEmpty() ? 0 : Text.Length;
 
-        private static string GetPageText(IList<PageResult> pageResults)
+        public int BuildChunk(AnalyzeResults analyzeResults)
         {
-            var sb = new StringBuilder();
-            foreach (var page in pageResults)
+            var resultsToProcess = analyzeResults.ReadResults
+                .SelectMany(result => result.Lines.Select(line => new { result, line })
+                .Select(x =>
+                    new { x.result.Page, x.line }
+                ));
+
+            foreach (var result in resultsToProcess.Skip(_processedCount))
             {
-                sb.AppendFormat($"{page.Text} ");
+                if (TextLength + result.line.Text.Length <= _remainingCharacterLimit)
+                {
+                    AddLine(result.line, result.Page);
+                    _remainingCharacterLimit -= result.line.Text.Length;
+                    _processedCount++;
+                }
+                else
+                {
+                    return _processedCount;
+                }
             }
 
-            return sb.ToString().TrimEnd();
-        }
-    }
-
-    public class PageResult
-    {
-        public PageResult(ReadResult readResult)
-        {
-            PageNumber = readResult.Page;
-            LineCount = readResult.Lines.Count;
-            WordCount = readResult.Lines.Sum(y => y.Words.Count);
-            AddLines(readResult.Lines);
-            Text = GetPageText();
+            return _processedCount;
         }
 
-        public IList<OcrLine> Lines { get; set; } = new List<OcrLine>();
-        public int PageNumber { get; set; }
-        public int LineCount { get; set; }
-        public int WordCount { get; set; }
-        public string Text { get; set; }
-
-        private void AddLines(IList<Line> lines)
-        {
-            foreach (var line in lines)
-            {
-                AddLine(line.Text);
-            }
-        }
-
-        public void AddLine(string text)
+        public void AddLine(Line line, int pageIndex)
         {
             var previousLine = Lines.LastOrDefault();
-            var ocrLine = new OcrLine(text, previousLine);
+            var ocrLine = new OcrLineResult(line, pageIndex, previousLine);
             Lines.Add(ocrLine);
         }
 
-        public string GetPageText()
+        public void SetChunkText()
         {
             var sb = new StringBuilder();
             foreach (var line in Lines)
@@ -92,31 +90,50 @@ namespace coordinator.Services.OcrResultsService
                 sb.AppendFormat($"{line.Text}");
             }
 
-            return sb.ToString().TrimEnd();
+            Text = sb.ToString().TrimEnd();
         }
     }
 
-    public class OcrLine
+    public class OcrLineResult
     {
-        public OcrLine(string text, OcrLine previousLine)
+        private readonly OcrLineResult _previousLine;
+
+        public OcrLineResult(Line line, int pageIndex, OcrLineResult previousLine)
         {
-            Text = $"{text} ";
-            SetOffsetRange(previousLine);
+            _previousLine = previousLine;
+            Text = $"{line.Text} ";
+            PageIndex = pageIndex;
+            WordCount = line.Words.Count;
+            SetOffsetRange();
+            SetLineIndex();
         }
 
-        public string Text { get; set; }
-        public int Length => Text.Length;
+        public string Text { get; protected set; }
+        public int PageIndex { get; protected set; }
+        public int LineIndex { get; protected set; }
+        public int WordCount { get; protected set; }
+        public int TextLength => Text.Length;
         public (int Min, int Max) OffsetRange { get; protected set; }
 
-        public void SetOffsetRange(OcrLine previousLine)
+        private void SetOffsetRange()
         {
-            if (previousLine == null)
+            if (_previousLine == null)
+            {
                 OffsetRange = (0, Text.Length);
+            }
             else
             {
-                var accumulativeOffset = previousLine.OffsetRange.Max;
-                OffsetRange = (accumulativeOffset + 1, accumulativeOffset + Length);
+                var accumulativeOffset = _previousLine.OffsetRange.Max;
+                OffsetRange = (accumulativeOffset + 1, accumulativeOffset + TextLength);
             }
+        }
+
+        private void SetLineIndex()
+        {
+            if (_previousLine == null || PageIndex != _previousLine.PageIndex)
+                LineIndex = 1;
+            else
+                LineIndex = _previousLine.LineIndex + 1;
         }
     }
 }
