@@ -33,12 +33,15 @@ namespace text_extractor.Services.OcrService
             try
             {
                 // this trace is here to prove we are logging OK, feel free to remove once PR has merged.
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Attempt OCR");
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Attempt OCR on a stream with CanSeek: {stream.CanSeek}");
                 var streamPipeline = GetReadInStreamComputerVisionResiliencePipeline(correlationId);
 
                 var streamResponse = await streamPipeline.ExecuteAsync(async token =>
-                    await _computerVisionClient.ReadInStreamWithHttpMessagesAsync(stream),
-                    CancellationToken.None);
+                {
+                    stream.Position = 0; // if in a retry we need to reset the stream
+                    return await _computerVisionClient.ReadInStreamWithHttpMessagesAsync(stream);
+                },
+                CancellationToken.None);
 
                 var textHeaders = streamResponse.Headers;
                 var operationLocation = textHeaders.OperationLocation;
