@@ -136,3 +136,7 @@ variable "private_beta" {
     redaction_log_user_group = string
   })
 }
+
+variable "polaris_ui_reauth_redirect_url" {
+  type = string
+}

@@ -153,7 +153,8 @@ namespace coordinator.Durable.Entity
                          cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
                          cmsDocument.WitnessId != incomingDocument.WitnessId ||
                          cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
-                         cmsDocument.IsDispatched != incomingDocument.IsDispatched
+                         cmsDocument.IsDispatched != incomingDocument.IsDispatched ||
+                         cmsDocument.HasNotes != incomingDocument.HasNotes
                      )
                  )
                  select incomingDocument).ToList();
@@ -261,6 +262,7 @@ namespace coordinator.Durable.Entity
                 trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
                 trackerDocument.WitnessId = updatedDocument.WitnessId;
                 trackerDocument.CategoryListOrder = updatedDocument.CategoryListOrder;
+                trackerDocument.HasNotes = updatedDocument.HasNotes;
 
                 var caseDeltaType = DocumentDeltaType.DoesNotRequireRefresh;
 

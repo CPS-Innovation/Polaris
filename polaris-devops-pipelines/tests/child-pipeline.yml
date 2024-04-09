@@ -13,3 +13,4 @@ stages:
         steps:
           - bash: |
               echo "Test Value: $(test_value)"
+              exit 1

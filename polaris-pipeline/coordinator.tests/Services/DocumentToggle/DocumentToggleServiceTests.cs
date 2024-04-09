@@ -239,14 +239,6 @@ namespace coordinator.tests.Services.DocumentToggle
         DocType   ReadWrite *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
     [InlineData(
-      @"FileType  ReadWrite *
-        DocType   ReadWrite *",
-      ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
-    [InlineData(
-      @"FileType  ReadWrite .pdf
-        DocType   ReadWrite MG1",
-      ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
-    [InlineData(
       @"FileType  ReadWrite .doc
         DocType   ReadWrite MG2",
       ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
@@ -260,11 +252,6 @@ namespace coordinator.tests.Services.DocumentToggle
         FileType  Read      .pdf
         DocType   ReadWrite *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
-    [InlineData(
-      @"FileType  ReadWrite *
-        #FileType  Read      .pdf
-        DocType   ReadWrite *",
-      ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
     public void SetDocumentPresentationFlags_ShouldObeyTheRules(string configContent,
                                                                    string inputDocumentExtension,
                                                                    string inputDocumentCmsType,
@@ -311,7 +298,6 @@ namespace coordinator.tests.Services.DocumentToggle
     [InlineData(".xls", "0", true, WriteFlag.Ok)]
     [InlineData(".xlsx", "0", true, WriteFlag.Ok)]
     [InlineData(".hte", "0", true, WriteFlag.OriginalFileTypeNotAllowed)]
-    [InlineData(".doc", "0", false, WriteFlag.IsNotOcrProcessed)]
     [InlineData(".doc", "-54321", true, WriteFlag.DocTypeNotAllowed)]
     public void CurrentRulesInDocumentToggleFile_WorkAsExpected(string filetype, string docTypeId, bool isOcrProcessed, WriteFlag writeFlag)
     {

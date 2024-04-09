@@ -57,3 +57,5 @@ private_beta = {
   user_group  = "" // allow any user to see qa for e.g. demo purposes 
   redaction_log_user_group="8fc75d71-3479-4a77-b33b-41fd26ec4960"
 }
+
+polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
