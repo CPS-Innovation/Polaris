@@ -8,6 +8,7 @@
   background: #f3f2f1;
   border-bottom: 1px solid #b1b4b6;
   display: flex;
+  margin-bottom: 24px;
 }
 .notesTitle {
   margin-left: 10px;
@@ -24,6 +25,8 @@
   }
 
   .addNoteHeading {
+    font-size: 19px;
+    font-weight: 700;
     margin-bottom: 0;
     &::before {
       background-color: #1d70b8;

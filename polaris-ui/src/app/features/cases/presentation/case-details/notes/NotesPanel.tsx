@@ -34,8 +34,16 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
 }) => {
   const [newNoteValue, setNewNoteValue] = useState("");
   const [oldNoteValue, setOldNoteValue] = useState("");
+  const [notesError, setNotesError] = useState(false);
 
   const handleAddBtnClick = () => {
+    if (newNoteValue.length > NOTES_MAX_CHARACTERS) {
+      setNotesError(true);
+      return;
+    }
+    if (notesError) {
+      setNotesError(false);
+    }
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
     handleAddNote(documentId, documentCategory, newNoteValue);
@@ -78,16 +86,14 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
       </div>
       <div className={classes.notesBody}>
         <div className={classes.notesTextArea}>
-          {/* <h4 className={classes.addNoteHeading}>Add a note to the document</h4> */}
-
           <CharacterCount
-            //   errorMessage={
-            //     errorState.notes
-            //       ? {
-            //           children: `Supporting notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
-            //         }
-            //       : undefined
-            //   }
+            errorMessage={
+              notesError
+                ? {
+                    children: `Notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
+                  }
+                : undefined
+            }
             value={newNoteValue}
             onChange={(event) => {
               setNewNoteValue(event.target.value);
@@ -98,7 +104,9 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
             data-testid="notes-textarea"
             label={{
               children: (
-                <span className={classes.addNoteHeading}>Add a note to the document</span>
+                <span className={classes.addNoteHeading}>
+                  Add a note to the document
+                </span>
               ),
             }}
           />
