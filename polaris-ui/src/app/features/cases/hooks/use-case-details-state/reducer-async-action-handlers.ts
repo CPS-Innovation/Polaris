@@ -495,8 +495,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             type: "addnote",
             title: "Something went wrong!",
-            message:
-              "Failed to add note to the document. Please try again later.",
+            message: "Failed to add note to the document. Please try again.",
           },
         });
         dispatch({

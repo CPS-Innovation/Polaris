@@ -117,7 +117,7 @@ export const AccordionDocument: React.FC<Props> = ({
                 {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
               </>
             )}
-            {showNotesFeature && (
+            {showNotesFeature && !caseDocument.documentId.includes("PCD") && (
               <LinkButton
                 className={classes.notesBtn}
                 dataTestId={`btn-notes-${caseDocument.documentId}`}
