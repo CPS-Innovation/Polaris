@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
+using Common.Streaming;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
@@ -32,13 +33,17 @@ namespace text_extractor.Services.OcrService
         {
             try
             {
+                // Temporary code to allow Polly to access the stream on retry. When this moves to the coordinator
+                //  then the nature of the incoming stream should be different and there will be no need for this.
+                //  n.b. this incurs an overhead for all executions, the vast majority of which do not need to retry.
+                stream = await stream.EnsureSeekableAsync();
                 // this trace is here to prove we are logging OK, feel free to remove once PR has merged.
                 _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Attempt OCR on a stream with CanSeek: {stream.CanSeek}");
                 var streamPipeline = GetReadInStreamComputerVisionResiliencePipeline(correlationId);
 
                 var streamResponse = await streamPipeline.ExecuteAsync(async token =>
                 {
-                    //stream.Position = 0; // if in a retry we need to reset the stream
+                    stream.Position = 0; // if in a retry we need to reset the stream
                     return await _computerVisionClient.ReadInStreamWithHttpMessagesAsync(stream);
                 },
                 CancellationToken.None);
