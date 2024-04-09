@@ -49,7 +49,7 @@ namespace PolarisGateway
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton(_ =>
             {
-                // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
+                // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager.
                 return new ConfigurationManager<OpenIdConnectConfiguration>(
                     $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
                     new OpenIdConnectConfigurationRetriever(),
