@@ -18,8 +18,6 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { MemoryRouter } from "react-router-dom";
 
-// import { useUserDetails } from "../../../../auth";
-
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
 }));

@@ -428,7 +428,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           documentId,
           documentCategory,
           noteText,
-          createdByName: userDetails.name,
         },
       }),
     [dispatch]

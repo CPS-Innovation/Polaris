@@ -8,34 +8,34 @@
   background: #f3f2f1;
   border-bottom: 1px solid #b1b4b6;
   display: flex;
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 .notesTitle {
-  margin-left: 10px;
-  font-size: 19px;
+  margin-left: 0.625rem;
+  font-size: 1.1875rem;
 }
 .notesDocumentName {
   color: #505a5f;
 }
 .notesTextArea {
   position: relative;
-  padding-left: 20px;
+  padding-left: 1.25rem;
   & :global(.govuk-textarea) {
-    min-height: 230px;
+    min-height: 14.375rem;
   }
 
   .addNoteHeading {
-    font-size: 19px;
+    font-size: 1.1875rem;
     font-weight: 700;
     margin-bottom: 0;
     &::before {
       background-color: #1d70b8;
       content: "";
       padding-top: 0.25em;
-      padding-right: 15px;
+      padding-right: 0.9375rem;
       left: 0;
       position: absolute;
-      margin-top: 8px;
+      margin-top: 0.5rem;
       z-index: 1;
     }
   }
@@ -45,7 +45,7 @@
     height: 100%;
     left: 0;
     position: absolute;
-    margin-top: 12px;
+    margin-top: 0.75rem;
     padding-left: 0.25em;
     z-index: 1;
   }
@@ -62,7 +62,7 @@
   padding: 0.625rem;
   &:hover:not(:disabled):not(:focus) {
     color: #003078;
-    text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12rem);
     background: transparent;
   }
 }

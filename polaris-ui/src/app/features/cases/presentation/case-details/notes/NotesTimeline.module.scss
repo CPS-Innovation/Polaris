@@ -9,25 +9,25 @@
     height: 100%;
     left: 0;
     position: absolute;
-    margin-top: 0.55em;
-    padding-left: 0.3em;
+    margin-top: 0.75rem;
+    padding-left: 0.3rem;
     z-index: 1;
   }
 }
 .noteWrapper {
   position: relative;
-  padding-left: 20px;
-  padding-bottom: 30px;
+  padding-left: 1.25rem;
+  padding-bottom: 1.875rem;
 
   .noteHead {
     margin: 0;
-    font-size: 19px;
+    font-size: 1.1875rem;
     font-weight: 700;
     &::before {
       background-color: #1d70b8;
       content: "";
       padding-top: 0.3em;
-      padding-right: 15px;
+      padding-right: 0.9375rem;
       left: 0;
       position: absolute;
       margin-top: 0.55em;
@@ -40,11 +40,11 @@
 
   .noteDate {
     color: #505a5f;
-    margin-bottom: 8px;
-    font-size: 16px;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
   }
   .noteText {
-    font-size: 16px;
+    font-size: 1rem;
   }
 }
 

@@ -93,7 +93,6 @@ type AsyncActions =
         documentId: string;
         documentCategory: string;
         noteText: string;
-        createdByName: string;
       };
     };
 
@@ -464,8 +463,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             type: "getnotes",
             title: "Something went wrong!",
-            message:
-              "Failed to get notes for the documents. Please try again later.",
+            message: "Failed to get notes for the documents. Please try again.",
           },
         });
       }
