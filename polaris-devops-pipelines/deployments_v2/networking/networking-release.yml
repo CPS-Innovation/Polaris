@@ -28,21 +28,7 @@ stages:
   - stage: Apply_DEV
     displayName: DEV > Apply Terraform
     jobs:
-      - deployment: Fetch_Azure_Credentials
-        environment: "Dev"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: ../tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscriptionId: $(dev-azure-subscription)
-              
       - deployment: Apply_Networking_Terraform
-        dependsOn: Fetch_Azure_Credentials
-        condition: succeeded()
         variables:
           clientId: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.CLIENT_ID']]
           clientSecret: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.CLIENT_SECRET']]
@@ -55,6 +41,10 @@ stages:
           runOnce:
             deploy:
               steps:
+                - template: ../tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(dev-azure-subscription)
+                    
                 - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
                     targetBuild: PolarisNetworkingBuild
