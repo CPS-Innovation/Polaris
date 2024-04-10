@@ -7,6 +7,7 @@ import {
 import { NotesTimeline } from "./NotesTimeline";
 import classes from "./NotesPanel.module.scss";
 import { NotesData } from "../../../domain/gateway/NotesData";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 const NOTES_MAX_CHARACTERS = 500;
 type NotesPanelProps = {
@@ -32,6 +33,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   handleAddNote,
   handleGetNotes,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const [newNoteValue, setNewNoteValue] = useState("");
   const [oldNoteValue, setOldNoteValue] = useState("");
   const [notesError, setNotesError] = useState(false);
@@ -44,6 +46,9 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     if (notesError) {
       setNotesError(false);
     }
+    trackEvent("Add Note", {
+      documentId: documentId,
+    });
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
     handleAddNote(documentId, documentCategory, newNoteValue);
