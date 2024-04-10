@@ -18,14 +18,22 @@ variables:
   - name: networkingTerraformWorkingDir
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
     
+pool:
+  vmImage: ubuntu-latest
+    
 stages:
   - stage: Validate
     displayName: Validate Changes
     jobs:
+      - job: Fetch_Azure_Credentials
+        steps:
+          - template: ../tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+        
       - job: Validate_Networking_Terraform
-        condition: eq(variables.runNetworkingTerraform, 'true')
-        pool:
-          name: $(dev-build-agent)
+        dependsOn: Fetch_Azure_Credentials
+        condition: succeeded
         steps:
           # Terraform Init
           - bash: |
@@ -49,11 +57,16 @@ stages:
             workingDirectory: $(networkingTerraformWorkingDir)
     
       - job: Check_Networking_Plan
-        condition: eq(variables.runNetworkingTerraform, 'true')
-        dependsOn: Validate_Networking_Terraform
+        dependsOn: 
+          - Fetch_Azure_Credentials
+          - Validate_Networking_Terraform
+        condition: succeeded()
         displayName: Check Networking Terraform
-        pool:
-          name: $(dev-build-agent)
+        variables:
+          clientId: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.CLIENT_ID']]
+          clientSecret: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.CLIENT_SECRET']]
+          tenantId: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.TENANT_ID']]
+          subscriptionId: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.SUBSCRIPTION_ID']]
         steps:
           # Terraform Init
           - bash: |
@@ -77,8 +90,8 @@ stages:
             displayName: 'Terraform > Write Networking Plan'
             workingDirectory: $(networkingTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
