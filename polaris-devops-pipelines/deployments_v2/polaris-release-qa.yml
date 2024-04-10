@@ -88,37 +88,9 @@ stages:
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
 
-      - deployment: Apply_Networking_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        displayName: Apply Networking Terraform
-        dependsOn: Log_Start_Terraform
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_apply-terraform.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetTerraformArtifact: "networking-terraform-files"
-                    targetLabel: "QA"
-                    targetName: "Networking Terraform CI Deployment"
-                    targetPlanName: "qa"
-                    appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    terraformStorageAccount: $(qa-terraform-storage-account)
-                    terraformContainerName: $(networking-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsqastorageterraform-key1)
-                    armClientId: $(innovation-qa-spn-client-id)
-                    armClientSecret: $(innovation-qa-spn-secret)
-                    armTenantId: $(innovation-qa-spn-tenant-id)
-                    armSubscriptionId: $(innovation-qa-subscription-id)
-
       - deployment: Apply_Pipeline_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: Apply_Networking_Terraform
+        dependsOn: Log_Start_Terraform
         displayName: Apply Pipeline Terraform
         environment: "QA"
         workspace:
@@ -260,7 +232,6 @@ stages:
           - Apply_UI_Terraform
           - Apply_UI_Events_Terraform
           - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
         environment: "QA"
         strategy:
           runOnce:
