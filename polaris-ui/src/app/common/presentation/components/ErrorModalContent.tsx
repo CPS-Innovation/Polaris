@@ -38,6 +38,11 @@ export const ErrorModalContent: React.FC<ErrorModalContentProps> = ({
           documentId: contextData?.documentId,
         });
         break;
+      case "addnote":
+        trackEvent("Add Note Error", {
+          documentId: contextData?.documentId,
+        });
+        break;
     }
   }, []);
   const messageParagraphs = message

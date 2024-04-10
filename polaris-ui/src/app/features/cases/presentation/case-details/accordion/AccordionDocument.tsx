@@ -121,8 +121,11 @@ export const AccordionDocument: React.FC<Props> = ({
               <LinkButton
                 className={classes.notesBtn}
                 dataTestId={`btn-notes-${caseDocument.documentId}`}
-                ariaLabel="open notes"
+                ariaLabel="Open notes"
                 onClick={() => {
+                  trackEvent("Open Notes", {
+                    documentId: caseDocument.documentId,
+                  });
                   handleOpenNotes(
                     caseDocument.documentId,
                     caseDocument.cmsDocType.documentCategory,
