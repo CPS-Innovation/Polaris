@@ -184,6 +184,10 @@ stages:
         condition: eq(variables.runPipelineTerraform, 'true')
         displayName: Check Pipeline Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -206,10 +210,10 @@ stages:
             displayName: "Terraform > Write Pipeline Plan"
             workingDirectory: $(pipelineTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
 
       - job: Validate_Pipeline_Events_Terraform
@@ -245,6 +249,10 @@ stages:
         dependsOn: Validate_Pipeline_Events_Terraform
         displayName: Check Pipeline Events Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -267,10 +275,10 @@ stages:
             displayName: "Terraform > Write Pipeline Events Plan"
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
     
       - job: Validate_UI_Terraform
@@ -306,6 +314,10 @@ stages:
         dependsOn: Validate_UI_Terraform
         displayName: Check UI Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -328,10 +340,10 @@ stages:
             displayName: "Terraform > Write UI Plan"
             workingDirectory: $(uiTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
     
       - job: Validate_UI_Events_Terraform
@@ -367,6 +379,10 @@ stages:
         dependsOn: Validate_UI_Events_Terraform
         displayName: Check UI Events Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -389,10 +405,10 @@ stages:
             displayName: "Terraform > Write UI Events Plan"
             workingDirectory: $(uiEventsTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
     
       - job: Validate_Gateway_Codebase

@@ -43,10 +43,10 @@ stages:
             displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
             workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
                 
           # Terraform Apply
           - bash: |
@@ -54,10 +54,10 @@ stages:
             displayName: Terraform > Refresh Search Index
             workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
                 
   - stage: Clear_down_BlobStorage
     displayName: Reset Document Blob Storage

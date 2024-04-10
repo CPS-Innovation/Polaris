@@ -25,15 +25,7 @@ stages:
   - stage: Validate
     displayName: Validate Changes
     jobs:
-      - job: Fetch_Azure_Credentials
-        steps:
-          - template: ../tasks/task_get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
-        
       - job: Validate_Networking_Terraform
-        dependsOn: Fetch_Azure_Credentials
-        condition: succeeded
         steps:
           # Terraform Init
           - bash: |
@@ -57,17 +49,14 @@ stages:
             workingDirectory: $(networkingTerraformWorkingDir)
     
       - job: Check_Networking_Plan
-        dependsOn: 
-          - Fetch_Azure_Credentials
-          - Validate_Networking_Terraform
+        dependsOn: Validate_Networking_Terraform
         condition: succeeded()
         displayName: Check Networking Terraform
-        variables:
-          clientId: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.CLIENT_ID']]
-          clientSecret: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.CLIENT_SECRET']]
-          tenantId: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.TENANT_ID']]
-          subscriptionId: $[dependencies.Fetch_Azure_Credentials.outputs['credentials.SUBSCRIPTION_ID']]
         steps:
+          - template: ../tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
