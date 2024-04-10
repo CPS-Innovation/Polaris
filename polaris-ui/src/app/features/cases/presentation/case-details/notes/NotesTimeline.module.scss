@@ -1,0 +1,59 @@
+.notesTimeline {
+  padding: 0;
+  margin: 0;
+}
+.noteWrapper:not(:last-child) > .noteHead {
+  &::after {
+    background-color: #1d70b8;
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    margin-top: 0.75rem;
+    padding-left: 0.3rem;
+    z-index: 1;
+  }
+}
+.noteWrapper {
+  position: relative;
+  padding-left: 1.25rem;
+  padding-bottom: 1.875rem;
+
+  .noteHead {
+    margin: 0;
+    font-size: 1.1875rem;
+    font-weight: 700;
+    &::before {
+      background-color: #1d70b8;
+      content: "";
+      padding-top: 0.3em;
+      padding-right: 0.9375rem;
+      left: 0;
+      position: absolute;
+      margin-top: 0.55em;
+      z-index: 1;
+    }
+  }
+
+  display: flex;
+  flex-direction: column;
+
+  .noteDate {
+    color: #505a5f;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .noteText {
+    font-size: 1rem;
+  }
+}
+
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

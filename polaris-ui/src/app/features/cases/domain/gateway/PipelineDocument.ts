@@ -39,6 +39,7 @@ export type PresentationDocumentProperties = {
   polarisParentDocumentId: string | null;
   witnessId: number | null;
   hasFailedAttachments: boolean;
+  hasNotes: boolean;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

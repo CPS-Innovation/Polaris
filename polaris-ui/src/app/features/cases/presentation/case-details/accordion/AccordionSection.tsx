@@ -12,10 +12,16 @@ type Props = {
   docs: MappedCaseDocument[];
   readUnreadData: string[];
   isOpen: boolean;
+  showNotesFeature: boolean;
   handleToggleOpenSection: (id: string, sectionLabel: string) => void;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -32,8 +38,10 @@ export const AccordionSection: React.FC<Props> = ({
   docs,
   isOpen,
   readUnreadData,
+  showNotesFeature,
   handleToggleOpenSection,
   handleOpenPdf,
+  handleOpenNotes,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -85,6 +93,8 @@ export const AccordionSection: React.FC<Props> = ({
                     readUnreadData={readUnreadData}
                     activeDocumentId={activeDocumentId}
                     handleOpenPdf={handleOpenPdf}
+                    handleOpenNotes={handleOpenNotes}
+                    showNotesFeature={showNotesFeature}
                   />
                 ))}
               </ul>

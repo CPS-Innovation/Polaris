@@ -36,10 +36,12 @@ import {
   SURVEY_LINK,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
+import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
+import { NotesPanel } from "./notes/NotesPanel";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 export const path = "/case-details/:urn/:id";
 
@@ -47,6 +49,19 @@ type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [inFullScreen, setInFullScreen] = useState(false);
+  const [openNotesData, setOpenNoteData] = useState<{
+    open: boolean;
+    documentId: string;
+    documentCategory: string;
+    presentationFileName: string;
+    accordionOldState: AccordionReducerState | null;
+  }>({
+    open: false,
+    documentId: "",
+    documentCategory: "",
+    presentationFileName: "",
+    accordionOldState: null,
+  });
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -65,6 +80,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     redactionLog,
     featureFlags,
     storedUserData,
+    notes,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -84,6 +100,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
+    handleGetNotes,
+    handleAddNote,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -155,6 +173,21 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const dacDocumentId = getDACDocumentId(
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
+
+  const handleOpenNotes = (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string,
+    accordionCurrentState: AccordionReducerState
+  ) => {
+    setOpenNoteData({
+      open: true,
+      documentId: documentId,
+      documentCategory: documentCategory,
+      presentationFileName: presentationFileName,
+      accordionOldState: accordionCurrentState,
+    });
+  };
 
   return (
     <>
@@ -294,7 +327,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          {!inFullScreen && (
+          {!inFullScreen && !openNotesData.open && (
             <div
               role="region"
               aria-labelledby="side-panel-region-label"
@@ -338,6 +371,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <AccordionWait />
                 ) : (
                   <Accordion
+                    initialState={openNotesData.accordionOldState}
                     readUnreadData={
                       storedUserData.status === "succeeded"
                         ? storedUserData.data.readUnread
@@ -348,9 +382,45 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
+                    handleOpenNotes={handleOpenNotes}
+                    showNotesFeature={featureFlags.notes}
                   />
                 )}
               </div>
+            </div>
+          )}
+          {!inFullScreen && openNotesData.open && (
+            <div
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              id="notes-panel"
+              role="region"
+              aria-labelledby="notes-panel-region-label"
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+              tabIndex={0}
+            >
+              <span
+                id="notes-panel-region-label"
+                className={classes.sidePanelLabel}
+              >
+                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName} here.`}
+              </span>
+              <NotesPanel
+                documentName={openNotesData.presentationFileName}
+                documentCategory={openNotesData.documentCategory}
+                documentId={openNotesData.documentId}
+                notesData={notes}
+                handleCloseNotes={() => {
+                  setOpenNoteData({
+                    ...openNotesData,
+                    open: false,
+                    documentId: "",
+                    documentCategory: "",
+                    presentationFileName: "",
+                  });
+                }}
+                handleAddNote={handleAddNote}
+                handleGetNotes={handleGetNotes}
+              />
             </div>
           )}
           {!!tabsState.items.length && featureFlags.fullScreen && (
@@ -379,6 +449,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(true);
+                      if (!openNotesData.open) {
+                        setOpenNoteData({
+                          ...openNotesData,
+                          accordionOldState: null,
+                        });
+                      }
                     }
                   }}
                 >
