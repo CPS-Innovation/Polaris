@@ -29,8 +29,8 @@ polarisApps2Subnet                  = "10.7.205.192/27"
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 
 insights_configuration = {
-  insights_log_retention_days          = 90
-  insights_log_total_retention_days    = 2555
+  log_retention_days                   = 90
+  log_total_retention_days             = 2555
   analytics_internet_ingestion_enabled = false
   analytics_internet_query_enabled     = false
   insights_internet_ingestion_enabled  = false
