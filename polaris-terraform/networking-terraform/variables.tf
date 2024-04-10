@@ -5,6 +5,10 @@ variable "resource_name_prefix" {
   default = "networking"
 }
 
+variable "app_name_prefix" {
+  default = "polaris"
+}
+
 variable "environment" {
   type = object({
     name  = string
@@ -82,4 +86,12 @@ variable "terraform_service_principal_display_name" {
 
 variable "vnetDnsServer" {
   type = string
+}
+
+variable "insights_log_retention_days" {
+  type = number
+}
+
+variable "insights_log_total_retention_days" {
+  type = number
 }

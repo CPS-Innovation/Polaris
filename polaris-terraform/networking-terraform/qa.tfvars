@@ -27,3 +27,6 @@ polarisScaleSetSubnet               = "10.7.199.160/27"
 polarisApps2Subnet                  = "10.7.199.192/27"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
+
+insights_log_retention_days       = 90
+insights_log_total_retention_days = 2555
