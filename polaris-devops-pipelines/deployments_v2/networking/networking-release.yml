@@ -55,14 +55,13 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_apply-terraform.yml
+                - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
                     targetBuild: PolarisNetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "DEV"
                     targetName: "Networking Terraform CI Deployment"
                     targetPlanName: "dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
                     terraformStorageAccount: $(dev-terraform-storage-account)
                     terraformContainerName: $(networking-terraform-container-name)
                     terraformStateKey: $(terraform-key)
@@ -292,14 +291,13 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_apply-terraform.yml
+                - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
                     targetBuild: PolarisNetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "QA"
                     targetName: "Networking Terraform CI Deployment"
                     targetPlanName: "qa"
-                    appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
                     terraformStorageAccount: $(qa-terraform-storage-account)
                     terraformContainerName: $(networking-terraform-container-name)
                     terraformStateKey: $(terraform-key)
@@ -530,14 +528,13 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_apply-terraform.yml
+                - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
                     targetBuild: PolarisNetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "PROD"
                     targetName: "Networking Terraform CI Deployment"
                     targetPlanName: "prod"
-                    appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
                     terraformStorageAccount: $(prod-terraform-storage-account)
                     terraformContainerName: $(networking-terraform-container-name)
                     terraformStateKey: $(terraform-key)
