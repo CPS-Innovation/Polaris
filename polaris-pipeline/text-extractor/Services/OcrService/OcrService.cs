@@ -43,7 +43,7 @@ namespace text_extractor.Services.OcrService
 
                 var streamResponse = await streamPipeline.ExecuteAsync(async token =>
                 {
-                    //stream.Position = 0; // if in a retry we need to reset the stream
+                    stream.Position = 0; // if in a retry we need to reset the stream
                     return await _computerVisionClient.ReadInStreamWithHttpMessagesAsync(stream);
                 },
                 CancellationToken.None);
