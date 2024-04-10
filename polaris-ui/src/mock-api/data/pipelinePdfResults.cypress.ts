@@ -34,6 +34,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
     },
     {
       documentId: "2",
@@ -58,6 +59,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
     },
     {
       documentId: "3",
@@ -82,6 +84,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "4",
@@ -106,6 +109,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "5",
@@ -130,6 +134,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "6",
@@ -152,6 +157,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "8",
@@ -176,6 +182,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "9",
@@ -200,6 +207,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "10",
@@ -224,6 +232,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
   ],
 };
@@ -292,6 +301,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
     },
     {
       documentId: "2",
@@ -316,6 +326,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
     },
     {
       documentId: "3",
@@ -340,6 +351,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "4",
@@ -364,6 +376,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "5",
@@ -388,6 +401,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
   ],
 };
@@ -421,6 +435,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
     },
     {
       documentId: "2",
@@ -445,6 +460,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
     },
     {
       documentId: "3",
@@ -469,6 +485,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "4",
@@ -493,6 +510,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "5",
@@ -517,6 +535,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
   ],
 };

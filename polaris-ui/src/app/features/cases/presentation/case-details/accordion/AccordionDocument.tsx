@@ -10,6 +10,7 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 import { ReactComponent as DateIcon } from "../../../../../common/presentation/svgs/date.svg";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
+import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
 
 import classes from "./Accordion.module.scss";
 import {
@@ -21,16 +22,24 @@ type Props = {
   activeDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
+  showNotesFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
   activeDocumentId,
   readUnreadData,
   caseDocument,
+  showNotesFeature,
   handleOpenPdf,
+  handleOpenNotes,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
@@ -83,16 +92,21 @@ export const AccordionDocument: React.FC<Props> = ({
               {caseDocument.presentationFileName}
             </span>
           )}
-          <div className={`${classes["accordion-document-date"]}`}>
-            <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
-            <DateIcon className={classes.dateIcon} />
+          <div className={`${classes["accordion-information-items"]}`}>
             {caseDocument.cmsFileCreatedDate && (
-              <span>
-                {formatDate(
-                  caseDocument.cmsFileCreatedDate,
-                  CommonDateTimeFormats.ShortDateTextMonth
-                )}
-              </span>
+              <div className={`${classes["accordion-document-date"]}`}>
+                <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                  Date Added
+                </span>
+                <DateIcon className={classes.dateIcon} />
+                <span>
+                  {formatDate(
+                    caseDocument.cmsFileCreatedDate,
+                    CommonDateTimeFormats.ShortDateTextMonth
+                  )}
+                </span>
+              </div>
             )}
             {formattedFileCreatedTime && (
               <>
@@ -102,6 +116,25 @@ export const AccordionDocument: React.FC<Props> = ({
                 <TimeIcon className={classes.timeIcon} />
                 {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
               </>
+            )}
+            {showNotesFeature && !caseDocument.documentId.includes("PCD") && (
+              <LinkButton
+                className={classes.notesBtn}
+                dataTestId={`btn-notes-${caseDocument.documentId}`}
+                ariaLabel="open notes"
+                onClick={() => {
+                  handleOpenNotes(
+                    caseDocument.documentId,
+                    caseDocument.cmsDocType.documentCategory,
+                    caseDocument.presentationFileName
+                  );
+                }}
+              >
+                <NotesIcon />
+                {caseDocument.hasNotes && (
+                  <div className={classes.notesAvailable}></div>
+                )}
+              </LinkButton>
             )}
           </div>
 

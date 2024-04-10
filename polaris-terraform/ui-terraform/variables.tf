@@ -113,13 +113,12 @@ variable "feature_flag_full_screen" {
   type = string
 }
 
-variable "local_storage_expiry_days" {
+variable "feature_flag_notes" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
 
-
-variable "redaction_log_user_group" {
+variable "local_storage_expiry_days" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
@@ -128,7 +127,7 @@ variable "private_beta" {
   type = object({
     sign_up_url = string
     user_group  = string
-    redaction_log_user_group = string
+    feature_user_group = string
   })
 }
 
