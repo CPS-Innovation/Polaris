@@ -77,7 +77,7 @@ namespace text_extractor.Functions
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
-                var inputStream = await request.Content.ReadAsStreamAsync();
+                using var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
                 var ocrLineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
 
