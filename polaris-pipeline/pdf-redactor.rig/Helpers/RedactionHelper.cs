@@ -30,6 +30,13 @@ public class RedactionHelper
                         Y1 = 150,
                         X2 = 150,
                         Y2 = 200
+                    },
+                    new RedactionCoordinatesDto
+                    {
+                        X1 = 200,
+                        Y1 = 200,
+                        X2 = 150,
+                        Y2 = 400
                     }
                 }
       };
