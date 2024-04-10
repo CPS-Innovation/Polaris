@@ -473,7 +473,7 @@ stages:
               successTextContent: "ui"
 
   # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report_DEV
+  - stage: Create_Commit_Report_QA
     displayName: QA > Save Report
     dependsOn: Check_QA
     condition: succeeded()
