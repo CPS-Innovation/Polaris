@@ -19,21 +19,21 @@ using Common.Streaming;
 
 namespace pdf_redactor.Functions
 {
-    public class PdfRedactor
+    public class RedactPdf
     {
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDocumentRedactionService _documentRedactionService;
-        private readonly ILogger<PdfRedactor> _logger;
+        private readonly ILogger<RedactPdf> _logger;
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private const string PdfContentType = "application/pdf";
 
-        public PdfRedactor(
+        public RedactPdf(
             IExceptionHandler exceptionHandler,
             IJsonConvertWrapper jsonConvertWrapper,
             IDocumentRedactionService documentRedactionService,
-            ILogger<PdfRedactor> logger,
+            ILogger<RedactPdf> logger,
             IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
@@ -45,8 +45,8 @@ namespace pdf_redactor.Functions
             _logger = logger;
         }
 
-        [Function(nameof(PdfRedactor))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.PdfRedactor)] HttpRequest request, string caseUrn, string caseId, string documentId)
+        [Function(nameof(RedactPdf))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactPdf)] HttpRequest request, string caseUrn, string caseId, string documentId)
         {
             Guid currentCorrelationId = default;
 
@@ -86,7 +86,7 @@ namespace pdf_redactor.Functions
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(PdfRedactor), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RedactPdf), _logger);
             }
         }
     }
