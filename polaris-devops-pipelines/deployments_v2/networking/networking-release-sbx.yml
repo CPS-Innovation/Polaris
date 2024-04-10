@@ -1,0 +1,57 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisNetworkingBuild
+      source: Polaris Networking - Sandbox Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/*
+        stages:
+          - Publish_Artifacts
+            
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: polaris-status-check-endpoints
+  - group: terraform-containers
+    
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Apply_Sandbox
+    displayName: Sandbox > Apply Terraform
+    jobs:
+      - deployment: Apply_Networking_Terraform
+        environment: "Sandbox"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(sandbox-azure-subscription)
+                    
+                - template: ../tasks/task_apply-networking-terraform.yml
+                  parameters:
+                    targetBuild: PolarisNetworkingBuild
+                    targetTerraformArtifact: "networking-terraform-files"
+                    targetLabel: "SANDBOX"
+                    targetName: "Networking Terraform CI Deployment"
+                    targetPlanName: "sandbox"
+                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    terraformContainerName: $(networking-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)

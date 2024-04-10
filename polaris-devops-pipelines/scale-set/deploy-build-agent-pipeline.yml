@@ -16,13 +16,7 @@ variables:
   - group: kv-prod-terraform
   - group: polaris-build-agent
   - group: polaris-global
-  - name: "devSubscriptionName"
-    value: "Innovation-Development: All-Information Management"
-  - name: "qaSubscriptionName"
-    value: "Innovation-QA: All-Information Management"
-  - name: "prodSubscriptionName"
-    value: "Innovation-Production: All-Information Management"
-
+  
 stages:
   - stage: create_version
     displayName: Determine version number
@@ -43,13 +37,17 @@ stages:
       - job: build
         displayName: DEV - Build Image
         steps:
+          - template: steps/get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           - template: steps/create-build-agent-image.yml
             parameters:
-              clientId: $(innovation-development-spn-client-id)
-              clientSecret: $(innovation-development-spn-secret)
-              tenantId: $(innovation-development-spn-tenant-id)
-              subscriptionId: $(innovation-development-subscription-id)
-              subscriptionName: $(devSubscriptionName)
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              subscriptionName: $(dev-azure-subscription)
               resourceGroup: $(innovation-development-build-agent-resource-group)
               storageAccount: $(innovation-development-build-agent-storage-account)
               versionSha: $(versionSha)
@@ -67,13 +65,17 @@ stages:
       - job: build
         displayName: QA - Build Image
         steps:
+          - template: steps/get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(qa-azure-subscription)
+
           - template: steps/create-build-agent-image.yml
             parameters:
-              clientId: $(innovation-qa-spn-client-id)
-              clientSecret: $(innovation-qa-spn-secret)
-              tenantId: $(innovation-qa-spn-tenant-id)
-              subscriptionId: $(innovation-qa-subscription-id)
-              subscriptionName: $(qaSubscriptionName)
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              subscriptionName: $(qa-azure-subscription)
               resourceGroup: $(innovation-qa-build-agent-resource-group)
               storageAccount: $(innovation-qa-build-agent-storage-account)
               versionSha: $(versionSha)
@@ -91,13 +93,17 @@ stages:
       - job: build
         displayName: PROD - Build Image
         steps:
+          - template: steps/get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(prod-azure-subscription)
+
           - template: steps/create-build-agent-image.yml
             parameters:
-              clientId: $(innovation-prod-spn-client-id)
-              clientSecret: $(innovation-prod-spn-secret)
-              tenantId: $(innovation-prod-spn-tenant-id)
-              subscriptionId: $(innovation-prod-subscription-id)
-              subscriptionName: $(prodSubscriptionName)
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              subscriptionName: $(prod-azure-subscription)
               resourceGroup: $(innovation-prod-build-agent-resource-group)
               storageAccount: $(innovation-prod-build-agent-storage-account)
               versionSha: $(versionSha)
@@ -115,12 +121,16 @@ stages:
       - job: update
         displayName: Update Resources
         steps:
+          - template: steps/get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           - template: steps/update-image-version.yml
             parameters:
-              clientId: $(innovation-development-spn-client-id)
-              clientSecret: $(innovation-development-spn-secret)
-              tenantId: $(innovation-development-spn-tenant-id)
-              subscriptionId: $(innovation-development-subscription-id)
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
               resourceGroup: $(innovation-development-build-agent-resource-group)
               agentPoolName: $(innovation-development-agent-pool-name)
               versionSha: $(versionSha)
@@ -136,12 +146,16 @@ stages:
       - job: update
         displayName: Update Resources
         steps:
+          - template: steps/get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(qa-azure-subscription)
+
           - template: steps/update-image-version.yml
             parameters:
-              clientId: $(innovation-qa-spn-client-id)
-              clientSecret: $(innovation-qa-spn-secret)
-              tenantId: $(innovation-qa-spn-tenant-id)
-              subscriptionId: $(innovation-qa-subscription-id)
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
               resourceGroup: $(innovation-qa-build-agent-resource-group)
               agentPoolName: $(innovation-qa-agent-pool-name)
               versionSha: $(versionSha)
@@ -157,12 +171,16 @@ stages:
       - job: update
         displayName: Update Resources
         steps:
+          - template: steps/get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(prod-azure-subscription)
+
           - template: steps/update-image-version.yml
             parameters:
-              clientId: $(innovation-prod-spn-client-id)
-              clientSecret: $(innovation-prod-spn-secret)
-              tenantId: $(innovation-prod-spn-tenant-id)
-              subscriptionId: $(innovation-prod-subscription-id)
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
               resourceGroup: $(innovation-prod-build-agent-resource-group)
               agentPoolName: $(innovation-prod-agent-pool-name)
               versionSha: $(versionSha)
