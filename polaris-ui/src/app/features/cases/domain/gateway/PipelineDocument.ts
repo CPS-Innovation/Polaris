@@ -21,8 +21,7 @@ export type PresentationFlags = {
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
     | "IsDispatched"
-    | "IsRedactionServiceOffline"
-    | "AttachmentCategoryNotAllowed";
+    | "IsRedactionServiceOffline";
 };
 
 export type PresentationDocumentProperties = {
