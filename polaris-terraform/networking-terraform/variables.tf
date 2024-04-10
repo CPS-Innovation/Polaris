@@ -88,10 +88,13 @@ variable "vnetDnsServer" {
   type = string
 }
 
-variable "insights_log_retention_days" {
-  type = number
-}
-
-variable "insights_log_total_retention_days" {
-  type = number
+variable "insights_configuration" {
+  type = object({
+    log_retention_days                   = number
+    log_total_retention_days             = number
+    analytics_internet_ingestion_enabled = bool
+    analytics_internet_query_enabled     = bool
+    insights_internet_ingestion_enabled  = bool
+    insights_internet_query_enabled      = bool
+  })
 }

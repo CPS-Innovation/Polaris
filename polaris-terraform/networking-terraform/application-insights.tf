@@ -4,9 +4,9 @@ resource "azurerm_log_analytics_workspace" "ai_polaris_workspace" {
   location                   = azurerm_resource_group.rg_polaris_workspace.location
   resource_group_name        = azurerm_resource_group.rg_polaris_workspace.name
   sku                        = "PerGB2018"
-  retention_in_days          = var.insights_log_retention_days
-  internet_ingestion_enabled = false
-  internet_query_enabled     = false
+  retention_in_days          = var.insights_configuration.log_retention_days
+  internet_ingestion_enabled = var.insights_configuration.analytics_internet_ingestion_enabled
+  internet_query_enabled     = var.insights_configuration.analytics_internet_query_enabled
 }
 
 resource "azurerm_application_insights" "ai_polaris" {
@@ -15,10 +15,10 @@ resource "azurerm_application_insights" "ai_polaris" {
   resource_group_name        = azurerm_resource_group.rg_polaris_workspace.name
   workspace_id               = azurerm_log_analytics_workspace.ai_polaris_workspace.id
   application_type           = "web"
-  retention_in_days          = var.insights_log_retention_days
+  retention_in_days          = var.insights_configuration.log_retention_days
   tags                       = local.common_tags
-  internet_ingestion_enabled = true
-  internet_query_enabled     = false
+  internet_ingestion_enabled = var.insights_configuration.insights_internet_ingestion_enabled
+  internet_query_enabled     = var.insights_configuration.insights_internet_query_enabled
 }
 
 resource "azurerm_monitor_private_link_scope" "pls_ai_insights" {
