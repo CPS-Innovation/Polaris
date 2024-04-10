@@ -28,6 +28,15 @@ stages:
   - stage: Publish_Artifacts
     displayName: Publish Pipeline Scripts
     jobs:
+      - job: Build_Pipeline_Scripts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish pipeline scripts"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
+              artifact: "polaris-script-files"
+              publishLocation: "pipeline"
+              
       - job: Build_Networking_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
