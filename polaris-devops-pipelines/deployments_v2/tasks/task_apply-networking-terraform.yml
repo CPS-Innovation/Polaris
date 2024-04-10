@@ -29,11 +29,6 @@ parameters:
 
 
 steps:
-  # download scripts artifact
-  - download: ${{ parameters.targetBuild }}
-    displayName: Download Scripts
-    artifact: 'polaris-script-files'
-
   # download pipeline terraform build artifact
   - download: ${{ parameters.targetBuild }}
     displayName: Terraform > Download Terraform build
