@@ -4,8 +4,8 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: PolarisNetworkingBuild
-      source: Polaris Networking Build
+    - pipeline: NetworkingBuild
+      source: Networking - Build
       trigger:
         branches:
           include:
@@ -34,7 +34,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetLabel: "DEV"
                     targetName: "Networking Terraform CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -52,7 +52,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "DEV"
                     targetName: "Networking Terraform CI Deployment"
@@ -78,7 +78,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetLabel: "DEV"
                     targetName: "Networking Terraform CI Deployment"
                     appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -97,7 +97,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetName: "Build Checks"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -123,7 +123,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetAppName: "Coordinator"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -142,7 +142,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetAppName: "PDF Generator"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -161,7 +161,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetAppName: "PDF Redactor"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -180,7 +180,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetAppName: "Text Extractor"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -199,7 +199,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetAppName: "Gateway"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -218,7 +218,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetAppName: "Proxy"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -237,7 +237,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetAppName: "UI"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -262,7 +262,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetName: "Build Checks"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -279,7 +279,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -301,7 +301,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -319,7 +319,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -340,7 +340,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "DEV"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -406,7 +406,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetLabel: "QA"
                     targetName: "Networking Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -424,7 +424,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "QA"
                     targetName: "Networking Terraform CI Deployment"
@@ -450,7 +450,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetLabel: "QA"
                     targetName: "Networking Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -469,7 +469,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetName: "Build Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -495,7 +495,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetAppName: "Coordinator"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -514,7 +514,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetAppName: "PDF Generator"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -533,7 +533,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetAppName: "PDF Redactor"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -552,7 +552,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetAppName: "Text Extractor"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -571,7 +571,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetAppName: "Gateway"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -590,7 +590,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetAppName: "Proxy"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -609,7 +609,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetAppName: "UI"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -634,7 +634,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetName: "Build Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -651,7 +651,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -673,7 +673,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -691,7 +691,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -712,7 +712,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "QA"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -735,7 +735,7 @@ stages:
               steps:
                 - template: tasks/task_log-start-deployment.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetLabel: "PROD"
                     targetName: "Networking Terraform CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -753,7 +753,7 @@ stages:
               steps:
                 - template: tasks/task_apply-terraform.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
                     targetLabel: "PROD"
                     targetName: "Networking Terraform CI Deployment"
@@ -779,7 +779,7 @@ stages:
               steps:
                 - template: tasks/task_log-result-deployment.yml
                   parameters:
-                    targetBuild: PolarisNetworkingBuild
+                    targetBuild: NetworkingBuild
                     targetLabel: "PROD"
                     targetName: "Networking Terraform CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -798,7 +798,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetName: "Build Checks"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -824,7 +824,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetAppName: "Coordinator"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -843,7 +843,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetAppName: "PDF Generator"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -862,7 +862,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetAppName: "PDF Redactor"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -881,7 +881,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetAppName: "Text Extractor"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -900,7 +900,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetAppName: "Gateway"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -919,7 +919,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetAppName: "Proxy"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -938,7 +938,7 @@ stages:
         steps:
           - template: tasks/task_call-status-endpoint.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetAppName: "UI"
               targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
@@ -963,7 +963,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetName: "Build Checks"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -980,7 +980,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -1002,7 +1002,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -1020,7 +1020,7 @@ stages:
         steps:
           - template: tasks/task_log-start.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -1041,7 +1041,7 @@ stages:
         steps:
           - template: tasks/task_log-result.yml
             parameters:
-              targetBuild: PolarisNetworkingBuild
+              targetBuild: NetworkingBuild
               targetLabel: "PROD"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
