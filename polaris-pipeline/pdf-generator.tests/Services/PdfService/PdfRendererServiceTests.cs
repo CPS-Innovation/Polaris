@@ -5,6 +5,7 @@ using Aspose.Pdf;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
+using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
 using pdf_generator.Services.PdfService;
 using Xunit;
@@ -70,5 +71,37 @@ namespace pdf_generator.tests.Services.PdfService
             }
         }
 
+        [Fact]
+        public void ReadToPdfStream_ReturnsAsposePdfPasswordProtectedStatusForExceptionDetailingPermissionsCheckedFailed()
+        {
+            // Arrange
+            using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
+            _asposeItemFactory.Setup(x => x.CreateRenderedPdfDocument(It.IsAny<Stream>(), It.IsAny<Guid>())).Throws(() => new Exception("fooPermissions check failedbar"));
+
+            // Act
+            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
+
+            // Assert
+            using (new AssertionScope())
+            {
+                conversionResult.ConversionStatus.Should().Be(PdfConversionStatus.AsposePdfPasswordProtected);
+                conversionResult.ConvertedDocument.Should().BeNull();
+            }
+        }
+
+        [Fact]
+        public void ReadToPdfStream_ThrowsWhenUnrecognisedExceptionIsEncountered()
+        {
+            // Arrange
+            var expectedException = new Exception("foo");
+            using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
+            _asposeItemFactory.Setup(x => x.CreateRenderedPdfDocument(It.IsAny<Stream>(), It.IsAny<Guid>())).Throws(() => expectedException);
+
+            // Act
+            var act = () => _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
+
+            // Assert
+            act.Should().Throw<Exception>().Where(ex => ex == expectedException);
+        }
     }
 }
