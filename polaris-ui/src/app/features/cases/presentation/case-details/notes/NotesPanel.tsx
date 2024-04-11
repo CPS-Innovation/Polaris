@@ -115,16 +115,24 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           Notes -{" "}
           <span className={classes.notesDocumentName}>{documentName}</span>
         </h3>
-        {addNoteSuccessLiveText && (
-          <div aria-live="polite" className={classes.visuallyHidden}>
+        {
+          <div
+            role="status"
+            aria-live="polite"
+            className={classes.visuallyHidden}
+          >
             {addNoteSuccessLiveText}
           </div>
-        )}
-        {notesCountLiveText && (
-          <div aria-live="polite" className={classes.visuallyHidden}>
+        }
+        {
+          <div
+            role="status"
+            aria-live="polite"
+            className={classes.visuallyHidden}
+          >
             {notesCountLiveText}
           </div>
-        )}
+        }
       </div>
       <div className={classes.notesBody}>
         {notesError && (
