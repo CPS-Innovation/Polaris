@@ -9,6 +9,7 @@ type LinkButtonProps = {
   disabled?: boolean;
   ariaLabel?: string;
   ariaExpanded?: boolean;
+  ariaDescription?: string;
   type?: "button" | "submit" | "reset";
   onClick: () => void;
 };

@@ -55,12 +55,14 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentCategory: string;
     presentationFileName: string;
     accordionOldState: AccordionReducerState | null;
+    lastFocusDocumentId: string;
   }>({
     open: false,
     documentId: "",
     documentCategory: "",
     presentationFileName: "",
     accordionOldState: null,
+    lastFocusDocumentId: "",
   });
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
@@ -186,6 +188,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       documentCategory: documentCategory,
       presentationFileName: presentationFileName,
       accordionOldState: accordionCurrentState,
+      lastFocusDocumentId: documentId,
     });
   };
 
@@ -389,6 +392,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
                     handleOpenNotes={handleOpenNotes}
                     showNotesFeature={featureFlags.notes}
+                    lastFocusDocumentId={openNotesData.lastFocusDocumentId}
                   />
                 )}
               </div>

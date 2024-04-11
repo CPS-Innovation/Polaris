@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -20,6 +21,7 @@ import {
 
 type Props = {
   activeDocumentId: string;
+  lastFocusDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
   showNotesFeature: boolean;
@@ -34,6 +36,7 @@ type Props = {
 };
 
 export const AccordionDocument: React.FC<Props> = ({
+  lastFocusDocumentId,
   activeDocumentId,
   readUnreadData,
   caseDocument,
@@ -41,7 +44,14 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPdf,
   handleOpenNotes,
 }) => {
+  const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
+
+  useEffect(() => {
+    if (openNotesBtnRef.current) {
+      openNotesBtnRef.current.focus();
+    }
+  }, []);
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   const getAttachmentText = () => {
     if (caseDocument.attachments.length === 1) {
@@ -51,6 +61,11 @@ export const AccordionDocument: React.FC<Props> = ({
   };
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
+
+  const openNotesRefProps =
+    caseDocument.documentId === lastFocusDocumentId
+      ? { ref: openNotesBtnRef }
+      : {};
 
   return (
     <li
@@ -119,9 +134,16 @@ export const AccordionDocument: React.FC<Props> = ({
             )}
             {showNotesFeature && !caseDocument.documentId.includes("PCD") && (
               <LinkButton
+                {...openNotesRefProps}
                 className={classes.notesBtn}
+                id={`btn-notes-${caseDocument.documentId}`}
                 dataTestId={`btn-notes-${caseDocument.documentId}`}
                 ariaLabel="Open notes"
+                ariaDescription={
+                  caseDocument.hasNotes
+                    ? "This document has one or more notes"
+                    : "There are no notes added to this document"
+                }
                 onClick={() => {
                   trackEvent("Open Notes", {
                     documentId: caseDocument.documentId,
