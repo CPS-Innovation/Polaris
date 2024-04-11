@@ -69,3 +69,23 @@
 .textAreaLabel {
   display: none;
 }
+
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.errorSummaryWrapper {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+  :global(.govuk-error-summary) {
+    margin-bottom: 1.5rem;
+    padding: 0.625rem;
+  }
+}

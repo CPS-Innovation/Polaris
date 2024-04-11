@@ -139,11 +139,6 @@ export const AccordionDocument: React.FC<Props> = ({
                 id={`btn-notes-${caseDocument.documentId}`}
                 dataTestId={`btn-notes-${caseDocument.documentId}`}
                 ariaLabel="Open notes"
-                ariaDescription={
-                  caseDocument.hasNotes
-                    ? "This document has one or more notes"
-                    : "There are no notes added to this document"
-                }
                 onClick={() => {
                   trackEvent("Open Notes", {
                     documentId: caseDocument.documentId,

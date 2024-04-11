@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   Button,
   LinkButton,
   CharacterCount,
+  ErrorSummary,
 } from "../../../../../common/presentation/components";
 import { NotesTimeline } from "./NotesTimeline";
 import classes from "./NotesPanel.module.scss";
@@ -33,6 +34,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   handleAddNote,
   handleGetNotes,
 }) => {
+  const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [newNoteValue, setNewNoteValue] = useState("");
   const [oldNoteValue, setOldNoteValue] = useState("");
@@ -41,6 +43,10 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const handleAddBtnClick = () => {
     if (newNoteValue.length > NOTES_MAX_CHARACTERS) {
       setNotesError(true);
+      if (notesError && errorSummaryRef.current) {
+        (errorSummaryRef?.current as HTMLButtonElement).focus();
+      }
+
       return;
     }
     if (notesError) {
@@ -65,6 +71,12 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   }, [noteData?.addNoteStatus]);
 
   useEffect(() => {
+    if (notesError && errorSummaryRef.current) {
+      (errorSummaryRef?.current as HTMLButtonElement).focus();
+    }
+  }, [notesError]);
+
+  useEffect(() => {
     if (noteData?.addNoteStatus === "success") {
       handleGetNotes(documentId, documentCategory);
     }
@@ -79,6 +91,17 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     return [...notes].reverse();
   }, [noteData]);
 
+  const notesCountLiveText = useMemo(() => {
+    switch (notesList.length) {
+      case 0:
+        return "There are no notes available for this document";
+      case 1:
+        return `There is one note available for this document`;
+      default:
+        return `There are ${notesList.length} notes available for this document`;
+    }
+  }, [notesList.length]);
+
   return (
     <div className={classes.notesPanel}>
       <div className={classes.notesHeader}>
@@ -88,8 +111,31 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           Notes -{" "}
           <span className={classes.notesDocumentName}>{documentName}</span>
         </h3>
+        <div aria-live="polite" className={classes.visuallyHidden}>
+          {notesCountLiveText}
+        </div>
       </div>
       <div className={classes.notesBody}>
+        {notesError && (
+          <div
+            ref={errorSummaryRef}
+            tabIndex={-1}
+            className={classes.errorSummaryWrapper}
+          >
+            <ErrorSummary
+              data-testid={"redaction-log-error-summary"}
+              className={classes.errorSummary}
+              errorList={[
+                {
+                  reactListKey: "1",
+                  children: `Notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
+                  href: "#notes-textarea",
+                  "data-testid": "notes-textarea-link",
+                },
+              ]}
+            />
+          </div>
+        )}
         <div className={classes.notesTextArea}>
           <CharacterCount
             errorMessage={
