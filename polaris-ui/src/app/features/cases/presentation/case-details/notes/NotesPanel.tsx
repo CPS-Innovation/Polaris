@@ -201,6 +201,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               className={classes.cancelBtn}
               onClick={() => handleCloseNotes()}
               dataTestId="btn-redaction-log-cancel"
+              ariaLabel="close notes"
             >
               Cancel
             </LinkButton>
