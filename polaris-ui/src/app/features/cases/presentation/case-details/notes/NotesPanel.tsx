@@ -34,7 +34,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   handleAddNote,
   handleGetNotes,
 }) => {
-  const characterCountRef = useRef(null);
+  const cancelBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [newNoteValue, setNewNoteValue] = useState("");
@@ -53,8 +53,8 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     if (notesError) {
       setNotesError(false);
     }
-    if (characterCountRef.current) {
-      (characterCountRef.current as HTMLElement).focus();
+    if (cancelBtnRef.current) {
+      (cancelBtnRef.current as HTMLElement).focus();
     }
     trackEvent("Add Note", {
       documentId: documentId,
@@ -161,7 +161,6 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
         )}
         <div className={classes.notesTextArea}>
           <CharacterCount
-            ref={characterCountRef}
             errorMessage={
               notesError
                 ? {
@@ -198,6 +197,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
             </Button>
 
             <LinkButton
+              ref={cancelBtnRef}
               className={classes.cancelBtn}
               onClick={() => handleCloseNotes()}
               dataTestId="btn-redaction-log-cancel"
