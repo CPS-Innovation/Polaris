@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   BackLink,
   Tooltip,
@@ -64,6 +64,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     accordionOldState: null,
     lastFocusDocumentId: "",
   });
+
+  const notesPanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -157,6 +159,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
+
+  useEffect(() => {
+    if (notesPanelRef.current) {
+      (notesPanelRef.current as HTMLElement).focus();
+    }
+  }, [openNotesData.open]);
 
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
@@ -406,6 +414,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               aria-labelledby="notes-panel-region-label"
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
+              ref={notesPanelRef}
             >
               <span
                 id="notes-panel-region-label"
