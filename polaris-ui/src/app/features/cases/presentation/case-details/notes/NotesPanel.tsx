@@ -91,16 +91,16 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     return [...notes].reverse();
   }, [noteData]);
 
-  const notesCountLiveText = useMemo(() => {
-    switch (notesList.length) {
-      case 0:
-        return "There are no notes available for this document";
-      case 1:
-        return `There is one note available for this document`;
-      default:
-        return `There are ${notesList.length} notes available for this document`;
+  const notesLiveText = useMemo(() => {
+    if (noteData?.addNoteStatus === "success") {
+      return "Note added successfully";
     }
-  }, [notesList.length]);
+    if (noteData?.addNoteStatus === "initial" && notesList.length) {
+      return notesList.length > 1
+        ? ` there are ${notesList.length} notes available for this document`
+        : "there is one note available for this document";
+    }
+  }, [notesList.length, noteData?.addNoteStatus]);
 
   return (
     <div className={classes.notesPanel}>
@@ -111,9 +111,11 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           Notes -{" "}
           <span className={classes.notesDocumentName}>{documentName}</span>
         </h3>
-        <div aria-live="polite" className={classes.visuallyHidden}>
-          {notesCountLiveText}
-        </div>
+        {notesLiveText && (
+          <div aria-live="polite" className={classes.visuallyHidden}>
+            {notesLiveText}
+          </div>
+        )}
       </div>
       <div className={classes.notesBody}>
         {notesError && (
