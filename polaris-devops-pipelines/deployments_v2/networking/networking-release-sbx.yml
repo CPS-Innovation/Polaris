@@ -5,11 +5,11 @@ pr: none
 resources:
   pipelines:
     - pipeline: PolarisNetworkingBuild
-      source: Polaris Networking Build
+      source: Polaris Networking Build - SBX
       trigger:
         branches:
           include:
-            - refs/heads/main
+            - refs/heads/*
         stages:
           - Publish_Artifacts
             
