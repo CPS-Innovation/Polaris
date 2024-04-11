@@ -159,6 +159,6 @@ resource "azapi_resource" "polaris_sa_gateway_file_share" {
 
 resource "azapi_resource" "polaris_sa_gateway_file_share_staging1" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "polaris-gateway-content-share"
+  name      = "polaris-gateway-content-share-1"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_gateway.name}/fileServices/default"
 }
