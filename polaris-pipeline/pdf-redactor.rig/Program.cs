@@ -90,6 +90,7 @@ namespace pdf_redactor.rig
                 .Build();
 
             var services = new ServiceCollection();
+            StartupHelpers.SetAsposeLicence();
 
             _pdfRedactorUrl = configuration["PdfRedactorUrl"] ?? throw new ArgumentException("PdfRedactorUrl not found in configuration");
 
