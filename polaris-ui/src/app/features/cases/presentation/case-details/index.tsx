@@ -411,7 +411,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 id="notes-panel-region-label"
                 className={classes.sidePanelLabel}
               >
-                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName} here.`}
+                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName}.`}
               </span>
               <NotesPanel
                 documentName={openNotesData.presentationFileName}
