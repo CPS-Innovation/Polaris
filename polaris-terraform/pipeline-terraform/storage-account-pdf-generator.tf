@@ -154,3 +154,9 @@ resource "azapi_resource" "pipeline_sa_pdf_generator_file_share" {
   name      = "pipeline-pdf-generator-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_generator.name}/fileServices/default"
 }
+
+resource "azapi_resource" "pipeline_sa_pdf_generator_file_share_staging1" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "pipeline-pdf-generator-content-share-1"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_generator.name}/fileServices/default"
+}
