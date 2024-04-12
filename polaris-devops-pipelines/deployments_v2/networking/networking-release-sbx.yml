@@ -9,7 +9,7 @@ resources:
       trigger:
         branches:
           include:
-            - refs/heads/main
+            - refs/*
         stages:
           - Publish_Artifacts
             
