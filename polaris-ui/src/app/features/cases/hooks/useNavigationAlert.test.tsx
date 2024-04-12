@@ -51,6 +51,7 @@ describe("useNavigationAlert hook", () => {
       witnessIndicators: [],
       hasFailedAttachments: false,
       areaOnlyRedactionMode: false,
+      hasNotes: false,
     },
     {
       clientLockedState: "unlocked",
@@ -95,6 +96,7 @@ describe("useNavigationAlert hook", () => {
       witnessIndicators: [],
       hasFailedAttachments: false,
       areaOnlyRedactionMode: false,
+      hasNotes: false,
     },
   ];
 

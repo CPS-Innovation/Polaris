@@ -36,6 +36,7 @@ import {
 import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
+import { Note } from "../../domain/gateway/NotesData";
 
 export const reducer = (
   state: CombinedState,
@@ -185,6 +186,19 @@ export const reducer = (
         payload: {
           storedUserData: StoredUserData;
         };
+      }
+    | {
+        type: "UPDATE_NOTES_DATA";
+        payload:
+          | {
+              documentId: string;
+              addNoteStatus: "saving" | "failure" | "success";
+            }
+          | {
+              documentId: string;
+              notesData: Note[];
+              addNoteStatus: "initial";
+            };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -979,6 +993,45 @@ export const reducer = (
         ...state,
         storedUserData: { status: "succeeded", data: storedUserData },
       };
+    }
+    case "UPDATE_NOTES_DATA": {
+      const { documentId, addNoteStatus } = action.payload;
+      const filteredNotes = state.notes.filter(
+        (note) => note.documentId !== documentId
+      );
+      const activeNotes = state.notes.find(
+        (note) => note.documentId === documentId
+      )!;
+      switch (addNoteStatus) {
+        case "success":
+        case "failure":
+        case "saving": {
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                ...activeNotes,
+                documentId: documentId,
+                addNoteStatus: addNoteStatus,
+              },
+            ],
+          };
+        }
+        default:
+          const { notesData } = action.payload;
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                documentId: documentId,
+                notes: notesData,
+                addNoteStatus: addNoteStatus,
+              },
+            ],
+          };
+      }
     }
 
     default:

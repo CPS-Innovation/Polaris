@@ -8,7 +8,10 @@ trigger:
       - main
   paths:
     include:
-      - polaris-terraform/*
+      - polaris-terraform/pipeline-terraform/*
+      - polaris-terraform/pipeline-events-terraform/*
+      - polaris-terraform/ui-terraform/*
+      - polaris-terraform/ui-events-terraform/*
       - polaris-gateway/*
       - polaris-pipeline/*
       - polaris-ui/*
@@ -71,15 +74,6 @@ stages:
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
               artifact: "ui-events-terraform-files"
-              publishLocation: "pipeline"
-              
-      - job: Build_Networking_Terraform_Artifacts
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Networking terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
-              artifact: "networking-terraform-files"
               publishLocation: "pipeline"
               
       - job: Build_Coordinator_Artifact

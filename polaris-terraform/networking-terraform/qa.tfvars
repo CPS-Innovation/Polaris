@@ -1,10 +1,8 @@
 environment = {
-  name  = "qa"
-  alias = "qa"
+  name       = "qa"
+  alias      = "qa"
+  root_alias = "qa"
 }
-
-vnetAddressSpace = "10.7.198.0/23"
-vnetDnsServer    = "10.7.198.164"
 
 ddeiServicesSubnet                  = "10.7.198.32/27"
 polarisPipelineSaSubnet             = "10.7.198.96/28"
@@ -18,8 +16,6 @@ polarisUiSubnet                     = "10.7.198.0/28"
 polarisProxySubnet                  = "10.7.198.112/28"
 polarisAppsSubnet                   = "10.7.198.224/27"
 polarisCiSubnet                     = "10.7.198.176/28"
-polarisDnsResolveSubnet             = "10.7.198.160/28"
-gatewaySubnet                       = "10.7.198.128/27"
 mockCmsServiceSubnet                = "10.7.199.48/28"
 polarisAmplsSubnet                  = "10.7.199.64/27"
 polarisPipelineSa2Subnet            = "10.7.199.128/27"
@@ -27,3 +23,12 @@ polarisScaleSetSubnet               = "10.7.199.160/27"
 polarisApps2Subnet                  = "10.7.199.192/27"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
+
+insights_configuration = {
+  log_retention_days                   = 90
+  log_total_retention_days             = 2555
+  analytics_internet_ingestion_enabled = false
+  analytics_internet_query_enabled     = false
+  insights_internet_ingestion_enabled  = false
+  insights_internet_query_enabled      = false
+}

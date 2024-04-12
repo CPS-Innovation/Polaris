@@ -5,6 +5,8 @@ import {
   checkoutDocument,
   saveRedactions,
   saveRedactionLog,
+  getNotesData,
+  addNoteData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
@@ -76,6 +78,21 @@ type AsyncActions =
       type: "SAVE_READ_UNREAD_DATA";
       payload: {
         documentId: string;
+      };
+    }
+  | {
+      type: "GET_NOTES_DATA";
+      payload: {
+        documentId: string;
+        documentCategory: string;
+      };
+    }
+  | {
+      type: "ADD_NOTE_DATA";
+      payload: {
+        documentId: string;
+        documentCategory: string;
+        noteText: string;
       };
     };
 
@@ -420,5 +437,76 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           ...storedUserData.data.readUnread,
           payload.documentId,
         ]);
+    },
+
+  GET_NOTES_DATA:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId, documentCategory },
+      } = action;
+      const { caseId, urn } = getState();
+      try {
+        const notesData = await getNotesData(
+          urn,
+          caseId,
+          documentId,
+          documentCategory
+        );
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, notesData, addNoteStatus: "initial" },
+        });
+      } catch (e) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "getnotes",
+            title: "Something went wrong!",
+            message: "Failed to get notes for the documents. Please try again.",
+          },
+        });
+      }
+    },
+
+  ADD_NOTE_DATA:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId, documentCategory, noteText },
+      } = action;
+      const { caseId, urn } = getState();
+
+      try {
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, addNoteStatus: "saving" },
+        });
+        await addNoteData(urn, caseId, documentId, documentCategory, noteText);
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, addNoteStatus: "success" },
+        });
+      } catch (e) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "addnote",
+            title: "Something went wrong!",
+            message: "Failed to add note to the document. Please try again.",
+          },
+        });
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: { documentId, addNoteStatus: "failure" },
+        });
+        console.log("failed to add notes");
+      }
+      dispatch({
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: true,
+        },
+      });
     },
 };

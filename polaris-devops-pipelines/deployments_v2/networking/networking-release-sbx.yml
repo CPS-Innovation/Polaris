@@ -5,28 +5,25 @@ pr: none
 resources:
   pipelines:
     - pipeline: PolarisNetworkingBuild
-      source: Polaris Networking - Sandbox Build
+      source: Polaris Networking Build - SBX
       trigger:
         branches:
           include:
-            - refs/heads/*
+            - refs/heads/main
         stages:
           - Publish_Artifacts
             
 variables:
-  - group: kv-dev-terraform
-  - group: kv-qa-terraform
-  - group: kv-prod-terraform
+  - group: kv-sbx-terraform
   - group: polaris-global
-  - group: polaris-status-check-endpoints
   - group: terraform-containers
     
 pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: Apply_Sandbox
-    displayName: Sandbox > Apply Terraform
+  - stage: Apply_SBX
+    displayName: SBX > Apply Terraform
     jobs:
       - deployment: Apply_Networking_Terraform
         environment: "Sandbox"
@@ -38,19 +35,19 @@ stages:
               steps:
                 - template: ../tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(sandbox-azure-subscription)
+                    azureSubscriptionId: $(sbx-azure-subscription)
                     
                 - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
                     targetBuild: PolarisNetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
-                    targetLabel: "SANDBOX"
+                    targetLabel: "SBX"
                     targetName: "Networking Terraform CI Deployment"
-                    targetPlanName: "sandbox"
-                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    targetPlanName: "sbx"
+                    terraformStorageAccount: $(sbx-terraform-storage-account)
                     terraformContainerName: $(networking-terraform-container-name)
                     terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
                     armClientId: $(clientId)
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)

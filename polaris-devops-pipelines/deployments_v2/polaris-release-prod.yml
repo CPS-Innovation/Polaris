@@ -129,37 +129,9 @@ stages:
               buildResultsTitle: "View Progress"
               buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
 
-      - deployment: Apply_Networking_Terraform
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        displayName: Apply Networking Terraform
-        dependsOn: Log_Start_Terraform
-        environment: "Prod"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: tasks/task_apply-terraform.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetTerraformArtifact: "networking-terraform-files"
-                    targetLabel: "PROD"
-                    targetName: "Networking Terraform CI Deployment"
-                    targetPlanName: "prod"
-                    appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    terraformStorageAccount: $(prod-terraform-storage-account)
-                    terraformContainerName: $(networking-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(innovation-prod-spn-client-id)
-                    armClientSecret: $(innovation-prod-spn-secret)
-                    armTenantId: $(innovation-prod-spn-tenant-id)
-                    armSubscriptionId: $(innovation-prod-subscription-id)
-
       - deployment: Apply_Pipeline_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
-        dependsOn: Apply_Networking_Terraform
+        dependsOn: Log_Start_Terraform
         displayName: Apply Pipeline Terraform
         environment: "Prod"
         workspace:
@@ -168,6 +140,10 @@ stages:
           runOnce:
             deploy:
               steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(prod-azure-subscription)
+                    
                 - template: tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -180,10 +156,10 @@ stages:
                     terraformContainerName: $(pipeline-terraform-container-name)
                     terraformStateKey: $(terraform-key)
                     terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(innovation-prod-spn-client-id)
-                    armClientSecret: $(innovation-prod-spn-secret)
-                    armTenantId: $(innovation-prod-spn-tenant-id)
-                    armSubscriptionId: $(innovation-prod-subscription-id)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
 
       - deployment: Apply_Pipeline_Events_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
@@ -196,6 +172,10 @@ stages:
           runOnce:
             deploy:
               steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(prod-azure-subscription)
+                    
                 - template: tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -208,10 +188,10 @@ stages:
                     terraformContainerName: $(pipeline-events-terraform-container-name)
                     terraformStateKey: $(terraform-key)
                     terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(innovation-prod-spn-client-id)
-                    armClientSecret: $(innovation-prod-spn-secret)
-                    armTenantId: $(innovation-prod-spn-tenant-id)
-                    armSubscriptionId: $(innovation-prod-subscription-id)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
 
       - deployment: Apply_UI_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
@@ -224,6 +204,10 @@ stages:
           runOnce:
             deploy:
               steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(prod-azure-subscription)
+                    
                 - template: tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -236,10 +220,10 @@ stages:
                     terraformContainerName: $(ui-terraform-container-name)
                     terraformStateKey: $(terraform-key)
                     terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(innovation-prod-spn-client-id)
-                    armClientSecret: $(innovation-prod-spn-secret)
-                    armTenantId: $(innovation-prod-spn-tenant-id)
-                    armSubscriptionId: $(innovation-prod-subscription-id)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
 
       - deployment: Apply_UI_Events_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
@@ -252,6 +236,10 @@ stages:
           runOnce:
             deploy:
               steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(prod-azure-subscription)
+                    
                 - template: tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -264,10 +252,10 @@ stages:
                     terraformContainerName: $(ui-events-terraform-container-name)
                     terraformStateKey: $(terraform-key)
                     terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(innovation-prod-spn-client-id)
-                    armClientSecret: $(innovation-prod-spn-secret)
-                    armTenantId: $(innovation-prod-spn-tenant-id)
-                    armSubscriptionId: $(innovation-prod-subscription-id)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
 
       - deployment: Set_Log_Analytics_Archival_Periods
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
@@ -278,6 +266,10 @@ stages:
           runOnce:
             deploy:
               steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(prod-azure-subscription)
+                    
                 - template: tasks/task_set-log-analytics-archival-periods.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -285,10 +277,10 @@ stages:
                     targetName: "Set Log Analytics Archival Periods"
                     targetSuffix: ""
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    armClientId: $(innovation-prod-spn-client-id)
-                    armClientSecret: $(innovation-prod-spn-secret)
-                    armTenantId: $(innovation-prod-spn-tenant-id)
-                    armSubscriptionId: $(innovation-prod-subscription-id)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
 
@@ -301,7 +293,6 @@ stages:
           - Apply_UI_Terraform
           - Apply_UI_Events_Terraform
           - Set_Log_Analytics_Archival_Periods
-          - Apply_Networking_Terraform
         environment: "Prod"
         strategy:
           runOnce:
@@ -576,13 +567,17 @@ stages:
         dependsOn: Log_Start
         condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(prod-azure-subscription)
+              
           - template: tasks/task_get-status-uris.yml
             parameters:
               targetSuffix: ""
-              armClientId: $(innovation-prod-spn-client-id)
-              armClientSecret: $(innovation-prod-spn-secret)
-              armTenantId: $(innovation-prod-spn-tenant-id)
-              armSubscriptionId: $(innovation-prod-subscription-id)
+              armClientId: $(clientId)
+              armClientSecret: $(clientSecret)
+              armTenantId: $(tenantId)
+              armSubscriptionId: $(subscriptionId)
 
       - job: Check_Coordinator
         dependsOn: Get_Status_URIs

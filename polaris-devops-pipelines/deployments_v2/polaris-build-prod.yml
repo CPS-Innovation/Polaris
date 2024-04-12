@@ -61,15 +61,6 @@ stages:
               artifact: "ui-events-terraform-files"
               publishLocation: "pipeline"
               
-      - job: Build_Networking_Terraform_Artifacts
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Networking terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
-              artifact: "networking-terraform-files"
-              publishLocation: "pipeline"
-              
       - job: Build_Coordinator_Artifact
         steps:
           - task: DotNetCoreCLI@2

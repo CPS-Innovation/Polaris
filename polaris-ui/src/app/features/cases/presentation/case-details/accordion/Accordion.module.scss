@@ -338,3 +338,34 @@
   font-size: 0.875rem;
   font-style: italic;
 }
+
+.notesBtn {
+  width: 2rem;
+  height: 2rem;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+  margin-right: 0.25rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+  &:hover:not(:disabled):not(:focus) {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  svg {
+    width: 100%;
+    cursor: pointer;
+  }
+}
+.accordion-information-items {
+  display: flex;
+  align-items: center;
+}
+.notesAvailable {
+  position: absolute;
+  background-color: #1d70b8;
+  border-radius: 0.625rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  top: 0.25rem;
+  right: 0.1875rem;
+}

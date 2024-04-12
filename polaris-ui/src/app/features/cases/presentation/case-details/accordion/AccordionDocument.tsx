@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -10,6 +11,7 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 import { ReactComponent as DateIcon } from "../../../../../common/presentation/svgs/date.svg";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
+import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
 
 import classes from "./Accordion.module.scss";
 import {
@@ -19,20 +21,37 @@ import {
 
 type Props = {
   activeDocumentId: string;
+  lastFocusDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
+  showNotesFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
+  lastFocusDocumentId,
   activeDocumentId,
   readUnreadData,
   caseDocument,
+  showNotesFeature,
   handleOpenPdf,
+  handleOpenNotes,
 }) => {
+  const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
+
+  useEffect(() => {
+    if (openNotesBtnRef.current) {
+      openNotesBtnRef.current.focus();
+    }
+  }, []);
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   const getAttachmentText = () => {
     if (caseDocument.attachments.length === 1) {
@@ -42,6 +61,11 @@ export const AccordionDocument: React.FC<Props> = ({
   };
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
+
+  const openNotesRefProps =
+    caseDocument.documentId === lastFocusDocumentId
+      ? { ref: openNotesBtnRef }
+      : {};
 
   return (
     <li
@@ -83,16 +107,21 @@ export const AccordionDocument: React.FC<Props> = ({
               {caseDocument.presentationFileName}
             </span>
           )}
-          <div className={`${classes["accordion-document-date"]}`}>
-            <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
-            <DateIcon className={classes.dateIcon} />
+          <div className={`${classes["accordion-information-items"]}`}>
             {caseDocument.cmsFileCreatedDate && (
-              <span>
-                {formatDate(
-                  caseDocument.cmsFileCreatedDate,
-                  CommonDateTimeFormats.ShortDateTextMonth
-                )}
-              </span>
+              <div className={`${classes["accordion-document-date"]}`}>
+                <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                  Date Added
+                </span>
+                <DateIcon className={classes.dateIcon} />
+                <span>
+                  {formatDate(
+                    caseDocument.cmsFileCreatedDate,
+                    CommonDateTimeFormats.ShortDateTextMonth
+                  )}
+                </span>
+              </div>
             )}
             {formattedFileCreatedTime && (
               <>
@@ -102,6 +131,34 @@ export const AccordionDocument: React.FC<Props> = ({
                 <TimeIcon className={classes.timeIcon} />
                 {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
               </>
+            )}
+            {showNotesFeature && !caseDocument.documentId.includes("PCD") && (
+              <LinkButton
+                {...openNotesRefProps}
+                className={classes.notesBtn}
+                id={`btn-notes-${caseDocument.documentId}`}
+                dataTestId={`btn-notes-${caseDocument.documentId}`}
+                ariaLabel={
+                  caseDocument.hasNotes
+                    ? `There are notes available for document ${caseDocument.presentationFileName}, Open notes`
+                    : `There are no notes available for document ${caseDocument.presentationFileName}, Open notes`
+                }
+                onClick={() => {
+                  trackEvent("Open Notes", {
+                    documentId: caseDocument.documentId,
+                  });
+                  handleOpenNotes(
+                    caseDocument.documentId,
+                    caseDocument.cmsDocType.documentCategory,
+                    caseDocument.presentationFileName
+                  );
+                }}
+              >
+                <NotesIcon />
+                {caseDocument.hasNotes && (
+                  <div className={classes.notesAvailable}></div>
+                )}
+              </LinkButton>
             )}
           </div>
 

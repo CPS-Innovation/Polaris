@@ -3,4 +3,6 @@ export type ErrorModalTypes =
   | "saveredaction"
   | "documentcheckout"
   | "documentalreadycheckedout"
+  | "addnote"
+  | "getnotes"
   | "";
