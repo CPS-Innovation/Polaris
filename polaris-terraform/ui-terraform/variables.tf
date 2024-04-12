@@ -20,11 +20,11 @@ variable "location" {
 
 variable "ui_component_service_plans" {
   type = object({
-    gateway_service_plan_sku           = string
-    gateway_always_ready_instances     = number
-    gateway_maximum_scale_out_limit    = number
-    spa_service_plan_sku               = string
-    proxy_service_plan_sku             = string
+    gateway_service_plan_sku        = string
+    gateway_always_ready_instances  = number
+    gateway_maximum_scale_out_limit = number
+    spa_service_plan_sku            = string
+    proxy_service_plan_sku          = string
   })
 }
 
@@ -125,8 +125,8 @@ variable "local_storage_expiry_days" {
 
 variable "private_beta" {
   type = object({
-    sign_up_url = string
-    user_group  = string
+    sign_up_url        = string
+    user_group         = string
     feature_user_group = string
   })
 }
