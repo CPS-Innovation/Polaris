@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   BackLink,
   Tooltip,
@@ -55,13 +55,17 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentCategory: string;
     presentationFileName: string;
     accordionOldState: AccordionReducerState | null;
+    lastFocusDocumentId: string;
   }>({
     open: false,
     documentId: "",
     documentCategory: "",
     presentationFileName: "",
     accordionOldState: null,
+    lastFocusDocumentId: "",
   });
+
+  const notesPanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -156,6 +160,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
+  useEffect(() => {
+    if (notesPanelRef.current) {
+      (notesPanelRef.current as HTMLElement).focus();
+    }
+  }, [openNotesData.open]);
+
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
@@ -186,6 +196,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       documentCategory: documentCategory,
       presentationFileName: presentationFileName,
       accordionOldState: accordionCurrentState,
+      lastFocusDocumentId: documentId,
     });
   };
 
@@ -389,6 +400,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
                     handleOpenNotes={handleOpenNotes}
                     showNotesFeature={featureFlags.notes}
+                    lastFocusDocumentId={openNotesData.lastFocusDocumentId}
                   />
                 )}
               </div>
@@ -402,12 +414,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               aria-labelledby="notes-panel-region-label"
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
+              ref={notesPanelRef}
             >
               <span
                 id="notes-panel-region-label"
                 className={classes.sidePanelLabel}
               >
-                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName} here.`}
+                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName}.`}
               </span>
               <NotesPanel
                 documentName={openNotesData.presentationFileName}

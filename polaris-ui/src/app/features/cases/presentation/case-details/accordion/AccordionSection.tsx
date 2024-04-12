@@ -7,6 +7,7 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 
 type Props = {
   activeDocumentId: string;
+  lastFocusDocumentId: string;
   sectionId: string;
   sectionLabel: string;
   docs: MappedCaseDocument[];
@@ -33,6 +34,7 @@ const formatTestIdText = (id: string) => {
 
 export const AccordionSection: React.FC<Props> = ({
   activeDocumentId,
+  lastFocusDocumentId,
   sectionId,
   sectionLabel,
   docs,
@@ -95,6 +97,7 @@ export const AccordionSection: React.FC<Props> = ({
                     handleOpenPdf={handleOpenPdf}
                     handleOpenNotes={handleOpenNotes}
                     showNotesFeature={showNotesFeature}
+                    lastFocusDocumentId={lastFocusDocumentId}
                   />
                 ))}
               </ul>
