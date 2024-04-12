@@ -9,18 +9,18 @@ using Aspose.Pdf.Text;
 using System.Linq;
 using Common.Streaming;
 using System.Threading.Tasks;
-using pdf_redactor.Factories.RedactionImplementationFactory;
+using pdf_redactor.Factories.AsposeRedactionImplementationFactory;
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose
 {
     public class AsposeRedactionProvider : IRedactionProvider
     {
-        private readonly IRedactionImplementationFactory _redactionImplementationFactory;
+        private readonly IAsposeRedactionImplementationFactory _redactionImplementationFactory;
         private readonly ICoordinateCalculator _coordinateCalculator;
         private readonly ITelemetryClient _telemetryClient;
 
         public AsposeRedactionProvider(
-            IRedactionImplementationFactory implementationFactory,
+            IAsposeRedactionImplementationFactory implementationFactory,
             ICoordinateCalculator coordinateCalculator,
             ITelemetryClient telemetryClient)
         {

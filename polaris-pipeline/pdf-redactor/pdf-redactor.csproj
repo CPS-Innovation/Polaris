@@ -40,6 +40,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.1.1" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="Syncfusion.Pdf.Imaging.Net.Core" Version="25.1.38" />
+    <PackageReference Include="Syncfusion.PdfToImageConverter.Net" Version="25.1.39" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Aspose.Total.NET.lic">

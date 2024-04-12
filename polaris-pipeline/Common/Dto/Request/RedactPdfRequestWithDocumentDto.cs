@@ -21,4 +21,5 @@ public enum RedactionType
     AsposeDirect,
     AsposeImage,
     SyncFusion,
+    SyncFusionImage,
 }

@@ -9,25 +9,30 @@ using Syncfusion.Pdf.Parsing;
 using Syncfusion.Pdf.Redaction;
 using Syncfusion.Drawing;
 using Common.Dto.Request.Redaction;
+using pdf_redactor.Factories.SyncFusionRedactionImplementationFactory;
 
 namespace pdf_redactor.Services.DocumentRedaction.SyncFusion
 {
   public class SyncFusionRedactionProvider : IRedactionProvider
   {
+    private readonly ISyncFusionRedactionImplementationFactory _redactionImplementationFactory;
 
-    public SyncFusionRedactionProvider()
+    public SyncFusionRedactionProvider(ISyncFusionRedactionImplementationFactory implementationFactory)
     {
+      _redactionImplementationFactory = implementationFactory;
     }
 
     public async Task<Stream> Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId, RedactionType redactionType)
     {
       try
       {
+
+        var redactionImplementation = _redactionImplementationFactory.Create(redactionType);
         var inputStream = await stream.EnsureSeekableAsync();
 
         var document = new PdfLoadedDocument(inputStream);
 
-        AddAnnotations(document, redactPdfRequest, correlationId);
+        AddAnnotations(document, redactPdfRequest, correlationId, redactionImplementation);
         document.Redact();
 
         var outputStream = new MemoryStream();
@@ -43,7 +48,7 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion
       }
     }
 
-    private void AddAnnotations(PdfLoadedDocument document, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+    private void AddAnnotations(PdfLoadedDocument document, RedactPdfRequestDto redactPdfRequest, Guid correlationId, IRedactionImplementation redactionImplementation)
     {
 
       foreach (var redactionPage in redactPdfRequest.RedactionDefinitions)
@@ -62,7 +67,7 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion
                                                 new SizeF((float)(relativeCoords.X2 - relativeCoords.X1),
                                                           (float)(relativeCoords.Y1 - relativeCoords.Y2)));
 
-          annotationPage.AddRedaction(new PdfRedaction(rectangle, Color.Black));
+          redactionImplementation.AttachAnnotation(annotationPage, rectangle);
         }
       }
     }

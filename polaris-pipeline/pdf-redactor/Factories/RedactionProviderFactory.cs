@@ -22,6 +22,7 @@ namespace pdf_redactor.Factories.RedactionProviderFactory
         case RedactionType.AsposeDirect:
           return (IRedactionProvider)_serviceProvider.GetService(typeof(AsposeRedactionProvider));
         case RedactionType.SyncFusion:
+        case RedactionType.SyncFusionImage:
           return (IRedactionProvider)_serviceProvider.GetService(typeof(SyncFusionRedactionProvider));
         default:
           throw new ArgumentException($"Invalid provider name {providerName}");
