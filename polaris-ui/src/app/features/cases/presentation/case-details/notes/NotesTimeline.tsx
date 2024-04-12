@@ -14,16 +14,16 @@ export const NotesTimeline: React.FC<NotesTimelineProps> = ({ notes }) => {
     <ul className={classes.notesTimeline}>
       {notes?.map((note) => (
         <li className={classes.noteWrapper} key={note.sortOrder}>
-          <span className={`${classes["visuallyHidden"]}`}> Note added by</span>
+          <span className={classes.visuallyHidden}> Note added by</span>
           <span className={classes.noteHead}>{note.createdByName}</span>
-          <span className={`${classes["visuallyHidden"]}`}> added on</span>
+          <span className={classes.visuallyHidden}> added on</span>
           <span className={classes.noteDate}>
             {formatDate(
               note.date,
               CommonDateTimeFormats.ShortDateFullTextMonth
             )}
           </span>
-          <span className={`${classes["visuallyHidden"]}`}> content</span>
+          <span className={classes.visuallyHidden}> content</span>
           <span className={classes.noteText}>{note.text}</span>
         </li>
       ))}
