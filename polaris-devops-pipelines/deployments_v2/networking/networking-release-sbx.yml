@@ -1,0 +1,54 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisNetworkingBuild
+      source: Polaris Networking Build - SBX
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+            
+variables:
+  - group: kv-sbx-terraform
+  - group: polaris-global
+  - group: terraform-containers
+    
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Apply_SBX
+    displayName: SBX > Apply Terraform
+    jobs:
+      - deployment: Apply_Networking_Terraform
+        environment: "Sandbox"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(sbx-azure-subscription)
+                    
+                - template: ../tasks/task_apply-networking-terraform.yml
+                  parameters:
+                    targetBuild: PolarisNetworkingBuild
+                    targetTerraformArtifact: "networking-terraform-files"
+                    targetLabel: "SBX"
+                    targetName: "Networking Terraform CI Deployment"
+                    targetPlanName: "sbx"
+                    terraformStorageAccount: $(sbx-terraform-storage-account)
+                    terraformContainerName: $(networking-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)

@@ -5,7 +5,7 @@ pr: none
 resources:
   pipelines:
     - pipeline: PolarisNetworkingBuild
-      source: Polaris Networking - Build
+      source: Polaris Networking Build
       trigger:
         branches:
           include:

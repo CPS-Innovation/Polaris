@@ -49,7 +49,7 @@ resource "azurerm_monitor_private_link_scoped_service" "pls_ai_workspace_service
 resource "azurerm_private_endpoint" "polaris_ampls_pe" {
   name                = "${azurerm_monitor_private_link_scope.pls_ai_insights.name}-pe"
   resource_group_name = "rg-${var.resource_name_prefix}"
-  location            = azurerm_resource_group.rg_networking.location
+  location            = data.azurerm_resource_group.rg_networking.location
   subnet_id           = azurerm_subnet.sn_polaris_ampls_subnet.id
 
   private_dns_zone_group {

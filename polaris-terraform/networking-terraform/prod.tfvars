@@ -1,10 +1,8 @@
 environment = {
-  name  = "production"
-  alias = "prod"
+  name       = "production"
+  alias      = "prod"
+  root_alias = "production"
 }
-
-vnetAddressSpace = "10.7.204.0/23"
-vnetDnsServer    = "10.7.204.164"
 
 ddeiServicesSubnet                  = "10.7.204.32/27"
 polarisPipelineSaSubnet             = "10.7.204.96/28"
@@ -18,8 +16,6 @@ polarisUiSubnet                     = "10.7.204.16/28"
 polarisProxySubnet                  = "10.7.204.112/28"
 polarisAppsSubnet                   = "10.7.204.224/27"
 polarisCiSubnet                     = "10.7.204.176/28"
-polarisDnsResolveSubnet             = "10.7.204.160/28"
-gatewaySubnet                       = "10.7.204.128/27"
 mockCmsServiceSubnet                = "10.7.205.48/28"
 polarisAmplsSubnet                  = "10.7.205.64/27"
 polarisPipelineSa2Subnet            = "10.7.205.128/27"

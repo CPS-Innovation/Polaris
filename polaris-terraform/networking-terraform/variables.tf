@@ -11,16 +11,14 @@ variable "app_name_prefix" {
 
 variable "environment" {
   type = object({
-    name  = string
-    alias = string
+    name       = string
+    alias      = string
+    root_alias = string
   })
 }
 
 variable "location" {
   default = "UK South"
-}
-
-variable "vnetAddressSpace" {
 }
 
 variable "ddeiServicesSubnet" {
@@ -59,12 +57,6 @@ variable "polarisAppsSubnet" {
 variable "polarisCiSubnet" {
 }
 
-variable "polarisDnsResolveSubnet" {
-}
-
-variable "gatewaySubnet" {
-}
-
 variable "mockCmsServiceSubnet" {
 }
 
@@ -81,10 +73,6 @@ variable "polarisApps2Subnet" {
 }
 
 variable "terraform_service_principal_display_name" {
-  type = string
-}
-
-variable "vnetDnsServer" {
   type = string
 }
 
