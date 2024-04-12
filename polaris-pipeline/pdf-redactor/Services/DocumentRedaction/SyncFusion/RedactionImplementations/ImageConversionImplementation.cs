@@ -42,10 +42,6 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion.RedactionImplementa
         {
           continue;
         }
-        RedactionAnnotationsEntity redactionAnnotationsEntity = new RedactionAnnotationsEntity
-        {
-          PageNumber = pageNumber,
-        };
 
         var pageHeight = page.Size.Height;
         var pageWidth = page.Size.Width;
