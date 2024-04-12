@@ -1,6 +1,7 @@
 environment = {
-  name  = "sbx"
-  alias = "sbx"
+  name       = "sbx"
+  alias      = "sbx"
+  root_alias = "uat"
 }
 
 ddeiServicesSubnet                  = "10.7.200.32/27"
