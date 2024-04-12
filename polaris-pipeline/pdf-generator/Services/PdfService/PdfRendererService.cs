@@ -58,6 +58,18 @@ public class PdfRendererService : IPdfService
             inputStream?.Dispose();
             conversionResult.RecordConversionFailure(PdfConversionStatus.PdfEncrypted, ex.ToFormattedString());
         }
+        catch (Exception ex)
+        {
+            inputStream?.Dispose();
+            if (ex.Message.Contains("Permissions check failed"))
+            {
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposePdfPasswordProtected, ex.ToFormattedString());
+            }
+            else
+            {
+                throw;
+            }
+        }
 
         return conversionResult;
     }
