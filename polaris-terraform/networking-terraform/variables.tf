@@ -57,12 +57,6 @@ variable "polarisAppsSubnet" {
 variable "polarisCiSubnet" {
 }
 
-variable "polarisDnsResolveSubnet" {
-}
-
-variable "gatewaySubnet" {
-}
-
 variable "mockCmsServiceSubnet" {
 }
 

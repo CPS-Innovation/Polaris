@@ -4,7 +4,7 @@ environment = {
   root_alias = "uat"
 }
 
-ddeiServicesSubnet                  = "10.7.200.32/27"
+ddeiServicesSubnet                  = "10.7.200.128/27"
 polarisPipelineSaSubnet             = "10.7.200.96/28"
 polarisPipelineCoordinatorSubnet    = "10.7.200.208/28"
 polarisPipelinePdfGeneratorSubnet   = "10.7.200.80/28"
@@ -16,8 +16,6 @@ polarisUiSubnet                     = "10.7.200.0/28"
 polarisProxySubnet                  = "10.7.200.112/28"
 polarisAppsSubnet                   = "10.7.200.224/27"
 polarisCiSubnet                     = "10.7.200.176/28"
-polarisDnsResolveSubnet             = "10.7.200.160/28"
-gatewaySubnet                       = "10.7.200.128/27"
 mockCmsServiceSubnet                = "10.7.201.48/28"
 polarisAmplsSubnet                  = "10.7.201.64/27"
 polarisPipelineSa2Subnet            = "10.7.201.128/27"

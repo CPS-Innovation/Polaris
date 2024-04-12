@@ -270,35 +270,6 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_ci_subnet_rt_assoc
   depends_on     = [azurerm_subnet.sn_polaris_ci_subnet]
 }
 
-resource "azurerm_subnet" "sn_polaris_dns_resolve_subnet" {
-  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
-  name                 = "polaris-dns-resolve-subnet"
-  resource_group_name  = data.azurerm_resource_group.rg_networking.name
-  virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
-  address_prefixes     = [var.polarisDnsResolveSubnet]
-
-  delegation {
-    name = "Microsoft.Network/dnsResolvers CnsDns Delegation"
-
-    service_delegation {
-      name    = "Microsoft.Network/dnsResolvers"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-    }
-  }
-
-  depends_on = [data.azurerm_virtual_network.vnet_networking]
-}
-
-resource "azurerm_subnet" "sn_gateway_subnet" {
-  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
-  name                 = "GatewaySubnet"
-  resource_group_name  = data.azurerm_resource_group.rg_networking.name
-  virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
-  address_prefixes     = [var.gatewaySubnet]
-
-  depends_on = [data.azurerm_virtual_network.vnet_networking]
-}
-
 resource "azurerm_subnet" "sn_polaris_mock_service_subnet" {
   #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-service-mock-subnet"
