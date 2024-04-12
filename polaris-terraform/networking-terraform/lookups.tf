@@ -1,5 +1,5 @@
 data "azurerm_virtual_network" "vnet_networking" {
-  name = "vnet-innovation-${var.environment.name}"
+  name                = "vnet-innovation-${var.environment.name}"
   resource_group_name = "rg-${var.resource_name_prefix}"
 }
 
