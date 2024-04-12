@@ -13,9 +13,13 @@ schedules:
 variables:
   - group: kv-dev-terraform
   - group: kv-qa-terraform
+  - group: kv-sbx-terraform
   - group: kv-prod-terraform
   - group: polaris-build-agent
   - group: polaris-global
+    
+pool:
+  vmImage: ubuntu-latest
   
 stages:
   - stage: create_version
@@ -26,120 +30,171 @@ stages:
         steps:
           - template: steps/git-version.yml
 
-  - stage: image_builder_dev
-    displayName: DEV - Build Custom VM Image
-    dependsOn: create_version
-    pool:
-      name: $(dev-build-agent)
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: build
-        displayName: DEV - Build Image
-        steps:
-          - template: steps/get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+  #- stage: image_builder_dev
+  #  displayName: DEV - Build Custom VM Image
+  #  dependsOn: create_version
+  #  pool:
+  #    name: $(dev-build-agent)
+  #  variables:
+  #    versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+  #  jobs:
+  #    - job: build
+  #      displayName: DEV - Build Image
+  #      steps:
+  #        - template: steps/get-credentials.yml
+  #          parameters:
+  #            azureSubscriptionId: $(dev-azure-subscription)
               
-          - template: steps/create-build-agent-image.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              subscriptionName: $(dev-azure-subscription)
-              resourceGroup: $(innovation-development-build-agent-resource-group)
-              storageAccount: $(innovation-development-build-agent-storage-account)
-              versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
-              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
+  #        - template: steps/create-build-agent-image.yml
+  #          parameters:
+  #            clientId: $(clientId)
+  #            clientSecret: $(clientSecret)
+  #            tenantId: $(tenantId)
+  #            subscriptionId: $(subscriptionId)
+  #            subscriptionName: $(dev-azure-subscription)
+  #            resourceGroup: $(innovation-development-build-agent-resource-group)
+  #            storageAccount: $(innovation-development-build-agent-storage-account)
+  #            versionSha: $(versionSha)
+  #            baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+  #            additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
-  - stage: image_builder_qa
-    displayName: QA - Build Custom VM Image
-    dependsOn: create_version
-    pool:
-      name: $(qa-build-agent)
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: build
-        displayName: QA - Build Image
-        steps:
-          - template: steps/get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(qa-azure-subscription)
-
-          - template: steps/create-build-agent-image.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              subscriptionName: $(qa-azure-subscription)
-              resourceGroup: $(innovation-qa-build-agent-resource-group)
-              storageAccount: $(innovation-qa-build-agent-storage-account)
-              versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
-              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
-
-  - stage: image_builder_prod
-    displayName: PROD - Build Custom VM Image
-    dependsOn: create_version
-    pool:
-      name: $(prod-build-agent)
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: build
-        displayName: PROD - Build Image
-        steps:
-          - template: steps/get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(prod-azure-subscription)
-
-          - template: steps/create-build-agent-image.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              subscriptionName: $(prod-azure-subscription)
-              resourceGroup: $(innovation-prod-build-agent-resource-group)
-              storageAccount: $(innovation-prod-build-agent-storage-account)
-              versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
-              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-production","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
-
-  - stage: update_scale_set_dev
-    displayName: Update All DEV Resources
-    dependsOn:
-      - create_version
-      - image_builder_dev
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: update
-        displayName: Update Resources
-        steps:
-          - template: steps/get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+#  - stage: image_builder_qa
+#    displayName: QA - Build Custom VM Image
+#    dependsOn: create_version
+#    pool:
+#      name: $(qa-build-agent)
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: build
+#        displayName: QA - Build Image
+#        steps:
+#          - template: steps/get-credentials.yml
+#            parameters:
+#              azureSubscriptionId: $(qa-azure-subscription)
+#
+#          - template: steps/create-build-agent-image.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              subscriptionName: $(qa-azure-subscription)
+#              resourceGroup: $(innovation-qa-build-agent-resource-group)
+#              storageAccount: $(innovation-qa-build-agent-storage-account)
+#              versionSha: $(versionSha)
+#              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+#              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
               
-          - template: steps/update-image-version.yml
+  - stage: image_builder_sbx
+    displayName: SBX - Build Custom VM Image
+    dependsOn: create_version
+    variables:
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+    jobs:
+      - job: build
+        displayName: SBX - Build Image
+        steps:
+          - template: steps/get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(sbx-azure-subscription)
+
+          - template: steps/create-build-agent-image.yml
             parameters:
               clientId: $(clientId)
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              resourceGroup: $(innovation-development-build-agent-resource-group)
-              agentPoolName: $(innovation-development-agent-pool-name)
+              subscriptionName: $(sbx-azure-subscription)
+              resourceGroup: $(innovation-sbx-build-agent-resource-group)
+              storageAccount: $(innovation-sbx-build-agent-storage-account)
               versionSha: $(versionSha)
+              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-uat","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
-  - stage: update_scale_set_qa
-    displayName: Update All QA Resources
+#  - stage: image_builder_prod
+#    displayName: PROD - Build Custom VM Image
+#    dependsOn: create_version
+#    pool:
+#      name: $(prod-build-agent)
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: build
+#        displayName: PROD - Build Image
+#        steps:
+#          - template: steps/get-credentials.yml
+#            parameters:
+#              azureSubscriptionId: $(prod-azure-subscription)
+#
+#          - template: steps/create-build-agent-image.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              subscriptionName: $(prod-azure-subscription)
+#              resourceGroup: $(innovation-prod-build-agent-resource-group)
+#              storageAccount: $(innovation-prod-build-agent-storage-account)
+#              versionSha: $(versionSha)
+#              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+#              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-production","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
+
+#  - stage: update_scale_set_dev
+#    displayName: Update All DEV Resources
+#    dependsOn:
+#      - create_version
+#      - image_builder_dev
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: update
+#        displayName: Update Resources
+#        steps:
+#          - template: steps/get-credentials.yml
+#            parameters:
+#              azureSubscriptionId: $(dev-azure-subscription)
+#              
+#          - template: steps/update-image-version.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              resourceGroup: $(innovation-development-build-agent-resource-group)
+#              agentPoolName: $(innovation-development-agent-pool-name)
+#              versionSha: $(versionSha)
+#
+#  - stage: update_scale_set_qa
+#    displayName: Update All QA Resources
+#    dependsOn:
+#      - create_version
+#      - image_builder_qa
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: update
+#        displayName: Update Resources
+#        steps:
+#          - template: steps/get-credentials.yml
+#            parameters:
+#              azureSubscriptionId: $(qa-azure-subscription)
+#
+#          - template: steps/update-image-version.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              resourceGroup: $(innovation-qa-build-agent-resource-group)
+#              agentPoolName: $(innovation-qa-agent-pool-name)
+#              versionSha: $(versionSha)
+              
+  - stage: update_scale_set_sbx
+    displayName: Update All SBX Resources
     dependsOn:
       - create_version
-      - image_builder_qa
+      - image_builder_sbx
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
@@ -148,7 +203,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(qa-azure-subscription)
+              azureSubscriptionId: $(sbx-azure-subscription)
 
           - template: steps/update-image-version.yml
             parameters:
@@ -156,31 +211,31 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              resourceGroup: $(innovation-qa-build-agent-resource-group)
-              agentPoolName: $(innovation-qa-agent-pool-name)
+              resourceGroup: $(innovation-sbx-build-agent-resource-group)
+              agentPoolName: $(innovation-sbx-agent-pool-name)
               versionSha: $(versionSha)
 
-  - stage: update_scale_set_prod
-    displayName: Update All PROD Resources
-    dependsOn:
-      - create_version
-      - image_builder_prod
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: update
-        displayName: Update Resources
-        steps:
-          - template: steps/get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(prod-azure-subscription)
-
-          - template: steps/update-image-version.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              resourceGroup: $(innovation-prod-build-agent-resource-group)
-              agentPoolName: $(innovation-prod-agent-pool-name)
-              versionSha: $(versionSha)
+#  - stage: update_scale_set_prod
+#    displayName: Update All PROD Resources
+#    dependsOn:
+#      - create_version
+#      - image_builder_prod
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: update
+#        displayName: Update Resources
+#        steps:
+#          - template: steps/get-credentials.yml
+#            parameters:
+#              azureSubscriptionId: $(prod-azure-subscription)
+#
+#          - template: steps/update-image-version.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              resourceGroup: $(innovation-prod-build-agent-resource-group)
+#              agentPoolName: $(innovation-prod-agent-pool-name)
+#              versionSha: $(versionSha)
