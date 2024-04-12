@@ -14,6 +14,9 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion.RedactionImplementa
       page.AddRedaction(hardAnnotation);
     }
 
-    public void FinaliseAnnotations(ref PdfLoadedDocument doc, Guid correlationId) { }
+    public void FinaliseAnnotations(ref PdfLoadedDocument doc, Guid correlationId)
+    {
+      doc.Redact();
+    }
   }
 }

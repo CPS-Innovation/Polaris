@@ -33,7 +33,7 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion
         var document = new PdfLoadedDocument(inputStream);
 
         AddAnnotations(document, redactPdfRequest, correlationId, redactionImplementation);
-        document.Redact();
+        FinaliseAnnotations(document, correlationId, redactionImplementation);
 
         var outputStream = new MemoryStream();
         document.Save(outputStream);
@@ -70,6 +70,11 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion
           redactionImplementation.AttachAnnotation(annotationPage, rectangle);
         }
       }
+    }
+
+    private void FinaliseAnnotations(PdfLoadedDocument document, Guid correlationId, IRedactionImplementation redactionImplementation)
+    {
+      redactionImplementation.FinaliseAnnotations(ref document, correlationId);
     }
 
     public static RedactionCoordinatesDto CalculateRelativeCoordinates(double pageWidth, double pageHeight, RedactionCoordinatesDto originatorCoordinates, PdfLoadedPage page)

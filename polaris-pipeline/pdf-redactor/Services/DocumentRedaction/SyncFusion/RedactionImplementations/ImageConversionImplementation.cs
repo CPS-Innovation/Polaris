@@ -31,11 +31,11 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion.RedactionImplementa
     {
       PdfToImageConverter imageConverter = new PdfToImageConverter();
 
-      MemoryStream stream = new MemoryStream();
-      document.Save(stream);
-
-      for (var pageNumber = 1; pageNumber <= document.Pages.Count; pageNumber++)
+      for (var pageNumber = 0; pageNumber < document.Pages.Count; pageNumber++)
       {
+        using var stream = new MemoryStream();
+        document.Save(stream);
+
         PdfPageBase page = document.Pages[pageNumber];
 
         if (page.Annotations.Count == 0)
@@ -52,8 +52,15 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion.RedactionImplementa
 
         document.Pages.RemoveAt(pageNumber);
 
-        var pageToSwapIn = document.Pages.Insert(pageNumber);
-        pageToSwapIn.Graphics.DrawImage(PdfImage.FromStream(bitmap), new RectangleF(0, 0, pageWidth, pageHeight));
+        var pageToSwapIn = document.Pages.Insert(pageNumber, new SizeF(pageWidth, pageHeight), new PdfMargins()
+        {
+          Top = 0,
+          Bottom = 0,
+          Left = 0,
+          Right = 0
+
+        });
+        pageToSwapIn.Graphics.DrawImage(PdfImage.FromStream(bitmap), new PointF(0, 0), new SizeF(pageWidth, pageHeight));
 
       }
     }
