@@ -3,9 +3,6 @@ environment = {
   alias = "prod"
 }
 
-vnetAddressSpace = "10.7.204.0/23"
-vnetDnsServer    = "10.7.204.164"
-
 ddeiServicesSubnet                  = "10.7.204.32/27"
 polarisPipelineSaSubnet             = "10.7.204.96/28"
 polarisPipelineCoordinatorSubnet    = "10.7.204.208/28"

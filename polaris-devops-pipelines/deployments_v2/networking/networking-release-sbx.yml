@@ -14,22 +14,19 @@ resources:
           - Publish_Artifacts
             
 variables:
-  - group: kv-dev-terraform
-  - group: kv-qa-terraform
-  - group: kv-prod-terraform
+  - group: kv-sbx-terraform
   - group: polaris-global
-  - group: polaris-status-check-endpoints
   - group: terraform-containers
     
 pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: Apply_DEV
-    displayName: DEV > Apply Terraform
+  - stage: Apply_SBX
+    displayName: SBX > Apply Terraform
     jobs:
       - deployment: Apply_Networking_Terraform
-        environment: "Dev"
+        environment: "Sandbox"
         workspace:
           clean: all
         strategy:
@@ -38,163 +35,20 @@ stages:
               steps:
                 - template: ../tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(dev-azure-subscription)
+                    azureSubscriptionId: $(sbx-azure-subscription)
                     
                 - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
                     targetBuild: PolarisNetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
-                    targetLabel: "DEV"
+                    targetLabel: "SBX"
                     targetName: "Networking Terraform CI Deployment"
-                    targetPlanName: "dev"
-                    terraformStorageAccount: $(dev-terraform-storage-account)
+                    targetPlanName: "sbx"
+                    terraformStorageAccount: $(sbx-terraform-storage-account)
                     terraformContainerName: $(networking-terraform-container-name)
                     terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
                     armClientId: $(clientId)
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
-                    
-  # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report_DEV
-    displayName: DEV > Save Report
-    dependsOn: Apply_Dev
-    condition: succeeded()
-    jobs:
-      - job: Create_Commit_Report
-        steps:
-          - template: ../tasks/task_create-commit-report.yml
-            parameters:
-              targetLabel: "DEV"
-              targetLabelLower: "dev"
-
-  # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
-  - stage: Update_GitHub_Tag_DEV
-    displayName: DEV > Update Tag
-    dependsOn: Create_Commit_Report_DEV
-    condition: succeeded()
-    jobs:
-      - job: Update_Github_Tag
-        steps:
-          - template: ../tasks/task_update-github-tag.yml
-            parameters:
-              targetLabel: "DEV"
-
-  # QA Apply to QA
-  - stage: Apply_QA
-    displayName: QA > Apply Terraform
-    dependsOn: Update_GitHub_Tag_DEV
-    condition: succeeded()
-    jobs:
-      - deployment: Apply_Networking_Terraform
-        environment: "QA"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: ../tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
-                    
-                - template: ../tasks/task_apply-networking-terraform.yml
-                  parameters:
-                    targetBuild: PolarisNetworkingBuild
-                    targetTerraformArtifact: "networking-terraform-files"
-                    targetLabel: "QA"
-                    targetName: "Networking Terraform CI Deployment"
-                    targetPlanName: "qa"
-                    terraformStorageAccount: $(qa-terraform-storage-account)
-                    terraformContainerName: $(networking-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsqastorageterraform-key1)
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
-
-  # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report_QA
-    displayName: QA > Save Report
-    dependsOn: Apply_QA
-    condition: succeeded()
-    jobs:
-      - job: Create_Commit_Report
-        steps:
-          - template: ../tasks/task_create-commit-report.yml
-            parameters:
-              targetLabel: "QA"
-              targetLabelLower: "qa"
-
-  # QA: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
-  - stage: Update_GitHub_Tag_QA
-    displayName: QA > Update Tag
-    dependsOn: Create_Commit_Report_QA
-    condition: succeeded()
-    jobs:
-      - job: Update_Github_Tag
-        steps:
-          - template: ../tasks/task_update-github-tag.yml
-            parameters:
-              targetLabel: "QA"
-
-  # Apply to PROD              
-  - stage: Apply_PROD
-    displayName: PROD > Apply Terraform
-    dependsOn: Update_GitHub_Tag_DEV
-    condition: succeeded()
-    jobs:
-      - deployment: Apply_Networking_Terraform
-        environment: "Prod"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: ../tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
-                    
-                - template: ../tasks/task_apply-networking-terraform.yml
-                  parameters:
-                    targetBuild: PolarisNetworkingBuild
-                    targetTerraformArtifact: "networking-terraform-files"
-                    targetLabel: "PROD"
-                    targetName: "Networking Terraform CI Deployment"
-                    targetPlanName: "prod"
-                    terraformStorageAccount: $(prod-terraform-storage-account)
-                    terraformContainerName: $(networking-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
-
-  # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report_PROD
-    displayName: PROD > Save Report
-    dependsOn: Apply_PROD
-    condition: succeeded()
-    jobs:
-      - job: Create_Commit_Report
-        steps:
-          - template: ../tasks/task_create-commit-report.yml
-            parameters:
-              targetLabel: "PROD"
-              targetLabelLower: "prod"
-
-  # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
-  - stage: Update_GitHub_Tag_PROD
-    displayName: PROD > Update Tag
-    dependsOn: Create_Commit_Report_PROD
-    condition: succeeded()
-    jobs:
-      - job: Update_Github_Tag
-        steps:
-          - template: ../tasks/task_update-github-tag.yml
-            parameters:
-              targetLabel: "PROD"

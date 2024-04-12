@@ -20,9 +20,6 @@ variable "location" {
   default = "UK South"
 }
 
-variable "vnetAddressSpace" {
-}
-
 variable "ddeiServicesSubnet" {
 }
 
@@ -81,10 +78,6 @@ variable "polarisApps2Subnet" {
 }
 
 variable "terraform_service_principal_display_name" {
-  type = string
-}
-
-variable "vnetDnsServer" {
   type = string
 }
 

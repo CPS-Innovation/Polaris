@@ -5,9 +5,6 @@ environment = {
   alias = "dev"
 }
 
-vnetAddressSpace = "10.7.196.0/23"
-vnetDnsServer    = "10.7.197.20"
-
 ddeiServicesSubnet                  = "10.7.196.64/27"
 polarisPipelineSaSubnet             = "10.7.196.96/28"
 polarisPipelineCoordinatorSubnet    = "10.7.196.112/28"
