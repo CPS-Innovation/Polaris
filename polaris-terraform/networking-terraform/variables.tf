@@ -13,7 +13,6 @@ variable "environment" {
   type = object({
     name       = string
     alias      = string
-    root_alias = string
   })
 }
 

@@ -3,7 +3,6 @@
 environment = {
   name       = "development"
   alias      = "dev"
-  root_alias = "development"
 }
 
 ddeiServicesSubnet                  = "10.7.196.64/27"
