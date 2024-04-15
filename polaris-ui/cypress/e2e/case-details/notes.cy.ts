@@ -152,7 +152,7 @@ describe("Feature Notes", () => {
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
-  it("Should throw error if new note crosses the maximum character limit", () => {
+  it("Should throw error, if new note crosses the maximum character limit", () => {
     const addNoteCounter = { count: 0 };
     cy.trackRequestCount(
       addNoteCounter,
