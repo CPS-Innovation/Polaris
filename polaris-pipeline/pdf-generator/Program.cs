@@ -1,11 +1,8 @@
 using System.IO;
 using System.Linq;
-using Common.Domain.Validators;
-using Common.Dto.Request;
 using Common.Handlers;
 using Common.Services;
 using Common.Telemetry;
-using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,10 +47,8 @@ var host = new HostBuilder()
 
         services.AddSingleton(context.Configuration);
         services.AddPdfGenerator();
-        services.AddRedactionServices(context.Configuration);
 
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
-        services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

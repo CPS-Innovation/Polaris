@@ -23,12 +23,12 @@ namespace pdf_redactor.integration.tests.Clients
 
       var requestMessage = new StringContent(JsonSerializer.Serialize(redactPdfRequest), Encoding.UTF8, "application/json");
 
-      var redactRequest = _requestFactory.Create(HttpMethod.Put, $"/api/{RestApi.GetPdfRedactorPath("pdf-redactor-integration-tests-urn", "1234", "pdf-redactor-integration-tests-documentId")}", currentCorrelationId);
+      var redactRequest = _requestFactory.Create(HttpMethod.Put, $"/api/{RestApi.GetRedactPdfPath("pdf-redactor-integration-tests-urn", "1234", "pdf-redactor-integration-tests-documentId")}", currentCorrelationId);
       redactRequest.Content = requestMessage;
 
       var pdfStream = new MemoryStream();
       using var response = await _httpClient.SendAsync(redactRequest, HttpCompletionOption.ResponseHeadersRead);
-      
+
       response.EnsureSuccessStatusCode();
       await response.Content.CopyToAsync(pdfStream);
       pdfStream.Seek(0, SeekOrigin.Begin);
