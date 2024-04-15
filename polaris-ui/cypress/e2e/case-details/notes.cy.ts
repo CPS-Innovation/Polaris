@@ -118,7 +118,7 @@ describe("Feature Notes", () => {
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
-  it("Should show error message if adding on new note failed", () => {
+  it("Should show error message if adding a new note failed, and shouldn't call refreshPipeline and tracker", () => {
     cy.overrideRoute(
       NOTES_ROUTE,
       {
@@ -127,6 +127,24 @@ describe("Feature Notes", () => {
         timeMs: 500,
       },
       "post"
+    );
+    const doc10GetNotesCounter = { count: 0 };
+    cy.trackRequestCount(
+      doc10GetNotesCounter,
+      "GET",
+      "/api/urns/12AB1111111/cases/13401/documents/MGForm/10/notes"
+    );
+    const refreshPipelineCounter = { count: 0 };
+    cy.trackRequestCount(
+      refreshPipelineCounter,
+      "POST",
+      "/api/urns/12AB1111111/cases/13401"
+    );
+    const trackerCounter = { count: 0 };
+    cy.trackRequestCount(
+      trackerCounter,
+      "GET",
+      "/api/urns/12AB1111111/cases/13401/tracker"
     );
 
     cy.visit("/case-details/12AB1111111/13401?notes=true");
@@ -151,6 +169,11 @@ describe("Feature Notes", () => {
     cy.findByTestId("btn-close-notes").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
+    cy.window().then(() => {
+      expect(doc10GetNotesCounter.count).to.equal(1);
+      expect(refreshPipelineCounter.count).to.equal(1);
+      expect(trackerCounter.count).to.equal(1);
+    });
   });
   it("Should throw error, if new note crosses the maximum character limit", () => {
     const addNoteCounter = { count: 0 };
