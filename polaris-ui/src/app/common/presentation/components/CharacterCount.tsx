@@ -15,6 +15,7 @@ type CharacterCountProps = {
   value: string;
   maxlength: number;
   name: string;
+  disabled?: boolean;
   onChange?: (event: any) => void;
 };
 export const CharacterCount = React.forwardRef<
