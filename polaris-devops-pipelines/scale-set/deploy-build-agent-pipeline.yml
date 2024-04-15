@@ -27,7 +27,7 @@ stages:
           - template: steps/git-version.yml
 
   - stage: image_builder_dev
-    displayName: DEV - Build Custom VM Image
+    displayName: DEV - Build VM Image
     dependsOn: create_version
     pool:
       name: $(dev-build-agent)
@@ -55,7 +55,7 @@ stages:
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: image_builder_qa
-    displayName: QA - Build Custom VM Image
+    displayName: QA - Build VM Image
     dependsOn: create_version
     pool:
       name: $(qa-build-agent)
@@ -83,7 +83,7 @@ stages:
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
               
   - stage: image_builder_uat
-    displayName: UAT - Build Custom VM Image
+    displayName: UAT - Build VM Image
     dependsOn: create_version
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
@@ -109,7 +109,7 @@ stages:
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-uat","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: image_builder_prod
-    displayName: PROD - Build Custom VM Image
+    displayName: PROD - Build VM Image
     dependsOn: create_version
     pool:
       name: $(prod-build-agent)
@@ -137,7 +137,7 @@ stages:
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-production","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: update_scale_set_dev
-    displayName: Update All DEV Resources
+    displayName: Update DEV
     dependsOn:
       - create_version
       - image_builder_dev
@@ -162,7 +162,7 @@ stages:
               versionSha: $(versionSha)
 
   - stage: update_scale_set_qa
-    displayName: Update All QA Resources
+    displayName: Update QA Resources
     dependsOn:
       - create_version
       - image_builder_qa
@@ -170,7 +170,7 @@ stages:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
       - job: update
-        displayName: Update Resources
+        displayName: Update QA
         steps:
           - template: steps/get-credentials.yml
             parameters:
@@ -187,7 +187,7 @@ stages:
               versionSha: $(versionSha)
               
   - stage: update_scale_set_uat
-    displayName: Update All UAT Resources
+    displayName: Update UAT Resources
     dependsOn:
       - create_version
       - image_builder_uat
@@ -195,7 +195,7 @@ stages:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
       - job: update
-        displayName: Update Resources
+        displayName: Update UAT
         steps:
           - template: steps/get-credentials.yml
             parameters:
@@ -212,7 +212,7 @@ stages:
               versionSha: $(versionSha)
 
   - stage: update_scale_set_prod
-    displayName: Update All PROD Resources
+    displayName: Update PROD Resources
     dependsOn:
       - create_version
       - image_builder_prod
@@ -220,7 +220,7 @@ stages:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
       - job: update
-        displayName: Update Resources
+        displayName: Update PROD
         steps:
           - template: steps/get-credentials.yml
             parameters:
