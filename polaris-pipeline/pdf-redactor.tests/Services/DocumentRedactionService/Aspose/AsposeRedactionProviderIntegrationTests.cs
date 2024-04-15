@@ -15,7 +15,7 @@ using pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using Xunit;
 using Common.Wrappers;
 
-namespace pdf_generator.tests.Services.DocumentRedaction.Aspose;
+namespace pdf_redactor.tests.Services.DocumentRedaction.Aspose;
 
 public class AsposeRedactionProviderIntegrationTests
 {
