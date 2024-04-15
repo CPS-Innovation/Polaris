@@ -11,10 +11,6 @@ schedules:
     always: true
 
 variables:
-  - group: kv-dev-terraform
-  - group: kv-qa-terraform
-  - group: kv-sbx-terraform
-  - group: kv-prod-terraform
   - group: polaris-build-agent
   - group: polaris-global
     
@@ -86,14 +82,14 @@ stages:
 #              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
 #              additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
               
-  - stage: image_builder_sbx
-    displayName: SBX - Build Custom VM Image
+  - stage: image_builder_uat
+    displayName: UAT - Build Custom VM Image
     dependsOn: create_version
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
       - job: build
-        displayName: SBX - Build Image
+        displayName: UAT - Build Image
         steps:
           - template: steps/get-credentials.yml
             parameters:
