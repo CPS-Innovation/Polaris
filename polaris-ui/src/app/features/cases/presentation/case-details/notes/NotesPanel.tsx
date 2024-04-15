@@ -58,6 +58,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     }
     trackEvent("Add Note", {
       documentId: documentId,
+      documentCategory: documentCategory,
     });
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
@@ -183,6 +184,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
                 </span>
               ),
             }}
+            disabled={documentCategory === "InboxCommunication"}
           />
 
           <div className={classes.btnWrapper}>

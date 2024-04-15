@@ -146,6 +146,7 @@ export const AccordionDocument: React.FC<Props> = ({
                 onClick={() => {
                   trackEvent("Open Notes", {
                     documentId: caseDocument.documentId,
+                    documentCategory: caseDocument.cmsDocType.documentCategory,
                   });
                   handleOpenNotes(
                     caseDocument.documentId,
