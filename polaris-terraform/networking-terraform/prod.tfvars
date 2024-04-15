@@ -1,7 +1,6 @@
 environment = {
   name       = "production"
   alias      = "prod"
-  root_alias = "production"
 }
 
 ddeiServicesSubnet                  = "10.7.204.32/27"
