@@ -41,6 +41,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const [newNoteValue, setNewNoteValue] = useState("");
   const [oldNoteValue, setOldNoteValue] = useState("");
   const [notesError, setNotesError] = useState(false);
+  const [characterCount,setCharacterCount] = useState(NOTES_MAX_CHARACTERS)
 
   const handleAddBtnClick = () => {
     if (newNoteValue.length > NOTES_MAX_CHARACTERS) {
@@ -68,6 +69,13 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const noteData = useMemo(() => {
     return notesData.find((note) => note.documentId === documentId);
   }, [notesData, documentId]);
+
+useEffect(()=>{
+  const timer= setTimeout(()=>{
+    setCharacterCount(NOTES_MAX_CHARACTERS-newNoteValue.length)
+  },1000)
+    return (()=>clearTimeout(timer));
+  },)
 
   useEffect(() => {
     if (noteData?.addNoteStatus === "failure") {
@@ -186,7 +194,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
             }}
           />
           <div aria-live="polite">{`You have ${
-            NOTES_MAX_CHARACTERS - newNoteValue.length
+            characterCount
           } characters remaining`}</div>
           <div className={classes.btnWrapper}>
             <Button
