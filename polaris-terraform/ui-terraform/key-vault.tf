@@ -47,16 +47,6 @@ resource "azurerm_private_endpoint" "polaris_key_vault_pe" {
   }
 }
 
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "polaris_key_vault_dns_a" {
-  name                = azurerm_key_vault.kv_polaris.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_keyvault.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.polaris_key_vault_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
 resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
   #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
   #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
