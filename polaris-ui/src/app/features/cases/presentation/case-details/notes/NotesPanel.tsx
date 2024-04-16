@@ -3,6 +3,7 @@ import {
   Button,
   LinkButton,
   CharacterCount,
+  TextArea,
   ErrorSummary,
 } from "../../../../../common/presentation/components";
 import { NotesTimeline } from "./NotesTimeline";
@@ -160,9 +161,9 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           </div>
         )}
         <div className={classes.notesTextArea}>
-          <CharacterCount
+          <TextArea
             errorMessage={
-              notesError
+              !notesError
                 ? {
                     children: `Notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
                   }
@@ -173,7 +174,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               setNewNoteValue(event.target.value);
             }}
             name="new-note"
-            maxlength={NOTES_MAX_CHARACTERS}
+            maxLength={NOTES_MAX_CHARACTERS}
             id="notes-textarea"
             data-testid="notes-textarea"
             label={{
@@ -184,7 +185,9 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               ),
             }}
           />
-
+          <div aria-live="polite">{`You have ${
+            NOTES_MAX_CHARACTERS - newNoteValue.length
+          } characters remaining`}</div>
           <div className={classes.btnWrapper}>
             <Button
               disabled={!newNoteValue.length}
