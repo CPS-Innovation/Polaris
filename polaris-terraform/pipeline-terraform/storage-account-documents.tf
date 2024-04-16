@@ -21,7 +21,6 @@ resource "azurerm_storage_account" "sa" {
   network_rules {
     default_action = "Deny"
     bypass         = ["Metrics", "Logging", "AzureServices"]
-    depends_on     = [azurerm_storage_account.sa]
     virtual_network_subnet_ids = [
       data.azurerm_subnet.polaris_ci_subnet.id,
       data.azurerm_subnet.polaris_coordinator_subnet.id,
