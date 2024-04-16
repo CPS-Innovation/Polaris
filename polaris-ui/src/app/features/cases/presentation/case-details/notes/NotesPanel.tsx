@@ -58,6 +58,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     }
     trackEvent("Add Note", {
       documentId: documentId,
+      documentCategory: documentCategory,
     });
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
@@ -146,7 +147,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
             className={classes.errorSummaryWrapper}
           >
             <ErrorSummary
-              data-testid={"redaction-log-error-summary"}
+              data-testid={"notes-error-summary"}
               className={classes.errorSummary}
               errorList={[
                 {
@@ -183,6 +184,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
                 </span>
               ),
             }}
+            disabled={documentCategory === "InboxCommunication"}
           />
 
           <div className={classes.btnWrapper}>
@@ -190,7 +192,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               disabled={!newNoteValue.length}
               type="submit"
               className={classes.saveBtn}
-              data-testid="btn-save-redaction-log"
+              data-testid="btn-add-note"
               onClick={handleAddBtnClick}
             >
               Add note
@@ -200,8 +202,9 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               ref={cancelBtnRef}
               className={classes.cancelBtn}
               onClick={() => handleCloseNotes()}
-              dataTestId="btn-redaction-log-cancel"
+              dataTestId="btn-close-notes"
               ariaLabel="close notes"
+              id="btn-close-notes"
             >
               Cancel
             </LinkButton>

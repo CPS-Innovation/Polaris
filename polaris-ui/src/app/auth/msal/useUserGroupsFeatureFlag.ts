@@ -66,11 +66,18 @@ const showNotesFeature = (
     return false;
   }
 
-  const isInCypressQueryParamFeatureFlag =
-    queryParam === "false" &&
+  const isTestUser =
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-  if (isInCypressQueryParamFeatureFlag) return false;
+
+  if (isTestUser) {
+    if (queryParam === "true") {
+      return true;
+    }
+    if (queryParam === "false") {
+      return false;
+    }
+  }
 
   const isInPrivateBetaGroup = !!groupClaims?.includes(
     PRIVATE_BETA_FEATURE_USER_GROUP
