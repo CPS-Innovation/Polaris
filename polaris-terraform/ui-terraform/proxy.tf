@@ -208,28 +208,6 @@ resource "azurerm_private_endpoint" "polaris_proxy_pe" {
   }
 }
 
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "polaris_proxy_dns_a" {
-  name                = azurerm_linux_web_app.polaris_proxy.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.polaris_proxy_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-  depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
-}
-
-# Create DNS A Record for SCM site
-resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
-  name                = "${azurerm_linux_web_app.polaris_proxy.name}.scm"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.polaris_proxy_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-  depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
-}
-
 resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
   name                           = "proxy-diagnostic-settings"
   target_resource_id             = azurerm_linux_web_app.polaris_proxy.id
