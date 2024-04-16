@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,7 +9,7 @@ namespace coordinator.Services.OcrResultsService
     {
         private const int CharacterLimit = 1000;
 
-        public List<PiiChunk> GetDocumentText(AnalyzeResults analyzeResults, int characterLimit) // char limit should be a config value
+        public List<PiiChunk> GetDocumentText(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit) // char limit should be a config value
         {
             var chunks = new List<PiiChunk>();
             var chunkId = 1;
@@ -20,9 +19,8 @@ namespace coordinator.Services.OcrResultsService
 
             while (processedCount < linesToProcessCount)
             {
-                var piiChunk = new PiiChunk(chunkId, currentCharacterLimit, processedCount);
+                var piiChunk = new PiiChunk(chunkId, caseId, documentId, currentCharacterLimit, processedCount);
                 processedCount = piiChunk.BuildChunk(analyzeResults);
-                piiChunk.SetChunkText();
                 chunks.Add(piiChunk);
                 chunkId++;
             }
@@ -33,21 +31,30 @@ namespace coordinator.Services.OcrResultsService
 
     public class PiiChunk
     {
-        private int _remainingCharacterLimit;
+        private int _characterLimit;
         private int _processedCount;
+        private string _text;
 
-        public PiiChunk(int id, int characterLimit, int processedCount)
+        public PiiChunk(int id, int caseId, string documentId, int characterLimit, int processedCount)
         {
             ChunkId = id;
-            _remainingCharacterLimit = characterLimit;
+            CaseId = caseId;
+            DocumentId = documentId;
+            _characterLimit = characterLimit;
             _processedCount = processedCount;
         }
 
-        public int ChunkId { get; set; }
+        public int ChunkId { get; protected set; }
+        public int CaseId { get; protected set; }
+        public string DocumentId { get; protected set; }
         public IList<OcrLineResult> Lines { get; set; } = new List<OcrLineResult>();
         public int LineCount => Lines.Count;
         public int WordCount => Lines.Sum(x => x.WordCount);
-        public string Text { get; set; }
+        public string Text
+        {
+            get { return _text.IsNullOrEmpty() ? null : _text.Trim(); }
+            set { _text = value; }
+        }
         public int TextLength => Text.IsNullOrEmpty() ? 0 : Text.Length;
 
         public int BuildChunk(AnalyzeResults analyzeResults)
@@ -60,10 +67,9 @@ namespace coordinator.Services.OcrResultsService
 
             foreach (var result in resultsToProcess.Skip(_processedCount))
             {
-                if (TextLength + result.line.Text.Length <= _remainingCharacterLimit)
+                if (TextLength + result.line.Text.Length <= _characterLimit)
                 {
                     AddLine(result.line, result.Page);
-                    _remainingCharacterLimit -= result.line.Text.Length;
                     _processedCount++;
                 }
                 else
@@ -79,18 +85,8 @@ namespace coordinator.Services.OcrResultsService
         {
             var previousLine = Lines.LastOrDefault();
             var ocrLine = new OcrLineResult(line, pageIndex, previousLine);
+            _text += ocrLine.Text;
             Lines.Add(ocrLine);
-        }
-
-        public void SetChunkText()
-        {
-            var sb = new StringBuilder();
-            foreach (var line in Lines)
-            {
-                sb.AppendFormat($"{line.Text}");
-            }
-
-            Text = sb.ToString().TrimEnd();
         }
     }
 
@@ -106,6 +102,7 @@ namespace coordinator.Services.OcrResultsService
             WordCount = line.Words.Count;
             SetOffsetRange();
             SetLineIndex();
+            AddWords(line.Words);
         }
 
         public string Text { get; protected set; }
@@ -114,17 +111,23 @@ namespace coordinator.Services.OcrResultsService
         public int WordCount { get; protected set; }
         public int TextLength => Text.Length;
         public (int Min, int Max) OffsetRange { get; protected set; }
+        public List<OcrWord> Words { get; set; } = new List<OcrWord>();
+
+        public bool ContainsOffset(int offset)
+        {
+            return OffsetRange.Min <= offset && OffsetRange.Max >= offset;
+        }
 
         private void SetOffsetRange()
         {
+            var zeroBasedTextLengthIndex = TextLength - 1;
+
             if (_previousLine == null)
-            {
-                OffsetRange = (0, Text.Length);
-            }
+                OffsetRange = (0, zeroBasedTextLengthIndex);
             else
             {
-                var accumulativeOffset = _previousLine.OffsetRange.Max;
-                OffsetRange = (accumulativeOffset + 1, accumulativeOffset + TextLength);
+                var accumulativeOffset = _previousLine.OffsetRange.Max + 1;
+                OffsetRange = (accumulativeOffset, accumulativeOffset + zeroBasedTextLengthIndex);
             }
         }
 
@@ -134,6 +137,31 @@ namespace coordinator.Services.OcrResultsService
                 LineIndex = 1;
             else
                 LineIndex = _previousLine.LineIndex + 1;
+        }
+
+        private void AddWords(IList<Word> words)
+        {
+            foreach (var word in words)
+            {
+                var offsetMin = !Words.Any() ? OffsetRange.Min : Words.Last().RelativeOffset.Max + 2;
+                Words.Add(new OcrWord(word, offsetMin));
+            }
+        }
+    }
+
+    public class OcrWord : Word
+    {
+        public OcrWord(Word word, int accumulativeOffset) : base(word.BoundingBox, word.Text, word.Confidence)
+        {
+            SetOffsetRange(accumulativeOffset);
+        }
+
+        public int TextLength => Text.Length;
+        public (int Min, int Max) RelativeOffset { get; protected set; }
+
+        private void SetOffsetRange(int accumulativeOffset)
+        {
+            RelativeOffset = (accumulativeOffset, accumulativeOffset + TextLength - 1);
         }
     }
 }

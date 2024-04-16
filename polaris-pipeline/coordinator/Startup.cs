@@ -31,6 +31,9 @@ using FluentValidation;
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
+using coordinator.Services.OcrResultsService;
+using coordinator.Services.PiiService;
+using coordinator.Clients.TextAnalytics;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -99,6 +102,9 @@ namespace coordinator
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
+            services.AddSingleton<IOcrResultsService, OcrResultsService>();
+            services.AddSingleton<IPiiService, PiiService>();
+            services.AddSingleton<ITextAnalysisClient, TextAnalysisClient>();
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
