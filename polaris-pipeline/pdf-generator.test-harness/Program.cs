@@ -24,6 +24,7 @@ internal static class Program
     var builder = Host.CreateApplicationBuilder(args);
 
     SetAsposeLicence();
+    Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetSection("SyncfusionLicenseKey").Value);
 
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
@@ -32,6 +33,7 @@ internal static class Program
     builder.Services.AddSingleton<AppInsights.TelemetryClient>();
     builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
+    builder.Services.AddSyncFusionPdfGenerator();
     builder.Services.AddPdfGenerator();
     builder.Services.AddRedactionServices(builder.Configuration);
     builder.Services.AddHttpClient(
@@ -56,6 +58,9 @@ internal static class Program
         break;
       case Mode.LibraryCallConvertToPdf:
         ConvertFileToPdf(serviceScope.ServiceProvider);
+        break;
+      case Mode.LibraryCallConvertToPdfSyncFusion:
+        ConvertFileToPdfSyncFusion(serviceScope.ServiceProvider);
         break;
       case Mode.FunctionCallConvertToPdf:
         await ConvertFileToPdfUsingFunctionCall(serviceScope.ServiceProvider);
@@ -185,6 +190,28 @@ internal static class Program
       }
     }
 
+    static void ConvertFileToPdfSyncFusion(IServiceProvider serviceProvider)
+    {
+      var orchestratorService = serviceProvider.GetRequiredService<ISyncFusionPdfOrchestratorService>();
+
+      Console.WriteLine("Enter the input file path:");
+      var filePath = Console.ReadLine();
+      Console.WriteLine("Enter the output file path:");
+      var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
+
+      if (File.Exists(filePath))
+      {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        PdfManager.BeginConversionSyncFusion(filePath, orchestratorService, outputFilePath);
+        watch.Stop();
+        Console.WriteLine($"Conversion time: {watch.ElapsedMilliseconds} ms");
+      }
+      else
+      {
+        throw new Exception("File does not exist, check path");
+      }
+    }
+
     static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
     {
       var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IRequestFactory>();
@@ -251,6 +278,45 @@ internal static class Program
 internal static class PdfManager
 {
   internal static void BeginConversion(string filePath, IPdfOrchestratorService orchestratorService, string outputFilePath)
+  {
+    try
+    {
+      using var fileStream = File.OpenRead(filePath);
+
+      Guid currentCorrelationId = default;
+      var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
+      const string documentId = "test-doc-1";
+
+      var fileType = Enum.Parse<FileType>(extension);
+
+      var conversionResult = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
+
+      if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
+      {
+        // Write the PDF stream to the file system
+        byte[] pdfBytes;
+        using (var ms = new MemoryStream())
+        {
+          conversionResult.ConvertedDocument.CopyTo(ms);
+          pdfBytes = ms.ToArray();
+        }
+
+        File.WriteAllBytes(outputFilePath, pdfBytes);
+
+        Console.WriteLine("PDF conversion successful.");
+      }
+      else
+      {
+        Console.WriteLine($"PDF conversion Failed - Status: {conversionResult.ConversionStatus.GetEnumValue()}, Feedback: {conversionResult.Feedback}");
+      }
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine($"PDF conversion failed: {e.Message}");
+    }
+  }
+
+  internal static void BeginConversionSyncFusion(string filePath, ISyncFusionPdfOrchestratorService orchestratorService, string outputFilePath)
   {
     try
     {

@@ -8,6 +8,7 @@ using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.DocumentRedaction.Aspose;
 using pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using pdf_generator.Services.PdfService;
+using pdf_generator.Services.SyncFusionPdfService;
 using System.Linq;
 
 namespace pdf_generator.Services.Extensions
@@ -43,6 +44,34 @@ namespace pdf_generator.Services.Extensions
             });
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
+        }
+
+        public static void AddSyncFusionPdfGenerator(this IServiceCollection services)
+        {
+            services.AddSingleton<ISyncFusionPdfService, SyncFusionWordsPdfService>();
+            services.AddSingleton<ISyncFusionPdfService, SyncFusionCellsPdfService>();
+            services.AddSingleton<ISyncFusionPdfService, SyncFusionSlidesPdfService>();
+            services.AddSingleton<ISyncFusionPdfService, SyncFusionImagingPdfService>();
+            services.AddSingleton<ISyncFusionPdfService, SyncFusionXpsPdfService>();
+            services.AddSingleton<ISyncFusionPdfService, SyncFusionHtmlPdfService>();
+            services.AddSingleton<ISyncFusionPdfService, SyncFusionPdfRendererService>();
+
+            services.AddSingleton<ISyncFusionPdfOrchestratorService, SyncFusionPdfOrchestratorService>(provider =>
+            {
+                var syncFusionPdfServices = provider.GetServices<ISyncFusionPdfService>();
+                var servicesList = syncFusionPdfServices.ToList();
+                var wordsPdfService = servicesList.First(s => s.GetType() == typeof(SyncFusionWordsPdfService));
+                var cellsPdfService = servicesList.First(s => s.GetType() == typeof(SyncFusionCellsPdfService));
+                var slidesPdfService = servicesList.First(s => s.GetType() == typeof(SyncFusionSlidesPdfService));
+                var imagePdfService = servicesList.First(s => s.GetType() == typeof(SyncFusionImagingPdfService));
+                var xpsPdfRendererService = servicesList.First(s => s.GetType() == typeof(SyncFusionXpsPdfService));
+                var htmlPdfService = servicesList.First(s => s.GetType() == typeof(SyncFusionHtmlPdfService));
+                var pdfService = servicesList.First(s => s.GetType() == typeof(SyncFusionPdfRendererService));
+
+                return new SyncFusionPdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagePdfService, xpsPdfRendererService, htmlPdfService, pdfService);
+            });
+            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddTransient<ISyncFusionItemFactory, SyncFusionItemFactory>();
         }
 
         public static void AddRedactionServices(this IServiceCollection services, IConfiguration configuration)

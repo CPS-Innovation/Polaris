@@ -28,6 +28,7 @@ var host = new HostBuilder()
     .ConfigureServices((context, services) =>
     {
         StartupHelpers.SetAsposeLicence();
+        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(context.Configuration.GetSection("SyncfusionLicenseKey").Value);
 
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();

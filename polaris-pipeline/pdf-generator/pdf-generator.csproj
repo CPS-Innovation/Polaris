@@ -39,6 +39,14 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.1.1" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="25.1.39" />
+    <PackageReference Include="Syncfusion.XlsIORenderer.Net.Core" Version="25.1.39" />
+    <PackageReference Include="Syncfusion.Presentation.Net.Core" Version="25.1.39" />
+    <PackageReference Include="Syncfusion.PresentationRenderer.Net.Core" Version="25.1.39" />
+    <PackageReference Include="Syncfusion.Pdf.Imaging.Net.Core" Version="25.1.39" />
+    <PackageReference Include="Syncfusion.XpsToPdfConverter.Net.Core" Version="25.1.39" />
+    <PackageReference Include="Syncfusion.HtmlToPdfConverter.Net.Mac" Version="25.1.40" />
+    <PackageReference Include="Syncfusion.HtmlToPdfConverter.Net.Windows" Version="25.1.40" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Domain\Requests\" />

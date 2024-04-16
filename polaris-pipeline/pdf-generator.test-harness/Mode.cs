@@ -4,5 +4,6 @@ public enum Mode
 {
     LibraryCallRedactPdf,
     LibraryCallConvertToPdf,
-    FunctionCallConvertToPdf
+    FunctionCallConvertToPdf,
+    LibraryCallConvertToPdfSyncFusion
 }
