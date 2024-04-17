@@ -105,19 +105,6 @@ resource "azurerm_key_vault_access_policy" "kvap_terraform_sp" {
   ]
 }
 
-resource "azurerm_key_vault_access_policy" "terraform_kvap_terraform_sp" {
-  key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azuread_service_principal.terraform_service_principal.object_id
-
-  secret_permissions = [
-    "Get",
-    "Set",
-    "Delete",
-    "Purge"
-  ]
-}
-
 resource "azurerm_role_assignment" "kv_role_fa_coordinator_crypto_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Crypto User"
