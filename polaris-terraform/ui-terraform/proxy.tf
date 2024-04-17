@@ -216,10 +216,6 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
 
   enabled_log {
     category = "AppServiceConsoleLogs"
-    retention_policy {
-      enabled = true
-      days    = var.app_service_log_retention
-    }
   }
 
   depends_on = [azurerm_linux_web_app.polaris_proxy]
