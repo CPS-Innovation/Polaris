@@ -52,13 +52,3 @@ resource "azurerm_private_endpoint" "pipeline_computer_vision_service_pe" {
     subresource_names              = ["account"]
   }
 }
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_computer_vision_service_dns_a" {
-  name                = azurerm_cognitive_account.computer_vision_service.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_cognitive_account.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_computer_vision_service_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}

@@ -146,6 +146,7 @@ export const AccordionDocument: React.FC<Props> = ({
                 onClick={() => {
                   trackEvent("Open Notes", {
                     documentId: caseDocument.documentId,
+                    documentCategory: caseDocument.cmsDocType.documentCategory,
                   });
                   handleOpenNotes(
                     caseDocument.documentId,
@@ -156,7 +157,10 @@ export const AccordionDocument: React.FC<Props> = ({
               >
                 <NotesIcon />
                 {caseDocument.hasNotes && (
-                  <div className={classes.notesAvailable}></div>
+                  <div
+                    data-testid={`has-note-indicator-${caseDocument.documentId}`}
+                    className={classes.notesAvailable}
+                  ></div>
                 )}
               </LinkButton>
             )}

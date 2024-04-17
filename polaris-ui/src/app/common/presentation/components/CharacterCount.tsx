@@ -11,6 +11,7 @@ type CharacterCountProps = {
   hint?: {
     children: React.ReactNode;
   };
+  disabled?: boolean;
   maxCharacters: number;
   errorMessage?: {
     children: React.ReactNode;
@@ -18,10 +19,11 @@ type CharacterCountProps = {
   onChange: (value: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
 export const CharacterCount: React.FC<CharacterCountProps> = (props) => {
-  const [characterCount, setCharacterCount] = useState(props.maxCharacter);
+  const { maxCharacters, value } = props;
+  const [characterCount, setCharacterCount] = useState(maxCharacters);
   useEffect(() => {
     const timer = setTimeout(() => {
-      setCharacterCount(props.maxCharacter - props.value.length);
+      setCharacterCount(maxCharacters - value.length);
     }, 500);
     return () => {
       clearTimeout(timer);
@@ -46,12 +48,10 @@ export const CharacterCount: React.FC<CharacterCountProps> = (props) => {
         aria-hidden="true"
         id={`${props.id}-info`}
         className={`${
-          props.maxCharacter - props.value.length < 0
-            ? "govuk-error-message"
-            : ""
+          maxCharacters - value.length < 0 ? "govuk-error-message" : ""
         }`}
       >
-        {getCharacterRemainingText(props.maxCharacter - props.value.length)}
+        {getCharacterRemainingText(maxCharacters - value.length)}
       </div>
       <div aria-live="polite" className={classes.visuallyHidden}>
         {getCharacterRemainingText(characterCount)}

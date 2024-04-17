@@ -52,16 +52,6 @@ resource "azurerm_private_endpoint" "pipeline_key_vault_pe" {
   }
 }
 
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_key_vault_dns_a" {
-  name                = azurerm_key_vault.kv.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_keyvault.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_key_vault_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
 resource "azurerm_key_vault_secret" "kvs_fa_coordinator_client_secret" {
   name            = "CoordinatorFunctionAppRegistrationClientSecret"
   value           = azuread_application_password.faap_fa_coordinator_app_service.value

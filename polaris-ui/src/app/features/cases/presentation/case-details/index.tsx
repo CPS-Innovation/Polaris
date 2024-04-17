@@ -415,6 +415,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
               ref={notesPanelRef}
+              data-testid="notes-panel"
             >
               <span
                 id="notes-panel-region-label"

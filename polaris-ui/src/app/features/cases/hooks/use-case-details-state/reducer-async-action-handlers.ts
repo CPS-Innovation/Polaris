@@ -476,6 +476,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, documentCategory, noteText },
       } = action;
       const { caseId, urn } = getState();
+      let successStatus = true;
 
       try {
         dispatch({
@@ -488,6 +489,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: { documentId, addNoteStatus: "success" },
         });
       } catch (e) {
+        successStatus = false;
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
@@ -500,13 +502,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "UPDATE_NOTES_DATA",
           payload: { documentId, addNoteStatus: "failure" },
         });
-        console.log("failed to add notes");
       }
-      dispatch({
-        type: "UPDATE_REFRESH_PIPELINE",
-        payload: {
-          startRefresh: true,
-        },
-      });
+      if (successStatus) {
+        dispatch({
+          type: "UPDATE_REFRESH_PIPELINE",
+          payload: {
+            startRefresh: true,
+          },
+        });
+      }
     },
 };
