@@ -188,27 +188,3 @@ resource "azurerm_private_endpoint" "pipeline_coordinator_pe" {
     subresource_names              = ["sites"]
   }
 }
-
-resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_crypto_user" {
-  scope                = data.azurerm_key_vault.terraform_key_vault.id
-  role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-
-  depends_on = [
-    azurerm_linux_function_app.fa_coordinator,
-    azurerm_role_assignment.terraform_kv_role_terraform_sp,
-    azurerm_key_vault_access_policy.terraform_kvap_terraform_sp
-  ]
-}
-
-resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_secrets_user" {
-  scope                = data.azurerm_key_vault.terraform_key_vault.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-
-  depends_on = [
-    azurerm_linux_function_app.fa_coordinator,
-    azurerm_role_assignment.terraform_kv_role_terraform_sp,
-    azurerm_key_vault_access_policy.terraform_kvap_terraform_sp
-  ]
-}
