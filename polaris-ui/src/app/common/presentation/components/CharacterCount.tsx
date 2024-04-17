@@ -11,7 +11,7 @@ type CharacterCountProps = {
   hint?: {
     children: React.ReactNode;
   };
-  maxCharacter: number;
+  maxCharacters: number;
   errorMessage?: {
     children: React.ReactNode;
   };

@@ -173,7 +173,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               setNewNoteValue(event.target.value);
             }}
             name="new-note"
-            maxCharacter={NOTES_MAX_CHARACTERS}
+            maxCharacters={NOTES_MAX_CHARACTERS}
             id="notes-textarea"
             data-testid="notes-textarea"
             label={{

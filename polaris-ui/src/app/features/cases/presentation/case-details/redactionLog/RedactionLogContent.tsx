@@ -866,7 +866,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                           }
                         : undefined
                     }
-                    maxCharacter={NOTES_MAX_CHARACTERS}
+                    maxCharacters={NOTES_MAX_CHARACTERS}
                     id="redaction-log-notes"
                     data-testid="redaction-log-notes"
                     label={{
