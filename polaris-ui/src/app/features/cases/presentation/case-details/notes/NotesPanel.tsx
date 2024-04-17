@@ -3,7 +3,6 @@ import {
   Button,
   LinkButton,
   CharacterCount,
-  TextArea,
   ErrorSummary,
 } from "../../../../../common/presentation/components";
 import { NotesTimeline } from "./NotesTimeline";
@@ -41,7 +40,6 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const [newNoteValue, setNewNoteValue] = useState("");
   const [oldNoteValue, setOldNoteValue] = useState("");
   const [notesError, setNotesError] = useState(false);
-  const [characterCount,setCharacterCount] = useState(NOTES_MAX_CHARACTERS)
 
   const handleAddBtnClick = () => {
     if (newNoteValue.length > NOTES_MAX_CHARACTERS) {
@@ -69,13 +67,6 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const noteData = useMemo(() => {
     return notesData.find((note) => note.documentId === documentId);
   }, [notesData, documentId]);
-
-useEffect(()=>{
-  const timer= setTimeout(()=>{
-    setCharacterCount(NOTES_MAX_CHARACTERS-newNoteValue.length)
-  },1000)
-    return (()=>clearTimeout(timer));
-  },)
 
   useEffect(() => {
     if (noteData?.addNoteStatus === "failure") {
@@ -169,9 +160,9 @@ useEffect(()=>{
           </div>
         )}
         <div className={classes.notesTextArea}>
-          <TextArea
+          <CharacterCount
             errorMessage={
-              !notesError
+              notesError
                 ? {
                     children: `Notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
                   }
@@ -182,7 +173,7 @@ useEffect(()=>{
               setNewNoteValue(event.target.value);
             }}
             name="new-note"
-            maxLength={NOTES_MAX_CHARACTERS}
+            maxCharacter={NOTES_MAX_CHARACTERS}
             id="notes-textarea"
             data-testid="notes-textarea"
             label={{
@@ -193,9 +184,7 @@ useEffect(()=>{
               ),
             }}
           />
-          <div aria-live="polite">{`You have ${
-            characterCount
-          } characters remaining`}</div>
+
           <div className={classes.btnWrapper}>
             <Button
               disabled={!newNoteValue.length}
