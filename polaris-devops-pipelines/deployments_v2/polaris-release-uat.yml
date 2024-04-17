@@ -766,7 +766,7 @@ stages:
   #UAT: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
     displayName: e2e tests
-    dependsOn: Update_GitHub_Tag
+    dependsOn: Sync_Slot_Settings
     condition: succeeded()
     jobs:
       - job: Log_Start
