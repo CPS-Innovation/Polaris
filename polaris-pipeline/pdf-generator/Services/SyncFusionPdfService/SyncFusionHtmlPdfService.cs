@@ -27,7 +27,7 @@ namespace pdf_generator.Services.PdfService
         var reader = new StreamReader(inputStream);
         string htmlString = reader.ReadToEnd();
 
-        HtmlToPdfConverter converter = new HtmlToPdfConverter();
+        HtmlToPdfConverter converter = new HtmlToPdfConverter(HtmlRenderingEngine.Blink);
         BlinkConverterSettings blinkConverterSettings = new BlinkConverterSettings();
         //Set Blink viewport size.
         blinkConverterSettings.ViewPortSize = new Syncfusion.Drawing.Size(1280, 0);

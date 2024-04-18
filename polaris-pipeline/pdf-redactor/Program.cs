@@ -14,7 +14,6 @@ using pdf_redactor;
 using pdf_redactor.Services.Extensions;
 using Common.Domain.Validators;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Syncfusion.Pdf;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
