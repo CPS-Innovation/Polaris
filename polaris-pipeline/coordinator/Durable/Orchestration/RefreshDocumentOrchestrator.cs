@@ -59,12 +59,15 @@ namespace coordinator.Durable.Orchestration
                 return new RefreshDocumentResult();
             }
 
-            caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
-
-            if (payload.DocumentDeltaType != DocumentDeltaType.RequiresIndexing)
+            if (payload.DocumentDeltaType == DocumentDeltaType.RequiresPdfRefresh)
             {
+                // return and DO NOT set to PdfUploadedToBlob.  If we are refreshing the PDF it is because thr OCR flag has changed.
+                //  The document will already either be at PdfUploadedToBlob or Indexed status.  If it is at Indexed status then we do not want to set the
+                //  the flag back to PdfUploadedToBlob as Indexed is still correct.  As per comment above, all of this is to be rebuilt in pipeline refresh.
                 return new RefreshDocumentResult();
             }
+
+            caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
 
             var result = await CallTextExtractorAsync(context, payload, caseEntity, log);
 
