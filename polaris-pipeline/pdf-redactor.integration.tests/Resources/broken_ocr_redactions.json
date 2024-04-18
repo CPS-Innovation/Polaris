@@ -1,0 +1,24 @@
+{
+  "documentId": "CMS-12345678",
+  "redactions": [
+    {
+      "pageIndex": 1,
+      "height": 725.48,
+      "width": 1026,
+      "redactionCoordinates": [
+        {
+          "x1": 402,
+          "y1": 414.48,
+          "x2": 450,
+          "y2": 500
+        },
+        {
+          "x1": 500,
+          "y1": 500.48,
+          "x2": 510,
+          "y2": 510
+        }
+      ]
+    }
+  ]
+}

@@ -3,12 +3,12 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
 using Common.Dto.Response;
-using Common.Exceptions;
-using Common.Wrappers.Contracts;
+using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Factories.Contracts;
+using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Exceptions;
+using DdeiClient.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
@@ -78,17 +78,22 @@ public class DdeiClientTests
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
-        var mockCaseDataArgFactory = new Mock<ICaseDataArgFactory>();
+        var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
         var mockCaseDetailsMapper = new Mock<ICaseDetailsMapper>();
+        var mockCaseDocumentNoteMapper = new Mock<ICaseDocumentNoteMapper>();
+        var mockCaseDocumentNoteResultMapper = new Mock<ICaseDocumentNoteResultMapper>();
         var mockCaseIdentifiersMapper = new Mock<ICaseIdentifiersMapper>();
         var mockCmsAuthValuesMapper = new Mock<ICmsAuthValuesMapper>();
+
         _ddeiClient = new Ddei.Services.DdeiClient
             (
                 httpClient,
                 mockHttpRequestFactory.Object,
-                mockCaseDataArgFactory.Object,
+                mockDdeiArgFactory.Object,
                 mockCaseDetailsMapper.Object,
                 new CaseDocumentMapper(),
+                mockCaseDocumentNoteMapper.Object,
+                mockCaseDocumentNoteResultMapper.Object,
                 mockCaseIdentifiersMapper.Object,
                 mockCmsAuthValuesMapper.Object,
                 _jsonConvertWrapperMock.Object,

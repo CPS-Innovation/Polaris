@@ -1,13 +1,9 @@
 ﻿using Common.Wrappers;
-using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories;
 using pdf_generator.Factories.Contracts;
-using pdf_generator.Services.DocumentRedaction;
-using pdf_generator.Services.DocumentRedaction.Aspose;
-using pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using pdf_generator.Services.PdfService;
 using System.Linq;
 
@@ -44,17 +40,6 @@ namespace pdf_generator.Services.Extensions
             });
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
-        }
-
-        public static void AddRedactionServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
-            services.AddSingleton<IDocumentRedactionService, DocumentRedactionService>();
-            // Aspose-specific services
-            services.AddSingleton<IRedactionProvider, AsposeRedactionProvider>();
-            services.AddSingleton<ICoordinateCalculator, CoordinateCalculator>();
-            services.AddSingleton<IRedactionImplementation, ImageConversionImplementation>();
-            services.Configure<ImageConversionOptions>(configuration.GetSection(ImageConversionOptions.ConfigKey));
         }
     }
 }

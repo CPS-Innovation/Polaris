@@ -6,14 +6,23 @@ import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 
 type Props = {
+  activeDocumentId: string;
+  lastFocusDocumentId: string;
   sectionId: string;
   sectionLabel: string;
   docs: MappedCaseDocument[];
+  readUnreadData: string[];
   isOpen: boolean;
+  showNotesFeature: boolean;
   handleToggleOpenSection: (id: string, sectionLabel: string) => void;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -24,12 +33,17 @@ const formatTestIdText = (id: string) => {
 };
 
 export const AccordionSection: React.FC<Props> = ({
+  activeDocumentId,
+  lastFocusDocumentId,
   sectionId,
   sectionLabel,
   docs,
   isOpen,
+  readUnreadData,
+  showNotesFeature,
   handleToggleOpenSection,
   handleOpenPdf,
+  handleOpenNotes,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -78,7 +92,12 @@ export const AccordionSection: React.FC<Props> = ({
                   <AccordionDocument
                     key={caseDocument.documentId}
                     caseDocument={caseDocument}
+                    readUnreadData={readUnreadData}
+                    activeDocumentId={activeDocumentId}
                     handleOpenPdf={handleOpenPdf}
+                    handleOpenNotes={handleOpenNotes}
+                    showNotesFeature={showNotesFeature}
+                    lastFocusDocumentId={lastFocusDocumentId}
                   />
                 ))}
               </ul>

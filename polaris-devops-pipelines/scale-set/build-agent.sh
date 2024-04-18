@@ -39,7 +39,7 @@ sudo apt-get install libc6
 sudo apt-get install libgcc1
 sudo apt-get install libgcc-s1
 sudo apt-get install libgssapi-krb5-2
-sudo apt-get install libicu70
+sudo apt-get install libicu72
 sudo apt-get install liblttng-ust1
 sudo apt-get install libssl3
 sudo apt-get install libstdc++6

@@ -22,6 +22,7 @@ import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
+import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -34,6 +35,7 @@ type Props = {
     documentType: string;
     documentId: string;
     saveStatus: SaveStatus;
+    caseId: number;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -42,7 +44,7 @@ type Props = {
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
-  handleAddRedaction: (newRedaction: NewPdfHighlight) => void;
+  handleAddRedaction: (newRedaction: NewPdfHighlight[]) => void;
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -109,7 +111,7 @@ export const PdfViewer: React.FC<Props> = ({
         redactionType: redactionType,
       };
 
-      handleAddRedaction(newRedaction);
+      handleAddRedaction([newRedaction]);
       window.getSelection()?.removeAllRanges();
     },
     [handleAddRedaction]
@@ -245,6 +247,11 @@ export const PdfViewer: React.FC<Props> = ({
             handleSavedRedactions={handleSavedRedactions}
           />
         )}
+        <UnsavedRedactionModal
+          documentId={contextData.documentId}
+          caseId={contextData.caseId}
+          handleAddRedaction={handleAddRedaction}
+        />
       </div>
     </>
   );

@@ -27,9 +27,16 @@ import {
   RedactionLogMappingData,
   RedactionTypeData,
 } from "../../domain/redactionLog/RedactionLogData";
-import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import {
+  addToLocalStorage,
+  deleteFromLocalStorage,
+} from "../../presentation/case-details/utils/localStorageUtils";
+import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
+import { StoredUserData } from "../../domain//gateway/StoredUserData";
+import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
+import { Note } from "../../domain/gateway/NotesData";
 
 export const reducer = (
   state: CombinedState,
@@ -100,7 +107,7 @@ export const reducer = (
         type: "ADD_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
-          redaction: NewPdfHighlight;
+          redactions: NewPdfHighlight[];
         };
       }
     | {
@@ -135,6 +142,7 @@ export const reducer = (
         payload: {
           message: string;
           title: string;
+          type: ErrorModalTypes;
         };
       }
     | {
@@ -172,6 +180,25 @@ export const reducer = (
           documentId: CaseDocumentViewModel["documentId"];
           enableAreaOnlyMode: boolean;
         };
+      }
+    | {
+        type: "UPDATE_STORED_USER_DATA";
+        payload: {
+          storedUserData: StoredUserData;
+        };
+      }
+    | {
+        type: "UPDATE_NOTES_DATA";
+        payload:
+          | {
+              documentId: string;
+              addNoteStatus: "saving" | "failure" | "success";
+            }
+          | {
+              documentId: string;
+              notesData: Note[];
+              addNoteStatus: "initial";
+            };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -403,6 +430,7 @@ export const reducer = (
         //  via the url hash functionality
         return coreNewState;
       }
+
       const alreadyOpenedTabIndex = state.tabsState.items.findIndex(
         (item) => item.documentId === documentId
       );
@@ -524,6 +552,10 @@ export const reducer = (
                 : existingItem
             );
 
+      const isUnread =
+        state.storedUserData?.status === "succeeded" &&
+        !state.storedUserData?.data.readUnread.includes(documentId);
+
       return {
         ...coreNewState,
         tabsState: {
@@ -534,6 +566,20 @@ export const reducer = (
           ...state.searchState,
           isResultsVisible: false,
         },
+        ...(isUnread && state.storedUserData?.status === "succeeded"
+          ? {
+              storedUserData: {
+                ...state.storedUserData,
+                data: {
+                  ...state.storedUserData.data,
+                  readUnread: [
+                    ...state.storedUserData.data.readUnread,
+                    documentId,
+                  ],
+                },
+              },
+            }
+          : {}),
       };
 
     case "CLOSE_PDF": {
@@ -734,9 +780,14 @@ export const reducer = (
         },
       };
     case "ADD_REDACTION": {
-      const { documentId, redaction } = action.payload;
+      const { documentId, redactions } = action.payload;
 
-      return {
+      const newRedactions = redactions.map((redaction, index) => ({
+        ...redaction,
+        id: String(`${+new Date()}-${index}`),
+      }));
+
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -746,20 +797,27 @@ export const reducer = (
                   ...item,
                   redactionHighlights: [
                     ...item.redactionHighlights,
-                    {
-                      ...redaction,
-                      id: String(+new Date()),
-                      redactionAddedOrder: item.redactionHighlights.length,
-                    },
+                    ...newRedactions,
                   ],
                 }
               : item
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      if (redactionHighlights.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      }
+      return newState;
     }
     case "SAVING_REDACTION": {
       const { documentId, saveStatus } = action.payload;
+
       return {
         ...state,
         tabsState: {
@@ -778,7 +836,7 @@ export const reducer = (
     case "REMOVE_REDACTION": {
       const { redactionId, documentId } = action.payload;
 
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -794,12 +852,22 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
     }
 
     case "REMOVE_ALL_REDACTIONS": {
       const { documentId } = action.payload;
-
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -813,6 +881,17 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
     }
     case "UPDATE_DOCUMENT_LOCK_STATE": {
       const { documentId, lockedState } = action.payload;
@@ -833,13 +912,14 @@ export const reducer = (
       };
     }
     case "SHOW_ERROR_MODAL": {
-      const { message, title } = action.payload;
+      const { message, title, type } = action.payload;
       return {
         ...state,
         errorModal: {
           show: true,
           message: message,
           title: title,
+          type: type,
         },
       };
     }
@@ -850,6 +930,7 @@ export const reducer = (
           show: false,
           message: "",
           title: "",
+          type: "",
         },
       };
     }
@@ -905,6 +986,52 @@ export const reducer = (
           ),
         },
       };
+    }
+    case "UPDATE_STORED_USER_DATA": {
+      const { storedUserData } = action.payload;
+      return {
+        ...state,
+        storedUserData: { status: "succeeded", data: storedUserData },
+      };
+    }
+    case "UPDATE_NOTES_DATA": {
+      const { documentId, addNoteStatus } = action.payload;
+      const filteredNotes = state.notes.filter(
+        (note) => note.documentId !== documentId
+      );
+      const activeNotes = state.notes.find(
+        (note) => note.documentId === documentId
+      )!;
+      switch (addNoteStatus) {
+        case "success":
+        case "failure":
+        case "saving": {
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                ...activeNotes,
+                documentId: documentId,
+                addNoteStatus: addNoteStatus,
+              },
+            ],
+          };
+        }
+        default:
+          const { notesData } = action.payload;
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                documentId: documentId,
+                notes: notesData,
+                addNoteStatus: addNoteStatus,
+              },
+            ],
+          };
+      }
     }
 
     default:

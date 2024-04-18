@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   BackLink,
   Tooltip,
@@ -36,10 +36,12 @@ import {
   SURVEY_LINK,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
+import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
+import { NotesPanel } from "./notes/NotesPanel";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 export const path = "/case-details/:urn/:id";
 
@@ -47,6 +49,23 @@ type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [inFullScreen, setInFullScreen] = useState(false);
+  const [openNotesData, setOpenNoteData] = useState<{
+    open: boolean;
+    documentId: string;
+    documentCategory: string;
+    presentationFileName: string;
+    accordionOldState: AccordionReducerState | null;
+    lastFocusDocumentId: string;
+  }>({
+    open: false,
+    documentId: "",
+    documentCategory: "",
+    presentationFileName: "",
+    accordionOldState: null,
+    lastFocusDocumentId: "",
+  });
+
+  const notesPanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -64,6 +83,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentIssueModal,
     redactionLog,
     featureFlags,
+    storedUserData,
+    notes,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -83,6 +104,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
+    handleGetNotes,
+    handleAddNote,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -137,6 +160,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
+  useEffect(() => {
+    if (notesPanelRef.current) {
+      (notesPanelRef.current as HTMLElement).focus();
+    }
+  }, [openNotesData.open]);
+
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
@@ -155,6 +184,22 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
+  const handleOpenNotes = (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string,
+    accordionCurrentState: AccordionReducerState
+  ) => {
+    setOpenNoteData({
+      open: true,
+      documentId: documentId,
+      documentCategory: documentCategory,
+      presentationFileName: presentationFileName,
+      accordionOldState: accordionCurrentState,
+      lastFocusDocumentId: documentId,
+    });
+  };
+
   return (
     <>
       {errorModal.show && (
@@ -163,12 +208,22 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           handleClose={handleCloseErrorModal}
           type="alert"
           ariaLabel="Error Modal"
-          ariaDescription={`${errorModal.title} ${errorModal.message}`}
+          ariaDescription={`${errorModal.title} ${errorModal.message.replaceAll(
+            "</p>",
+            ""
+          )}`}
         >
           <ErrorModalContent
             title={errorModal.title}
             message={errorModal.message}
+            type={errorModal.type}
             handleClose={handleCloseErrorModal}
+            contextData={{
+              documentId:
+                errorModal.type === "addnote"
+                  ? openNotesData.documentId
+                  : getActiveTabDocument?.documentId,
+            }}
           />
         </Modal>
       )}
@@ -204,6 +259,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
       {documentIssueModal.show && (
         <ReportAnIssueModal
+          documentTypeId={getActiveTabDocument?.cmsDocType?.documentTypeId}
           documentId={getActiveTabDocument?.documentId!}
           presentationTitle={getActiveTabDocument?.presentationTitle!}
           polarisDocumentVersionId={
@@ -287,7 +343,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          {!inFullScreen && (
+          {!inFullScreen && !openNotesData.open && (
             <div
               role="region"
               aria-labelledby="side-panel-region-label"
@@ -331,13 +387,59 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <AccordionWait />
                 ) : (
                   <Accordion
+                    initialState={openNotesData.accordionOldState}
+                    readUnreadData={
+                      storedUserData.status === "succeeded"
+                        ? storedUserData.data.readUnread
+                        : []
+                    }
                     accordionState={accordionState.data}
                     handleOpenPdf={(caseDoc) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
+                    activeDocumentId={getActiveTabDocument?.documentId ?? ""}
+                    handleOpenNotes={handleOpenNotes}
+                    showNotesFeature={featureFlags.notes}
+                    lastFocusDocumentId={openNotesData.lastFocusDocumentId}
                   />
                 )}
               </div>
+            </div>
+          )}
+          {!inFullScreen && openNotesData.open && (
+            <div
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              id="notes-panel"
+              role="region"
+              aria-labelledby="notes-panel-region-label"
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+              tabIndex={0}
+              ref={notesPanelRef}
+              data-testid="notes-panel"
+            >
+              <span
+                id="notes-panel-region-label"
+                className={classes.sidePanelLabel}
+              >
+                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName}.`}
+              </span>
+              <NotesPanel
+                documentName={openNotesData.presentationFileName}
+                documentCategory={openNotesData.documentCategory}
+                documentId={openNotesData.documentId}
+                notesData={notes}
+                handleCloseNotes={() => {
+                  setOpenNoteData({
+                    ...openNotesData,
+                    open: false,
+                    documentId: "",
+                    documentCategory: "",
+                    presentationFileName: "",
+                  });
+                }}
+                handleAddNote={handleAddNote}
+                handleGetNotes={handleGetNotes}
+              />
             </div>
           )}
           {!!tabsState.items.length && featureFlags.fullScreen && (
@@ -366,6 +468,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(true);
+                      if (!openNotesData.open) {
+                        setOpenNoteData({
+                          ...openNotesData,
+                          accordionOldState: null,
+                        });
+                      }
                     }
                   }}
                 >
@@ -409,6 +517,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}
+                caseId={+caseId}
                 showOverRedactionLog={
                   redactionLog.redactionLogLookUpsData.status === "succeeded"
                     ? FEATURE_FLAG_REDACTION_LOG_UNDER_OVER

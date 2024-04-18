@@ -1,6 +1,9 @@
-using System.Net.Http.Headers;
 using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using Common.Constants;
+using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 
 namespace Ddei.Factories.Contracts
@@ -85,6 +88,26 @@ namespace Ddei.Factories.Contracts
         public HttpRequestMessage CreateStatusRequest()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/status");
+            return request;
+        }
+
+        public HttpRequestMessage CreateGetDocumentNotesRequest(DdeiCmsDocumentNotesArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentCategory}/{arg.DocumentId}/notes");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateAddDocumentNoteRequest(DdeiCmsAddDocumentNoteArgDto arg)
+        {
+            var content = JsonSerializer.Serialize(new AddDocumentNoteDto
+            {
+                DocumentId = arg.DocumentId,
+                Text = arg.Text
+            });
+            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentCategory}/{arg.DocumentId}/notes");
+            AddAuthHeaders(request, arg);
+            request.Content = new StringContent(content, Encoding.UTF8, "application/json");
             return request;
         }
 

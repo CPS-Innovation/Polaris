@@ -3,15 +3,15 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Dto.Request.Search;
 using Common.Extensions;
-using Common.Mappers.Contracts;
-using text_extractor.Services.CaseSearchService.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using text_extractor.Services.CaseSearchService;
+using Common.Telemetry;
+using Common.Wrappers;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using text_extractor.Mappers.Contracts;
 
 namespace text_extractor.Functions
 {
@@ -35,7 +35,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(SearchText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Search)] HttpRequestMessage request, string caseUrn, long caseId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Search)] HttpRequestMessage request, string caseUrn, long caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);

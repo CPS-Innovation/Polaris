@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
 using Mapster;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace Common.Dto.Tracker
@@ -94,7 +94,11 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }
+
         [JsonProperty("hasFailedAttachments")]
         public bool HasFailedAttachments { get; set; }
+
+        [JsonProperty("hasNotes")]
+        public bool HasNotes { get; set; }
     }
 }

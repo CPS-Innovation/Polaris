@@ -11,7 +11,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
   redactionHighlights: IPdfHighlight[];
   clientLockedState: // note: unlocked is just the state where the client doesn't know yet
   //  (might be locked on the server, we haven't interacted yet)
-  "unlocked" | "locking" | "locked" | "unlocking" | "locked-by-other-user";
+  ClientLockedState;
 } & (
     | { mode: "read" }
     | {
@@ -21,3 +21,10 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
         searchHighlights: IPdfHighlight[];
       }
   );
+
+export type ClientLockedState =
+  | "unlocked"
+  | "locking"
+  | "locked"
+  | "unlocking"
+  | "locked-by-other-user";

@@ -15,7 +15,7 @@ const pipelinePdfResult: PipelineResults = {
       documentId: "1",
       cmsDocumentId: "1",
       pdfBlobName: "MCLOVEMG3",
-      status: "Indexed",
+      status: "PdfUploadedToBlob",
       cmsOriginalFileName: "MCLOVEMG3 very long .docx",
       presentationTitle: "UM MCLOVEMG3 very long",
       cmsOriginalFileExtension: ".pdf",
@@ -34,6 +34,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: true,
+      hasNotes: true,
     },
     {
       documentId: "2",
@@ -49,7 +50,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1029,
         documentType: "MG11",
-        documentCategory: "MGForm",
+        documentCategory: "InboxCommunication",
       },
       presentationFlags: {
         read: "Ok",
@@ -58,6 +59,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
     },
     {
       documentId: "3",
@@ -82,6 +84,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "4",
@@ -106,6 +109,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "5",
@@ -130,6 +134,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "6",
@@ -154,6 +159,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "7",
@@ -178,6 +184,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "8",
@@ -203,6 +210,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "9",
@@ -228,6 +236,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "10",
@@ -253,6 +262,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "10",
@@ -277,6 +287,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: 2762766,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
     {
       documentId: "11",
@@ -301,6 +312,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
     },
   ],
 };

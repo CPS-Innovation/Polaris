@@ -20,10 +20,8 @@ export type PresentationFlags = {
     | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
-    | "IsNotOcrProcessed"
     | "IsDispatched"
-    | "IsRedactionServiceOffline"
-    | "AttachmentCategoryNotAllowed";
+    | "IsRedactionServiceOffline";
 };
 
 export type PresentationDocumentProperties = {
@@ -41,6 +39,7 @@ export type PresentationDocumentProperties = {
   polarisParentDocumentId: string | null;
   witnessId: number | null;
   hasFailedAttachments: boolean;
+  hasNotes: boolean;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

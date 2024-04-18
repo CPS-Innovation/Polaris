@@ -6,7 +6,12 @@ type Props = {
 export const RemoveButton: React.FC<Props> = ({ onClick }) => {
   return (
     <div className="Tip" id="remove-redaction">
-      <button id="remove-btn" className={classes.button} onClick={onClick}>
+      <button
+        id="remove-btn"
+        data-testid="remove-btn"
+        className={classes.button}
+        onClick={onClick}
+      >
         Remove redaction
       </button>
     </div>

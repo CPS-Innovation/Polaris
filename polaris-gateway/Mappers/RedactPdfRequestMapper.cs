@@ -1,6 +1,5 @@
 ﻿using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using PolarisGateway.common.Mappers;
 
 namespace PolarisGateway.Mappers
 {

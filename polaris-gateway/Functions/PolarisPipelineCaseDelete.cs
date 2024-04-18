@@ -4,42 +4,53 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using PolarisGateway.Domain.Validators;
-using Gateway.Clients;
-using Common.Telemetry.Wrappers.Contracts;
-using PolarisGateway.Factories;
+using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineCaseDelete : BasePolarisFunction
+    public class PolarisPipelineCaseDelete
     {
-        private readonly IPipelineClient _pipelineClient;
-        private readonly ITrackerResponseFactory _triggerCoordinatorResponseFactory;
+        private readonly ILogger<PolarisPipelineCaseDelete> _logger;
+        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        public PolarisPipelineCaseDelete(ILogger<PolarisPipelineCase> logger,
-                                    IPipelineClient pipelineClient,
-                                    IAuthorizationValidator tokenValidator,
-                                    ITrackerResponseFactory triggerCoordinatorResponseFactory,
-                                    ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
-        : base(logger, tokenValidator, telemetryAugmentationWrapper)
+        public PolarisPipelineCaseDelete(
+            ILogger<PolarisPipelineCaseDelete> logger,
+            ICoordinatorClient coordinatorClient,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _pipelineClient = pipelineClient;
-            _triggerCoordinatorResponseFactory = triggerCoordinatorResponseFactory;
+            _logger = logger;
+            _coordinatorClient = coordinatorClient;
+            _initializationHandler = initializationHandler;
+            _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
         [FunctionName(nameof(PolarisPipelineCaseDelete))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
+            (Guid CorrelationId, string CmsAuthValues) context = default;
+
             try
             {
-                await Initiate(req);
-
-                return await _pipelineClient.DeleteCaseAsync(caseUrn, caseId, CmsAuthValues, CorrelationId);
+                context = await _initializationHandler.Initialize(req);
+                return await _coordinatorClient.DeleteCaseAsync(
+                    caseUrn,
+                    caseId,
+                    context.CmsAuthValues,
+                    context.CorrelationId);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return HandleUnhandledException(exception);
+                return _unhandledExceptionHandler.HandleUnhandledException(
+                      _logger,
+                      nameof(PolarisPipelineCaseDelete),
+                      context.CorrelationId,
+                      ex
+                    );
             }
         }
     }

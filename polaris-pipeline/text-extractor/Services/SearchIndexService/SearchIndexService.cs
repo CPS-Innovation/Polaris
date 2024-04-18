@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
-using Common.Domain.SearchIndex;
-using Common.Extensions;
-using Common.Dto.Response;
-using text_extractor.Services.CaseSearchService.Contracts;
-using text_extractor.Factories.Contracts;
-using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
+using Common.Domain.SearchIndex;
+using Common.Dto.Response;
+using Common.ValueObjects;
+using text_extractor.Extensions;
+using text_extractor.Mappers.Contracts;
+using text_extractor.Factories.Contracts;
 
 namespace text_extractor.Services.CaseSearchService
 {
@@ -27,6 +27,7 @@ namespace text_extractor.Services.CaseSearchService
         private readonly ISearchLineFactory _searchLineFactory;
         private readonly ISearchIndexingBufferedSenderFactory _searchIndexingBufferedSenderFactory;
         private readonly IStreamlinedSearchResultFactory _streamlinedSearchResultFactory;
+        private readonly ILineMapper _lineMapper;
         private readonly ILogger<SearchIndexService> _logger;
 
         public SearchIndexService(
@@ -34,12 +35,14 @@ namespace text_extractor.Services.CaseSearchService
             ISearchLineFactory searchLineFactory,
             ISearchIndexingBufferedSenderFactory searchIndexingBufferedSenderFactory,
             IStreamlinedSearchResultFactory streamlinedSearchResultFactory,
+            ILineMapper lineMapper,
             ILogger<SearchIndexService> logger)
         {
             _azureSearchClient = searchClientFactory.Create();
             _searchLineFactory = searchLineFactory;
             _searchIndexingBufferedSenderFactory = searchIndexingBufferedSenderFactory;
             _streamlinedSearchResultFactory = streamlinedSearchResultFactory;
+            _lineMapper = lineMapper;
             _logger = logger;
         }
 
@@ -60,7 +63,7 @@ namespace text_extractor.Services.CaseSearchService
                                                 versionId,
                                                 blobName,
                                                 readResult,
-                                                line,
+                                                _lineMapper.Map(line),
                                                 index
                                              )
                     );

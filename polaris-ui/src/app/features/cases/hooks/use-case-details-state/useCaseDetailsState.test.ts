@@ -26,6 +26,8 @@ jest.mock(".../../../../auth/msal/useUserGroupsFeatureFlag", () => ({
   useUserGroupsFeatureFlag: () => jest.fn(),
 }));
 
+jest.mock("../../../../auth", () => ({ useUserDetails: () => jest.fn() }));
+
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;
 
@@ -127,6 +129,9 @@ describe("useCaseDetailsState", () => {
         handleSaveRedactionLog,
         handleHideRedactionLogModal,
         handleAreaOnlyRedaction,
+        handleSaveReadUnreadData,
+        handleAddNote,
+        handleGetNotes,
         ...stateProperties
       } = result.current;
 
@@ -354,11 +359,11 @@ describe("useCaseDetailsState", () => {
         wrapper: MemoryRouter,
       });
 
-      handleAddRedaction("2", { type: "redaction" } as NewPdfHighlight);
+      handleAddRedaction("2", [{ type: "redaction" }] as NewPdfHighlight[]);
 
       expect(mockHandler).toBeCalledWith({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { documentId: "2", redaction: { type: "redaction" } },
+        payload: { documentId: "2", redactions: [{ type: "redaction" }] },
       });
     });
 

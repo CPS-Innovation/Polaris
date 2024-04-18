@@ -16,6 +16,9 @@ import {
   CaseDetailsDataSource,
   lastRequestedUrnCache,
 } from "./data/types/CaseDetailsDataSource";
+import cypressNotesData from "./data/notes.cypress";
+import notesData from "./data/notes.dev";
+import { NotesDataSource } from "./data/types/NotesDataSource";
 
 import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
@@ -50,6 +53,11 @@ const pipelinePdfResultsDataSources: {
 const searchCaseDataSources: { [key: string]: SearchCaseDataSource } = {
   dev: devSearchCaseDataSource,
   cypress: cypressSearchCaseDataSource,
+};
+
+const notesDataSources: { [documentId: string]: NotesDataSource } = {
+  dev: notesData,
+  cypress: cypressNotesData,
 };
 
 export const setupHandlers = ({
@@ -155,6 +163,16 @@ export const setupHandlers = ({
         return res(delay(ctx), ctx.json(results));
       }
     ),
+
+    rest.get(makeApiPath(routes.NOTES_ROUTE), (req, res, ctx) => {
+      const { documentId } = req.params;
+      const results = notesDataSources[sourceName](documentId);
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.post(makeApiPath(routes.NOTES_ROUTE), (req, res, ctx) => {
+      return res(delay(ctx), ctx.json({}));
+    }),
 
     rest.post(
       makeRedactionLogApiPath(routes.SAVE_REDACTION_LOG_ROUTE),

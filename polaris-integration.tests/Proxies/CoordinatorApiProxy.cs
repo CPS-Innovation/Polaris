@@ -81,7 +81,7 @@ namespace polaris_gateway.integration.tests.Proxies
         protected async Task<HttpResponseMessage> MakeHttpCall(string url, HttpMethod httpMethod, string correlationId = null, object payload = null)
         {
             using var client = new HttpClient();
-            var request = new HttpRequestMessage(httpMethod, $"{_polarisCoordinatorUrl}api/{url}?code={_polarisCoordinatorCode}");
+            var request = new HttpRequestMessage(httpMethod, $"{_polarisCoordinatorUrl}api/{url}");
             AddAuthAndContextHeaders(request, correlationId ?? Guid.NewGuid().ToString());
             if (payload != null)
             {

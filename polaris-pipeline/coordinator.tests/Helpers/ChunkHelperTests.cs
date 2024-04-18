@@ -1,6 +1,6 @@
 using Xunit;
 using AutoFixture;
-using coordinator.Helpers.ChunkHelper;
+using coordinator.Helpers;
 using FluentAssertions;
 using System.Linq;
 

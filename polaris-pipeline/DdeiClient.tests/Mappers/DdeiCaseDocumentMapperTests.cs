@@ -1,11 +1,12 @@
 using AutoFixture;
 using Common.Constants;
 using Common.Dto.Response;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Mappers;
 using Ddei.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
+using Common.Dto.Document;
 
 namespace DdeiClient.tests.Mappers;
 
@@ -91,7 +92,7 @@ public class DdeiCaseDocumentMapperTests
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().Be(_documentResponse.DocumentType);
-            result.CmsDocType.DocumentTypeId.Should().Be(MiscCategories.UnknownDocumentType);
+            result.CmsDocType.DocumentTypeId.Should().Be(DocumentTypeDto.UnknownDocumentType);
         }
     }
 }

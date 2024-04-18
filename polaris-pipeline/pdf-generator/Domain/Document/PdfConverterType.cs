@@ -1,4 +1,4 @@
-﻿using Common.Attributes;
+﻿using pdf_generator.Attributes;
 
 namespace pdf_generator.Domain.Document;
 

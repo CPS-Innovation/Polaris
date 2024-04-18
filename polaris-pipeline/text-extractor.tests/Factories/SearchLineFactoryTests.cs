@@ -19,7 +19,7 @@ namespace text_extractor.tests.Factories
 		private readonly long _versionId;
 		private readonly string _blobName;
 		private readonly ReadResult _readResult;
-		private readonly Line _line;
+		private readonly Common.Domain.SearchIndex.Line _line;
 		private readonly int _index;
 		private readonly double _pageHeight;
 		private readonly double _pageWidth;
@@ -43,7 +43,7 @@ namespace text_extractor.tests.Factories
 				Width = _pageWidth,
 				Height = _pageHeight
 			};
-			_line = fixture.Create<Line>();
+			_line = fixture.Create<Common.Domain.SearchIndex.Line>();
 			_index = fixture.Create<int>();
 
 			_searchLineFactory = new SearchLineFactory();

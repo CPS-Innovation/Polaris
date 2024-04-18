@@ -8,6 +8,11 @@ data "azurerm_windows_function_app" "fa_pdf_generator" {
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
+data "azurerm_windows_function_app" "fa_pdf_redactor" {
+  name                = "fa-${local.polaris_resource_name}-pdf-redactor"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
 data "azurerm_linux_function_app" "fa_text_extractor" {
   name                = "fa-${local.polaris_resource_name}-text-extractor"
   resource_group_name = "rg-${local.pipeline_resource_name}"

@@ -3,7 +3,6 @@
 public static class ConfigurationKeys
 {
     public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
-    public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
 }
 
 public static class ValidRoles
@@ -18,4 +17,13 @@ public static class CmsAuthConstants
     public const string CmsRedirectQueryParamName = "q";
     public const string CmsLaunchModeFallbackRedirectUrl = "/polaris-ui/";
     public const string CmsLaunchModeUiRootUrl = "/polaris-ui/case-details";
+}
+
+public static class OAuthSettings
+{
+    public const string TenantId = "TenantId";
+    public const string ValidAudience = "CallingAppValidAudience";
+    public const string Bearer = "Bearer";
+    public const string Authorization = "Authorization";
+    //public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
 }

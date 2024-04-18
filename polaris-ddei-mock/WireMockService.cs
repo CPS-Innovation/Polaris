@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using AutoFixture;
-using Common.Domain.Extensions;
+using Common.Extensions;
 using Common.Dto.Response;
 using Ddei.Domain;
 using Microsoft.Extensions.Logging;
@@ -88,7 +88,7 @@ public class WireMockService : IWireMockService
         MockStatus(_server);
         MockCheckoutDocument(_server);
         MockTestCases(_server, fixture, dirSeparator);
-        MockDirectoryCases(_server, fixture, dirSeparator); 
+        MockDirectoryCases(_server, fixture, dirSeparator);
 
         _logger.LogInformation($"WireMock.Net server settings {JsonConvert.SerializeObject(_settings)}");
     }
@@ -107,7 +107,7 @@ public class WireMockService : IWireMockService
 
         var response = Response.Create()
             .WithStatusCode(200)
-            .WithBodyAsJson(Assembly.GetExecutingAssembly().CurrentStatus().ToJson());
+            .WithBodyAsJson(JsonConvert.SerializeObject(Assembly.GetExecutingAssembly().CurrentStatus()));
 
         server
             .Given(request)
@@ -133,7 +133,7 @@ public class WireMockService : IWireMockService
     {
         try
         {
-            var testCases = new List<TestCase> 
+            var testCases = new List<TestCase>
             { 
                 // Basic scaling test cases
                 new TestCase{ Urn = "TEST001", CaseId = 1, DocumentCount = 1 },
@@ -175,7 +175,7 @@ public class WireMockService : IWireMockService
                 var documentsDto = fixture.Build<DdeiCaseDocumentResponse>()
                     .CreateMany(testCase.DocumentCount);
 
-                for (var i=0; i < testCase.DocumentCount; i++)
+                for (var i = 0; i < testCase.DocumentCount; i++)
                 {
                     var documentId = categoryDocumentIds[i];
                     MockGetFile(server, $"urns/{testCase.Urn}/cases/{testCase.CaseId}/documents/{category}/{documentId}", $"Documents{separator}TestDocument.pdf");
@@ -256,7 +256,7 @@ public class WireMockService : IWireMockService
                 }
             }
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
             MockValue(server, e.ToString());
             return;
@@ -371,7 +371,7 @@ public class WireMockService : IWireMockService
             .WithBodyFromFile($"{filename}");
         server
             .Given(request)
-            .RespondWith(response); 
+            .RespondWith(response);
     }
 
     static void MockGetFileStore(WireMockServer server, string path, string filename)

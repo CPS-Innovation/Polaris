@@ -32,18 +32,3 @@ resource "azurerm_private_endpoint" "pipeline_search_service_pe" {
 
   depends_on = [azurerm_search_service.ss]
 }
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_search_service_dns_a" {
-  name                = azurerm_search_service.ss.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_search_service.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_search_service_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-
-  depends_on = [
-    azurerm_search_service.ss,
-    azurerm_private_endpoint.pipeline_search_service_pe
-  ]
-}

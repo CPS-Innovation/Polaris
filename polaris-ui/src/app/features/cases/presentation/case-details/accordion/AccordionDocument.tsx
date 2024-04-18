@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -10,6 +11,7 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 import { ReactComponent as DateIcon } from "../../../../../common/presentation/svgs/date.svg";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
+import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
 
 import classes from "./Accordion.module.scss";
 import {
@@ -18,17 +20,38 @@ import {
 } from "../../../domain/WitnessIndicators";
 
 type Props = {
+  activeDocumentId: string;
+  lastFocusDocumentId: string;
+  readUnreadData: string[];
   caseDocument: MappedCaseDocument;
+  showNotesFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
+  lastFocusDocumentId,
+  activeDocumentId,
+  readUnreadData,
   caseDocument,
+  showNotesFeature,
   handleOpenPdf,
+  handleOpenNotes,
 }) => {
+  const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
+
+  useEffect(() => {
+    if (openNotesBtnRef.current) {
+      openNotesBtnRef.current.focus();
+    }
+  }, []);
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   const getAttachmentText = () => {
     if (caseDocument.attachments.length === 1) {
@@ -39,55 +62,148 @@ export const AccordionDocument: React.FC<Props> = ({
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
 
+  const openNotesRefProps =
+    caseDocument.documentId === lastFocusDocumentId
+      ? { ref: openNotesBtnRef }
+      : {};
+
   return (
-    <li className={`${classes["accordion-document-list-item"]}`}>
-      <div className={`${classes["accordion-document-item-wrapper"]}`}>
-        {canViewDocument ? (
-          <LinkButton
-            onClick={() => {
-              trackEvent("Open Document From Case Details", {
-                documentId: caseDocument.documentId,
-              });
-              handleOpenPdf({ documentId: caseDocument.documentId });
-            }}
-            className={`${classes["accordion-document-link-button"]}`}
-            dataTestId={`link-document-${caseDocument.documentId}`}
-            ariaLabel={`Open Document ${caseDocument.presentationFileName}`}
-          >
-            {caseDocument.presentationFileName}
-          </LinkButton>
-        ) : (
-          <span
-            className={`${classes["accordion-document-link-name"]}`}
-            data-testid={`name-text-document-${caseDocument.documentId}`}
-          >
-            {caseDocument.presentationFileName}
-          </span>
-        )}
-        <div className={`${classes["accordion-document-date"]}`}>
-          <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
-          <DateIcon className={classes.dateIcon} />
-          {caseDocument.cmsFileCreatedDate &&
-            formatDate(
-              caseDocument.cmsFileCreatedDate,
-              CommonDateTimeFormats.ShortDateTextMonth
+    <li
+      className={`${classes["accordion-document-list-item"]} ${
+        readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
+      } ${
+        activeDocumentId === caseDocument.documentId ? classes.docActive : ""
+      }`}
+      data-read={`${
+        readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
+      }`}
+    >
+      <div className={classes.listItemWrapper}>
+        <div className={`${classes["accordion-document-item-wrapper"]}`}>
+          {activeDocumentId === caseDocument.documentId && (
+            <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
+              Active Document
+            </strong>
+          )}
+          {canViewDocument ? (
+            <LinkButton
+              onClick={() => {
+                trackEvent("Open Document From Case Details", {
+                  documentId: caseDocument.documentId,
+                });
+                handleOpenPdf({ documentId: caseDocument.documentId });
+              }}
+              className={`${classes["accordion-document-link-button"]}`}
+              dataTestId={`link-document-${caseDocument.documentId}`}
+              ariaLabel={`Open Document ${caseDocument.presentationFileName}`}
+            >
+              {caseDocument.presentationFileName}
+            </LinkButton>
+          ) : (
+            <span
+              className={`${classes["accordion-document-link-name"]}`}
+              data-testid={`name-text-document-${caseDocument.documentId}`}
+            >
+              {caseDocument.presentationFileName}
+            </span>
+          )}
+          <div className={`${classes["accordion-information-items"]}`}>
+            {caseDocument.cmsFileCreatedDate && (
+              <div className={`${classes["accordion-document-date"]}`}>
+                <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                  Date Added
+                </span>
+                <DateIcon className={classes.dateIcon} />
+                <span>
+                  {formatDate(
+                    caseDocument.cmsFileCreatedDate,
+                    CommonDateTimeFormats.ShortDateTextMonth
+                  )}
+                </span>
+              </div>
             )}
-          {formattedFileCreatedTime && (
-            <>
-              <span className={`${classes["visuallyHidden"]}`}>Time added</span>
-              <TimeIcon className={classes.timeIcon} />
-              {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
-            </>
+            {formattedFileCreatedTime && (
+              <>
+                <span className={`${classes["visuallyHidden"]}`}>
+                  Time added
+                </span>
+                <TimeIcon className={classes.timeIcon} />
+                {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
+              </>
+            )}
+            {showNotesFeature && !caseDocument.documentId.includes("PCD") && (
+              <LinkButton
+                {...openNotesRefProps}
+                className={classes.notesBtn}
+                id={`btn-notes-${caseDocument.documentId}`}
+                dataTestId={`btn-notes-${caseDocument.documentId}`}
+                ariaLabel={
+                  caseDocument.hasNotes
+                    ? `There are notes available for document ${caseDocument.presentationFileName}, Open notes`
+                    : `There are no notes available for document ${caseDocument.presentationFileName}, Open notes`
+                }
+                onClick={() => {
+                  trackEvent("Open Notes", {
+                    documentId: caseDocument.documentId,
+                    documentCategory: caseDocument.cmsDocType.documentCategory,
+                  });
+                  handleOpenNotes(
+                    caseDocument.documentId,
+                    caseDocument.cmsDocType.documentCategory,
+                    caseDocument.presentationFileName
+                  );
+                }}
+              >
+                <NotesIcon />
+                {caseDocument.hasNotes && (
+                  <div
+                    data-testid={`has-note-indicator-${caseDocument.documentId}`}
+                    className={classes.notesAvailable}
+                  ></div>
+                )}
+              </LinkButton>
+            )}
+          </div>
+
+          {!!caseDocument.attachments.length && (
+            <div className={classes.attachmentWrapper}>
+              <AttachmentIcon className={classes.attachmentIcon} />
+              <span data-testid={`attachment-text-${caseDocument.documentId}`}>
+                {getAttachmentText()}
+              </span>
+            </div>
           )}
         </div>
+        <div className={classes.witnessIndicators}>
+          {caseDocument.witnessIndicators.length > 0 &&
+            caseDocument.witnessIndicators
+              .sort(
+                (a, b) =>
+                  witnessIndicatorPrecedenceOrder.indexOf(a) -
+                  witnessIndicatorPrecedenceOrder.indexOf(b)
+              )
+              .map((indicator) => (
+                <strong
+                  className={`govuk-tag govuk-tag--grey ${classes.tooltip}`}
+                  key={indicator}
+                  data-testid={`indicator-${caseDocument.documentId}-${indicator}`}
+                >
+                  {indicator}{" "}
+                  <span className={classes.tooltiptext}>
+                    {witnessIndicatorNames[indicator]}
+                  </span>
+                </strong>
+              ))}
+        </div>
 
-        {!!caseDocument.attachments.length && (
-          <div className={classes.attachmentWrapper}>
-            <AttachmentIcon className={classes.attachmentIcon} />
-            <span data-testid={`attachment-text-${caseDocument.documentId}`}>
-              {getAttachmentText()}
-            </span>
-          </div>
+        {!canViewDocument && (
+          <span
+            className={`${classes["accordion-document-read-warning"]}`}
+            data-testid={`view-warning-document-${caseDocument.documentId}`}
+          >
+            Document only available on CMS
+          </span>
         )}
         {caseDocument.hasFailedAttachments && (
           <div className={classes.attachmentWrapper}>
@@ -101,35 +217,6 @@ export const AccordionDocument: React.FC<Props> = ({
           </div>
         )}
       </div>
-      <div className={classes.witnessIndicators}>
-        {caseDocument.witnessIndicators.length > 0 &&
-          caseDocument.witnessIndicators
-            .sort(
-              (a, b) =>
-                witnessIndicatorPrecedenceOrder.indexOf(a) -
-                witnessIndicatorPrecedenceOrder.indexOf(b)
-            )
-            .map((indicator) => (
-              <strong
-                className={`govuk-tag govuk-tag--grey ${classes.tooltip}`}
-                key={indicator}
-                data-testid={`indicator-${caseDocument.documentId}-${indicator}`}
-              >
-                {indicator}{" "}
-                <span className={classes.tooltiptext}>
-                  {witnessIndicatorNames[indicator]}
-                </span>
-              </strong>
-            ))}
-      </div>
-      {!canViewDocument && (
-        <span
-          className={`${classes["accordion-document-read-warning"]}`}
-          data-testid={`view-warning-document-${caseDocument.documentId}`}
-        >
-          Document only available on CMS
-        </span>
-      )}
     </li>
   );
 };

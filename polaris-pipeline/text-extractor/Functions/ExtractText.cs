@@ -5,18 +5,18 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Extensions;
-using Common.Handlers.Contracts;
-using Common.Mappers.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
+using Common.Wrappers;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Mappers.Contracts;
+using text_extractor.Services.CaseSearchService;
 using text_extractor.Services.OcrService;
 
 namespace text_extractor.Functions
@@ -53,7 +53,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(ExtractText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Extract)] HttpRequestMessage request,
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequestMessage request,
             string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
@@ -61,7 +61,6 @@ namespace text_extractor.Functions
 
             try
             {
-                #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
@@ -78,9 +77,7 @@ namespace text_extractor.Functions
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
-                #endregion
-
-                var inputStream = await request.Content.ReadAsStreamAsync();
+                using var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
                 var ocrLineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
 

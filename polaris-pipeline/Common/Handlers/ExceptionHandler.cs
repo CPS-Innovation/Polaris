@@ -5,9 +5,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using Azure;
-using Common.Domain.Exceptions;
 using Common.Exceptions;
-using Common.Handlers.Contracts;
 using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -53,23 +51,11 @@ namespace Common.Handlers
 
             switch (exception)
             {
-                case UnauthorizedException:
-                    baseErrorMessage = "Unauthorized";
-                    statusCode = HttpStatusCode.Unauthorized;
-                    break;
-
-                case BadRequestException or UnsupportedFileTypeException:
+                case BadRequestException:
                     baseErrorMessage = "Invalid request";
                     statusCode = HttpStatusCode.BadRequest;
                     break;
 
-                case DdeiClientException httpException:
-                    baseErrorMessage = "An DDEI client exception occurred";
-                    statusCode =
-                        httpException.StatusCode == HttpStatusCode.BadRequest
-                            ? statusCode
-                            : httpException.StatusCode;
-                    break;
 
                 //this exception is thrown when generating a sas link
                 case RequestFailedException requestFailedException:
@@ -79,15 +65,6 @@ namespace Common.Handlers
                         requestFailedStatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound
                             ? statusCode
                             : requestFailedStatusCode;
-                    break;
-
-                case OcrServiceException:
-                    baseErrorMessage = "An Ocr service exception occurred";
-                    break;
-
-                case PdfEncryptionException:
-                    statusCode = HttpStatusCode.NotImplemented;
-                    baseErrorMessage = "A failed to convert to pdf exception occurred";
                     break;
 
                 default:

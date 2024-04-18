@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Http;
 using pdf_generator.Domain.Document;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
-using Common.Domain.Exceptions;
-using Common.Domain.Extensions;
+using Common.Exceptions;
+using pdf_generator.Extensions;
 using Common.Extensions;
 using Common.Logging;
-using Common.Telemetry.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry;
 using Common.Streaming;
 using System.Threading.Tasks;
+using Common.Domain.Document;
 
 namespace pdf_generator.Functions
 {
@@ -43,23 +43,19 @@ namespace pdf_generator.Functions
         [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [Function(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
             string caseUrn, string caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
             ConvertedDocumentEvent telemetryEvent = default;
             try
             {
-                #region Validate-Inputs
-
-                currentCorrelationId = request.Headers.GetCorrelation();
+                currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
 
-                request.Headers.CheckForCmsAuthValues();
-
-                var fileType = request.Headers.GetFileType();
+                var fileType = ConvertToPdfHelper.GetFileType(request.Headers);
 
                 telemetryEvent.FileType = fileType.ToString();
 
@@ -71,8 +67,6 @@ namespace pdf_generator.Functions
 
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 telemetryEvent.VersionId = versionId;
-
-                #endregion
 
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
@@ -140,5 +134,7 @@ namespace pdf_generator.Functions
                 };
             }
         }
+
+
     }
 }

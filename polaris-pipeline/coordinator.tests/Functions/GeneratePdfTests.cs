@@ -9,21 +9,22 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Clients.Contracts;
+using coordinator.Clients.PdfGenerator;
 using Common.Domain.Document;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Dto.Tracker;
-using Common.Services.BlobStorageService.Contracts;
-using coordinator.Services.RenderHtmlService.Contract;
-using Common.Wrappers.Contracts;
-using coordinator.Domain;
-using coordinator.Functions.ActivityFunctions.Document;
-using DdeiClient.Services.Contracts;
+using Common.Services.BlobStorageService;
+using coordinator.Services.RenderHtmlService;
+using Common.Wrappers;
+using coordinator.Durable.Activity;
+using DdeiClient.Services;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Payloads.Domain;
 
 namespace pdf_generator.tests.Functions
 {
@@ -47,17 +48,18 @@ namespace pdf_generator.tests.Functions
         public GeneratePdfTests()
         {
             _serializedGeneratePdfRequest = _fixture.Create<string>();
-            var cmsAuthValues = _fixture.Create<string>();
+
             var trackerCmsDocumentDto = _fixture.Create<DocumentDto>();
             _generatePdfRequest = new CaseDocumentOrchestrationPayload
                 (
                     _fixture.Create<string>(),
                     Guid.NewGuid(),
                     _fixture.Create<string>(),
-                    _fixture.Create<long>(),
+                    _fixture.Create<int>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
                     null,
-                    null
+                    null,
+                    DocumentDeltaType.RequiresIndexing
                 );
             _generatePdfRequest.CmsCaseId = 123456;
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileExtension = ".doc";
@@ -122,16 +124,6 @@ namespace pdf_generator.tests.Functions
                                 _mockDDeiClient.Object,
                                 _mockBlobStorageService.Object,
                                 _mockLogger.Object);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsExceptionWhenPayloadIsNull()
-        {
-            _mockDurableActivityContext
-                .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())
-                .Returns((CaseDocumentOrchestrationPayload)null);
-
-            await Assert.ThrowsAsync<ArgumentException>(() => _generatePdf.Run(_mockDurableActivityContext.Object));
         }
 
         [Fact]

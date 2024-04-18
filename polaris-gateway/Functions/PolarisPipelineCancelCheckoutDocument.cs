@@ -1,47 +1,60 @@
 ﻿using Common.Configuration;
-using PolarisGateway.Domain.Validators;
 using Common.ValueObjects;
-using Gateway.Clients;
+using PolarisGateway.Clients.Coordinator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Common.Telemetry.Wrappers.Contracts;
+
+using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineCancelCheckoutDocument : BasePolarisFunction
+    public class PolarisPipelineCancelCheckoutDocument
     {
-        private readonly IPipelineClient _pipelineClient;
+        private readonly ILogger<PolarisPipelineCancelCheckoutDocument> _logger;
+        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        public PolarisPipelineCancelCheckoutDocument
-            (
-                IPipelineClient pipelineClient,
-                ILogger<PolarisPipelineCancelCheckoutDocument> logger,
-                IAuthorizationValidator tokenValidator,
-                ITelemetryAugmentationWrapper telemetryAugmentationWrapper
-            )
-        : base(logger, tokenValidator, telemetryAugmentationWrapper)
+        public PolarisPipelineCancelCheckoutDocument(
+            ILogger<PolarisPipelineCancelCheckoutDocument> logger,
+            ICoordinatorClient coordinatorClient,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _pipelineClient = pipelineClient;
+            _logger = logger;
+            _coordinatorClient = coordinatorClient;
+            _initializationHandler = initializationHandler;
+            _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
         [FunctionName(nameof(PolarisPipelineCancelCheckoutDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run(
+        public async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
+            (Guid CorrelationId, string CmsAuthValues) context = default;
+
             try
             {
-                await Initiate(req);
-
-                await _pipelineClient.CancelCheckoutDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), CmsAuthValues, CorrelationId);
-                return new OkResult();
+                context = await _initializationHandler.Initialize(req);
+                return await _coordinatorClient.CancelCheckoutDocumentAsync(
+                    caseUrn,
+                    caseId,
+                    new PolarisDocumentId(polarisDocumentId),
+                    context.CmsAuthValues,
+                    context.CorrelationId);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return HandleUnhandledException(exception);
+                return _unhandledExceptionHandler.HandleUnhandledException(
+                      _logger,
+                      nameof(PolarisPipelineCancelCheckoutDocument),
+                      context.CorrelationId,
+                      ex
+                    );
             }
         }
     }

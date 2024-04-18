@@ -6,6 +6,6 @@ namespace text_extractor.Factories.Contracts
 {
     public interface ISearchLineFactory
     {
-        SearchLine Create(long cmsCaseId, string cmsDocumentId, PolarisDocumentId polarisDocumentId, long versionId, string blobName, ReadResult readResult, Line line, int index);
+        SearchLine Create(long cmsCaseId, string cmsDocumentId, PolarisDocumentId polarisDocumentId, long versionId, string blobName, ReadResult readResult, Common.Domain.SearchIndex.Line line, int index);
     }
 }

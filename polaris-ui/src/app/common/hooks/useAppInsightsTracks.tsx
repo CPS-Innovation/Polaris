@@ -36,7 +36,15 @@ type AppInsightsTrackEventNames =
   | "View Full Screen"
   | "Exit Full Screen"
   | "Redact Area Tool On"
-  | "Redact Area Tool Off";
+  | "Redact Area Tool Off"
+  | "Save Redaction Log Error"
+  | "Add Unsaved Redactions"
+  | "Ignore Unsaved Redactions"
+  | "Document Checkout Error"
+  | "Document Checked Out By Another User Error"
+  | "Open Notes"
+  | "Add Note"
+  | "Add Note Error";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -104,6 +112,20 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "User has clicked on the Redact Area Tool button, to turn on area only redaction",
   "Redact Area Tool Off":
     "User has clicked on the Redact Area Tool button, to turn off area only redaction",
+  "Save Redaction Log Error":
+    "The attempt to save the data log failed, prompting the display of an error message to the user",
+  "Add Unsaved Redactions":
+    "User has clicked apply button on the unsaved redaction modal",
+  "Ignore Unsaved Redactions":
+    "User has clicked ignore button on the unsaved redaction modal",
+  "Document Checkout Error":
+    "The attempt to checkout a document failed, prompting the display of an error message to the user",
+  "Document Checked Out By Another User Error":
+    "The attempt to checkout a document failed, as it is already checked by another user, prompting the display of an error message to the user",
+  "Open Notes": "User has clicked open notes button in the accordion document",
+  "Add Note": "User has clicked Add note button in the notes panel",
+  "Add Note Error":
+    "The attempt to add a new note for a document failed, prompting the display of an error message to the user",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

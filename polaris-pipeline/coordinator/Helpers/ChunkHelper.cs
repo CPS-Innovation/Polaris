@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace coordinator.Helpers.ChunkHelper
+namespace coordinator.Helpers
 {
     public static class ChunkHelper
     {

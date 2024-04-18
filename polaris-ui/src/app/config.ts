@@ -50,8 +50,16 @@ export const FEATURE_FLAG_REDACTION_LOG_UNDER_OVER =
 export const FEATURE_FLAG_FULL_SCREEN =
   `${process.env.REACT_APP_FEATURE_FLAG_FULL_SCREEN}` === "true";
 
-export const REDACTION_LOG_USER_GROUP =
-  process.env.REACT_APP_REDACTION_LOG_USER_GROUP ?? "";
+export const FEATURE_FLAG_NOTES =
+  `${process.env.REACT_APP_FEATURE_FLAG_NOTES}` === "true";
+
+export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
+  .REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS
+  ? parseInt(process.env.REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS)
+  : null;
+
+export const PRIVATE_BETA_FEATURE_USER_GROUP =
+  process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP ?? "";
 
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise

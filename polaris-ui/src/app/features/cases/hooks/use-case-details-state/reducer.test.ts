@@ -1964,10 +1964,12 @@ describe("useCaseDetailsState reducer", () => {
           type: "ADD_REDACTION",
           payload: {
             documentId: "1",
-            redaction: {
-              type: "redaction",
-              position: { pageNumber: 1 },
-            } as NewPdfHighlight,
+            redactions: [
+              {
+                type: "redaction",
+                position: { pageNumber: 1 },
+              },
+            ] as NewPdfHighlight[],
           },
         }
       );
@@ -1986,8 +1988,7 @@ describe("useCaseDetailsState reducer", () => {
                 {
                   type: "redaction",
                   position: { pageNumber: 1 },
-                  id: "1640995200000",
-                  redactionAddedOrder: 1,
+                  id: "1640995200000-0",
                 },
               ],
             },
@@ -2239,6 +2240,7 @@ describe("useCaseDetailsState reducer", () => {
       const result = reducer(existingState as CombinedState, {
         type: "SHOW_ERROR_MODAL",
         payload: {
+          type: "saveredaction",
           message: "error message",
           title: "error title",
         },
@@ -2249,6 +2251,7 @@ describe("useCaseDetailsState reducer", () => {
           show: true,
           message: "error message",
           title: "error title",
+          type: "saveredaction",
         },
       });
     });
@@ -2272,6 +2275,7 @@ describe("useCaseDetailsState reducer", () => {
           show: false,
           message: "",
           title: "",
+          type: "",
         },
       });
     });

@@ -15,6 +15,9 @@ import {
   RedactionTypeData,
 } from "./redactionLog/RedactionLogData";
 import { RedactionLogTypes } from "../domain/redactionLog/RedactionLogTypes";
+import { StoredUserData } from "./gateway/StoredUserData";
+import { ErrorModalTypes } from "./ErrorModalTypes";
+import { NotesData } from "../domain/gateway/NotesData";
 
 export type CombinedState = {
   urn: string;
@@ -59,6 +62,7 @@ export type CombinedState = {
     show: boolean;
     message: string;
     title: string;
+    type: ErrorModalTypes;
   };
   documentIssueModal: {
     show: boolean;
@@ -71,4 +75,6 @@ export type CombinedState = {
     savedRedactionTypes: RedactionTypeData[];
   };
   featureFlags: FeatureFlagData;
+  storedUserData: AsyncResult<StoredUserData>;
+  notes: NotesData[];
 };

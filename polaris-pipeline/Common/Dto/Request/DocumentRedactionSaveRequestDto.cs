@@ -6,9 +6,6 @@ namespace Common.Dto.Request
 {
     public class DocumentRedactionSaveRequestDto
     {
-        [JsonProperty("docId")]
-        public string DocId { get; set; }
-
         [JsonProperty("redactions")]
         public List<RedactionDefinitionDto> Redactions { get; set; }
     }

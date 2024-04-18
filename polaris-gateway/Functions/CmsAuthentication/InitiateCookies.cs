@@ -1,39 +1,38 @@
 using Common.Constants;
-using Common.Extensions;
 using Ddei.Domain.CaseData.Args;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using DdeiClient.Services.Contracts;
+using DdeiClient.Services;
 using Common.Configuration;
-using Common.Wrappers.Contracts;
-using Common.Domain.Extensions;
-using Common.Telemetry.Wrappers.Contracts;
+using Common.Wrappers;
+using Common.Telemetry;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Ddei.Factories.Contracts;
+using Ddei.Factories;
+using PolarisGateway.Extensions;
 
 namespace PolarisGateway.Functions.CmsAuthentication
 {
     public class InitiateCookies
     {
         private readonly IDdeiClient _ddeiClient;
-        private readonly ICaseDataArgFactory _caseDataArgFactory;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly ILogger<InitiateCookies> _logger;
 
         public InitiateCookies(
             IDdeiClient ddeiClient,
-            ICaseDataArgFactory caseDataArgFactory,
+            IDdeiArgFactory ddeiArgFactory,
             IJsonConvertWrapper jsonConvertWrapper,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
             ILogger<InitiateCookies> logger)
         {
             _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-            _caseDataArgFactory = caseDataArgFactory ?? throw new ArgumentNullException(nameof(caseDataArgFactory));
+            _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -46,11 +45,11 @@ namespace PolarisGateway.Functions.CmsAuthentication
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req)
         {
             var correlationId = Guid.NewGuid();
-            _telemetryAugmentationWrapper.RegisterClientIp(req.GetClientIpAddress());
+            _telemetryAugmentationWrapper.RegisterClientIp(Helpers.GetClientIpAddress(req));
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
             _logger.LogMethodFlow(correlationId, nameof(Get), $"Referrer: {req.Headers[HeaderNames.Referer]}");
-            _logger.LogMethodFlow(correlationId, nameof(Get), $"Query: {req.GetLogSafeQueryString()}");
+            _logger.LogMethodFlow(correlationId, nameof(Get), $"Query: {Helpers.GetLogSafeQueryString(req)}");
 
             try
             {
@@ -159,10 +158,10 @@ namespace PolarisGateway.Functions.CmsAuthentication
         {
             try
             {
-                var partialCmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{req.GetClientIpAddress()}\"}}";
+                var partialCmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{Helpers.GetClientIpAddress(req)}\"}}";
 
                 var fullCmsAuthValues = await _ddeiClient.GetFullCmsAuthValuesAsync(
-                    _caseDataArgFactory.CreateCmsAuthValuesArg(partialCmsAuthValues, correlationId)
+                    _ddeiArgFactory.CreateCmsAuthValuesArg(partialCmsAuthValues, correlationId)
                 );
                 // Note 1 of 2:  two things may be happening if have got this far.
                 //  a) we have new cookies that correspond to a live Modern session and we are on the happy path.
@@ -215,7 +214,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
                 return null;
             }
 
-            var decodedCmsRedirectParam = cmsRedirectParam.ToString().UrlDecodeString();
+            var decodedCmsRedirectParam = UrlDecodeString(cmsRedirectParam.ToString());
             var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CmsHandoverParams>(decodedCmsRedirectParam);
             if (cmsParamObject == null)
             {
@@ -279,13 +278,18 @@ namespace PolarisGateway.Functions.CmsAuthentication
         private class AuthHandoverConstants
         {
             public static readonly string[] WhitelistedCookieNameRoots = new[] {
-          "ASP.NET_SessionId",
-          "UID",
-          "WindowID",
-          "CMSUSER", // the cookie name itself is not fixed e.g. CMSUSER246814=foo
-          ".CMSAUTH",
-          "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
-        };
+              "ASP.NET_SessionId",
+              "UID",
+              "WindowID",
+              "CMSUSER", // the cookie name itself is not fixed e.g. CMSUSER246814=foo
+              ".CMSAUTH",
+              "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
+            };
+        }
+
+        private static string UrlDecodeString(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
         }
     }
 }

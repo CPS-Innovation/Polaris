@@ -4,14 +4,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using Common.Handlers.Contracts;
-using Common.Logging;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
+using Common.Wrappers;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService;
 
 namespace text_extractor.Functions
 {
@@ -35,7 +34,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(CaseIndexCount))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseIndexCount)] HttpRequestMessage request, long caseId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseIndexCount)] HttpRequestMessage request, long caseId)
         {
             Guid correlationId = Guid.Empty;
 
@@ -44,11 +43,7 @@ namespace text_extractor.Functions
                 correlationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-                _log.LogMethodFlow(correlationId, loggingName, $"Begin index count for case ID {caseId}");
-
                 var result = await _searchIndexService.GetCaseIndexCount(caseId);
-
-                _log.LogMethodFlow(correlationId, loggingName, $"Index count completed for case ID {caseId}");
 
                 return new HttpResponseMessage
                 {
@@ -59,10 +54,6 @@ namespace text_extractor.Functions
             catch (Exception exception)
             {
                 return _exceptionHandler.HandleException(exception, correlationId, loggingName, _log);
-            }
-            finally
-            {
-                _log.LogMethodExit(correlationId, loggingName, string.Empty);
             }
         }
     }

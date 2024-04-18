@@ -1,6 +1,6 @@
 using Common.Dto.Document;
 using Common.Dto.Response;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Mappers;
 
 namespace Ddei.Mappers;
 
@@ -25,6 +25,7 @@ public class CaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
             ParentDocumentId = ddeiResponse.ParentId.ToString(),
             WitnessId = ddeiResponse.WitnessId,
             HasFailedAttachments = ddeiResponse.HasFailedAttachments,
+            HasNotes = ddeiResponse.HasNotes
         };
     }
 }

@@ -1,5 +1,11 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
-import { RedactionSaveRequest } from "../../../cases/domain/gateway/RedactionSaveRequest";
+import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
+import {
+  RedactionsData,
+  readFromLocalStorage,
+  deleteFromLocalStorage,
+  addToLocalStorage,
+} from "../../presentation/case-details/utils/localStorageUtils";
 import { round } from "lodash";
 
 /**
@@ -57,3 +63,63 @@ export const roundToFixedDecimalPlaces = (
   num: number,
   precisionCount: number = 2
 ) => round(num, precisionCount);
+
+export const getRedactionsToSaveLocally = (
+  items: CaseDocumentViewModel[],
+  documentId: string,
+  caseId: number
+) => {
+  const locallySavedRedactions =
+    (readFromLocalStorage(caseId, "redactions") as RedactionsData) ?? [];
+
+  const redactionHighlights = items.find(
+    (item) => item.documentId === documentId
+  )?.redactionHighlights;
+
+  const filteredRedactions = locallySavedRedactions.filter(
+    (redaction) => redaction.documentId !== documentId
+  );
+
+  if (redactionHighlights?.length) {
+    filteredRedactions.push({
+      documentId: documentId,
+      redactionHighlights: redactionHighlights,
+    });
+  }
+
+  return filteredRedactions;
+};
+
+export const getLocallySavedRedactionHighlights = (
+  documentId: string,
+  caseId: number
+) => {
+  const redactionsData = readFromLocalStorage(
+    caseId,
+    "redactions"
+  ) as RedactionsData | null;
+  if (!redactionsData) {
+    return [];
+  }
+  return (
+    redactionsData.find((data) => data.documentId === documentId)
+      ?.redactionHighlights ?? []
+  );
+};
+
+export const handleRemoveLocallySavedRedactions = (
+  documentId: string,
+  caseId: number
+) => {
+  const redactionsData =
+    (readFromLocalStorage(caseId, "redactions") as RedactionsData) ?? [];
+
+  const newData = redactionsData.filter(
+    (data) => data.documentId !== documentId
+  );
+  if (newData.length) {
+    addToLocalStorage(caseId, "redactions", newData);
+    return;
+  }
+  deleteFromLocalStorage(caseId, "redactions");
+};

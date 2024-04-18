@@ -15,9 +15,11 @@ namespace Common.Configuration
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
+        public const string AddNoteToDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentCategory}/{documentId}/notes";
+        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/redact";
 
-        // Admin
-        public const string ResetDurableState = "maintenance/resetDurableState";
+        // Documents (plural)
+        public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentCategory}/{documentId}/notes";
 
         // Other
         public const string AuthInitialisation = "init";
@@ -34,51 +36,49 @@ namespace Common.Configuration
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
 
+        public static string GetCasesPath(string caseUrn)
+        {
+            return $"urns/{caseUrn}/cases";
+        }
+
         public static string GetCasePath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}";
         }
 
         public static string GetCaseTrackerPath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/tracker";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/tracker";
         }
 
+        public static string GetCaseSearchQueryPath(string caseUrn, long caseId, string searchTerm)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
+        }
+
+        // todo: delete following
         public static string GetCaseSearchPath(string caseUrn, long caseId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/search";
-            return url;
-        }
-
-        public static string GetDocumentsPath(string caseUrn, long caseId)
-        {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
+        }
+        public static string GetRedactDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/redact";
         }
 
-        public static string GetInstancePath(string instanceId)
+        public static string GetDocumentCheckoutPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
-            var url = $"runtime/webhooks/durabletask/instances/{instanceId}";
-            return url;
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
         }
 
-        public static string GetDurableEntityPath(string durableEntityType, string instanceId)
+        public static string GetDocumentNotesPath(string caseUrn, long caseId, string documentCategory, int documentId)
         {
-            var url = $"runtime/webhooks/durabletask/entities/{durableEntityType}/{instanceId}";
-            return url;
-        }
-
-        public static string GetInstancesPath()
-        {
-            return "runtime/webhooks/durabletask/instances";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentCategory}/{documentId}/notes";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)
@@ -110,6 +110,7 @@ namespace Common.Configuration
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
+
 
         public static string GetCaseIndexCountResultsPath(string caseUrn, long caseId)
         {

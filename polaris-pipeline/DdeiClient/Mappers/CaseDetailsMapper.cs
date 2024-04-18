@@ -2,7 +2,7 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Ddei.Domain;
 using Ddei.Domain.PreCharge;
-using DdeiClient.Mappers.Contract;
+using DdeiClient.Mappers;
 
 namespace Ddei.Mappers
 {

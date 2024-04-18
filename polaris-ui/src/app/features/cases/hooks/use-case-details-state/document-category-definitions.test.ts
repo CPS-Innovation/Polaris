@@ -7,6 +7,11 @@ import path from "path";
 import fs from "fs";
 import * as csv from "fast-csv";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+jest.mock("./document-category-helpers", () => {
+  const originalModule = jest.requireActual("./document-category-helpers");
+  return { ...originalModule };
+});
+const docCategoryHelpers = require("./document-category-helpers");
 
 type Row = { docTypeId: string; category: string; docTypeCategory: string };
 
@@ -109,7 +114,8 @@ describe("documentCategoryDefinitions", () => {
     expect(result.category).toBe("Uncategorised");
   });
 
-  it(`can resolve document with documentTypeId 1029 and with presentationTitle contains "UM" or"Item N" where N represent digits under Unused material category `, () => {
+  it(`can resolve document with documentTypeId 1029 under "Unused material", if isUnusedCommunicationMaterial returns true `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => true;
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: "UM CM01",
@@ -124,7 +130,9 @@ describe("documentCategoryDefinitions", () => {
     expect(result2.category).toBe("Unused material");
     expect(result2.subCategory).toBe(null);
   });
-  it(`can resolve document with documentTypeId 1029 and with presentationTitle doesn't not contains "UM" or"Item N" where N represent digits under "Communications" category `, () => {
+
+  it(`can resolve document with documentTypeId 1029  under "Communications" category if isUnusedCommunicationMaterial returns false`, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: "CM01",
@@ -141,6 +149,41 @@ describe("documentCategoryDefinitions", () => {
     expect(result2.category).toBe("Communications");
     expect(result2.subCategory).toBe("Emails");
   });
+
+  it(`can resolve document  under  "Unused material" category if documentCategory is "UnusedStatement" `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
+      presentationTitle: "CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1059, documentCategory: "UnusedStatement" },
+      presentationTitle: " CM01 Typea 4 a",
+      cmsOriginalFileExtension: ".hte",
+    } as PresentationDocumentProperties);
+
+    expect(result1.category).toBe("Unused material");
+    expect(result2.category).toBe("Unused material");
+  });
+
+  it(`can resolve document  under  "Unused material" category if documentCategory is "Unused" `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
+      presentationTitle: "CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1059, documentCategory: "Unused" },
+      presentationTitle: " CM01 Typea 4 a",
+      cmsOriginalFileExtension: ".hte",
+    } as PresentationDocumentProperties);
+
+    expect(result1.category).toBe("Unused material");
+    expect(result2.category).toBe("Unused material");
+  });
+
   it("can resolve document with cmsOriginalFileExtension equal to .hte into 'Communication' category and subCategory 'Emails'", () => {
     const result1 = getCategory({
       cmsDocType: { documentTypeId: -1 },

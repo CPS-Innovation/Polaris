@@ -10,15 +10,13 @@ using coordinator.Domain.Exceptions;
 using Common.Dto.Document;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
-using Common.Domain.Entity;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Services.DocumentToggle
 {
     public class DocumentToggleService : IDocumentToggleService
     {
         private const string ConfigResourceName = "coordinator.document-toggle.config";
-
-        private const string AttachmentCategoryName = "Attachment";
 
         private static readonly PresentationFlagsDto ReadOnly = new PresentationFlagsDto
         {
@@ -85,14 +83,6 @@ namespace coordinator.Services.DocumentToggle
             {
                 write = WriteFlag.IsDispatched;
             }
-            else if (!document.IsOcrProcessed)
-            {
-                write = WriteFlag.IsNotOcrProcessed;
-            }
-            else if (string.Equals(document.CmsDocType.DocumentCategory, AttachmentCategoryName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                write = WriteFlag.AttachmentCategoryNotAllowed;
-            }
             else
             {
                 write = WriteFlag.Ok;
@@ -114,14 +104,6 @@ namespace coordinator.Services.DocumentToggle
         {
             return ReadOnly;
         }
-
-        //private void AssertIsInitialised()
-        //{
-        //    if (_definitions == null)
-        //    {
-        //        throw new DocumentToggleException("DocumentToggleService not initialised when processing document");
-        //    }
-        //}
 
         private string[] SplitConfigLines(string content)
         {
