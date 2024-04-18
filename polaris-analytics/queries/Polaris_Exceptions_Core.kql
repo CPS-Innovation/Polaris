@@ -5,6 +5,7 @@ let FilteredExceptions = AppExceptions
 // RefreshDocumentOrchestrator is always preceded by the original and more interesting exception
 | where OperationName !in ('RefreshDocumentOrchestrator', 'RefreshCaseOrchestrator')
 | where OperationId != ''
+| where Properties.functionName != "Status"
 //| where not(OperationId in (IgnoreOperations))
 ;
 

@@ -1,0 +1,38 @@
+let FailTypes = Polaris_Dashboard_RedactionFailsPerDocument
+| mv-expand FailType
+| extend FailType = tostring(FailType)
+| summarize 
+Count = count() by FailType, TimeGenerated
+| extend b = bag_pack(FailType, Count)
+| summarize FailTypes = make_bag(b) by TimeGenerated;
+
+let RecoveryTypes = Polaris_Dashboard_RedactionFailsPerDocument
+| where RecoveryType != "NotRecovered"
+| summarize
+Count = count() by RecoveryType, TimeGenerated
+| extend b = bag_pack(RecoveryType, Count)
+| summarize RecoveryTypes = make_bag(b) by TimeGenerated;
+
+let Totals = Polaris_Metrics_RedactionRequest
+| summarize CountDocs = count_distinct(DocumentId) by bin(TimeGenerated, 1d);
+
+let FailTotals = Polaris_Dashboard_RedactionFailsPerDocument
+| summarize 
+FailedDocCount = count(),
+NotRecoveredCount = countif(RecoveryType == "NotRecovered")
+by TimeGenerated;
+
+Totals 
+| join kind=leftouter FailTotals on TimeGenerated
+| join kind=leftouter FailTypes on TimeGenerated
+| join kind=leftouter RecoveryTypes on TimeGenerated
+| extend FailedDocCount = coalesce(FailedDocCount, 0)
+| extend NotRecoveredCount = coalesce(NotRecoveredCount, 0)
+| project 
+    Date = format_datetime(TimeGenerated, "yyyy-MM-dd"),
+    CountDocs,
+    FailedDocCount,
+    NotRecoveredCount,
+    FailTypes,
+    RecoveryTypes
+| order by Date desc  

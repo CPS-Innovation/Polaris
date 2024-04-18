@@ -1,6 +1,6 @@
 AppEvents
 | where ClientType == "PC"
-| where AppRoleName in ("fa-polaris-pdf-generator", "fa-polaris-pipeline-pdf-generator")
+| where AppRoleName in ("fa-polaris-pdf-generator", "fa-polaris-pipeline-pdf-generator", "fa-polaris-pdf-redactor")
 | where Name == "RedactedDocument"
 | where Properties.correlationId !startswith "e2e"
 | project 

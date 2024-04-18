@@ -1,0 +1,6 @@
+Polaris_Alert_GatewayUsageRealUsers
+| extend IsExpected = toint(ResultCode) in (200, 202, 302, 404, 409, 423)
+// We need to summarize here to get a rate, which upsets the alert definition UI.  If we add
+//  an arbitrary bin(TimeGenerated...) then the alert definition UI is happy 
+| summarize FailurePercentage = 100.0 * countif(not(IsExpected)) / count() by bin(TimeGenerated, 1d)
+| where FailurePercentage >= 5
