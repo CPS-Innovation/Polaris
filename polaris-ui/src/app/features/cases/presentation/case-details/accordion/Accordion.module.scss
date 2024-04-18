@@ -348,12 +348,18 @@
   display: flex;
   align-items: center;
   position: relative;
+  cursor: pointer;
   &:hover:not(:disabled):not(:focus) {
     background-color: rgba(0, 0, 0, 0.1);
   }
   svg {
     width: 100%;
-    cursor: pointer;
+  }
+  &:disabled {
+    cursor: default;
+    svg {
+      fill: lightgrey;
+    }
   }
 }
 .accordion-information-items {
@@ -368,4 +374,12 @@
   height: 0.625rem;
   top: 0.25rem;
   right: 0.1875rem;
+}
+
+:global(.notesToolTip) {
+  :global(.tooltip) {
+    width: 9.375rem;
+    text-align: center;
+    white-space: wrap;
+  }
 }
