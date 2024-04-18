@@ -784,11 +784,12 @@ stages:
         condition: succeeded()
         dependsOn: Log_Start
         steps:
-          - template: tasks/task_run-e2e-tests.yml
+          - template: tasks/task_run-uat-e2e-tests.yml
             parameters:
               targetLabel: "UAT"
-              buildDefinitionId: 210
+              buildDefinitionId: 421
               devOpsPatToken: "$(System.AccessToken)"
+              sourceBranch: "$(resources.pipeline.PolarisBuild.sourceBranch)"
 
       - job: Log_Result
         condition: succeeded()
