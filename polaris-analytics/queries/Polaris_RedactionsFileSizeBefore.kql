@@ -1,0 +1,11 @@
+Polaris_Metrics_Redaction
+| extend OriginalMBRange = case(
+    OriginalMegabytes between (0 .. 1), "0-1 mb",
+    OriginalMegabytes between (1 .. 5), "1-5 mb",
+    OriginalMegabytes between (5 .. 10), "5-10 mb",
+    OriginalMegabytes between (10 .. 20), "10-20 mb",
+    "Above 20 mb"
+)
+| summarize Count = count() by OriginalMBRange
+| order by Count desc
+| render piechart

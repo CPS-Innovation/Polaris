@@ -1,0 +1,6 @@
+Polaris_Metrics_Conversion
+| join kind=leftouter 
+    (Polaris_Metrics_DocumentRead | distinct CaseId, DocumentId) 
+    on CaseId, $left.DocumentId == $right.DocumentId
+| project FileType, IsRead =  not(isempty(DocumentId1))
+| summarize Count = count(), ReadCount = countif(IsRead) by FileType

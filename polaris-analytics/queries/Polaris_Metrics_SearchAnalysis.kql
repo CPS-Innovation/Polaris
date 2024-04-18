@@ -1,0 +1,41 @@
+Polaris_Metrics_Indexing
+| where not(isnull(DocumentTypeId)) 
+| project TimeGenerated, CaseId, DocumentId, DocumentTypeId, DocumentCategory
+| partition hint.strategy=native by DocumentId ( 
+    top 1 by TimeGenerated asc
+)
+
+| join kind=leftouter (
+    Polaris_Metrics_DocumentRead
+    | project ReadTime = TimeGenerated, DocumentId
+    | partition hint.strategy=native by DocumentId ( 
+        top 1 by ReadTime asc
+    )
+) on DocumentId | project-away DocumentId1
+
+| join kind=leftouter (
+    Polaris_Metrics_Search
+    | project ReturnedInSearchTime = TimeGenerated, DocumentId
+    | partition hint.strategy=native by DocumentId ( 
+        top 1 by ReturnedInSearchTime asc
+    )
+) on DocumentId | project-away DocumentId1
+
+
+| join kind=leftouter (
+    Polaris_Metrics_RedactionRequest
+    | project RedactedTime = TimeGenerated, DocumentId =tolong(extract("(\\d+)", 1, DocumentId))
+    | partition hint.strategy=native by DocumentId ( 
+        top 1 by RedactedTime asc
+    )
+) on DocumentId | project-away DocumentId1
+| extend ReadStatus = case(
+        isnull(ReadTime), "Not",
+        isnull(ReturnedInSearchTime) or ReadTime > ReturnedInSearchTime, "PriorToSearch", 
+        "AfterSearch"
+    )
+| extend RedactedStatus = case(
+        isnull(RedactedTime), "Not",
+        isnull(ReturnedInSearchTime) or RedactedTime > ReturnedInSearchTime, "PriorToSearch", 
+        "AfterSearch"
+    )
