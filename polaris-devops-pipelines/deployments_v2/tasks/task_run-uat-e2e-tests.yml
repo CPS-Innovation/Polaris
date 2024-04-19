@@ -14,7 +14,7 @@ steps:
     displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
     inputs:
       buildDefinition: ${{ parameters.buildDefinitionId }}
-      buildParameters: "source_branch: ${{ parameters.sourceBranch }}"
+      useSameSourceVersion: true
       waitForQueuedBuildsToFinish: true
       cancelBuildsIfAnyFails: true
       password: "${{ parameters.devOpsPatToken }}"
