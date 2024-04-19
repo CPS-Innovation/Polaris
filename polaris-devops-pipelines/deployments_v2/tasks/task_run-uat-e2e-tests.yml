@@ -6,8 +6,6 @@ parameters:
     type: string
   - name: devOpsPatToken
     type: string
-  - name: sourceBranch
-    type: string
     
 steps:
   - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4

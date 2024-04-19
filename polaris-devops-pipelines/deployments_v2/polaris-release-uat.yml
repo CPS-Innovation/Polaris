@@ -789,7 +789,6 @@ stages:
               targetLabel: "UAT"
               buildDefinitionId: 421
               devOpsPatToken: "$(System.AccessToken)"
-              useSameBranch: true
 
       - job: Log_Result
         condition: succeeded()
