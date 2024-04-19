@@ -8,6 +8,7 @@ import {
 import { NotesTimeline } from "./NotesTimeline";
 import classes from "./NotesPanel.module.scss";
 import { NotesData } from "../../../domain/gateway/NotesData";
+import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 const NOTES_MAX_CHARACTERS = 500;
@@ -120,6 +121,15 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           Notes -{" "}
           <span className={classes.notesDocumentName}>{documentName}</span>
         </h3>
+        <LinkButton
+          dataTestId="btn-close-notes"
+          type="button"
+          className={classes.notesPanelCloseBtn}
+          aria-label="close notes"
+          onClick={() => handleCloseNotes()}
+        >
+          <CloseIcon height={"2.5rem"} width={"2.5rem"} />
+        </LinkButton>
         {
           <div
             role="status"
@@ -202,9 +212,9 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               ref={cancelBtnRef}
               className={classes.cancelBtn}
               onClick={() => handleCloseNotes()}
-              dataTestId="btn-close-notes"
+              dataTestId="btn-cancel-notes"
               ariaLabel="close notes"
-              id="btn-close-notes"
+              id="btn-cancel-notes"
             >
               Cancel
             </LinkButton>
