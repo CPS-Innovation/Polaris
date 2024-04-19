@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -116,6 +117,13 @@ namespace coordinator.Services.OcrResultsService
         public bool ContainsOffset(int offset)
         {
             return OffsetRange.Min <= offset && OffsetRange.Max >= offset;
+        }
+
+        public OcrWord GetWord(string text, int offset)
+        {
+            return Words.Where(x => x.RelativeOffset.Min == offset)
+                        .Where(x => x.Text.Contains(text))
+                        .SingleOrDefault();
         }
 
         private void SetOffsetRange()

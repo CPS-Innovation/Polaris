@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
+using MapsterMapper;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -13,6 +15,7 @@ namespace coordinator.tests.Services.PiiServiceTests
     {
         private readonly Mock<IConfiguration> _configuration;
         private readonly PiiService _piiService;
+        private readonly Mock<PiiEntityMapper> _piiEntityMapper;
         private readonly OcrResultsService _ocrResultsService;
         private readonly string[] _piiCategories;
         private const int CaseId = 123456;
@@ -21,7 +24,8 @@ namespace coordinator.tests.Services.PiiServiceTests
         public PiiServiceTests()
         {
             _configuration = new Mock<IConfiguration>();
-            _piiService = new PiiService(_configuration.Object);
+            _piiEntityMapper = new Mock<PiiEntityMapper>();
+            _piiService = new PiiService(_configuration.Object, _piiEntityMapper.Object);
             _piiCategories = new string[] { "Person", "Address", "Email" };
 
             _ocrResultsService = new OcrResultsService();

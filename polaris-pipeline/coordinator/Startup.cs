@@ -34,6 +34,8 @@ using PdfRedactor = coordinator.Clients.PdfRedactor;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
 using coordinator.Clients.TextAnalytics;
+using Mapster;
+using System.Reflection;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -115,6 +117,7 @@ namespace coordinator
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
+            services.AddSingleton<IPiiEntityMapper, PiiEntityMapper>();
 
             services.AddDurableClientFactory();
         }

@@ -9,6 +9,7 @@ namespace coordinator.Services.PiiService
     public interface IPiiService
     {
         IEnumerable<PiiRequestDto> CreatePiiRequests(List<PiiChunk> piiChunks);
-        Task ReconcilePiiResults(IList<PiiChunk> piiChunks, RecognizePiiEntitiesResultCollection piiResults);
+        List<ReconciledPiiEntity> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults);
+        PiiEntitiesWrapper MapPiiResults(RecognizePiiEntitiesResultCollection[] piiResults);
     }
 }
