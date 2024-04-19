@@ -1,0 +1,8 @@
+Polaris_Metrics_Redaction
+| where not(isempty(DurationSeconds)) and OperationId != "ee545e7434b448d2aa526d4dbc205636"
+| project RedactionCount, DurationSeconds
+| summarize AvgDurationSeconds = avg(DurationSeconds) by RedactionCount
+| order by RedactionCount asc
+| render scatterchart 
+
+

@@ -1,0 +1,14 @@
+let NumberToSample = 30;
+
+let QualifyingCases = Polaris_Metrics_CaseRefresh
+| where CmsDocsProcessedCount between (200..300)
+| where TimeGenerated between (datetime(2024-02-01) .. now())
+| order by TimeGenerated;
+
+let TotalCases = toscalar(QualifyingCases | summarize count());
+
+QualifyingCases
+| extend RowNumber = row_number()
+| project TimeGenerated, CaseId, IsSampled = RowNumber % (TotalCases / NumberToSample) == 0
+| where IsSampled
+| project CaseId;

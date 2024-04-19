@@ -6,24 +6,3 @@ AppEvents
 | project-away DocumentIds
 | where DocumentId startswith "CMS-" 
 | extend DocumentId = tolong(extract("(\\d+)", 1, DocumentId))
-| partition hint.strategy=native by DocumentId
- (
-    top 1 by TimeGenerated desc
- ) 
-
-
-| join kind=leftouter (
-    Polaris_Metrics_Indexing 
-    | partition hint.strategy=native by DocumentId
-    (
-        top 1 by TimeGenerated desc
-        | project DocumentId, DocumentTypeId, DocumentCategory 
-    ) 
-    
-) on DocumentId
-| where not(isnull(DocumentId1))
-| where not(isnull(DocumentCategory))
-
-| project-away DocumentId1
-| where PolarisCorrelationId !startswith "e2e"
-| where CaseId != 2144174

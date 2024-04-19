@@ -1,0 +1,15 @@
+Polaris_Metrics_Redaction
+| extend DurationRange = case(
+    DurationSeconds between (0 .. 2), "0-2 seconds",
+    DurationSeconds between (2 .. 5), "2-5 seconds",
+    DurationSeconds between (5 .. 10), "5-10 seconds",
+    DurationSeconds between (10 .. 15), "10-15 seconds",
+    DurationSeconds between (15 .. 20), "15-20 seconds",
+    "Above 20 seconds"
+)
+| summarize Count = count() by DurationRange
+| order by Count desc
+| render piechart
+
+
+
