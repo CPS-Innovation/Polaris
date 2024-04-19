@@ -68,9 +68,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_redactor_staging1" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["AzureWebJobsStorage"],
-      app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"]
+      app_settings["WEBSITE_CONTENTSHARE"]
     ]
   }
 }

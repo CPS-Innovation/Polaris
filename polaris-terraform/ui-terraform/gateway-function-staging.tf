@@ -99,9 +99,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["AzureWebJobsStorage"],
-      app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"]
+      app_settings["WEBSITE_CONTENTSHARE"]
     ]
   }
 }
