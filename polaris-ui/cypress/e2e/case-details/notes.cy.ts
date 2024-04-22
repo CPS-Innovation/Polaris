@@ -234,4 +234,13 @@ describe("Feature Notes", () => {
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
+  it("should show disabled notes button and on hover over, it should show tooltip message", () => {
+    cy.visit("/case-details/12AB1111111/13401?notes=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("btn-notes-9").click();
+    cy.findByTestId("btn-close-notes").click();
+    cy.findByTestId("has-note-indicator-8").should("not.exist");
+    cy.findByTestId("btn-notes-8").trigger("mouseover", { force: true });
+    cy.findByTestId("tooltip").contains("Notes are disabled for this document");
+  });
 });
