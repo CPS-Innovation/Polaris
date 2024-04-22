@@ -184,7 +184,6 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
                 </span>
               ),
             }}
-            disabled={documentCategory === "InboxCommunication"}
           />
 
           <div className={classes.btnWrapper}>
