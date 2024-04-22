@@ -1,3 +1,4 @@
+pr: none
 trigger: none
 
 pool:
@@ -9,7 +10,6 @@ resources:
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/heads/$(source_branch)
 
 variables:
   PdfRedactorUrl: $(PdfRedactorLocation)
@@ -19,7 +19,7 @@ steps:
     clean: true
     persistCredentials: true
     fetchDepth: 1
-    displayName: "Checkout polaris-e2e for branch: $(source_branch)"
+    displayName: "Checkout polaris-e2e"
 
   - task: DownloadSecureFile@1
     name: licence

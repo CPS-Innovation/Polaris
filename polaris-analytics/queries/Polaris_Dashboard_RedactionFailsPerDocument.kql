@@ -1,0 +1,7 @@
+Polaris_Dashboard_RedactionFails
+| summarize
+Count = count()
+, FailType = make_set(FailType),
+arg_max(TimeGenerated, RecoveryType)
+by DocumentId, bin(TimeGenerated, 1d)
+| project DocumentId, TimeGenerated, Count, FailType, RecoveryType

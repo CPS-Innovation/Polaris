@@ -789,7 +789,6 @@ stages:
               targetLabel: "UAT"
               buildDefinitionId: 421
               devOpsPatToken: "$(System.AccessToken)"
-              sourceBranch: "$(resources.pipeline.PolarisBuild.sourceBranch)"
 
       - job: Log_Result
         condition: succeeded()

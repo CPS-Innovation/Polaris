@@ -1,0 +1,6 @@
+Polaris_Metrics_Redaction
+| project OriginalMegabytes, DurationSeconds
+| where not(isempty(DurationSeconds)) and DurationSeconds <= 500
+| summarize AvgDurationSeconds = avg(DurationSeconds) by OriginalMegabytes
+| order by OriginalMegabytes asc
+| render scatterchart 
