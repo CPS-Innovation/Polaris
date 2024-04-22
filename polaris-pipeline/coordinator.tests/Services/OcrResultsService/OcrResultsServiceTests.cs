@@ -27,7 +27,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         [Fact]
         public void WhenInstantiatingAnOcrLine_AndThePreviousLineIsNull_TheOffsetStartsAtZero()
         {
-            var ocrLine = new OcrLineResult(_ocrLine1, 1, null);
+            var ocrLine = new OcrLineResult(_ocrLine1, 1, 1, null);
 
             ocrLine.OffsetRange.Min.Should().Be(0);
             ocrLine.OffsetRange.Max.Should().Be(_ocrLine1.Text.Length);
@@ -37,9 +37,9 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         [Fact]
         public void WhenInstantiatingAnOcrLine_AndThePreviousLineIsNotNull_TheOffsetDoesNotStartAtZero()
         {
-            var previousLine = new OcrLineResult(_ocrLine1, 1, null);
+            var previousLine = new OcrLineResult(_ocrLine1, 1, 1, null);
 
-            var ocrLine = new OcrLineResult(_ocrLine2, 1, previousLine);
+            var ocrLine = new OcrLineResult(_ocrLine2, 1, 1, previousLine);
 
             ocrLine.OffsetRange.Min.Should().Be(_ocrLine1.Text.Length + 1);
             ocrLine.OffsetRange.Max.Should().Be(_ocrLine1.Text.Length + _ocrLine2.Text.Length + 1);
@@ -49,9 +49,9 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         [Fact]
         public void WhenAddingAOcrLineResult_TheLineIndexIsSetCorrectly()
         {
-            var previousLine = new OcrLineResult(_ocrLine1, 1, null);
+            var previousLine = new OcrLineResult(_ocrLine1, 1, 1, null);
 
-            var ocrLine = new OcrLineResult(_ocrLine2, 1, previousLine);
+            var ocrLine = new OcrLineResult(_ocrLine2, 1, 1, previousLine);
 
             ocrLine.LineIndex.Should().Be(2);
         }
@@ -60,6 +60,8 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         public void WhenCreatingAPiiChunk_TheLineListIsUpdated_AndPropertiesPopulated()
         {
             var pageNumber = 1;
+            var processedCount = 0;
+
             var readResult = new ReadResult
             {
                 Page = pageNumber,
@@ -75,8 +77,8 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
 
             var expectedResult = $"{readResult.Lines[0].Text} {readResult.Lines[1].Text}";
 
-            var result = new PiiChunk(1, CaseId, DocumentId, 100, 0);
-            result.BuildChunk(analyzeResults);
+            var result = new PiiChunk(1, CaseId, DocumentId, 100);
+            result.BuildChunk(analyzeResults, ref processedCount);
 
             result.Text.Should().Be(expectedResult);
             result.Lines.Count.Should().Be(result.LineCount);
@@ -110,7 +112,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
                 ReadResults = readResults
             };
 
-            var results = _ocrResultsService.GetDocumentText(analyzeResults, CaseId, DocumentId, characterLimit);
+            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit);
 
             results[0].Text.Should().Be(expectedChunk1Text);
         }
@@ -136,7 +138,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
                 ReadResults = new List<ReadResult> { readResult }
             };
 
-            var results = _ocrResultsService.GetDocumentText(analyzeResults, CaseId, DocumentId, characterLimit);
+            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit);
 
             results.Count.Should().Be(2);
             results.All(x => x.TextLength < characterLimit).Should().BeTrue();
@@ -173,7 +175,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
                 ReadResults = readResults
             };
 
-            var results = _ocrResultsService.GetDocumentText(analyzeResults, CaseId, DocumentId, characterLimit);
+            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit);
 
             results.Count.Should().Be(1);
             results.All(x => x.TextLength < characterLimit).Should().BeTrue();
@@ -188,6 +190,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         public void WhenChunkingAnalyzeResults_WordsAreAddedToTheirRespectiveLines_AndOffsetsAreSetCorrectly()
         {
             var pageNumber = 1;
+            var processedCount = 0;
 
             var expectedOffsetForLine1Word1 = (0, _ocrLine1.Words[0].Text.Length - 1);
             var accumulativeOffset = expectedOffsetForLine1Word1.Item2 + 2;
@@ -212,8 +215,8 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
                 ReadResults = new List<ReadResult> { readResult }
             };
 
-            var result = new PiiChunk(1, CaseId, DocumentId, 100, 0);
-            result.BuildChunk(analyzeResults);
+            var result = new PiiChunk(1, CaseId, DocumentId, 100);
+            result.BuildChunk(analyzeResults, ref processedCount);
 
             result.Lines.Count.Should().Be(result.LineCount);
             result.Lines[0].Words.Count.Should().Be(_ocrLine1.Words.Count);

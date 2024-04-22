@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,7 +9,7 @@ namespace coordinator.Services.OcrResultsService
     {
         private const int CharacterLimit = 1000;
 
-        public List<PiiChunk> GetDocumentText(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit) // char limit should be a config value
+        public List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit) // char limit should be a config value
         {
             var chunks = new List<PiiChunk>();
             var chunkId = 1;
@@ -20,8 +19,8 @@ namespace coordinator.Services.OcrResultsService
 
             while (processedCount < linesToProcessCount)
             {
-                var piiChunk = new PiiChunk(chunkId, caseId, documentId, currentCharacterLimit, processedCount);
-                processedCount = piiChunk.BuildChunk(analyzeResults);
+                var piiChunk = new PiiChunk(chunkId, caseId, documentId, currentCharacterLimit);
+                piiChunk.BuildChunk(analyzeResults, ref processedCount);
                 chunks.Add(piiChunk);
                 chunkId++;
             }
@@ -33,16 +32,14 @@ namespace coordinator.Services.OcrResultsService
     public class PiiChunk
     {
         private int _characterLimit;
-        private int _processedCount;
         private string _text;
 
-        public PiiChunk(int id, int caseId, string documentId, int characterLimit, int processedCount)
+        public PiiChunk(int id, int caseId, string documentId, int characterLimit)
         {
             ChunkId = id;
             CaseId = caseId;
             DocumentId = documentId;
             _characterLimit = characterLimit;
-            _processedCount = processedCount;
         }
 
         public int ChunkId { get; protected set; }
@@ -58,34 +55,25 @@ namespace coordinator.Services.OcrResultsService
         }
         public int TextLength => Text.IsNullOrEmpty() ? 0 : Text.Length;
 
-        public int BuildChunk(AnalyzeResults analyzeResults)
+        public void BuildChunk(AnalyzeResults analyzeResults, ref int processedCount)
         {
             var resultsToProcess = analyzeResults.ReadResults
-                .SelectMany(result => result.Lines.Select(line => new { result, line })
-                .Select(x =>
-                    new { x.result.Page, x.line }
-                ));
+                .SelectMany(result => result.Lines.Select(line => new { result.Page, line }));
 
-            foreach (var result in resultsToProcess.Skip(_processedCount))
+            foreach (var result in resultsToProcess.Skip(processedCount))
             {
-                if (TextLength + result.line.Text.Length <= _characterLimit)
-                {
-                    AddLine(result.line, result.Page);
-                    _processedCount++;
-                }
-                else
-                {
-                    return _processedCount;
-                }
-            }
+                if (TextLength + result.line.Text.Length > _characterLimit)
+                    break;
 
-            return _processedCount;
+                AddLine(result.line, result.Page, processedCount + 1);
+                processedCount++;
+            }
         }
 
-        public void AddLine(Line line, int pageIndex)
+        public void AddLine(Line line, int pageIndex, int accumulativeLineIndex)
         {
             var previousLine = Lines.LastOrDefault();
-            var ocrLine = new OcrLineResult(line, pageIndex, previousLine);
+            var ocrLine = new OcrLineResult(line, pageIndex, accumulativeLineIndex, previousLine);
             _text += ocrLine.Text;
             Lines.Add(ocrLine);
         }
@@ -95,12 +83,13 @@ namespace coordinator.Services.OcrResultsService
     {
         private readonly OcrLineResult _previousLine;
 
-        public OcrLineResult(Line line, int pageIndex, OcrLineResult previousLine)
+        public OcrLineResult(Line line, int pageIndex, int accumulativeLineIndex, OcrLineResult previousLine)
         {
             _previousLine = previousLine;
             Text = $"{line.Text} ";
             PageIndex = pageIndex;
             WordCount = line.Words.Count;
+            AccumulativeLineIndex = accumulativeLineIndex;
             SetOffsetRange();
             SetLineIndex();
             AddWords(line.Words);
@@ -109,6 +98,7 @@ namespace coordinator.Services.OcrResultsService
         public string Text { get; protected set; }
         public int PageIndex { get; protected set; }
         public int LineIndex { get; protected set; }
+        public int AccumulativeLineIndex { get; protected set; } // Temp?
         public int WordCount { get; protected set; }
         public int TextLength => Text.Length;
         public (int Min, int Max) OffsetRange { get; protected set; }

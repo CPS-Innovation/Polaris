@@ -5,6 +5,6 @@ namespace coordinator.Services.OcrResultsService
 {
     public interface IOcrResultsService
     {
-        List<PiiChunk> GetDocumentText(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit);
+        List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit);
     }
 }

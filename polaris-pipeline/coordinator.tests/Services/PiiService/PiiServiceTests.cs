@@ -3,7 +3,6 @@ using System.Linq;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
-using MapsterMapper;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -35,6 +34,8 @@ namespace coordinator.tests.Services.PiiServiceTests
         public void WhenCreatingPiiRequests_AMaximumOf5Documents_AreAssignedToEachRequest()
         {
             var documentCharacterLimit = 15;
+            var processedCount = 0;
+
             var readResult = new ReadResult
             {
                 Page = 1,
@@ -45,17 +46,10 @@ namespace coordinator.tests.Services.PiiServiceTests
                 ReadResults = new List<ReadResult> { readResult }
             };
 
-            var piiChunk = new PiiChunk(1, CaseId, DocumentId, documentCharacterLimit, 0);
-            piiChunk.BuildChunk(analyzeResults);
+            var piiChunk = new PiiChunk(1, CaseId, DocumentId, documentCharacterLimit);
+            piiChunk.BuildChunk(analyzeResults, ref processedCount);
 
             var result = _piiService.CreatePiiRequests(new List<PiiChunk>() { piiChunk });
-
-        }
-
-        [Fact]
-        public void WhenCreatingPiiRequests_ThePiiCategories_AreAssignedToEachRequest()
-        {
-
         }
     }
 }

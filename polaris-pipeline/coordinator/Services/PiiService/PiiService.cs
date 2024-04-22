@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Azure.AI.TextAnalytics;
+using Common.Domain.Pii;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Services.OcrResultsService;
@@ -46,7 +46,7 @@ namespace coordinator.Services.PiiService
             return piiRequests;
         }
 
-        public List<ReconciledPiiEntity> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults)
+        public IEnumerable<PiiLine> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults)
         {
             var results = new List<ReconciledPiiEntity>();
 
@@ -70,7 +70,7 @@ namespace coordinator.Services.PiiService
                 }
             }
 
-            return results;
+            return MapReconcilledPiiToResponse(results);
         }
 
         public PiiEntitiesWrapper MapPiiResults(RecognizePiiEntitiesResultCollection[] piiResults)
@@ -79,6 +79,51 @@ namespace coordinator.Services.PiiService
             {
                 PiiResultCollection = piiResults.Select(result => _piiEntityMapper.MapCollection(result))
             };
+        }
+
+        private static IEnumerable<PiiLine> MapReconcilledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
+        {
+            var results = new List<PiiLine>();
+
+            foreach (var entity in piiEntities)
+            {
+                var piiLine = results.Where(x => x.LineIndex == entity.LineIndex)
+                                        .Where(x => x.PageIndex == entity.PageIndex)
+                                        .SingleOrDefault();
+
+                if (piiLine == null)
+                {
+                    piiLine = new PiiLine
+                    {
+                        PageIndex = entity.PageIndex,
+                        LineIndex = entity.LineIndex,
+                        Text = entity.LineText,
+                        Id = Guid.NewGuid().ToString(),
+                        Words = new List<PiiWord>()
+                    };
+
+                    var lineWords = entity.LineText.Split(' ');
+                    foreach (var lineWord in lineWords)
+                    {
+                        piiLine.Words.Add(new PiiWord { Text = lineWord });
+                    }
+
+                    results.Add(piiLine);
+                }
+
+                var word = piiLine.Words.FirstOrDefault(x => x.Text == entity.Word.Text);
+                var wordIndex = piiLine.Words.IndexOf(word);
+                word = new PiiWord
+                {
+                    Text = entity.Word.Text,
+                    BoundingBox = entity.Word.BoundingBox,
+                    PiiCategory = entity.PiiCategory
+                };
+                if (wordIndex != -1)
+                    piiLine.Words[wordIndex] = word;
+            }
+
+            return results;
         }
     }
 }

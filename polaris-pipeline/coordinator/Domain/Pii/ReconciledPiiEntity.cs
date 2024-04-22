@@ -7,7 +7,7 @@ namespace coordinator.Domain
         public ReconciledPiiEntity(OcrLineResult ocrLineResult, OcrWord ocrWord, string piiCategory)
         {
             PageIndex = ocrLineResult.PageIndex;
-            LineIndex = ocrLineResult.LineIndex;
+            LineIndex = ocrLineResult.AccumulativeLineIndex;
             LineText = ocrLineResult.Text;
             Word = ocrWord;
             PiiCategory = piiCategory;

@@ -63,7 +63,7 @@ namespace coordinator.Functions
                 var streamReader = new StreamReader(jsonStream);
                 var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
 
-                var piiChunks = _ocrResultsService.GetDocumentText(ocrResults, caseId, polarisDocumentId, 1000);
+                var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000);
 
                 var piiRequests = _piiService.CreatePiiRequests(piiChunks);
 

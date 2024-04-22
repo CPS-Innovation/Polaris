@@ -1,22 +1,19 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Common.Configuration;
-using Common.Domain.SearchIndex;
-using Common.Extensions;
-using Common.Services.BlobStorageService;
-using Common.Wrappers;
-using coordinator.Domain;
-using coordinator.Helpers;
-using coordinator.Services.OcrResultsService;
-using coordinator.Services.PiiService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using coordinator.Domain;
+using coordinator.Helpers;
+using coordinator.Services.OcrResultsService;
+using coordinator.Services.PiiService;
+using Common.Configuration;
+using Common.Extensions;
+using Common.Services.BlobStorageService;
+using Common.Wrappers;
 
 namespace coordinator.Functions
 {
@@ -45,7 +42,6 @@ namespace coordinator.Functions
             string polarisDocumentId)
         {
             Guid currentCorrelationId = default;
-            var searchResults = new List<StreamlinedSearchLine>();
 
             try
             {
@@ -58,7 +54,7 @@ namespace coordinator.Functions
                 var ocrStreamReader = new StreamReader(ocrStream);
                 var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(ocrStreamReader.ReadToEnd());
 
-                var piiChunks = _ocrResultsService.GetDocumentText(ocrResults, caseId, polarisDocumentId, 1000);
+                var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000);
 
                 var piiBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Pii);
                 using var piiStream = await _blobStorageService.GetDocumentAsync(piiBlobName, currentCorrelationId);
@@ -68,42 +64,7 @@ namespace coordinator.Functions
 
                 var results = _piiService.ReconcilePiiResults(piiChunks, piiResults);
 
-                foreach (var result in results)
-                {
-                    var searchLine = searchResults.SingleOrDefault(x => x.LineIndex == result.LineIndex);
-
-                    if (searchLine == null)
-                    {
-                        searchLine = new StreamlinedSearchLine
-                        {
-                            PageIndex = result.PageIndex,
-                            LineIndex = result.LineIndex,
-                            Text = result.LineText,
-                            Id = Guid.NewGuid().ToString(),
-                            Words = new List<StreamlinedWord>()
-                        };
-
-                        var lineWords = result.LineText.Split(' ');
-                        foreach (var lineWord in lineWords)
-                        {
-                            searchLine.Words.Add(new StreamlinedWord { Text = lineWord });
-                        }
-
-                        searchResults.Add(searchLine);
-                    }
-
-                    var word = searchLine.Words.FirstOrDefault(x => x.Text == result.Word.Text);
-                    var wordIndex = searchLine.Words.IndexOf(word);
-                    word = new StreamlinedWord
-                    {
-                        Text = result.Word.Text,
-                        BoundingBox = result.Word.BoundingBox
-                    };
-                    if (wordIndex != -1)
-                        searchLine.Words[wordIndex] = word;
-                }
-
-                return new OkObjectResult(searchResults);
+                return new OkObjectResult(results);
             }
             catch (Exception ex)
             {
