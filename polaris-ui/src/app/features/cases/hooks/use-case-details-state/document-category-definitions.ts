@@ -55,7 +55,7 @@ const documentCategoryDefinitions: {
     testFn: (doc) =>
       doc.cmsDocType.documentCategory !== "UnusedStatement" &&
       doc.cmsDocType.documentCategory !== "Unused" &&
-      docTypeTest(doc, [1031, 1059]),
+      docTypeTest(doc, [1031]),
     sortFn: sortAscendingByListOrderAndId,
   },
   {
@@ -147,7 +147,7 @@ const documentCategoryDefinitions: {
     category: "Uncategorised",
     showIfEmpty: false,
     testFn: (doc) =>
-      docTypeTest(doc, [1051, 1052, 1053, 1054]) ||
+      docTypeTest(doc, [1051, 1052, 1053, 1054, 1059]) ||
       // match to Uncategorised if we have got this far
       // todo: add AppInsights logging for every time we find ourselves here
       true,
