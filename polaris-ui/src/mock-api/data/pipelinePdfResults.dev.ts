@@ -278,7 +278,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1031,
         documentType: "Statement",
-        documentCategory: "UsedStatement",
+        documentCategory: "Review",
       },
       presentationFlags: {
         read: "Ok",

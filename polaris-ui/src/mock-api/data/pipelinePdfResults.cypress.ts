@@ -173,7 +173,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 4,
         documentType: "MG14",
-        documentCategory: "MGForm",
+        documentCategory: "Review",
       },
       presentationFlags: {
         read: "Ok",

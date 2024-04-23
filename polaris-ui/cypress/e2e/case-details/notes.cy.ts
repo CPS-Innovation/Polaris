@@ -38,13 +38,19 @@ describe("Feature Notes", () => {
       .findByTestId("added-on-1")
       .contains("10 February 2024");
     cy.get("@secondListItem").findByTestId("note-text-1").contains("text_1");
-    cy.findByTestId("btn-close-notes").click();
+    cy.findByTestId("btn-cancel-notes").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-2");
     cy.findByTestId("btn-notes-10").click();
     cy.findByTestId("notes-panel").should("exist");
     cy.findByTestId("notes-panel").contains("Notes - PortraitLandscape");
     cy.findByTestId("notes-list").find("li").should("have.length", 0);
+    cy.findByTestId("btn-cancel-notes").click();
+    cy.findByTestId("notes-panel").should("not.exist");
+    cy.focused().should("have.id", "btn-notes-10");
+    //closing notes with close button
+    cy.findByTestId("btn-notes-10").click();
+    cy.findByTestId("notes-panel").should("exist");
     cy.findByTestId("btn-close-notes").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
@@ -114,7 +120,7 @@ describe("Feature Notes", () => {
       expect(doc10GetNotesCounter.count).to.equal(2);
       expect(trackerCounter.count).to.equal(2);
     });
-    cy.findByTestId("btn-close-notes").click();
+    cy.findByTestId("btn-cancel-notes").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
@@ -165,8 +171,8 @@ describe("Feature Notes", () => {
     cy.findByTestId("btn-error-modal-ok").click();
     cy.findByTestId("div-modal").should("not.exist");
     cy.findByTestId("notes-textarea").should("have.value", "note_1");
-    cy.focused().should("have.id", "btn-close-notes");
-    cy.findByTestId("btn-close-notes").click();
+    cy.focused().should("have.id", "btn-cancel-notes");
+    cy.findByTestId("btn-cancel-notes").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
     cy.window().then(() => {
@@ -224,8 +230,17 @@ describe("Feature Notes", () => {
     }).then(() => {
       expect(addNoteCounter.count).to.equal(1);
     });
-    cy.findByTestId("btn-close-notes").click();
+    cy.findByTestId("btn-cancel-notes").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
+  });
+  it("should show disabled notes button and on hover over, it should show tooltip message", () => {
+    cy.visit("/case-details/12AB1111111/13401?notes=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("btn-notes-9").click();
+    cy.findByTestId("btn-close-notes").click();
+    cy.findByTestId("has-note-indicator-8").should("not.exist");
+    cy.findByTestId("btn-notes-8").trigger("mouseover", { force: true });
+    cy.findByTestId("tooltip").contains("Notes are disabled for this document");
   });
 });

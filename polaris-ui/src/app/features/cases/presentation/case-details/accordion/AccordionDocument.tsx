@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -18,6 +18,7 @@ import {
   witnessIndicatorNames,
   witnessIndicatorPrecedenceOrder,
 } from "../../../domain/WitnessIndicators";
+import { Tooltip } from "../../../../../common/presentation/components";
 
 type Props = {
   activeDocumentId: string;
@@ -66,6 +67,32 @@ export const AccordionDocument: React.FC<Props> = ({
     caseDocument.documentId === lastFocusDocumentId
       ? { ref: openNotesBtnRef }
       : {};
+
+  const isNotesDisabled = useCallback(() => {
+    if (
+      caseDocument.cmsDocType.documentType === "PCD" ||
+      caseDocument.cmsDocType.documentCategory === "Review"
+    ) {
+      return true;
+    }
+    return false;
+  }, [
+    caseDocument.cmsDocType.documentType,
+    caseDocument.cmsDocType.documentCategory,
+  ]);
+
+  const openNotesBtnAriaLabel = useCallback(() => {
+    if (isNotesDisabled()) {
+      return `Notes are disabled for this document`;
+    }
+    return caseDocument.hasNotes
+      ? `There are notes available for document ${caseDocument.presentationFileName}, Open notes`
+      : `There are no notes available for document ${caseDocument.presentationFileName}, Open notes`;
+  }, [
+    caseDocument.hasNotes,
+    caseDocument.presentationFileName,
+    isNotesDisabled,
+  ]);
 
   return (
     <li
@@ -132,37 +159,45 @@ export const AccordionDocument: React.FC<Props> = ({
                 {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
               </>
             )}
-            {showNotesFeature && !caseDocument.documentId.includes("PCD") && (
-              <LinkButton
-                {...openNotesRefProps}
-                className={classes.notesBtn}
-                id={`btn-notes-${caseDocument.documentId}`}
-                dataTestId={`btn-notes-${caseDocument.documentId}`}
-                ariaLabel={
-                  caseDocument.hasNotes
-                    ? `There are notes available for document ${caseDocument.presentationFileName}, Open notes`
-                    : `There are no notes available for document ${caseDocument.presentationFileName}, Open notes`
+            {showNotesFeature && (
+              <Tooltip
+                text={
+                  isNotesDisabled()
+                    ? "Notes are disabled for this document"
+                    : ""
                 }
-                onClick={() => {
-                  trackEvent("Open Notes", {
-                    documentId: caseDocument.documentId,
-                    documentCategory: caseDocument.cmsDocType.documentCategory,
-                  });
-                  handleOpenNotes(
-                    caseDocument.documentId,
-                    caseDocument.cmsDocType.documentCategory,
-                    caseDocument.presentationFileName
-                  );
-                }}
+                className="notesToolTip"
               >
-                <NotesIcon />
-                {caseDocument.hasNotes && (
-                  <div
-                    data-testid={`has-note-indicator-${caseDocument.documentId}`}
-                    className={classes.notesAvailable}
-                  ></div>
-                )}
-              </LinkButton>
+                <LinkButton
+                  {...openNotesRefProps}
+                  className={classes.notesBtn}
+                  id={`btn-notes-${caseDocument.documentId}`}
+                  dataTestId={`btn-notes-${caseDocument.documentId}`}
+                  ariaLabel={openNotesBtnAriaLabel()}
+                  onClick={() => {
+                    trackEvent("Open Notes", {
+                      documentId: caseDocument.documentId,
+                      documentCategory:
+                        caseDocument.cmsDocType.documentCategory,
+                    });
+                    handleOpenNotes(
+                      caseDocument.documentId,
+                      caseDocument.cmsDocType.documentCategory,
+                      caseDocument.presentationFileName
+                    );
+                  }}
+                  disabled={isNotesDisabled()}
+                  aria-disabled={isNotesDisabled() ? "true" : "false"}
+                >
+                  <NotesIcon />
+                  {caseDocument.hasNotes && (
+                    <div
+                      data-testid={`has-note-indicator-${caseDocument.documentId}`}
+                      className={classes.notesAvailable}
+                    ></div>
+                  )}
+                </LinkButton>
+              </Tooltip>
             )}
           </div>
 
