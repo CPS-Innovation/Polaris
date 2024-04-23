@@ -660,6 +660,8 @@ stages:
     displayName: Sync Slot Settings
     dependsOn: Check_Status
     condition: succeeded()
+    pool:
+      vmImage: ubuntu-latest
     jobs:
       - job: Log_Start
         displayName: Log Start
