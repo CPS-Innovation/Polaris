@@ -17,12 +17,12 @@ steps:
     displayName: Download Scripts
     artifact: 'polaris-script-files'
 
-  - task: Powershell@2
-    displayName: Setting up Az Powershell Module
-    inputs:
-      failOnStderr: true
-      targetType: 'filePath'
-      filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InstallAzModules.ps1
+  #- task: Powershell@2
+  #  displayName: Setting up Az Powershell Module
+  #  inputs:
+  #    failOnStderr: true
+  #    targetType: 'filePath'
+  #    filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InstallAzModules.ps1
     
   #sync slot app settings
   - task:  AzurePowerShell@5
