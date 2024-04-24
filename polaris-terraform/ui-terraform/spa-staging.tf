@@ -11,6 +11,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
   public_network_access_enabled = false
   tags                          = local.common_tags
+  client_certificate_enabled    = false
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
@@ -87,6 +88,19 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
   logs {
     detailed_error_messages = true
     failed_request_tracing  = true
+    application_logs {
+      file_system_level = "Error"
+    }
+    http_logs {
+      file_system {
+        retention_in_days = 7
+        retention_in_mb   = 35
+      }
+    }
+  }
+
+  identity {
+    type = "SystemAssigned"
   }
 
   lifecycle {
