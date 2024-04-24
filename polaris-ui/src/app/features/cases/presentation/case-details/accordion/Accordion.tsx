@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
@@ -20,7 +20,9 @@ type Props = {
   handleOpenNotes: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
+    presentationFileName: string
+  ) => void;
+  accordionStateChangeCallback: (
     accordionCurrentState: AccordionReducerState
   ) => void;
 };
@@ -34,6 +36,7 @@ export const Accordion: React.FC<Props> = ({
   showNotesFeature,
   handleOpenPdf,
   handleOpenNotes,
+  accordionStateChangeCallback,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
@@ -42,6 +45,11 @@ export const Accordion: React.FC<Props> = ({
       ? initialState
       : buildInitialState(sections.map((section) => section.sectionLabel))
   );
+
+  useEffect(() => {
+    accordionStateChangeCallback(state);
+  }, [state, accordionStateChangeCallback]);
+
   const handleToggleOpenAll = () => {
     if (state.isAllOpen) {
       trackEvent("Close All Folders");
@@ -62,14 +70,6 @@ export const Accordion: React.FC<Props> = ({
     });
   };
 
-  const openNotesHandler = (
-    documentId: string,
-    documentCategory: string,
-    presentationFileName: string
-  ) => {
-    handleOpenNotes(documentId, documentCategory, presentationFileName, state);
-  };
-
   return (
     <div className={`${classes.accordion}`}>
       <AccordionHeader
@@ -88,7 +88,7 @@ export const Accordion: React.FC<Props> = ({
           showNotesFeature={showNotesFeature}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
-          handleOpenNotes={openNotesHandler}
+          handleOpenNotes={handleOpenNotes}
           lastFocusDocumentId={lastFocusDocumentId}
         />
       ))}

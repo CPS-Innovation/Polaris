@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import {
   BackLink,
   Tooltip,
@@ -54,16 +54,17 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentId: string;
     documentCategory: string;
     presentationFileName: string;
-    accordionOldState: AccordionReducerState | null;
     lastFocusDocumentId: string;
   }>({
     open: false,
     documentId: "",
     documentCategory: "",
     presentationFileName: "",
-    accordionOldState: null,
     lastFocusDocumentId: "",
   });
+
+  const [accordionOldState, setAccordionOldState] =
+    useState<AccordionReducerState | null>(null);
 
   const notesPanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
@@ -172,6 +173,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     )!;
   }, [tabsState.activeTabId, tabsState.items]);
 
+  const accordionStateChangeCallback = useCallback(
+    (state: AccordionReducerState) => {
+      setAccordionOldState(state);
+    },
+    []
+  );
+
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
@@ -187,15 +195,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const handleOpenNotes = (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
-    accordionCurrentState: AccordionReducerState
+    presentationFileName: string
   ) => {
     setOpenNoteData({
       open: true,
       documentId: documentId,
       documentCategory: documentCategory,
       presentationFileName: presentationFileName,
-      accordionOldState: accordionCurrentState,
       lastFocusDocumentId: documentId,
     });
   };
@@ -387,7 +393,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <AccordionWait />
                 ) : (
                   <Accordion
-                    initialState={openNotesData.accordionOldState}
+                    initialState={accordionOldState}
                     readUnreadData={
                       storedUserData.status === "succeeded"
                         ? storedUserData.data.readUnread
@@ -401,6 +407,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     handleOpenNotes={handleOpenNotes}
                     showNotesFeature={featureFlags.notes}
                     lastFocusDocumentId={openNotesData.lastFocusDocumentId}
+                    accordionStateChangeCallback={accordionStateChangeCallback}
                   />
                 )}
               </div>
@@ -463,17 +470,17 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(false);
+                      if (!openNotesData.open) {
+                        setOpenNoteData({
+                          ...openNotesData,
+                          lastFocusDocumentId: "",
+                        });
+                      }
                     } else {
                       trackEvent("View Full Screen", {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(true);
-                      if (!openNotesData.open) {
-                        setOpenNoteData({
-                          ...openNotesData,
-                          accordionOldState: null,
-                        });
-                      }
                     }
                   }}
                 >
