@@ -87,6 +87,15 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
   logs {
     detailed_error_messages = true
     failed_request_tracing  = true
+    application_logs {
+      file_system_level = "Error"
+    }
+    http_logs {
+      file_system {
+        retention_in_days = 7
+        retention_in_mb   = 35
+      }
+    }
   }
 
   lifecycle {
