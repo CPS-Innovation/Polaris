@@ -33,6 +33,7 @@ namespace pdf_redactor.rig
         {
 
             var pdfFiles = Directory.GetFiles(_folderPath, "*.pdf");
+            pdfFiles = pdfFiles.Where(file => Path.GetFileName(file).Count(c => c == '_') == 1).ToArray();
 
             using (var writer = new StreamWriter(_csvFilePath))
             {
@@ -63,12 +64,12 @@ namespace pdf_redactor.rig
 
                             var fullStream = await redactedPdfStream.EnsureSeekableAsync();
 
-                            var outputFilePath = pdfFile.Replace(".pdf", $"_{redactionType}.pdf");
-                            using (var fileStream = File.Create(outputFilePath))
-                            {
-                                fullStream.Seek(0, SeekOrigin.Begin);
-                                fullStream.CopyTo(fileStream);
-                            }
+                            // var outputFilePath = pdfFile.Replace(".pdf", $"_{redactionType}.pdf");
+                            // using (var fileStream = File.Create(outputFilePath))
+                            // {
+                            //     fullStream.Seek(0, SeekOrigin.Begin);
+                            //     fullStream.CopyTo(fileStream);
+                            // }
 
                             var fileName = Path.GetFileName(pdfFile);
                             var sizeAfter = fullStream.Length / (1024.0 * 1024.0);
