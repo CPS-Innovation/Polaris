@@ -114,6 +114,9 @@ describe("redactionLogUtils", () => {
       documentTypes: [
         { cmsDocTypeId: "1201", docTypeId: "37" },
         { cmsDocTypeId: "1029", docTypeId: "35" },
+        { cmsDocTypeId: "1200", docTypeId: "35" },
+        { cmsDocTypeId: "1056", docTypeId: "33" },
+        { cmsDocTypeId: "1057", docTypeId: "33" },
         { cmsDocTypeId: "6", docTypeId: "31" },
       ],
       investigatingAgencies: [{ ouCode: "00AH", investigatingAgencyId: "10" }],
@@ -127,24 +130,50 @@ describe("redactionLogUtils", () => {
         investigatingAgencyName: "Surrey",
       },
     ];
-    it("Should return correct default values when doctypeId is 1024", () => {
-      const docTypeId = 1029;
+    it("Should return correct default values when doctypeId is -1,1029 and 1200", () => {
+      const docTypeIds = [-1, 1029, 1200];
       const owningUnit = "Guildford Mags";
       const caseUrn = "45CV2911222";
-      const defaultValues = getDefaultValuesFromMappings(
-        mappingData,
-        ouCodeMapping,
-        owningUnit,
-        docTypeId,
-        caseUrn
-      );
-      expect(defaultValues).toEqual({
-        businessUnit: "1",
-        cpsArea: "9",
-        documentType: "",
-        investigatingAgency: "61",
+      docTypeIds.forEach((docTypeId) => {
+        expect(
+          getDefaultValuesFromMappings(
+            mappingData,
+            ouCodeMapping,
+            owningUnit,
+            docTypeId,
+            caseUrn
+          )
+        ).toEqual({
+          businessUnit: "1",
+          cpsArea: "9",
+          documentType: "",
+          investigatingAgency: "61",
+        });
       });
     });
+
+    it("Should return correct default values when doctypeId is 1056 & 1057", () => {
+      const docTypeIds = [1056, 1057];
+      const owningUnit = "Guildford Mags";
+      const caseUrn = "45CV2911222";
+      docTypeIds.forEach((docTypeId) => {
+        expect(
+          getDefaultValuesFromMappings(
+            mappingData,
+            ouCodeMapping,
+            owningUnit,
+            docTypeId,
+            caseUrn
+          )
+        ).toEqual({
+          businessUnit: "1",
+          cpsArea: "9",
+          documentType: "34", // "PNC Print"
+          investigatingAgency: "61",
+        });
+      });
+    });
+
     it("Should return correct default values ", () => {
       const docTypeId = 6;
       const owningUnit = "Northern CJU (Bristol)";
