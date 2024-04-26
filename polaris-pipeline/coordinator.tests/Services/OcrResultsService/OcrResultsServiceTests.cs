@@ -9,6 +9,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
 {
     public class OcrResultsServiceTests
     {
+        private readonly ReadResult _readResult;
         private readonly OcrResultsService _ocrResultsService;
         private readonly Line _ocrLine1;
         private readonly Line _ocrLine2;
@@ -18,6 +19,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
 
         public OcrResultsServiceTests()
         {
+            _readResult = new ReadResult();
             _ocrResultsService = new OcrResultsService();
             _ocrLine1 = Mother.OcrLine1();
             _ocrLine2 = Mother.OcrLine2();
@@ -27,7 +29,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         [Fact]
         public void WhenInstantiatingAnOcrLine_AndThePreviousLineIsNull_TheOffsetStartsAtZero()
         {
-            var ocrLine = new OcrLineResult(_ocrLine1, 1, 1, null);
+            var ocrLine = new OcrLineResult(_ocrLine1, _readResult, 1, null);
 
             ocrLine.OffsetRange.Min.Should().Be(0);
             ocrLine.OffsetRange.Max.Should().Be(_ocrLine1.Text.Length);
@@ -37,9 +39,9 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         [Fact]
         public void WhenInstantiatingAnOcrLine_AndThePreviousLineIsNotNull_TheOffsetDoesNotStartAtZero()
         {
-            var previousLine = new OcrLineResult(_ocrLine1, 1, 1, null);
+            var previousLine = new OcrLineResult(_ocrLine1, _readResult, 1, null);
 
-            var ocrLine = new OcrLineResult(_ocrLine2, 1, 1, previousLine);
+            var ocrLine = new OcrLineResult(_ocrLine2, _readResult, 1, previousLine);
 
             ocrLine.OffsetRange.Min.Should().Be(_ocrLine1.Text.Length + 1);
             ocrLine.OffsetRange.Max.Should().Be(_ocrLine1.Text.Length + _ocrLine2.Text.Length + 1);
@@ -49,9 +51,9 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         [Fact]
         public void WhenAddingAOcrLineResult_TheLineIndexIsSetCorrectly()
         {
-            var previousLine = new OcrLineResult(_ocrLine1, 1, 1, null);
+            var previousLine = new OcrLineResult(_ocrLine1, _readResult, 1, null);
 
-            var ocrLine = new OcrLineResult(_ocrLine2, 1, 1, previousLine);
+            var ocrLine = new OcrLineResult(_ocrLine2, _readResult, 1, previousLine);
 
             ocrLine.LineIndex.Should().Be(2);
         }

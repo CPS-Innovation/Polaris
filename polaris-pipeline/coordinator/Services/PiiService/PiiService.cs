@@ -65,7 +65,7 @@ namespace coordinator.Services.PiiService
                         var ocrWord = chunkLine.GetWord(text, offset);
 
                         if (ocrWord != null)
-                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category));
+                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category, chunk.DocumentId));
                     }
                 }
             }
@@ -81,22 +81,24 @@ namespace coordinator.Services.PiiService
             };
         }
 
-        private static IEnumerable<PiiLine> MapReconcilledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
+        internal static IEnumerable<PiiLine> MapReconcilledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
         {
             var results = new List<PiiLine>();
 
             foreach (var entity in piiEntities)
             {
-                var piiLine = results.Where(x => x.LineIndex == entity.LineIndex)
-                                        .Where(x => x.PageIndex == entity.PageIndex)
-                                        .SingleOrDefault();
+                var piiLine = results.SingleOrDefault(x => x.AccumulativeLineIndex == entity.AccumulativeLineIndex);
 
                 if (piiLine == null)
                 {
                     piiLine = new PiiLine
                     {
+                        PolarisDocumentId = entity.PolarisDocumentId,
                         PageIndex = entity.PageIndex,
                         LineIndex = entity.LineIndex,
+                        AccumulativeLineIndex = entity.AccumulativeLineIndex,
+                        PageHeight = entity.PageHeight,
+                        PageWidth = entity.PageWidth,
                         Text = entity.LineText,
                         Id = Guid.NewGuid().ToString(),
                         Words = new List<PiiWord>()
@@ -111,7 +113,11 @@ namespace coordinator.Services.PiiService
                     results.Add(piiLine);
                 }
 
-                var word = piiLine.Words.FirstOrDefault(x => x.Text == entity.Word.Text);
+                var word = piiLine.Words
+                    .Where(x => x.Text == entity.Word.Text)
+                    .Where(x => x.BoundingBox == null)
+                    .FirstOrDefault();
+
                 var wordIndex = piiLine.Words.IndexOf(word);
                 word = new PiiWord
                 {

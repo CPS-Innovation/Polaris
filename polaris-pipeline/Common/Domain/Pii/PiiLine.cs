@@ -20,6 +20,9 @@ namespace Common.Domain.Pii
         [JsonProperty("lineIndex")]
         public int LineIndex { get; set; }
 
+        [JsonIgnore]
+        public int AccumulativeLineIndex { get; set; }
+
         [JsonProperty("pageHeight")]
         public double PageHeight { get; set; }
 

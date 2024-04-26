@@ -57,23 +57,23 @@ namespace coordinator.Services.OcrResultsService
 
         public void BuildChunk(AnalyzeResults analyzeResults, ref int processedCount)
         {
-            var resultsToProcess = analyzeResults.ReadResults
-                .SelectMany(result => result.Lines.Select(line => new { result.Page, line }));
+            var itemsToProcess = analyzeResults.ReadResults
+                .SelectMany(result => result.Lines.Select(line => new { result, line }));
 
-            foreach (var result in resultsToProcess.Skip(processedCount))
+            foreach (var item in itemsToProcess.Skip(processedCount))
             {
-                if (TextLength + result.line.Text.Length > _characterLimit)
+                if (TextLength + item.line.Text.Length > _characterLimit)
                     break;
 
-                AddLine(result.line, result.Page, processedCount + 1);
+                AddLine(item.line, item.result, processedCount + 1);
                 processedCount++;
             }
         }
 
-        public void AddLine(Line line, int pageIndex, int accumulativeLineIndex)
+        public void AddLine(Line line, ReadResult readResult, int accumulativeLineIndex)
         {
             var previousLine = Lines.LastOrDefault();
-            var ocrLine = new OcrLineResult(line, pageIndex, accumulativeLineIndex, previousLine);
+            var ocrLine = new OcrLineResult(line, readResult, accumulativeLineIndex, previousLine);
             _text += ocrLine.Text;
             Lines.Add(ocrLine);
         }
@@ -83,11 +83,13 @@ namespace coordinator.Services.OcrResultsService
     {
         private readonly OcrLineResult _previousLine;
 
-        public OcrLineResult(Line line, int pageIndex, int accumulativeLineIndex, OcrLineResult previousLine)
+        public OcrLineResult(Line line, ReadResult readResult, int accumulativeLineIndex, OcrLineResult previousLine)
         {
             _previousLine = previousLine;
             Text = $"{line.Text} ";
-            PageIndex = pageIndex;
+            PageIndex = readResult.Page;
+            PageHeight = readResult.Height;
+            PageWidth = readResult.Width;
             WordCount = line.Words.Count;
             AccumulativeLineIndex = accumulativeLineIndex;
             SetOffsetRange();
@@ -98,7 +100,9 @@ namespace coordinator.Services.OcrResultsService
         public string Text { get; protected set; }
         public int PageIndex { get; protected set; }
         public int LineIndex { get; protected set; }
-        public int AccumulativeLineIndex { get; protected set; } // Temp?
+        public double PageHeight { get; protected set; }
+        public double PageWidth { get; protected set; }
+        public int AccumulativeLineIndex { get; protected set; }
         public int WordCount { get; protected set; }
         public int TextLength => Text.Length;
         public (int Min, int Max) OffsetRange { get; protected set; }
