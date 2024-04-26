@@ -51,6 +51,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/polaris-ui/build-version.txt"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/polaris-ui/build-version.txt"
+    "WEBSITE_WEBDEPLOY_USE_SCM"                       = "true"
   }
 
   sticky_settings {
@@ -137,7 +138,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
-      app_settings["WEBSITE_WARMUP_PATH"]
+      app_settings["WEBSITE_WARMUP_PATH"],
+      app_settings["WEBSITE_WEBDEPLOY_USE_SCM"]
     ]
   }
 }

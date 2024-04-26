@@ -39,8 +39,9 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
-    "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
+    "WEBSITE_WARMUP_PATH"                             = "/api/status"
+    "WEBSITE_WEBDEPLOY_USE_SCM"                       = "true"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
@@ -100,6 +101,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
       app_settings["WEBSITE_WARMUP_PATH"],
       app_settings["WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"],
+      app_settings["WEBSITE_WEBDEPLOY_USE_SCM"],
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
     ]
   }

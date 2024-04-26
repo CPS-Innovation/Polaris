@@ -48,6 +48,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/polaris-ui/build-version.txt"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/polaris-ui/build-version.txt"
+    "WEBSITE_WEBDEPLOY_USE_SCM"                       = "true"
   }
 
   site_config {

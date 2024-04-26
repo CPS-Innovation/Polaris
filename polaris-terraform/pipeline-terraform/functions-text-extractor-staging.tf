@@ -35,6 +35,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
+    "WEBSITE_WEBDEPLOY_USE_SCM"                       = "true"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
