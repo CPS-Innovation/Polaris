@@ -39,6 +39,17 @@
     margin-top: -3.4375rem;
     height: 100vh;
   }
+  .notesArea {
+    padding: 0;
+    &:focus {
+      outline: 0.2rem solid #ffdd00;
+    }
+  }
+  .sidePanelArea {
+    &:focus {
+      outline: 0.2rem solid #ffdd00;
+    }
+  }
 }
 
 .leftColumn {
@@ -71,12 +82,6 @@
   li {
     margin: 0;
     padding: 0;
-  }
-}
-
-.contentArea {
-  &:focus {
-    outline: 0.2rem solid #ffdd00;
   }
 }
 

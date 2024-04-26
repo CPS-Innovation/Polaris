@@ -357,7 +357,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               data-testid="side-panel"
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
-              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.sidePanelArea}`}
             >
               <span
                 id="side-panel-region-label"
@@ -415,7 +415,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           )}
           {!inFullScreen && openNotesData.open && (
             <div
-              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.notesArea}`}
               id="notes-panel"
               role="region"
               aria-labelledby="notes-panel-region-label"
