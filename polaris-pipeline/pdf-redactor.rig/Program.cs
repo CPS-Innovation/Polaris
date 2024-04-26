@@ -43,40 +43,48 @@ namespace pdf_redactor.rig
                     foreach (RedactionType redactionType in Enum.GetValues(typeof(RedactionType)))
                     {
                         Console.WriteLine($"Redacting {pdfFile} with {redactionType} method");
-                        var documentStream = File.OpenRead(pdfFile);
-                        var document = new Document(documentStream);
 
-                        var sizeBefore = documentStream.Length / (1024.0 * 1024.0);
-
-                        var redactionData = RedactionHelper.LoadRedactionDataForPdf(document, documentStream, documentStream.Name);
-                        redactionData.RedactionType = redactionType;
-
-                        var startTime = DateTime.Now;
-
-                        var redactedPdfStream = await redactorClient.RedactPdfAsync(redactionData);
-
-                        var endTime = DateTime.Now;
-                        var timeTaken = (endTime - startTime).TotalMilliseconds;
-
-                        var fullStream = await redactedPdfStream.EnsureSeekableAsync();
-
-                        var outputFilePath = pdfFile.Replace(".pdf", $"_{redactionType}.pdf");
-                        using (var fileStream = File.Create(outputFilePath))
+                        try
                         {
-                            fullStream.Seek(0, SeekOrigin.Begin);
-                            fullStream.CopyTo(fileStream);
+                            var documentStream = File.OpenRead(pdfFile);
+                            var document = new Document(documentStream);
+
+                            var sizeBefore = documentStream.Length / (1024.0 * 1024.0);
+
+                            var redactionData = RedactionHelper.LoadRedactionDataForPdf(document, documentStream, documentStream.Name);
+                            redactionData.RedactionType = redactionType;
+
+                            var startTime = DateTime.Now;
+
+                            var redactedPdfStream = await redactorClient.RedactPdfAsync(redactionData);
+
+                            var endTime = DateTime.Now;
+                            var timeTaken = (endTime - startTime).TotalMilliseconds;
+
+                            var fullStream = await redactedPdfStream.EnsureSeekableAsync();
+
+                            var outputFilePath = pdfFile.Replace(".pdf", $"_{redactionType}.pdf");
+                            using (var fileStream = File.Create(outputFilePath))
+                            {
+                                fullStream.Seek(0, SeekOrigin.Begin);
+                                fullStream.CopyTo(fileStream);
+                            }
+
+                            var fileName = Path.GetFileName(pdfFile);
+                            var sizeAfter = fullStream.Length / (1024.0 * 1024.0);
+
+                            // Write to CSV
+                            await writer.WriteLineAsync($"{fileName},{redactionType},{sizeBefore},{sizeAfter},{timeTaken}");
+
+                            // Close the documentStream
+                            documentStream.Close();
+
+                            Console.WriteLine($"Finished Redacting {pdfFile} with {redactionType} method");
                         }
-
-                        var fileName = Path.GetFileName(pdfFile);
-                        var sizeAfter = fullStream.Length / (1024.0 * 1024.0);
-
-                        // Write to CSV
-                        await writer.WriteLineAsync($"{fileName},{redactionType},{sizeBefore},{sizeAfter},{timeTaken}");
-
-                        // Close the documentStream
-                        documentStream.Close();
-
-                        Console.WriteLine($"Finished Redacting {pdfFile} with {redactionType} method");
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Error redacting {pdfFile} with {redactionType} method: {e.Message}");
+                        }
                     }
                 }
             }

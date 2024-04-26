@@ -29,7 +29,10 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion.RedactionImplementa
 
     public void FinaliseAnnotations(ref PdfLoadedDocument document, Guid correlationId)
     {
-      PdfToImageConverter imageConverter = new PdfToImageConverter();
+      PdfToImageConverter imageConverter = new PdfToImageConverter
+      {
+        ScaleFactor = 1
+      };
 
       for (var pageNumber = 0; pageNumber < document.Pages.Count; pageNumber++)
       {
@@ -58,8 +61,8 @@ namespace pdf_redactor.Services.DocumentRedaction.SyncFusion.RedactionImplementa
           Bottom = 0,
           Left = 0,
           Right = 0
-
         });
+
         pageToSwapIn.Graphics.DrawImage(PdfImage.FromStream(bitmap), new PointF(0, 0), new SizeF(pageWidth, pageHeight));
 
       }
