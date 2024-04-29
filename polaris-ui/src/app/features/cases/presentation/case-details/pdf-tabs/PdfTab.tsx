@@ -27,7 +27,8 @@ type PdfTabProps = {
   }[];
   contextData: {
     correlationId: string;
-    showPIIDocuments: string[];
+    searchPIIOn: string[];
+    showSearchPII: boolean;
   };
   isOkToSave: boolean;
   handleOpenPdf: (caseDocument: {
@@ -149,7 +150,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentId: documentId,
             tabIndex: tabIndex,
             areaOnlyRedactionMode: areaOnlyRedactionMode,
-            showPIIDocuments: contextData.showPIIDocuments,
+            searchPIIOn: contextData.searchPIIOn,
+            showSearchPII: contextData.showSearchPII,
           }}
         />
       )}

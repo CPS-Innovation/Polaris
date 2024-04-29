@@ -14,6 +14,7 @@ import {
 } from "../../features/cases/domain/FeatureFlagData";
 import { useUserDetails as getMockUserDetails } from "../mock/useUserDetails";
 import { useUserDetails } from "../../auth";
+import { useCallback, useMemo } from "react";
 
 const isAutomationTestUser = (username: string) => {
   return !!(
@@ -125,14 +126,22 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
   const userDetails = useUserDetails();
   const groupClaims = account?.idTokenClaims?.groups as string[];
 
-  return {
-    redactionLog: showRedactionLogFeature(userDetails?.username, redactionLog),
-    fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
-    notes: showNotesFeature(userDetails?.username, notes, groupClaims),
-    searchPII: showSearchPIIFeature(
-      userDetails?.username,
-      searchPII,
-      groupClaims
-    ),
-  };
+  const getFeatureFlags = useCallback(
+    () => ({
+      redactionLog: showRedactionLogFeature(
+        userDetails?.username,
+        redactionLog
+      ),
+      fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
+      notes: showNotesFeature(userDetails?.username, notes, groupClaims),
+      searchPII: showSearchPIIFeature(
+        userDetails?.username,
+        searchPII,
+        groupClaims
+      ),
+    }),
+    []
+  );
+
+  return useMemo(() => getFeatureFlags(), [getFeatureFlags]);
 };

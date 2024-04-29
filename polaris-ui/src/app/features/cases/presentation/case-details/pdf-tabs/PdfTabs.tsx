@@ -18,7 +18,8 @@ type PdfTabsProps = {
   }[];
   contextData: {
     correlationId: string;
-    showPIIDocuments: string[];
+    searchPIIOn: string[];
+    showSearchPII: boolean;
   };
   caseId: number;
   isOkToSave: boolean;

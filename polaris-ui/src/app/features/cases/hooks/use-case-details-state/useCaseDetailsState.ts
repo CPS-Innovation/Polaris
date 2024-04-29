@@ -69,7 +69,12 @@ export const initialState = {
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
   },
-  featureFlags: { redactionLog: false, fullScreen: false, notes: false },
+  featureFlags: {
+    redactionLog: false,
+    fullScreen: false,
+    notes: false,
+    searchPII: false,
+  },
   storedUserData: { status: "loading" },
   notes: [],
   pIIData: [],
@@ -141,7 +146,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       type: "UPDATE_FEATURE_FLAGS_DATA",
       payload: featureFlagData,
     });
-  }, [featureFlagData.fullScreen, featureFlagData.redactionLog, dispatch]);
+  }, [featureFlagData, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")

@@ -528,9 +528,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 }
                 contextData={{
                   correlationId: pipelineState?.correlationId,
-                  showPIIDocuments: pIIData
+                  searchPIIOn: pIIData
                     .filter((data) => data.show)
                     .map((data) => data.documentId),
+                  showSearchPII: featureFlags.searchPII,
                 }}
                 caseId={+caseId}
                 showOverRedactionLog={

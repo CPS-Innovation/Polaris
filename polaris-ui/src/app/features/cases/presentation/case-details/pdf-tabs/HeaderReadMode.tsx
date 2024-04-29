@@ -16,8 +16,6 @@ import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogType
 import { ReactComponent as AreaIcon } from "../../../../../common/presentation/svgs/areaIcon.svg";
 import classes from "./HeaderReadMode.module.scss";
 
-const FEATURE_FLAG_PII = true;
-
 type Props = {
   showOverRedactionLog: boolean;
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
@@ -29,7 +27,8 @@ type Props = {
     documentId: string;
     tabIndex: number;
     areaOnlyRedactionMode: boolean;
-    showPIIDocuments: string[];
+    searchPIIOn: string[];
+    showSearchPII: boolean;
   };
 };
 
@@ -42,7 +41,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleShowHideRedactionSuggestions,
   contextData,
 }) => {
-  console.log("showPIIDocuments>>", contextData.showPIIDocuments);
+  console.log("searchPIIOn>>", contextData.searchPIIOn);
   console.log("contextData.documentId>>", contextData.documentId);
 
   const trackEvent = useAppInsightsTrackEvent();
@@ -63,8 +62,8 @@ export const HeaderReadMode: React.FC<Props> = ({
   };
 
   const isPIIOn = useMemo(() => {
-    return contextData.showPIIDocuments.includes(contextData.documentId);
-  }, [contextData.showPIIDocuments, contextData.documentId]);
+    return contextData.searchPIIOn.includes(contextData.documentId);
+  }, [contextData.searchPIIOn, contextData.documentId]);
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
@@ -90,7 +89,7 @@ export const HeaderReadMode: React.FC<Props> = ({
         },
       ];
     }
-    if (FEATURE_FLAG_PII) {
+    if (contextData.showSearchPII) {
       items = [
         ...items,
         {
