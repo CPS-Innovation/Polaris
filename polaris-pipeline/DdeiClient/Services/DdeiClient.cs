@@ -107,23 +107,6 @@ namespace Ddei.Services
                 .ToArray();
         }
 
-        public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string cmsAuthValues, Guid correlationId)
-        {
-            var response = await CallDdei(
-                _ddeiClientRequestFactory.CreateDocumentRequest(new DdeiCmsDocumentArgDto
-                {
-                    Urn = caseUrn,
-                    CaseId = long.Parse(caseId),
-                    CmsDocCategory = documentCategory,
-                    DocumentId = int.Parse(documentId),
-                    CmsAuthValues = cmsAuthValues,
-                    CorrelationId = correlationId
-                })
-            );
-
-            return await response.Content.ReadAsStreamAsync();
-        }
-
         public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
         {
             var response = await CallDdei(
