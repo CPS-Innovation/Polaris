@@ -21,6 +21,7 @@ const mockConfig = configModule as {
   FEATURE_FLAG_REDACTION_LOG: boolean;
   PRIVATE_BETA_CHECK_IGNORE_USER: string;
   FEATURE_FLAG_NOTES: boolean;
+  FEATURE_FLAG_SEARCH_PII: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
 };
 

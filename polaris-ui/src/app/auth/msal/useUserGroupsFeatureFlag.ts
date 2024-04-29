@@ -4,6 +4,7 @@ import {
   PRIVATE_BETA_CHECK_IGNORE_USER,
   FEATURE_FLAG_FULL_SCREEN,
   FEATURE_FLAG_NOTES,
+  FEATURE_FLAG_SEARCH_PII,
   PRIVATE_BETA_FEATURE_USER_GROUP,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
@@ -87,8 +88,38 @@ const showNotesFeature = (
   return true;
 };
 
+const showSearchPIIFeature = (
+  username: string,
+  queryParam: string,
+  groupClaims: string[]
+) => {
+  if (!FEATURE_FLAG_SEARCH_PII) {
+    return false;
+  }
+
+  const isTestUser =
+    window.Cypress &&
+    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
+
+  if (isTestUser) {
+    if (queryParam === "true") {
+      return true;
+    }
+    if (queryParam === "false") {
+      return false;
+    }
+  }
+
+  const isInPrivateBetaGroup = !!groupClaims?.includes(
+    PRIVATE_BETA_FEATURE_USER_GROUP
+  );
+
+  if (!isInPrivateBetaGroup) return false;
+  return true;
+};
+
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
-  const { redactionLog, fullScreen, notes } =
+  const { redactionLog, fullScreen, notes, searchPII } =
     useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -98,5 +129,10 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     redactionLog: showRedactionLogFeature(userDetails?.username, redactionLog),
     fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
     notes: showNotesFeature(userDetails?.username, notes, groupClaims),
+    searchPII: showSearchPIIFeature(
+      userDetails?.username,
+      searchPII,
+      groupClaims
+    ),
   };
 };
