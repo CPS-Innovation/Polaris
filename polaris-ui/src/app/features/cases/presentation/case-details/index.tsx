@@ -86,6 +86,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     featureFlags,
     storedUserData,
     notes,
+    pIIData,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -107,6 +108,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleAreaOnlyRedaction,
     handleGetNotes,
     handleAddNote,
+    handleShowHideRedactionSuggestions,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -521,8 +523,14 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   handleShowHideDocumentIssueModal
                 }
                 handleShowRedactionLogModal={handleShowRedactionLogModal}
+                handleShowHideRedactionSuggestions={
+                  handleShowHideRedactionSuggestions
+                }
                 contextData={{
                   correlationId: pipelineState?.correlationId,
+                  showPIIDocuments: pIIData
+                    .filter((data) => data.show)
+                    .map((data) => data.documentId),
                 }}
                 caseId={+caseId}
                 showOverRedactionLog={

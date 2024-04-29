@@ -16,16 +16,20 @@ import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogType
 import { ReactComponent as AreaIcon } from "../../../../../common/presentation/svgs/areaIcon.svg";
 import classes from "./HeaderReadMode.module.scss";
 
+const FEATURE_FLAG_PII = true;
+
 type Props = {
   showOverRedactionLog: boolean;
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
+  handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
   contextData: {
     documentId: string;
     tabIndex: number;
     areaOnlyRedactionMode: boolean;
+    showPIIDocuments: string[];
   };
 };
 
@@ -35,8 +39,12 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
+  handleShowHideRedactionSuggestions,
   contextData,
 }) => {
+  console.log("showPIIDocuments>>", contextData.showPIIDocuments);
+  console.log("contextData.documentId>>", contextData.documentId);
+
   const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
 
@@ -49,8 +57,14 @@ export const HeaderReadMode: React.FC<Props> = ({
       case "2":
         handleShowHideDocumentIssueModal(true);
         break;
+      case "3":
+        handleShowHideRedactionSuggestions(contextData.documentId, !isPIIOn);
     }
   };
+
+  const isPIIOn = useMemo(() => {
+    return contextData.showPIIDocuments.includes(contextData.documentId);
+  }, [contextData.showPIIDocuments, contextData.documentId]);
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
@@ -76,9 +90,24 @@ export const HeaderReadMode: React.FC<Props> = ({
         },
       ];
     }
+    if (FEATURE_FLAG_PII) {
+      items = [
+        ...items,
+        {
+          id: "3",
+          label: isPIIOn
+            ? "Turn off potential redactions"
+            : "Turn on potential redactions",
+          ariaLabel: isPIIOn
+            ? "Turn off potential redactions"
+            : "Turn on potential redactions",
+          disabled: false,
+        },
+      ];
+    }
 
     return items;
-  }, [showOverRedactionLog, disableReportBtn]);
+  }, [showOverRedactionLog, disableReportBtn, isPIIOn]);
 
   const handleRedactAreaToolButtonClick = useCallback(() => {
     if (window.getSelection()) {

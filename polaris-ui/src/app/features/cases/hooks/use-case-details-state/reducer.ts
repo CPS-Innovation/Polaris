@@ -200,6 +200,13 @@ export const reducer = (
               addNoteStatus: "initial";
             };
       }
+    | {
+        type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
+        payload: {
+          documentId: string;
+          show: boolean;
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -1032,6 +1039,28 @@ export const reducer = (
             ],
           };
       }
+    }
+
+    case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
+      const { documentId, show } = action.payload;
+      const availablePIIData = state.pIIData.find(
+        (data) => data.documentId === documentId
+      );
+      const newData = availablePIIData
+        ? { ...availablePIIData, show: show }
+        : {
+            show: show,
+            documentId: documentId,
+            piiSearchResult: [],
+            piiDataStatus: "initial" as const,
+          };
+      return {
+        ...state,
+        pIIData: [
+          ...state.pIIData.filter((data) => data.documentId !== documentId),
+          newData,
+        ],
+      };
     }
 
     default:

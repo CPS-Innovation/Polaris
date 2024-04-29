@@ -72,6 +72,7 @@ export const initialState = {
   featureFlags: { redactionLog: false, fullScreen: false, notes: false },
   storedUserData: { status: "loading" },
   notes: [],
+  pIIData: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -433,6 +434,21 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleShowHideRedactionSuggestions = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      showSuggestion: boolean
+    ) =>
+      dispatch({
+        type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
+        payload: {
+          documentId,
+          show: showSuggestion,
+        },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -457,5 +473,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleSaveReadUnreadData,
     handleGetNotes,
     handleAddNote,
+    handleShowHideRedactionSuggestions,
   };
 };

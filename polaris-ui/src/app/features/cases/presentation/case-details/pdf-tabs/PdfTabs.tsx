@@ -18,6 +18,7 @@ type PdfTabsProps = {
   }[];
   contextData: {
     correlationId: string;
+    showPIIDocuments: string[];
   };
   caseId: number;
   isOkToSave: boolean;
@@ -37,6 +38,7 @@ type PdfTabsProps = {
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
+  handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -59,6 +61,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
+  handleShowHideRedactionSuggestions,
 }) => {
   return (
     <Tabs
@@ -90,6 +93,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               }
               handleShowRedactionLogModal={handleShowRedactionLogModal}
               handleAreaOnlyRedaction={handleAreaOnlyRedaction}
+              handleShowHideRedactionSuggestions={
+                handleShowHideRedactionSuggestions
+              }
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}
