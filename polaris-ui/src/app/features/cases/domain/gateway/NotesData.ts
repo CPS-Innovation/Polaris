@@ -11,4 +11,5 @@ export type NotesData = {
   documentId: string;
   notes: Note[];
   addNoteStatus: "failure" | "saving" | "success" | "initial";
+  getNoteStatus: "initial" | "loading";
 };
