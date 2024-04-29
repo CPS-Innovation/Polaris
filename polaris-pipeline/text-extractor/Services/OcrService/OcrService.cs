@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -38,7 +39,10 @@ namespace text_extractor.Services.OcrService
                 //  n.b. this incurs an overhead for all executions, the vast majority of which do not need to retry.
                 stream = await stream.EnsureSeekableAsync();
                 // this trace is here to prove we are logging OK, feel free to remove once PR has merged.
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Attempt OCR on a stream with CanSeek: {stream.CanSeek}");
+                Log(correlationId, $"OCR started");
+                var watch = new Stopwatch();
+                watch.Start();
+
                 var streamPipeline = GetReadInStreamComputerVisionResiliencePipeline(correlationId);
 
                 var streamResponse = await streamPipeline.ExecuteAsync(async token =>
@@ -77,6 +81,9 @@ namespace text_extractor.Services.OcrService
                     }
                 }
 
+                watch.Stop();
+                Log(correlationId, $"OCR completed in {watch.ElapsedMilliseconds}ms");
+
                 return results.AnalyzeResult;
             }
             catch (Exception ex)
@@ -100,7 +107,7 @@ namespace text_extractor.Services.OcrService
                         .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
                     OnRetry = retryArguments =>
                     {
-                        _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Read in stream OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
+                        Log(correlationId, $"Read in stream OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
                         return ValueTask.CompletedTask;
                     }
                 })
@@ -120,11 +127,16 @@ namespace text_extractor.Services.OcrService
                         .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
                     OnRetry = retryArguments =>
                     {
-                        _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Read OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
+                        Log(correlationId, $"Read OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
                         return ValueTask.CompletedTask;
                     }
                 })
                 .Build();
+        }
+
+        internal void Log(Guid correlationId, string message)
+        {
+            _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), message);
         }
     }
 }
