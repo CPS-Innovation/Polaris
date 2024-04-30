@@ -115,12 +115,14 @@ export const AccordionDocument: React.FC<Props> = ({
     if (!notes.length) return "Loading notes, please wait...";
     if (notes.length === 1) {
       return ariaLiveText
-        ? `recent note text is ${notes[0].text}`
-        : `${notes[0].text}`;
+        ? `recent note text is ${notes[notes.length - 1].text}`
+        : `${notes[notes.length - 1].text}`;
     }
     return ariaLiveText
-      ? `recent note text is ${notes[0].text}, and ${notes.length - 1} more`
-      : `${notes[0].text} (+${notes.length - 1} more)`;
+      ? `recent note text is ${notes[notes.length - 1].text}, and ${
+          notes.length - 1
+        } more`
+      : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
   };
 
   return (
@@ -194,15 +196,16 @@ export const AccordionDocument: React.FC<Props> = ({
                 className="notesToolTip"
                 onHoverCallback={notesHoverOverCallback}
               >
-                {
+                {caseDocument.hasNotes && (
                   <div
+                    data-testid={`recent-notes-live-text-${caseDocument.documentId}`}
                     role="status"
                     aria-live="polite"
                     className={classes.visuallyHidden}
                   >
-                    {caseDocument.hasNotes ? getNotesHoverOverText(true) : ""}
+                    {getNotesHoverOverText(true)}
                   </div>
-                }
+                )}
                 <LinkButton
                   {...openNotesRefProps}
                   className={classes.notesBtn}

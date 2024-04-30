@@ -243,4 +243,38 @@ describe("Feature Notes", () => {
     cy.findByTestId("btn-notes-8").trigger("mouseover", { force: true });
     cy.findByTestId("tooltip").contains("Notes are disabled for this document");
   });
+
+  it("Hovering over the notes icon should show first notes loading tool tip and then show the recent note", () => {
+    cy.visit("/case-details/12AB1111111/13401?notes=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("notes-panel").should("not.exist");
+    cy.findByTestId("btn-notes-2").trigger("mouseover");
+    cy.findByTestId("tooltip").contains("Loading notes, please wait...");
+    cy.waitUntil(() => cy.findByTestId("tooltip").contains("text_2 (+1 more)"));
+  });
+
+  it("Focus over the notes icon should show first notes loading tool tip and then show the recent note", () => {
+    cy.visit("/case-details/12AB1111111/13401?notes=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("notes-panel").should("not.exist");
+    cy.findByTestId("btn-notes-2").focus();
+    cy.findByTestId("recent-notes-live-text-2").contains(
+      "Loading notes, please wait..."
+    );
+    cy.waitUntil(() =>
+      cy
+        .findByTestId("recent-notes-live-text-2")
+        .contains("recent note text is text_2, and 1 more")
+    );
+  });
+
+  it("There shouldn't be any tooltip or aria-live text about recent notes on the documents which has no notes", () => {
+    cy.visit("/case-details/12AB1111111/13401?notes=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("notes-panel").should("not.exist");
+    cy.findByTestId("btn-notes-10").trigger("mouseover");
+    cy.findByTestId("tooltip").should("not.exist");
+    cy.findByTestId("btn-notes-10").focus();
+    cy.findByTestId("recent-notes-live-text-10").should("not.exist");
+  });
 });
