@@ -268,7 +268,7 @@ describe("Feature Notes", () => {
     );
   });
 
-  it("There shouldn't be any tooltip or aria-live text about recent notes on the documents which has no notes", () => {
+  it("There should not be any tooltip or aria-live text about recent notes on the documents which has no notes", () => {
     cy.visit("/case-details/12AB1111111/13401?notes=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("notes-panel").should("not.exist");
