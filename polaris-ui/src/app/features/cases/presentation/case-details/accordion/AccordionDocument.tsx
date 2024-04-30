@@ -100,19 +100,27 @@ export const AccordionDocument: React.FC<Props> = ({
   ]);
 
   const notesHoverOverCallback = () => {
-    handleGetNotes(
-      caseDocument.documentId,
-      caseDocument.cmsDocType.documentType
+    const documentNote = notesData.find(
+      (note) => note.documentId === caseDocument.documentId
     );
+    if (documentNote?.getNoteStatus !== "failure") {
+      handleGetNotes(
+        caseDocument.documentId,
+        caseDocument.cmsDocType.documentType
+      );
+    }
   };
 
   const getNotesHoverOverText = (ariaLiveText: boolean) => {
     if (isNotesDisabled()) return "Notes are disabled for this document";
     if (!caseDocument.hasNotes) return "";
-    const notes =
-      notesData.find((note) => note.documentId === caseDocument.documentId)
-        ?.notes ?? [];
-    if (!notes.length) return "Loading notes, please wait...";
+    const documentNote = notesData.find(
+      (note) => note.documentId === caseDocument.documentId
+    );
+    const notes = documentNote?.notes ?? [];
+    if (documentNote?.getNoteStatus === "failure")
+      return "Failed to retrieve notes";
+    if (notes) if (!notes.length) return "Loading notes, please wait...";
     if (notes.length === 1) {
       return ariaLiveText
         ? `recent note text is ${notes[notes.length - 1].text}`

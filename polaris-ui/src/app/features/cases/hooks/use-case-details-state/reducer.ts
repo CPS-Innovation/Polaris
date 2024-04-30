@@ -199,7 +199,7 @@ export const reducer = (
               documentId: string;
               notesData: Note[];
               addNoteStatus: "initial";
-              getNoteStatus: "initial" | "loading";
+              getNoteStatus: "initial" | "loading" | "failure";
             };
       }
 ): CombinedState => {

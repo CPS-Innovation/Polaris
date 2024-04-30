@@ -486,6 +486,15 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             message: "Failed to get notes for the documents. Please try again.",
           },
         });
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: {
+            documentId,
+            notesData: [],
+            addNoteStatus: "initial",
+            getNoteStatus: "failure",
+          },
+        });
       }
     },
 
