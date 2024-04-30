@@ -43,7 +43,6 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
-            string documentCategory,
             int documentId
             )
         {

@@ -33,7 +33,6 @@ namespace coordinator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentNotes)] HttpRequest req,
             string caseUrn,
             int caseId,
-            string documentCategory,
             string documentId)
         {
             Guid currentCorrelationId = default;

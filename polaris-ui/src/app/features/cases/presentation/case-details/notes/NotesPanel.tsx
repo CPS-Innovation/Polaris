@@ -19,11 +19,10 @@ type NotesPanelProps = {
   notesData: NotesData[];
   handleAddNote: (
     documentId: string,
-    documentCategory: string,
     notesText: string
   ) => void;
   handleCloseNotes: () => void;
-  handleGetNotes: (documentId: string, documentCategory: string) => void;
+  handleGetNotes: (documentId: string) => void;
 };
 
 export const NotesPanel: React.FC<NotesPanelProps> = ({
@@ -63,7 +62,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     });
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
-    handleAddNote(documentId, documentCategory, newNoteValue);
+    handleAddNote(documentId, newNoteValue);
   };
 
   const noteData = useMemo(() => {
@@ -84,12 +83,12 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
 
   useEffect(() => {
     if (noteData?.addNoteStatus === "success") {
-      handleGetNotes(documentId, documentCategory);
+      handleGetNotes(documentId);
     }
-  }, [noteData?.addNoteStatus, documentId, documentCategory, handleGetNotes]);
+  }, [noteData?.addNoteStatus, documentId, handleGetNotes]);
 
   useEffect(() => {
-    handleGetNotes(documentId, documentCategory);
+    handleGetNotes(documentId);
   }, []);
 
   const notesList = useMemo(() => {

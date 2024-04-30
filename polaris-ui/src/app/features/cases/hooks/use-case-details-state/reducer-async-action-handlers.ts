@@ -84,14 +84,12 @@ type AsyncActions =
       type: "GET_NOTES_DATA";
       payload: {
         documentId: string;
-        documentCategory: string;
       };
     }
   | {
       type: "ADD_NOTE_DATA";
       payload: {
         documentId: string;
-        documentCategory: string;
         noteText: string;
       };
     };
@@ -443,7 +441,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory },
+        payload: { documentId },
       } = action;
       const { caseId, urn } = getState();
       try {
@@ -451,7 +449,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           urn,
           caseId,
           documentId,
-          documentCategory
         );
         dispatch({
           type: "UPDATE_NOTES_DATA",
@@ -473,7 +470,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory, noteText },
+        payload: { documentId, noteText },
       } = action;
       const { caseId, urn } = getState();
       let successStatus = true;
@@ -483,7 +480,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "UPDATE_NOTES_DATA",
           payload: { documentId, addNoteStatus: "saving" },
         });
-        await addNoteData(urn, caseId, documentId, documentCategory, noteText);
+        await addNoteData(urn, caseId, documentId, noteText);
         dispatch({
           type: "UPDATE_NOTES_DATA",
           payload: { documentId, addNoteStatus: "success" },
