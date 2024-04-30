@@ -43,7 +43,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var arg = _ddeiArgFactory.CreateDocumentNotesArgDto(cmsAuthValues, currentCorrelationId, caseUrn, caseId, documentCategory, documentId);
+                var arg = _ddeiArgFactory.CreateDocumentNotesArgDto(cmsAuthValues, currentCorrelationId, caseUrn, caseId, documentId);
                 var result = await _ddeiClient.GetDocumentNotes(arg);
 
                 return new OkObjectResult(result);
