@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using coordinator.Services.OcrResultsService;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -227,6 +228,31 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
             result.Lines[0].Words[2].RelativeOffset.Should().Be(expectedOffsetForLine1Word3);
             result.Lines[0].Words[3].RelativeOffset.Should().Be(expectedOffsetForLine1Word4);
             result.Lines[1].Words[0].RelativeOffset.Should().Be(expectedOffsetForLine2Word1);
+        }
+
+        [Fact]
+        public void WhenChunkingAnalyzeResults_TheProcessedCountIsIncremented()
+        {
+            var processedCount = 0;
+
+            var readResult = new ReadResult
+            {
+                Page = 1,
+                Lines = new List<Line> {
+                    _ocrLine1,
+                }
+            };
+            var analyzeResults = new AnalyzeResults
+            {
+                ReadResults = new List<ReadResult> { readResult }
+            };
+
+            var expectedProcessedCount = readResult.Lines.Count;
+
+            var result = new PiiChunk(1, CaseId, DocumentId, 100);
+            result.BuildChunk(analyzeResults, ref processedCount);
+
+            processedCount.Should().Be(expectedProcessedCount);
         }
     }
 }

@@ -72,8 +72,7 @@ namespace coordinator.Services.OcrResultsService
 
         public void AddLine(Line line, ReadResult readResult, int accumulativeLineIndex)
         {
-            var previousLine = Lines.LastOrDefault();
-            var ocrLine = new OcrLineResult(line, readResult, accumulativeLineIndex, previousLine);
+            var ocrLine = new OcrLineResult(line, readResult, accumulativeLineIndex, Lines.LastOrDefault());
             _text += ocrLine.Text;
             Lines.Add(ocrLine);
         }
