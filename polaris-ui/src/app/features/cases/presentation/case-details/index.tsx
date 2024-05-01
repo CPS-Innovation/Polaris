@@ -408,6 +408,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     showNotesFeature={featureFlags.notes}
                     lastFocusDocumentId={openNotesData.lastFocusDocumentId}
                     accordionStateChangeCallback={accordionStateChangeCallback}
+                    handleGetNotes={handleGetNotes}
+                    notesData={notes}
                   />
                 )}
               </div>

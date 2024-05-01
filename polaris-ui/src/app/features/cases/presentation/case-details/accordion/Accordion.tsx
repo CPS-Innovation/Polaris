@@ -1,5 +1,6 @@
 import { useReducer, useEffect } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
+import { NotesData } from "../../../domain/gateway/NotesData";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
@@ -25,6 +26,8 @@ type Props = {
   accordionStateChangeCallback: (
     accordionCurrentState: AccordionReducerState
   ) => void;
+  handleGetNotes: (documentId: string) => void;
+  notesData: NotesData[];
 };
 
 export const Accordion: React.FC<Props> = ({
@@ -34,9 +37,11 @@ export const Accordion: React.FC<Props> = ({
   accordionState: sections,
   readUnreadData,
   showNotesFeature,
+  notesData,
   handleOpenPdf,
   handleOpenNotes,
   accordionStateChangeCallback,
+  handleGetNotes,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
@@ -90,6 +95,8 @@ export const Accordion: React.FC<Props> = ({
           handleOpenPdf={handleOpenPdf}
           handleOpenNotes={handleOpenNotes}
           lastFocusDocumentId={lastFocusDocumentId}
+          handleGetNotes={handleGetNotes}
+          notesData={notesData}
         />
       ))}
     </div>
