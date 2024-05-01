@@ -84,9 +84,10 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
 
   useEffect(() => {
     if (noteData?.addNoteStatus === "success") {
-      handleGetNotes(documentId, documentCategory);
+      handleCloseNotes();
+      // handleGetNotes(documentId, documentCategory);
     }
-  }, [noteData?.addNoteStatus, documentId, documentCategory, handleGetNotes]);
+  }, [noteData?.addNoteStatus, handleCloseNotes]);
 
   useEffect(() => {
     handleGetNotes(documentId, documentCategory);
@@ -204,7 +205,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               data-testid="btn-add-note"
               onClick={handleAddBtnClick}
             >
-              Add note
+              Save and close
             </Button>
 
             <LinkButton
