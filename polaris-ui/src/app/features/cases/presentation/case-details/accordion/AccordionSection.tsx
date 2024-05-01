@@ -4,6 +4,7 @@ import classes from "./Accordion.module.scss";
 import { ReactComponent as EmailIcon } from "../../../../../common/presentation/svgs/email.svg";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
+import { NotesData } from "../../../domain/gateway/NotesData";
 
 type Props = {
   activeDocumentId: string;
@@ -23,6 +24,8 @@ type Props = {
     documentCategory: string,
     presentationFileName: string
   ) => void;
+  handleGetNotes: (documentId: string, documentCategory: string) => void;
+  notesData: NotesData[];
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -41,9 +44,11 @@ export const AccordionSection: React.FC<Props> = ({
   isOpen,
   readUnreadData,
   showNotesFeature,
+  notesData,
   handleToggleOpenSection,
   handleOpenPdf,
   handleOpenNotes,
+  handleGetNotes,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -98,6 +103,8 @@ export const AccordionSection: React.FC<Props> = ({
                     handleOpenNotes={handleOpenNotes}
                     showNotesFeature={showNotesFeature}
                     lastFocusDocumentId={lastFocusDocumentId}
+                    handleGetNotes={handleGetNotes}
+                    notesData={notesData}
                   />
                 ))}
               </ul>

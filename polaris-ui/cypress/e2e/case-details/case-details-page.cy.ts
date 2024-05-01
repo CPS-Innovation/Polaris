@@ -200,7 +200,9 @@ describe("case details page", () => {
       cy.findByTestId("btn-nav-ignore").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("div-pdfviewer-0").should("not.exist");
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return doc1CheckInCounter.count;
+      }).then(() => {
         expect(doc1CheckInCounter.count).to.equal(1);
       });
     });
@@ -317,7 +319,9 @@ describe("case details page", () => {
       cy.findByTestId("btn-nav-ignore").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.location("pathname").should("eq", "/case-search");
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return doc1CheckInCounter.count;
+      }).then(() => {
         expect(doc1CheckInCounter.count).to.equal(1);
       });
     });
