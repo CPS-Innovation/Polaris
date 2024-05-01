@@ -433,6 +433,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName}.`}
               </span>
               <NotesPanel
+                activeDocumentId={getActiveTabDocument?.documentId}
                 documentName={openNotesData.presentationFileName}
                 documentCategory={openNotesData.documentCategory}
                 documentId={openNotesData.documentId}

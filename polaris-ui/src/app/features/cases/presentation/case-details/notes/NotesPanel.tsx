@@ -4,6 +4,7 @@ import {
   LinkButton,
   CharacterCount,
   ErrorSummary,
+  Modal,
 } from "../../../../../common/presentation/components";
 import { NotesTimeline } from "./NotesTimeline";
 import classes from "./NotesPanel.module.scss";
@@ -17,6 +18,7 @@ type NotesPanelProps = {
   documentId: string;
   documentCategory: string;
   notesData: NotesData[];
+  activeDocumentId: string;
   handleAddNote: (
     documentId: string,
     documentCategory: string,
@@ -31,6 +33,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   notesData,
   documentId,
   documentCategory,
+  activeDocumentId,
   handleCloseNotes,
   handleAddNote,
   handleGetNotes,
@@ -41,6 +44,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const [newNoteValue, setNewNoteValue] = useState("");
   const [oldNoteValue, setOldNoteValue] = useState("");
   const [notesError, setNotesError] = useState(false);
+  const [showMismatchAlert, setShowMismatchAlert] = useState(false);
 
   const handleAddBtnClick = () => {
     if (newNoteValue.length > NOTES_MAX_CHARACTERS) {
@@ -48,15 +52,23 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
       if (notesError && errorSummaryRef.current) {
         (errorSummaryRef?.current as HTMLButtonElement).focus();
       }
-
       return;
+    }
+
+    if (cancelBtnRef.current) {
+      (cancelBtnRef.current as HTMLElement).focus();
     }
     if (notesError) {
       setNotesError(false);
     }
-    if (cancelBtnRef.current) {
-      (cancelBtnRef.current as HTMLElement).focus();
+    if (activeDocumentId && activeDocumentId !== documentId) {
+      setShowMismatchAlert(true);
+      return;
     }
+    saveNote();
+  };
+
+  const saveNote = () => {
     trackEvent("Add Note", {
       documentId: documentId,
       documentCategory: documentCategory,
@@ -64,6 +76,24 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
     handleAddNote(documentId, documentCategory, newNoteValue);
+  };
+
+  const handleMismatchWarningOk = () => {
+    trackEvent("Note Document Mismatch Ok", {
+      documentId: documentId,
+      documentCategory: documentCategory,
+    });
+    setShowMismatchAlert(false);
+    saveNote();
+  };
+
+  const handleMismatchWarningCancel = (closeBtn = false) => {
+    trackEvent("Note Document Mismatch Cancel", {
+      documentId: documentId,
+      documentCategory: documentCategory,
+      closeBtn: closeBtn,
+    });
+    setShowMismatchAlert(false);
   };
 
   const noteData = useMemo(() => {
@@ -222,6 +252,43 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
         </div>
       </div>
       <NotesTimeline notes={notesList} />
+
+      {showMismatchAlert && (
+        <Modal
+          isVisible
+          handleClose={() => {
+            handleMismatchWarningCancel(true);
+          }}
+          type="alert"
+          ariaLabel="Notes Active Document Mismatch modal"
+          ariaDescription="Check note will be added to the correct document. The note will be added to a different document to the one currently
+              being viewed."
+        >
+          <div className={classes.alertContent}>
+            <h1 className="govuk-heading-l">
+              Check note will be added to the correct document
+            </h1>
+            <p>
+              The note will be added to a different document to the one
+              currently being viewed.
+            </p>
+            <div className={classes.actionButtonsWrapper}>
+              <Button
+                onClick={handleMismatchWarningOk}
+                data-testid="btn-mismatch-ok"
+              >
+                Ok
+              </Button>
+              <LinkButton
+                onClick={() => handleMismatchWarningCancel()}
+                dataTestId="btn-mismatch-cancel"
+              >
+                cancel
+              </LinkButton>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
