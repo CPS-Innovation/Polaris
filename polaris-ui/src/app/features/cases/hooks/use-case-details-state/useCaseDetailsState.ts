@@ -405,9 +405,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleGetNotes = useCallback(
-    (
-      documentId: CaseDocumentViewModel["documentId"],
-    ) =>
+    (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
         type: "GET_NOTES_DATA",
         payload: { documentId },
@@ -416,10 +414,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleAddNote = useCallback(
-    (
-      documentId: CaseDocumentViewModel["documentId"],
-      noteText: string
-    ) =>
+    (documentId: CaseDocumentViewModel["documentId"], noteText: string) =>
       dispatch({
         type: "ADD_NOTE_DATA",
         payload: {

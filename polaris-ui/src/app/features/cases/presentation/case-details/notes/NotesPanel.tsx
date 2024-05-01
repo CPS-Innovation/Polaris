@@ -17,10 +17,7 @@ type NotesPanelProps = {
   documentId: string;
   documentCategory: string;
   notesData: NotesData[];
-  handleAddNote: (
-    documentId: string,
-    notesText: string
-  ) => void;
+  handleAddNote: (documentId: string, notesText: string) => void;
   handleCloseNotes: () => void;
   handleGetNotes: (documentId: string) => void;
 };

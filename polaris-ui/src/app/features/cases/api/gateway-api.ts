@@ -283,7 +283,7 @@ export const getRedactionLogMappingData = async () => {
 export const getNotesData = async (
   urn: string,
   caseId: number,
-  documentId: string,
+  documentId: string
 ) => {
   const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
