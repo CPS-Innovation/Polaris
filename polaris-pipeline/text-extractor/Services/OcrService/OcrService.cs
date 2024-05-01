@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Common.Logging;
+using Common.Streaming;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,12 @@ namespace text_extractor.Services.OcrService
         {
             try
             {
+                // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
+                //  and so will need to go through the stream again. Depending on the version/type of framework that is handing us this stream
+                //  it may not be seekable.  We have a helper method to ensure it is seekable.
+                //  n.b. this incurs an overhead for all executions, the vast majority of which do not need to retry.
+                stream = await stream.EnsureSeekableAsync();
+
                 var watch = new Stopwatch();
                 watch.Start();
 
