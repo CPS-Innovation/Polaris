@@ -186,7 +186,7 @@ describe("Feature Notes", () => {
     cy.trackRequestCount(
       addNoteCounter,
       "POST",
-      "/api/urns/12AB1111111/cases/13401/documents/MGForm/10/notes"
+      "/api/urns/12AB1111111/cases/13401/documents/10/notes"
     );
     const notes500CharacterText =
       "Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investig";
