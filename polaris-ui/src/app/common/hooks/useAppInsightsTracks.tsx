@@ -45,8 +45,8 @@ type AppInsightsTrackEventNames =
   | "Open Notes"
   | "Add Note"
   | "Add Note Error"
-  | "Note Document Mismatch Ok"
-  | "Note Document Mismatch Cancel";
+  | "Notes Document Mismatch Ok"
+  | "Notes Document Mismatch Cancel";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -128,9 +128,9 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Add Note": "User has clicked Add note button in the notes panel",
   "Add Note Error":
     "The attempt to add a new note for a document failed, prompting the display of an error message to the user",
-  "Note Document Mismatch Ok":
+  "Notes Document Mismatch Ok":
     "User has clicked Ok button in the document mismatch modal",
-  "Note Document Mismatch Cancel":
+  "Notes Document Mismatch Cancel":
     "User has clicked cancel or close button in the document mismatch modal",
 };
 const useAppInsightsTrackEvent = () => {

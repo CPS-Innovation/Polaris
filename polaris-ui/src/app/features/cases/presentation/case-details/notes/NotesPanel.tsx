@@ -75,7 +75,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   };
 
   const handleMismatchWarningOk = () => {
-    trackEvent("Note Document Mismatch Ok", {
+    trackEvent("Notes Document Mismatch Ok", {
       documentId: documentId,
       documentCategory: documentCategory,
     });
@@ -84,7 +84,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   };
 
   const handleMismatchWarningCancel = (closeBtn = false) => {
-    trackEvent("Note Document Mismatch Cancel", {
+    trackEvent("Notes Document Mismatch Cancel", {
       documentId: documentId,
       documentCategory: documentCategory,
       closeBtn: closeBtn,
