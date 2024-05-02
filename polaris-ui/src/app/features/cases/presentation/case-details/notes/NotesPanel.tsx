@@ -164,14 +164,14 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
         <div
           role="status"
           aria-live="polite"
-          className={classes.visuallyHidden1}
+          className={classes.visuallyHidden}
         >
           {addNoteSuccessLiveText}
         </div>
         <div
           role="status"
           aria-live="polite"
-          className={classes.visuallyHidden1}
+          className={classes.visuallyHidden}
         >
           {notesCountLiveText}
         </div>
