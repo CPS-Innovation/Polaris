@@ -151,7 +151,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           dataTestId="btn-close-notes"
           type="button"
           className={classes.notesPanelCloseBtn}
-          aria-label="close notes"
+          ariaLabel="close notes"
           onClick={() => handleCloseNotes()}
         >
           <CloseIcon height={"2.5rem"} width={"2.5rem"} />
@@ -238,7 +238,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               className={classes.cancelBtn}
               onClick={() => handleCloseNotes()}
               dataTestId="btn-cancel-notes"
-              ariaLabel="close notes"
+              ariaLabel="cancel notes panel"
               id="btn-cancel-notes"
             >
               Cancel
@@ -255,7 +255,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
             handleMismatchWarningCancel(true);
           }}
           type="alert"
-          ariaLabel="Notes Active Document Mismatch modal"
+          ariaLabel="Notes document mismatch warning modal"
           ariaDescription="Check note will be added to the correct document. The note will be added to a different document to the one currently
               being viewed."
         >
