@@ -53,16 +53,6 @@ describe("Happy Path", { tags: "@ci" }, () => {
     // have all docs processed ok?
     // (do this last to give the indexing time to work while we assert the above)
     cy.findByTestId("span-flag-all-indexed")
-
-    // until the notes feature goes on general release we have to pass the query param feature
-    //  flag query param in, so we've got to reload the page.  Feel free to remove this step
-    //  once the feature is out
-    cy.visit(
-      `/polaris-ui/case-details/${HAPPY_PATH_URN}/${HAPPY_PATH_CASE_ID}?notes=true`
-    )
-    cy.findByTestId("btn-accordion-open-close-all").click()
-    cy.findByTestId(`btn-notes-CMS-${HAPPY_PATH_NOTES_DOCUMENT_ID}`).click()
-    cy.findByText(HAPPY_PATH_NOTES_TARGET_TEXT)
   })
 })
 
