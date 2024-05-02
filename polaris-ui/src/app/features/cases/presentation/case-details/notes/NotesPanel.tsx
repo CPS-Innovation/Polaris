@@ -109,9 +109,14 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   }, [notesError]);
 
   useEffect(() => {
-    if (noteData?.addNoteStatus === "success") {
-      handleCloseNotes();
-    }
+    const timer = setTimeout(() => {
+      if (noteData?.addNoteStatus === "success") {
+        handleCloseNotes();
+      }
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [noteData?.addNoteStatus, handleCloseNotes]);
 
   useEffect(() => {
@@ -156,24 +161,20 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
         >
           <CloseIcon height={"2.5rem"} width={"2.5rem"} />
         </LinkButton>
-        {
-          <div
-            role="status"
-            aria-live="polite"
-            className={classes.visuallyHidden}
-          >
-            {addNoteSuccessLiveText}
-          </div>
-        }
-        {
-          <div
-            role="status"
-            aria-live="polite"
-            className={classes.visuallyHidden}
-          >
-            {notesCountLiveText}
-          </div>
-        }
+        <div
+          role="status"
+          aria-live="polite"
+          className={classes.visuallyHidden1}
+        >
+          {addNoteSuccessLiveText}
+        </div>
+        <div
+          role="status"
+          aria-live="polite"
+          className={classes.visuallyHidden1}
+        >
+          {notesCountLiveText}
+        </div>
       </div>
       <div className={classes.notesBody}>
         {notesError && (
@@ -238,7 +239,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               className={classes.cancelBtn}
               onClick={() => handleCloseNotes()}
               dataTestId="btn-cancel-notes"
-              ariaLabel="cancel notes panel"
+              ariaLabel="cancel notes"
               id="btn-cancel-notes"
             >
               Cancel

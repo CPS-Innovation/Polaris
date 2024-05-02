@@ -179,6 +179,15 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     },
     []
   );
+  const handleCloseNotes = useCallback(() => {
+    setOpenNoteData({
+      ...openNotesData,
+      open: false,
+      documentId: "",
+      documentCategory: "",
+      presentationFileName: "",
+    });
+  }, [openNotesData]);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
@@ -438,15 +447,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 documentCategory={openNotesData.documentCategory}
                 documentId={openNotesData.documentId}
                 notesData={notes}
-                handleCloseNotes={() => {
-                  setOpenNoteData({
-                    ...openNotesData,
-                    open: false,
-                    documentId: "",
-                    documentCategory: "",
-                    presentationFileName: "",
-                  });
-                }}
+                handleCloseNotes={handleCloseNotes}
                 handleAddNote={handleAddNote}
                 handleGetNotes={handleGetNotes}
               />
