@@ -15,11 +15,11 @@ namespace Common.Configuration
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
-        public const string AddNoteToDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentCategory}/{documentId}/notes";
+        public const string AddNoteToDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
         public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/redact";
 
         // Documents (plural)
-        public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentCategory}/{documentId}/notes";
+        public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
 
         // Other
         public const string AuthInitialisation = "init";
@@ -76,9 +76,9 @@ namespace Common.Configuration
             return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
         }
 
-        public static string GetDocumentNotesPath(string caseUrn, long caseId, string documentCategory, int documentId)
+        public static string GetDocumentNotesPath(string caseUrn, long caseId, int documentId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentCategory}/{documentId}/notes";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/notes";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)

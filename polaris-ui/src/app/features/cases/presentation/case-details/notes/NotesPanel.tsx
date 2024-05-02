@@ -19,13 +19,9 @@ type NotesPanelProps = {
   documentCategory: string;
   notesData: NotesData[];
   activeDocumentId: string;
-  handleAddNote: (
-    documentId: string,
-    documentCategory: string,
-    notesText: string
-  ) => void;
+  handleAddNote: (documentId: string, notesText: string) => void;
   handleCloseNotes: () => void;
-  handleGetNotes: (documentId: string, documentCategory: string) => void;
+  handleGetNotes: (documentId: string) => void;
 };
 
 export const NotesPanel: React.FC<NotesPanelProps> = ({
@@ -75,8 +71,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     });
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
-    console.log("handleAddNote>>>>", documentCategory);
-    handleAddNote(documentId, documentCategory, newNoteValue);
+    handleAddNote(documentId, newNoteValue);
   };
 
   const handleMismatchWarningOk = () => {
@@ -116,13 +111,11 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   useEffect(() => {
     if (noteData?.addNoteStatus === "success") {
       handleCloseNotes();
-      // handleGetNotes(documentId, documentCategory);
     }
   }, [noteData?.addNoteStatus, handleCloseNotes]);
 
   useEffect(() => {
-    console.log("handleGetNotes>>>>", documentCategory);
-    handleGetNotes(documentId, documentCategory);
+    handleGetNotes(documentId);
   }, []);
 
   const notesList = useMemo(() => {

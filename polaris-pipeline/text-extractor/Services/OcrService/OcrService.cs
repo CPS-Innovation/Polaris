@@ -40,7 +40,7 @@ namespace text_extractor.Services.OcrService
 
                 var watch = new Stopwatch();
                 watch.Start();
-
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
                 var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream);
                 var operationLocation = textHeaders.OperationLocation;
 
@@ -54,7 +54,7 @@ namespace text_extractor.Services.OcrService
                     await Task.Delay(_pollingDelayMs);
 
                     results = await _computerVisionClient.GetReadResultAsync(Guid.Parse(operationId));
-
+                    _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
                     if (results.Status is OperationStatusCodes.Failed or OperationStatusCodes.Succeeded)
                     {
                         break;
@@ -62,7 +62,12 @@ namespace text_extractor.Services.OcrService
                 }
 
                 watch.Stop();
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {watch.ElapsedMilliseconds}ms");
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {watch.ElapsedMilliseconds}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+
+                if (results.Status == OperationStatusCodes.Failed)
+                {
+                    throw new OcrServiceException("OCR completed with Failed status");
+                }
 
                 return results.AnalyzeResult;
             }

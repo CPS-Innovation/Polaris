@@ -61,7 +61,7 @@ describe("Feature Notes", () => {
     cy.trackRequestBody(
       addNoteRequestObject,
       "POST",
-      "/api/urns/12AB1111111/cases/13401/documents/MGForm/10/notes"
+      "/api/urns/12AB1111111/cases/13401/documents/10/notes"
     );
     const refreshPipelineCounter = { count: 0 };
     cy.trackRequestCount(
@@ -80,7 +80,7 @@ describe("Feature Notes", () => {
     cy.trackRequestCount(
       doc10GetNotesCounter,
       "GET",
-      "/api/urns/12AB1111111/cases/13401/documents/MGForm/10/notes"
+      "/api/urns/12AB1111111/cases/13401/documents/10/notes"
     );
 
     cy.visit("/case-details/12AB1111111/13401?notes=true");
@@ -137,7 +137,7 @@ describe("Feature Notes", () => {
     cy.trackRequestCount(
       doc10GetNotesCounter,
       "GET",
-      "/api/urns/12AB1111111/cases/13401/documents/MGForm/10/notes"
+      "/api/urns/12AB1111111/cases/13401/documents/10/notes"
     );
     const refreshPipelineCounter = { count: 0 };
     cy.trackRequestCount(
@@ -185,7 +185,7 @@ describe("Feature Notes", () => {
     cy.trackRequestCount(
       addNoteCounter,
       "POST",
-      "/api/urns/12AB1111111/cases/13401/documents/MGForm/10/notes"
+      "/api/urns/12AB1111111/cases/13401/documents/10/notes"
     );
     const notes500CharacterText =
       "Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investig";

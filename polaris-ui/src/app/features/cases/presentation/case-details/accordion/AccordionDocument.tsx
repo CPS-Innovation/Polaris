@@ -35,7 +35,7 @@ type Props = {
     documentCategory: string,
     presentationFileName: string
   ) => void;
-  handleGetNotes: (documentId: string, documentCategory: string) => void;
+  handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
 };
 
@@ -104,10 +104,7 @@ export const AccordionDocument: React.FC<Props> = ({
       (note) => note.documentId === caseDocument.documentId
     );
     if (documentNote?.getNoteStatus !== "failure") {
-      handleGetNotes(
-        caseDocument.documentId,
-        caseDocument.cmsDocType.documentCategory
-      );
+      handleGetNotes(caseDocument.documentId);
     }
   };
 

@@ -84,14 +84,12 @@ type AsyncActions =
       type: "GET_NOTES_DATA";
       payload: {
         documentId: string;
-        documentCategory: string;
       };
     }
   | {
       type: "ADD_NOTE_DATA";
       payload: {
         documentId: string;
-        documentCategory: string;
         noteText: string;
       };
     };
@@ -443,7 +441,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory },
+        payload: { documentId },
       } = action;
       const { caseId, urn, notes } = getState();
       const isActiveGetNotesRequest =
@@ -462,12 +460,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             getNoteStatus: "loading",
           },
         });
-        const notesData = await getNotesData(
-          urn,
-          caseId,
-          documentId,
-          documentCategory
-        );
+        const notesData = await getNotesData(urn, caseId, documentId);
         dispatch({
           type: "UPDATE_NOTES_DATA",
           payload: {
@@ -502,7 +495,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory, noteText },
+        payload: { documentId, noteText },
       } = action;
       const { caseId, urn } = getState();
       let successStatus = true;
@@ -516,7 +509,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             getNoteStatus: "initial",
           },
         });
-        await addNoteData(urn, caseId, documentId, documentCategory, noteText);
+        await addNoteData(urn, caseId, documentId, noteText);
         dispatch({
           type: "UPDATE_NOTES_DATA",
           payload: {

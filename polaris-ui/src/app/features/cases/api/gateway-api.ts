@@ -283,12 +283,11 @@ export const getRedactionLogMappingData = async () => {
 export const getNotesData = async (
   urn: string,
   caseId: number,
-  documentId: string,
-  documentCategory: string
+  documentId: string
 ) => {
   const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${docId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
   const response = await internalFetch(path, {
@@ -306,12 +305,11 @@ export const addNoteData = async (
   urn: string,
   caseId: number,
   documentId: string,
-  documentCategory: string,
   text: string
 ) => {
   const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentCategory}/${docId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
   const response = await internalFetch(path, {
