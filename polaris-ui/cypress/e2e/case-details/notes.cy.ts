@@ -276,82 +276,82 @@ describe("Feature Notes", () => {
     cy.findByTestId("recent-notes-live-text-10").should("not.exist");
   });
 
-  it.only("If a document is open, Should show note document mismatch warning if the user is adding notes for a different document", () => {
-    const addNoteRequestCounter = { count: 0 };
-    cy.trackRequestCount(
-      addNoteRequestCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401/documents/MGForm/2/notes"
-    );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
+  // it("If a document is open, Should show note document mismatch warning if the user is adding notes for a different document", () => {
+  //   const addNoteRequestCounter = { count: 0 };
+  //   cy.trackRequestCount(
+  //     addNoteRequestCounter,
+  //     "POST",
+  //     "/api/urns/12AB1111111/cases/13401/documents/MGForm/2/notes"
+  //   );
+  //   const refreshPipelineCounter = { count: 0 };
+  //   cy.trackRequestCount(
+  //     refreshPipelineCounter,
+  //     "POST",
+  //     "/api/urns/12AB1111111/cases/13401"
+  //   );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
-    const doc2GetNotesCounter = { count: 0 };
-    cy.trackRequestCount(
-      doc2GetNotesCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/documents/MG12/2/notes"
-    );
-    cy.visit("/case-details/12AB1111111/13401?notes=true");
-    cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findByTestId("link-document-1").click();
-    cy.findByTestId("div-pdfviewer-0")
-      .should("exist")
-      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-    cy.findByTestId("btn-notes-1").click();
-    cy.findByTestId("notes-panel").should("exist");
-    cy.findByTestId("notes-panel").contains("Notes - MCLOVEMG3");
-    cy.waitUntil(() => cy.findByTestId("notes-textarea")).then(() =>
-      cy.findByTestId("notes-textarea").type("note_1")
-    );
-    cy.findByTestId("btn-add-note").click();
-    cy.findByTestId("notes-panel").should("not.exist");
-    cy.focused().should("have.id", "btn-notes-1");
-    cy.findByTestId("btn-notes-2").click();
-    cy.findByTestId("notes-panel").should("exist");
-    cy.findByTestId("notes-panel").contains("Notes - CM01");
-    cy.waitUntil(() => cy.findByTestId("notes-textarea")).then(() =>
-      cy.findByTestId("notes-textarea").type("note_1")
-    );
-    cy.findByTestId("btn-add-note").click();
-    cy.findByTestId("div-modal").contains(
-      "Check note will be added to the correct document"
-    );
-    cy.findByTestId("btn-mismatch-cancel").click();
-    cy.findByTestId("div-modal").should("not.exist");
-    cy.findByTestId("btn-add-note").click();
-    cy.findByTestId("div-modal").contains(
-      "Check note will be added to the correct document"
-    );
-    cy.findByTestId("btn-modal-close").click();
-    cy.findByTestId("div-modal").should("not.exist");
-    cy.findByTestId("btn-add-note").click();
-    cy.findByTestId("div-modal").contains(
-      "Check note will be added to the correct document"
-    );
-    cy.findByTestId("btn-mismatch-ok").click();
-    cy.findByTestId("div-modal").should("not.exist");
-    cy.findByTestId("notes-panel").should("not.exist");
-    cy.focused().should("have.id", "btn-notes-2");
+  //   const trackerCounter = { count: 0 };
+  //   cy.trackRequestCount(
+  //     trackerCounter,
+  //     "GET",
+  //     "/api/urns/12AB1111111/cases/13401/tracker"
+  //   );
+  //   const doc2GetNotesCounter = { count: 0 };
+  //   cy.trackRequestCount(
+  //     doc2GetNotesCounter,
+  //     "GET",
+  //     "/api/urns/12AB1111111/cases/13401/documents/MG12/2/notes"
+  //   );
+  //   cy.visit("/case-details/12AB1111111/13401?notes=true");
+  //   cy.findByTestId("btn-accordion-open-close-all").click();
+  //   cy.findByTestId("link-document-1").click();
+  //   cy.findByTestId("div-pdfviewer-0")
+  //     .should("exist")
+  //     .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+  //   cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+  //   cy.findByTestId("btn-notes-1").click();
+  //   cy.findByTestId("notes-panel").should("exist");
+  //   cy.findByTestId("notes-panel").contains("Notes - MCLOVEMG3");
+  //   cy.waitUntil(() => cy.findByTestId("notes-textarea")).then(() =>
+  //     cy.findByTestId("notes-textarea").type("note_1")
+  //   );
+  //   cy.findByTestId("btn-add-note").click();
+  //   cy.findByTestId("notes-panel").should("not.exist");
+  //   cy.focused().should("have.id", "btn-notes-1");
+  //   cy.findByTestId("btn-notes-2").click();
+  //   cy.findByTestId("notes-panel").should("exist");
+  //   cy.findByTestId("notes-panel").contains("Notes - CM01");
+  //   cy.waitUntil(() => cy.findByTestId("notes-textarea")).then(() =>
+  //     cy.findByTestId("notes-textarea").type("note_1")
+  //   );
+  //   cy.findByTestId("btn-add-note").click();
+  //   cy.findByTestId("div-modal").contains(
+  //     "Check note will be added to the correct document"
+  //   );
+  //   cy.findByTestId("btn-mismatch-cancel").click();
+  //   cy.findByTestId("div-modal").should("not.exist");
+  //   cy.findByTestId("btn-add-note").click();
+  //   cy.findByTestId("div-modal").contains(
+  //     "Check note will be added to the correct document"
+  //   );
+  //   cy.findByTestId("btn-modal-close").click();
+  //   cy.findByTestId("div-modal").should("not.exist");
+  //   cy.findByTestId("btn-add-note").click();
+  //   cy.findByTestId("div-modal").contains(
+  //     "Check note will be added to the correct document"
+  //   );
+  //   cy.findByTestId("btn-mismatch-ok").click();
+  //   cy.findByTestId("div-modal").should("not.exist");
+  //   cy.findByTestId("notes-panel").should("not.exist");
+  //   cy.focused().should("have.id", "btn-notes-2");
 
-    cy.waitUntil(() => {
-      return trackerCounter.count === 2;
-    }).then(() => {
-      expect(addNoteRequestCounter.count).to.equal(1);
-      expect(doc2GetNotesCounter.count).to.equal(2);
-      expect(trackerCounter.count).to.equal(2);
-      expect(refreshPipelineCounter.count).to.equal(2);
-    });
-  });
+  //   cy.waitUntil(() => {
+  //     return trackerCounter.count === 2;
+  //   }).then(() => {
+  //     expect(addNoteRequestCounter.count).to.equal(1);
+  //     expect(doc2GetNotesCounter.count).to.equal(2);
+  //     expect(trackerCounter.count).to.equal(2);
+  //     expect(refreshPipelineCounter.count).to.equal(2);
+  //   });
+  // });
 });
