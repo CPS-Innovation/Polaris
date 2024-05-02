@@ -106,7 +106,7 @@ export const AccordionDocument: React.FC<Props> = ({
     if (documentNote?.getNoteStatus !== "failure") {
       handleGetNotes(
         caseDocument.documentId,
-        caseDocument.cmsDocType.documentType
+        caseDocument.cmsDocType.documentCategory
       );
     }
   };

@@ -75,6 +75,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     });
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
+    console.log("handleAddNote>>>>", documentCategory);
     handleAddNote(documentId, documentCategory, newNoteValue);
   };
 
@@ -120,6 +121,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   }, [noteData?.addNoteStatus, handleCloseNotes]);
 
   useEffect(() => {
+    console.log("handleGetNotes>>>>", documentCategory);
     handleGetNotes(documentId, documentCategory);
   }, []);
 
