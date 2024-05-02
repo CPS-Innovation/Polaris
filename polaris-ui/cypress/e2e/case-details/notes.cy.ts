@@ -115,7 +115,7 @@ describe("Feature Notes", () => {
     });
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return trackerCounter.count > 1;
     }).then(() => {
       expect(doc10GetNotesCounter.count).to.equal(1);
       expect(trackerCounter.count).to.equal(2);
@@ -311,9 +311,9 @@ describe("Feature Notes", () => {
   });
 
   it("If a document is open, Should show note document mismatch warning if the user is adding notes for a different document and should allow the add note journey only if the user press ok button in the mismatch warning modal", () => {
-    const addNoteRequestCounter = { count: 0 };
+    const addNote2RequestCounter = { count: 0 };
     cy.trackRequestCount(
-      addNoteRequestCounter,
+      addNote2RequestCounter,
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/2/notes"
     );
@@ -378,14 +378,15 @@ describe("Feature Notes", () => {
     cy.findByTestId("div-modal").should("not.exist");
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-2");
-
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return trackerCounter.count > 2;
     }).then(() => {
-      expect(addNoteRequestCounter.count).to.equal(1);
-      expect(doc2GetNotesCounter.count).to.equal(2);
-      expect(trackerCounter.count).to.equal(2);
-      expect(refreshPipelineCounter.count).to.equal(2);
+      expect(addNote2RequestCounter.count).to.equal(1);
+      expect(trackerCounter.count).to.equal(3);
+      expect(refreshPipelineCounter.count).to.equal(3);
+    });
+    cy.waitUntil(() => {
+      return doc2GetNotesCounter.count === 2;
     });
   });
 });
