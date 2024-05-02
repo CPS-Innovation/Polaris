@@ -24,7 +24,7 @@ type Props = {
     documentCategory: string,
     presentationFileName: string
   ) => void;
-  handleGetNotes: (documentId: string, documentCategory: string) => void;
+  handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
 };
 const formatTestIdText = (id: string) => {

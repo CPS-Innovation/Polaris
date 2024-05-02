@@ -43,7 +43,6 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
-            string documentCategory,
             int documentId
             )
         {
@@ -61,7 +60,7 @@ namespace coordinator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(note));
 
-                var arg = _ddeiArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, currentCorrelationId, caseUrn, caseId, documentCategory, documentId, note.Text);
+                var arg = _ddeiArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, currentCorrelationId, caseUrn, caseId, documentId, note.Text);
 
                 var result = await _ddeiClient.AddDocumentNote(arg);
 

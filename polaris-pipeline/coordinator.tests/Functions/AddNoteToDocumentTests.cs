@@ -29,7 +29,6 @@ namespace coordinator.tests.Functions
         private readonly string _cmsAuthValues;
         private readonly string _caseUrn;
         private readonly int _caseId;
-        private readonly string _documentCategory;
         private readonly int _documentId;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly Mock<ILogger<AddNoteToDocument>> _mockLogger;
@@ -46,7 +45,6 @@ namespace coordinator.tests.Functions
             _cmsAuthValues = _fixture.Create<string>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<int>();
-            _documentCategory = _fixture.Create<string>();
             _documentId = _fixture.Create<int>();
             _mockLogger = new Mock<ILogger<AddNoteToDocument>>();
             _mockDdeiClient = new Mock<IDdeiClient>();
@@ -103,7 +101,7 @@ namespace coordinator.tests.Functions
         {
             _httpRequestMessage.Headers.Clear();
 
-            var result = await _addNoteToDocument.AddNote(_httpRequestMessage, _caseUrn, _caseId, _documentCategory, _documentId);
+            var result = await _addNoteToDocument.AddNote(_httpRequestMessage, _caseUrn, _caseId, _documentId);
 
             (result as StatusCodeResult).StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
@@ -120,7 +118,7 @@ namespace coordinator.tests.Functions
                 .Setup(x => x.ValidateAsync(It.IsAny<AddDocumentNoteDto>(), CancellationToken.None))
                 .ReturnsAsync(validationResults);
 
-            var response = await _addNoteToDocument.AddNote(_httpRequestMessage, _caseUrn, _caseId, _documentCategory, _documentId);
+            var response = await _addNoteToDocument.AddNote(_httpRequestMessage, _caseUrn, _caseId, _documentId);
 
             response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         }
@@ -134,7 +132,7 @@ namespace coordinator.tests.Functions
                 .Setup(x => x.ValidateAsync(It.IsAny<AddDocumentNoteDto>(), CancellationToken.None))
                 .ReturnsAsync(validationResults);
 
-            var response = await _addNoteToDocument.AddNote(_httpRequestMessage, _caseUrn, _caseId, _documentCategory, _documentId);
+            var response = await _addNoteToDocument.AddNote(_httpRequestMessage, _caseUrn, _caseId, _documentId);
 
             response.Should().BeOfType<OkObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status200OK);
         }

@@ -26,7 +26,7 @@ type Props = {
   accordionStateChangeCallback: (
     accordionCurrentState: AccordionReducerState
   ) => void;
-  handleGetNotes: (documentId: string, documentCategory: string) => void;
+  handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
 };
 
