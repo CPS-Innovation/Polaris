@@ -132,9 +132,9 @@ namespace text_extractor.Services.CaseSearchService
             return await WaitForIndexCountResultsAsync(filter, 0, cmsCaseId);
         }
 
-        public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm)
+        public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, string searchTerm)
         {
-            var filter = GetCaseDocumentsSearchQuery(caseId, documents);
+            var filter = $"caseId eq {caseId}";
             var searchOptions = new SearchOptions
             {
                 Filter = filter,
@@ -362,23 +362,6 @@ namespace text_extractor.Services.CaseSearchService
                 IsSuccess = recordCounts.Any() && recordCounts.Last() == targetCount,
                 RecordCounts = recordCounts
             };
-        }
-
-        private string GetCaseDocumentsSearchQuery(long caseId, List<SearchFilterDocument> documents)
-        {
-            var stringBuilder = new StringBuilder($"caseId eq {caseId}");
-
-            if (documents.Any())
-            {
-                stringBuilder.Append(" and (");
-                stringBuilder.Append($@"(documentId eq '{documents[0].CmsDocumentId}' and versionId eq {documents[0].CmsVersionId})");
-                for (var i = 1; i < documents.Count; i++)
-                {
-                    stringBuilder.Append(@$" or (documentId eq '{documents[i].CmsDocumentId}' and versionId eq {documents[i].CmsVersionId})");
-                }
-                stringBuilder.Append(")");
-            }
-            return stringBuilder.ToString();
         }
 
         private IEnumerable<int> Fibonacci(int n)

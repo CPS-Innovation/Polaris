@@ -73,9 +73,13 @@ namespace coordinator.Functions
                         .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
                         .ToList();
 
-                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId, documents);
+                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
-                var documentIds = searchResults
+                var filteredSearchResults = searchResults
+                    .Where(result => documents.Any(doc => doc.PolarisDocumentId == result.PolarisDocumentId && doc.CmsVersionId == result.VersionId))
+                    .ToList();
+
+                var documentIds = filteredSearchResults
                     .Select(result => result.PolarisDocumentId)
                     .Distinct()
                     .ToList();
@@ -94,7 +98,7 @@ namespace coordinator.Functions
                     _telemetryClient.TrackEvent(telemetryEvent);
                 }
 
-                return new OkObjectResult(searchResults);
+                return new OkObjectResult(filteredSearchResults);
             }
             catch (Exception ex)
             {
