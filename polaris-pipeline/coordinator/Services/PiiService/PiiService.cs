@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Azure.AI.TextAnalytics;
 using Common.Domain.Pii;
+using Common.Services.BlobStorageService;
+using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
+using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
 using Microsoft.Extensions.Configuration;
 
@@ -16,11 +21,15 @@ namespace coordinator.Services.PiiService
         private readonly string[] _piiCategories;
         private readonly IConfiguration _configuration;
         private readonly IPiiEntityMapper _piiEntityMapper;
+        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public PiiService(IConfiguration configuration, IPiiEntityMapper piiEntityMapper)
+        public PiiService(IConfiguration configuration, IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
+            _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             // To come for config value...
             var piiCategoriesConfigValue = ""; //"Person;PersonType;PhoneNumber;Organization;Address;Email;";
             _piiCategories = piiCategoriesConfigValue.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
@@ -48,6 +57,8 @@ namespace coordinator.Services.PiiService
 
         public IEnumerable<PiiLine> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults)
         {
+            if (piiChunks == null || piiResults == null) return null;
+
             var results = new List<ReconciledPiiEntity>();
 
             var piiToProcess = piiResults.PiiResultCollection.SelectMany(result => result.Items).ToList();
@@ -130,6 +141,25 @@ namespace coordinator.Services.PiiService
             }
 
             return results;
+        }
+
+        public async Task<PiiEntitiesWrapper> GetPiiResultsFromBlob(int caseId, string polarisDocumentId, Guid correlationId)
+        {
+            Stream piiStream;
+
+            try
+            {
+                var piiBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Pii);
+                piiStream = await _blobStorageService.GetDocumentAsync(piiBlobName, correlationId);
+            }
+            catch (Exception)
+            {
+                return null; // return null for now;
+            }
+
+            var piiStreamReader = new StreamReader(piiStream);
+
+            return _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(piiStreamReader.ReadToEnd());
         }
     }
 }

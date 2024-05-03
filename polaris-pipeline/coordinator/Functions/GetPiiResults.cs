@@ -1,12 +1,10 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using coordinator.Domain;
+using Microsoft.Extensions.Logging;
 using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
@@ -19,17 +17,19 @@ namespace coordinator.Functions
 {
     public class GetPiiResults
     {
+        private readonly ILogger<GetPiiResults> _logger;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IOcrResultsService _ocrResultsService;
         private readonly IPiiService _piiService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public GetPiiResults(IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, IJsonConvertWrapper jsonConvertWrapper)
+        public GetPiiResults(ILogger<GetPiiResults> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, IJsonConvertWrapper jsonConvertWrapper)
         {
-            _blobStorageService = blobStorageService ?? throw new System.ArgumentNullException(nameof(blobStorageService));
-            _ocrResultsService = ocrResultsService ?? throw new System.ArgumentNullException(nameof(ocrResultsService));
-            _piiService = piiService ?? throw new System.ArgumentNullException(nameof(piiService));
-            _jsonConvertWrapper = jsonConvertWrapper ?? throw new System.ArgumentNullException(nameof(jsonConvertWrapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
+            _ocrResultsService = ocrResultsService ?? throw new ArgumentNullException(nameof(ocrResultsService));
+            _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
         [FunctionName(nameof(GetPiiResults))]
@@ -47,20 +47,12 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var ocrBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Ocr);
-                using var ocrStream = await _blobStorageService.GetDocumentAsync(ocrBlobName, currentCorrelationId);
+                var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
+                var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
 
-                // Need to handle if OCR results are null;
-                var ocrStreamReader = new StreamReader(ocrStream);
-                var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(ocrStreamReader.ReadToEnd());
+                if (ocrResults == null || piiResults == null) return new EmptyResult(); // Need to handle this...
 
-                var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000);
-
-                var piiBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Pii);
-                using var piiStream = await _blobStorageService.GetDocumentAsync(piiBlobName, currentCorrelationId);
-
-                var piiStreamReader = new StreamReader(piiStream);
-                var piiResults = _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(piiStreamReader.ReadToEnd());
+                var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000, currentCorrelationId);
 
                 var results = _piiService.ReconcilePiiResults(piiChunks, piiResults);
 
@@ -68,8 +60,7 @@ namespace coordinator.Functions
             }
             catch (Exception ex)
             {
-
-                throw;
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(GetPiiResults), currentCorrelationId, ex);
             }
         }
     }

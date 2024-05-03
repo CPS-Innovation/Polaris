@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Common.Services.BlobStorageService;
+using Common.Wrappers;
 using coordinator.Services.OcrResultsService;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Moq;
 using Xunit;
 
 namespace coordinator.tests.Services.OcrResultsServiceTests
@@ -12,6 +15,8 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
     {
         private readonly ReadResult _readResult;
         private readonly OcrResultsService _ocrResultsService;
+        private readonly Mock<IPolarisBlobStorageService> _blobStorageService;
+        private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapper;
         private readonly Line _ocrLine1;
         private readonly Line _ocrLine2;
         private readonly Line _ocrLine3;
@@ -21,7 +26,9 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
         public OcrResultsServiceTests()
         {
             _readResult = new ReadResult();
-            _ocrResultsService = new OcrResultsService();
+            _blobStorageService = new Mock<IPolarisBlobStorageService>();
+            _jsonConvertWrapper = new Mock<IJsonConvertWrapper>();
+            _ocrResultsService = new OcrResultsService(_blobStorageService.Object, _jsonConvertWrapper.Object);
             _ocrLine1 = Mother.OcrLine1();
             _ocrLine2 = Mother.OcrLine2();
             _ocrLine3 = Mother.OcrLine3();
@@ -115,7 +122,9 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
                 ReadResults = readResults
             };
 
-            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit);
+
+
+            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit, Guid.NewGuid());
 
             results[0].Text.Should().Be(expectedChunk1Text);
         }
@@ -141,7 +150,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
                 ReadResults = new List<ReadResult> { readResult }
             };
 
-            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit);
+            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit, Guid.NewGuid());
 
             results.Count.Should().Be(2);
             results.All(x => x.TextLength < characterLimit).Should().BeTrue();
@@ -178,7 +187,7 @@ namespace coordinator.tests.Services.OcrResultsServiceTests
                 ReadResults = readResults
             };
 
-            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit);
+            var results = _ocrResultsService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit, Guid.NewGuid());
 
             results.Count.Should().Be(1);
             results.All(x => x.TextLength < characterLimit).Should().BeTrue();

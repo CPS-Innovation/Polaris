@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using coordinator.Clients.TextAnalytics;
 using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
@@ -23,6 +23,7 @@ namespace coordinator.Functions
 {
     public class ExtractPii
     {
+        private readonly ILogger<ExtractPii> _logger;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IOcrResultsService _ocrResultsService;
         private readonly IPiiService _piiService;
@@ -30,8 +31,9 @@ namespace coordinator.Functions
         private readonly ITelemetryClient _telemetryClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public ExtractPii(IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalyticsClient, ITelemetryClient telemetryClient, IJsonConvertWrapper jsonConvertWrapper)
+        public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalyticsClient, ITelemetryClient telemetryClient, IJsonConvertWrapper jsonConvertWrapper)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _ocrResultsService = ocrResultsService ?? throw new ArgumentNullException(nameof(ocrResultsService));
             _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
@@ -55,48 +57,55 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var ocrBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Ocr);
+                var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
+                var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
 
-                using var jsonStream = await _blobStorageService.GetDocumentAsync(ocrBlobName, currentCorrelationId);
-
-                // Need to handle if OCR results are null;
-                var streamReader = new StreamReader(jsonStream);
-                var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
-
-                var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000);
-
-                var piiRequests = _piiService.CreatePiiRequests(piiChunks);
-
-                var calls = piiRequests.Select(async piiRequest => await _textAnalyticsClient.CheckForPii(piiRequest));
-                var piiResults = await Task.WhenAll(calls);
-
-                var piiResultsWrapper = _piiService.MapPiiResults(piiResults);
-
-                var jsonResults = JsonConvert.SerializeObject(piiResultsWrapper);
-                var piiBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Pii);
-
-                using (var piiStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
+                if (ocrResults != null && piiResults != null)
                 {
-                    await _blobStorageService.UploadDocumentAsync(
-                        piiStream,
-                        piiBlobName,
-                        caseId.ToString(),
-                        polarisDocumentId,
-                        versionId: "1",
-                        currentCorrelationId
-                    );
+                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000, currentCorrelationId);
+                    var results = _piiService.ReconcilePiiResults(piiChunks, piiResults);
+
+                    return new OkObjectResult(results);
                 }
+                else
+                {
+                    if (ocrResults == null) return new EmptyResult(); // need to handle this
 
-                //Telemetry stats
-                var piiEntityCount = piiResultsWrapper.PiiResultCollection.Sum(x => x.Items.Sum(resultCollection => resultCollection.Entities.Count));
-                var hasError = piiResultsWrapper.PiiResultCollection.Any(x => x.Items.Any(resultCollection => resultCollection.HasError));
+                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000, currentCorrelationId);
+                    var piiRequests = _piiService.CreatePiiRequests(piiChunks);
 
-                return new OkResult();
+                    var calls = piiRequests.Select(async piiRequest => await _textAnalyticsClient.CheckForPii(piiRequest));
+                    var piiRequestResults = await Task.WhenAll(calls);
+
+                    var piiResultsWrapper = _piiService.MapPiiResults(piiRequestResults);
+
+                    var jsonResults = JsonConvert.SerializeObject(piiResultsWrapper);
+                    var piiBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Pii);
+
+                    using (var piiStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
+                    {
+                        await _blobStorageService.UploadDocumentAsync(
+                            piiStream,
+                            piiBlobName,
+                            caseId.ToString(),
+                            polarisDocumentId,
+                            versionId: "1",
+                            currentCorrelationId
+                        );
+                    }
+
+                    //Telemetry stats
+                    var piiEntityCount = piiResultsWrapper.PiiResultCollection.Sum(x => x.Items.Sum(resultCollection => resultCollection.Entities.Count));
+                    var hasError = piiResultsWrapper.PiiResultCollection.Any(x => x.Items.Any(resultCollection => resultCollection.HasError));
+
+                    var results = _piiService.ReconcilePiiResults(piiChunks, piiResultsWrapper);
+
+                    return new OkObjectResult(results);
+                }
             }
             catch (Exception ex)
             {
-                // Handle some stuff here... 
-                throw;
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(ExtractPii), currentCorrelationId, ex);
             }
         }
     }

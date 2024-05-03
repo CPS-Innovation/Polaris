@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Azure.AI.TextAnalytics;
 using Common.Domain.Pii;
 using coordinator.Domain;
@@ -11,5 +13,6 @@ namespace coordinator.Services.PiiService
         IEnumerable<PiiRequestDto> CreatePiiRequests(List<PiiChunk> piiChunks);
         IEnumerable<PiiLine> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults);
         PiiEntitiesWrapper MapPiiResults(RecognizePiiEntitiesResultCollection[] piiResults);
+        Task<PiiEntitiesWrapper> GetPiiResultsFromBlob(int caseId, string polarisDocumentId, Guid correlationId);
     }
 }

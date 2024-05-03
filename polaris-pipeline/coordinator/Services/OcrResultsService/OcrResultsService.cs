@@ -1,15 +1,49 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Common.Services.BlobStorageService;
+using Common.Wrappers;
+using coordinator.Helpers;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.WindowsAzure.Storage;
 
 namespace coordinator.Services.OcrResultsService
 {
     public class OcrResultsService : IOcrResultsService
     {
         private const int CharacterLimit = 1000;
+        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit) // char limit should be a config value
+        public OcrResultsService(IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper)
+        {
+            _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
+        }
+
+        public async Task<AnalyzeResults> GetOcrResultsFromBlob(int caseId, string polarisDocumentId, Guid correlationId)
+        {
+            Stream jsonStream;
+
+            try
+            {
+                var ocrBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Ocr);
+                jsonStream = await _blobStorageService.GetDocumentAsync(ocrBlobName, correlationId);
+            }
+            catch (Exception)
+            {
+                return null; // return null for now;
+            }
+
+            var streamReader = new StreamReader(jsonStream);
+
+            return _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
+        }
+
+        public List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit, Guid correlationId) // char limit should be a config value
         {
             var chunks = new List<PiiChunk>();
             var chunkId = 1;
