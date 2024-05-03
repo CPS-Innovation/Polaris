@@ -4,6 +4,7 @@ import {
   LinkButton,
   CharacterCount,
   ErrorSummary,
+  Modal,
 } from "../../../../../common/presentation/components";
 import { NotesTimeline } from "./NotesTimeline";
 import classes from "./NotesPanel.module.scss";
@@ -17,6 +18,7 @@ type NotesPanelProps = {
   documentId: string;
   documentCategory: string;
   notesData: NotesData[];
+  activeDocumentId: string;
   handleAddNote: (documentId: string, notesText: string) => void;
   handleCloseNotes: () => void;
   handleGetNotes: (documentId: string) => void;
@@ -27,6 +29,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   notesData,
   documentId,
   documentCategory,
+  activeDocumentId,
   handleCloseNotes,
   handleAddNote,
   handleGetNotes,
@@ -37,6 +40,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   const [newNoteValue, setNewNoteValue] = useState("");
   const [oldNoteValue, setOldNoteValue] = useState("");
   const [notesError, setNotesError] = useState(false);
+  const [showMismatchAlert, setShowMismatchAlert] = useState(false);
 
   const handleAddBtnClick = () => {
     if (newNoteValue.length > NOTES_MAX_CHARACTERS) {
@@ -44,15 +48,23 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
       if (notesError && errorSummaryRef.current) {
         (errorSummaryRef?.current as HTMLButtonElement).focus();
       }
-
       return;
+    }
+
+    if (cancelBtnRef.current) {
+      (cancelBtnRef.current as HTMLElement).focus();
     }
     if (notesError) {
       setNotesError(false);
     }
-    if (cancelBtnRef.current) {
-      (cancelBtnRef.current as HTMLElement).focus();
+    if (activeDocumentId && activeDocumentId !== documentId) {
+      setShowMismatchAlert(true);
+      return;
     }
+    saveNote();
+  };
+
+  const saveNote = () => {
     trackEvent("Add Note", {
       documentId: documentId,
       documentCategory: documentCategory,
@@ -60,6 +72,24 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
     handleAddNote(documentId, newNoteValue);
+  };
+
+  const handleMismatchWarningOk = () => {
+    trackEvent("Notes Document Mismatch Ok", {
+      documentId: documentId,
+      documentCategory: documentCategory,
+    });
+    setShowMismatchAlert(false);
+    saveNote();
+  };
+
+  const handleMismatchWarningCancel = (closeBtn = false) => {
+    trackEvent("Notes Document Mismatch Cancel", {
+      documentId: documentId,
+      documentCategory: documentCategory,
+      closeBtn: closeBtn,
+    });
+    setShowMismatchAlert(false);
   };
 
   const noteData = useMemo(() => {
@@ -79,10 +109,15 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   }, [notesError]);
 
   useEffect(() => {
-    if (noteData?.addNoteStatus === "success") {
-      handleGetNotes(documentId);
-    }
-  }, [noteData?.addNoteStatus, documentId, handleGetNotes]);
+    const timer = setTimeout(() => {
+      if (noteData?.addNoteStatus === "success") {
+        handleCloseNotes();
+      }
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [noteData?.addNoteStatus, handleCloseNotes]);
 
   useEffect(() => {
     handleGetNotes(documentId);
@@ -121,29 +156,25 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
           dataTestId="btn-close-notes"
           type="button"
           className={classes.notesPanelCloseBtn}
-          aria-label="close notes"
+          ariaLabel="close notes"
           onClick={() => handleCloseNotes()}
         >
           <CloseIcon height={"2.5rem"} width={"2.5rem"} />
         </LinkButton>
-        {
-          <div
-            role="status"
-            aria-live="polite"
-            className={classes.visuallyHidden}
-          >
-            {addNoteSuccessLiveText}
-          </div>
-        }
-        {
-          <div
-            role="status"
-            aria-live="polite"
-            className={classes.visuallyHidden}
-          >
-            {notesCountLiveText}
-          </div>
-        }
+        <div
+          role="status"
+          aria-live="polite"
+          className={classes.visuallyHidden}
+        >
+          {addNoteSuccessLiveText}
+        </div>
+        <div
+          role="status"
+          aria-live="polite"
+          className={classes.visuallyHidden}
+        >
+          {notesCountLiveText}
+        </div>
       </div>
       <div className={classes.notesBody}>
         {notesError && (
@@ -200,7 +231,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               data-testid="btn-add-note"
               onClick={handleAddBtnClick}
             >
-              Add note
+              Save and close
             </Button>
 
             <LinkButton
@@ -208,7 +239,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
               className={classes.cancelBtn}
               onClick={() => handleCloseNotes()}
               dataTestId="btn-cancel-notes"
-              ariaLabel="close notes"
+              ariaLabel="cancel notes"
               id="btn-cancel-notes"
             >
               Cancel
@@ -217,6 +248,43 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
         </div>
       </div>
       <NotesTimeline notes={notesList} />
+
+      {showMismatchAlert && (
+        <Modal
+          isVisible
+          handleClose={() => {
+            handleMismatchWarningCancel(true);
+          }}
+          type="alert"
+          ariaLabel="Notes document mismatch warning modal"
+          ariaDescription="Check note will be added to the correct document. The note will be added to a different document to the one currently
+              being viewed."
+        >
+          <div className={classes.alertContent}>
+            <h1 className="govuk-heading-l">
+              Check note will be added to the correct document
+            </h1>
+            <p>
+              The note will be added to a different document to the one
+              currently being viewed.
+            </p>
+            <div className={classes.actionButtonsWrapper}>
+              <Button
+                onClick={handleMismatchWarningOk}
+                data-testid="btn-mismatch-ok"
+              >
+                Ok
+              </Button>
+              <LinkButton
+                onClick={() => handleMismatchWarningCancel()}
+                dataTestId="btn-mismatch-cancel"
+              >
+                cancel
+              </LinkButton>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
