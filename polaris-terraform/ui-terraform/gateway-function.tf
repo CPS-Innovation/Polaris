@@ -88,7 +88,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     require_authentication = true
     default_provider       = "AzureActiveDirectory"
     unauthenticated_action = "RedirectToLoginPage"
-    excluded_paths         = ["/api/status", "/api/init",  "/api/init/"]
+    excluded_paths         = ["/api/status", "/api/init", "/api/init/"]
 
     # our default_provider:
     active_directory_v2 {
@@ -231,26 +231,4 @@ resource "azurerm_private_endpoint" "polaris_gateway_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "polaris_gateway_dns_a" {
-  name                = azurerm_linux_function_app.fa_polaris.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.polaris_gateway_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-  depends_on          = [azurerm_private_endpoint.polaris_gateway_pe]
-}
-
-# Create DNS A Record for SCM site
-resource "azurerm_private_dns_a_record" "polaris_gateway_scm_dns_a" {
-  name                = "${azurerm_linux_function_app.fa_polaris.name}.scm"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.polaris_gateway_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-  depends_on          = [azurerm_private_endpoint.polaris_gateway_pe]
 }

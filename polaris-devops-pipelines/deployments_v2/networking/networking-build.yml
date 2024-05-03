@@ -1,0 +1,38 @@
+---
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/networking-terraform/*
+
+pr: none
+
+variables:
+  - group: polaris-global
+  - name: buildConfiguration
+    value: "Release"
+  - name: majorMinorVersion
+    value: "1.0"
+  - name: semanticVersion
+    value: "$[counter(variables['majorMinorVersion'], 1)]"
+    
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Publish_Artifacts
+    displayName: Publish Pipeline Scripts
+    jobs:
+      - job: Build_Networking_Terraform_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Networking terraform artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
+              artifact: "networking-terraform-files"
+              publishLocation: "pipeline"

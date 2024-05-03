@@ -46,7 +46,6 @@ namespace PolarisGateway.Functions
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequest req,
             string caseUrn,
             int caseId,
-            string documentCategory,
             int documentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
@@ -84,7 +83,6 @@ namespace PolarisGateway.Functions
                     caseUrn,
                     caseId,
                     context.CmsAuthValues,
-                    documentCategory,
                     documentId,
                     documentNote,
                     context.CorrelationId);

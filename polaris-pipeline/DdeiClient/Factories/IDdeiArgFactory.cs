@@ -13,11 +13,10 @@ namespace Ddei.Factories
             Guid correlationId,
             string urn,
             int caseId,
-            string documentCategory,
             int documentId,
             long versionId);
-        DdeiCmsDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentCategory, string documentId);
-        DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentCategory, int documentId, string text);
+        DdeiCmsDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId);
+        DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string text);
     }
 }
 

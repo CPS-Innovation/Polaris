@@ -1,0 +1,116 @@
+.notesPanel {
+  width: 100%;
+  background: #fff;
+  position: relative;
+}
+
+.notesHeader {
+  background: #f3f2f1;
+  display: flex;
+  margin-bottom: 1.5rem;
+  justify-content: space-between;
+}
+.notesTitle {
+  margin: 1rem 1.1rem;
+  font-size: 1.1875rem;
+}
+.notesDocumentName {
+  color: #505a5f;
+}
+.notesTextArea {
+  position: relative;
+  padding-left: 1.25rem;
+  & :global(.govuk-textarea) {
+    min-height: 14.375rem;
+  }
+
+  .addNoteHeading {
+    font-size: 1.1875rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    &::before {
+      background-color: #1d70b8;
+      content: "";
+      padding-top: 0.25em;
+      padding-right: 0.9375rem;
+      left: 0;
+      position: absolute;
+      margin-top: 0.5rem;
+      z-index: 1;
+    }
+  }
+  &::before {
+    background-color: #1d70b8;
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    margin-top: 0.75rem;
+    padding-left: 0.25em;
+    z-index: 1;
+  }
+}
+.btnWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  width: 100%;
+  margin-top: 0;
+}
+.cancelBtn {
+  margin-left: 1rem;
+  padding: 0.625rem;
+  &:hover:not(:disabled):not(:focus) {
+    color: #003078;
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12rem);
+    background: transparent;
+  }
+}
+.textAreaLabel {
+  display: none;
+}
+
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.errorSummaryWrapper {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+  :global(.govuk-error-summary) {
+    margin-bottom: 1.5rem;
+    padding: 0.625rem;
+  }
+}
+
+.notesPanelCloseBtn {
+  box-sizing: content-box;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 2.875rem;
+  height: 2.875rem;
+  margin: 0;
+
+  &:hover:not(:disabled):not(:focus) {
+    background: #00703c;
+  }
+  &:focus {
+    background: #ffdd00;
+    color: #000;
+    outline: none;
+  }
+}

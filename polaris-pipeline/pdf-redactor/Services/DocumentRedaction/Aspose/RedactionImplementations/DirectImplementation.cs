@@ -16,7 +16,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
             hardAnnotation.Redact();
         }
 
-        public void FinaliseAnnotations(ref Document doc) { }
+        public void FinaliseAnnotations(ref Document doc, Guid correlationId) { }
 
         public (ProviderType, string) GetProviderType()
         {

@@ -127,7 +127,6 @@ namespace coordinator.Functions
                      correlationId: currentCorrelationId,
                      urn: caseUrn,
                      caseId: int.Parse(caseId),
-                     documentCategory: document.CmsDocType.DocumentCategory,
                      documentId: int.Parse(document.CmsDocumentId),
                      versionId: document.CmsVersionId
                 );

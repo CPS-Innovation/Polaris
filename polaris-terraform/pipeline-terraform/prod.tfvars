@@ -16,7 +16,7 @@ pipeline_component_service_plans = {
   coordinator_always_ready_instances     = 1
   coordinator_maximum_scale_out_limit    = 1
   coordinator_plan_maximum_burst         = 10
-  pdf_generator_service_plan_sku         = "EP2"
+  pdf_generator_service_plan_sku         = "EP3"
   pdf_generator_always_ready_instances   = 3
   pdf_generator_maximum_scale_out_limit  = 15
   pdf_generator_plan_maximum_burst       = 15
@@ -36,9 +36,9 @@ overnight_clear_down = {
 }
 
 sliding_clear_down = {
-  disabled        = 0
-  // 7.5 days to cleardown daytime traffic at night and nightime traffic during day
-  look_back_hours = 180
+  disabled = 0
+  // 6.5 days to cleardown daytime traffic at night and nightime traffic during day
+  look_back_hours = 156
   protect_blobs   = false
   schedule        = "0 * * * * *"
   batch_size      = 3
@@ -53,6 +53,6 @@ image_conversion_redaction = {
 
 search_service_config = {
   replica_count                 = 3
-  partition_count               = 4
+  partition_count               = 6
   is_dynamic_throttling_enabled = true
 }

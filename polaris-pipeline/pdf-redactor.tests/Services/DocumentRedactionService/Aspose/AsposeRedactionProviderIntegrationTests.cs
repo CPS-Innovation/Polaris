@@ -13,8 +13,9 @@ using Moq;
 using pdf_redactor.Services.DocumentRedaction.Aspose;
 using pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using Xunit;
+using Common.Wrappers;
 
-namespace pdf_generator.tests.Services.DocumentRedaction.Aspose;
+namespace pdf_redactor.tests.Services.DocumentRedaction.Aspose;
 
 public class AsposeRedactionProviderIntegrationTests
 {
@@ -22,6 +23,8 @@ public class AsposeRedactionProviderIntegrationTests
   private readonly string _caseId;
   private readonly string _documentId;
   private readonly AsposeRedactionProvider _asposeRedactionProvider;
+  private readonly Mock<ILogger<ImageConversionImplementation>> _loggerMock;
+  private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
 
   public AsposeRedactionProviderIntegrationTests()
   {
@@ -30,12 +33,18 @@ public class AsposeRedactionProviderIntegrationTests
     _caseId = fixture.Create<string>();
     _documentId = fixture.Create<string>();
 
+    _loggerMock = new Mock<ILogger<ImageConversionImplementation>>();
+    _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
+
     var redactionImplementation = new ImageConversionImplementation(
       Options.Create(new ImageConversionOptions
       {
         Resolution = 150,
         QualityPercent = 50
-      }));
+      }),
+      _loggerMock.Object,
+      _mockJsonConvertWrapper.Object
+      );
 
     var coordinateCalculator = new CoordinateCalculator(new Mock<ILogger<CoordinateCalculator>>().Object);
 

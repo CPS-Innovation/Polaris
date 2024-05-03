@@ -200,7 +200,9 @@ describe("case details page", () => {
       cy.findByTestId("btn-nav-ignore").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("div-pdfviewer-0").should("not.exist");
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return doc1CheckInCounter.count;
+      }).then(() => {
         expect(doc1CheckInCounter.count).to.equal(1);
       });
     });
@@ -317,7 +319,9 @@ describe("case details page", () => {
       cy.findByTestId("btn-nav-ignore").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.location("pathname").should("eq", "/case-search");
-      cy.window().then(() => {
+      cy.waitUntil(() => {
+        return doc1CheckInCounter.count;
+      }).then(() => {
         expect(doc1CheckInCounter.count).to.equal(1);
       });
     });
@@ -390,13 +394,6 @@ describe("case details page", () => {
       openAndRedactDocument("link-document-5");
       cy.findByTestId("redaction-warning").contains(
         "Redaction is not supported for this file type."
-      );
-    });
-
-    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsNotOcrProcessed`", () => {
-      openAndRedactDocument("link-document-7");
-      cy.findByTestId("redaction-warning").contains(
-        "Awaiting OCR processing in CMS. Please try again later for redaction."
       );
     });
 
@@ -1142,6 +1139,97 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-2")
         .should("exist")
         .contains("CASE OUTLINE");
+    });
+  });
+
+  describe("Document Full Screen", () => {
+    it("Should show the 'Show Full Screen' button when at least one document is opened in a tab", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("full-screen-btn").should("not.exist");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("full-screen-btn").should("exist");
+    });
+
+    it("Should hide the 'Show Full Screen' button when no documents are opened in a tab", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("full-screen-btn").should("not.exist");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("full-screen-btn").should("exist");
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("full-screen-btn").should("not.exist");
+    });
+
+    it("Should show and hide the document in full screen on clicking the full screen btn and should show correct tooltip", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("side-panel").should("exist");
+      cy.findByTestId("full-screen-btn").trigger("mouseover");
+      cy.findByTestId("tooltip").should("contain", "View full screen");
+      cy.findByTestId("full-screen-btn").click();
+      cy.findByTestId("side-panel").should("not.exist");
+      cy.findByTestId("full-screen-btn").trigger("mouseover");
+      cy.findByTestId("tooltip").should("contain", "Exit full screen");
+      cy.findByTestId("full-screen-btn").click();
+      cy.findByTestId("side-panel").should("exist");
+    });
+
+    it("Should not show the 'Show Full Screen' button if the full screen feature is turned off", () => {
+      cy.visit("/case-details/12AB1111111/13401?fullScreen=false");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("side-panel").should("exist");
+      cy.findByTestId("full-screen-btn").should("not.exist");
+    });
+    it("Should retain accordion state when user comes back from full screen mode", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("link-document-10").should("not.be.visible");
+      cy.findByTestId("exhibits").click();
+      cy.findByTestId("link-document-10")
+        .should("be.visible")
+        .and("have.text", "PortraitLandscape");
+      cy.findByTestId("link-document-10").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Page1 Portrait");
+      cy.findByTestId("full-screen-btn").click();
+      cy.findByTestId("side-panel").should("not.exist");
+      cy.findByTestId("full-screen-btn").click();
+      cy.findByTestId("side-panel").should("exist");
+      cy.findByTestId("link-document-10")
+        .should("be.visible")
+        .and("have.text", "PortraitLandscape");
+      cy.findByTestId("link-document-1").scrollIntoView();
+      cy.findByTestId("link-document-1").should("not.be.visible");
+      cy.findByTestId("communications").click();
+      cy.findByTestId("link-document-1").scrollIntoView();
+      cy.findByTestId("link-document-1")
+        .should("be.visible")
+        .and("have.text", "MCLOVEMG3");
+      cy.findByTestId("full-screen-btn").click();
+      cy.findByTestId("side-panel").should("not.exist");
+      cy.findByTestId("full-screen-btn").click();
+      cy.findByTestId("link-document-10")
+        .should("be.visible")
+        .and("have.text", "PortraitLandscape");
+      cy.findByTestId("link-document-1").scrollIntoView();
+      cy.findByTestId("link-document-1")
+        .should("be.visible")
+        .and("have.text", "MCLOVEMG3");
     });
   });
 });

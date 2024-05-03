@@ -1,0 +1,86 @@
+---
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/networking-terraform/*
+        
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: terraform-containers
+  - name: buildConfiguration
+    value: "Release"
+  - name: networkingTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
+    
+pool:
+  vmImage: ubuntu-latest
+    
+stages:
+  - stage: Validate
+    displayName: Validate Changes
+    jobs:
+      - job: Validate_Networking_Terraform
+        steps:
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(networkingTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_LOG: $(dev-log-level)
+    
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(networkingTerraformWorkingDir)
+    
+      - job: Check_Networking_Plan
+        dependsOn: Validate_Networking_Terraform
+        condition: succeeded()
+        displayName: Check Networking Terraform
+        steps:
+          - template: ../tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(networkingTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_LOG: $(dev-log-level)
+    
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write Networking Plan'
+            workingDirectory: $(networkingTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
+              TF_LOG: $(dev-log-level)

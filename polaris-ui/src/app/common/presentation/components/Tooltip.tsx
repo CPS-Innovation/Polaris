@@ -7,6 +7,7 @@ type TooltipProps = {
   position?: "top" | "bottom" | "left" | "right";
   className?: string;
   dataTestId?: string;
+  onHoverCallback?: () => void;
 };
 
 export const Tooltip: React.FC<TooltipProps> = ({
@@ -15,10 +16,14 @@ export const Tooltip: React.FC<TooltipProps> = ({
   className,
   position = "bottom",
   dataTestId = "tooltip",
+  onHoverCallback,
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleMouseEnter = () => {
+    if (onHoverCallback) {
+      onHoverCallback();
+    }
     setShowTooltip(true);
   };
 
@@ -38,6 +43,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
         return classes.tooltipBottom;
     }
   };
+  if (!text) {
+    return <>{children}</>;
+  }
 
   return (
     <div
@@ -48,7 +56,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       {children}
       {showTooltip && (
         <div
-          className={`${classes.tooltip} ${getPositionClass()}`}
+          className={`${classes.tooltip} ${getPositionClass()} tooltip`}
           data-testid={dataTestId}
         >
           {text}

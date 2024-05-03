@@ -6,7 +6,8 @@
             "default": "Warning",
             "Function": "Information",
             "Host.Aggregator": "Error",
-            "Host.Results": "Information"
+            "Host.Results": "Information",
+            "pdf_redactor.Functions.PdfRedactor": "Information"
         },
         "applicationInsights": {
             "samplingSettings": {

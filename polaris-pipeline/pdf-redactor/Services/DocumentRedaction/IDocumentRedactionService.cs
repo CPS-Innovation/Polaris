@@ -1,14 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Common.Dto.Request;
-using Common.Dto.Response;
+﻿using Common.Dto.Request;
 
 namespace pdf_redactor.Services.DocumentRedaction
 {
     public interface IDocumentRedactionService
     {
-        public Task<RedactPdfResponse> RedactPdfAsync(string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId);
-
         public Task<Stream> RedactAsync(string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId);
 
     }

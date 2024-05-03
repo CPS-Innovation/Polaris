@@ -29,9 +29,10 @@ describe("Document toggle", { tags: "@ci" }, () => {
     cy.findByTestId("btn-redact")
     cy.findByTestId("tab-remove").click()
 
+    // as per #26410 we now allow not OCR processed documents to be redacted
     cy.findByText(TARGET_NOT_OCR_PROCESSED_DOCUMENT_NAME).click()
     cy.selectPDFTextElement("12345")
-    cy.findByTestId("redaction-warning")
+    cy.findByTestId("btn-redact")
     cy.findByTestId("tab-remove").click()
 
     cy.findByText(TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME).click()
