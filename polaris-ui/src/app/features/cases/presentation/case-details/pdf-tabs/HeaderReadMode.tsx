@@ -44,7 +44,9 @@ export const HeaderReadMode: React.FC<Props> = ({
     switch (id) {
       case "1":
         handleShowRedactionLogModal(RedactionLogTypes.UNDER_OVER);
-        trackEvent("Open Under Over Redaction Log", { documentId: id });
+        trackEvent("Open Under Over Redaction Log", {
+          documentId: contextData.documentId,
+        });
         break;
       case "2":
         handleShowHideDocumentIssueModal(true);

@@ -114,3 +114,18 @@
     outline: none;
   }
 }
+
+.alertContent {
+  max-width: 32.5rem;
+  padding: 1.25rem 1.875rem 1.875rem;
+}
+
+.actionButtonsWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  margin-top: 1.875rem;
+  :first-child {
+    margin-right: 1.25rem;
+  }
+}

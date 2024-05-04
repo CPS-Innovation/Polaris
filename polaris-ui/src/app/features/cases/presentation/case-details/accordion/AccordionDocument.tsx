@@ -19,6 +19,7 @@ import {
   witnessIndicatorPrecedenceOrder,
 } from "../../../domain/WitnessIndicators";
 import { Tooltip } from "../../../../../common/presentation/components";
+import { NotesData } from "../../../domain/gateway/NotesData";
 
 type Props = {
   activeDocumentId: string;
@@ -34,6 +35,8 @@ type Props = {
     documentCategory: string,
     presentationFileName: string
   ) => void;
+  handleGetNotes: (documentId: string) => void;
+  notesData: NotesData[];
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -42,8 +45,10 @@ export const AccordionDocument: React.FC<Props> = ({
   readUnreadData,
   caseDocument,
   showNotesFeature,
+  notesData,
   handleOpenPdf,
   handleOpenNotes,
+  handleGetNotes,
 }) => {
   const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
@@ -93,6 +98,37 @@ export const AccordionDocument: React.FC<Props> = ({
     caseDocument.presentationFileName,
     isNotesDisabled,
   ]);
+
+  const notesHoverOverCallback = () => {
+    const documentNote = notesData.find(
+      (note) => note.documentId === caseDocument.documentId
+    );
+    if (documentNote?.getNoteStatus !== "failure") {
+      handleGetNotes(caseDocument.documentId);
+    }
+  };
+
+  const getNotesHoverOverText = (ariaLiveText: boolean) => {
+    if (isNotesDisabled()) return "Notes are disabled for this document";
+    if (!caseDocument.hasNotes) return "";
+    const documentNote = notesData.find(
+      (note) => note.documentId === caseDocument.documentId
+    );
+    const notes = documentNote?.notes ?? [];
+    if (documentNote?.getNoteStatus === "failure")
+      return "Failed to retrieve notes";
+    if (notes) if (!notes.length) return "Loading notes, please wait...";
+    if (notes.length === 1) {
+      return ariaLiveText
+        ? `recent note text is ${notes[notes.length - 1].text}`
+        : `${notes[notes.length - 1].text}`;
+    }
+    return ariaLiveText
+      ? `recent note text is ${notes[notes.length - 1].text}, and ${
+          notes.length - 1
+        } more`
+      : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
+  };
 
   return (
     <li
@@ -161,13 +197,20 @@ export const AccordionDocument: React.FC<Props> = ({
             )}
             {showNotesFeature && (
               <Tooltip
-                text={
-                  isNotesDisabled()
-                    ? "Notes are disabled for this document"
-                    : ""
-                }
+                text={getNotesHoverOverText(false)}
                 className="notesToolTip"
+                onHoverCallback={notesHoverOverCallback}
               >
+                {caseDocument.hasNotes && (
+                  <div
+                    data-testid={`recent-notes-live-text-${caseDocument.documentId}`}
+                    role="status"
+                    aria-live="polite"
+                    className={classes.visuallyHidden}
+                  >
+                    {getNotesHoverOverText(true)}
+                  </div>
+                )}
                 <LinkButton
                   {...openNotesRefProps}
                   className={classes.notesBtn}
@@ -186,6 +229,9 @@ export const AccordionDocument: React.FC<Props> = ({
                       caseDocument.presentationFileName
                     );
                   }}
+                  onFocus={
+                    caseDocument.hasNotes ? notesHoverOverCallback : undefined
+                  }
                   disabled={isNotesDisabled()}
                   aria-disabled={isNotesDisabled() ? "true" : "false"}
                 >
