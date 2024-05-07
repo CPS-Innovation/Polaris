@@ -1,24 +1,23 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
-using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using Common.Streaming;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Rest;
-using Polly;
-using Polly.Retry;
 using text_extractor.Factories.Contracts;
 
 namespace text_extractor.Services.OcrService
 {
     public class OcrService : IOcrService
     {
-        private const int RetryDelayInMilliseconds = 5000;
-        private const int MaxRetryDelayInMilliseconds = 15000;
+        // As per https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/how-to/call-read-api#get-results-from-the-service
+        //  the polling delay is best set between 1 and 2 seconds.  Up until this point we have used 500ms and we are currently experiencing 
+        //  the occasional very slow document processing operation.  The article makes it clear that there is a limit in the number of requests
+        //  per second, so by increasing the delay we are seeing if we can improve throughput by reducing the number of requests.
+        private const int _pollingDelayMs = 2000;
         private readonly ComputerVisionClient _computerVisionClient;
         private readonly ILogger<OcrService> _log;
 
@@ -33,48 +32,41 @@ namespace text_extractor.Services.OcrService
         {
             try
             {
-                // Temporary code to allow Polly to access the stream on retry. When this moves to the coordinator
-                //  then the nature of the incoming stream should be different and there will be no need for this.
+                // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
+                //  and so will need to go through the stream again. Depending on the version/type of framework that is handing us this stream
+                //  it may not be seekable.  We have a helper method to ensure it is seekable.
                 //  n.b. this incurs an overhead for all executions, the vast majority of which do not need to retry.
                 stream = await stream.EnsureSeekableAsync();
-                // this trace is here to prove we are logging OK, feel free to remove once PR has merged.
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Attempt OCR on a stream with CanSeek: {stream.CanSeek}");
-                var streamPipeline = GetReadInStreamComputerVisionResiliencePipeline(correlationId);
 
-                var streamResponse = await streamPipeline.ExecuteAsync(async token =>
-                {
-                    stream.Position = 0; // if in a retry we need to reset the stream
-                    return await _computerVisionClient.ReadInStreamWithHttpMessagesAsync(stream);
-                },
-                CancellationToken.None);
-
-                var textHeaders = streamResponse.Headers;
+                var watch = new Stopwatch();
+                watch.Start();
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
+                var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream);
                 var operationLocation = textHeaders.OperationLocation;
-                await Task.Delay(500);
 
                 const int numberOfCharsInOperationId = 36;
                 var operationId = operationLocation[^numberOfCharsInOperationId..];
 
                 ReadOperationResult results;
-
                 while (true)
                 {
-                    var readPipeline = GetReadResultsComputerVisionResiliencePipeline(correlationId);
+                    // always wait before the first read attempt, it will not be ready immediately
+                    await Task.Delay(_pollingDelayMs);
 
-                    var readResponse = await readPipeline.ExecuteAsync(async token =>
-                        await _computerVisionClient.GetReadResultWithHttpMessagesAsync(Guid.Parse(operationId)),
-                        CancellationToken.None);
-
-                    results = readResponse.Body;
-
-                    if (results.Status is OperationStatusCodes.Running or OperationStatusCodes.NotStarted)
-                    {
-                        await Task.Delay(500);
-                    }
-                    else
+                    results = await _computerVisionClient.GetReadResultAsync(Guid.Parse(operationId));
+                    _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
+                    if (results.Status is OperationStatusCodes.Failed or OperationStatusCodes.Succeeded)
                     {
                         break;
                     }
+                }
+
+                watch.Stop();
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {watch.ElapsedMilliseconds}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+
+                if (results.Status == OperationStatusCodes.Failed)
+                {
+                    throw new OcrServiceException("OCR completed with Failed status");
                 }
 
                 return results.AnalyzeResult;
@@ -84,47 +76,6 @@ namespace text_extractor.Services.OcrService
                 _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "An OCR Library exception occurred", ex);
                 throw new OcrServiceException(ex.Message);
             }
-        }
-
-        internal ResiliencePipeline<HttpOperationHeaderResponse<ReadInStreamHeaders>> GetReadInStreamComputerVisionResiliencePipeline(Guid correlationId)
-        {
-            return new ResiliencePipelineBuilder<HttpOperationHeaderResponse<ReadInStreamHeaders>>()
-                .AddRetry(new RetryStrategyOptions<HttpOperationHeaderResponse<ReadInStreamHeaders>>
-                {
-                    MaxRetryAttempts = 3,
-                    BackoffType = DelayBackoffType.Exponential,
-                    Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
-                    MaxDelay = TimeSpan.FromMilliseconds(MaxRetryDelayInMilliseconds),
-                    ShouldHandle = new PredicateBuilder<HttpOperationHeaderResponse<ReadInStreamHeaders>>()
-                        .Handle<ComputerVisionOcrErrorException>()
-                        .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
-                    OnRetry = retryArguments =>
-                    {
-                        _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Read in stream OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
-                        return ValueTask.CompletedTask;
-                    }
-                })
-                .Build();
-        }
-
-        internal ResiliencePipeline<HttpOperationResponse<ReadOperationResult>> GetReadResultsComputerVisionResiliencePipeline(Guid correlationId)
-        {
-            return new ResiliencePipelineBuilder<HttpOperationResponse<ReadOperationResult>>()
-                .AddRetry(new RetryStrategyOptions<HttpOperationResponse<ReadOperationResult>>
-                {
-                    MaxRetryAttempts = 3,
-                    BackoffType = DelayBackoffType.Exponential,
-                    Delay = TimeSpan.FromMilliseconds(RetryDelayInMilliseconds),
-                    ShouldHandle = new PredicateBuilder<HttpOperationResponse<ReadOperationResult>>()
-                        .Handle<ComputerVisionOcrErrorException>()
-                        .HandleResult(r => r.Response.StatusCode == HttpStatusCode.TooManyRequests),
-                    OnRetry = retryArguments =>
-                    {
-                        _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Read OCR results attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
-                        return ValueTask.CompletedTask;
-                    }
-                })
-                .Build();
         }
     }
 }

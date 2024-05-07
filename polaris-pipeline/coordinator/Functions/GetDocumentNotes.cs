@@ -33,7 +33,6 @@ namespace coordinator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentNotes)] HttpRequest req,
             string caseUrn,
             int caseId,
-            string documentCategory,
             string documentId)
         {
             Guid currentCorrelationId = default;
@@ -43,7 +42,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var arg = _ddeiArgFactory.CreateDocumentNotesArgDto(cmsAuthValues, currentCorrelationId, caseUrn, caseId, documentCategory, documentId);
+                var arg = _ddeiArgFactory.CreateDocumentNotesArgDto(cmsAuthValues, currentCorrelationId, caseUrn, caseId, documentId);
                 var result = await _ddeiClient.GetDocumentNotes(arg);
 
                 return new OkObjectResult(result);

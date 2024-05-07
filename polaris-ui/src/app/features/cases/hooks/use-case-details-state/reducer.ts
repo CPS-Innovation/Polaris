@@ -193,11 +193,13 @@ export const reducer = (
           | {
               documentId: string;
               addNoteStatus: "saving" | "failure" | "success";
+              getNoteStatus: "initial";
             }
           | {
               documentId: string;
               notesData: Note[];
               addNoteStatus: "initial";
+              getNoteStatus: "initial" | "loading" | "failure";
             };
       }
     | {
@@ -1002,7 +1004,7 @@ export const reducer = (
       };
     }
     case "UPDATE_NOTES_DATA": {
-      const { documentId, addNoteStatus } = action.payload;
+      const { documentId, addNoteStatus, getNoteStatus } = action.payload;
       const filteredNotes = state.notes.filter(
         (note) => note.documentId !== documentId
       );
@@ -1019,8 +1021,9 @@ export const reducer = (
               ...filteredNotes,
               {
                 ...activeNotes,
-                documentId: documentId,
-                addNoteStatus: addNoteStatus,
+                documentId,
+                addNoteStatus,
+                getNoteStatus,
               },
             ],
           };
@@ -1032,9 +1035,10 @@ export const reducer = (
             notes: [
               ...filteredNotes,
               {
-                documentId: documentId,
+                documentId,
                 notes: notesData,
-                addNoteStatus: addNoteStatus,
+                addNoteStatus,
+                getNoteStatus,
               },
             ],
           };

@@ -37,8 +37,8 @@ overnight_clear_down = {
 
 sliding_clear_down = {
   disabled = 0
-  // 7.5 days to cleardown daytime traffic at night and nightime traffic during day
-  look_back_hours = 180
+  // 5.5 days to cleardown daytime traffic at night and nightime traffic during day
+  look_back_hours = 132
   protect_blobs   = false
   schedule        = "0 * * * * *"
   batch_size      = 3
