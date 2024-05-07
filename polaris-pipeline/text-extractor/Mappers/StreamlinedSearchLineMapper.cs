@@ -17,7 +17,8 @@ namespace text_extractor.Mappers
                 PageHeight = searchLine.PageHeight,
                 PageWidth = searchLine.PageWidth,
                 FileName = searchLine.FileName,
-                Words = new List<StreamlinedWord>()
+                Words = new List<StreamlinedWord>(),
+                VersionId = searchLine.VersionId,
             };
         }
     }
