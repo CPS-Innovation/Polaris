@@ -1,7 +1,10 @@
 import { mapAccordionState } from "./map-accordion-state";
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { ConversionStatus, PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import {
+  ConversionStatus,
+  PresentationDocumentProperties,
+} from "../../domain/gateway/PipelineDocument";
 
 const mapUnSortedDocsToCategory = (
   categories: string[],
