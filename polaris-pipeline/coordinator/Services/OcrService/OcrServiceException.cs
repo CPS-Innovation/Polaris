@@ -1,5 +1,6 @@
 ﻿using System;
-namespace text_extractor.Services.OcrService
+
+namespace coordinator.Services.OcrService
 {
 	[Serializable]
 	public class OcrServiceException : Exception
