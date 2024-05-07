@@ -61,6 +61,8 @@ namespace coordinator.Functions
                     return new BadRequestObjectResult("Search term not supplied.");
                 }
 
+                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
+
                 var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
@@ -72,8 +74,6 @@ namespace coordinator.Functions
                         .Append(entityState.DefendantsAndCharges)
                         .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
                         .ToList();
-
-                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
                 var filteredSearchResults = searchResults
                     .Where(result => documents.Any(doc => doc.PolarisDocumentId == result.PolarisDocumentId && doc.CmsVersionId == result.VersionId))
