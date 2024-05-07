@@ -59,7 +59,7 @@ export const AccordionDocument: React.FC<Props> = ({
       openNotesBtnRef.current.focus();
     }
   }, []);
-  console.log(caseDocument.conversionStatus === "DocumentConverted")
+
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok" && caseDocument.conversionStatus === "DocumentConverted";
   const getAttachmentText = () => {
     if (caseDocument.attachments.length === 1) {
