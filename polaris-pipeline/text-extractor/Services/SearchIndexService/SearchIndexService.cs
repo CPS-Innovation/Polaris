@@ -132,16 +132,16 @@ namespace text_extractor.Services.CaseSearchService
             return await WaitForIndexCountResultsAsync(filter, 0, cmsCaseId);
         }
 
-        public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm)
+        public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, string searchTerm)
         {
-            var filter = GetCaseDocumentsSearchQuery(caseId, documents);
+            var filter = $"caseId eq {caseId}";
             var searchOptions = new SearchOptions
             {
                 Filter = filter,
                 SessionId = caseId.ToString()
             };
 
-            // => e.g. search=caseId eq 2146928 and ((documentId eq '8660287' and versionId eq 7921776) or (documentId eq '8660286' and versionId eq 7921777) or (documentId eq '8660260' and versionId eq 7921740) or (documentId eq '8660255' and versionId eq 7921733) or (documentId eq '8660254' and versionId eq 7921732) or (documentId eq '8660253' and versionId eq 7921731) or (documentId eq '8660252' and versionId eq 7921730) or (documentId eq 'PCD-131307' and versionId eq 1) or (documentId eq 'DAC' and versionId eq 1))
+            // => e.g. search=caseId eq 2146928
             var searchResults = await GetSearchResults<SearchLine>(searchOptions, searchTerm);
             var searchLines = new List<SearchLine>();
             await foreach (var searchResult in searchResults.Value.GetResultsAsync())
@@ -362,23 +362,6 @@ namespace text_extractor.Services.CaseSearchService
                 IsSuccess = recordCounts.Any() && recordCounts.Last() == targetCount,
                 RecordCounts = recordCounts
             };
-        }
-
-        private string GetCaseDocumentsSearchQuery(long caseId, List<SearchFilterDocument> documents)
-        {
-            var stringBuilder = new StringBuilder($"caseId eq {caseId}");
-
-            if (documents.Any())
-            {
-                stringBuilder.Append(" and (");
-                stringBuilder.Append($@"(documentId eq '{documents[0].CmsDocumentId}' and versionId eq {documents[0].CmsVersionId})");
-                for (var i = 1; i < documents.Count; i++)
-                {
-                    stringBuilder.Append(@$" or (documentId eq '{documents[i].CmsDocumentId}' and versionId eq {documents[i].CmsVersionId})");
-                }
-                stringBuilder.Append(")");
-            }
-            return stringBuilder.ToString();
         }
 
         private IEnumerable<int> Fibonacci(int n)
