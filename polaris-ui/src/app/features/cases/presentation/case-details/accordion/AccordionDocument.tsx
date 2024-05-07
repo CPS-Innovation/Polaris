@@ -128,18 +128,22 @@ export const AccordionDocument: React.FC<Props> = ({
         : `${notes[notes.length - 1].text}`;
     }
     return ariaLiveText
-      ? `recent note text is ${notes[notes.length - 1].text}, and ${notes.length - 1
-      } more`
+      ? `recent note text is ${notes[notes.length - 1].text}, and ${
+          notes.length - 1
+        } more`
       : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
   };
 
   return (
     <li
-      className={`${classes["accordion-document-list-item"]} ${readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
-        } ${activeDocumentId === caseDocument.documentId ? classes.docActive : ""
-        }`}
-      data-read={`${readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
-        }`}
+      className={`${classes["accordion-document-list-item"]} ${
+        readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
+      } ${
+        activeDocumentId === caseDocument.documentId ? classes.docActive : ""
+      }`}
+      data-read={`${
+        readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
+      }`}
     >
       <div className={classes.listItemWrapper}>
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
@@ -286,8 +290,8 @@ export const AccordionDocument: React.FC<Props> = ({
             Document only available on CMS
             {caseDocument.conversionStatus !== "DocumentConverted"
               ? `: ${mapConversionStatusToMessage(
-                caseDocument.conversionStatus
-              )}`
+                  caseDocument.conversionStatus
+                )}`
               : ""}
           </span>
         )}
