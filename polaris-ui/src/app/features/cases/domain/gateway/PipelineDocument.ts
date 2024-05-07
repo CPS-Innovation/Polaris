@@ -6,24 +6,57 @@ export type PipelineDocumentProperties = {
   pdfBlobName: string;
   isPdfAvailable?: boolean;
   status:
-    | "New"
-    | "PdfUploadedToBlob"
-    | "Indexed"
-    | "UnableToConvertToPdf"
-    | "UnexpectedFailure"
-    | "OcrAndIndexFailure";
+  | "New"
+  | "PdfUploadedToBlob"
+  | "Indexed"
+  | "UnableToConvertToPdf"
+  | "UnexpectedFailure"
+  | "OcrAndIndexFailure";
 };
 export type PresentationFlags = {
   read: "Ok" | "OnlyAvailableInCms";
   write:
-    | "Ok"
-    | "OnlyAvailableInCms"
-    | "DocTypeNotAllowed"
-    | "OriginalFileTypeNotAllowed"
-    | "IsDispatched"
-    | "IsRedactionServiceOffline";
+  | "Ok"
+  | "OnlyAvailableInCms"
+  | "DocTypeNotAllowed"
+  | "OriginalFileTypeNotAllowed"
+  | "IsDispatched"
+  | "IsRedactionServiceOffline";
 };
 
+export type ConversionStatus =
+  "DocumentConverted" |
+  "PdfEncrypted" |
+  "DocumentTypeUnsupported" |
+  "AsposePdfPasswordProtected" |
+  "AsposePdfInvalidFileFormat" |
+  "AsposePdfException" |
+  "AsposeWordsUnsupportedFileFormat" |
+  "AsposeWordsPasswordProtected" |
+  "AsposeCellsGeneralError" |
+  "AsposeImagingCannotLoad" |
+  "UnexpectedError";
+
+export const mapConversionStatusToMessage = (status: ConversionStatus): string => {
+  switch (status) {
+    case "DocumentConverted":
+      return "Document converted";
+    case "PdfEncrypted":
+    case "AsposePdfPasswordProtected":
+    case "AsposeWordsPasswordProtected":
+      return "File is password protected";
+    case "DocumentTypeUnsupported":
+    case "AsposeWordsUnsupportedFileFormat":
+    case "AsposePdfInvalidFileFormat":
+      return "Document type unsupported";
+    case "AsposeCellsGeneralError":
+    case "AsposeImagingCannotLoad":
+    case "UnexpectedError":
+    case "AsposePdfException":
+      return "";
+  }
+
+}
 export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
@@ -40,6 +73,7 @@ export type PresentationDocumentProperties = {
   witnessId: number | null;
   hasFailedAttachments: boolean;
   hasNotes: boolean;
+  conversionStatus: ConversionStatus;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

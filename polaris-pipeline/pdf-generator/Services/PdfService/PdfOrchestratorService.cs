@@ -5,6 +5,7 @@ using pdf_generator.Domain.Document;
 using pdf_generator.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
+using Common.Constants;
 
 namespace pdf_generator.Services.PdfService
 {
