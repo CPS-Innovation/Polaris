@@ -75,12 +75,11 @@ namespace coordinator.Clients.TextExtractor
             string caseUrn,
             long cmsCaseId,
             string searchTerm,
-            Guid correlationId,
-            IEnumerable<SearchFilterDocument> documents
-            )
+            Guid correlationId
+        )
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetSearchPath(caseUrn, cmsCaseId), correlationId);
-            request.Content = _searchDtoContentFactory.Create(searchTerm, documents);
+            request.Content = _searchDtoContentFactory.Create(searchTerm);
 
             using (var response = await _httpClient.SendAsync(request))
             {
