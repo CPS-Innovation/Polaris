@@ -31,91 +31,26 @@ const isUIIntegrationTestUser = (username: string) => {
   );
 };
 
-const showRedactionLogFeature = (username: string, queryParam: string) => {
-  if (!FEATURE_FLAG_REDACTION_LOG) {
-    return false;
-  }
-
-  const isInCypressQueryParamFeatureFlag =
-    queryParam === "false" &&
-    window.Cypress &&
-    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-
-  if (isInCypressQueryParamFeatureFlag) return false;
-
-  return true;
-};
-
-const showFullScreenFeature = (username: string, queryParam: string) => {
-  if (!FEATURE_FLAG_FULL_SCREEN) {
-    return false;
-  }
-  const isInCypressQueryParamFeatureFlag =
-    queryParam === "false" &&
-    window.Cypress &&
-    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-  if (isInCypressQueryParamFeatureFlag) return false;
-
-  return true;
-};
-
-const showNotesFeature = (
+const showFeature = (
+  featureFlag: boolean,
   username: string,
   queryParam: string,
-  groupClaims: string[]
+  groupClaims?: string[]
 ) => {
-  if (!FEATURE_FLAG_NOTES) {
-    return false;
-  }
+  if (!featureFlag) return false;
 
   const isTestUser =
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
-  if (isTestUser) {
-    if (queryParam === "true") {
-      return true;
-    }
-    if (queryParam === "false") {
-      return false;
-    }
+  if (isTestUser && queryParam === "false") return false;
+
+  if (groupClaims) {
+    const isInPrivateBetaGroup = groupClaims?.includes(
+      PRIVATE_BETA_FEATURE_USER_GROUP
+    );
+    if (!isInPrivateBetaGroup) return false;
   }
-
-  const isInPrivateBetaGroup = !!groupClaims?.includes(
-    PRIVATE_BETA_FEATURE_USER_GROUP
-  );
-
-  if (!isInPrivateBetaGroup) return false;
-  return true;
-};
-
-const showSearchPIIFeature = (
-  username: string,
-  queryParam: string,
-  groupClaims: string[]
-) => {
-  if (!FEATURE_FLAG_SEARCH_PII) {
-    return false;
-  }
-
-  const isTestUser =
-    window.Cypress &&
-    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-
-  if (isTestUser) {
-    if (queryParam === "true") {
-      return true;
-    }
-    if (queryParam === "false") {
-      return false;
-    }
-  }
-
-  const isInPrivateBetaGroup = !!groupClaims?.includes(
-    PRIVATE_BETA_FEATURE_USER_GROUP
-  );
-
-  if (!isInPrivateBetaGroup) return false;
   return true;
 };
 
@@ -128,13 +63,24 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
 
   const getFeatureFlags = useCallback(
     () => ({
-      redactionLog: showRedactionLogFeature(
+      redactionLog: showFeature(
+        FEATURE_FLAG_REDACTION_LOG,
         userDetails?.username,
         redactionLog
       ),
-      fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
-      notes: showNotesFeature(userDetails?.username, notes, groupClaims),
-      searchPII: showSearchPIIFeature(
+      fullScreen: showFeature(
+        FEATURE_FLAG_FULL_SCREEN,
+        userDetails?.username,
+        fullScreen
+      ),
+      notes: showFeature(
+        FEATURE_FLAG_NOTES,
+        userDetails?.username,
+        notes,
+        groupClaims
+      ),
+      searchPII: showFeature(
+        FEATURE_FLAG_SEARCH_PII,
         userDetails?.username,
         searchPII,
         groupClaims
@@ -142,6 +88,5 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     }),
     []
   );
-
   return useMemo(() => getFeatureFlags(), [getFeatureFlags]);
 };

@@ -132,6 +132,7 @@ describe("useCaseDetailsState", () => {
         handleSaveReadUnreadData,
         handleAddNote,
         handleGetNotes,
+        handleShowHideRedactionSuggestions,
         ...stateProperties
       } = result.current;
 
