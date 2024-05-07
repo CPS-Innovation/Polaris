@@ -141,7 +141,7 @@ namespace text_extractor.Services.CaseSearchService
                 SessionId = caseId.ToString()
             };
 
-            // => e.g. search=caseId eq 2146928 and ((documentId eq '8660287' and versionId eq 7921776) or (documentId eq '8660286' and versionId eq 7921777) or (documentId eq '8660260' and versionId eq 7921740) or (documentId eq '8660255' and versionId eq 7921733) or (documentId eq '8660254' and versionId eq 7921732) or (documentId eq '8660253' and versionId eq 7921731) or (documentId eq '8660252' and versionId eq 7921730) or (documentId eq 'PCD-131307' and versionId eq 1) or (documentId eq 'DAC' and versionId eq 1))
+            // => e.g. search=caseId eq 2146928
             var searchResults = await GetSearchResults<SearchLine>(searchOptions, searchTerm);
             var searchLines = new List<SearchLine>();
             await foreach (var searchResult in searchResults.Value.GetResultsAsync())
