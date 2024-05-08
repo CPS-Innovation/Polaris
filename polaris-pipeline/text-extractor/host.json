@@ -6,10 +6,7 @@
       "default": "Warning",
       "Function": "Warning",
       "Host.Aggregator": "Information",
-      "Host.Results": "Information",
-      "text_extractor.Services.OcrService.OcrService": "Information",
-      "Function.ExtractText": "Information",
-      "text_extractor.Functions.ExtractText": "Information"
+      "Host.Results": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
