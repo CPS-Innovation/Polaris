@@ -204,6 +204,12 @@ namespace Ddei.Mappers
 
         private HeadlineChargeDto FindHeadlineCharge(DefendantAndChargesDto leadDefendant)
         {
+            if (leadDefendant == null)
+            {
+                // #24083 - ddei sometimes returns no defendants, so no lead defendant exists.
+                return new HeadlineChargeDto();
+            }
+
             var firstCharge = leadDefendant.Charges
                 .OrderBy(charge => charge.ListOrder)
                 .FirstOrDefault();
