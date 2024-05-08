@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using coordinator.Durable.Payloads;
 using coordinator.Clients.PdfGenerator;
+using coordinator.Domain;
+using Common.Constants;
 
 namespace coordinator.Durable.Activity
 {
@@ -47,7 +49,7 @@ namespace coordinator.Durable.Activity
         // todo: for the time being we have a boolean success flag return value. The coordinator refactor 
         //  exercise will do something better than this.
         [FunctionName(nameof(GeneratePdf))]
-        public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<PdfConversionStatus> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
@@ -59,40 +61,33 @@ namespace coordinator.Durable.Activity
 
             using var documentStream = await GetDocumentStreamAsync(payload);
 
-            Stream pdfStream = Stream.Null;
-            try
+            var response = await _pdfGeneratorClient.ConvertToPdfAsync(
+                        payload.CorrelationId,
+                        payload.CmsAuthValues,
+                        payload.CmsCaseUrn,
+                        payload.CmsCaseId.ToString(),
+                        payload.CmsDocumentId,
+                        payload.CmsVersionId.ToString(),
+                        documentStream,
+                        fileType);
+
+
+            if (response.Status == PdfConversionStatus.DocumentConverted)
             {
-                pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
-                            payload.CorrelationId,
-                            payload.CmsAuthValues,
-                            payload.CmsCaseUrn,
-                            payload.CmsCaseId.ToString(),
-                            payload.CmsDocumentId,
-                            payload.CmsVersionId.ToString(),
-                            documentStream,
-                            fileType);
+                await _blobStorageService.UploadDocumentAsync
+                    (
+                        response.PdfStream,
+                        payload.BlobName,
+                        payload.CmsCaseId.ToString(),
+                        payload.PolarisDocumentId,
+                        payload.CmsVersionId.ToString(),
+                        payload.CorrelationId
+                    );
 
-            }
-            catch (UnsupportedMediaTypeException)
-            {
-                // If pdf-generator has failed on conversion we arrive here.  The failure will have been logged in the
-                //  pdf-generator function app so no need to log here, but we let the caller know we've not converted 
-                //  via bool return value.
-                return false;
+                response.PdfStream.Dispose();
             }
 
-            await _blobStorageService.UploadDocumentAsync
-                (
-                    pdfStream,
-                    payload.BlobName,
-                    payload.CmsCaseId.ToString(),
-                    payload.PolarisDocumentId,
-                    payload.CmsVersionId.ToString(),
-                    payload.CorrelationId
-                );
-
-            pdfStream.Dispose();
-            return true;
+            return response.Status;
         }
 
         private FileType GetFileType(CaseDocumentOrchestrationPayload payload)

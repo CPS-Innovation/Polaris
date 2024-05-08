@@ -342,7 +342,6 @@ describe("Feature Notes", () => {
     cy.findByTestId("div-pdfviewer-0")
       .should("exist")
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-notes-1").click();
     cy.findByTestId("notes-panel").should("exist");
     cy.findByTestId("notes-panel").contains("Notes - MCLOVEMG3");
