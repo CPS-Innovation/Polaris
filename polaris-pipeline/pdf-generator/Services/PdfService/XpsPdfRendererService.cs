@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Aspose.Pdf;
 using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
@@ -19,12 +20,17 @@ public class XpsPdfRendererService : IPdfService
     {
         var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeCells);
         var pdfStream = new MemoryStream();
-        
+
         var doc = _asposeItemFactory.CreateRenderedXpsPdfDocument(inputStream, correlationId);
         doc.Save(pdfStream, SaveFormat.Pdf);
         pdfStream.Seek(0, SeekOrigin.Begin);
-        
+
         conversionResult.RecordConversionSuccess(pdfStream);
         return conversionResult;
+    }
+
+    public Task<PdfConversionResult> ReadToPdfStreamAsync(Stream inputStream, string documentId, Guid correlationId)
+    {
+        throw new NotImplementedException();
     }
 }
