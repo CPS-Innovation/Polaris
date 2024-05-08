@@ -5,7 +5,6 @@ using pdf_generator.Domain.Document;
 using pdf_generator.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using Common.Constants;
 
 namespace pdf_generator.Services.PdfService
@@ -44,15 +43,15 @@ namespace pdf_generator.Services.PdfService
             _logger = logger;
         }
 
-        public async Task<PdfConversionResult> ReadToPdfStreamAsync(Stream inputStream, FileType fileType, string documentId, Guid correlationId)
+        public PdfConversionResult ReadToPdfStream(Stream inputStream, FileType fileType, string documentId, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(ReadToPdfStreamAsync), documentId);
+            _logger.LogMethodEntry(correlationId, nameof(ReadToPdfStream), documentId);
             PdfConversionResult conversionResult;
             var converterType = PdfConverterType.None;
 
             try
             {
-                _logger.LogMethodFlow(correlationId, nameof(ReadToPdfStreamAsync),
+                _logger.LogMethodFlow(correlationId, nameof(ReadToPdfStream),
                     "Analysing file type and matching to a converter");
                 switch (fileType)
                 {
@@ -115,7 +114,7 @@ namespace pdf_generator.Services.PdfService
 
                     case FileType.PDF:
                         converterType = PdfConverterType.AsposePdf;
-                        conversionResult = await _pdfRendererService.ReadToPdfStreamAsync(inputStream, documentId, correlationId);
+                        conversionResult = _pdfRendererService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.XPS:
@@ -133,7 +132,7 @@ namespace pdf_generator.Services.PdfService
             {
                 inputStream?.Dispose();
 
-                _logger.LogMethodError(correlationId, nameof(ReadToPdfStreamAsync), exception.Message, exception);
+                _logger.LogMethodError(correlationId, nameof(ReadToPdfStream), exception.Message, exception);
                 conversionResult = new PdfConversionResult(documentId, converterType);
                 conversionResult.RecordConversionFailure(PdfConversionStatus.UnexpectedError, exception.ToFormattedString());
 
@@ -141,7 +140,7 @@ namespace pdf_generator.Services.PdfService
             }
             finally
             {
-                _logger.LogMethodExit(correlationId, nameof(ReadToPdfStreamAsync), string.Empty);
+                _logger.LogMethodExit(correlationId, nameof(ReadToPdfStream), string.Empty);
             }
 
             return conversionResult;

@@ -6,7 +6,6 @@ using Aspose.Imaging.ImageOptions;
 using pdf_generator.Extensions;
 using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
-using System.Threading.Tasks;
 using Common.Constants;
 
 namespace pdf_generator.Services.PdfService
@@ -41,11 +40,6 @@ namespace pdf_generator.Services.PdfService
             }
 
             return conversionResult;
-        }
-
-        public Task<PdfConversionResult> ReadToPdfStreamAsync(Stream inputStream, string documentId, Guid correlationId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -57,7 +57,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
                 telemetryEvent.NullCharCount = GetNullCharacterCount(document);
 
                 var outputStream = new MemoryStream();
-                await document.SaveAsync(outputStream, CancellationToken.None);
+                document.Save(outputStream);
                 outputStream.Position = 0;
                 document.Dispose();
 
