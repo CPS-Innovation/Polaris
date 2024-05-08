@@ -263,7 +263,7 @@ internal static class PdfManager
 
       var fileType = Enum.Parse<FileType>(extension);
 
-      var conversionResult = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
+      var conversionResult = orchestratorService.ReadToPdfStreamAsync(fileStream, fileType, documentId, currentCorrelationId).Result;
 
       if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
       {
