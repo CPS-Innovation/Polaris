@@ -11,4 +11,3 @@ jobs:
     permissions:
       security-events: write
       statuses: write
-
