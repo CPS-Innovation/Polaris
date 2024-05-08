@@ -2,14 +2,14 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using Common.Logging;
-using Common.Streaming;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
-using text_extractor.Factories.Contracts;
+using coordinator.Factories.ComputerVisionClientFactory;
+using Common.Logging;
+using Common.Streaming;
 
-namespace text_extractor.Services.OcrService
+namespace coordinator.Services.OcrService
 {
     public class OcrService : IOcrService
     {
