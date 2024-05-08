@@ -8,6 +8,8 @@ type MappingDefaultData = Omit<
   UnderRedactionFormData,
   "notes" | "chargeStatus"
 >;
+
+const PNC_PRINT_DOCUMENT_TYPE_ID = "34";
 export const getDefaultValuesFromMappings = (
   mappingData: RedactionLogMappingData,
   ouCodeMapping: OuCodeMapping[],
@@ -15,6 +17,7 @@ export const getDefaultValuesFromMappings = (
   docTypeId: number,
   caseUrn: string
 ) => {
+  const manuallySelectDocumentTypeIds = [-1, 1029, 1200];
   let defaultValues: MappingDefaultData = {
     cpsArea: "",
     businessUnit: "",
@@ -32,9 +35,14 @@ export const getDefaultValuesFromMappings = (
   const defaultDocType = mappingData.documentTypes.find(
     (docType) => docType.cmsDocTypeId === `${docTypeId}`
   );
-  //User should select document type manually when doctypeId is 1029
-  if (docTypeId !== 1029 && defaultDocType?.docTypeId) {
+  if (
+    !manuallySelectDocumentTypeIds.includes(docTypeId) &&
+    defaultDocType?.docTypeId
+  ) {
     defaultValues.documentType = defaultDocType.docTypeId;
+    if (docTypeId === 1056 || docTypeId === 1057) {
+      defaultValues.documentType = PNC_PRINT_DOCUMENT_TYPE_ID;
+    }
   }
 
   const defaultIA = mappingData.investigatingAgencies.find(

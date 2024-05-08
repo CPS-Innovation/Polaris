@@ -1,0 +1,27 @@
+AppRequests
+| where AppRoleName == "fa-polaris-coordinator"
+| where Name == "ExtractText"
+| project TimeGenerated, OperationId, ActivitySuccess = Success
+| join kind=leftouter (AppExceptions
+        | where AppRoleName == "fa-polaris-coordinator"
+        | where OperationName == "ExtractText"
+        | summarize arg_max(TimeGenerated, InnermostMessage) by OperationId
+        | project OperationId, ExceptionType = case(
+            InnermostMessage contains "502", "502",
+            InnermostMessage contains "503", "503",
+            InnermostMessage)
+) on OperationId | project-away OperationId1
+| join kind=leftouter (AppRequests
+    | where AppRoleName == "fa-polaris-text-extractor"
+    | where Name == "ExtractText"
+    | project OperationId, TextExtractorSuccess = ResultCode == 200
+) on OperationId | project-away OperationId1
+| extend Status = case ( 
+    isnull(TextExtractorSuccess), "1 - TextExtractorNotReached",
+    ActivitySuccess and TextExtractorSuccess, "5 - Success",
+    ActivitySuccess and not(TextExtractorSuccess), "4 - TextExtractorFail",
+    not(ActivitySuccess) and not(TextExtractorSuccess), "3- CompoundFail",
+    not(ActivitySuccess) and TextExtractorSuccess, "2- Mystery",
+    "Other"
+)
+| summarize count() by Status, bin(TimeGenerated, 1h)

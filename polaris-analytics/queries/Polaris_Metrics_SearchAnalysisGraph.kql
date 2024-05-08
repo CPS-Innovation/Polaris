@@ -1,0 +1,12 @@
+Polaris_Metrics_SearchAnalysis
+| summarize 
+    3_Ignored = countif(ReadStatus == "Not"),
+    2_WithoutSearch = countif(ReadStatus == "PriorToSearch"),
+    1_AfterSearch = countif(ReadStatus == "AfterSearch"),
+    Total = count() 
+by DocumentTypeId
+| order by Total desc 
+| where Total >= 100
+| project-away Total
+| render areachart    
+

@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
+import { useUserDetails } from "../../../../auth";
 import {
   getCaseDetails,
   searchCase,
@@ -68,11 +69,13 @@ export const initialState = {
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
   },
-  featureFlags: { redactionLog: false, fullScreen: false },
+  featureFlags: { redactionLog: false, fullScreen: false, notes: false },
   storedUserData: { status: "loading" },
+  notes: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
+  const userDetails = useUserDetails();
   const featureFlagData = useUserGroupsFeatureFlag();
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
@@ -401,6 +404,27 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleGetNotes = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "GET_NOTES_DATA",
+        payload: { documentId },
+      }),
+    [dispatch]
+  );
+
+  const handleAddNote = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"], noteText: string) =>
+      dispatch({
+        type: "ADD_NOTE_DATA",
+        payload: {
+          documentId,
+          noteText,
+        },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -423,5 +447,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleAreaOnlyRedaction,
     handleSaveRedactionLog,
     handleSaveReadUnreadData,
+    handleGetNotes,
+    handleAddNote,
   };
 };

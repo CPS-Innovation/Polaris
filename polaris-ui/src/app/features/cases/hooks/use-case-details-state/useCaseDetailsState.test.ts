@@ -26,6 +26,8 @@ jest.mock(".../../../../auth/msal/useUserGroupsFeatureFlag", () => ({
   useUserGroupsFeatureFlag: () => jest.fn(),
 }));
 
+jest.mock("../../../../auth", () => ({ useUserDetails: () => jest.fn() }));
+
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;
 
@@ -128,6 +130,8 @@ describe("useCaseDetailsState", () => {
         handleHideRedactionLogModal,
         handleAreaOnlyRedaction,
         handleSaveReadUnreadData,
+        handleAddNote,
+        handleGetNotes,
         ...stateProperties
       } = result.current;
 

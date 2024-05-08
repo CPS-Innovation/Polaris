@@ -1,7 +1,10 @@
 import { mapAccordionState } from "./map-accordion-state";
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import {
+  ConversionStatus,
+  PresentationDocumentProperties,
+} from "../../domain/gateway/PipelineDocument";
 
 const mapUnSortedDocsToCategory = (
   categories: string[],
@@ -463,6 +466,8 @@ describe("mapAccordionState", () => {
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
+          hasNotes: false,
+          conversionStatus: "DocumentConverted",
         },
         {
           documentId: "2",
@@ -490,6 +495,8 @@ describe("mapAccordionState", () => {
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
+          hasNotes: false,
+          conversionStatus: "DocumentConverted",
         },
       ],
     };
@@ -529,6 +536,8 @@ describe("mapAccordionState", () => {
               witnessId: null,
               witnessIndicators: [],
               hasFailedAttachments: false,
+              hasNotes: false,
+              conversionStatus: "DocumentConverted",
             },
           ],
         },

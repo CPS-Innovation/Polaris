@@ -7,7 +7,10 @@ pr:
       - main
   paths:
     include:
-      - polaris-terraform/*
+      - polaris-terraform/pipeline-terraform/*
+      - polaris-terraform/pipeline-events-terraform/*
+      - polaris-terraform/ui-terraform/*
+      - polaris-terraform/ui-events-terraform/*
       - polaris-gateway/*
       - polaris-pipeline/*
       - polaris-ui/*
@@ -27,8 +30,6 @@ variables:
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform"
   - name: uiEventsTerraformWorkingDir
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-events-terraform"
-  - name: networkingTerraformWorkingDir
-    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
     
 stages:
   - stage: Determine_Changes
@@ -72,11 +73,6 @@ stages:
                   {
                     echo "run ui events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                  if ($name -like 'polaris-terraform/networking-terraform/*')
-                  {
-                    echo "run networking terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_TERRAFORM;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
                   {
@@ -188,6 +184,10 @@ stages:
         condition: eq(variables.runPipelineTerraform, 'true')
         displayName: Check Pipeline Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -210,10 +210,10 @@ stages:
             displayName: "Terraform > Write Pipeline Plan"
             workingDirectory: $(pipelineTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
 
       - job: Validate_Pipeline_Events_Terraform
@@ -249,6 +249,10 @@ stages:
         dependsOn: Validate_Pipeline_Events_Terraform
         displayName: Check Pipeline Events Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -271,10 +275,10 @@ stages:
             displayName: "Terraform > Write Pipeline Events Plan"
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
     
       - job: Validate_UI_Terraform
@@ -310,6 +314,10 @@ stages:
         dependsOn: Validate_UI_Terraform
         displayName: Check UI Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -332,10 +340,10 @@ stages:
             displayName: "Terraform > Write UI Plan"
             workingDirectory: $(uiTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
     
       - job: Validate_UI_Events_Terraform
@@ -371,6 +379,10 @@ stages:
         dependsOn: Validate_UI_Events_Terraform
         displayName: Check UI Events Terraform
         steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -393,73 +405,12 @@ stages:
             displayName: "Terraform > Write UI Events Plan"
             workingDirectory: $(uiEventsTerraformWorkingDir)
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
     
-      - job: Validate_Networking_Terraform
-        condition: eq(variables.runNetworkingTerraform, 'true')
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(networkingTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Validate
-          - bash: terraform validate
-            displayName: Terraform > Validate Config
-            workingDirectory: $(networkingTerraformWorkingDir)
-    
-      - job: Check_Networking_Plan
-        condition: eq(variables.runNetworkingTerraform, 'true')
-        dependsOn: Validate_Networking_Terraform
-        displayName: Check Networking Terraform
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(networkingTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Terraform Plan
-          - bash: |
-              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write Networking Plan'
-            workingDirectory: $(networkingTerraformWorkingDir)
-            env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-              TF_LOG: $(dev-log-level)
-                  
       - job: Validate_Gateway_Codebase
         condition: eq(variables.runGateway, 'true')
         displayName: Test - Gateway

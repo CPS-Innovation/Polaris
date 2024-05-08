@@ -1,3 +1,4 @@
+import { useRef, useEffect, useCallback } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -10,30 +11,58 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 import { ReactComponent as DateIcon } from "../../../../../common/presentation/svgs/date.svg";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
+import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
 
 import classes from "./Accordion.module.scss";
 import {
   witnessIndicatorNames,
   witnessIndicatorPrecedenceOrder,
 } from "../../../domain/WitnessIndicators";
+import { Tooltip } from "../../../../../common/presentation/components";
+import { NotesData } from "../../../domain/gateway/NotesData";
+import { mapConversionStatusToMessage } from "../../../domain/gateway/PipelineDocument";
 
 type Props = {
   activeDocumentId: string;
+  lastFocusDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
+  showNotesFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
+  handleGetNotes: (documentId: string) => void;
+  notesData: NotesData[];
 };
 
 export const AccordionDocument: React.FC<Props> = ({
+  lastFocusDocumentId,
   activeDocumentId,
   readUnreadData,
   caseDocument,
+  showNotesFeature,
+  notesData,
   handleOpenPdf,
+  handleOpenNotes,
+  handleGetNotes,
 }) => {
+  const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
-  const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
+
+  useEffect(() => {
+    if (openNotesBtnRef.current) {
+      openNotesBtnRef.current.focus();
+    }
+  }, []);
+
+  const canViewDocument =
+    caseDocument.presentationFlags?.read === "Ok" &&
+    caseDocument.conversionStatus === "DocumentConverted";
   const getAttachmentText = () => {
     if (caseDocument.attachments.length === 1) {
       return "1 attachment";
@@ -42,6 +71,68 @@ export const AccordionDocument: React.FC<Props> = ({
   };
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
+
+  const openNotesRefProps =
+    caseDocument.documentId === lastFocusDocumentId
+      ? { ref: openNotesBtnRef }
+      : {};
+
+  const isNotesDisabled = useCallback(() => {
+    if (
+      caseDocument.cmsDocType.documentType === "PCD" ||
+      caseDocument.cmsDocType.documentCategory === "Review"
+    ) {
+      return true;
+    }
+    return false;
+  }, [
+    caseDocument.cmsDocType.documentType,
+    caseDocument.cmsDocType.documentCategory,
+  ]);
+
+  const openNotesBtnAriaLabel = useCallback(() => {
+    if (isNotesDisabled()) {
+      return `Notes are disabled for this document`;
+    }
+    return caseDocument.hasNotes
+      ? `There are notes available for document ${caseDocument.presentationFileName}, Open notes`
+      : `There are no notes available for document ${caseDocument.presentationFileName}, Open notes`;
+  }, [
+    caseDocument.hasNotes,
+    caseDocument.presentationFileName,
+    isNotesDisabled,
+  ]);
+
+  const notesHoverOverCallback = () => {
+    const documentNote = notesData.find(
+      (note) => note.documentId === caseDocument.documentId
+    );
+    if (documentNote?.getNoteStatus !== "failure") {
+      handleGetNotes(caseDocument.documentId);
+    }
+  };
+
+  const getNotesHoverOverText = (ariaLiveText: boolean) => {
+    if (isNotesDisabled()) return "Notes are disabled for this document";
+    if (!caseDocument.hasNotes) return "";
+    const documentNote = notesData.find(
+      (note) => note.documentId === caseDocument.documentId
+    );
+    const notes = documentNote?.notes ?? [];
+    if (documentNote?.getNoteStatus === "failure")
+      return "Failed to retrieve notes";
+    if (notes) if (!notes.length) return "Loading notes, please wait...";
+    if (notes.length === 1) {
+      return ariaLiveText
+        ? `recent note text is ${notes[notes.length - 1].text}`
+        : `${notes[notes.length - 1].text}`;
+    }
+    return ariaLiveText
+      ? `recent note text is ${notes[notes.length - 1].text}, and ${
+          notes.length - 1
+        } more`
+      : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
+  };
 
   return (
     <li
@@ -83,16 +174,21 @@ export const AccordionDocument: React.FC<Props> = ({
               {caseDocument.presentationFileName}
             </span>
           )}
-          <div className={`${classes["accordion-document-date"]}`}>
-            <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
-            <DateIcon className={classes.dateIcon} />
+          <div className={`${classes["accordion-information-items"]}`}>
             {caseDocument.cmsFileCreatedDate && (
-              <span>
-                {formatDate(
-                  caseDocument.cmsFileCreatedDate,
-                  CommonDateTimeFormats.ShortDateTextMonth
-                )}
-              </span>
+              <div className={`${classes["accordion-document-date"]}`}>
+                <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                  Date Added
+                </span>
+                <DateIcon className={classes.dateIcon} />
+                <span>
+                  {formatDate(
+                    caseDocument.cmsFileCreatedDate,
+                    CommonDateTimeFormats.ShortDateTextMonth
+                  )}
+                </span>
+              </div>
             )}
             {formattedFileCreatedTime && (
               <>
@@ -102,6 +198,56 @@ export const AccordionDocument: React.FC<Props> = ({
                 <TimeIcon className={classes.timeIcon} />
                 {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
               </>
+            )}
+            {showNotesFeature && (
+              <Tooltip
+                text={getNotesHoverOverText(false)}
+                className="notesToolTip"
+                onHoverCallback={notesHoverOverCallback}
+              >
+                {caseDocument.hasNotes && (
+                  <div
+                    data-testid={`recent-notes-live-text-${caseDocument.documentId}`}
+                    role="status"
+                    aria-live="polite"
+                    className={classes.visuallyHidden}
+                  >
+                    {getNotesHoverOverText(true)}
+                  </div>
+                )}
+                <LinkButton
+                  {...openNotesRefProps}
+                  className={classes.notesBtn}
+                  id={`btn-notes-${caseDocument.documentId}`}
+                  dataTestId={`btn-notes-${caseDocument.documentId}`}
+                  ariaLabel={openNotesBtnAriaLabel()}
+                  onClick={() => {
+                    trackEvent("Open Notes", {
+                      documentId: caseDocument.documentId,
+                      documentCategory:
+                        caseDocument.cmsDocType.documentCategory,
+                    });
+                    handleOpenNotes(
+                      caseDocument.documentId,
+                      caseDocument.cmsDocType.documentCategory,
+                      caseDocument.presentationFileName
+                    );
+                  }}
+                  onFocus={
+                    caseDocument.hasNotes ? notesHoverOverCallback : undefined
+                  }
+                  disabled={isNotesDisabled()}
+                  aria-disabled={isNotesDisabled() ? "true" : "false"}
+                >
+                  <NotesIcon />
+                  {caseDocument.hasNotes && (
+                    <div
+                      data-testid={`has-note-indicator-${caseDocument.documentId}`}
+                      className={classes.notesAvailable}
+                    ></div>
+                  )}
+                </LinkButton>
+              </Tooltip>
             )}
           </div>
 
@@ -142,6 +288,11 @@ export const AccordionDocument: React.FC<Props> = ({
             data-testid={`view-warning-document-${caseDocument.documentId}`}
           >
             Document only available on CMS
+            {caseDocument.conversionStatus !== "DocumentConverted"
+              ? `: ${mapConversionStatusToMessage(
+                  caseDocument.conversionStatus
+                )}`
+              : ""}
           </span>
         )}
         {caseDocument.hasFailedAttachments && (

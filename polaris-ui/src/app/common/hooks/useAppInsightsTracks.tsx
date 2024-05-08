@@ -41,7 +41,12 @@ type AppInsightsTrackEventNames =
   | "Add Unsaved Redactions"
   | "Ignore Unsaved Redactions"
   | "Document Checkout Error"
-  | "Document Checked Out By Another User Error";
+  | "Document Checked Out By Another User Error"
+  | "Open Notes"
+  | "Add Note"
+  | "Add Note Error"
+  | "Notes Document Mismatch Ok"
+  | "Notes Document Mismatch Cancel";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -119,6 +124,14 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "The attempt to checkout a document failed, prompting the display of an error message to the user",
   "Document Checked Out By Another User Error":
     "The attempt to checkout a document failed, as it is already checked by another user, prompting the display of an error message to the user",
+  "Open Notes": "User has clicked open notes button in the accordion document",
+  "Add Note": "User has clicked Add note button in the notes panel",
+  "Add Note Error":
+    "The attempt to add a new note for a document failed, prompting the display of an error message to the user",
+  "Notes Document Mismatch Ok":
+    "User has clicked Ok button in the document mismatch modal",
+  "Notes Document Mismatch Cancel":
+    "User has clicked cancel or close button in the document mismatch modal",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

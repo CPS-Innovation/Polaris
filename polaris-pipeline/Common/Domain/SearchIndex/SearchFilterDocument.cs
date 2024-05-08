@@ -4,5 +4,6 @@ namespace Common.Domain.SearchIndex
     {
         public string CmsDocumentId { get; set; }
         public long CmsVersionId { get; set; }
+        public string PolarisDocumentId { get; set; }
     }
 }

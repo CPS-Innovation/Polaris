@@ -62,6 +62,7 @@ namespace coordinator.Durable.Activity
                 telemetryEvent.PageCount = extractTextResult.PageCount;
                 telemetryEvent.LineCount = extractTextResult.LineCount;
                 telemetryEvent.WordCount = extractTextResult.WordCount;
+                telemetryEvent.IndexStoredTime = extractTextResult.IndexStoredTime;
 
                 await Task.Delay(1000);
 

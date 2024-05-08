@@ -1,4 +1,5 @@
-﻿using Common.Dto.Case;
+﻿using Common.Constants;
+using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
@@ -18,6 +19,7 @@ namespace coordinator.Durable.Entity
         void SetValue(CaseDurableEntity tracker);
         Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
         void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
+        void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
         void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
         Task<bool> AllDocumentsFailed();

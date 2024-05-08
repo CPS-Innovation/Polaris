@@ -1,19 +1,20 @@
-﻿using Common.Constants;
-using Common.Domain.Document;
+﻿using Common.Domain.Document;
 using pdf_generator.Extensions;
+using pdf_redactor.Services.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using pdf_generator.Services.DocumentRedaction;
+using pdf_redactor.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
 using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using coordinator.Clients.PdfGenerator;
+using Common.Constants;
 
 namespace pdf_generator.test_harness;
 
@@ -262,7 +263,7 @@ internal static class PdfManager
 
       var fileType = Enum.Parse<FileType>(extension);
 
-      var conversionResult = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
+      var conversionResult = orchestratorService.ReadToPdfStreamAsync(fileStream, fileType, documentId, currentCorrelationId).Result;
 
       if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
       {

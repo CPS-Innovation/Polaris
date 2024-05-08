@@ -141,59 +141,6 @@ describe("Redaction Assurance", () => {
         );
       });
     });
-
-    it("Should show the 'Show Full Screen' button when at least one document is opened in a tab", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("full-screen-btn").should("not.exist");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("full-screen-btn").should("exist");
-    });
-
-    it("Should hide the 'Show Full Screen' button when no documents are opened in a tab", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("full-screen-btn").should("not.exist");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("full-screen-btn").should("exist");
-      cy.findByTestId("tab-remove").click();
-      cy.findByTestId("full-screen-btn").should("not.exist");
-    });
-
-    it("Should show and hide the document in full screen on clicking the full screen btn and should show correct tooltip", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("side-panel").should("exist");
-      cy.findByTestId("full-screen-btn").trigger("mouseover");
-      cy.findByTestId("tooltip").should("contain", "View full screen");
-      cy.findByTestId("full-screen-btn").click();
-      cy.findByTestId("side-panel").should("not.exist");
-      cy.findByTestId("full-screen-btn").trigger("mouseover");
-      cy.findByTestId("tooltip").should("contain", "Exit full screen");
-      cy.findByTestId("full-screen-btn").click();
-      cy.findByTestId("side-panel").should("exist");
-    });
-
-    it("Should not show the 'Show Full Screen' button if the full screen feature is turned off", () => {
-      cy.visit("/case-details/12AB1111111/13401?fullScreen=false");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.findByTestId("side-panel").should("exist");
-      cy.findByTestId("full-screen-btn").should("not.exist");
-    });
   });
 
   describe("Screen Resize", () => {

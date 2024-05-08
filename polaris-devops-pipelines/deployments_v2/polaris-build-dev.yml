@@ -8,7 +8,10 @@ trigger:
       - main
   paths:
     include:
-      - polaris-terraform/*
+      - polaris-terraform/pipeline-terraform/*
+      - polaris-terraform/pipeline-events-terraform/*
+      - polaris-terraform/ui-terraform/*
+      - polaris-terraform/ui-events-terraform/*
       - polaris-gateway/*
       - polaris-pipeline/*
       - polaris-ui/*
@@ -73,15 +76,6 @@ stages:
               artifact: "ui-events-terraform-files"
               publishLocation: "pipeline"
               
-      - job: Build_Networking_Terraform_Artifacts
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Networking terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
-              artifact: "networking-terraform-files"
-              publishLocation: "pipeline"
-              
       - job: Build_Coordinator_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -100,6 +94,8 @@ stages:
             displayName: "Publish Coordinator artifact"
       
       - job: Build_Pdf_Generator_Artifact
+        pool:
+          vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadSecureFile@1
             name: licence
@@ -131,6 +127,8 @@ stages:
             displayName: "Publish PDF-Generator codebase artifact"
 
       - job: Build_Pdf_Redactor_Artifact
+        pool:
+          vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadSecureFile@1
             name: licence

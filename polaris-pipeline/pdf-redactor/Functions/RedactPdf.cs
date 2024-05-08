@@ -15,6 +15,7 @@ using pdf_redactor.Services.DocumentRedaction;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Common.Streaming;
 
 namespace pdf_redactor.Functions
 {
@@ -24,15 +25,16 @@ namespace pdf_redactor.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDocumentRedactionService _documentRedactionService;
         private readonly ILogger<RedactPdf> _logger;
-        private readonly IValidator<RedactPdfRequestDto> _requestValidator;
+        private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
+        private const string PdfContentType = "application/pdf";
 
         public RedactPdf(
             IExceptionHandler exceptionHandler,
             IJsonConvertWrapper jsonConvertWrapper,
             IDocumentRedactionService documentRedactionService,
             ILogger<RedactPdf> logger,
-            IValidator<RedactPdfRequestDto> requestValidator,
+            IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _exceptionHandler = exceptionHandler;
@@ -47,7 +49,6 @@ namespace pdf_redactor.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactPdf)] HttpRequest request, string caseUrn, string caseId, string documentId)
         {
             Guid currentCorrelationId = default;
-            RedactPdfResponse redactPdfResponse = null;
 
             try
             {
@@ -71,7 +72,7 @@ namespace pdf_redactor.Functions
                     throw new BadRequestException("Request body cannot be null or an empty JSON message", nameof(request));
                 }
 
-                var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
+                var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestWithDocumentDto>(content);
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(redactions.VersionId.ToString());
 
@@ -79,9 +80,9 @@ namespace pdf_redactor.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
 
-                redactPdfResponse = await _documentRedactionService.RedactPdfAsync(caseId, documentId, redactions, currentCorrelationId);
+                var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, documentId, redactions, currentCorrelationId);
 
-                return new OkObjectResult(_jsonConvertWrapper.SerializeObject(redactPdfResponse));
+                return new FileStreamResult(redactPdfStream, PdfContentType);
             }
             catch (Exception ex)
             {

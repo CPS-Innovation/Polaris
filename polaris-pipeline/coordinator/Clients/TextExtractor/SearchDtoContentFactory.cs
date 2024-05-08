@@ -17,16 +17,11 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        public StringContent Create(string searchTerm, IEnumerable<SearchFilterDocument> documents)
+        public StringContent Create(string searchTerm)
         {
             var searchDto = new SearchRequestDto
             {
                 SearchTerm = searchTerm,
-                Documents = documents.ToList().Select(doc => new SearchRequestDocumentDto
-                {
-                    CmsDocumentId = doc.CmsDocumentId,
-                    CmsVersionId = doc.CmsVersionId,
-                }).ToList()
             };
 
             var json = _jsonConvertWrapper.SerializeObject(searchDto);
