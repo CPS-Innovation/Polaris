@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Aspose.Words;
 using Common.Constants;
 using pdf_generator.Domain.Document;
@@ -44,6 +45,11 @@ namespace pdf_generator.Services.PdfService
             }
 
             return conversionResult;
+        }
+
+        public Task<PdfConversionResult> ReadToPdfStreamAsync(Stream inputStream, string documentId, Guid correlationId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

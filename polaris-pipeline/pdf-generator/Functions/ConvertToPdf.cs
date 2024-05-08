@@ -82,7 +82,7 @@ namespace pdf_generator.Functions
                 var originalBytes = inputStream.Length;
                 telemetryEvent.OriginalBytes = originalBytes;
 
-                var conversionResult = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
+                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, documentId, currentCorrelationId);
 
                 // #25834 - Successfully converted documents may still have a failure reason we need to record
                 if (conversionResult.HasFailureReason())
