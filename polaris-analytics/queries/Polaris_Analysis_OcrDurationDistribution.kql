@@ -1,0 +1,14 @@
+let Base = AppTraces
+| where AppRoleName == "fa-polaris-text-extractor"
+| where OperationName == "ExtractText"
+| where Message contains "GetOcrResultsAsync"
+| where Message contains "OCR completed";
+
+let TotalCount = toscalar(Base | summarize count()); 
+
+Base
+| extend EventualDurationMs = toint(extract("in (\\d+)ms", 1, Message))
+| summarize Count = count() by bin(EventualDurationMs, 2000)
+| order by EventualDurationMs asc
+| extend CumulativePercentage = round(100.0 * row_cumsum(Count) / TotalCount, 2);
+
