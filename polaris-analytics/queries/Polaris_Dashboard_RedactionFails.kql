@@ -35,7 +35,7 @@ let TimingsForRedaction = AppRequests
 
 let DdeiExceptions = AppExceptions
 | where AppRoleName startswith "fa-polaris-ddei"
-| where OperationName == "UploadDocument"
+| where OperationName in ("UploadDocument", "UploadDocumentOld")
 | extend PolarisCorrelationId = tostring(Properties.prop__CorrelationId)
 | summarize arg_min(TimeGenerated, *) by  PolarisCorrelationId
 | project PolarisCorrelationIdDdei = PolarisCorrelationId,
