@@ -2,11 +2,9 @@
 import "cypress-wait-until"
 import { PipelineResults } from "../../../gateway/PipelineResults"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
-import {
-  WAIT_UNTIL_OPTIONS,
-  RAPID_RETRY_WAIT_UNTIL_OPTIONS,
-} from "../../support/options"
+import { RAPID_RETRY_WAIT_UNTIL_OPTIONS } from "../../support/options"
 import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
+import { isTrackerReady } from "./helpers/tracker-helpers"
 
 const {
   SEARCH_INTEGRITY_TARGET_URN,
@@ -19,7 +17,7 @@ const {
 
 let routes: ApiRoutes
 
-describe("Search Integrity", { tags: '@ci' }, () => {
+describe("Search Integrity", { tags: "@ci" }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)
@@ -47,27 +45,21 @@ describe("Search Integrity", { tags: '@ci' }, () => {
               ),
               failOnStatusCode: false,
             })
-            .its("body")
-            .then(({ status }) => {
-              if (status === "Failed") {
-                throw new Error("Pipeline failed, ending test")
-              }
-              return status === "Completed"
-            }),
+            .then(isTrackerReady),
         // RAPID... to try to minimise the gap between when the pipeline is complete and
         //  when we know about it and start searching
         RAPID_RETRY_WAIT_UNTIL_OPTIONS
       )
 
-      .wait(PRE_SEARCH_DELAY_MS)
+    cy.wait(PRE_SEARCH_DELAY_MS)
 
-      .api<ApiTextSearchResult[]>(
-        routes.GET_SEARCH(
-          SEARCH_INTEGRITY_TARGET_URN,
-          SEARCH_INTEGRITY_TARGET_CASE_ID,
-          SEARCH_INTEGRITY_TARGET_TERM
-        )
+    cy.api<ApiTextSearchResult[]>(
+      routes.GET_SEARCH(
+        SEARCH_INTEGRITY_TARGET_URN,
+        SEARCH_INTEGRITY_TARGET_CASE_ID,
+        SEARCH_INTEGRITY_TARGET_TERM
       )
+    )
       .its("body")
       .then((results) => {
         const matchingWordCount = results.reduce((acc, result) => {
