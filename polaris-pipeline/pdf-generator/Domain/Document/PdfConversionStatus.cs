@@ -1,6 +1,6 @@
-﻿using Common.Dto.Attributes;
+﻿using pdf_generator.Attributes;
 
-namespace Common.Constants;
+namespace pdf_generator.Domain.Document;
 
 public enum PdfConversionStatus
 {

@@ -20,7 +20,6 @@ import {
 } from "../../../domain/WitnessIndicators";
 import { Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
-import { mapConversionStatusToMessage } from "../../../domain/gateway/PipelineDocument";
 
 type Props = {
   activeDocumentId: string;
@@ -59,10 +58,7 @@ export const AccordionDocument: React.FC<Props> = ({
       openNotesBtnRef.current.focus();
     }
   }, []);
-
-  const canViewDocument =
-    caseDocument.presentationFlags?.read === "Ok" &&
-    caseDocument.conversionStatus === "DocumentConverted";
+  const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   const getAttachmentText = () => {
     if (caseDocument.attachments.length === 1) {
       return "1 attachment";
@@ -288,11 +284,6 @@ export const AccordionDocument: React.FC<Props> = ({
             data-testid={`view-warning-document-${caseDocument.documentId}`}
           >
             Document only available on CMS
-            {caseDocument.conversionStatus !== "DocumentConverted"
-              ? `: ${mapConversionStatusToMessage(
-                  caseDocument.conversionStatus
-                )}`
-              : ""}
           </span>
         )}
         {caseDocument.hasFailedAttachments && (

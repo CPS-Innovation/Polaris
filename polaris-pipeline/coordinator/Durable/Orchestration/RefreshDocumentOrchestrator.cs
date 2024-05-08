@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.ValueObjects;
-using coordinator.Domain;
+
 using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
@@ -42,7 +41,7 @@ namespace coordinator.Durable.Orchestration
 
             var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, false, payload.CorrelationId, log);
 
-            var pdfConversionResult = await CallPdfGeneratorAsync(context, payload, caseEntity, log);
+            var isPdfConverted = await CallPdfGeneratorAsync(context, payload, caseEntity, log);
 
             if (payload.CmsDocumentTracker != null)
             {
@@ -54,10 +53,9 @@ namespace coordinator.Durable.Orchestration
             }
 
             // todo: this is temporary code until the coordinator refactor exercise is done.
-            if (pdfConversionResult != PdfConversionStatus.DocumentConverted)
+            if (!isPdfConverted)
             {
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
-                caseEntity.SetDocumentConversionStatus((payload.PolarisDocumentId.ToString(), pdfConversionResult));
                 return new RefreshDocumentResult();
             }
 
@@ -81,11 +79,11 @@ namespace coordinator.Durable.Orchestration
             };
         }
 
-        private async Task<PdfConversionStatus> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
+        private async Task<bool> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
         {
             try
             {
-                return await context.CallActivityAsync<PdfConversionStatus>(nameof(GeneratePdf), payload);
+                return await context.CallActivityAsync<bool>(nameof(GeneratePdf), payload);
             }
             catch (Exception exception)
             {

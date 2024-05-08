@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
+using pdf_generator.Domain.Document;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
 using Common.Exceptions;
@@ -14,7 +15,7 @@ using Common.Logging;
 using Common.Telemetry;
 using Common.Streaming;
 using System.Threading.Tasks;
-using Common.Constants;
+using Common.Domain.Document;
 
 namespace pdf_generator.Functions
 {
@@ -109,7 +110,7 @@ namespace pdf_generator.Functions
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                return new ObjectResult(conversionResult.ConversionStatus)
+                return new ObjectResult(conversionResult.GetFailureReason())
                 {
                     StatusCode = (int)HttpStatusCode.UnsupportedMediaType
                 };

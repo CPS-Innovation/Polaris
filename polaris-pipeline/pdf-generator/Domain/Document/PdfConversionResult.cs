@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using pdf_generator.Extensions;
-using Common.Constants;
 
 namespace pdf_generator.Domain.Document;
 

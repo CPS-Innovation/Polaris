@@ -14,7 +14,6 @@ using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using coordinator.Clients.PdfGenerator;
-using Common.Constants;
 
 namespace pdf_generator.test_harness;
 

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Common.Constants;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Common.ValueObjects;
@@ -101,8 +100,5 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("hasNotes")]
         public bool HasNotes { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("conversionStatus")]
-        public PdfConversionStatus ConversionStatus { get; set; }
     }
 }
