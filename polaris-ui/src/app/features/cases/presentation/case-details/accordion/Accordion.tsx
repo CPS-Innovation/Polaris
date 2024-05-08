@@ -1,5 +1,6 @@
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
+import { NotesData } from "../../../domain/gateway/NotesData";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
@@ -20,9 +21,13 @@ type Props = {
   handleOpenNotes: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
+    presentationFileName: string
+  ) => void;
+  accordionStateChangeCallback: (
     accordionCurrentState: AccordionReducerState
   ) => void;
+  handleGetNotes: (documentId: string) => void;
+  notesData: NotesData[];
 };
 
 export const Accordion: React.FC<Props> = ({
@@ -32,8 +37,11 @@ export const Accordion: React.FC<Props> = ({
   accordionState: sections,
   readUnreadData,
   showNotesFeature,
+  notesData,
   handleOpenPdf,
   handleOpenNotes,
+  accordionStateChangeCallback,
+  handleGetNotes,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
@@ -42,6 +50,11 @@ export const Accordion: React.FC<Props> = ({
       ? initialState
       : buildInitialState(sections.map((section) => section.sectionLabel))
   );
+
+  useEffect(() => {
+    accordionStateChangeCallback(state);
+  }, [state, accordionStateChangeCallback]);
+
   const handleToggleOpenAll = () => {
     if (state.isAllOpen) {
       trackEvent("Close All Folders");
@@ -62,14 +75,6 @@ export const Accordion: React.FC<Props> = ({
     });
   };
 
-  const openNotesHandler = (
-    documentId: string,
-    documentCategory: string,
-    presentationFileName: string
-  ) => {
-    handleOpenNotes(documentId, documentCategory, presentationFileName, state);
-  };
-
   return (
     <div className={`${classes.accordion}`}>
       <AccordionHeader
@@ -88,8 +93,10 @@ export const Accordion: React.FC<Props> = ({
           showNotesFeature={showNotesFeature}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
-          handleOpenNotes={openNotesHandler}
+          handleOpenNotes={handleOpenNotes}
           lastFocusDocumentId={lastFocusDocumentId}
+          handleGetNotes={handleGetNotes}
+          notesData={notesData}
         />
       ))}
     </div>

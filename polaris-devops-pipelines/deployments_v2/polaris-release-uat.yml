@@ -660,6 +660,8 @@ stages:
     displayName: Sync Slot Settings
     dependsOn: Check_Status
     condition: succeeded()
+    pool:
+      vmImage: ubuntu-latest
     jobs:
       - job: Log_Start
         displayName: Log Start
@@ -789,7 +791,6 @@ stages:
               targetLabel: "UAT"
               buildDefinitionId: 421
               devOpsPatToken: "$(System.AccessToken)"
-              sourceBranch: "$(resources.pipeline.PolarisBuild.sourceBranch)"
 
       - job: Log_Result
         condition: succeeded()

@@ -25,7 +25,7 @@
 
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.234" />
+    <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.258" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appSettings.json">

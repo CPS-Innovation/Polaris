@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import {
   BackLink,
   Tooltip,
@@ -54,16 +54,17 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentId: string;
     documentCategory: string;
     presentationFileName: string;
-    accordionOldState: AccordionReducerState | null;
     lastFocusDocumentId: string;
   }>({
     open: false,
     documentId: "",
     documentCategory: "",
     presentationFileName: "",
-    accordionOldState: null,
     lastFocusDocumentId: "",
   });
+
+  const [accordionOldState, setAccordionOldState] =
+    useState<AccordionReducerState | null>(null);
 
   const notesPanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
@@ -172,6 +173,22 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     )!;
   }, [tabsState.activeTabId, tabsState.items]);
 
+  const accordionStateChangeCallback = useCallback(
+    (state: AccordionReducerState) => {
+      setAccordionOldState(state);
+    },
+    []
+  );
+  const handleCloseNotes = useCallback(() => {
+    setOpenNoteData({
+      ...openNotesData,
+      open: false,
+      documentId: "",
+      documentCategory: "",
+      presentationFileName: "",
+    });
+  }, [openNotesData]);
+
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
@@ -187,15 +204,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const handleOpenNotes = (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
-    accordionCurrentState: AccordionReducerState
+    presentationFileName: string
   ) => {
     setOpenNoteData({
       open: true,
       documentId: documentId,
       documentCategory: documentCategory,
       presentationFileName: presentationFileName,
-      accordionOldState: accordionCurrentState,
       lastFocusDocumentId: documentId,
     });
   };
@@ -351,7 +366,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               data-testid="side-panel"
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
-              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.sidePanelArea}`}
             >
               <span
                 id="side-panel-region-label"
@@ -387,7 +402,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <AccordionWait />
                 ) : (
                   <Accordion
-                    initialState={openNotesData.accordionOldState}
+                    initialState={accordionOldState}
                     readUnreadData={
                       storedUserData.status === "succeeded"
                         ? storedUserData.data.readUnread
@@ -401,6 +416,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     handleOpenNotes={handleOpenNotes}
                     showNotesFeature={featureFlags.notes}
                     lastFocusDocumentId={openNotesData.lastFocusDocumentId}
+                    accordionStateChangeCallback={accordionStateChangeCallback}
+                    handleGetNotes={handleGetNotes}
+                    notesData={notes}
                   />
                 )}
               </div>
@@ -408,7 +426,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           )}
           {!inFullScreen && openNotesData.open && (
             <div
-              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.notesArea}`}
               id="notes-panel"
               role="region"
               aria-labelledby="notes-panel-region-label"
@@ -424,19 +442,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName}.`}
               </span>
               <NotesPanel
+                activeDocumentId={getActiveTabDocument?.documentId}
                 documentName={openNotesData.presentationFileName}
                 documentCategory={openNotesData.documentCategory}
                 documentId={openNotesData.documentId}
                 notesData={notes}
-                handleCloseNotes={() => {
-                  setOpenNoteData({
-                    ...openNotesData,
-                    open: false,
-                    documentId: "",
-                    documentCategory: "",
-                    presentationFileName: "",
-                  });
-                }}
+                handleCloseNotes={handleCloseNotes}
                 handleAddNote={handleAddNote}
                 handleGetNotes={handleGetNotes}
               />
@@ -463,17 +474,17 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(false);
+                      if (!openNotesData.open) {
+                        setOpenNoteData({
+                          ...openNotesData,
+                          lastFocusDocumentId: "",
+                        });
+                      }
                     } else {
                       trackEvent("View Full Screen", {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(true);
-                      if (!openNotesData.open) {
-                        setOpenNoteData({
-                          ...openNotesData,
-                          accordionOldState: null,
-                        });
-                      }
                     }
                   }}
                 >

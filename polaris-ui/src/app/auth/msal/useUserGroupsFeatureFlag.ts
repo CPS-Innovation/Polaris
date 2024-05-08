@@ -79,11 +79,6 @@ const showNotesFeature = (
     }
   }
 
-  const isInPrivateBetaGroup = !!groupClaims?.includes(
-    PRIVATE_BETA_FEATURE_USER_GROUP
-  );
-
-  if (!isInPrivateBetaGroup) return false;
   return true;
 };
 

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common.Constants;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.ValueObjects;
-
+using coordinator.Domain;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
@@ -41,7 +42,7 @@ namespace coordinator.Durable.Orchestration
 
             var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, false, payload.CorrelationId, log);
 
-            var isPdfConverted = await CallPdfGeneratorAsync(context, payload, caseEntity, log);
+            var pdfConversionResult = await CallPdfGeneratorAsync(context, payload, caseEntity, log);
 
             if (payload.CmsDocumentTracker != null)
             {
@@ -53,18 +54,22 @@ namespace coordinator.Durable.Orchestration
             }
 
             // todo: this is temporary code until the coordinator refactor exercise is done.
-            if (!isPdfConverted)
+            if (pdfConversionResult != PdfConversionStatus.DocumentConverted)
             {
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
+                caseEntity.SetDocumentConversionStatus((payload.PolarisDocumentId.ToString(), pdfConversionResult));
+                return new RefreshDocumentResult();
+            }
+
+            if (payload.DocumentDeltaType == DocumentDeltaType.RequiresPdfRefresh)
+            {
+                // return and DO NOT set to PdfUploadedToBlob.  If we are refreshing the PDF it is because thr OCR flag has changed.
+                //  The document will already either be at PdfUploadedToBlob or Indexed status.  If it is at Indexed status then we do not want to set the
+                //  the flag back to PdfUploadedToBlob as Indexed is still correct.  As per comment above, all of this is to be rebuilt in pipeline refresh.
                 return new RefreshDocumentResult();
             }
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
-
-            if (payload.DocumentDeltaType != DocumentDeltaType.RequiresIndexing)
-            {
-                return new RefreshDocumentResult();
-            }
 
             var result = await CallTextExtractorAsync(context, payload, caseEntity, log);
 
@@ -76,11 +81,11 @@ namespace coordinator.Durable.Orchestration
             };
         }
 
-        private async Task<bool> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
+        private async Task<PdfConversionStatus> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
         {
             try
             {
-                return await context.CallActivityAsync<bool>(nameof(GeneratePdf), payload);
+                return await context.CallActivityAsync<PdfConversionStatus>(nameof(GeneratePdf), payload);
             }
             catch (Exception exception)
             {

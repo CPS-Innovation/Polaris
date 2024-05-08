@@ -80,7 +80,7 @@ describe("documentCategoryDefinitions", () => {
     expect(result.category).toBe("Statements");
 
     const result1 = getCategory({
-      cmsDocType: { documentTypeId: 1059, documentCategory: null as any },
+      cmsDocType: { documentTypeId: 1031, documentCategory: null as any },
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Statements");

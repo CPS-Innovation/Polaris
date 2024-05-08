@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Aspose.Slides.Export;
 using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
@@ -19,13 +20,18 @@ namespace pdf_generator.Services.PdfService
         {
             var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeSlides);
             var pdfStream = new MemoryStream();
-            
+
             using var presentation = _asposeItemFactory.CreatePresentation(inputStream, correlationId);
             presentation.Save(pdfStream, SaveFormat.Pdf);
             pdfStream.Seek(0, SeekOrigin.Begin);
-            
+
             conversionResult.RecordConversionSuccess(pdfStream);
             return conversionResult;
+        }
+
+        public Task<PdfConversionResult> ReadToPdfStreamAsync(Stream inputStream, string documentId, Guid correlationId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

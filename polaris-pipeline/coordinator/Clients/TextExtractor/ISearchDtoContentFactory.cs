@@ -6,6 +6,6 @@ namespace coordinator.Clients.TextExtractor
 {
     public interface ISearchDtoContentFactory
     {
-        public StringContent Create(string searchTerm, IEnumerable<SearchFilterDocument> documents);
+        public StringContent Create(string searchTerm);
     }
 }

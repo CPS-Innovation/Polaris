@@ -16,7 +16,7 @@ namespace text_extractor.Services.CaseSearchService
 
         Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId);
 
-        Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm);
+        Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, string searchTerm);
 
         IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm);
 

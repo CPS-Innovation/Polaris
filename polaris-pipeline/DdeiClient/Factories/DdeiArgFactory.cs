@@ -49,7 +49,6 @@ namespace Ddei.Factories
             Guid correlationId,
             string urn,
             int caseId,
-            string documentCategory,
             int documentId,
             long versionId)
         {
@@ -59,13 +58,12 @@ namespace Ddei.Factories
                 CorrelationId = correlationId,
                 Urn = urn,
                 CaseId = caseId,
-                CmsDocCategory = documentCategory,
                 DocumentId = documentId,
                 VersionId = versionId
             };
         }
 
-        public DdeiCmsDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentCategory, string documentId)
+        public DdeiCmsDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
         {
             return new DdeiCmsDocumentNotesArgDto
             {
@@ -73,12 +71,11 @@ namespace Ddei.Factories
                 CorrelationId = correlationId,
                 Urn = urn,
                 CaseId = caseId,
-                DocumentCategory = documentCategory,
                 DocumentId = documentId
             };
         }
 
-        public DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentCategory, int documentId, string text)
+        public DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string text)
         {
             return new DdeiCmsAddDocumentNoteArgDto
             {
@@ -86,7 +83,6 @@ namespace Ddei.Factories
                 CorrelationId = correlationId,
                 Urn = urn,
                 CaseId = caseId,
-                DocumentCategory = documentCategory,
                 DocumentId = documentId,
                 Text = text
             };

@@ -11,25 +11,21 @@ using Common.Telemetry;
 using Common.Wrappers;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using text_extractor.Mappers.Contracts;
 
 namespace text_extractor.Functions
 {
     public class SearchText
     {
         private readonly ISearchIndexService _searchIndexService;
-        private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
         public SearchText(
             ISearchIndexService searchIndexService,
-            ISearchFilterDocumentMapper searchFilterDocumentMapper,
             IJsonConvertWrapper jsonConvertWrapper,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _searchIndexService = searchIndexService;
-            _searchFilterDocumentMapper = searchFilterDocumentMapper;
             _jsonConvertWrapper = jsonConvertWrapper;
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
@@ -47,13 +43,8 @@ namespace text_extractor.Functions
             var content = await request.Content.ReadAsStringAsync();
             var searchDto = _jsonConvertWrapper.DeserializeObject<SearchRequestDto>(content);
 
-            var searchFilterDocuments = searchDto.Documents
-                .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
-                .ToList();
-
             var searchResults = await _searchIndexService.QueryAsync(
                 caseId,
-                searchFilterDocuments,
                 searchDto.SearchTerm);
 
             return new HttpResponseMessage

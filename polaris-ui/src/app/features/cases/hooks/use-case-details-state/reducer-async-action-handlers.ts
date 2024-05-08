@@ -84,14 +84,12 @@ type AsyncActions =
       type: "GET_NOTES_DATA";
       payload: {
         documentId: string;
-        documentCategory: string;
       };
     }
   | {
       type: "ADD_NOTE_DATA";
       payload: {
         documentId: string;
-        documentCategory: string;
         noteText: string;
       };
     };
@@ -443,19 +441,34 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory },
+        payload: { documentId },
       } = action;
-      const { caseId, urn } = getState();
+      const { caseId, urn, notes } = getState();
+      const isActiveGetNotesRequest =
+        notes.find((note) => note.documentId === documentId)?.getNoteStatus ===
+        "loading";
+      if (isActiveGetNotesRequest) {
+        return;
+      }
       try {
-        const notesData = await getNotesData(
-          urn,
-          caseId,
-          documentId,
-          documentCategory
-        );
         dispatch({
           type: "UPDATE_NOTES_DATA",
-          payload: { documentId, notesData, addNoteStatus: "initial" },
+          payload: {
+            documentId,
+            notesData: [],
+            addNoteStatus: "initial",
+            getNoteStatus: "loading",
+          },
+        });
+        const notesData = await getNotesData(urn, caseId, documentId);
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: {
+            documentId,
+            notesData,
+            addNoteStatus: "initial",
+            getNoteStatus: "initial",
+          },
         });
       } catch (e) {
         dispatch({
@@ -466,6 +479,15 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             message: "Failed to get notes for the documents. Please try again.",
           },
         });
+        dispatch({
+          type: "UPDATE_NOTES_DATA",
+          payload: {
+            documentId,
+            notesData: [],
+            addNoteStatus: "initial",
+            getNoteStatus: "failure",
+          },
+        });
       }
     },
 
@@ -473,7 +495,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId, documentCategory, noteText },
+        payload: { documentId, noteText },
       } = action;
       const { caseId, urn } = getState();
       let successStatus = true;
@@ -481,12 +503,20 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       try {
         dispatch({
           type: "UPDATE_NOTES_DATA",
-          payload: { documentId, addNoteStatus: "saving" },
+          payload: {
+            documentId,
+            addNoteStatus: "saving",
+            getNoteStatus: "initial",
+          },
         });
-        await addNoteData(urn, caseId, documentId, documentCategory, noteText);
+        await addNoteData(urn, caseId, documentId, noteText);
         dispatch({
           type: "UPDATE_NOTES_DATA",
-          payload: { documentId, addNoteStatus: "success" },
+          payload: {
+            documentId,
+            addNoteStatus: "success",
+            getNoteStatus: "initial",
+          },
         });
       } catch (e) {
         successStatus = false;
@@ -500,7 +530,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "UPDATE_NOTES_DATA",
-          payload: { documentId, addNoteStatus: "failure" },
+          payload: {
+            documentId,
+            addNoteStatus: "failure",
+            getNoteStatus: "initial",
+          },
         });
       }
       if (successStatus) {

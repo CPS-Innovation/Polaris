@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.IO;
 
-namespace text_extractor.Services.OcrService
+namespace coordinator.Services.OcrService
 {
     public class MockOcrService : IOcrService
     {

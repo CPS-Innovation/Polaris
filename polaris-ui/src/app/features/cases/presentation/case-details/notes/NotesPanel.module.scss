@@ -6,12 +6,12 @@
 
 .notesHeader {
   background: #f3f2f1;
-  border-bottom: 1px solid #b1b4b6;
   display: flex;
   margin-bottom: 1.5rem;
+  justify-content: space-between;
 }
 .notesTitle {
-  margin-left: 0.625rem;
+  margin: 1rem 1.1rem;
   font-size: 1.1875rem;
 }
 .notesDocumentName {
@@ -87,5 +87,45 @@
   :global(.govuk-error-summary) {
     margin-bottom: 1.5rem;
     padding: 0.625rem;
+  }
+}
+
+.notesPanelCloseBtn {
+  box-sizing: content-box;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 2.875rem;
+  height: 2.875rem;
+  margin: 0;
+
+  &:hover:not(:disabled):not(:focus) {
+    background: #00703c;
+  }
+  &:focus {
+    background: #ffdd00;
+    color: #000;
+    outline: none;
+  }
+}
+
+.alertContent {
+  max-width: 32.5rem;
+  padding: 1.25rem 1.875rem 1.875rem;
+}
+
+.actionButtonsWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  margin-top: 1.875rem;
+  :first-child {
+    margin-right: 1.25rem;
   }
 }

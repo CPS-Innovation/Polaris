@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Domain.SearchIndex;
-using Common.Constants;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers;
@@ -34,38 +33,29 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<ExtractTextResult> ExtractTextAsync(
-            PolarisDocumentId polarisDocumentId,
-            string cmsCaseUrn,
-            long cmsCaseId,
-            string cmsDocumentId,
-            long versionId,
-            string blobName,
-            Guid correlationId,
-            Stream documentStream)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
             request.Headers.Add(PolarisDocumentId, polarisDocumentId.ToString());
-
             // BlobName header is deprecated and will be removed in the future
             request.Headers.Add("BlobName", blobName);
 
-            using var requestContent = new StreamContent(documentStream);
+            using var requestContent = new StreamContent(ocrResults);
             request.Content = requestContent;
 
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            ExtractTextResult result;
+            StoreCaseIndexesResult result;
 
             if (response.IsSuccessStatusCode)
             {
-                result = _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(responseContent);
+                result = _jsonConvertWrapper.DeserializeObject<StoreCaseIndexesResult>(responseContent);
             }
             else
             {
                 var unsuccessfulResponse = _jsonConvertWrapper.DeserializeObject<ExceptionContent>(responseContent);
-                result = _jsonConvertWrapper.DeserializeObject<ExtractTextResult>(unsuccessfulResponse?.Data.ToString());
+                result = _jsonConvertWrapper.DeserializeObject<StoreCaseIndexesResult>(unsuccessfulResponse?.Data.ToString());
             }
 
             return result;
@@ -75,12 +65,11 @@ namespace coordinator.Clients.TextExtractor
             string caseUrn,
             long cmsCaseId,
             string searchTerm,
-            Guid correlationId,
-            IEnumerable<SearchFilterDocument> documents
-            )
+            Guid correlationId
+        )
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetSearchPath(caseUrn, cmsCaseId), correlationId);
-            request.Content = _searchDtoContentFactory.Create(searchTerm, documents);
+            request.Content = _searchDtoContentFactory.Create(searchTerm);
 
             using (var response = await _httpClient.SendAsync(request))
             {

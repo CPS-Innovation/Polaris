@@ -218,27 +218,5 @@ describe("useUserGroupsFeatureFlag", () => {
       const { notes } = useUserGroupsFeatureFlag();
       expect(notes).toStrictEqual(false);
     });
-
-    test("Should return notes feature false, if user is not in private beta feature group and FEATURE_FLAG_NOTES is true", () => {
-      (authModule.useUserDetails as jest.Mock).mockReturnValue({
-        username: "test",
-      });
-      (
-        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
-      ).mockReturnValue([
-        {
-          idTokenClaims: {
-            groups: ["private_beta_feature_group1"],
-          },
-        },
-      ]);
-
-      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
-
-      mockConfig.FEATURE_FLAG_NOTES = true;
-
-      const { notes } = useUserGroupsFeatureFlag();
-      expect(notes).toStrictEqual(false);
-    });
   });
 });

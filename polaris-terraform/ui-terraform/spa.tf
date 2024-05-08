@@ -14,6 +14,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   https_only                    = true
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
   public_network_access_enabled = false
+  client_certificate_enabled    = false
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
@@ -43,6 +44,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_ui_file_share.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
@@ -96,6 +98,10 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     failed_request_tracing  = true
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   lifecycle {
     ignore_changes = [
       app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
@@ -125,6 +131,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_DNS_ALT_SERVER"],
       app_settings["WEBSITE_DNS_SERVER"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
       app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
