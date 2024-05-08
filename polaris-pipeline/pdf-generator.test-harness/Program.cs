@@ -14,7 +14,6 @@ using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using coordinator.Clients.PdfGenerator;
-using Common.Constants;
 
 namespace pdf_generator.test_harness;
 
@@ -263,7 +262,7 @@ internal static class PdfManager
 
       var fileType = Enum.Parse<FileType>(extension);
 
-      var conversionResult = orchestratorService.ReadToPdfStreamAsync(fileStream, fileType, documentId, currentCorrelationId).Result;
+      var conversionResult = orchestratorService.ReadToPdfStream(fileStream, fileType, documentId, currentCorrelationId);
 
       if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
       {

@@ -14,7 +14,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.Constants;
 
 namespace coordinator.tests.Durable.Orchestration
 {
@@ -81,8 +80,8 @@ namespace coordinator.tests.Durable.Orchestration
         {
             // Arrange
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<PdfConversionStatus>(It.IsAny<string>(), It.IsAny<object>()))
-                .ReturnsAsync(PdfConversionStatus.DocumentConverted);
+                .Setup(context => context.CallActivityAsync<bool>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(true);
 
             // Act
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
@@ -155,12 +154,12 @@ namespace coordinator.tests.Durable.Orchestration
         }
 
         [Fact]
-        public async Task Run_Tracker_DoesNotRegistersPdfBlobNameOrIndexIfCallPdfGeneratorAsyncReturnsUnsuccessfulStatus()
+        public async Task Run_Tracker_DoesNotRegistersPdfBlobNameOrIndexIfCallPdfGeneratorAsyncReturnsFalse()
         {
             // Arrange
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<PdfConversionStatus>(It.Is<string>(s => s == nameof(GeneratePdf)), It.IsAny<object>()))
-                .ReturnsAsync(PdfConversionStatus.PdfEncrypted);
+                .Setup(context => context.CallActivityAsync<bool>(It.Is<string>(s => s == nameof(GeneratePdf)), It.IsAny<object>()))
+                .ReturnsAsync(false);
 
             // Act
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
@@ -226,6 +225,39 @@ namespace coordinator.tests.Durable.Orchestration
                         )
                     )
                 );
+        }
+
+        [Fact]
+        public async Task Run_WhenDocumentEvaluation_EqualsAcquireDocument_AndSearchIndexUpdated_RegistersUnexpectedDocumentFailureWhenCallToGeneratePdfReturnsNonOkResponse()
+        {
+            // Arrange
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync(It.IsAny<string>(), It.IsAny<CaseDocumentOrchestrationPayload>()))
+                .Throws(new Exception());
+
+            try
+            {
+                // Act
+                await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
+                Assert.False(true);
+            }
+            catch
+            {
+                // Assert
+                _mockCaseEntity.Verify
+                    (
+                        tracker =>
+                        tracker.SetDocumentStatus
+                        (
+                            It.Is<(string, DocumentStatus, string)>
+                            (
+                                a =>
+                                    a.Item1 == _payload.PolarisDocumentId.ToString() &&
+                                    a.Item2 == DocumentStatus.UnableToConvertToPdf
+                            )
+                        )
+                    );
+            }
         }
     }
 }

@@ -3,7 +3,6 @@ import { CaseDocumentViewModel } from "../domain/CaseDocumentViewModel";
 import { useNavigationAlert } from "./useNavigationAlert";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-import { ConversionStatus } from "../domain/gateway/PipelineDocument";
 
 describe("useNavigationAlert hook", () => {
   const history = createMemoryHistory();
@@ -53,7 +52,6 @@ describe("useNavigationAlert hook", () => {
       hasFailedAttachments: false,
       areaOnlyRedactionMode: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       clientLockedState: "unlocked",
@@ -99,7 +97,6 @@ describe("useNavigationAlert hook", () => {
       hasFailedAttachments: false,
       areaOnlyRedactionMode: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
   ];
 

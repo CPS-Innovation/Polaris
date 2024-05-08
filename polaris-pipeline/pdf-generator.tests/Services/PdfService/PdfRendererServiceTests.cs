@@ -1,9 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Aspose.Pdf;
-using Common.Constants;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
@@ -39,11 +37,11 @@ namespace pdf_generator.tests.Services.PdfService
         }
 
         [Fact]
-        public async Task ReadToPdfStreamAsync_CallsCreateRenderedPdfDocument()
+        public void ReadToPdfStream_CallsCreateRenderedPdfDocument()
         {
             using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
 
-            var conversionResult = await _pdfService.ReadToPdfStreamAsync(inputStream, "test-document-id", Guid.NewGuid());
+            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
             using (new AssertionScope())
             {
@@ -55,14 +53,14 @@ namespace pdf_generator.tests.Services.PdfService
         }
 
         [Fact]
-        public async Task ReadToPdfStreamAsync_CatchesIndexOutOfRangeException()
+        public void ReadToPdfStream_CatchesIndexOutOfRangeException()
         {
             // Arrange
             using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
             _asposeItemFactory.Setup(x => x.CreateRenderedPdfDocument(It.IsAny<Stream>(), It.IsAny<Guid>())).Throws<IndexOutOfRangeException>();
 
             // Act
-            var conversionResult = await _pdfService.ReadToPdfStreamAsync(inputStream, "test-document-id", Guid.NewGuid());
+            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
             // Assert
             using (new AssertionScope())
@@ -74,14 +72,14 @@ namespace pdf_generator.tests.Services.PdfService
         }
 
         [Fact]
-        public async Task ReadToPdfStreamAsync_ReturnsAsposePdfPasswordProtectedStatusForExceptionDetailingPermissionsCheckedFailed()
+        public void ReadToPdfStream_ReturnsAsposePdfPasswordProtectedStatusForExceptionDetailingPermissionsCheckedFailed()
         {
             // Arrange
             using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
             _asposeItemFactory.Setup(x => x.CreateRenderedPdfDocument(It.IsAny<Stream>(), It.IsAny<Guid>())).Throws(() => new Exception("fooPermissions check failedbar"));
 
             // Act
-            var conversionResult = await _pdfService.ReadToPdfStreamAsync(inputStream, "test-document-id", Guid.NewGuid());
+            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
             // Assert
             using (new AssertionScope())
@@ -92,7 +90,7 @@ namespace pdf_generator.tests.Services.PdfService
         }
 
         [Fact]
-        public async Task ReadToPdfStreamAsync_ThrowsWhenUnrecognisedExceptionIsEncountered()
+        public void ReadToPdfStream_ThrowsWhenUnrecognisedExceptionIsEncountered()
         {
             // Arrange
             var expectedException = new Exception("foo");
@@ -100,10 +98,10 @@ namespace pdf_generator.tests.Services.PdfService
             _asposeItemFactory.Setup(x => x.CreateRenderedPdfDocument(It.IsAny<Stream>(), It.IsAny<Guid>())).Throws(() => expectedException);
 
             // Act
-            Func<Task> act = async () => await _pdfService.ReadToPdfStreamAsync(inputStream, "test-document-id", Guid.NewGuid());
+            var act = () => _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
             // Assert
-            await act.Should().ThrowAsync<Exception>().Where(ex => ex == expectedException);
+            act.Should().Throw<Exception>().Where(ex => ex == expectedException);
         }
     }
 }

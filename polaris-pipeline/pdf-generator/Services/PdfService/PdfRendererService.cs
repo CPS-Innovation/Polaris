@@ -1,12 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Aspose.Pdf;
 using pdf_generator.Domain.Document;
 using pdf_generator.Extensions;
 using pdf_generator.Factories.Contracts;
-using Common.Constants;
 
 namespace pdf_generator.Services.PdfService;
 
@@ -19,7 +16,7 @@ public class PdfRendererService : IPdfService
         _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
     }
 
-    public async Task<PdfConversionResult> ReadToPdfStreamAsync(Stream inputStream, string documentId, Guid correlationId)
+    public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
     {
         var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposePdf);
         var pdfStream = new MemoryStream();
@@ -30,7 +27,7 @@ public class PdfRendererService : IPdfService
             if (doc.IsEncrypted)
                 throw new PdfEncryptionException();
 
-            await doc.SaveAsync(pdfStream, SaveFormat.Pdf, CancellationToken.None);
+            doc.Save(pdfStream, SaveFormat.Pdf);
             pdfStream.Seek(0, SeekOrigin.Begin);
 
             conversionResult.RecordConversionSuccess(pdfStream);
@@ -75,10 +72,5 @@ public class PdfRendererService : IPdfService
         }
 
         return conversionResult;
-    }
-
-    public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
-    {
-        throw new NotImplementedException();
     }
 }

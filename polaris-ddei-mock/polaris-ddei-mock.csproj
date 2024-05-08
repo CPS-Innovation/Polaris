@@ -27,10 +27,10 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.18.1" />
+    <PackageReference Include="AutoFixture" Version="4.18.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="WireMock.Net" Version="1.5.52" />
+    <PackageReference Include="WireMock.Net" Version="1.5.18" />
   </ItemGroup>
 
   <ItemGroup>

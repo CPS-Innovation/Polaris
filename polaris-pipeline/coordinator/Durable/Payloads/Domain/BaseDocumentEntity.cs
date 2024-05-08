@@ -4,7 +4,6 @@ using Common.Dto.FeatureFlags;
 using Mapster;
 using Common.ValueObjects;
 using Common.Dto.Tracker;
-using Common.Constants;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -68,8 +67,5 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("conversionStatus")]
-        public PdfConversionStatus ConversionStatus { get; set; }
     }
 }

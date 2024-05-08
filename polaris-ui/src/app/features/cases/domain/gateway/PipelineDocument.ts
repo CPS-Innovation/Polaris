@@ -24,40 +24,6 @@ export type PresentationFlags = {
     | "IsRedactionServiceOffline";
 };
 
-export type ConversionStatus =
-  | "DocumentConverted"
-  | "PdfEncrypted"
-  | "DocumentTypeUnsupported"
-  | "AsposePdfPasswordProtected"
-  | "AsposePdfInvalidFileFormat"
-  | "AsposePdfException"
-  | "AsposeWordsUnsupportedFileFormat"
-  | "AsposeWordsPasswordProtected"
-  | "AsposeCellsGeneralError"
-  | "AsposeImagingCannotLoad"
-  | "UnexpectedError";
-
-export const mapConversionStatusToMessage = (
-  status: ConversionStatus
-): string => {
-  switch (status) {
-    case "DocumentConverted":
-      return "Document converted";
-    case "PdfEncrypted":
-    case "AsposePdfPasswordProtected":
-    case "AsposeWordsPasswordProtected":
-      return "file is password protected";
-    case "DocumentTypeUnsupported":
-    case "AsposeWordsUnsupportedFileFormat":
-    case "AsposePdfInvalidFileFormat":
-      return "document type unsupported";
-    case "AsposeCellsGeneralError":
-    case "AsposeImagingCannotLoad":
-    case "UnexpectedError":
-    case "AsposePdfException":
-      return "";
-  }
-};
 export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
@@ -74,7 +40,6 @@ export type PresentationDocumentProperties = {
   witnessId: number | null;
   hasFailedAttachments: boolean;
   hasNotes: boolean;
-  conversionStatus: ConversionStatus;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

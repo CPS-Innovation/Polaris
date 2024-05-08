@@ -7,7 +7,6 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
 using Common.Streaming;
-using coordinator.Domain;
 
 namespace coordinator.Clients.PdfGenerator
 {
@@ -27,7 +26,7 @@ namespace coordinator.Clients.PdfGenerator
             _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory ?? throw new ArgumentNullException(nameof(httpResponseMessageStreamFactory));
         }
 
-        public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
+        public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
             var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
@@ -40,23 +39,16 @@ namespace coordinator.Clients.PdfGenerator
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             if (response.StatusCode == HttpStatusCode.UnsupportedMediaType)
             {
-                var result = response.Content.ReadAsStringAsync().Result;
-                Enum.TryParse<PdfConversionStatus>(result, out var enumResult);
-
-                return new ConvertToPdfResponse
-                {
-                    Status = enumResult,
-                };
+                throw new UnsupportedMediaTypeException(
+                    $"Unsupported media type: {fileType}",
+                    // todo: we do not have the *real* media type header to hand, so just use a generic one
+                    //  Key thing is we communicate to the caller that the pdf-generator has rejected us on media type grounds
+                    new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream")
+                );
             }
 
             response.EnsureSuccessStatusCode();
-            var streamResult = await _httpResponseMessageStreamFactory.Create(response);
-
-            return new ConvertToPdfResponse
-            {
-                PdfStream = streamResult,
-                Status = PdfConversionStatus.DocumentConverted
-            };
+            return await _httpResponseMessageStreamFactory.Create(response);
         }
     }
 }

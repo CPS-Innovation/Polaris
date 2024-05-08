@@ -1,4 +1,3 @@
-import { ConversionStatus } from "../../app/features/cases/domain/gateway/PipelineDocument";
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 //the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
@@ -36,7 +35,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: true,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "2",
@@ -62,7 +60,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: true,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "3",
@@ -88,7 +85,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "4",
@@ -114,7 +110,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "5",
@@ -140,7 +135,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "6",
@@ -164,7 +158,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "8",
@@ -190,7 +183,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "9",
@@ -216,7 +208,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "10",
@@ -242,7 +233,6 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
   ],
 };
@@ -312,7 +302,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: true,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "2",
@@ -338,7 +327,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: true,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "3",
@@ -364,7 +352,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "4",
@@ -390,7 +377,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "5",
@@ -416,7 +402,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
   ],
 };
@@ -451,7 +436,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: true,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "2",
@@ -477,7 +461,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: true,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "3",
@@ -503,7 +486,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "4",
@@ -529,7 +511,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "5",
@@ -555,7 +536,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
     },
   ],
 };
