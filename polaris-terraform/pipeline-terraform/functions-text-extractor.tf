@@ -16,8 +16,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
@@ -75,8 +73,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   lifecycle {
     ignore_changes = [
       app_settings["AzureWebJobsStorage"],
-      app_settings["ComputerVisionClientServiceKey"],
-      app_settings["ComputerVisionClientServiceUrl"],
       app_settings["HostType"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["SearchClientAuthorizationKey"],

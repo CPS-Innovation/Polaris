@@ -22,6 +22,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobUserDelegationKeyExpirySecs"                 = 3600
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
@@ -94,6 +96,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["BlobServiceContainerName"],
       app_settings["BlobServiceUrl"],
       app_settings["BlobUserDelegationKeyExpirySecs"],
+      app_settings["ComputerVisionClientServiceKey"],
+      app_settings["ComputerVisionClientServiceUrl"],
       app_settings["CoordinatorOrchestratorTimeoutSecs"],
       app_settings["CoordinatorTaskHub"],
       app_settings["DdeiBaseUrl"],
