@@ -4,13 +4,14 @@ import { PipelineResults } from "../../../gateway/PipelineResults"
 import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
+import { isTrackerReady } from "./helpers/tracker-helpers"
 
 const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, PRE_SEARCH_DELAY_MS } =
   Cypress.env()
 
 let routes: ApiRoutes
 
-describe("Refresh", { tags: '@ci' }, () => {
+describe("Refresh", { tags: "@ci" }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)
@@ -29,17 +30,6 @@ describe("Refresh", { tags: '@ci' }, () => {
       .waitUntil(
         () =>
           cy
-            .api({
-              ...routes.GET_TRACKER(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID),
-              failOnStatusCode: false,
-            })
-            .its("status")
-            .then((status) => status !== 404),
-        WAIT_UNTIL_OPTIONS
-      )
-      .waitUntil(
-        () =>
-          cy
             .api<PipelineResults>(
               routes.GET_TRACKER(
                 REFRESH_TARGET_URN,
@@ -47,13 +37,7 @@ describe("Refresh", { tags: '@ci' }, () => {
                 "PHASE_1"
               )
             )
-            .its("body")
-            .then(({ status }) => {
-              if (status === "Failed") {
-                throw new Error("Pipeline failed, ending test")
-              }
-              return status === "Completed"
-            }),
+            .then(isTrackerReady),
         WAIT_UNTIL_OPTIONS
       )
       .api<PipelineResults>(
@@ -181,14 +165,12 @@ describe("Refresh", { tags: '@ci' }, () => {
                     "PHASE_2"
                   )
                 )
-                .its("body")
-                .then(({ status, processingCompleted }) => {
-                  if (status === "Failed") {
-                    throw new Error("Pipeline failed, ending test")
-                  }
+                .then((response) => {
                   return (
-                    processingCompleted &&
-                    processingCompleted !== previousProcessingCompleted
+                    isTrackerReady(response) &&
+                    response.body.processingCompleted &&
+                    response.body.processingCompleted !==
+                      previousProcessingCompleted
                   )
                 }),
             WAIT_UNTIL_OPTIONS
@@ -315,14 +297,12 @@ describe("Refresh", { tags: '@ci' }, () => {
                     "PHASE_3"
                   )
                 )
-                .its("body")
-                .then(({ status, processingCompleted }) => {
-                  if (status === "Failed") {
-                    throw new Error("Pipeline failed, ending test")
-                  }
+                .then((response) => {
                   return (
-                    processingCompleted &&
-                    processingCompleted !== previousProcessingCompleted
+                    isTrackerReady(response) &&
+                    response.body.processingCompleted &&
+                    response.body.processingCompleted !==
+                      previousProcessingCompleted
                   )
                 }),
             WAIT_UNTIL_OPTIONS

@@ -1,7 +1,8 @@
 /// <reference types="cypress" />
 import { PipelineResults } from "../../../gateway/PipelineResults"
-import { SHORT_TIMEOUT_WAIT_UNTIL_OPTIONS } from "../../support/options"
+import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
+import { isTrackerReady } from "./helpers/tracker-helpers"
 
 const { LARGE_CASE_URN, LARGE_CASE_ID, LARGE_CASE_DOCUMENT_ID } = Cypress.env()
 
@@ -33,14 +34,8 @@ describe("Larger cases", { tags: "@ci" }, () => {
               ...routes.GET_TRACKER(LARGE_CASE_URN, LARGE_CASE_ID),
               failOnStatusCode: false,
             })
-            .its("body")
-            .then(({ status }) => {
-              if (status === "Failed") {
-                throw new Error("Pipeline failed, ending test")
-              }
-              return status === "Completed"
-            }),
-        SHORT_TIMEOUT_WAIT_UNTIL_OPTIONS
+            .then(isTrackerReady),
+        WAIT_UNTIL_OPTIONS
       )
       .api(
         routes.GET_DOCUMENT(
