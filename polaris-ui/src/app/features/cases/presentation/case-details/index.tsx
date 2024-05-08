@@ -86,7 +86,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     featureFlags,
     storedUserData,
     notes,
-    pIIData,
+    searchPII,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -152,6 +152,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accordionState.status]);
+  useEffect(() => {
+    console.log("searchPII>>>", searchPII);
+  }, [searchPII]);
 
   useEffect(() => {
     trackEvent("Open Documents Count", {
@@ -532,7 +535,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 }
                 contextData={{
                   correlationId: pipelineState?.correlationId,
-                  searchPIIOn: pIIData
+                  searchPIIOn: searchPII
                     .filter((data) => data.show)
                     .map((data) => data.documentId),
                   showSearchPII: featureFlags.searchPII,

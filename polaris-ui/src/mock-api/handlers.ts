@@ -18,7 +18,10 @@ import {
 } from "./data/types/CaseDetailsDataSource";
 import cypressNotesData from "./data/notes.cypress";
 import notesData from "./data/notes.dev";
+import searchPIIData from "./data/searchPII.dev";
+import cypressSearchPIIData from "./data/searchPII.cypress";
 import { NotesDataSource } from "./data/types/NotesDataSource";
+import { SearchPIIDataSource } from "./data/types/SearchPIIDataSource";
 
 import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
@@ -58,6 +61,11 @@ const searchCaseDataSources: { [key: string]: SearchCaseDataSource } = {
 const notesDataSources: { [documentId: string]: NotesDataSource } = {
   dev: notesData,
   cypress: cypressNotesData,
+};
+
+const searchPIIDataSources: { [documentId: string]: SearchPIIDataSource } = {
+  dev: searchPIIData as any,
+  cypress: cypressSearchPIIData as any,
 };
 
 export const setupHandlers = ({
@@ -188,6 +196,12 @@ export const setupHandlers = ({
 
     rest.delete(makeApiPath(routes.DOCUMENT_CHECKIN_ROUTE), (req, res, ctx) => {
       return res(ctx.json({ successful: true, documentStatus: "CheckedIn" }));
+    }),
+
+    rest.get(makeApiPath(routes.SEARCH_PII_ROUTE), (req, res, ctx) => {
+      // const { documentId } = req.params;
+      const results = searchPIIDataSources[sourceName];
+      return res(delay(ctx), ctx.json(results));
     }),
   ];
 };

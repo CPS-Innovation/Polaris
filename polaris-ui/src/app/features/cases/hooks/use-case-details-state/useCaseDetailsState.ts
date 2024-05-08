@@ -77,7 +77,7 @@ export const initialState = {
   },
   storedUserData: { status: "loading" },
   notes: [],
-  pIIData: [],
+  searchPII: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -435,13 +435,29 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     (
       documentId: CaseDocumentViewModel["documentId"],
       showSuggestion: boolean
-    ) =>
+    ) => {
       dispatch({
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
         payload: {
           documentId,
           show: showSuggestion,
         },
+      });
+      dispatch({
+        type: "GET_SEARCH_PII_DATA",
+        payload: {
+          documentId,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleGetSearchPIIData = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "GET_SEARCH_PII_DATA",
+        payload: { documentId },
       }),
     [dispatch]
   );
@@ -471,5 +487,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleGetNotes,
     handleAddNote,
     handleShowHideRedactionSuggestions,
+    handleGetSearchPIIData,
   };
 };

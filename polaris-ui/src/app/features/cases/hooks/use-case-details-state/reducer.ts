@@ -37,6 +37,7 @@ import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
+import { SearchPIIDataItem } from "../../domain/gateway/SearchPIIData";
 
 export const reducer = (
   state: CombinedState,
@@ -207,6 +208,14 @@ export const reducer = (
         payload: {
           documentId: string;
           show: boolean;
+        };
+      }
+    | {
+        type: "UPDATE_SEARCH_PII_DATA";
+        payload: {
+          documentId: string;
+          searchPIIResult: SearchPIIDataItem[];
+          getSearchPIIStatus: "initial" | "failure" | "polling" | "success";
         };
       }
 ): CombinedState => {
@@ -1047,7 +1056,7 @@ export const reducer = (
 
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
       const { documentId, show } = action.payload;
-      const availablePIIData = state.pIIData.find(
+      const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );
       const newData = availablePIIData
@@ -1055,14 +1064,39 @@ export const reducer = (
         : {
             show: show,
             documentId: documentId,
-            piiSearchResult: [],
-            piiDataStatus: "initial" as const,
+            searchPIIResult: [],
+            getSearchPIIStatus: "initial" as const,
           };
       return {
         ...state,
-        pIIData: [
-          ...state.pIIData.filter((data) => data.documentId !== documentId),
+        searchPII: [
+          ...state.searchPII.filter((data) => data.documentId !== documentId),
           newData,
+        ],
+      };
+    }
+
+    case "UPDATE_SEARCH_PII_DATA": {
+      const { documentId, searchPIIResult, getSearchPIIStatus } =
+        action.payload;
+      const filteredSearchPIIDatas = state.searchPII.filter(
+        (searchPIIResult) => searchPIIResult.documentId !== documentId
+      );
+      const activeSearchPIIData = state.searchPII.find(
+        (searchPIIResult) => searchPIIResult.documentId === documentId
+      )!;
+
+      // const { notesData } = action.payload;
+      return {
+        ...state,
+        searchPII: [
+          ...filteredSearchPIIDatas,
+          {
+            ...activeSearchPIIData,
+            documentId,
+            searchPIIResult: searchPIIResult,
+            getSearchPIIStatus: getSearchPIIStatus,
+          },
         ],
       };
     }

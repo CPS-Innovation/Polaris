@@ -7,6 +7,7 @@ import {
   saveRedactionLog,
   getNotesData,
   addNoteData,
+  getSearchPIIData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
@@ -91,6 +92,12 @@ type AsyncActions =
       payload: {
         documentId: string;
         noteText: string;
+      };
+    }
+  | {
+      type: "GET_SEARCH_PII_DATA";
+      payload: {
+        documentId: string;
       };
     };
 
@@ -544,6 +551,53 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             startRefresh: true,
           },
         });
+      }
+    },
+
+  GET_SEARCH_PII_DATA:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId },
+      } = action;
+      const { caseId, urn, notes } = getState();
+      try {
+        // dispatch({
+        //   type: "UPDATE_NOTES_DATA",
+        //   payload: {
+        //     documentId,
+        //     notesData: [],
+        //     addNoteStatus: "initial",
+        //     getNoteStatus: "loading",
+        //   },
+        // });
+        const searchPIIResult = await getSearchPIIData(urn, caseId, documentId);
+        dispatch({
+          type: "UPDATE_SEARCH_PII_DATA",
+          payload: {
+            documentId,
+            searchPIIResult,
+            getSearchPIIStatus: "initial",
+          },
+        });
+      } catch (e) {
+        // dispatch({
+        //   type: "SHOW_ERROR_MODAL",
+        //   payload: {
+        //     type: "getnotes",
+        //     title: "Something went wrong!",
+        //     message: "Failed to get notes for the documents. Please try again.",
+        //   },
+        // });
+        // dispatch({
+        //   type: "UPDATE_NOTES_DATA",
+        //   payload: {
+        //     documentId,
+        //     notesData: [],
+        //     addNoteStatus: "initial",
+        //     getNoteStatus: "failure",
+        //   },
+        // });
       }
     },
 };
