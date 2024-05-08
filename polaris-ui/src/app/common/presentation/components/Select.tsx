@@ -30,6 +30,8 @@ type SelectProps = React.DetailedHTMLProps<
   }[];
 };
 
-export const Select: React.FC<SelectProps> = (props) => {
-  return <GDS.Select {...props} />;
-};
+export const Select = React.forwardRef<HTMLSelectElement | null, SelectProps>(
+  (props, ref) => {
+    return <GDS.Select {...props} ref={ref} />;
+  }
+);

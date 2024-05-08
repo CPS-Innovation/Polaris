@@ -9,6 +9,7 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
   custom_subdomain_name              = "polaris${var.env}"
   outbound_network_access_restricted = false
   public_network_access_enabled      = false
+  dynamic_throttling_enabled         = var.search_service_config.is_dynamic_throttling_enabled
 
   network_acls {
     default_action = "Deny"
@@ -20,6 +21,9 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
     }
     virtual_network_rules {
       subnet_id = data.azurerm_subnet.polaris_sa_subnet.id
+    }
+    virtual_network_rules {
+      subnet_id = data.azurerm_subnet.polaris_textextractor_2_subnet.id
     }
   }
 
@@ -47,14 +51,4 @@ resource "azurerm_private_endpoint" "pipeline_computer_vision_service_pe" {
     is_manual_connection           = false
     subresource_names              = ["account"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_computer_vision_service_dns_a" {
-  name                = azurerm_cognitive_account.computer_vision_service.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_cognitive_account.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_computer_vision_service_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
 }

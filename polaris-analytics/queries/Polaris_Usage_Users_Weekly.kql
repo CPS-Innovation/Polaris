@@ -1,0 +1,31 @@
+let startDate = datetime(2023-05-22);
+
+let GatewayRequests = AppRequests
+| where AppRoleName == 'fa-polaris-gateway'
+    and Properties.User != 'REDACTED@REDACTED.EMAIL.ADDRESS'
+    and TimeGenerated > startDate;
+
+let UserCounts = GatewayRequests
+| where Name == 'PolarisPipelineCase'
+| summarize  UserCount = count_distinct(tostring(Properties.User)) by bin(TimeGenerated, 7d);
+
+let UsersEverCounts = GatewayRequests
+| where Name == 'PolarisPipelineCase'
+| extend  User = tostring(Properties.User)
+| evaluate activity_counts_metrics(User, TimeGenerated, startDate, now(), 7d)
+| project TimeGenerated, UsersEverCount = aggregated_dcount;
+
+let RedactingUserCounts = GatewayRequests
+| where Name contains "PolarisPipelineSaveDocumentRedactions"
+| summarize RedactingUserCount= count_distinct(tostring(Properties.User)) by bin(TimeGenerated, 7d);
+
+UserCounts
+| join kind=fullouter UsersEverCounts on TimeGenerated
+| join kind=fullouter RedactingUserCounts on TimeGenerated
+| project 
+    TimeGenerated, 
+    UserCount, 
+    UsersEverCount,
+    RedactingUserCount = coalesce(RedactingUserCount,0)
+| where TimeGenerated < startofweek(now())
+| render timechart

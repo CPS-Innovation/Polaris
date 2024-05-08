@@ -13,7 +13,7 @@ const renderDocResults = (docs: PipelineDocument[]) => {
   return (
     // WARNING: this is used by the e2e tests to check the status of the documents
     <span
-      data-testId={everyDocIndexed ? "span-flag-all-indexed" : ""}
+      data-testid={everyDocIndexed ? "span-flag-all-indexed" : ""}
       style={{ color: "#dddddd" }}
     >
       {docs.map((doc) => {

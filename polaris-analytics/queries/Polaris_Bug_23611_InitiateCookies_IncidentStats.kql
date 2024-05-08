@@ -1,0 +1,13 @@
+Polaris_Bug_23611_InitiateCookies_All
+| where TimeGenerated > datetime(2023-11-04)
+| summarize 
+    TotalHandovers = count(), 
+    //HandoversWithoutQParameter = countif(not(HasQ)),
+    HandoversWithoutAuthCookie = countif(not(HasAuthCookie)), 
+    HandoversWithAuthCookieButErrored = countif(HasAuthCookie and HasError)
+by bin(TimeGenerated, 1d)
+| extend 
+    //PercentHandoversWithoutQParameter = 100.0 * HandoversWithoutQParameter / TotalHandovers,
+    PercentHandoversWithoutAuthCookie = round(100.0 * HandoversWithoutAuthCookie / TotalHandovers, 2),
+    PercentHandoversWithAuthCookieButErrored =  round(100.0 * HandoversWithAuthCookieButErrored / TotalHandovers, 2)
+

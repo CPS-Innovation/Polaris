@@ -1,0 +1,37 @@
+name: "Security Scanning"
+on:
+  workflow_call:
+jobs:
+  ShiftLeft:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+    - name: Perform ShiftLeft Scan
+      uses: ShiftLeftSecurity/scan-action@master
+      env:
+        WORKSPACE: ""
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SCAN_AUTO_BUILD: true
+      with:
+        output: reports
+    - name: Upload report
+      uses: github/codeql-action/upload-sarif@a09933a12a80f87b87005513f0abb1494c27a716 # v2.21.4
+      with:
+        sarif_file: reports
+
+  Checkov:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+    - name: Perform Checkov Scan
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        output_format: cli,sarif
+        output_file_path: console,results.sarif
+        skip_check: CKV2_GHA_1,CKV_SECRET_3
+        
+    - name: Upload Report
+      uses: github/codeql-action/upload-sarif@v2
+      if: success() || failure()
+      with:
+        sarif_file: results.sarif

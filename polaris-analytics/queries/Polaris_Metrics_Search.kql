@@ -1,0 +1,8 @@
+AppEvents
+| where Name == "SearchCase"
+| project TimeGenerated, OperationId, PolarisCorrelationId = tostring(Properties.correlationId), CaseId = toint(Properties.caseId), DocumentIds =  parse_json(tostring(Properties.documentIds))
+| mv-expand DocumentIds 
+| extend DocumentId = tostring(DocumentIds)
+| project-away DocumentIds
+| where DocumentId startswith "CMS-" 
+| extend DocumentId = tolong(extract("(\\d+)", 1, DocumentId))

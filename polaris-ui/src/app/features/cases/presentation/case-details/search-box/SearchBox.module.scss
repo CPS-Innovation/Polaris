@@ -1,5 +1,10 @@
 .container {
   margin-top: 1.5625rem;
+  position: relative;
+  display: flex;
+  :global(.govuk-form-group) {
+    width: 85%;
+  }
 }
 
 .suffix {
@@ -9,12 +14,13 @@
 }
 
 .button {
-  position: absolute;
+  position: relative;
+  top: 1.875rem;
+  right: 0;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   display: flex;
-  top: -0.125rem;
   width: 2.5rem;
   height: 2.5rem;
   border: none;

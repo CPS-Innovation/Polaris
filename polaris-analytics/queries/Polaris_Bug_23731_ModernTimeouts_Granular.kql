@@ -1,0 +1,8 @@
+Polaris_ProxyCmsLogs_Summary(15m)
+| where ClassicModernUiOrGraphQL == 'GraphQL'
+| summarize Total = sum(Total), GatewayTimeout_504 = sum(GatewayTimeout_504) by TimeGenerated
+| project 
+     TimeGenerated
+    //,GatewayTimeout_504
+    , Percentage_GatewayTimeout_504 = round(GatewayTimeout_504 * 100.0/Total,2)
+| render timechart 

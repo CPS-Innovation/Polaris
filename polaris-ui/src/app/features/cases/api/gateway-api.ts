@@ -6,9 +6,15 @@ import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
 import * as HEADERS from "./header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
-import { GATEWAY_BASE_URL } from "../../../config";
+import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
-
+import {
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
+} from "../domain/redactionLog/RedactionLogData";
+import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
+import { Note } from "../domain/gateway/NotesData";
+import { removeNonDigits } from "../presentation/case-details/utils/redactionLogUtils";
 const buildHeaders = async (
   ...args: (
     | Record<string, string>
@@ -25,10 +31,8 @@ const buildHeaders = async (
   return headers;
 };
 
-const fullUrl = (path: string) => {
-  const origin = GATEWAY_BASE_URL?.startsWith("http")
-    ? GATEWAY_BASE_URL
-    : window.location.origin;
+const fullUrl = (path: string, baseUrl: string = GATEWAY_BASE_URL) => {
+  const origin = baseUrl?.startsWith("http") ? baseUrl : window.location.origin;
   return new URL(path, origin).toString();
 };
 
@@ -65,11 +69,6 @@ export const searchUrn = async (urn: string) => {
   });
 
   if (!response.ok) {
-    // special case: the gateway returns 404 if no results
-    //  but we are happy to just return empty data
-    if (response.status === 404) {
-      return [];
-    }
     throw new ApiError("Search URN failed", url, response);
   }
 
@@ -88,25 +87,6 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   }
 
   return (await response.json()) as CaseDetails;
-};
-
-export const getPdfSasUrl = async (
-  urn: string,
-  caseId: number,
-  documentId: string
-) => {
-  const url = fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/sas-url`
-  );
-  const response = await internalFetch(url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get Pdf SasUrl failed", url, response);
-  }
-
-  return await response.text();
 };
 
 export const initiatePipeline = async (
@@ -129,7 +109,7 @@ export const initiatePipeline = async (
   const { trackerUrl }: { trackerUrl: string } = await response.json();
 
   return {
-    trackerUrl,
+    trackerUrl: fullUrl(trackerUrl),
     correlationId: Object.values(correlationIdHeader)[0],
     status: response.status,
   };
@@ -158,7 +138,11 @@ export const getPipelinePdfResults = async (
   const { documents } = rawResponse;
   temporaryApiModelMapping(documents);
 
-  return rawResponse as PipelineResults;
+  // temporary hack for #24313 before feature flag comes in
+  // return rawResponse as PipelineResults;
+  var typedRawResponse = rawResponse as PipelineResults;
+
+  return typedRawResponse;
 };
 export const searchCase = async (
   urn: string,
@@ -245,6 +229,100 @@ export const saveRedactions = async (
   if (!response.ok) {
     throw new ApiError("Save redactions failed", url, response);
   }
+};
+
+export const saveRedactionLog = async (
+  redactionLogRequestData: RedactionLogRequestData
+) => {
+  const url = fullUrl(`/api/redactionLogs`, REDACTION_LOG_BASE_URL);
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(
+      HEADERS.correlationId,
+      HEADERS.authRedactionLog
+    ),
+    method: "POST",
+    body: JSON.stringify(redactionLogRequestData),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Save redaction log failed", url, response);
+  }
+};
+
+export const getRedactionLogLookUpsData = async () => {
+  const url = fullUrl("/api/lookUps", REDACTION_LOG_BASE_URL);
+  const headers = await buildHeaders(
+    HEADERS.correlationId,
+    HEADERS.authRedactionLog
+  );
+  const response = await internalFetch(url, {
+    headers,
+  });
+  if (!response.ok) {
+    throw new ApiError("Get Redaction Log data failed", url, response);
+  }
+  return (await response.json()) as RedactionLogLookUpsData;
+};
+
+export const getRedactionLogMappingData = async () => {
+  const url = fullUrl("/api/polarisMappings", REDACTION_LOG_BASE_URL);
+  const headers = await buildHeaders(
+    HEADERS.correlationId,
+    HEADERS.authRedactionLog
+  );
+  const response = await internalFetch(url, {
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Redaction Log mapping data failed", url, response);
+  }
+  return (await response.json()) as RedactionLogMappingData;
+};
+
+export const getNotesData = async (
+  urn: string,
+  caseId: number,
+  documentId: string
+) => {
+  const docId = parseInt(removeNonDigits(documentId));
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Notes failed", path, response);
+  }
+
+  return (await response.json()) as Note[];
+};
+
+export const addNoteData = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  text: string
+) => {
+  const docId = parseInt(removeNonDigits(documentId));
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+    body: JSON.stringify({ documentId: docId, text: text }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Add Notes failed", path, response);
+  }
+
+  return (await response.json()) as Note[];
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

@@ -3,6 +3,7 @@ import { CaseDocumentViewModel } from "../domain/CaseDocumentViewModel";
 import { useNavigationAlert } from "./useNavigationAlert";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
+import { ConversionStatus } from "../domain/gateway/PipelineDocument";
 
 describe("useNavigationAlert hook", () => {
   const history = createMemoryHistory();
@@ -20,13 +21,16 @@ describe("useNavigationAlert hook", () => {
       cmsDocumentId: "1",
       cmsOriginalFileName: "MCLOVEMG3  very long .docx",
       presentationTitle: "MCLOVEMG3  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
+      presentationSubCategory: null,
       presentationFileName: "MCLOVEMG3  very long",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      attachments: [],
+      polarisParentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -37,10 +41,19 @@ describe("useNavigationAlert hook", () => {
           type: "redaction",
           position: {} as any,
           highlightType: "area",
+          redactionType: { id: "1", name: "Address" },
         },
       ],
       sasUrl: undefined,
       url: undefined,
+      isDeleted: false,
+      saveStatus: "initial",
+      witnessId: null,
+      witnessIndicators: [],
+      hasFailedAttachments: false,
+      areaOnlyRedactionMode: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       clientLockedState: "unlocked",
@@ -54,13 +67,16 @@ describe("useNavigationAlert hook", () => {
       cmsDocumentId: "2",
       cmsOriginalFileName: "MCLOVEMG4 very long .docx",
       presentationTitle: "MCLOVEMG4 test",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
+      presentationSubCategory: null,
       presentationFileName: "MCLOVEMG4 test",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      attachments: [],
+      polarisParentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -71,11 +87,19 @@ describe("useNavigationAlert hook", () => {
           type: "redaction",
           position: {} as any,
           highlightType: "area",
+          redactionType: { id: "1", name: "Address" },
         },
       ],
       sasUrl: undefined,
-
       url: undefined,
+      isDeleted: false,
+      saveStatus: "initial",
+      witnessId: null,
+      witnessIndicators: [],
+      hasFailedAttachments: false,
+      areaOnlyRedactionMode: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
   ];
 

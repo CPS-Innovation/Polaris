@@ -1,0 +1,5 @@
+AppDependencies
+| where AppRoleName == 'fa-polaris-ddei'
+| where Name in ('POST /internal-implementation/farnborough/modern/graphql/', 'POST /internal-implementation/corsham/modern/graphql/')
+| summarize MaxCallDurationMs = max(DurationMs), AvgNon504CallDurationMs = avgif( DurationMs,ResultCode != 504 ) by bin(TimeGenerated, 1h)
+| render timechart  

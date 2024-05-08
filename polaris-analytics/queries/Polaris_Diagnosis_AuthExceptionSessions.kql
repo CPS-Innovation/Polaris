@@ -1,0 +1,33 @@
+AppExceptions
+| where AppRoleName == "fa-polaris-ddei"
+| where OperationName !in ("Ping", "DevelopmentTimeFullCookiePost")
+| where ExceptionType != "polaris_ddei.Domain.Exceptions.Cms.CmsModernAuthorizationException"
+| where OuterType != "System.Threading.Tasks.TaskCanceledException"
+| where OuterMessage !contains "ORA-22835:"
+| where OuterMessage != "Error while copying content to a stream."
+
+| extend     Source = case(
+                    OuterType == "polaris_ddei.Domain.Exceptions.Cms.CmsModernAuthException", "Modern",
+                    OuterType == "polaris_ddei.Domain.Exceptions.Cms.CmsModernException" and OuterMessage contains "Unauthorized", "Modern",
+                    OuterType == "polaris_ddei.Domain.Exceptions.Cms.CmsAuthException" and OperationName == "GetCmsAuthValues", "InitiateCookies",
+                    OuterType == "polaris_ddei.Domain.Exceptions.Cms.CmsAuthException", "Classic",
+                    "Other")
+| project 
+    TimeGenerated, 
+    OperationId, 
+    PolarisCorrelationId = tostring(Properties.prop__CorrelationId), 
+    OuterMessage, 
+    OperationName,
+    Source 
+| join kind=inner  (AppRequests 
+        | where AppRoleName == "fa-polaris-ddei" 
+        | project OperationId, CmsUserId = tostring(Properties.CmsUserId) 
+        | where CmsUserId != ""
+        | where CmsUserId != "-2147483648"
+        
+) on OperationId
+
+| sort by CmsUserId, TimeGenerated asc
+| extend SessionStarted = row_window_session(TimeGenerated, 15m, 5m, CmsUserId != prev(CmsUserId))
+| sort by TimeGenerated asc
+| summarize make_set(Source), make_set(OperationName) by CmsUserId, SessionStarted

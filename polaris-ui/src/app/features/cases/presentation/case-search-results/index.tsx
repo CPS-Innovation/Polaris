@@ -56,7 +56,10 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   } = useQueryParamsState<CaseSearchQueryParams>();
 
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
-    useSearchInputLogic({ urnFromSearchParams, setParams });
+    useSearchInputLogic({ urnFromSearchParams, setParams, search });
+
+  const linkParams = new URLSearchParams(search);
+  linkParams.delete("urn");
 
   const state = useApi(searchUrn, [urnFromSearchParams])!;
 
@@ -80,12 +83,14 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   return (
     <>
-      <BackLink
-        to={backLinkProps.to}
-        onClick={() => trackEvent("Back To Search URN")}
-      >
-        {backLinkProps.label}
-      </BackLink>
+      <nav>
+        <BackLink
+          to={backLinkProps.to}
+          onClick={() => trackEvent("Back To Search URN")}
+        >
+          {backLinkProps.label}
+        </BackLink>
+      </nav>
       <PageContentWrapper>
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -161,6 +166,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                           id: item.id,
                         }),
                         state: search,
+                        search: `${linkParams}`,
                       }}
                       data-testid={`link-${item.uniqueReferenceNumber}`}
                       className="govuk-link"

@@ -1,4 +1,5 @@
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import { CommunicationSubCategory } from "./document-category-definitions";
 
 export const sortDocumentsByCreatedDate = (
   cmsDocuments: PresentationDocumentProperties[],
@@ -105,16 +106,87 @@ export const isUnusedCommunicationMaterial = (
   if (documentTypeId !== 1029) {
     return false;
   }
-  if (filename.includes("UM")) {
+  if (filename.includes("UM/")) {
+    return false;
+  }
+
+  //UM, must be standalone word
+  if (filename.match(/(?<=^|\s)UM(?=\s|$)/gi)) {
     return true;
   }
-  // Check if the filename contains "Item N" (where N is an integer)
-  const regex = /Item\s?\d+/;
-  const matches = regex.exec(filename);
-
-  if (matches) {
+  //UM+digit, must be standalone word,
+  if (filename.match(/(?<=^|\s)UM\d+(?=\s|$)/gi)) {
+    return true;
+  }
+  //UNUSED, standalone word,
+  if (filename.match(/(?<=^|\s)UNUSED(?=\s|$)/gi)) {
+    return true;
+  }
+  //UNUSED+digit, standalone word,
+  if (filename.match(/(?<=^|\s)UNUSED\d+(?=\s|$)/gi)) {
+    return true;
+  }
+  //-UM, as an ending/suffix to a word
+  if (filename.match(/(?<=^|\s)\S+-UM(?=\s|$)/gi)) {
+    return true;
+  }
+  //-UM+digits, as an ending/suffix to a word
+  if (filename.match(/(?<=^|\s)\S+-UM\d+(?=\s|$)/gi)) {
+    return true;
+  }
+  //MG6C, standalone word
+  if (filename.match(/(?<=^|\s)MG6C(?=\s|$)/gi)) {
+    return true;
+  }
+  //MG6D, standalone word
+  if (filename.match(/(?<=^|\s)MG6D(?=\s|$)/gi)) {
+    return true;
+  }
+  //MG6E, standalone word
+  if (filename.match(/(?<=^|\s)MG6E(?=\s|$)/gi)) {
+    return true;
+  }
+  //MG06C, standalone word
+  if (filename.match(/(?<=^|\s)MG06C(?=\s|$)/gi)) {
+    return true;
+  }
+  //MG06D, standalone word
+  if (filename.match(/(?<=^|\s)MG06D(?=\s|$)/gi)) {
+    return true;
+  }
+  //MG06E, standalone word
+  if (filename.match(/(?<=^|\s)MG06E(?=\s|$)/gi)) {
+    return true;
+  }
+  //SDC, standalone word
+  if (filename.match(/(?<=^|\s)SDC(?=\s|$)/gi)) {
     return true;
   }
 
   return false;
+};
+
+export const getCommunicationsSubCategory = (
+  doc: PresentationDocumentProperties
+): CommunicationSubCategory => {
+  if (doc.cmsOriginalFileExtension === ".hte")
+    return CommunicationSubCategory.emails;
+  return CommunicationSubCategory.communicationFiles;
+};
+
+export const getDocumentAttachments = (
+  item: PresentationDocumentProperties,
+  docs: PresentationDocumentProperties[]
+) => {
+  if (item.cmsOriginalFileExtension !== ".hte") return [];
+
+  const attachments = docs
+    .filter((doc) => doc.polarisParentDocumentId === item.documentId)
+    .map(({ documentId, presentationTitle }) => {
+      return {
+        documentId: documentId,
+        name: presentationTitle,
+      };
+    });
+  return attachments;
 };

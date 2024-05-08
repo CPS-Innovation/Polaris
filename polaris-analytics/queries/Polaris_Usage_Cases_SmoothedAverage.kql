@@ -1,0 +1,14 @@
+let series_moving_avg_fl = (y_series:dynamic, n:int, center:bool=false)
+{
+    series_fir(y_series, repeat(1, n), true, center)
+};
+
+AppEvents
+| where ClientType == 'PC'
+| where Name == 'RefreshedCase'
+| extend CaseId = toint(Properties.caseId), TimeGenerated
+| summarize CaseTotal = count_distinct(CaseId) by bin(TimeGenerated, 1d)
+| make-series CaseTotal = avg(CaseTotal) on TimeGenerated step 1d
+| project Avg=series_moving_avg_fl(CaseTotal, daysToWindow),TimeGenerated
+| project Avg = array_slice(Avg, daysToWindow, -1), TimeGenerated= array_slice(TimeGenerated, daysToWindow, -1)
+| render timechart with(ymin=0)

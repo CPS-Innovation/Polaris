@@ -13,6 +13,10 @@
 
 .removeButton {
   margin: 0 1.25rem;
+  &:disabled {
+    cursor: not-allowed;
+    color: #b1b4b6;
+  }
 }
 
 .summary {

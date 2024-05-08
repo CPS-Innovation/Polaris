@@ -34,7 +34,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = (props) => {
         } with unsaved redactions`;
 
   const handleIgnoreBtnClick = () => {
-    let documentIds =
+    const documentIds =
       props.type === "document"
         ? [props.documentId]
         : props.unSavedRedactionDocs.map(({ documentId }) => documentId);

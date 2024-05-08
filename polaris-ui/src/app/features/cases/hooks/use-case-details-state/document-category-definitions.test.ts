@@ -7,6 +7,11 @@ import path from "path";
 import fs from "fs";
 import * as csv from "fast-csv";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+jest.mock("./document-category-helpers", () => {
+  const originalModule = jest.requireActual("./document-category-helpers");
+  return { ...originalModule };
+});
+const docCategoryHelpers = require("./document-category-helpers");
 
 type Row = { docTypeId: string; category: string; docTypeCategory: string };
 
@@ -36,7 +41,7 @@ describe("documentCategoryDefinitions", () => {
         },
       } as PresentationDocumentProperties);
 
-      expect({ docTypeId, category: categoryResult }).toEqual({
+      expect({ docTypeId, category: categoryResult.category }).toEqual({
         docTypeId,
         category,
       });
@@ -48,7 +53,7 @@ describe("documentCategoryDefinitions", () => {
       cmsDocType: { documentType: "PCD" },
     } as PresentationDocumentProperties);
 
-    expect(result).toBe("Reviews");
+    expect(result.category).toBe("Reviews");
   });
 
   it("can resolve any document with docTypeCategory as 'Unused' into 'Unused material' accordion category", () => {
@@ -56,7 +61,7 @@ describe("documentCategoryDefinitions", () => {
       cmsDocType: { documentCategory: "Unused" },
     } as PresentationDocumentProperties);
 
-    expect(result).toBe("Unused material");
+    expect(result.category).toBe("Unused material");
   });
 
   it("can resolve any document with docTypeCategory as 'UnusedStatement' into 'Unused material' accordion category", () => {
@@ -64,7 +69,7 @@ describe("documentCategoryDefinitions", () => {
       cmsDocType: { documentCategory: "UnusedStatement" },
     } as PresentationDocumentProperties);
 
-    expect(result).toBe("Unused material");
+    expect(result.category).toBe("Unused material");
   });
 
   it("will only resolve documents with correct statement documentTypeId and docTypeCategory not equal to 'UnusedStatement' or 'Unused' into 'Statements' accordion category", () => {
@@ -72,25 +77,25 @@ describe("documentCategoryDefinitions", () => {
       cmsDocType: { documentTypeId: 1031, documentCategory: "UsedStatement" },
     } as PresentationDocumentProperties);
 
-    expect(result).toBe("Statements");
+    expect(result.category).toBe("Statements");
 
     const result1 = getCategory({
-      cmsDocType: { documentTypeId: 1059, documentCategory: null as any },
+      cmsDocType: { documentTypeId: 1031, documentCategory: null as any },
     } as PresentationDocumentProperties);
 
-    expect(result1).toBe("Statements");
+    expect(result1.category).toBe("Statements");
 
     const result3 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
     } as PresentationDocumentProperties);
 
-    expect(result3).toBe("Unused material");
+    expect(result3.category).toBe("Unused material");
 
     const result4 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
     } as PresentationDocumentProperties);
 
-    expect(result4).toBe("Unused material");
+    expect(result4.category).toBe("Unused material");
   });
 
   it("can resolve a documents category to Uncategorised if no prior categories match", () => {
@@ -98,7 +103,7 @@ describe("documentCategoryDefinitions", () => {
       cmsDocType: {},
     } as PresentationDocumentProperties);
 
-    expect(result).toBe("Uncategorised");
+    expect(result.category).toBe("Uncategorised");
   });
 
   it("can resolve an unknown category to Uncategorised if no prior categories match", () => {
@@ -106,10 +111,11 @@ describe("documentCategoryDefinitions", () => {
       cmsDocType: { documentTypeId: -1, documentType: "Unknown" },
     } as PresentationDocumentProperties);
 
-    expect(result).toBe("Uncategorised");
+    expect(result.category).toBe("Uncategorised");
   });
 
-  it(`can resolve document with documentTypeId 1029 and with presentationTitle contains "UM" or"Item N" where N represent digits under Unused material category `, () => {
+  it(`can resolve document with documentTypeId 1029 under "Unused material", if isUnusedCommunicationMaterial returns true `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => true;
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: "UM CM01",
@@ -120,10 +126,13 @@ describe("documentCategoryDefinitions", () => {
       presentationTitle: "CM01 Item 4 a",
     } as PresentationDocumentProperties);
 
-    expect(result1).toBe("Unused material");
-    expect(result2).toBe("Unused material");
+    expect(result1.category).toBe("Unused material");
+    expect(result2.category).toBe("Unused material");
+    expect(result2.subCategory).toBe(null);
   });
-  it(`can resolve document with documentTypeId 1029 and with presentationTitle doesn't not contains "UM" or"Item N" where N represent digits under "Communications" category `, () => {
+
+  it(`can resolve document with documentTypeId 1029  under "Communications" category if isUnusedCommunicationMaterial returns false`, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: "CM01",
@@ -132,9 +141,55 @@ describe("documentCategoryDefinitions", () => {
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: " CM01 Typea 4 a",
+      cmsOriginalFileExtension: ".hte",
     } as PresentationDocumentProperties);
 
-    expect(result1).toBe("Communications");
-    expect(result2).toBe("Communications");
+    expect(result1.category).toBe("Communications");
+    expect(result1.subCategory).toBe("Communication files");
+    expect(result2.category).toBe("Communications");
+    expect(result2.subCategory).toBe("Emails");
+  });
+
+  it(`can resolve document  under  "Unused material" category if documentCategory is "UnusedStatement" `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
+      presentationTitle: "CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1059, documentCategory: "UnusedStatement" },
+      presentationTitle: " CM01 Typea 4 a",
+      cmsOriginalFileExtension: ".hte",
+    } as PresentationDocumentProperties);
+
+    expect(result1.category).toBe("Unused material");
+    expect(result2.category).toBe("Unused material");
+  });
+
+  it(`can resolve document  under  "Unused material" category if documentCategory is "Unused" `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
+      presentationTitle: "CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1059, documentCategory: "Unused" },
+      presentationTitle: " CM01 Typea 4 a",
+      cmsOriginalFileExtension: ".hte",
+    } as PresentationDocumentProperties);
+
+    expect(result1.category).toBe("Unused material");
+    expect(result2.category).toBe("Unused material");
+  });
+
+  it("can resolve document with cmsOriginalFileExtension equal to .hte into 'Communication' category and subCategory 'Emails'", () => {
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: -1 },
+      cmsOriginalFileExtension: ".hte",
+    } as PresentationDocumentProperties);
+    expect(result1.category).toBe("Communications");
+    expect(result1.subCategory).toBe("Emails");
   });
 });

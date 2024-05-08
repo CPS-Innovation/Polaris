@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-integration.tests", "polaris-integration.tests.csproj", "{9413CBD5-9228-4BA3-8A9F-DA5BF41E21C3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Integration Tests|Any CPU = Integration Tests|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9413CBD5-9228-4BA3-8A9F-DA5BF41E21C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9413CBD5-9228-4BA3-8A9F-DA5BF41E21C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9413CBD5-9228-4BA3-8A9F-DA5BF41E21C3}.Integration Tests|Any CPU.ActiveCfg = Integration Tests|Any CPU
+		{9413CBD5-9228-4BA3-8A9F-DA5BF41E21C3}.Integration Tests|Any CPU.Build.0 = Integration Tests|Any CPU
+		{9413CBD5-9228-4BA3-8A9F-DA5BF41E21C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9413CBD5-9228-4BA3-8A9F-DA5BF41E21C3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {726D11C0-404C-41C2-B6E3-3E0A97F8BB65}
+	EndGlobalSection
+EndGlobal

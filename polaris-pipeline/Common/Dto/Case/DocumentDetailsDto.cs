@@ -25,6 +25,8 @@ namespace Common.Dto.Case
         [JsonIgnore()]
         public string Path { get; set; }
 
+        public int ParentDocumentId { get; set; }
+
         public bool Equals([AllowNull] DocumentDetailsDto other)
         {
             if (Object.ReferenceEquals(other, null)) return false;

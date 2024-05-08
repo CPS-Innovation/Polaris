@@ -174,7 +174,6 @@
 185,Communications
 186,Communications
 188,Communications
-189,Communications
 190,Communications
 191,Communications
 192,Communications
@@ -197,7 +196,6 @@
 209,Communications
 210,Communications
 211,Communications
-212,Communications
 213,Communications
 214,Communications
 215,Communications
@@ -313,12 +311,13 @@
 102,Reviews
 103,Reviews
 104,Reviews
+189,Reviews
+212,Reviews
 227,Reviews
 1034,Reviews
 1035,Reviews
 1064,Reviews
 1031,Statements,UsedStatement
-1059,Statements,UsedStatement
 1016,Uncategorised
 1017,Uncategorised
 1018,Uncategorised
@@ -329,6 +328,7 @@
 1052,Uncategorised
 1053,Uncategorised
 1054,Uncategorised
+1059,Uncategorised
 1001,Unused material
 1008,Unused material
 1009,Unused material

@@ -16,6 +16,12 @@ namespace Common.ValueObjects
 
         public PolarisDocumentId(PolarisDocumentType polarisDocumentType, string value)
         {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+
             Value = polarisDocumentType switch
             {
                 PolarisDocumentType.CmsDocument => $"CMS-{value}",

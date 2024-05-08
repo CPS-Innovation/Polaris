@@ -1,69 +1,86 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common.Telemetry;
 
 namespace coordinator.TelemetryEvents
 {
     public class DeletedCaseEvent : BaseTelemetryEvent
     {
-        private const string indexDeletedDurationSeconds = nameof(indexDeletedDurationSeconds);
-        private const string indexSettledDurationSeconds = nameof(indexSettledDurationSeconds);
-        private const string getInstancesToTerminateDurationSeconds = nameof(getInstancesToTerminateDurationSeconds);
-        private const string terminateInstancesDurationSeconds = nameof(terminateInstancesDurationSeconds);
-        private const string purgedInstancesDurationSeconds = nameof(purgedInstancesDurationSeconds);
-
-        private readonly Guid _correlationId;
-        private readonly long _caseId;
-
-        private readonly DateTime _startTime;
-        private readonly DateTime _removedCaseIndexTime;
-        private readonly DateTime _indexSettledTime;
-        private readonly DateTime _gotTerminateInstancesTime;
-        private readonly DateTime _terminatedInstancesTime;
-        private readonly DateTime _endTime;
-        private readonly int _terminatedInstancesCount;
+        private const string IndexDeletedDurationSeconds = nameof(IndexDeletedDurationSeconds);
+        private const string IndexSettledDurationSeconds = nameof(IndexSettledDurationSeconds);
+        private const string GetInstancesToTerminateDurationSeconds = nameof(GetInstancesToTerminateDurationSeconds);
+        private const string TerminateInstancesDurationSeconds = nameof(TerminateInstancesDurationSeconds);
+        private const string BlobsDeletedDurationSeconds = nameof(BlobsDeletedDurationSeconds);
+        private const string TerminatedInstancesSettledDurationSeconds = nameof(TerminatedInstancesSettledDurationSeconds);
+        private const string GetInstancesToPurgeDurationSeconds = nameof(GetInstancesToPurgeDurationSeconds);
+        private const string PurgedInstancesDurationSeconds = nameof(PurgedInstancesDurationSeconds);
+        public Guid CorrelationId;
+        public long CaseId;
+        public DateTime StartTime;
+        public DateTime RemovedCaseIndexTime;
+        public DateTime IndexSettledTime;
+        public DateTime BlobsDeletedTime;
+        public DateTime GotTerminateInstancesTime;
+        public DateTime TerminatedInstancesTime;
+        public DateTime TerminatedInstancesSettledTime;
+        public DateTime GotPurgeInstancesTime;
+        public DateTime EndTime;
+        public long AttemptedRemovedDocumentCount;
+        public long SuccessfulRemovedDocumentCount;
+        public long FailedRemovedDocumentCount;
+        public bool DidWaitForIndexToSettle;
+        public bool DidIndexSettle;
+        public List<long> WaitRecordCounts;
+        public int TerminatedInstancesCount;
+        public bool DidClearBlobs;
+        public bool DidOrchestrationsTerminate;
+        public int PurgeInstancesCount;
+        public int PurgedInstancesCount;
 
         public DeletedCaseEvent(
             Guid correlationId,
             long caseId,
-            DateTime startTime,
-            DateTime removedCaseIndexTime,
-            DateTime indexSettledTime,
-            DateTime gotTerminateInstancesTime,
-            DateTime terminatedInstancesTime,
-            DateTime endTime,
-            int terminatedInstancesCount)
+            DateTime startTime
+        )
         {
-            _correlationId = correlationId;
-            _caseId = caseId;
-            _startTime = startTime;
-            _removedCaseIndexTime = removedCaseIndexTime;
-            _indexSettledTime = indexSettledTime;
-            _gotTerminateInstancesTime = gotTerminateInstancesTime;
-            _terminatedInstancesTime = terminatedInstancesTime;
-            _endTime = endTime;
-            _terminatedInstancesCount = terminatedInstancesCount;
+            CorrelationId = correlationId;
+            CaseId = caseId;
+            StartTime = startTime;
         }
 
-        public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
+        public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
         {
             return (
                 new Dictionary<string, string>
                 {
-                    { nameof(_correlationId), _correlationId.ToString() },
-                    { nameof(_caseId), _caseId.ToString() },
-                    { nameof(_startTime), _startTime.ToString("o") },
-                    { nameof(_endTime), _endTime.ToString("o") },
+                    { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseId), CaseId.ToString() },
+                    { nameof(StartTime), StartTime.ToString("o") },
+                    { nameof(EndTime), EndTime.ToString("o") },
+                    { nameof(DidWaitForIndexToSettle), DidWaitForIndexToSettle.ToString() },
+                    { nameof(DidIndexSettle), DidIndexSettle.ToString() },
+                    { nameof(WaitRecordCounts), string.Join(",", WaitRecordCounts ?? Enumerable.Empty<long>()) },
+                    { nameof(DidClearBlobs), DidClearBlobs.ToString() },
+                    { nameof(DidOrchestrationsTerminate), DidOrchestrationsTerminate.ToString() },
                 },
-                new Dictionary<string, double>
+                new Dictionary<string, double?>
                 {
-                    { durationSeconds, GetDurationSeconds( _startTime,_endTime) },
-                    { indexDeletedDurationSeconds, GetDurationSeconds(_startTime, _removedCaseIndexTime) },
-                    { indexSettledDurationSeconds, GetDurationSeconds(_removedCaseIndexTime, _indexSettledTime) },
-                    { getInstancesToTerminateDurationSeconds, GetDurationSeconds(_indexSettledTime, _gotTerminateInstancesTime) },
-                    { terminateInstancesDurationSeconds, GetDurationSeconds(_gotTerminateInstancesTime, _terminatedInstancesTime) },
-                    { purgedInstancesDurationSeconds, GetDurationSeconds(_terminatedInstancesTime, _endTime) },
-                    { nameof(_terminatedInstancesCount), _terminatedInstancesCount },
+                    { durationSeconds, GetDurationSeconds( StartTime, EndTime) },
+                    { IndexDeletedDurationSeconds, GetDurationSeconds(StartTime, RemovedCaseIndexTime) },
+                    { IndexSettledDurationSeconds, GetDurationSeconds(RemovedCaseIndexTime, IndexSettledTime) },
+                    { BlobsDeletedDurationSeconds, GetDurationSeconds(IndexSettledTime, BlobsDeletedTime) },
+                    { GetInstancesToTerminateDurationSeconds, GetDurationSeconds(BlobsDeletedTime, GotTerminateInstancesTime) },
+                    { TerminateInstancesDurationSeconds, GetDurationSeconds(GotTerminateInstancesTime, TerminatedInstancesTime) },
+                    { TerminatedInstancesSettledDurationSeconds, GetDurationSeconds(TerminatedInstancesTime, TerminatedInstancesSettledTime) },
+                    { GetInstancesToPurgeDurationSeconds, GetDurationSeconds(TerminatedInstancesSettledTime, GotPurgeInstancesTime) },
+                    { PurgedInstancesDurationSeconds, GetDurationSeconds(GotPurgeInstancesTime, EndTime) },
+                    { nameof(AttemptedRemovedDocumentCount), AttemptedRemovedDocumentCount },
+                    { nameof(SuccessfulRemovedDocumentCount), SuccessfulRemovedDocumentCount },
+                    { nameof(FailedRemovedDocumentCount), FailedRemovedDocumentCount },
+                    { nameof(TerminatedInstancesCount), TerminatedInstancesCount },
+                    { nameof(PurgeInstancesCount), PurgeInstancesCount },
+                    { nameof(PurgedInstancesCount), PurgedInstancesCount },
                 }
             );
         }

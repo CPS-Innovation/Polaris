@@ -5,12 +5,27 @@ import { CaseSearchQueryParams } from "../types/CaseSearchQueryParams";
 export const useSearchInputLogic = ({
   urnFromSearchParams,
   setParams,
+  search,
 }: {
   urnFromSearchParams: string | undefined;
   setParams: (params: Partial<CaseSearchQueryParams>) => void;
+  search?: string;
 }) => {
   const [urn, setUrn] = useState(urnFromSearchParams || "");
   const [isError, setIsError] = useState(false);
+
+  const allowedParams = ["redactionLog"];
+  const queryParams = new URLSearchParams(search);
+  const getQueryParamsObject = (queryParams: URLSearchParams) => {
+    const params = {} as any;
+    for (const [key, value] of queryParams.entries()) {
+      if (allowedParams.includes(key)) {
+        params[key] = value;
+      }
+    }
+    return params;
+  };
+  const paramsObject = getQueryParamsObject(queryParams);
 
   const handleChange = (val: string) => {
     setUrn(val.toUpperCase());
@@ -24,7 +39,7 @@ export const useSearchInputLogic = ({
       //  If a user enters e.g. 12AB121212/9, we want to sanitize this
       //  to 12AB121212.  The caseId that is then selected lets us then continue
       //  with the correct split case.
-      setParams({ urn: rootUrn });
+      setParams({ ...paramsObject, urn: rootUrn });
     }
   };
 

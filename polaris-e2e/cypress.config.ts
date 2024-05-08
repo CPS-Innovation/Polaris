@@ -13,40 +13,41 @@ export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       if (!config.env.ENVIRONMENT) {
-        throw new Error("Please provide an ENVIRONMENT variable")
+        throw new Error("Please provide an ENVIRONMENT variable");
       }
-      require("cypress-timestamps/plugin")(on)
-      require("cypress-terminal-report/src/installLogsPrinter")(on)
+      require("cypress-timestamps/plugin")(on);
+      require("cypress-terminal-report/src/installLogsPrinter")(on);
+      require("@cypress/grep/src/plugin")(config);
 
       on("task", {
         storeTokenResponseInNode: (tokenResponse: any) => {
-          globalAny.tokenResponse = tokenResponse
-          return null
+          globalAny.tokenResponse = tokenResponse;
+          return null;
         },
         retrieveTokenResponseFromNode: () => {
-          return globalAny.tokenResponse || null
+          return globalAny.tokenResponse || null;
         },
         log: (message) => {
-          console.log(message)
-          return null
+          console.log(message);
+          return null;
         },
-      })
+      });
 
-      const baseEnvFromFile = getConfigurationByFile("base")
+      const baseEnvFromFile = getConfigurationByFile("base");
       const environmentEnvFromFile = getConfigurationByFile(
         "env." + config.env.ENVIRONMENT
-      )
+      );
       const env = {
         ...baseEnvFromFile,
         ...environmentEnvFromFile,
-      }
+      };
 
-      config.baseUrl = env.BASE_URL
+      config.baseUrl = env.BASE_URL;
 
-      const resolvedEnv = { ...config.env, ...env }
-      console.log("Resolved env: ", resolvedEnv)
+      const resolvedEnv = { ...config.env, ...env };
+      console.log("Resolved env: ", resolvedEnv);
 
-      return { ...config, env: resolvedEnv }
+      return { ...config, env: resolvedEnv };
     },
     baseUrl: "http://example.org",
     video: true,
@@ -61,5 +62,10 @@ export default defineConfig({
     defaultCommandTimeout: 60000,
     trashAssetsBeforeRuns: false,
     experimentalModifyObstructiveThirdPartyCode: true,
+    env: {
+      grepOmitFiltered: true,
+      grepFilterSpecs: true
+    },
   },
-})
+  videoCompression: false
+});

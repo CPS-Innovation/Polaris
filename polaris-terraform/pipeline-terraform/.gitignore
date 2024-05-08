@@ -3,3 +3,6 @@
 main.local.tf_
 main.local.tf
 *.tf_
+/dev.tfplan
+/qa.tfplan
+/prod.tfplan

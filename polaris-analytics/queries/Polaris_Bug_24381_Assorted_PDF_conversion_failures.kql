@@ -1,0 +1,18 @@
+AppEvents
+| where AppRoleName == "fa-polaris-pdf-generator"
+| where OperationName == "ConvertToPdf"
+| mv-expand kind=array Properties
+| extend key = Properties[0], val = Properties[1]
+| where key == "fileType"
+| where val in (
+    "XLSM",
+    "DOTM",
+    "DOT",
+    "XPS",
+    "CSV",
+    "DOTX",
+    "EMZ",
+    "EML",
+    "XLT")
+| project val
+| summarize count() by tostring(val)

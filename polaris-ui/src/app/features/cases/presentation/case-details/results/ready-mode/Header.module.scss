@@ -4,6 +4,12 @@
   justify-content: space-between;
   .select {
     margin-bottom: 0;
+    display: flex;
+    align-items: center;
+  }
+  .sortLabel {
+    margin-bottom: 0;
+    margin-right: 0.625rem;
   }
 }
 

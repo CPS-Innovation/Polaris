@@ -1,26 +1,28 @@
-using Ddei.Factories.Contracts;
-using Ddei.Exceptions;
-using Domain.Exceptions;
-using Ddei.Domain.CaseData.Args;
+using System.Net;
 using Common.Dto.Case;
-using DdeiClient.Services.Contracts;
-using DdeiClient.Mappers.Contract;
-using Common.Wrappers.Contracts;
-using Ddei.Domain;
 using Common.Dto.Document;
 using Common.Dto.Response;
-using Common.Mappers.Contracts;
+using Common.Wrappers;
+using Ddei.Domain;
+using Ddei.Domain.CaseData.Args;
+using Ddei.Factories;
+using DdeiClient.Exceptions;
+using DdeiClient.Services;
+using DdeiClient.Mappers;
 using Microsoft.Extensions.Logging;
-using Common.Exceptions;
-using System.Net;
+using Ddei.Mappers;
 
 namespace Ddei.Services
 {
     public class DdeiClient : IDdeiClient
     {
-        private readonly ICaseDataArgFactory _caseDataServiceArgFactory;
+        private readonly IDdeiArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
         private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _caseDocumentMapper;
+        private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
+        private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
+        private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
+        private readonly ICmsAuthValuesMapper _cmsAuthValuesMapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDdeiClientRequestFactory _ddeiClientRequestFactory;
         private readonly ILogger<DdeiClient> _logger;
@@ -29,9 +31,13 @@ namespace Ddei.Services
         public DdeiClient(
             HttpClient httpClient,
             IDdeiClientRequestFactory ddeiClientRequestFactory,
-            ICaseDataArgFactory caseDataServiceArgFactory,
+            IDdeiArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
             ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper,
+            ICaseDocumentNoteMapper caseDocumentNoteMapper,
+            ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
+            ICaseIdentifiersMapper caseIdentifiersMapper,
+            ICmsAuthValuesMapper cmsAuthValuesMapper,
             IJsonConvertWrapper jsonConvertWrapper,
             ILogger<DdeiClient> logger
             )
@@ -39,101 +45,74 @@ namespace Ddei.Services
             _caseDataServiceArgFactory = caseDataServiceArgFactory ?? throw new ArgumentNullException(nameof(caseDataServiceArgFactory));
             _caseDetailsMapper = caseDetailsMapper ?? throw new ArgumentNullException(nameof(caseDetailsMapper));
             _caseDocumentMapper = caseDocumentMapper ?? throw new ArgumentNullException(nameof(caseDocumentMapper));
+            _caseDocumentNoteMapper = caseDocumentNoteMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteMapper));
+            _caseDocumentNoteResultMapper = caseDocumentNoteResultMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteResultMapper));
+            _caseIdentifiersMapper = caseIdentifiersMapper ?? throw new ArgumentNullException(nameof(caseIdentifiersMapper));
+            _cmsAuthValuesMapper = cmsAuthValuesMapper ?? throw new ArgumentNullException(nameof(cmsAuthValuesMapper));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _ddeiClientRequestFactory = ddeiClientRequestFactory ?? throw new ArgumentNullException(nameof(ddeiClientRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg)
+        public async Task<CmsAuthValuesDto> GetFullCmsAuthValuesAsync(DdeiCmsCaseDataArgDto arg)
         {
-            try
-            {
-                return await CallDdei<string>(_ddeiClientRequestFactory.CreateCmsModernTokenRequest(arg));
-            }
-            catch (Exception exception)
-            {
-                throw new CaseDataServiceException("Exception in GetCmsModernToken", exception);
-            }
+            var result = await CallDdei<DdeiCmsAuthValuesDto>(_ddeiClientRequestFactory.CreateCmsAuthValuesRequest(arg));
+            return _cmsAuthValuesMapper.MapCmsAuthValues(result);
         }
 
-        public async Task<DdeiCaseIdentifiersDto> GetUrnFromCaseId(DdeiCmsCaseIdArgDto arg)
+        public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCmsCaseIdArgDto arg)
         {
-            try
-            {
-                return await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
-            }
-            catch (Exception exception)
-            {
-                throw new CaseDataServiceException("Exception in GetUrnFromCaseId", exception);
-            }
+            var result = await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
+            return _caseIdentifiersMapper.MapCaseIdentifiers(result);
         }
 
         private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiCmsUrnArgDto arg)
         {
-            // todo: should this return a CaseDataServiceException?
             return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
         }
 
-        public async Task<IEnumerable<CaseDto>> ListCases(DdeiCmsUrnArgDto arg)
+        public async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg)
         {
-            try
-            {
-                var caseIdentifiers = await ListCaseIdsAsync(arg);
+            var caseIdentifiers = await ListCaseIdsAsync(arg);
 
-                var calls = caseIdentifiers.Select(async caseIdentifier =>
-                     await GetCaseAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
+            var calls = caseIdentifiers.Select(async caseIdentifier =>
+                 await GetCaseInternalAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
 
-                var cases = await Task.WhenAll(calls);
-                return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
-            }
-            catch (Exception exception)
-            {
-                throw new CaseDataServiceException("Exception in ListCases", exception);
-            }
+            var cases = await Task.WhenAll(calls);
+            return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
         }
 
-        public async Task<CaseDto> GetCase(DdeiCmsCaseArgDto arg)
+        public async Task<CaseDto> GetCaseAsync(DdeiCmsCaseArgDto arg)
         {
-            try
-            {
-                var @case = await GetCaseAsync(arg);
-                return _caseDetailsMapper.MapCaseDetails(@case);
-            }
-            catch (Exception exception)
-            {
-                throw new CaseDataServiceException("Exception in GetCase", exception);
-            }
+            var @case = await GetCaseInternalAsync(arg);
+            return _caseDetailsMapper.MapCaseDetails(@case);
         }
 
         public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
         {
-            // todo: should this return a CaseDataServiceException?
-            DdeiCmsCaseArgDto caseArg = new DdeiCmsCaseArgDto
+            var caseArg = new DdeiCmsCaseArgDto
             {
                 Urn = caseUrn,
                 CaseId = long.Parse(caseId),
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId
-            };
-            HttpRequestMessage request = _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg);
-            var ddeiResults = await CallDdei<List<DdeiCaseDocumentResponse>>(request);
+            }; ;
+            var ddeiResults = await CallDdei<List<DdeiCaseDocumentResponse>>(
+                _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg)
+            );
 
             return ddeiResults
                 .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
                 .ToArray();
         }
 
-        public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string cmsAuthValues, Guid correlationId)
+        public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
         {
-            // todo: should this return a DocumentServiceException?
             var response = await CallDdei(
-                _ddeiClientRequestFactory.CreateDocumentRequest(new DdeiCmsDocumentArgDto
+                _ddeiClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiCmsFileStoreArgDto
                 {
-                    Urn = caseUrn,
-                    CaseId = long.Parse(caseId),
-                    CmsDocCategory = documentCategory,
-                    DocumentId = int.Parse(documentId),
+                    Path = path,
                     CmsAuthValues = cmsAuthValues,
                     CorrelationId = correlationId
                 })
@@ -142,46 +121,53 @@ namespace Ddei.Services
             return await response.Content.ReadAsStreamAsync();
         }
 
-        public async Task<HttpResponseMessage> CheckoutDocument(DdeiCmsDocumentArgDto arg)
+        public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentArgDto arg)
         {
-            try
-            {
-                HttpRequestMessage request = _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg);
-                HttpResponseMessage response = await CallDdei(request, new List<HttpStatusCode> { HttpStatusCode.Conflict });
+            var response = await CallDdei(
+                _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg),
+                HttpStatusCode.Conflict);
 
-                return response;
-            }
-            catch (Exception exception)
-            {
-                throw new DocumentServiceException("Exception in CheckoutDocument", exception);
-            }
+            return response.StatusCode == HttpStatusCode.Conflict
+                ? new CheckoutDocumentDto
+                {
+                    IsSuccess = false,
+                    LockingUserName = await response.Content.ReadAsStringAsync()
+                }
+                : new CheckoutDocumentDto
+                {
+                    IsSuccess = true
+                };
         }
 
-        public async Task CancelCheckoutDocument(DdeiCmsDocumentArgDto arg)
+        public async Task CancelCheckoutDocumentAsync(DdeiCmsDocumentArgDto arg)
         {
-            try
-            {
-                await CallDdei(_ddeiClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg));
-            }
-            catch (Exception exception)
-            {
-                throw new DocumentServiceException("Exception in CheckoutDocument", exception);
-            }
+            await CallDdei(_ddeiClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg));
         }
 
-        public async Task UploadPdf(DdeiCmsDocumentArgDto arg, Stream stream)
+        public async Task<HttpResponseMessage> UploadPdfAsync(DdeiCmsDocumentArgDto arg, Stream stream)
         {
-            try
+            return await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream), new HttpStatusCode[]
             {
-                await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream));
-            }
-            catch (Exception exception)
-            {
-                throw new DocumentServiceException("Exception in UploadPdf", exception);
-            }
+                HttpStatusCode.Gone,
+                HttpStatusCode.RequestEntityTooLarge
+            });
         }
 
-        private async Task<DdeiCaseDetailsDto> GetCaseAsync(DdeiCmsCaseArgDto arg)
+        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg)
+        {
+            var ddeiResults = await CallDdei<List<DdeiCaseDocumentNoteResponse>>(_ddeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
+
+            return ddeiResults.Select(ddeiResult => _caseDocumentNoteMapper.Map(ddeiResult)).ToArray();
+        }
+
+        public async Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg)
+        {
+            var response = await CallDdei<DdeiCaseDocumentNoteAddedResponse>(_ddeiClientRequestFactory.CreateAddDocumentNoteRequest(arg));
+
+            return _caseDocumentNoteResultMapper.Map(response);
+        }
+
+        private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
         {
             return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
         }
@@ -193,12 +179,12 @@ namespace Ddei.Services
             return _jsonConvertWrapper.DeserializeObject<T>(content);
         }
 
-        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, List<HttpStatusCode> expectedStatusCodes = null)
+        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, params HttpStatusCode[] expectedUnhappyStatusCodes)
         {
             var response = await _httpClient.SendAsync(request);
             try
             {
-                if (response.IsSuccessStatusCode || (expectedStatusCodes?.Contains(response.StatusCode) == true))
+                if (response.IsSuccessStatusCode || expectedUnhappyStatusCodes.Contains(response.StatusCode))
                     return response;
 
                 var content = await response.Content.ReadAsStringAsync();

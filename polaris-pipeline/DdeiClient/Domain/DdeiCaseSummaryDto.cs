@@ -15,6 +15,7 @@ namespace Ddei.Domain
         public string NextHearingTypeCode { get; set; }
         public string NextHearingVenue { get; set; }
         public string NextHearingVenueCode { get; set; }
+        public string OwningUnit { get; set; }
         public bool CtlActive { get; set; }
         public string EarliestCtlDate { get; set; }
         public LockingDto Locking { get; set; }

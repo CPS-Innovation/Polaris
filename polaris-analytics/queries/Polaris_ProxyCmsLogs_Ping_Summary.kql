@@ -1,0 +1,10 @@
+Polaris_ProxyCmsLogs_Core
+| where PolarisOperationName == "Ping"
+| summarize 
+    Count_Ok =countif(StatusCode == 200),
+    Count_504 =countif(StatusCode == 504),
+    Count_Other_Fail =countif(StatusCode != 200 and StatusCode != 504),
+    Max_RequestTimeMs = max(RequestTimeMs),
+    Avg_RequestTimeMs = toint(avg(RequestTimeMs))
+    by  bin(TimeGenerated, ts), LoadBalancerTarget
+| order by TimeGenerated desc, LoadBalancerTarget

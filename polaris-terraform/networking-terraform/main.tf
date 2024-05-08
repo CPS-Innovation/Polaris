@@ -1,15 +1,15 @@
 terraform {
-  required_version = "1.5.3"
+  required_version = ">= 1.5.3"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.65.0"
+      version = "3.87.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.38.0"
+      version = "2.45.0"
     }
   }
 
@@ -29,6 +29,7 @@ locals {
   env_name_suffix = var.environment.alias != "prod" ? "-${var.environment.alias}" : ""
   env_name        = var.environment.alias != "prod" ? var.environment.alias : ""
   resource_name   = format("%s%s", var.resource_name_prefix, "${local.env_name_suffix}")
+  global_name     = var.environment.alias != "prod" ? "${var.app_name_prefix}-${var.environment.alias}" : var.app_name_prefix
   common_tags = {
     environment = var.environment.name
     project     = "polaris-${var.resource_name_prefix}"

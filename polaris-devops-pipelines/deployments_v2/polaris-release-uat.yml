@@ -1,0 +1,807 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisBuild
+      source: Polaris Build - UAT
+      trigger: true
+            
+pool:
+  name: $(uat-build-agent)
+
+variables:
+  - group: kv-uat-terraform
+  - group: polaris-global
+  - group: polaris-status-check-endpoints
+  - group: terraform-containers
+
+stages:
+  # UAT: BEGIN DEPLOYMENT, TERRAFORM AND THEN CODEBASE  
+  - stage: Apply
+    displayName: Apply Terraform
+    jobs:
+      - deployment: Wait_For_Running_Builds
+        environment: "UAT"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_wait-for-running-releases.yml
+                  parameters:
+                    devOpsPatToken: "$(System.AccessToken)"
+
+      - deployment: Log_Start
+        displayName: Log Start
+        dependsOn: Wait_For_Running_Builds
+        condition: succeeded()
+        environment: "UAT"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-start-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "UAT"
+                    targetName: "CI Deployment"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+
+      - deployment: Log_Start_Terraform
+        condition: succeeded()
+        dependsOn:
+          - Log_Start
+          - Wait_For_Running_Builds
+        displayName: Log Terraform Start
+        environment: "UAT"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-start-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "UAT"
+                    targetName: "Terraform CI Deployment"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+
+      - deployment: Apply_Pipeline_Terraform
+        condition: succeeded()
+        dependsOn: Log_Start_Terraform
+        displayName: Apply Pipeline Terraform
+        environment: "UAT"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(uat-azure-subscription)
+                    
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "pipeline-terraform-files"
+                    targetLabel: "UAT"
+                    targetName: "Pipeline Terraform CI Deployment"
+                    targetPlanName: "uat"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(uat-terraform-storage-account)
+                    terraformContainerName: $(pipeline-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
+
+      - deployment: Apply_Pipeline_Events_Terraform
+        condition: succeeded()
+        dependsOn: Apply_Pipeline_Terraform
+        displayName: Apply Pipeline Events Terraform
+        environment: "UAT"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(uat-azure-subscription)
+                    
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "pipeline-events-terraform-files"
+                    targetLabel: "UAT"
+                    targetName: "Pipeline Events Terraform CI Deployment"
+                    targetPlanName: "uat"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(uat-terraform-storage-account)
+                    terraformContainerName: $(pipeline-events-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
+
+      - deployment: Apply_UI_Terraform
+        condition: succeeded()
+        dependsOn: Apply_Pipeline_Terraform
+        displayName: Apply UI Terraform
+        environment: "UAT"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(uat-azure-subscription)
+                    
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "ui-terraform-files"
+                    targetLabel: "UAT"
+                    targetName: "UI Terraform CI Deployment"
+                    targetPlanName: "uat"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(uat-terraform-storage-account)
+                    terraformContainerName: $(ui-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
+
+      - deployment: Apply_UI_Events_Terraform
+        condition: succeeded()
+        dependsOn: Apply_UI_Terraform
+        displayName: Apply UI Events Terraform
+        environment: "UAT"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(uat-azure-subscription)
+                    
+                - template: tasks/task_apply-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "ui-events-terraform-files"
+                    targetLabel: "UAT"
+                    targetName: "UI Events Terraform CI Deployment"
+                    targetPlanName: "uat"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+                    terraformStorageAccount: $(uat-terraform-storage-account)
+                    terraformContainerName: $(ui-events-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
+
+      - deployment: Set_Log_Analytics_Archival_Periods
+        condition: succeeded()
+        dependsOn: Apply_UI_Events_Terraform
+        displayName: Update Analytics Archival Periods
+        environment: "UAT"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(uat-azure-subscription)
+                    
+                - template: tasks/task_set-log-analytics-archival-periods.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "UAT"
+                    targetName: "Set Log Analytics Archival Periods"
+                    targetSuffix: "-uat"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
+                    logRetentionTime: $(log-retention-time)
+                    totalLogRetentionTime: $(total-log-retention-time)
+
+      - deployment: Log_Result_Terraform_Ended
+        condition: succeeded()
+        displayName: Log Terraform End
+        dependsOn:
+          - Apply_Pipeline_Terraform
+          - Apply_Pipeline_Events_Terraform
+          - Apply_UI_Terraform
+          - Apply_UI_Events_Terraform
+          - Set_Log_Analytics_Archival_Periods
+        environment: "UAT"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: tasks/task_log-result-deployment.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetLabel: "UAT"
+                    targetName: "Terraform CI Deployment"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+                    devOpsPatToken: "$(System.AccessToken)"
+                    
+  - stage: Deploy
+    displayName: Deploy
+    condition: succeeded()
+    dependsOn: Apply
+    jobs:
+      - job: Log_Start_Codebase
+        condition: succeeded()
+        displayName: Log Codebase Start
+        steps:
+          - template: tasks/task_log-start-deployment.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Codebase CI Deployment"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+
+      - job: Deploy_Coordinator
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Coordinator
+        condition: succeeded()
+        steps:
+          - template: tasks/task_deploy-coordinator.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Coordinator Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Deploy_Pdf_Generator
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy PDF Generator
+        condition: succeeded()
+        steps:
+          - template: tasks/task_deploy-pdf-generator.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "PDF Generator Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Deploy_Pdf_Redactor
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy PDF Redactor
+        condition: succeeded()
+        steps:
+          - template: tasks/task_deploy-pdf-redactor.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "PDF Redactor Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Deploy_Text_Extractor
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Text Extractor
+        condition: succeeded()
+        steps:
+          - template: tasks/task_deploy-text-extractor.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Text Extractor Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Deploy_Spa
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy SPA
+        condition: succeeded()
+        steps:
+          - template: tasks/task_deploy-spa.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "SPA Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Deploy_Gateway
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Gateway
+        condition: succeeded()
+        steps:
+          - template: tasks/task_deploy-gateway.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Gateway Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Log_Result_Codebase_Ended
+        condition: succeeded()
+        displayName: Log Codebase End
+        dependsOn:
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
+          - Deploy_Text_Extractor
+          - Deploy_Spa
+          - Deploy_Gateway
+        steps:
+          - template: tasks/task_log-result-deployment.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Codebase CI Deployment"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"
+
+      - job: Log_Result_Ended
+        condition: not(or(failed(), canceled()))
+        displayName: Log Deployment End
+        dependsOn: Log_Result_Codebase_Ended
+        steps:
+          - template: tasks/task_log-result-deployment.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "CI Deployment"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"
+  
+  # UAT: BEGIN SLOT SWAP PROCESS
+  - stage: Swap
+    displayName: Swap Slots
+    dependsOn:
+      - Apply
+      - Deploy
+    condition: succeeded()
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: tasks/task_log-start.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+
+      - job: Pause_Pipeline
+        dependsOn: Log_Start
+        condition: succeeded()
+        displayName: Pause for 2 mins
+        steps:
+          - template: tasks/task_pause-pipeline.yml
+
+      - job: Swap_Pipeline_Slots
+        dependsOn: Pause_Pipeline
+        condition: succeeded()
+        strategy:
+          matrix:
+            Coordinator:
+              Name: "Coordinator"
+              AppServiceName: "fa-polaris-uat-coordinator"
+            PDFGenerator:
+              Name: "PDF Generator"
+              AppServiceName: "fa-polaris-uat-pdf-generator"
+            PDFRedactor:
+              Name: "PDF Redactor"
+              AppServiceName: "fa-polaris-uat-pdf-redactor"
+            TextExtractor:
+              Name: "Text Extractor"
+              AppServiceName: "fa-polaris-uat-text-extractor"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(uat-azure-subscription)
+              resourceGroupName: "rg-polaris-pipeline-uat"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
+              
+      - job: Swap_UI_Slots
+        dependsOn: Pause_Pipeline
+        condition: succeeded()
+        strategy:
+          matrix:
+            SPA:
+              Name: "SPA"
+              AppServiceName: "as-web-polaris-uat"
+            PolarisGateway:
+              Name: "Polaris Gateway"
+              AppServiceName: "fa-polaris-uat-gateway"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(uat-azure-subscription)
+              resourceGroupName: "rg-polaris-uat"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
+
+      - job: Log_Result
+        condition: succeeded()
+        dependsOn:
+          - Swap_Pipeline_Slots
+          - Swap_UI_Slots
+        steps:
+          - template: tasks/task_log-result.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"
+              
+  # UAT: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
+  - stage: Check_Status
+    displayName: Status Checks
+    dependsOn: Swap
+    condition: succeeded()
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: tasks/task_log-start.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Status Checks"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+
+      - job: Get_Status_URIs
+        dependsOn: Log_Start
+        condition: succeeded()
+        steps:
+          - template: tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(uat-azure-subscription)
+              
+          - template: tasks/task_get-status-uris.yml
+            parameters:
+              targetSuffix: "-uat"
+              armClientId: $(clientId)
+              armClientSecret: $(clientSecret)
+              armTenantId: $(tenantId)
+              armSubscriptionId: $(subscriptionId)
+
+      - job: Check_Coordinator
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetAppName: "Coordinator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: Check_PDF_Generator
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetAppName: "PDF Generator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: Check_PDF_Redactor
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetAppName: "PDF Redactor"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: Check_Text_Extractor
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetAppName: "Text Extractor"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: Check_Gateway
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetAppName: "Gateway"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: Check_Proxy
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetAppName: "Proxy"
+              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
+              endpointUri: "$(uri)/"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: "Polaris Proxy is online"
+
+      - job: Check_SPA
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
+        steps:
+          - template: tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetAppName: "UI"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/polaris-ui/build-version.txt"
+              statusCheckMethod: $(status-check-method)
+              statusCheckRetries: $(status-check-retries)
+              statusCheckDelaySeconds: $(status-check-delay-seconds)
+              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
+
+      - job: Log_Result
+        condition: succeeded()
+        dependsOn:
+          - Log_Start
+          - Get_Status_URIs
+          - Check_Coordinator
+          - Check_PDF_Generator
+          - Check_PDF_Redactor
+          - Check_Text_Extractor
+          - Check_Gateway
+          - Check_Proxy
+          - Check_SPA
+        steps:
+          - template: tasks/task_log-result.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Status Checks"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"
+              
+  - stage: Sync_Slot_Settings
+    displayName: Sync Slot Settings
+    dependsOn: Check_Status
+    condition: succeeded()
+    pool:
+      vmImage: ubuntu-latest
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: tasks/task_log-start.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Sync Slot App Settings"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+
+      - job: Sync_Coordinator_Settings
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: tasks/task_sync-slot-settings.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT Coordinator"
+              resourceGroupName: "rg-polaris-pipeline-uat"
+              appName: fa-polaris-uat-coordinator
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Sync_PDF_Generator_Settings
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: tasks/task_sync-slot-settings.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT PDF Generator"
+              resourceGroupName: "rg-polaris-pipeline-uat"
+              appName: fa-polaris-uat-pdf-generator
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Sync_PDF_Redactor_Settings
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: tasks/task_sync-slot-settings.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT PDF Redactor"
+              resourceGroupName: "rg-polaris-pipeline-uat"
+              appName: fa-polaris-uat-pdf-redactor
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Sync_Text_Extractor_Settings
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: tasks/task_sync-slot-settings.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT Text Extractor"
+              resourceGroupName: "rg-polaris-pipeline-uat"
+              appName: fa-polaris-uat-text-extractor
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Sync_Gateway_Settings
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: tasks/task_sync-slot-settings.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT Gateway"
+              resourceGroupName: "rg-polaris-uat"
+              appName: fa-polaris-uat-gateway
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Sync_SPA_Settings
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: tasks/task_sync-slot-settings.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT SPA"
+              resourceGroupName: "rg-polaris-uat"
+              appName: as-web-polaris-uat
+              azureSubscription: $(uat-azure-subscription)
+
+      - job: Log_Result
+        condition: succeeded()
+        dependsOn:
+          - Log_Start
+          - Sync_Coordinator_Settings
+          - Sync_PDF_Generator_Settings
+          - Sync_PDF_Redactor_Settings
+          - Sync_Text_Extractor_Settings
+          - Sync_Gateway_Settings
+          - Sync_SPA_Settings
+        steps:
+          - template: tasks/task_log-result.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Sync Slot App Settings"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"
+
+  #UAT: RUN E2E TESTS AS FINAL CHECKS          
+  - stage: Run_e2e_Tests
+    displayName: e2e tests
+    dependsOn: Sync_Slot_Settings
+    condition: succeeded()
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: tasks/task_log-start.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "e2e Tests"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+
+      - job: Run_e2e_Tests
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: tasks/task_run-uat-e2e-tests.yml
+            parameters:
+              targetLabel: "UAT"
+              buildDefinitionId: 421
+              devOpsPatToken: "$(System.AccessToken)"
+
+      - job: Log_Result
+        condition: succeeded()
+        dependsOn:
+          - Log_Start
+          - Run_e2e_Tests
+        steps:
+          - template: tasks/task_log-result.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "e2e Tests"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              devOpsPatToken: "$(System.AccessToken)"

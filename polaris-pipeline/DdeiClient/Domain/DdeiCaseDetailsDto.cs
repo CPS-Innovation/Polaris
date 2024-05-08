@@ -8,6 +8,8 @@ namespace Ddei.Domain
 
         public IEnumerable<DdeiCaseDefendantDto> Defendants { get; set; }
 
+        public IEnumerable<DdeiWitnessDto> Witnesses { get; set; }
+
         public IEnumerable<DdeiActionPlanDto> ActionPlans { get; set; }
 
         public IEnumerable<DdeiPcdRequestDto> PreChargeDecisionRequests { get; set; }

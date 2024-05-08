@@ -1,0 +1,30 @@
+// Commonly seen status codes: 302 Auth fail; 413 Doc too large; 503 Service Unavailable
+let BrokenCmsRequests = Polaris_ProxyCmsLogs
+//| where TimeGenerated between (startDate .. endDate)
+| where StatusCode >=300
+| extend LoadBalancedDestination = extract("(farnborough|corsham)", 1, Url)
+| summarize  
+    CmsStatusCode = max(StatusCode) 
+    by PolarisCorrelationId, LoadBalancedDestination
+;
+
+let DdeiExceptions = AppExceptions
+//| where TimeGenerated between (startDate .. endDate)
+| where AppRoleName == 'fa-polaris-ddei'
+| extend 
+    PolarisCorrelationId = tostring(Properties.prop__CorrelationId), 
+    HasAuthCookieInException = Properties.prop__ErrorMessage contains ".CMSAUTH="
+;
+
+// This is our way to link from  PolarisCorrelationId to CMS traffic properties
+let SummarizedDdeiExceptions = DdeiExceptions
+| join kind=leftouter BrokenCmsRequests on PolarisCorrelationId
+| summarize  
+    // todynamic currently used below to make the data type line up when unioned with
+    //  the *_OperationId_* version of this function
+    CmsStatusCode = todynamic(tostring(max(CmsStatusCode))), 
+    HasAuthCookieInException = max(HasAuthCookieInException), 
+    LoadBalancedDestination = make_set(LoadBalancedDestination) 
+    by PolarisCorrelationId
+;
+SummarizedDdeiExceptions

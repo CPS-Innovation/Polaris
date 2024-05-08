@@ -1,15 +1,17 @@
 import { IPdfHighlight } from "./IPdfHighlight";
 import { MappedCaseDocument } from "./MappedCaseDocument";
-
+import { SaveStatus } from "./gateway/SaveStatus";
 export type CaseDocumentViewModel = MappedCaseDocument & {
-  isDeleted?: boolean;
+  saveStatus: SaveStatus;
+  isDeleted: boolean;
   url: string | undefined;
   pdfBlobName: string | undefined;
   sasUrl: undefined | string;
+  areaOnlyRedactionMode: boolean;
   redactionHighlights: IPdfHighlight[];
   clientLockedState: // note: unlocked is just the state where the client doesn't know yet
   //  (might be locked on the server, we haven't interacted yet)
-  "unlocked" | "locking" | "locked" | "unlocking" | "locked-by-other-user";
+  ClientLockedState;
 } & (
     | { mode: "read" }
     | {
@@ -19,3 +21,10 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
         searchHighlights: IPdfHighlight[];
       }
   );
+
+export type ClientLockedState =
+  | "unlocked"
+  | "locking"
+  | "locked"
+  | "unlocking"
+  | "locked-by-other-user";

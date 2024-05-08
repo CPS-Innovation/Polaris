@@ -1,0 +1,3 @@
+AppTraces
+| summarize InstanceCount = dcount(AppRoleInstance) by AppRoleName, bin(TimeGenerated, ts)
+| render timechart

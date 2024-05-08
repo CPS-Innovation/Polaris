@@ -1,0 +1,6 @@
+AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name != "Status"
+| extend User = tostring(Properties.User)
+| where User != "REDACTED@REDACTED.EMAIL.ADDRESS"
+| where Url !startswith "https://fa-polaris-gateway.azurewebsites.net/api/urns/46CJ0001621/" // e2e test

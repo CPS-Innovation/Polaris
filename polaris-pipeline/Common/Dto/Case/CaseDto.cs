@@ -18,6 +18,9 @@ namespace Common.Dto.Case
         [JsonProperty("numberOfDefendants")]
         public int NumberOfDefendants { get; set; }
 
+        [JsonProperty("owningUnit")]
+        public string OwningUnit { get; set; }
+
         [JsonProperty("leadDefendantDetails")]
         public DefendantDetailsDto LeadDefendantDetails { get; set; }
 
@@ -26,6 +29,9 @@ namespace Common.Dto.Case
 
         [JsonProperty("defendants")]
         public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; }
+
+        [JsonProperty("witnesses")]
+        public IEnumerable<WitnessDto> Witnesses { get; set; }
 
         [JsonProperty("preChargeDecisionRequests")]
         public IEnumerable<PcdRequestDto> PreChargeDecisionRequests { get; set; }

@@ -1,0 +1,14 @@
+let MappingsViaRequests = AppRequests
+| extend PolarisCorrelationId = tostring(Properties.PolarisCorrelationId)
+| where PolarisCorrelationId != ''
+| project OperationId, PolarisCorrelationId
+;
+
+let MappingsViaExceptions = AppExceptions
+| extend PolarisCorrelationId = tostring(Properties.prop__CorrelationId)
+| where PolarisCorrelationId != ''
+| project OperationId, PolarisCorrelationId
+;
+
+union MappingsViaRequests, MappingsViaExceptions
+| distinct OperationId, PolarisCorrelationId

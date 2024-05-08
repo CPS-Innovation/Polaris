@@ -19,52 +19,6 @@ describe("reducerAsyncActionHandlers", () => {
     combinedStateMock = {} as CombinedState;
   });
 
-  describe("REQUEST_OPEN_PDF_IN_NEW_TAB", () => {
-    it("can open a pdf in a new tab", async () => {
-      // arrange
-      const getPdfSasUrlSpy = jest
-        .spyOn(api, "getPdfSasUrl")
-        .mockImplementation(() => Promise.resolve("baz"));
-
-      combinedStateMock = {
-        urn: "foo",
-        caseId: 99,
-        tabsState: {
-          items: [
-            { documentId: "1", pdfBlobName: "bar1" },
-            { documentId: "2", pdfBlobName: "bar2" },
-          ] as CaseDocumentViewModel[],
-        },
-      } as CombinedState;
-
-      const handler = reducerAsyncActionHandlers.REQUEST_OPEN_PDF_IN_NEW_TAB({
-        dispatch: dispatchMock,
-        getState: () => combinedStateMock,
-        signal: new AbortController().signal,
-      });
-
-      // act
-      await handler({
-        type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: {
-          documentId: "1",
-        },
-      });
-
-      // assert
-      expect(getPdfSasUrlSpy).toBeCalledWith("foo", 99, "1");
-
-      expect(dispatchMock.mock.calls.length).toBe(1);
-      expect(dispatchMock.mock.calls[0][0]).toEqual({
-        type: "OPEN_PDF_IN_NEW_TAB",
-        payload: {
-          documentId: "1",
-          sasUrl: "baz",
-        },
-      });
-    });
-  });
-
   describe("REQUEST_OPEN_PDF", () => {
     it("can open a pdf when auth token and correlation id are retrieved", async () => {
       jest
@@ -151,7 +105,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 
@@ -165,7 +119,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
         expect(dispatchMock.mock.calls[1][0]).toEqual({
           type: "ADD_REDACTION",
-          payload: { documentId: "1", redaction: { type: "redaction" } },
+          payload: { documentId: "1", redactions: [{ type: "redaction" }] },
         });
 
         expect(dispatchMock.mock.calls[2][0]).toEqual({
@@ -222,7 +176,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 
@@ -244,6 +198,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "SHOW_ERROR_MODAL",
           payload: {
+            type: "documentcheckout",
             title: "Something went wrong!",
             message: "Failed to checkout document. Please try again later.",
           },
@@ -295,7 +250,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 
@@ -317,6 +272,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "SHOW_ERROR_MODAL",
           payload: {
+            type: "documentalreadycheckedout",
             title: "Failed to redact document",
             message:
               "It is not possible to redact as the document is already checked out by test_username. Please try again later.",
@@ -354,7 +310,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
-            redaction: { type: "redaction" } as NewPdfHighlight,
+            redactions: [{ type: "redaction" }] as NewPdfHighlight[],
           },
         });
 
@@ -364,7 +320,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(1);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "ADD_REDACTION",
-          payload: { documentId: "1", redaction: { type: "redaction" } },
+          payload: { documentId: "1", redactions: [{ type: "redaction" }] },
         });
       }
     );

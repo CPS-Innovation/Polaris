@@ -20,21 +20,61 @@ export type PresentationFlags = {
     | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
-    | "IsNotOcrProcessed";
+    | "IsDispatched"
+    | "IsRedactionServiceOffline";
 };
 
+export type ConversionStatus =
+  | "DocumentConverted"
+  | "PdfEncrypted"
+  | "DocumentTypeUnsupported"
+  | "AsposePdfPasswordProtected"
+  | "AsposePdfInvalidFileFormat"
+  | "AsposePdfException"
+  | "AsposeWordsUnsupportedFileFormat"
+  | "AsposeWordsPasswordProtected"
+  | "AsposeCellsGeneralError"
+  | "AsposeImagingCannotLoad"
+  | "UnexpectedError";
+
+export const mapConversionStatusToMessage = (
+  status: ConversionStatus
+): string => {
+  switch (status) {
+    case "DocumentConverted":
+      return "Document converted";
+    case "PdfEncrypted":
+    case "AsposePdfPasswordProtected":
+    case "AsposeWordsPasswordProtected":
+      return "file is password protected";
+    case "DocumentTypeUnsupported":
+    case "AsposeWordsUnsupportedFileFormat":
+    case "AsposePdfInvalidFileFormat":
+      return "document type unsupported";
+    case "AsposeCellsGeneralError":
+    case "AsposeImagingCannotLoad":
+    case "UnexpectedError":
+    case "AsposePdfException":
+      return "";
+  }
+};
 export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
   cmsOriginalFileName: string;
   presentationTitle: string;
   polarisDocumentVersionId: number;
-  cmsMimeType: string;
+  cmsOriginalFileExtension: string | null;
   cmsFileCreatedDate: string;
   categoryListOrder: number | null;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
+  polarisParentDocumentId: string | null;
+  witnessId: number | null;
+  hasFailedAttachments: boolean;
+  hasNotes: boolean;
+  conversionStatus: ConversionStatus;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

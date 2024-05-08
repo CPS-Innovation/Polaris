@@ -1,0 +1,10 @@
+AppRequests
+| where TimeGenerated < datetime(2023-09-15T10:48:17)
+| where OperationName == "PolarisPipelineSaveDocumentRedactions"
+| extend User = tostring(Properties.User)
+| where User != "REDACTED@REDACTED.EMAIL.ADDRESS"
+| where ResultCode !in ("400", "500")
+| extend Urn = extract("/urns/([^/]+)", 1, Url)
+| extend CaseId = extract("/cases/([^/]+)", 1, Url)
+| extend DocumentId = extract("/CMS-(.+)", 1, Url)
+| summarize   ResultCode = min(ResultCode), User = max(User), TimeGenerated = max(TimeGenerated) by Urn, CaseId, DocumentId

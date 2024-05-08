@@ -626,31 +626,6 @@ describe("useCaseDetailsState reducer", () => {
     });
   });
 
-  describe("OPEN_PDF_IN_NEW_TAB", () => {
-    it("can set the sasUrl of the expected document", () => {
-      const nextState = reducer(
-        {
-          tabsState: {
-            items: [{ documentId: "1" }, { documentId: "bar" }],
-          },
-        } as CombinedState,
-        {
-          type: "OPEN_PDF_IN_NEW_TAB",
-          payload: {
-            documentId: "1",
-            sasUrl: "baz",
-          },
-        }
-      );
-
-      expect(nextState).toEqual({
-        tabsState: {
-          items: [{ documentId: "1", sasUrl: "baz" }, { documentId: "bar" }],
-        },
-      });
-    });
-  });
-
   describe("OPEN_PDF", () => {
     it("can try to open a tab when the documents are unknown", () => {
       const nextState = reducer(
@@ -749,10 +724,13 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "1",
             clientLockedState: "unlocked",
+            areaOnlyRedactionMode: false,
             mode: "read",
             pdfBlobName: "foo",
             redactionHighlights: [],
             url: "baz",
+            isDeleted: false,
+            saveStatus: "initial",
           },
         ],
         activeTabId: "",
@@ -806,8 +784,10 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "1",
             clientLockedState: "unlocked",
+            areaOnlyRedactionMode: false,
             url: undefined,
-
+            isDeleted: false,
+            saveStatus: "initial",
             redactionHighlights: [],
             mode: "read",
           },
@@ -999,13 +979,17 @@ describe("useCaseDetailsState reducer", () => {
               "Correlation-Id": "bar1",
             } as HeadersInit,
             items: [
-              { documentId: "0", mode: "read" },
+              {
+                documentId: "0",
+                mode: "read",
+              },
               {
                 documentId: "1",
                 mode: "search",
                 clientLockedState: "unlocked",
                 searchTerm: "foo",
                 occurrencesInDocumentCount: 3,
+                areaOnlyRedactionMode: false,
                 searchHighlights: [
                   {
                     id: "0",
@@ -1034,8 +1018,13 @@ describe("useCaseDetailsState reducer", () => {
                     },
                   },
                 ],
+                isDeleted: false,
+                saveStatus: "initial",
               },
-              { documentId: "2", mode: "read" },
+              {
+                documentId: "2",
+                mode: "read",
+              },
             ],
           },
           pipelineState: {},
@@ -1102,9 +1091,12 @@ describe("useCaseDetailsState reducer", () => {
               { documentId: "d0", mode: "read" },
               {
                 documentId: "1",
+                areaOnlyRedactionMode: false,
                 clientLockedState: "unlocked",
                 mode: "read",
                 url: undefined,
+                isDeleted: false,
+                saveStatus: "initial",
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1248,6 +1240,9 @@ describe("useCaseDetailsState reducer", () => {
                 documentId: "1",
                 mode: "search",
                 searchTerm: "bar",
+                isDeleted: false,
+                saveStatus: "initial",
+                areaOnlyRedactionMode: false,
                 occurrencesInDocumentCount: 4,
                 pageOccurrences: [
                   {
@@ -1969,10 +1964,12 @@ describe("useCaseDetailsState reducer", () => {
           type: "ADD_REDACTION",
           payload: {
             documentId: "1",
-            redaction: {
-              type: "redaction",
-              position: { pageNumber: 1 },
-            } as NewPdfHighlight,
+            redactions: [
+              {
+                type: "redaction",
+                position: { pageNumber: 1 },
+              },
+            ] as NewPdfHighlight[],
           },
         }
       );
@@ -1991,8 +1988,7 @@ describe("useCaseDetailsState reducer", () => {
                 {
                   type: "redaction",
                   position: { pageNumber: 1 },
-                  id: "1640995200000",
-                  redactionAddedOrder: 1,
+                  id: "1640995200000-0",
                 },
               ],
             },
@@ -2244,6 +2240,7 @@ describe("useCaseDetailsState reducer", () => {
       const result = reducer(existingState as CombinedState, {
         type: "SHOW_ERROR_MODAL",
         payload: {
+          type: "saveredaction",
           message: "error message",
           title: "error title",
         },
@@ -2254,6 +2251,7 @@ describe("useCaseDetailsState reducer", () => {
           show: true,
           message: "error message",
           title: "error title",
+          type: "saveredaction",
         },
       });
     });
@@ -2277,6 +2275,7 @@ describe("useCaseDetailsState reducer", () => {
           show: false,
           message: "",
           title: "",
+          type: "",
         },
       });
     });

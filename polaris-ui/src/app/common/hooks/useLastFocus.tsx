@@ -4,11 +4,22 @@ export const useLastFocus = (defaultFocus?: HTMLElement) => {
   useEffect(() => {
     const ref = lastFocusElementRef.current;
     return () => {
+      //only add last focus if there is no active focus element other than document.body
+      if (
+        document.activeElement &&
+        document.activeElement?.tagName !== "BODY"
+      ) {
+        return;
+      }
       if (ref && document.contains(ref)) {
-        (ref as HTMLElement).focus();
+        setTimeout(() => {
+          (ref as HTMLElement).focus();
+        }, 0);
       } else {
         if (defaultFocus) {
-          defaultFocus.focus();
+          setTimeout(() => {
+            defaultFocus.focus();
+          }, 0);
         }
       }
     };

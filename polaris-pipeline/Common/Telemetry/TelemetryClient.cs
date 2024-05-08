@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Common.Telemetry.Contracts;
+using System.Linq;
 using AppInsights = Microsoft.ApplicationInsights;
 
 namespace Common.Telemetry
@@ -19,15 +19,44 @@ namespace Common.Telemetry
 
         public void TrackEvent(BaseTelemetryEvent baseTelemetryEvent)
         {
+            TrackEventInternal(baseTelemetryEvent, isFailure: false);
+        }
+
+        public void TrackEventFailure(BaseTelemetryEvent baseTelemetryEvent)
+        {
+            TrackEventInternal(baseTelemetryEvent, isFailure: true);
+        }
+
+        private void TrackEventInternal(BaseTelemetryEvent baseTelemetryEvent, bool isFailure)
+        {
+            if (baseTelemetryEvent == null)
+            {
+                // As this is telemetry just silently fail
+                // todo: a better/more assertive approach
+                return;
+            }
+
+
             var (properties, metrics) = baseTelemetryEvent.ToTelemetryEventProps();
+
+            // filter metrics for only entries where we have a value
+            var nonNullMetrics = metrics
+                .Where(kvp => kvp.Value.HasValue)
+                .ToDictionary(kvp => kvp.Key, kvp => (double)kvp.Value);
+
             properties.Add(telemetryVersion, Version);
+            if (isFailure)
+            {
+                properties.Add("isFailure", "true");
+            }
 
             _telemetryClient.TrackEvent(
                 PrepareEventName(baseTelemetryEvent.EventName),
                 PrepareKeyNames(properties),
-                PrepareKeyNames(metrics)
+                PrepareKeyNames(nonNullMetrics)
             );
         }
+
         private static string PrepareEventName(string source)
         {
             if (!source.EndsWith("Event"))
@@ -50,7 +79,26 @@ namespace Common.Telemetry
 
         private static string CleanPropertyName(string name)
         {
-            return name.Replace("_", string.Empty);
+            var propertyName = name
+                // If the fields being captured are private and follow  _foo convention
+                // then we need to remove the leading underscore
+                .Replace("_", string.Empty);
+
+            // If the fields being captured are public and follow Foo convention
+            // then we need to lowercase the first character
+
+            // Later note: going to lower case first char was not a good idea. In Log Analytics
+            //  the convention seems to be Title case, and so in our Log Analytics functions (views)
+            //  we are always converting back to title case.  A bit late now to change this.
+            return ToLowerFirstChar(propertyName);
+        }
+
+        public static string ToLowerFirstChar(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToLower(input[0]) + input.Substring(1);
         }
     }
 }

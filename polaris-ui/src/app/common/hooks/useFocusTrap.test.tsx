@@ -5,6 +5,7 @@ import { useFocusTrap } from "./useFocusTrap";
 
 describe("useFocusTrap hook", () => {
   const testSetUp = () => {
+    jest.useFakeTimers();
     const TestComponent = () => {
       const [showModal, setShowModal] = useState(false);
 
@@ -42,6 +43,7 @@ describe("useFocusTrap hook", () => {
     openModalButtonElement.focus();
     expect(openModalButtonElement).toHaveFocus();
     fireEvent.click(openModalButtonElement);
+    jest.advanceTimersByTime(10);
     //tab case
     expect(screen.getByText("Close Modal")).toHaveFocus();
     act(() => userEvent.tab());

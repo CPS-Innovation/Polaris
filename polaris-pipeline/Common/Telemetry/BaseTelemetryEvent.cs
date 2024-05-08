@@ -15,10 +15,13 @@ namespace Common.Telemetry
                 return GetType().Name;
             }
         }
-        abstract public (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps();
+        abstract public (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps();
 
-        public static double GetDurationSeconds(DateTime startTime, DateTime endTime)
+        public static double? GetDurationSeconds(DateTime startTime, DateTime endTime)
         {
+            if (startTime == default || endTime == default)
+                return null;
+
             return (double)(endTime - startTime).TotalSeconds;
         }
 

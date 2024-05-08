@@ -18,7 +18,6 @@ export const Auth: FC = ({ children }) => {
       if (!account) {
         await msalInstance.loginRedirect({
           scopes: ["User.Read"],
-          prompt: "select_account",
         });
         return;
       }

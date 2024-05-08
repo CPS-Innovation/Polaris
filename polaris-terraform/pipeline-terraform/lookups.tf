@@ -1,8 +1,3 @@
-data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
-  name                = "fa-${local.ddei_resource_name}"
-  resource_group_name = "rg-${local.ddei_resource_name}"
-}
-
 data "azuread_application" "fa_ddei" {
   display_name = "fa-${local.ddei_resource_name}-appreg"
 }
@@ -22,6 +17,12 @@ data "azurerm_subnet" "polaris_sa_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_sa2_subnet" {
+  name                 = "${var.resource_name_prefix}-sa2-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_subnet" "polaris_coordinator_subnet" {
   name                 = "${var.resource_name_prefix}-coordinator-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
@@ -34,14 +35,20 @@ data "azurerm_subnet" "polaris_pdfgenerator_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_pdfredactor_subnet" {
+  name                 = "${var.resource_name_prefix}-pdfredactor-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_subnet" "polaris_textextractor_subnet" {
   name                 = "${var.resource_name_prefix}-textextractor-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
-data "azurerm_subnet" "polaris_key_vault_subnet" {
-  name                 = "${var.resource_name_prefix}-keyvault-subnet"
+data "azurerm_subnet" "polaris_textextractor_2_subnet" {
+  name                 = "${var.resource_name_prefix}-textextractor-subnet-2"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
@@ -54,6 +61,12 @@ data "azurerm_subnet" "polaris_gateway_subnet" {
 
 data "azurerm_subnet" "polaris_apps_subnet" {
   name                 = "${var.polaris_resource_name_prefix}-apps-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_apps2_subnet" {
+  name                 = "${var.polaris_resource_name_prefix}-apps2-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
@@ -104,6 +117,11 @@ data "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_private_dns_zone" "dns_zone_event_hub_namespace" {
+  name                = "privatelink.servicebus.windows.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_key_vault" "terraform_key_vault" {
   name                = "kv${var.env}terraform"
   resource_group_name = "rg-terraform"
@@ -117,4 +135,9 @@ data "azurerm_application_insights" "global_ai" {
 data "azurerm_log_analytics_workspace" "global_la" {
   name                = "la-${local.global_name}"
   resource_group_name = "rg-${local.analytics_group_name}"
+}
+
+data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
+  name                = "fa-${local.ddei_resource_name}"
+  resource_group_name = "rg-${local.ddei_resource_name}"
 }

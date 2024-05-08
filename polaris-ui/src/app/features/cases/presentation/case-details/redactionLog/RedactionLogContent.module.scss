@@ -1,0 +1,223 @@
+.modalContent {
+  display: block;
+  padding: 0;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+
+  :global(.govuk-form-group) {
+    margin-bottom: 0;
+  }
+  :global(.govuk-error-summary) {
+    margin-bottom: 0;
+  }
+  .modalTitleWrapper {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 3px dashed #b1b4b6;
+  }
+  .modalTitleWrapperTypeOver {
+    padding-right: 2rem;
+  }
+  .modalContentHeading {
+    margin: 0;
+    display: block;
+    max-width: 70%;
+  }
+  .supportingNotesGuidance {
+    position: absolute;
+    right: 0;
+    top: -0.625rem;
+  }
+  .redactionLogGuidanceTitle,
+  .supportingNotesGuidanceTitle {
+    font-weight: bold;
+    font-size: 1.1875rem;
+    margin-top: 0;
+    margin-bottom: 0.625rem;
+  }
+  .redactionLogGuidanceList {
+    margin: 0;
+    padding-left: 1rem;
+    & li {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    & li:last-of-type {
+      font-weight: bold;
+      color: #fff;
+    }
+  }
+  .supportingNotesGuidanceList {
+    margin: 0;
+    padding-left: 1rem;
+    & li {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+  .confirmationMessage {
+    margin: 0;
+    text-align: left;
+  }
+
+  .btnWrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    width: 100%;
+    margin-top: 1.875rem;
+    padding: 0 1.875rem;
+  }
+  .cancelBtn {
+    margin-left: 1rem;
+    padding: 0.625rem;
+    &:hover:not(:disabled):not(:focus) {
+      color: #003078;
+      text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+      background: transparent;
+    }
+  }
+  .modalHeadWrapper {
+    padding: 1.875rem 1.875rem 0px 1.875rem;
+    background: #f3f2f1;
+  }
+  .modalBodyWrapper {
+    border-bottom: 0.1875rem dashed #b1b4b6;
+    padding: 0 1.875rem 1.5rem;
+  }
+}
+
+.select {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 8rem;
+  :global(.govuk-select) {
+    width: 100%;
+  }
+}
+.sortLabel {
+  margin-bottom: 0;
+  margin-right: 0.625rem;
+}
+.selectSection {
+  display: flex;
+  flex-direction: column;
+  margin-right: 1.5rem;
+  margin-top: 1.25rem;
+  font-size: 1rem;
+  width: 18%;
+  :global(.govuk-error-message) {
+    margin-bottom: 0;
+    font-size: 1rem;
+  }
+  :global(.govuk-select),
+  :global(.govuk-label) {
+    font-size: 1rem;
+    color: #505a5f;
+  }
+  &:last-child {
+    margin-right: 0;
+  }
+}
+.selectInputWrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  padding: 0 1.875rem 1.875rem 1.875rem;
+  background-color: #f3f2f1;
+  border-bottom: 1px solid #b1b4b6;
+}
+.underRedactionForm {
+  width: 100%;
+  overflow: hidden;
+}
+.textAreaSection {
+  width: 100%;
+  max-width: 37.5rem;
+  position: relative;
+  :global(.govuk-hint) {
+    position: absolute;
+    bottom: -2.5rem;
+  }
+}
+.errorMsg {
+  color: red;
+}
+.errorSummary {
+  width: 100%;
+  max-width: 34.375rem;
+}
+.editBtnWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.savedBanner,
+.savingBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 1.875rem;
+  color: #fff;
+  font-size: 1.1875rem;
+  height: 3.125rem;
+  font-weight: bold;
+}
+.savingBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
+  background-color: #1d70b8;
+}
+.savedBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
+  background-color: #00703c;
+  overflow: hidden;
+  animation: reduceHeight 0.5s forwards;
+  animation-delay: 3s;
+}
+.greyColor {
+  color: #505a5f;
+}
+.bannerText {
+  margin-left: 1rem;
+  margin-top: 1.875rem;
+}
+.whiteTickIcon {
+  width: 2.25rem;
+  fill: #fff;
+}
+.docIcon {
+  position: relative;
+  width: 20px;
+  margin-right: 10px;
+  top: 2px;
+}
+.headingWrapper {
+  display: flex;
+  align-items: baseline;
+}
+
+@keyframes reduceHeight {
+  0% {
+    height: 4.625rem;
+  }
+  100% {
+    height: 0;
+    display: none;
+  }
+}
+
+.errorSummaryWrapper {
+  display: inline-flex;
+  margin-top: 1.5rem;
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+}

@@ -120,7 +120,7 @@ describe("Tabs", () => {
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-2");
     // down goes to next tab
     fireEvent.keyDown(screen.getByTestId("tab-active"), {
-      code: "ArrowDown",
+      code: "ArrowRight",
     });
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-3");
     // stays on right-most tab on attempted navigate
@@ -135,7 +135,7 @@ describe("Tabs", () => {
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-2");
     // up goes to previous tab
     fireEvent.keyDown(screen.getByTestId("tab-active"), {
-      code: "ArrowUp",
+      code: "ArrowLeft",
     });
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
     // stays on left-most tab on attempted navigate

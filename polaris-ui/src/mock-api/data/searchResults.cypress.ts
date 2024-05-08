@@ -13,6 +13,7 @@ const searchResults: CaseSearchResult[] = [
     id: 13401,
     uniqueReferenceNumber: "12AB1111111",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -29,11 +30,13 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
   {
     id: 13401,
     uniqueReferenceNumber: "12AB2222222/1",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -50,11 +53,13 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
   {
     id: 13401,
     uniqueReferenceNumber: "12AB2222222/2",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -71,12 +76,14 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
 
   {
     id: 13401,
     uniqueReferenceNumber: "12AB2222233",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 2,
     leadDefendantDetails: {
       id: 901,
@@ -93,5 +100,6 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
 ];

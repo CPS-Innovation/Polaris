@@ -1,29 +1,6 @@
 $govuk-assets-path: "~govuk-frontend/govuk/assets/";
 
-/* replacement fonts */
-@import url("//hello.myfonts.net/count/413f20");
-
-@font-face {
-  font-family: "TransportNew";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  size-adjust: 90%;
-  src: url("./fonts/TransportNewLight/font.woff2") format("woff2"),
-    url("./fonts/TransportNewLight/font.woff") format("woff");
-}
-
-@font-face {
-  font-family: "TransportNew";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  size-adjust: 86.5%;
-  src: url("./fonts/TransportNewHeavy/font.woff2") format("woff2"),
-    url("./fonts/TransportNewHeavy/font.woff") format("woff");
-}
-
-$govuk-font-family: "TransportNew", "Arial", sans-serif;
+$govuk-font-family: "Helvetica", "Arial", sans-serif;
 
 @import "~govuk-frontend/govuk/all";
 

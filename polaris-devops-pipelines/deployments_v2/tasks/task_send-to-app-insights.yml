@@ -1,0 +1,24 @@
+﻿---
+parameters:
+  - name: appInsightsKey
+    type: string
+  - name: targetBuild
+    type: string
+  - name: message
+    type: string
+
+steps:
+  # send custom event to AppInsights
+  - task: PowerShell@2
+    displayName: 'AppInsights: Trace'
+    condition: succeeded()
+    inputs:
+      failOnStderr: true
+      targetType: 'filePath'
+      filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/SendCustomEventToAppInsights.ps1
+      arguments: > # Use this to avoid newline characters in multi-line string
+        -InstrumentationKey "${{ parameters.appInsightsKey }}"
+        -PipelineName "$(resources.pipeline.${{ parameters.targetBuild }}.pipelineName)"
+        -CommitId "$(resources.pipeline.${{ parameters.targetBuild }}.sourceCommit)"
+        -BuildName "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+        -Message "${{ parameters.message }}"

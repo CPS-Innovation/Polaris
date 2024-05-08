@@ -1,0 +1,9 @@
+Polaris_Exceptions_PolarisCorrelationId_OperationId
+| join kind=leftouter Polaris_Exceptions_PolarisCorrelationId_CaseUserContext on PolarisCorrelationId
+| summarize 
+    PolarisCorrelationId = make_set(PolarisCorrelationId), 
+    Urn = max(Urn), 
+    CaseId = max(CaseId), 
+    CmsUserId = max(CmsUserId), 
+    User = max(User)
+    by OperationId

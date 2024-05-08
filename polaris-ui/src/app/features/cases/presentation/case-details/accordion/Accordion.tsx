@@ -1,28 +1,59 @@
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
+import { NotesData } from "../../../domain/gateway/NotesData";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
-import { buildInitialState, reducer } from "./reducer";
+import { buildInitialState, reducer, AccordionReducerState } from "./reducer";
 import { AccordionDocumentSection } from "./types";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
+  initialState: AccordionReducerState | null;
+  lastFocusDocumentId: string;
+  activeDocumentId: string;
+  readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
+  showNotesFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
+  handleOpenNotes: (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => void;
+  accordionStateChangeCallback: (
+    accordionCurrentState: AccordionReducerState
+  ) => void;
+  handleGetNotes: (documentId: string) => void;
+  notesData: NotesData[];
 };
 
 export const Accordion: React.FC<Props> = ({
+  initialState,
+  lastFocusDocumentId,
+  activeDocumentId,
   accordionState: sections,
+  readUnreadData,
+  showNotesFeature,
+  notesData,
   handleOpenPdf,
+  handleOpenNotes,
+  accordionStateChangeCallback,
+  handleGetNotes,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
     reducer,
-    buildInitialState(sections.map((section) => section.sectionLabel))
+    initialState !== null
+      ? initialState
+      : buildInitialState(sections.map((section) => section.sectionLabel))
   );
+
+  useEffect(() => {
+    accordionStateChangeCallback(state);
+  }, [state, accordionStateChangeCallback]);
 
   const handleToggleOpenAll = () => {
     if (state.isAllOpen) {
@@ -57,8 +88,15 @@ export const Accordion: React.FC<Props> = ({
           sectionLabel={sectionLabel}
           docs={docs}
           isOpen={state.sections[sectionId]}
+          readUnreadData={readUnreadData}
+          activeDocumentId={activeDocumentId}
+          showNotesFeature={showNotesFeature}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
+          handleOpenNotes={handleOpenNotes}
+          lastFocusDocumentId={lastFocusDocumentId}
+          handleGetNotes={handleGetNotes}
+          notesData={notesData}
         />
       ))}
     </div>

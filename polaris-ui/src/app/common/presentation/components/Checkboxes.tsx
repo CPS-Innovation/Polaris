@@ -1,6 +1,15 @@
 import * as GDS from "govuk-react-jsx";
 import React from "react";
 
+type CheckBoxesItems = Omit<
+  React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  >,
+  "onChange" | "onBlur"
+> & { className?: string } & {
+  conditional?: { children: React.ReactNode[] };
+};
 export type CheckboxesProps = Omit<
   React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
   "onChange"
@@ -15,21 +24,11 @@ export type CheckboxesProps = Omit<
       HTMLSpanElement
     >;
   };
-  fieldSet?: React.DetailedHTMLProps<
-    React.HtmlHTMLAttributes<HTMLFieldSetElement>,
-    HTMLFieldSetElement
-  >;
+  fieldset?: { legend: { children: string } };
   formGroup?: { className: string };
   hint?: string;
   idPrefix?: string;
-  items: Omit<
-    React.DetailedHTMLProps<
-      React.InputHTMLAttributes<HTMLInputElement>,
-      HTMLInputElement
-    >,
-    "onChange" | "onBlur"
-  > &
-    { className?: string }[];
+  items: CheckBoxesItems[];
 
   name: string;
   onChange?: (ev: React.ChangeEvent<HTMLInputElement>) => void;

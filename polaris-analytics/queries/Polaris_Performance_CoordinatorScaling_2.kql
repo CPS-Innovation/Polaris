@@ -1,0 +1,49 @@
+let Trackers = Polaris_Metrics_CaseRefresh
+| partition hint.strategy=native by CaseId
+    ( top 1 by TimeGenerated asc)
+| project 
+    PolarisCorrelationId, 
+    CaseStartTime = StartTime,
+    CmsDocsProcessedCount
+| where PolarisCorrelationId !startswith "e2e"
+;
+
+let DDEICalls = AppRequests
+| where AppRoleName in( "fa-polaris-ddei", "fa-polaris-pipeline-ddei")
+| where Name == "ListDocuments"
+| partition hint.strategy=native by Url
+    ( top 1 by TimeGenerated asc)
+| project 
+    PolarisCorrelationId = tostring(Properties.PolarisCorrelationId),
+    DdeiCompletedTime = TimeGenerated
+;
+
+let StartTimesConversion = Polaris_Metrics_Conversion
+| summarize 
+    Min = min(StartTime), 
+    Max = max(StartTime) 
+by PolarisCorrelationId
+;
+
+let StartTimesIndexing = Polaris_Metrics_Indexing
+| summarize 
+    Min = min(StartTime), 
+    Max = max(StartTime),
+    CountBroken = countif(IsFailure) 
+by PolarisCorrelationId
+;
+
+Trackers
+| join kind = leftouter StartTimesConversion on PolarisCorrelationId
+| join kind = leftouter StartTimesIndexing on PolarisCorrelationId
+| join  kind = leftouter DDEICalls on PolarisCorrelationId
+| extend 
+    MinDocStartTime = coalesce(Min, Min1),
+    MaxDocStartTime = coalesce(Max, Max1)
+| extend 
+    LastDocLatency = datetime_diff('second', MaxDocStartTime, DdeiCompletedTime )
+| summarize 
+    LastDocLatency = toint(avg(LastDocLatency)),
+    DocsRequested = sum(CmsDocsProcessedCount),
+    BrokenSearch = sum(CountBroken)
+    by bin (CaseStartTime, 5m)

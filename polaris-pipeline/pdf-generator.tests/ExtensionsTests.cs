@@ -1,12 +1,12 @@
 ﻿using Common.Domain.Document;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using FluentAssertions;
-using Common.Domain.Extensions;
+using pdf_generator.Domain.Extensions;
 using Xunit;
 
 namespace pdf_generator.tests
 {
-    public class ExtensionsTests
+	public class ExtensionsTests
 	{
 		[Theory]
 		[InlineData("doc", FileType.DOC)]
@@ -29,26 +29,27 @@ namespace pdf_generator.tests
 		[InlineData("tiff", FileType.TIFF)]
 		[InlineData("vsd", FileType.VSD)]
 		[InlineData("html", FileType.HTML)]
+		[InlineData("htm", FileType.HTM)]
 		[InlineData("msg", FileType.MSG)]
 		public void ToFileType_ReturnsExpectedFileType(string fileType, FileType fileTypeEnum)
-        {
+		{
 			var fileTypeValue = fileType.ToFileType();
 
 			fileTypeValue.Should().Be(fileTypeEnum);
-        }
+		}
 
 		[Fact]
 		public void ToFileType_ThrowsWhenFileTypeIsInteger()
 		{
 			var fileType = "6";
-			Assert.Throws<UnsupportedFileTypeException>(() => fileType.ToFileType());
+			Assert.Throws<FileTypeException>(() => fileType.ToFileType());
 		}
 
 		[Fact]
 		public void ToFileType_ThrowsWhenUnsupportedFileType()
 		{
 			var fileType = "Unsupported file type";
-			Assert.Throws<UnsupportedFileTypeException>(() => fileType.ToFileType());
+			Assert.Throws<FileTypeException>(() => fileType.ToFileType());
 		}
 	}
 }

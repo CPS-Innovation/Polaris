@@ -23,12 +23,22 @@ describe("useDocumentFocus helpers", () => {
 
   describe("getNonEmptyTextContentElements", () => {
     it("should return filtered non-empty text leaf child elements", () => {
+      const mockGetComputedStyle = jest.fn().mockReturnValue({
+        getPropertyValue: () => {
+          "10px";
+        },
+      });
+
+      // Spy on window.getComputedStyle and replace it with the mock
+      jest
+        .spyOn(window, "getComputedStyle")
+        .mockImplementation(mockGetComputedStyle);
       const inputSpanElements = [
         {
           classList: { contains: () => false },
           children: [
-            { id: "1", textContent: "" },
-            { id: "2", textContent: "abc" },
+            { id: "1", textContent: "", styles: { top: "1" } },
+            { id: "2", textContent: "abc", styles: { top: "1" } },
           ],
         },
         {
@@ -39,14 +49,15 @@ describe("useDocumentFocus helpers", () => {
         {
           classList: { contains: () => false },
           children: [
-            { id: "1", textContent: "123" },
-            { id: "2", textContent: "345" },
+            { id: "1", textContent: "123", styles: { top: "1" } },
+            { id: "2", textContent: "345", styles: { top: "1" } },
           ],
         },
         { classList: { contains: () => false }, textContent: "", children: [] },
         {
           classList: { contains: () => false },
           textContent: "def",
+          styles: { top: "1" },
           children: [],
         },
       ] as unknown as HTMLCollection;
@@ -54,12 +65,13 @@ describe("useDocumentFocus helpers", () => {
         getNonEmptyTextContentElements(inputSpanElements);
       expect(JSON.stringify(nonEmptyContents)).toEqual(
         JSON.stringify([
-          { id: "2", textContent: "abc" },
-          { id: "1", textContent: "123" },
-          { id: "2", textContent: "345" },
+          { id: "2", textContent: "abc", styles: { top: "1" } },
+          { id: "1", textContent: "123", styles: { top: "1" } },
+          { id: "2", textContent: "345", styles: { top: "1" } },
           {
             classList: { contains: () => false },
             textContent: "def",
+            styles: { top: "1" },
             children: [],
           },
         ])

@@ -1,0 +1,29 @@
+Polaris_Exceptions_List
+| where IsKnownBug startswith "23616" or IsKnownBug  startswith "23613"
+| extend 
+    OperationId = tostring(parse_json(OperationId)[0]),
+    Hour = bin(EarliestExceptionTimeGenerated, 1h)
+| summarize  
+    OperationId = min(OperationId)
+    by 
+        Hour,
+        User,
+        CmsUserId,
+        IsKnownBug
+| extend ClassicOrModern = iif(IsKnownBug contains "Modern", "Modern", "Classic")
+| join kind = leftouter Polaris_Diagnosis_AuthExceptions on OperationId
+| project 
+    OperationId,
+    TimeGenerated,
+    User,
+    CmsUserId,
+    ClassicOrModern,
+    LastAuthTimeGenerated,
+    LastOkTimeGenerated,
+    LastOkClassicTimeGenerated,
+    LastOkModernTimeGenerated,
+    NextAuthTimeGenerated,
+    MinutesSinceLastAuthTimeGenerated,
+    MinutesSinceLastOkTimeGenerated = iif(ClassicOrModern == "Classic", MinutesSinceLastOkClassicTimeGenerated, MinutesSinceLastOkModernTimeGenerated),
+    MinutesUntilNextAuthTimeGenerated
+| where MinutesSinceLastAuthTimeGenerated != ""

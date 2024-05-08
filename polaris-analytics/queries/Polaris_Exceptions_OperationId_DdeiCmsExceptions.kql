@@ -1,0 +1,10 @@
+Polaris_Exceptions_PolarisCorrelationId_OperationId
+| join kind=leftouter Polaris_Exceptions_PolarisCorrelationId_DdeiCmsExceptions on PolarisCorrelationId
+| join kind=leftouter Polaris_Exceptions_PolarisCorrelationId_CaseUserContext on PolarisCorrelationId
+| summarize 
+    PolarisCorrelationId = make_set(PolarisCorrelationId), 
+    CmsStatusCode = make_set(CmsStatusCode), 
+    HasAuthCookieInException = max(HasAuthCookieInException), 
+    LoadBalancedDestination = make_set(LoadBalancedDestination) 
+    by OperationId
+| where array_length(CmsStatusCode) > 0 

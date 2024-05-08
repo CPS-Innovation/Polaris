@@ -1,14 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using Common.Constants;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
 using Mapster;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace Common.Dto.Tracker
 {
-    public class DocumentDto 
+    public class DocumentDto
     {
         public DocumentDto()
         { }
@@ -60,6 +61,9 @@ namespace Common.Dto.Tracker
         [JsonProperty("pdfBlobName")]
         public string PdfBlobName { get; set; }
 
+        [JsonProperty("cmsOriginalFileExtension")]
+        public string CmsOriginalFileExtension { get; set; }
+
         [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
 
@@ -68,5 +72,37 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
+
+        [JsonIgnore]
+        public PolarisDocumentId PolarisParentDocumentId { get; set; }
+
+        [JsonProperty("polarisParentDocumentId")]
+        public string PolarisParentDocumentIdValue
+        {
+            get
+            {
+                return PolarisParentDocumentId?.ToString();
+            }
+            set
+            {
+                PolarisParentDocumentId = new PolarisDocumentId(value);
+            }
+        }
+
+        [JsonProperty("cmsParentDocumentId")]
+        [JsonIgnore]
+        public string CmsParentDocumentId { get; set; }
+
+        [JsonProperty("witnessId")]
+        public int? WitnessId { get; set; }
+
+        [JsonProperty("hasFailedAttachments")]
+        public bool HasFailedAttachments { get; set; }
+
+        [JsonProperty("hasNotes")]
+        public bool HasNotes { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("conversionStatus")]
+        public PdfConversionStatus ConversionStatus { get; set; }
     }
 }

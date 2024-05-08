@@ -1,0 +1,31 @@
+AppEvents
+| where AppRoleName startswith "fa-polaris-gateway"
+| where Name == "RedactionRequest"
+| project 
+    TimeGenerated, 
+    CaseId = toint(Properties.caseId),
+    PolarisCorrelationId = tostring(Properties.correlationId),
+    DocumentId = tostring(Properties.documentId),
+    IsRequestValid = tobool(Properties.isRequestValid),
+    IsRequestJsonValid = tobool(Properties.isRequestJsonValid),
+    IsSuccess = tobool(Properties.isSuccess),
+    JsonLength = toint(Measurements.requestJsonLength),
+    Json = tostring(Properties.requestJson),
+    OperationId
+| extend IsFailure = not(IsSuccess)
+
+// hack to exclude e2e tests and mock-based diagnosis
+| where CaseId !in  (2144174, 2146928)
+| where PolarisCorrelationId !startswith "e2e"
+
+| join kind=leftouter  (
+    AppRequests 
+    | where AppRoleName startswith "fa-polaris-gateway" 
+    | extend User = tostring(Properties.User)
+    | distinct OperationId, User
+) on OperationId | project-away OperationId1
+
+
+| where User != "REDACTED@REDACTED.EMAIL.ADDRESS"
+
+

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Common.Domain.SearchIndex;
 
-public class SearchLine : Line
+public class SearchLine : Line, ISearchable
 {
     public SearchLine(string id, long caseId, string documentId, long versionId, string blobName, int pageIndex, int lineIndex, string language, IList<double?> boundingBox, Appearance appearance,
         string text, IList<Word> words, double pageHeight, double pageWidth)
@@ -52,4 +52,35 @@ public class SearchLine : Line
 
     [JsonProperty("pageWidth")]
     public double PageWidth { get; set; }
+}
+
+public class Line
+{
+    [JsonProperty(PropertyName = "language")]
+    public string Language { get; set; }
+
+    [JsonProperty(PropertyName = "boundingBox")]
+    public IList<double?> BoundingBox { get; set; }
+
+    [JsonProperty(PropertyName = "appearance")]
+    public Appearance Appearance { get; set; }
+
+    [JsonProperty(PropertyName = "text")]
+    public string Text { get; set; }
+
+    [JsonProperty(PropertyName = "words")]
+    public IList<Word> Words { get; set; }
+
+    public Line()
+    {
+    }
+
+    public Line(IList<double?> boundingBox, string text, IList<Word> words, string language = null, Appearance appearance = null)
+    {
+        Language = language;
+        BoundingBox = boundingBox;
+        Appearance = appearance;
+        Text = text;
+        Words = words;
+    }
 }

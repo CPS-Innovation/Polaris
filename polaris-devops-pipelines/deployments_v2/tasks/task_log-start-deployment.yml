@@ -1,0 +1,23 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetName
+    type: string
+  - name: appInsightsKey
+    type: string
+  
+steps:
+  # download scripts artifact
+  - download: ${{ parameters.targetBuild }}
+    displayName: Download Scripts
+    artifact: 'polaris-script-files'
+
+  # send custom event to AppInsights
+  - template: task_send-to-app-insights.yml
+    parameters:
+      appInsightsKey: ${{ parameters.appInsightsKey }}
+      targetBuild: ${{ parameters.targetBuild }}
+      message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Started"

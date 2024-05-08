@@ -5,7 +5,13 @@ import {
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
   isUnusedCommunicationMaterial,
+  getCommunicationsSubCategory,
 } from "./document-category-helpers";
+
+export enum CommunicationSubCategory {
+  emails = "Emails",
+  communicationFiles = "Communication files",
+}
 
 const docTypeTest = (
   caseDocument: PresentationDocumentProperties,
@@ -21,6 +27,7 @@ const documentCategoryDefinitions: {
   sortFn: (
     caseDocuments: PresentationDocumentProperties[]
   ) => PresentationDocumentProperties[];
+  subCategoryFn?: (caseDocument: PresentationDocumentProperties) => string;
 }[] = [
   // todo: when we know, write the `test` logic to identify which document goes in which section
   {
@@ -29,7 +36,7 @@ const documentCategoryDefinitions: {
     testFn: (doc) =>
       // todo: PCD are artificial documents, write a unit test for this
       doc.cmsDocType.documentType === "PCD" ||
-      docTypeTest(doc, [101, 102, 103, 104, 227, 1034, 1035, 1064]),
+      docTypeTest(doc, [101, 102, 103, 104, 189, 212, 227, 1034, 1035, 1064]),
     sortFn: sortDocumentsByCreatedDate,
   },
   {
@@ -48,7 +55,7 @@ const documentCategoryDefinitions: {
     testFn: (doc) =>
       doc.cmsDocType.documentCategory !== "UnusedStatement" &&
       doc.cmsDocType.documentCategory !== "Unused" &&
-      docTypeTest(doc, [1031, 1059]),
+      docTypeTest(doc, [1031]),
     sortFn: sortAscendingByListOrderAndId,
   },
   {
@@ -108,6 +115,7 @@ const documentCategoryDefinitions: {
     category: "Communications",
     showIfEmpty: true,
     testFn: (doc) =>
+      doc.cmsOriginalFileExtension === ".hte" ||
       docTypeTest(
         doc,
         [
@@ -121,25 +129,25 @@ const documentCategoryDefinitions: {
           138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
           152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165,
           166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179,
-          180, 181, 182, 183, 184, 185, 186, 188, 189, 190, 191, 192, 193, 194,
-          195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208,
-          209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222,
-          223, 224, 225, 226, 228, 229, 230, 231, 232, 511, 512, 513, 514, 515,
-          517, 1007, 1026, 1029, 1032, 1055, 1065, 1200, 100230, 100231, 100232,
-          100233, 100234, 100235, 100236, 100237, 100238, 100240, 100241,
-          100242, 100243, 100244, 100245, 100246, 100247, 100248, 100249,
-          100250, 100251, 100252, 100253, 225581, 225582, 225583, 225584,
-          226015,
+          180, 181, 182, 183, 184, 185, 186, 188, 190, 191, 192, 193, 194, 195,
+          196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209,
+          210, 211, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224,
+          225, 226, 228, 229, 230, 231, 232, 511, 512, 513, 514, 515, 517, 1007,
+          1026, 1029, 1032, 1055, 1065, 1200, 100230, 100231, 100232, 100233,
+          100234, 100235, 100236, 100237, 100238, 100240, 100241, 100242,
+          100243, 100244, 100245, 100246, 100247, 100248, 100249, 100250,
+          100251, 100252, 100253, 225581, 225582, 225583, 225584, 226015,
         ]
       ),
     sortFn: sortDocumentsByCreatedDate,
+    subCategoryFn: getCommunicationsSubCategory,
   },
   // have Uncategorised last so it can scoop up any unmatched documents
   {
     category: "Uncategorised",
     showIfEmpty: false,
     testFn: (doc) =>
-      docTypeTest(doc, [1051, 1052, 1053, 1054]) ||
+      docTypeTest(doc, [1051, 1052, 1053, 1054, 1059]) ||
       // match to Uncategorised if we have got this far
       // todo: add AppInsights logging for every time we find ourselves here
       true,
@@ -151,8 +159,22 @@ export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
   ({ category }) => category
 );
 
-export const getCategory = (item: PresentationDocumentProperties) =>
-  documentCategoryDefinitions.find(({ testFn: test }) => test(item))!.category;
+export const getCategory = (item: PresentationDocumentProperties) => {
+  let subCategory = null;
+  const category = documentCategoryDefinitions.find(({ testFn: test }) =>
+    test(item)
+  )!.category;
+  const categoryDef = documentCategoryDefinitions.find(
+    ({ category: categoryName }) => categoryName === category
+  )!;
+  if (categoryDef.subCategoryFn) {
+    subCategory = categoryDef.subCategoryFn(item);
+  }
+  return {
+    category,
+    subCategory,
+  };
+};
 
 export const getCategorySort = (item: AccordionDocumentSection) =>
   documentCategoryDefinitions.find(

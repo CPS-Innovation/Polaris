@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Domain.Mapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -12,20 +10,19 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.Wrappers.Contracts;
 using Common.Wrappers;
-using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.DurableEntity.Client.Tracker;
+using coordinator.Durable.Entity;
+using coordinator.Functions;
 using Common.Dto.Tracker;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Microsoft.Extensions.DependencyInjection;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.ValueObjects;
 using Newtonsoft.Json;
-using Common.Domain.Entity;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
+using coordinator.Durable.Payloads.Domain;
+using Microsoft.AspNetCore.Http;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -44,17 +41,13 @@ namespace coordinator.tests.Domain.Tracker
         private readonly long _caseId;
         private readonly Guid _correlationId;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IServiceCollection _services;
-
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
-        private readonly Mock<ILogger> _mockLogger;
+        private readonly Mock<ILogger<GetTracker>> _mockLogger;
 
         private readonly CaseDurableEntity _caseEntity;
         private readonly EntityStateResponse<CaseDurableEntity> _entityStateResponse;
-        private readonly CaseRefreshLogsDurableEntity _caseRefreshLogsEntity;
-        private readonly EntityStateResponse<CaseRefreshLogsDurableEntity> _caseRefreshLogsEntityStateResponse;
-        private readonly TrackerClient _trackerStatus;
+        private readonly GetTracker _trackerStatus;
 
         public TrackerTests()
         {
@@ -64,56 +57,46 @@ namespace coordinator.tests.Domain.Tracker
             _pcdRequests = _fixture.CreateMany<PcdRequestDto>(2).ToList();
             _defendantsAndChargesList = _fixture.Create<DefendantsAndChargesListDto>();
             _correlationId = _fixture.Create<Guid>();
+
+            // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
+            //  matches the regex attribute that decorates it.
+            _fixture.Customize<CmsDocumentEntity>(c =>
+                c.With(doc => doc.CmsOriginalFileName, $"{_fixture.Create<string>()}.{_fixture.Create<string>().Substring(0, 3)}"));
             _trackerCmsDocuments = _fixture.Create<List<CmsDocumentEntity>>();
+
             _trackerPcdRequests = _fixture.Create<List<PcdRequestEntity>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
             _caseEntity = _fixture.Create<CaseDurableEntity>();
-            _caseRefreshLogsEntity = _fixture.Create<CaseRefreshLogsDurableEntity>();
 
             _pdfBlobName = _fixture.Create<string>();
 
-            _synchroniseDocumentsArg = new (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
-            _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState=_caseEntity };
-            _caseRefreshLogsEntityStateResponse = new EntityStateResponse<CaseRefreshLogsDurableEntity>() { EntityExists = true, EntityState = _caseRefreshLogsEntity };
+            _synchroniseDocumentsArg = new(_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
+            _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState = _caseEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
-            _services = new ServiceCollection();    
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
-            _mockLogger = new Mock<ILogger>();
-
-            _mockDurableEntityClient
-                .Setup
-                (
-                    client => 
-                        client.ReadEntityStateAsync<CaseDurableEntity>
-                        (
-                            It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_caseId}]"),
-                            null, 
-                            null
-                        )
-                )
-                .ReturnsAsync(_entityStateResponse);
+            _mockLogger = new Mock<ILogger<GetTracker>>();
 
             _mockDurableEntityClient
                 .Setup
                 (
                     client =>
-                        client.ReadEntityStateAsync<CaseRefreshLogsDurableEntity>
+                        client.ReadEntityStateAsync<CaseDurableEntity>
                         (
-                            It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsDurableEntity).ToLower() && e.EntityKey.StartsWith(_caseId.ToString())),
+                            It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_caseId}]"),
                             null,
                             null
                         )
                 )
-                .ReturnsAsync(_caseRefreshLogsEntityStateResponse);
+                .ReturnsAsync(_entityStateResponse);
 
             _caseEntity = new CaseDurableEntity();
             _caseEntity.TransactionId = _transactionId;
             _caseEntity.CmsDocuments = _trackerCmsDocuments;
             _caseEntity.PcdRequests = _trackerPcdRequests;
-            _trackerStatus = new TrackerClient(_jsonConvertWrapper);
+            _trackerStatus = new GetTracker(_jsonConvertWrapper, new CaseDurableEntityMapper(), _mockLogger.Object);
         }
 
         [Fact]
@@ -149,7 +132,6 @@ namespace coordinator.tests.Domain.Tracker
 
         [Theory]
         [InlineData(DocumentStatus.Indexed)]
-        [InlineData(DocumentStatus.DocumentAlreadyProcessed)]
         [InlineData(DocumentStatus.UnableToConvertToPdf)]
         [InlineData(DocumentStatus.PdfUploadedToBlob)]
         [InlineData(DocumentStatus.OcrAndIndexFailure)]
@@ -195,21 +177,12 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.FailedReason.Should().Be("exceptionMessage");
         }
 
-        //[Fact]
-        //public async Task GetDocuments_ReturnsDocuments()
-        //{
-        //    _tracker.CmsDocuments = _trackerDocuments;
-        //    var documents = await _tracker.GetDocuments();
-
-        //    documents.Should().BeEquivalentTo(_trackerDocuments);
-        //}
-
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf}
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>()) { Status = DocumentStatus.UnableToConvertToPdf}
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.UnableToConvertToPdf };
@@ -223,9 +196,9 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.PdfUploadedToBlob},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), null,  _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),_fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>()) { Status = DocumentStatus.PdfUploadedToBlob},
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.Indexed };
@@ -247,11 +220,11 @@ namespace coordinator.tests.Domain.Tracker
         public async Task HttpStart_TrackerStatus_ReturnsOK()
         {
             // Arrange
-            var message = new HttpRequestMessage();
+            var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
 
             // Act
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
             // Assert
             response.Should().BeOfType<OkObjectResult>();
@@ -260,9 +233,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsTrackerDto()
         {
-            var message = new HttpRequestMessage();
+            var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
             var okObjectResult = response as OkObjectResult;
 
@@ -280,15 +253,15 @@ namespace coordinator.tests.Domain.Tracker
                         client => client.ReadEntityStateAsync<CaseDurableEntity>
                         (
                             It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_caseId}]"),
-                            null, 
+                            null,
                             null
                         )
                     )
                 .ReturnsAsync(entityStateResponse);
 
-            var message = new HttpRequestMessage();
+            var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
             response.Should().BeOfType<NotFoundObjectResult>();
         }
@@ -303,10 +276,11 @@ namespace coordinator.tests.Domain.Tracker
                         null, null))
                 .ReturnsAsync(entityStateResponse);
 
-            var message = new HttpRequestMessage();
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var message = new DefaultHttpContext().Request;
+            //message.Headers.Add("Correlation-Id", _correlationId.ToString());
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
 
-            response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(400);
         }
 
         #region SynchroniseDocument
@@ -383,30 +357,6 @@ namespace coordinator.tests.Domain.Tracker
             tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
             tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
             tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
-        }
-
-        [Fact]
-        public async Task SynchroniseDocument_FailedCmsDocumentAreReprocessed()
-        {
-            // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
-            await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.UnableToConvertToPdf);
-            tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.Indexed);
-
-            // Act 
-            var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-
-            // Assert
-            tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
-            deltas.CreatedCmsDocuments.Count.Should().Be(0);
-            deltas.UpdatedCmsDocuments.Count.Should().Be(3);
-            deltas.DeletedCmsDocuments.Count.Should().Be(0);
-            deltas.Any().Should().BeTrue();
-            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(2);
-            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(2);
-            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(2);
         }
 
         [Fact]
@@ -607,62 +557,5 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         #endregion
-
-        [Fact]
-        public void Populated_TrackerEntity_MapsTo_TrackerDto()
-        {
-            // Arrange
-            _services.RegisterMapsterConfiguration();
-            var caseEntity = _fixture.Create<CaseDurableEntity>();
-            caseEntity.CmsDocuments[0].CategoryListOrder = 1;
-            var caseRefreshLogsEntity = _fixture.Create<CaseRefreshLogsDurableEntity>();
-
-
-            // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
-
-
-            // Assert
-            trackerDto.Documents.Count.Should().Be(caseEntity.CmsDocuments.Count + caseEntity.PcdRequests.Count + 1);
-            trackerDto.Documents.Count(d => d.CategoryListOrder != null).Should().BeGreaterThan(0);
-        }
-
-        [Fact]
-        public void Empty_TrackerEntity_MapsTo_TrackerDto()
-        {
-            // Arrange
-            _services.RegisterMapsterConfiguration();
-            var caseEntity = new CaseDurableEntity();
-            var caseRefreshLogsEntity = new CaseRefreshLogsDurableEntity();
-
-
-            // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
-
-            // Assert
-            trackerDto.Documents.Count.Should().Be(0);
-            trackerDto.Logs.Case.Count.Should().Be(0);
-            trackerDto.Logs.Documents.Count.Should().Be(0);
-            trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
-        }
-
-        [Fact]
-        public void Null_TrackerEntity_MapsTo_TrackerDto()
-        {
-            // Arrange
-            _services.RegisterMapsterConfiguration();
-            CaseDurableEntity caseEntity = null;
-            CaseRefreshLogsDurableEntity caseRefreshLogsEntity = null;
-
-
-            // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
-
-            // Assert
-            trackerDto.Documents.Count.Should().Be(0);
-            trackerDto.Logs.Case.Count.Should().Be(0);
-            trackerDto.Logs.Documents.Count.Should().Be(0);
-            trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
-        }
     }
 }

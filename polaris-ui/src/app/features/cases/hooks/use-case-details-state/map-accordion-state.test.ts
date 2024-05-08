@@ -1,7 +1,10 @@
 import { mapAccordionState } from "./map-accordion-state";
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import {
+  ConversionStatus,
+  PresentationDocumentProperties,
+} from "../../domain/gateway/PipelineDocument";
 
 const mapUnSortedDocsToCategory = (
   categories: string[],
@@ -441,12 +444,14 @@ describe("mapAccordionState", () => {
           documentId: "1",
           cmsDocumentId: "1",
           presentationCategory: "Reviews",
+          presentationSubCategory: null,
           cmsOriginalFileName: "foo",
           presentationTitle: "foo!",
-          cmsMimeType: "application/pdf",
+          cmsOriginalFileExtension: ".pdf",
           presentationFileName: "foo!",
           polarisDocumentVersionId: 1,
           categoryListOrder: null,
+          attachments: [],
           cmsDocType: {
             documentTypeId: 1,
             documentType: "DAC",
@@ -457,17 +462,25 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
+          polarisParentDocumentId: null,
+          witnessId: null,
+          witnessIndicators: [],
+          hasFailedAttachments: false,
+          hasNotes: false,
+          conversionStatus: "DocumentConverted",
         },
         {
           documentId: "2",
           cmsDocumentId: "2",
           presentationCategory: "Reviews",
+          presentationSubCategory: null,
           cmsOriginalFileName: "bar",
           presentationTitle: "bar!",
-          cmsMimeType: "application/pdf",
+          cmsOriginalFileExtension: ".pdf",
           presentationFileName: "bar!",
           polarisDocumentVersionId: 1,
           categoryListOrder: null,
+          attachments: [],
           cmsDocType: {
             documentTypeId: 2,
             documentType: "MG12",
@@ -478,6 +491,12 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
+          polarisParentDocumentId: null,
+          witnessId: null,
+          witnessIndicators: [],
+          hasFailedAttachments: false,
+          hasNotes: false,
+          conversionStatus: "DocumentConverted",
         },
       ],
     };
@@ -495,12 +514,14 @@ describe("mapAccordionState", () => {
               documentId: "2",
               cmsDocumentId: "2",
               presentationCategory: "Reviews",
+              presentationSubCategory: null,
               cmsOriginalFileName: "bar",
               presentationTitle: "bar!",
-              cmsMimeType: "application/pdf",
+              cmsOriginalFileExtension: ".pdf",
               presentationFileName: "bar!",
               polarisDocumentVersionId: 1,
               categoryListOrder: null,
+              attachments: [],
               cmsDocType: {
                 documentTypeId: 2,
                 documentType: "MG12",
@@ -511,6 +532,12 @@ describe("mapAccordionState", () => {
                 read: "Ok",
                 write: "Ok",
               },
+              polarisParentDocumentId: null,
+              witnessId: null,
+              witnessIndicators: [],
+              hasFailedAttachments: false,
+              hasNotes: false,
+              conversionStatus: "DocumentConverted",
             },
           ],
         },

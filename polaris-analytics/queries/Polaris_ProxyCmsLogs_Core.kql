@@ -1,0 +1,42 @@
+
+// Format is HTTP/1.1" $status $body_bytes_sent $request_length $request_time $upstream_response_time $upstream_connect_time $upstream_header_time 
+let Regex1 = 'HTTP/1.1" ([0-9]{3}) ([0-9]+) ([0-9]+)';
+let Regex2 = 'HTTP/1.1" [0-9]{3} [0-9]+ [0-9]+ (\\d*\\.?\\d*|-) (\\d*\\.?\\d*|-) (\\d*\\.?\\d*|-) (\\d*\\.?\\d*|-)';
+
+AppServiceConsoleLogs
+| where ResultDescription startswith " CMS"
+| extend PolarisOrCmsProxy =  iif(ResultDescription contains "internal-implementation/", 'Polaris', 'CmsProxy')
+| extend DestinationIp = extract('"(\\d+.\\d+.\\d+.\\d+):443"', 1, ResultDescription)
+| extend ClassicModernUiOrGraphQL = 
+    iif(DestinationIp endswith ".177.2", 
+        "Classic", 
+    iif(DestinationIp endswith ".177.50", 
+        iif(ResultDescription contains "/graphql/", "GraphQL", "ModernUI"), 
+    iif(ResultDescription contains "/CMS.", 
+        "Classic",
+        "Unknown"
+    )))
+| project 
+    TimeGenerated, 
+    PolarisOrCmsProxy,
+    ClassicModernUiOrGraphQL,
+    DestinationIp,
+
+    StatusCode = extract(Regex1, 1, ResultDescription, typeof(int)),
+    ResponseBytes = tolong(extract(Regex1, 2, ResultDescription)),
+    RequestBytes = tolong(extract(Regex1, 3, ResultDescription)),
+
+    RequestTimeMs = tolong(1000*todecimal(extract(Regex2, 1, ResultDescription))),
+    UpstreamResponseTimeMs = tolong(1000*todecimal(extract(Regex2, 2, ResultDescription))),
+    UpstreamConnectTimeMs = tolong(1000*todecimal(extract(Regex2, 3, ResultDescription))),
+    UpstreamHeaderTimeMs = tolong(1000*todecimal(extract(Regex2, 4, ResultDescription))),
+
+    PolarisCorrelationId = extract('POLARIS-CORRELATION-ID:([0-9a-f-]*)', 1, ResultDescription),
+    PolarisOperationName = extract('POLARIS-OPERATION-NAME:([[:alpha:]]+)', 1, ResultDescription),
+    CmsUserId = tolong(extract('CMS-USER-ID:([0-9]*)', 1, ResultDescription)),
+    Verb = extract('"(.*)\\s/', 1, ResultDescription),
+    Url=extract('\\s/(.*)\\sHTTP', 1, ResultDescription),
+    ResultDescription,
+    _ResourceId
+| extend LoadBalancerTarget = coalesce(extract("(corsham|farnborough)", 1, ResultDescription), "corsham")
+| extend OutboundUrl = strcat(DestinationIp, "/", replace_regex(Url, "(internal-implementation/(?:corsham|farnborough)/modern/)", ""))

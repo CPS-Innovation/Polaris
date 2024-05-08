@@ -4,45 +4,61 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
   service_plan_id               = azurerm_service_plan.asp_polaris_gateway.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
+  storage_account_name          = azurerm_storage_account.sa_gateway.name
+  storage_account_access_key    = azurerm_storage_account.sa_gateway.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_gateway_subnet.id
   functions_extension_version   = "~4"
-  
+  public_network_access_enabled = false
+  https_only                    = true
+  tags                          = local.common_tags
+  builtin_logging_enabled       = false
+
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"                 = data.azurerm_application_insights.global_ai.instrumentation_key
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = "true"
-    "WEBSITE_CONTENTOVERVNET"                        = "1"
-    "WEBSITE_DNS_SERVER"                             = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
-    "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.ui_logging.gateway_scale_controller
-    "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "TenantId"                                       = data.azurerm_client_config.current.tenant_id
-    "ClientId"                                       = module.azurerm_app_reg_fa_polaris.client_id
-    "ClientSecret"                                   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
-    "PolarisPipelineCoordinatorDurableExtensionCode" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.durabletask_extension_key
-    "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobContainerName"                              = "documents"
-    "BlobExpirySecs"                                 = 3600
-    "BlobUserDelegationKeyExpirySecs"                = 3600
-    "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
-    "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
-    "CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
-    "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_gateway.primary_connection_string
+    "BlobContainerName"                               = "documents"
+    "BlobExpirySecs"                                  = 3600
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobUserDelegationKeyExpirySecs"                 = 3600
+    "CallingAppValidAudience"                         = var.polaris_webapp_details.valid_audience
+    "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
+    "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
+    "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
+    "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HostType"                                        = "Production"
+    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
+    "TenantId"                                        = data.azurerm_client_config.current.tenant_id
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sa_gateway_file_share.name
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/api/status"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+  }
+
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {
-    always_on     = false
-    ftps_state    = "FtpsOnly"
-    http2_enabled = true
+    always_on                              = false
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     cors {
       allowed_origins = [
         "https://as-web-${local.resource_name}.azurewebsites.net",
@@ -52,12 +68,16 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       ]
       support_credentials = true
     }
-    vnet_route_all_enabled           = true
-    runtime_scale_monitoring_enabled = true
-    elastic_instance_minimum         = 3
+    vnet_route_all_enabled            = true
+    runtime_scale_monitoring_enabled  = true
+    elastic_instance_minimum          = var.ui_component_service_plans.gateway_always_ready_instances
+    app_scale_limit                   = var.ui_component_service_plans.gateway_maximum_scale_out_limit
+    health_check_path                 = "/api/status"
+    health_check_eviction_time_in_min = "2"
+    application_stack {
+      dotnet_version = "6.0"
+    }
   }
-
-  tags = local.common_tags
 
   identity {
     type = "SystemAssigned"
@@ -68,7 +88,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     require_authentication = true
     default_provider       = "AzureActiveDirectory"
     unauthenticated_action = "RedirectToLoginPage"
-    excluded_paths         = ["/api/status"]
+    excluded_paths         = ["/api/status", "/api/init", "/api/init/"]
 
     # our default_provider:
     active_directory_v2 {
@@ -86,12 +106,41 @@ resource "azurerm_linux_function_app" "fa_polaris" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"]
+      app_settings["AzureWebJobsStorage"],
+      app_settings["BlobContainerName"],
+      app_settings["BlobExpirySecs"],
+      app_settings["BlobServiceUrl"],
+      app_settings["BlobUserDelegationKeyExpirySecs"],
+      app_settings["CallingAppValidAudience"],
+      app_settings["CallingAppValidRoles"],
+      app_settings["CallingAppValidScopes"],
+      app_settings["ClientId"],
+      app_settings["ClientSecret"],
+      app_settings["DdeiAccessKey"],
+      app_settings["DdeiBaseUrl"],
+      app_settings["HostType"],
+      app_settings["PolarisPipelineCoordinatorBaseUrl"],
+      app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
+      app_settings["TenantId"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
+      app_settings["WEBSITE_CONTENTOVERVNET"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_DNS_ALT_SERVER"],
+      app_settings["WEBSITE_DNS_SERVER"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_RUN_FROM_PACKAGE"],
+      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
+      app_settings["WEBSITE_WARMUP_PATH"],
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
     ]
   }
 
-  depends_on = [azurerm_storage_account.sacpspolaris, azapi_resource.polaris_sacpspolaris_gateway_file_share]
+  depends_on = [azurerm_storage_account.sa_gateway, azapi_resource.polaris_sa_gateway_file_share]
 }
 
 module "azurerm_app_reg_fa_polaris" {
@@ -100,9 +149,21 @@ module "azurerm_app_reg_fa_polaris" {
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.resource_name}-gateway"]
   owners                  = [data.azuread_client_config.current.object_id]
   prevent_duplicate_names = true
+  group_membership_claims = ["ApplicationGroup"]
+  optional_claims = {
+    access_token = {
+      name = "groups"
+    }
+    id_token = {
+      name = "groups"
+    }
+    saml2_token = {
+      name = "groups"
+    }
+  }
   #use this code for adding scopes
   api = {
-    mapped_claims_enabled          = false
+    mapped_claims_enabled          = true
     requested_access_token_version = 1
     known_client_applications      = []
     oauth2_permission_scope = [{
@@ -170,26 +231,4 @@ resource "azurerm_private_endpoint" "polaris_gateway_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "polaris_gateway_dns_a" {
-  name                = azurerm_linux_function_app.fa_polaris.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.polaris_gateway_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-  depends_on          = [azurerm_private_endpoint.polaris_gateway_pe]
-}
-
-# Create DNS A Record for SCM site
-resource "azurerm_private_dns_a_record" "polaris_gateway_scm_dns_a" {
-  name                = "${azurerm_linux_function_app.fa_polaris.name}.scm"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.polaris_gateway_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-  depends_on          = [azurerm_private_endpoint.polaris_gateway_pe]
 }

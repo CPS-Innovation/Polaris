@@ -27,7 +27,26 @@ type AppInsightsTrackEventNames =
   | "Report Document Issue"
   | "Uncategorised Document"
   | "Categorised Documents Count"
-  | "Open Documents Count";
+  | "Open Documents Count"
+  | "Failed Default Mapping Redaction Log"
+  | "Save Redaction Log"
+  | "Save Redaction Log Under Over"
+  | "Open Under Over Redaction Log"
+  | "Close Under Over Redaction Log"
+  | "View Full Screen"
+  | "Exit Full Screen"
+  | "Redact Area Tool On"
+  | "Redact Area Tool Off"
+  | "Save Redaction Log Error"
+  | "Add Unsaved Redactions"
+  | "Ignore Unsaved Redactions"
+  | "Document Checkout Error"
+  | "Document Checked Out By Another User Error"
+  | "Open Notes"
+  | "Add Note"
+  | "Add Note Error"
+  | "Notes Document Mismatch Ok"
+  | "Notes Document Mismatch Cancel";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -79,6 +98,40 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Categorised Documents Count":
     "Action auto-triggered. Action not initiated by a user. Log the document count by category after loading the Case Details screen.",
   "Open Documents Count": "Number of documents opened at a time",
+  "Failed Default Mapping Redaction Log":
+    "Reporting if default mapping failed to find correct default value for at least one of the fields",
+  "Save Redaction Log":
+    "User has clicked save and close button in the under redaction log form",
+  "Save Redaction Log Under Over":
+    "User has clicked save and close button in the under over redaction log form",
+  "Open Under Over Redaction Log":
+    "User has clicked on the Log an Under/Over redaction button in the action drop down menu",
+  "Close Under Over Redaction Log":
+    "User has clicked on the close button of the under over redaction log modal button",
+  "View Full Screen": "User has clicked on the view full screen button",
+  "Exit Full Screen": "User has clicked on the exit full screen button",
+  "Redact Area Tool On":
+    "User has clicked on the Redact Area Tool button, to turn on area only redaction",
+  "Redact Area Tool Off":
+    "User has clicked on the Redact Area Tool button, to turn off area only redaction",
+  "Save Redaction Log Error":
+    "The attempt to save the data log failed, prompting the display of an error message to the user",
+  "Add Unsaved Redactions":
+    "User has clicked apply button on the unsaved redaction modal",
+  "Ignore Unsaved Redactions":
+    "User has clicked ignore button on the unsaved redaction modal",
+  "Document Checkout Error":
+    "The attempt to checkout a document failed, prompting the display of an error message to the user",
+  "Document Checked Out By Another User Error":
+    "The attempt to checkout a document failed, as it is already checked by another user, prompting the display of an error message to the user",
+  "Open Notes": "User has clicked open notes button in the accordion document",
+  "Add Note": "User has clicked Add note button in the notes panel",
+  "Add Note Error":
+    "The attempt to add a new note for a document failed, prompting the display of an error message to the user",
+  "Notes Document Mismatch Ok":
+    "User has clicked Ok button in the document mismatch modal",
+  "Notes Document Mismatch Cancel":
+    "User has clicked cancel or close button in the document mismatch modal",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

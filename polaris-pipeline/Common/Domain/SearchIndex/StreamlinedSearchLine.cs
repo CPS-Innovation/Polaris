@@ -23,13 +23,14 @@ public class StreamlinedSearchLine
                 var polarisDocumentId = indexerId.Split(":")[1];
                 return polarisDocumentId;
             }
-            catch 
+            catch
             {
                 return string.Empty;
             }
         }
     }
-
+    [JsonProperty("versionId")]
+    public long VersionId { get; set; }
     [JsonProperty("fileName")]
     public string FileName { get; set; }
 

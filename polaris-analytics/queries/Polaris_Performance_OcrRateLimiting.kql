@@ -1,0 +1,26 @@
+AppDependencies
+| where AppRoleName in ("fa-polaris-pipeline-text-extractor", "fa-polaris-text-extractor")
+| where Target == "polarisprod.cognitiveservices.azure.com"
+| partition hint.strategy=shuffle by OperationId
+(
+    summarize 
+        TimeGenerated = min(TimeGenerated),
+        IsRateLimited = countif(ResultCode == 429)>0,
+        InteractionsCount=count(), 
+        Duration =  max(TimeGenerated) - min(TimeGenerated)
+    by 
+        OperationId    
+) 
+| where InteractionsCount > 1 
+| where Duration < time(5m) // get rid of crazy outliers
+| summarize 
+    AvgDurationRateLimited = avgif(Duration,IsRateLimited),
+    AvgDurationNotRateLimited =avgif(Duration,not(IsRateLimited)),
+    // MaxDurationRateLimited = maxif(Duration,IsRateLimited),
+    // MaxDurationNotRateLimited = maxif(Duration,not(IsRateLimited)),
+    CountRateLimitedCalls = countif(IsRateLimited),
+    CountCalls = count(),
+    PercentRateLimitedCalls = round(100 * todecimal(countif(IsRateLimited)) / count(), 2),
+    DelayWhenRateLimited = avgif(Duration,IsRateLimited) - avgif(Duration,not(IsRateLimited))
+ by 
+    bin(TimeGenerated, ts)

@@ -6,6 +6,7 @@ export const WaitPage: React.FC = (props) => (
       <h1
         className="govuk-heading-xl"
         data-testid="txt-please-wait-page-heading"
+        aria-live="polite"
       >
         Please wait...
       </h1>

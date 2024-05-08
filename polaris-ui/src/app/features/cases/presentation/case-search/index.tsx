@@ -21,11 +21,14 @@ const validationFailMessage = "Enter a URN in the right format";
 const Page: React.FC = () => {
   useAppInsightsTrackPageView("Case Search Page");
   const trackEvent = useAppInsightsTrackEvent();
-  const { urn: urnFromSearchParams, setParams } =
-    useQueryParamsState<CaseSearchQueryParams>();
+  const {
+    urn: urnFromSearchParams,
+    setParams,
+    search,
+  } = useQueryParamsState<CaseSearchQueryParams>();
 
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
-    useSearchInputLogic({ urnFromSearchParams, setParams });
+    useSearchInputLogic({ urnFromSearchParams, setParams, search });
 
   const handleSearch = () => {
     trackEvent("Search URN", { page: "case-search", searchParameter: urn });

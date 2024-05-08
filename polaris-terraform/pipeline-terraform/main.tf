@@ -1,21 +1,21 @@
 #touch - comment 1
 terraform {
-  required_version = "1.5.3"
+  required_version = ">= 1.5.3"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.65.0"
+      version = "3.87.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.38.0"
+      version = "2.45.0"
     }
 
     restapi = {
       source  = "Mastercard/restapi"
-      version = "1.18.0"
+      version = "1.18.2"
     }
 
     random = {
@@ -24,7 +24,8 @@ terraform {
     }
 
     azapi = {
-      source = "Azure/azapi"
+      source  = "Azure/azapi"
+      version = "1.10.0"
     }
   }
 

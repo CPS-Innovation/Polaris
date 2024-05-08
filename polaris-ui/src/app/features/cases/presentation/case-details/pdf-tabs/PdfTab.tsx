@@ -7,12 +7,17 @@ import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
+import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
+  caseId: number;
+  redactionTypesData: RedactionTypeData[];
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
+  showOverRedactionLog: boolean;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -24,30 +29,42 @@ type PdfTabProps = {
     correlationId: string;
   };
   isOkToSave: boolean;
+  handleOpenPdf: (caseDocument: {
+    documentId: string;
+    mode: "read" | "search";
+  }) => void;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
-  handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
+  handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
+  handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
+  handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
   tabIndex,
+  caseId,
+  redactionTypesData,
   activeTabId,
   tabId,
+  showOverRedactionLog,
   caseDocumentViewModel,
   headers,
   documentWriteStatus,
   savedDocumentDetails,
   contextData,
   isOkToSave,
+  handleOpenPdf,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
   handleRemoveAllRedactions,
   handleSavedRedactions,
-  handleOpenPdfInNewTab,
+  handleShowHideDocumentIssueModal,
+  handleShowRedactionLogModal,
+  handleAreaOnlyRedaction,
 }) => {
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -57,16 +74,20 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     mode,
     redactionHighlights,
     documentId,
+    areaOnlyRedactionMode,
     isDeleted,
+    saveStatus,
     cmsDocType: { documentType },
-    polarisDocumentVersionId,
+    attachments,
+    hasFailedAttachments,
   } = caseDocumentViewModel;
 
   const searchHighlights =
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
 
   const localHandleAddRedaction = useCallback(
-    (redaction: NewPdfHighlight) => handleAddRedaction(documentId, redaction),
+    (redactions: NewPdfHighlight[]) =>
+      handleAddRedaction(documentId, redactions),
     [documentId, handleAddRedaction]
   );
 
@@ -113,18 +134,37 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         />
       ) : (
         <HeaderReadMode
+          showOverRedactionLog={showOverRedactionLog}
           caseDocumentViewModel={caseDocumentViewModel}
-          handleOpenPdfInNewTab={handleOpenPdfInNewTab}
+          handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
+          handleShowRedactionLogModal={handleShowRedactionLogModal}
+          handleAreaOnlyRedaction={handleAreaOnlyRedaction}
           contextData={{
-            correlationId: contextData.correlationId,
             documentId: documentId,
-            polarisDocumentVersionId: polarisDocumentVersionId,
+            tabIndex: tabIndex,
+            areaOnlyRedactionMode: areaOnlyRedactionMode,
           }}
         />
       )}
-
+      {!!attachments.length && (
+        <HeaderAttachmentMode
+          caseDocumentViewModel={caseDocumentViewModel}
+          handleOpenPdf={handleOpenPdf}
+        />
+      )}
+      {hasFailedAttachments && (
+        <div className={classes.attachmentHeaderContent}>
+          <span
+            className={classes.failedAttachmentWarning}
+            data-testid={`failed-attachment-warning-${documentId}`}
+          >
+            Attachments only available on CMS
+          </span>
+        </div>
+      )}
       {url && !isDocumentRefreshing() ? (
         <PdfViewer
+          redactionTypesData={redactionTypesData}
           url={url}
           tabIndex={tabIndex}
           activeTabId={activeTabId}
@@ -135,17 +175,23 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           contextData={{
             documentId,
             documentType,
+            saveStatus: saveStatus,
+            caseId,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
           focussedHighlightIndex={focussedHighlightIndex}
+          areaOnlyRedactionMode={areaOnlyRedactionMode}
           handleAddRedaction={localHandleAddRedaction}
           handleRemoveRedaction={localHandleRemoveRedaction}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
         />
       ) : (
-        <Wait dataTestId={`pdfTab-spinner-${tabIndex}`} />
+        <Wait
+          dataTestId={`pdfTab-spinner-${tabIndex}`}
+          ariaLabel="Refreshing document, please wait"
+        />
       )}
     </>
   );

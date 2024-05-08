@@ -48,6 +48,7 @@ export const PdfLinearHighlightPartSearch: React.FC<Props> = ({ rect }) => {
 
   return isHidden ? null : (
     <button
+      aria-label="proposed redaction"
       ref={ref}
       style={rect}
       className={classes[`Highlight__part__search`]}

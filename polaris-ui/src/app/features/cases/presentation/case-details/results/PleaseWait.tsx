@@ -6,7 +6,10 @@ export const PleaseWait: React.FC = () => {
     <div data-testid="div-please-wait">
       <div className={classes.content}>
         <h1 className="govuk-heading-l ">Loading search results</h1>
-        <Spinner diameterPx={80} />
+        <Spinner
+          diameterPx={80}
+          ariaLabel="Loading search results, please wait"
+        />
       </div>
     </div>
   );

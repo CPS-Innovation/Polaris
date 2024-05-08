@@ -1,6 +1,12 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import { getCaseDetails, searchCase } from "../../api/gateway-api";
+import { useUserDetails } from "../../../../auth";
+import {
+  getCaseDetails,
+  searchCase,
+  getRedactionLogLookUpsData,
+  getRedactionLogMappingData,
+} from "../../api/gateway-api";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
@@ -9,6 +15,13 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
+import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
+import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import {
+  readFromLocalStorage,
+  ReadUnreadData,
+} from "../../presentation/case-details/utils/localStorageUtils";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -40,14 +53,30 @@ export const initialState = {
     show: false,
     message: "",
     title: "",
+    type: "",
   },
   confirmationModal: {
     show: false,
     message: "",
   },
+  documentIssueModal: {
+    show: false,
+  },
+  redactionLog: {
+    showModal: false,
+    type: RedactionLogTypes.UNDER,
+    redactionLogLookUpsData: { status: "loading" },
+    redactionLogMappingData: { status: "loading" },
+    savedRedactionTypes: [],
+  },
+  featureFlags: { redactionLog: false, fullScreen: false, notes: false },
+  storedUserData: { status: "loading" },
+  notes: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
+  const userDetails = useUserDetails();
+  const featureFlagData = useUserGroupsFeatureFlag();
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -62,6 +91,56 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     caseId,
     combinedState.pipelineRefreshData
   );
+
+  const redactionLogLookUpsData = useApi(
+    getRedactionLogLookUpsData,
+    [],
+    combinedState.featureFlags.redactionLog
+  );
+
+  const redactionLogMappingData = useApi(
+    getRedactionLogMappingData,
+    [],
+    combinedState.featureFlags.redactionLog
+  );
+
+  useEffect(() => {
+    if (combinedState.storedUserData.status === "loading") {
+      const docReadData = readFromLocalStorage(
+        caseId,
+        "readUnread"
+      ) as ReadUnreadData | null;
+      dispatch({
+        type: "UPDATE_STORED_USER_DATA",
+        payload: {
+          storedUserData: { readUnread: docReadData ?? [] },
+        },
+      });
+    }
+  }, [combinedState.storedUserData.status, caseId, dispatch]);
+
+  useEffect(() => {
+    if (redactionLogLookUpsData.status !== "initial")
+      dispatch({
+        type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA",
+        payload: redactionLogLookUpsData,
+      });
+  }, [redactionLogLookUpsData, dispatch]);
+
+  useEffect(() => {
+    if (redactionLogMappingData.status !== "initial")
+      dispatch({
+        type: "UPDATE_REDACTION_LOG_MAPPING_DATA",
+        payload: redactionLogMappingData,
+      });
+  }, [redactionLogMappingData, dispatch]);
+
+  useEffect(() => {
+    dispatch({
+      type: "UPDATE_FEATURE_FLAGS_DATA",
+      payload: featureFlagData,
+    });
+  }, [featureFlagData.fullScreen, featureFlagData.redactionLog, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")
@@ -132,6 +211,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           mode: caseDocument.mode,
         },
       });
+      handleTabSelection(caseDocument.documentId);
+      handleSaveReadUnreadData(caseDocument.documentId);
     },
     [dispatch]
   );
@@ -211,11 +292,11 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const handleAddRedaction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      redaction: NewPdfHighlight
+      redactions: NewPdfHighlight[]
     ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { documentId, redaction },
+        payload: { documentId, redactions },
       }),
     [dispatch]
   );
@@ -244,11 +325,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleOpenPdfInNewTab = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"]) =>
+  const handleSaveRedactionLog = useCallback(
+    (
+      redactionLogRequestData: RedactionLogRequestData,
+      redactionLogType: RedactionLogTypes
+    ) =>
       dispatch({
-        type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: { documentId },
+        type: "SAVE_REDACTION_LOG",
+        payload: { redactionLogRequestData, redactionLogType },
       }),
     [dispatch]
   );
@@ -257,6 +341,35 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     () =>
       dispatch({
         type: "HIDE_ERROR_MODAL",
+      }),
+    [dispatch]
+  );
+
+  const handleShowHideDocumentIssueModal = useCallback(
+    (value: boolean) =>
+      dispatch({
+        type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL",
+        payload: value,
+      }),
+    [dispatch]
+  );
+
+  const handleShowRedactionLogModal = useCallback(
+    (type: RedactionLogTypes) =>
+      dispatch({
+        type: "SHOW_REDACTION_LOG_MODAL",
+        payload: {
+          type: type,
+          savedRedactionTypes: [],
+        },
+      }),
+    [dispatch]
+  );
+
+  const handleHideRedactionLogModal = useCallback(
+    () =>
+      dispatch({
+        type: "HIDE_REDACTION_LOG_MODAL",
       }),
     [dispatch]
   );
@@ -270,9 +383,50 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleAreaOnlyRedaction = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      enableAreaOnlyMode: boolean
+    ) =>
+      dispatch({
+        type: "ENABLE_AREA_REDACTION_MODE",
+        payload: { documentId, enableAreaOnlyMode },
+      }),
+    [dispatch]
+  );
+
+  const handleSaveReadUnreadData = useCallback(
+    (documentId) =>
+      dispatch({
+        type: "SAVE_READ_UNREAD_DATA",
+        payload: { documentId },
+      }),
+    [dispatch]
+  );
+
+  const handleGetNotes = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "GET_NOTES_DATA",
+        payload: { documentId },
+      }),
+    [dispatch]
+  );
+
+  const handleAddNote = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"], noteText: string) =>
+      dispatch({
+        type: "ADD_NOTE_DATA",
+        payload: {
+          documentId,
+          noteText,
+        },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
-    handleOpenPdfInNewTab,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -287,5 +441,13 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleSavedRedactions,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleShowHideDocumentIssueModal,
+    handleShowRedactionLogModal,
+    handleHideRedactionLogModal,
+    handleAreaOnlyRedaction,
+    handleSaveRedactionLog,
+    handleSaveReadUnreadData,
+    handleGetNotes,
+    handleAddNote,
   };
 };

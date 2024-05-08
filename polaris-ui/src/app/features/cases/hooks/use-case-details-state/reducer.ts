@@ -21,6 +21,22 @@ import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
 import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
+import { SaveStatus } from "../../domain/gateway/SaveStatus";
+import {
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
+  RedactionTypeData,
+} from "../../domain/redactionLog/RedactionLogData";
+import { FeatureFlagData } from "../../domain/FeatureFlagData";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+import {
+  addToLocalStorage,
+  deleteFromLocalStorage,
+} from "../../presentation/case-details/utils/localStorageUtils";
+import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
+import { StoredUserData } from "../../domain//gateway/StoredUserData";
+import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
+import { Note } from "../../domain/gateway/NotesData";
 
 export const reducer = (
   state: CombinedState,
@@ -41,13 +57,6 @@ export const reducer = (
             documentId: string;
             polarisDocumentVersionId: number;
           };
-        };
-      }
-    | {
-        type: "OPEN_PDF_IN_NEW_TAB";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          sasUrl: string;
         };
       }
     | {
@@ -98,7 +107,14 @@ export const reducer = (
         type: "ADD_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
-          redaction: NewPdfHighlight;
+          redactions: NewPdfHighlight[];
+        };
+      }
+    | {
+        type: "SAVING_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          saveStatus: SaveStatus;
         };
       }
     | {
@@ -126,10 +142,65 @@ export const reducer = (
         payload: {
           message: string;
           title: string;
+          type: ErrorModalTypes;
         };
       }
     | {
         type: "HIDE_ERROR_MODAL";
+      }
+    | {
+        type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
+        payload: boolean;
+      }
+    | {
+        type: "SHOW_REDACTION_LOG_MODAL";
+        payload: {
+          type: RedactionLogTypes;
+          savedRedactionTypes: RedactionTypeData[];
+        };
+      }
+    | {
+        type: "HIDE_REDACTION_LOG_MODAL";
+      }
+    | {
+        type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
+        payload: ApiResult<RedactionLogLookUpsData>;
+      }
+    | {
+        type: "UPDATE_REDACTION_LOG_MAPPING_DATA";
+        payload: ApiResult<RedactionLogMappingData>;
+      }
+    | {
+        type: "UPDATE_FEATURE_FLAGS_DATA";
+        payload: FeatureFlagData;
+      }
+    | {
+        type: "ENABLE_AREA_REDACTION_MODE";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          enableAreaOnlyMode: boolean;
+        };
+      }
+    | {
+        type: "UPDATE_STORED_USER_DATA";
+        payload: {
+          storedUserData: StoredUserData;
+        };
+      }
+    | {
+        type: "UPDATE_NOTES_DATA";
+        payload:
+          | {
+              documentId: string;
+              addNoteStatus: "saving" | "failure" | "success";
+              getNoteStatus: "initial";
+            }
+          | {
+              documentId: string;
+              notesData: Note[];
+              addNoteStatus: "initial";
+              getNoteStatus: "initial" | "loading" | "failure";
+            };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -139,6 +210,30 @@ export const reducer = (
       }
 
       return { ...state, caseState: action.payload };
+
+    case "UPDATE_REDACTION_LOG_LOOK_UPS_DATA":
+      if (action.payload.status === "failed") {
+        return state;
+      }
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          redactionLogLookUpsData: action.payload,
+        },
+      };
+
+    case "UPDATE_REDACTION_LOG_MAPPING_DATA":
+      if (action.payload.status === "failed") {
+        return state;
+      }
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          redactionLogMappingData: action.payload,
+        },
+      };
 
     case "UPDATE_PIPELINE": {
       if (action.payload.status === "failed") {
@@ -180,7 +275,14 @@ export const reducer = (
       }
 
       if (shouldBuildDocumentsState) {
-        const documentsState = mapDocumentsState(action.payload.data.documents);
+        const witnesses =
+          state.caseState && state.caseState.status === "succeeded"
+            ? state.caseState.data.witnesses
+            : [];
+        const documentsState = mapDocumentsState(
+          action.payload.data.documents,
+          witnesses
+        );
         const accordionState = mapAccordionState(documentsState);
         nextState = {
           ...nextState,
@@ -290,20 +392,6 @@ export const reducer = (
         },
       };
     }
-    case "OPEN_PDF_IN_NEW_TAB": {
-      const { documentId, sasUrl } = action.payload;
-      return {
-        ...state,
-        tabsState: {
-          ...state.tabsState,
-          items: [
-            ...state.tabsState.items.map((item) =>
-              item.documentId === documentId ? { ...item, sasUrl } : item
-            ),
-          ],
-        },
-      };
-    }
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
 
@@ -344,6 +432,7 @@ export const reducer = (
         //  via the url hash functionality
         return coreNewState;
       }
+
       const alreadyOpenedTabIndex = state.tabsState.items.findIndex(
         (item) => item.documentId === documentId
       );
@@ -382,6 +471,8 @@ export const reducer = (
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
+        isDeleted: false,
+        saveStatus: "initial" as const,
       };
 
       if (mode === "read") {
@@ -389,6 +480,7 @@ export const reducer = (
           ...coreItem,
           sasUrl: undefined,
           mode: "read",
+          areaOnlyRedactionMode: false,
         };
       } else {
         const foundDocumentSearchResult =
@@ -446,6 +538,7 @@ export const reducer = (
             ? foundDocumentSearchResult.occurrencesInDocumentCount
             : /* istanbul ignore next */ 0,
           searchHighlights: sortedHighlights,
+          areaOnlyRedactionMode: false,
         };
       }
 
@@ -461,6 +554,10 @@ export const reducer = (
                 : existingItem
             );
 
+      const isUnread =
+        state.storedUserData?.status === "succeeded" &&
+        !state.storedUserData?.data.readUnread.includes(documentId);
+
       return {
         ...coreNewState,
         tabsState: {
@@ -471,6 +568,20 @@ export const reducer = (
           ...state.searchState,
           isResultsVisible: false,
         },
+        ...(isUnread && state.storedUserData?.status === "succeeded"
+          ? {
+              storedUserData: {
+                ...state.storedUserData,
+                data: {
+                  ...state.storedUserData.data,
+                  readUnread: [
+                    ...state.storedUserData.data.readUnread,
+                    documentId,
+                  ],
+                },
+              },
+            }
+          : {}),
       };
 
     case "CLOSE_PDF": {
@@ -546,10 +657,6 @@ export const reducer = (
         state.searchState.submittedSearchTerm &&
         action.payload.data
       ) {
-        const knownDocumentIds = state.documentsState.data.map(
-          (item) => item.documentId
-        );
-
         const filteredSearchResults = filterApiResults(
           action.payload.data,
           state.documentsState.data
@@ -675,9 +782,14 @@ export const reducer = (
         },
       };
     case "ADD_REDACTION": {
-      const { documentId, redaction } = action.payload;
+      const { documentId, redactions } = action.payload;
 
-      return {
+      const newRedactions = redactions.map((redaction, index) => ({
+        ...redaction,
+        id: String(`${+new Date()}-${index}`),
+      }));
+
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -687,12 +799,36 @@ export const reducer = (
                   ...item,
                   redactionHighlights: [
                     ...item.redactionHighlights,
-                    {
-                      ...redaction,
-                      id: String(+new Date()),
-                      redactionAddedOrder: item.redactionHighlights.length,
-                    },
+                    ...newRedactions,
                   ],
+                }
+              : item
+          ),
+        },
+      };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      if (redactionHighlights.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      }
+      return newState;
+    }
+    case "SAVING_REDACTION": {
+      const { documentId, saveStatus } = action.payload;
+
+      return {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  saveStatus: saveStatus,
                 }
               : item
           ),
@@ -702,7 +838,7 @@ export const reducer = (
     case "REMOVE_REDACTION": {
       const { redactionId, documentId } = action.payload;
 
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -718,12 +854,22 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
     }
 
     case "REMOVE_ALL_REDACTIONS": {
       const { documentId } = action.payload;
-
-      return {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -737,6 +883,17 @@ export const reducer = (
           ),
         },
       };
+      //adding redaction highlight to local storage
+      const redactionHighlights = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionHighlights.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
     }
     case "UPDATE_DOCUMENT_LOCK_STATE": {
       const { documentId, lockedState } = action.payload;
@@ -757,13 +914,14 @@ export const reducer = (
       };
     }
     case "SHOW_ERROR_MODAL": {
-      const { message, title } = action.payload;
+      const { message, title, type } = action.payload;
       return {
         ...state,
         errorModal: {
           show: true,
           message: message,
           title: title,
+          type: type,
         },
       };
     }
@@ -774,8 +932,110 @@ export const reducer = (
           show: false,
           message: "",
           title: "",
+          type: "",
         },
       };
+    }
+    case "SHOW_HIDE_DOCUMENT_ISSUE_MODAL": {
+      return {
+        ...state,
+        documentIssueModal: {
+          show: action.payload,
+        },
+      };
+    }
+    case "SHOW_REDACTION_LOG_MODAL": {
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          showModal: true,
+          type: action.payload.type,
+          savedRedactionTypes: action.payload.savedRedactionTypes,
+        },
+      };
+    }
+    case "HIDE_REDACTION_LOG_MODAL": {
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          showModal: false,
+          savedRedactionTypes: [],
+        },
+      };
+    }
+
+    case "UPDATE_FEATURE_FLAGS_DATA": {
+      return {
+        ...state,
+        featureFlags: action.payload,
+      };
+    }
+    case "ENABLE_AREA_REDACTION_MODE": {
+      const { documentId, enableAreaOnlyMode } = action.payload;
+      return {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  areaOnlyRedactionMode: enableAreaOnlyMode,
+                }
+              : item
+          ),
+        },
+      };
+    }
+    case "UPDATE_STORED_USER_DATA": {
+      const { storedUserData } = action.payload;
+      return {
+        ...state,
+        storedUserData: { status: "succeeded", data: storedUserData },
+      };
+    }
+    case "UPDATE_NOTES_DATA": {
+      const { documentId, addNoteStatus, getNoteStatus } = action.payload;
+      const filteredNotes = state.notes.filter(
+        (note) => note.documentId !== documentId
+      );
+      const activeNotes = state.notes.find(
+        (note) => note.documentId === documentId
+      )!;
+      switch (addNoteStatus) {
+        case "success":
+        case "failure":
+        case "saving": {
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                ...activeNotes,
+                documentId,
+                addNoteStatus,
+                getNoteStatus,
+              },
+            ],
+          };
+        }
+        default:
+          const { notesData } = action.payload;
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                documentId,
+                notes: notesData,
+                addNoteStatus,
+                getNoteStatus,
+              },
+            ],
+          };
+      }
     }
 
     default:

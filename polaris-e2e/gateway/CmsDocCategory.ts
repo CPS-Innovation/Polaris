@@ -6,4 +6,5 @@ export type CmsDocCategory =
   | "OtherForm"
   | "UsedStatement"
   | "UnusedStatement"
-  | "InboxCommunication";
+  | "InboxCommunication"
+  | "Attachment";

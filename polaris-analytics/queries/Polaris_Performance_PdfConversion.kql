@@ -1,0 +1,17 @@
+let conversions = AppEvents
+| where ClientType == 'PC'
+| where Name =='ConvertedDocument'
+| project 
+    OperationId, 
+    documentId = Properties.documentId, 
+    versionId = Properties.versionId,
+    originalBytes = tolong(Measurements.originalBytes), 
+    durationSeconds = todouble(Measurements.durationSeconds),
+    startTime = Properties.startTime
+;
+conversions
+| project originalBytes, durationSeconds
+| where originalBytes > 5
+| summarize count() by bin(durationSeconds, 0.1)
+| order by durationSeconds asc
+| render timechart;

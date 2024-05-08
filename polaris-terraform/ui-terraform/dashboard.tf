@@ -1,6 +1,6 @@
 #################### Dashboard ####################
 
-resource "azurerm_dashboard" "dashboard_polaris" {
+resource "azurerm_portal_dashboard" "dashboard_polaris" {
   name                = "${local.resource_name}-dashboard"
   resource_group_name = data.azurerm_resource_group.rg_analytics.name
   location            = data.azurerm_resource_group.rg_analytics.location

@@ -2,23 +2,23 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Domain.Exceptions;
+using Common.Exceptions;
 using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Extensions;
-using Common.Handlers.Contracts;
-using Common.Logging;
-using Common.Mappers.Contracts;
-using Common.Services.CaseSearchService.Contracts;
-using Common.Services.OcrService;
-using Common.Telemetry.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using Common.Handlers;
+using Common.Telemetry;
+using Common.Wrappers;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using text_extractor.TelemetryEvents;
+using text_extractor.Mappers.Contracts;
+using text_extractor.Services.CaseSearchService;
+using text_extractor.Services.OcrService;
+
 namespace text_extractor.Functions
 {
     public class ExtractText
@@ -29,8 +29,9 @@ namespace text_extractor.Functions
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
         private readonly ILogger<ExtractText> _log;
-        private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private const string loggingName = "ExtractText - Run";
 
         public ExtractText(IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
                            IOcrService ocrService,
@@ -38,8 +39,8 @@ namespace text_extractor.Functions
                            IExceptionHandler exceptionHandler,
                            IDtoHttpRequestHeadersMapper dtoHttpRequestHeadersMapper,
                            ILogger<ExtractText> logger,
-                           ITelemetryClient telemetryClient,
-                           ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+                           ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
+                           IJsonConvertWrapper jsonConvertWrapper)
         {
             _validatorWrapper = validatorWrapper;
             _ocrService = ocrService;
@@ -47,19 +48,19 @@ namespace text_extractor.Functions
             _exceptionHandler = exceptionHandler;
             _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper;
             _log = logger;
-            _telemetryClient = telemetryClient;
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
+            _jsonConvertWrapper = jsonConvertWrapper;
         }
 
         [FunctionName(nameof(ExtractText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Extract)] HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequestMessage request,
+            string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "ExtractText - Run";
+            ExtractTextResult extractTextResult = new ExtractTextResult();
 
             try
             {
-                #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
@@ -73,58 +74,46 @@ namespace text_extractor.Functions
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
-                #endregion
+                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
-
-                var startTime = DateTime.UtcNow;
-
-                var inputStream = await request.Content.ReadAsStreamAsync();
+                using var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
+                var ocrLineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
 
-                var ocrCompletedTime = DateTime.UtcNow;
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
+                extractTextResult = new ExtractTextResult()
+                {
+                    OcrCompletedTime = DateTime.UtcNow,
+                    PageCount = ocrResults.ReadResults.Count,
+                    LineCount = ocrLineCount,
+                    WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count)),
+                    IsSuccess = true
+                };
 
                 await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
                         extractTextRequest.PolarisDocumentId,
-                        extractTextRequest.CaseId,
-                        extractTextRequest.DocumentId,
-                        extractTextRequest.VersionId,
+                        caseId,
+                        documentId,
+                        versionId,
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
-                var indexStoredTime = DateTime.UtcNow;
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
+                extractTextResult.IndexStoredTime = DateTime.UtcNow;
 
-                if (await _searchIndexService.WaitForStoreResultsAsync(ocrResults, extractTextRequest.CaseId, extractTextRequest.DocumentId, extractTextRequest.VersionId, currentCorrelationId))
+                var response = new HttpResponseMessage
                 {
-                    _telemetryClient.TrackEvent(new IndexedDocumentEvent(
-                        correlationId: currentCorrelationId,
-                        caseId: extractTextRequest.CaseId,
-                        documentId: extractTextRequest.DocumentId,
-                        versionId: extractTextRequest.VersionId,
-                        pageCount: ocrResults.ReadResults.Count,
-                        lineCount: ocrResults.ReadResults.Sum(x => x.Lines.Count),
-                        wordCount: ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count)),
-                        startTime: startTime,
-                        ocrCompletedTime: ocrCompletedTime,
-                        indexStoredTime: indexStoredTime,
-                        endTime: DateTime.UtcNow
-                    ));
-                    return new HttpResponseMessage(HttpStatusCode.OK);
-                }
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(extractTextResult), Encoding.UTF8, "application/json")
+                };
 
-                throw new Exception("Search index update failed, timeout waiting for indexation validation");
+                return response;
             }
             catch (Exception exception)
             {
-                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log);
-            }
-            finally
-            {
-                _log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
+                extractTextResult.IsSuccess = false;
+                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log, extractTextResult);
             }
         }
     }
