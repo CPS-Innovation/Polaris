@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
@@ -8,6 +8,7 @@ import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
 import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
+import { HeaderSearchPIIMode } from "./HeaderSearchPIIMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import classes from "./PdfTab.module.scss";
@@ -83,9 +84,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     saveStatus,
     cmsDocType: { documentType },
     attachments,
-    hasFailedAttachments,
+    // hasFailedAttachments,
   } = caseDocumentViewModel;
 
+  const hasFailedAttachments = true;
   const searchHighlights =
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
 
@@ -115,6 +117,13 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       (document) => document.documentId === caseDocumentViewModel.documentId
     );
   };
+  const isSearchPIIOn = useMemo(() => {
+    console.log(
+      "ontextData.searchPIIOn.includes(documentId)>>",
+      contextData.searchPIIOn
+    );
+    return contextData.searchPIIOn.includes(documentId);
+  }, [contextData.searchPIIOn, documentId]);
 
   if (isDeleted) {
     return (
@@ -150,7 +159,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentId: documentId,
             tabIndex: tabIndex,
             areaOnlyRedactionMode: areaOnlyRedactionMode,
-            searchPIIOn: contextData.searchPIIOn,
+            isSearchPIIOn: isSearchPIIOn,
             showSearchPII: contextData.showSearchPII,
           }}
         />
@@ -161,6 +170,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleOpenPdf={handleOpenPdf}
         />
       )}
+      {isSearchPIIOn && <HeaderSearchPIIMode />}
       {hasFailedAttachments && (
         <div className={classes.attachmentHeaderContent}>
           <span
@@ -171,6 +181,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           </span>
         </div>
       )}
+
       {url && !isDocumentRefreshing() ? (
         <PdfViewer
           redactionTypesData={redactionTypesData}

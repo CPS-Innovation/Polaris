@@ -27,7 +27,7 @@ type Props = {
     documentId: string;
     tabIndex: number;
     areaOnlyRedactionMode: boolean;
-    searchPIIOn: string[];
+    isSearchPIIOn: boolean;
     showSearchPII: boolean;
   };
 };
@@ -41,9 +41,6 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleShowHideRedactionSuggestions,
   contextData,
 }) => {
-  console.log("searchPIIOn>>", contextData.searchPIIOn);
-  console.log("contextData.documentId>>", contextData.documentId);
-
   const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
 
@@ -59,13 +56,12 @@ export const HeaderReadMode: React.FC<Props> = ({
         handleShowHideDocumentIssueModal(true);
         break;
       case "3":
-        handleShowHideRedactionSuggestions(contextData.documentId, !isPIIOn);
+        handleShowHideRedactionSuggestions(
+          contextData.documentId,
+          !contextData.isSearchPIIOn
+        );
     }
   };
-
-  const isPIIOn = useMemo(() => {
-    return contextData.searchPIIOn.includes(contextData.documentId);
-  }, [contextData.searchPIIOn, contextData.documentId]);
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
@@ -96,10 +92,10 @@ export const HeaderReadMode: React.FC<Props> = ({
         ...items,
         {
           id: "3",
-          label: isPIIOn
+          label: contextData.isSearchPIIOn
             ? "Turn off potential redactions"
             : "Turn on potential redactions",
-          ariaLabel: isPIIOn
+          ariaLabel: contextData.isSearchPIIOn
             ? "Turn off potential redactions"
             : "Turn on potential redactions",
           disabled: false,
@@ -108,7 +104,12 @@ export const HeaderReadMode: React.FC<Props> = ({
     }
 
     return items;
-  }, [showOverRedactionLog, disableReportBtn, isPIIOn]);
+  }, [
+    showOverRedactionLog,
+    disableReportBtn,
+    contextData.isSearchPIIOn,
+    contextData.showSearchPII,
+  ]);
 
   const handleRedactAreaToolButtonClick = useCallback(() => {
     if (window.getSelection()) {
