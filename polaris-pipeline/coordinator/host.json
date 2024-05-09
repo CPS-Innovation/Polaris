@@ -4,7 +4,7 @@
     "fileLoggingMode": "debugOnly",
     "logLevel": {
       "default": "Warning",
-      "Function": "Warning",
+      "Function": "Information",
       "coordinator.Durable.Orchestration.RefreshCaseOrchestrator": "Information",
       "coordinator.Functions.Maintenance.SlidingCaseClearDown": "Information",
       "coordinator.Services.OcrService.OcrService": "Information",
