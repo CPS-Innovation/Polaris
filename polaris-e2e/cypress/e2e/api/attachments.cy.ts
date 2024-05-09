@@ -22,25 +22,16 @@ describe("Attachments", { tags: "@ci" }, () => {
   it("can observe expected attachment documents and parents in tracker responses", () => {
     cy.clearCaseTracker(ATTACHMENT_TARGET_URN, ATTACHMENT_CASE_ID)
       .api(routes.TRACKER_START(ATTACHMENT_TARGET_URN, ATTACHMENT_CASE_ID))
+
       .waitUntil(
         () =>
           cy
-            .api({
+            .api<PipelineResults>({
               ...routes.GET_TRACKER(ATTACHMENT_TARGET_URN, ATTACHMENT_CASE_ID),
               failOnStatusCode: false,
             })
-            .its("status")
-            .then((status) => status !== 404),
-        WAIT_UNTIL_OPTIONS
-      )
-      .waitUntil(
-        () =>
-          cy
-            .api<PipelineResults>(
-              routes.GET_TRACKER(ATTACHMENT_TARGET_URN, ATTACHMENT_CASE_ID)
-            )
             .its("body")
-            .then(({ documents }) => !!documents.length),
+            .then(({ documents }) => !!documents?.length),
         WAIT_UNTIL_OPTIONS
       )
       .api<PipelineResults>(
