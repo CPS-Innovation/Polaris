@@ -11,6 +11,7 @@ type LinkButtonProps = {
   ariaExpanded?: boolean;
   type?: "button" | "submit" | "reset";
   onClick: () => void;
+  onFocus?: () => void;
 };
 
 export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
@@ -20,6 +21,7 @@ export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
       className,
       dataTestId,
       onClick,
+      onFocus,
       id,
       ariaLabel,
       ariaExpanded,
@@ -40,6 +42,7 @@ export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
         onClick={onClick}
         data-testid={dataTestId}
         type={type}
+        onFocus={onFocus}
       >
         {children}
       </button>

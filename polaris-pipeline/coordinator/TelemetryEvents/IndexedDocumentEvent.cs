@@ -21,6 +21,7 @@ namespace text_extractor.coordinator
         public long VersionId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime OcrCompletedTime { get; set; }
+        public DateTime OcrResultsStoredTime { get; set; }
         public DateTime IndexStoredTime { get; set; }
         public DateTime EndTime { get; set; }
         public int PageCount { get; set; }

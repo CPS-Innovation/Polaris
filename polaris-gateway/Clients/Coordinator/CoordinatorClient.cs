@@ -93,7 +93,7 @@ namespace PolarisGateway.Clients.Coordinator
         {
             return await SendRequestAsync(
                 HttpMethod.Put,
-                RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId),
+                RestApi.GetRedactDocumentPath(caseUrn, caseId, polarisDocumentId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json"));
@@ -107,20 +107,20 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<HttpResponseMessage> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, string documentCategory, int documentId, Guid correlationId)
+        public async Task<HttpResponseMessage> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, int documentId, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
-                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentCategory, documentId),
+                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentId),
                 correlationId,
                 cmsAuthValues);
         }
 
-        public async Task<HttpResponseMessage> AddDocumentNote(string caseUrn, int caseId, string cmsAuthValues, string documentCategory, int documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
+        public async Task<HttpResponseMessage> AddDocumentNote(string caseUrn, int caseId, string cmsAuthValues, int documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
-                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentCategory, documentId),
+                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(addDocumentNoteRequestDto), Encoding.UTF8, "application/json"));

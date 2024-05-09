@@ -1,0 +1,153 @@
+
+let StartDate = datetime(2024-04-01T00:00);
+let EndDate = datetime(2024-05-01T00:00);
+
+let MonthAppRequests = AppRequests
+| where TimeGenerated between (StartDate .. EndDate)
+| project 
+    TimeGenerated, 
+    AppRoleName, 
+    Name, 
+    User = tostring(Properties.User), 
+    CaseId = toint(extract("cases/(\\d+)", 1, Url)), 
+    DocumentId = extract("documents/([^/]+)", 1, Url), 
+    Url,
+    OperationId
+| where User != "REDACTED@REDACTED.EMAIL.ADDRESS";
+
+let MonthIndexing = Polaris_Metrics_Indexing
+| where TimeGenerated between (StartDate .. EndDate);
+
+let TotalDistinctUsers = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| summarize count_distinct(User));
+
+let TotalDistinctUsersGte3Days = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| summarize DaysVisited = count_distinct(bin(TimeGenerated, 1d)) by User
+| where DaysVisited >= 3
+| summarize count());
+
+let TotalSearches = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineCaseSearch"
+| summarize count());
+
+let TotalDistinctUsersSearching = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineCaseSearch"
+| summarize count_distinct(User));
+
+let TotalDistinctCases = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineCase"
+| summarize count_distinct(CaseId));
+
+let TotalDistinctCasesSearched = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineCaseSearch"
+| summarize count_distinct(CaseId));
+
+let TotalDocsProcessed = toscalar(MonthIndexing
+| summarize count_distinct(DocumentId));
+
+let TotalDistinctDocsRead = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineGetDocument"
+| summarize count_distinct(DocumentId));
+
+let TotalDistinctDocsReadAfterSearch = toscalar(MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineCaseSearch"
+| project TimeGeneratedSearch = TimeGenerated, CaseId, OperationId
+| join (
+    MonthAppRequests
+    | where AppRoleName == "fa-polaris-gateway"
+    | where Name == "PolarisPipelineGetDocument"
+    | project TimeGeneratedDocRead = TimeGenerated, CaseId, DocumentId, OperationId
+) on CaseId, OperationId
+| where datetime_diff( 'second', TimeGeneratedDocRead, TimeGeneratedSearch) between (0 .. 5 * 60)
+| summarize count_distinct(DocumentId));
+
+
+let TotalPagesProcessed = toscalar(MonthIndexing
+| summarize sum(PageCount));
+
+let TotalSearchedPages = toscalar(MonthIndexing
+| join kind=inner (MonthAppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineCaseSearch"
+| distinct CaseId) on CaseId
+| summarize sum(PageCount));
+
+union
+    (print 
+        Order = 00, 
+        Label = "Total users", 
+        Count = TotalDistinctUsers, 
+        Percentage = real(null)),
+    (print 
+        Order = 10, 
+        Label = "Total users visiting at least 3 separate days", 
+        Count = TotalDistinctUsersGte3Days,
+        Percentage = round(100.0 * TotalDistinctUsersGte3Days/ TotalDistinctUsers)),
+    (print 
+        Order = 20, 
+        Label = "Total searches", 
+        Count = TotalSearches, 
+        Percentage = real(null)),
+    (print 
+        Order = 30, 
+        Label = "Total users searching", 
+        Count = TotalDistinctUsersSearching, 
+        Percentage = round(100.0 * TotalDistinctUsersSearching / TotalDistinctUsers,1)),
+    (print 
+        Order = 40, 
+        Label = "Total cases processed", 
+        Count = TotalDistinctCases, 
+        Percentage = real(null)),
+    (print 
+        Order = 50, 
+        Label = "Total cases searched",
+        Count = TotalDistinctCasesSearched, 
+        Percentage = round(100.0 * TotalDistinctCasesSearched/ TotalDistinctCases,1)),
+    (print 
+        Order = 60, 
+        Label = "Total docs processed", 
+        Count = TotalDocsProcessed, 
+        Percentage = real(null)),
+    (print 
+        Order = 70, 
+        Label = "Total docs read",
+        Count = TotalDistinctDocsRead, 
+        Percentage = round(100.0 * TotalDistinctDocsRead / TotalDocsProcessed, 1)),
+    (print 
+        Order = 75, 
+        Label = "Total docs read with 5 mins of search",
+        Count = TotalDistinctDocsReadAfterSearch, 
+        Percentage = round(100.0 * TotalDistinctDocsReadAfterSearch / TotalDocsProcessed, 1)),
+    (print 
+        Order = 80, 
+        Label = "Total pages processed", 
+        Count = TotalPagesProcessed, 
+        Percentage = real(null)),
+    (print 
+        Order = 90, 
+        Label = "Total pages processed on searched cases (ish)", 
+        Count = TotalSearchedPages, 
+        Percentage = round(100.0 * TotalSearchedPages / TotalPagesProcessed, 1)),
+    (print 
+        Order = 100, 
+        Label = "Computer Vision transactions (absolute minimum)", 
+        Count = TotalPagesProcessed + TotalDocsProcessed, 
+        Percentage = real(null))
+| order by Order asc
+| project Label, Count, Percentage
+
+
+
+
+
+
+
+

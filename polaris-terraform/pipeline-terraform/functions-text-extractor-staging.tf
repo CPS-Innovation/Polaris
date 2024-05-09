@@ -1,8 +1,8 @@
 resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_text_extractor.id
-  storage_account_name          = azurerm_storage_account.sa_text_extractor_staging1.name
-  storage_account_access_key    = azurerm_storage_account.sa_text_extractor_staging1.primary_access_key
+  storage_account_name          = azurerm_storage_account.sa_text_extractor.name
+  storage_account_access_key    = azurerm_storage_account.sa_text_extractor.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_textextractor_2_subnet.id
   functions_extension_version   = "~4"
   https_only                    = true
@@ -11,9 +11,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor_staging1.primary_connection_string
-    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
@@ -22,7 +20,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor_staging1.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_text_extractor_file_share_staging1.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -66,9 +64,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["AzureWebJobsStorage"],
-      app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"]
+      app_settings["WEBSITE_CONTENTSHARE"]
     ]
   }
 }

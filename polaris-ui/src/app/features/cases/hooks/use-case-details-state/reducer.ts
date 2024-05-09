@@ -36,6 +36,7 @@ import {
 import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
+import { Note } from "../../domain/gateway/NotesData";
 
 export const reducer = (
   state: CombinedState,
@@ -185,6 +186,21 @@ export const reducer = (
         payload: {
           storedUserData: StoredUserData;
         };
+      }
+    | {
+        type: "UPDATE_NOTES_DATA";
+        payload:
+          | {
+              documentId: string;
+              addNoteStatus: "saving" | "failure" | "success";
+              getNoteStatus: "initial";
+            }
+          | {
+              documentId: string;
+              notesData: Note[];
+              addNoteStatus: "initial";
+              getNoteStatus: "initial" | "loading" | "failure";
+            };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -979,6 +995,47 @@ export const reducer = (
         ...state,
         storedUserData: { status: "succeeded", data: storedUserData },
       };
+    }
+    case "UPDATE_NOTES_DATA": {
+      const { documentId, addNoteStatus, getNoteStatus } = action.payload;
+      const filteredNotes = state.notes.filter(
+        (note) => note.documentId !== documentId
+      );
+      const activeNotes = state.notes.find(
+        (note) => note.documentId === documentId
+      )!;
+      switch (addNoteStatus) {
+        case "success":
+        case "failure":
+        case "saving": {
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                ...activeNotes,
+                documentId,
+                addNoteStatus,
+                getNoteStatus,
+              },
+            ],
+          };
+        }
+        default:
+          const { notesData } = action.payload;
+          return {
+            ...state,
+            notes: [
+              ...filteredNotes,
+              {
+                documentId,
+                notes: notesData,
+                addNoteStatus,
+                getNoteStatus,
+              },
+            ],
+          };
+      }
     }
 
     default:

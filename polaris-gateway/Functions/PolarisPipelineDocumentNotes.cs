@@ -29,14 +29,14 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineDocumentNotes))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentNotes)] HttpRequest req, string caseUrn, int caseId, string documentCategory, int documentId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentNotes)] HttpRequest req, string caseUrn, int caseId, int documentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
 
             try
             {
                 context = await _initializationHandler.Initialize(req);
-                return await _coordinatorClient.GetDocumentNotes(caseUrn, caseId, context.CmsAuthValues, documentCategory, documentId, context.CorrelationId);
+                return await _coordinatorClient.GetDocumentNotes(caseUrn, caseId, context.CmsAuthValues, documentId, context.CorrelationId);
             }
             catch (Exception ex)
             {

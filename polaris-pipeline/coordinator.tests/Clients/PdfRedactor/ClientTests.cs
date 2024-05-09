@@ -20,7 +20,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
 {
     public class ClientTests
     {
-        private readonly RedactPdfRequestDto _request;
+        private readonly RedactPdfRequestWithDocumentDto _request;
         private readonly Mock<IRequestFactory> _mockRequestFactory;
         private readonly Fixture _fixture;
         private readonly Guid _correlationId;
@@ -33,7 +33,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
         {
             _fixture = new Fixture();
 
-            _request = _fixture.Create<RedactPdfRequestDto>();
+            _request = _fixture.Create<RedactPdfRequestWithDocumentDto>();
             _mockRequestFactory = new Mock<IRequestFactory>();
             _correlationId = _fixture.Create<Guid>();
             _caseUrn = _fixture.Create<string>();
@@ -58,7 +58,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
 
             var stringContent = httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent)).Returns(response);
-            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>())).Returns(JsonConvert.SerializeObject(_request));
+            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestWithDocumentDto>())).Returns(JsonConvert.SerializeObject(_request));
 
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();

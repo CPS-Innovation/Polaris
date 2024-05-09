@@ -15,3 +15,6 @@ export const REDACTION_LOG_LOOKUP_ROUTE = "/api/lookUps";
 export const REDACTION_LOG_MAPPING_ROUTE = "/api/polarisMappings";
 
 export const SAVE_REDACTION_LOG_ROUTE = "/api/redactionLogs";
+
+export const NOTES_ROUTE =
+  "api/urns/:urn/cases/:caseId/documents/:documentId/notes";

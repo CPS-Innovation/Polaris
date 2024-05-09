@@ -135,6 +135,15 @@ let isKnownBug = (
         "25171 - UI exceptions",
             et contains "System.IndexOutOfRangeException",
         "25834 - IndexOutOfRengeException",
+            om contains "The namespace declaration attribute has an incorrect 'namespaceURI': 'http://www.w3.org/2000/xmlns/",
+        "26163 - Aspose -The namespace declaration attribute has an incorrect 'namespaceURI': 'http://www.w3.org/2000/xmlns/",
+            op contains "Status", 
+        "Status func timeout",
+            et contains "OcrServiceException" and im contains "The stream was already consumed.",
+        "26424 - OCR retry fail",
+            om matches regex "Document \\d+ not found in case \\d+",
+        "26677 - Redacted doc id no longer present",
+
     "");
 };
 
@@ -148,7 +157,7 @@ Polaris_Exceptions_Core
 | extend 
     IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination ),
     PolarisCorrelationId = tostring(PolarisCorrelationId)    
-
+| where AppRoleName !contains "staging"
 // filter out known fixes
 | where not (IsKnownBug startswith("22624")) 
     // known incidents of 23614
@@ -158,6 +167,15 @@ Polaris_Exceptions_Core
 | where InnermostMessage notcontains "HTE" and OuterMessage notcontains "HTE" 
 | where IsKnownBug !startswith "25042"
 | where not(IsKnownBug startswith "23502" and OuterMessage contains "Pdf is encrypted")
+
+// user unauthed is accounted for elsewhere
+| where ExceptionType !contains "CmsModernAuthorizationException"
+// noise from slot-swap
+| where not(AppRoleName contains "staging" and OuterMessage contains "Status")
+
+
+| where not(IsKnownBug startswith "24767" and (PolarisCorrelationId in ("00000000-0000-0000-0000-000000000000", "e2e00000-0000-0000-0000-000000000000")))
+
 
 // filter out e2e tests that are intentionally omitting CmsAuthValues
 | where not( IsKnownBug == "" and ExceptionType contains "CmsAuthenticationException" and User == "")

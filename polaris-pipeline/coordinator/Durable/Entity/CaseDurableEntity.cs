@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using coordinator.Durable.Payloads.Domain;
+using Common.Constants;
 
 namespace coordinator.Durable.Entity
 {
@@ -153,7 +154,8 @@ namespace coordinator.Durable.Entity
                          cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
                          cmsDocument.WitnessId != incomingDocument.WitnessId ||
                          cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
-                         cmsDocument.IsDispatched != incomingDocument.IsDispatched
+                         cmsDocument.IsDispatched != incomingDocument.IsDispatched ||
+                         cmsDocument.HasNotes != incomingDocument.HasNotes
                      )
                  )
                  select incomingDocument).ToList();
@@ -261,6 +263,7 @@ namespace coordinator.Durable.Entity
                 trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
                 trackerDocument.WitnessId = updatedDocument.WitnessId;
                 trackerDocument.CategoryListOrder = updatedDocument.CategoryListOrder;
+                trackerDocument.HasNotes = updatedDocument.HasNotes;
 
                 var caseDeltaType = DocumentDeltaType.DoesNotRequireRefresh;
 
@@ -470,6 +473,14 @@ namespace coordinator.Durable.Entity
             {
                 document.PdfBlobName = pdfBlobName;
             }
+        }
+
+        public void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args)
+        {
+            var (polarisDocumentId, status) = args;
+
+            var document = GetDocument(polarisDocumentId);
+            document.ConversionStatus = status;
         }
 
         // Only required when debugging to manually set the Tracker state

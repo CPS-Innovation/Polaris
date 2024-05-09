@@ -24,8 +24,6 @@ public class DdeiClientTests
     private readonly Fixture _fixture;
     private readonly string _caseUrn;
     private readonly string _caseId;
-    private readonly string _documentCategory;
-    private readonly string _documentId;
     private readonly string _cmsAuthValues;
     private readonly Guid _correlationId;
     private readonly HttpResponseMessage _httpResponseMessage;
@@ -40,8 +38,6 @@ public class DdeiClientTests
 
         _caseUrn = _fixture.Create<string>();
         _caseId = _fixture.Create<int>().ToString();
-        _documentCategory = _fixture.Create<string>();
-        _documentId = _fixture.Create<long>().ToString();
         _cmsAuthValues = _fixture.Create<string>();
         _correlationId = _fixture.Create<Guid>();
 
@@ -73,10 +69,6 @@ public class DdeiClientTests
             .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCmsCaseArgDto>()))
             .Returns(httpRequestMessage);
 
-        mockHttpRequestFactory
-            .Setup(factory => factory.CreateDocumentRequest(It.IsAny<DdeiCmsDocumentArgDto>()))
-            .Returns(httpRequestMessage);
-
         var mockConfiguration = new Mock<IConfiguration>();
         var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
         var mockCaseDetailsMapper = new Mock<ICaseDetailsMapper>();
@@ -106,54 +98,6 @@ public class DdeiClientTests
     {
         var assertion = new GuardClauseAssertion(_fixture);
         assertion.Verify(_ddeiClient.GetType().GetConstructors());
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_ReturnsExpectedStream()
-    {
-        var documentStream = await _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
-
-        documentStream.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_ThrowsHttpExceptionWhenResponseStatusCodeIsNotSuccess()
-    {
-        _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
-
-        await Assert.ThrowsAsync<DdeiClientException>(() => _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId));
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_HttpExceptionHasExpectedStatusCodeWhenResponseStatusCodeIsNotSuccess()
-    {
-        const HttpStatusCode expectedStatusCode = HttpStatusCode.NotFound;
-        _httpResponseMessage.StatusCode = expectedStatusCode;
-
-        try
-        {
-            await _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
-        }
-        catch (DdeiClientException exception)
-        {
-            exception.StatusCode.Should().Be(expectedStatusCode);
-        }
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_HttpExceptionHasHttpRequestExceptionAsInnerExceptionWhenResponseStatusCodeIsNotSuccess()
-    {
-        _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
-        _httpResponseMessage.Content = new StringContent(string.Empty);
-
-        try
-        {
-            await _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
-        }
-        catch (DdeiClientException exception)
-        {
-            exception.InnerException.Should().BeOfType<HttpRequestException>();
-        }
     }
 
     [Fact]

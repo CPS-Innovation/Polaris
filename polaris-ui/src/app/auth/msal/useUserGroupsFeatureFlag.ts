@@ -3,6 +3,8 @@ import {
   FEATURE_FLAG_REDACTION_LOG,
   PRIVATE_BETA_CHECK_IGNORE_USER,
   FEATURE_FLAG_FULL_SCREEN,
+  FEATURE_FLAG_NOTES,
+  PRIVATE_BETA_FEATURE_USER_GROUP,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -55,8 +57,33 @@ const showFullScreenFeature = (username: string, queryParam: string) => {
   return true;
 };
 
+const showNotesFeature = (
+  username: string,
+  queryParam: string,
+  groupClaims: string[]
+) => {
+  if (!FEATURE_FLAG_NOTES) {
+    return false;
+  }
+
+  const isTestUser =
+    window.Cypress &&
+    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
+
+  if (isTestUser) {
+    if (queryParam === "true") {
+      return true;
+    }
+    if (queryParam === "false") {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
-  const { redactionLog, fullScreen } =
+  const { redactionLog, fullScreen, notes } =
     useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -65,5 +92,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
   return {
     redactionLog: showRedactionLogFeature(userDetails?.username, redactionLog),
     fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
+    notes: showNotesFeature(userDetails?.username, notes, groupClaims),
   };
 };

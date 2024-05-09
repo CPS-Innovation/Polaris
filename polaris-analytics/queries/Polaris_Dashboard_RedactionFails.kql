@@ -1,0 +1,106 @@
+let CountRedactionsByDay = Polaris_Metrics_RedactionRequest
+| summarize TotalCount = count() by Date = format_datetime(TimeGenerated, "yyyy-MM-dd")
+;
+//CountRedactionsByDay
+
+let FailedRedactionsByDocumentId = Polaris_Metrics_RedactionRequest 
+| where IsFailure 
+// | summarize 
+//     FailCount = count(), 
+//     arg_max(TimeGenerated, *) 
+//     by DocumentId
+| project-rename TimeGeneratedFailed = TimeGenerated 
+| project-rename OperationIdFailed = OperationId
+| project-rename  PolarisCorrelationIdFailed = PolarisCorrelationId
+| project DocumentId, TimeGeneratedFailed, OperationIdFailed, PolarisCorrelationIdFailed
+;
+//FailedRedactionsByDocumentId
+
+let OkRedactionsByDocumentId = Polaris_Metrics_RedactionRequest 
+    | where not(IsFailure) 
+    | summarize arg_min(TimeGenerated, *) 
+    by DocumentId
+| project-rename TimeGeneratedOk = TimeGenerated
+| project-rename OperationIdOk = OperationId     
+| project-rename  PolarisCorrelationIdOk = PolarisCorrelationId
+;
+//OkRedactionsByDocumentId
+
+let TimingsForRedaction = AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineSaveDocumentRedactions"
+| project PolarisCorrelationIdTiming = tostring(Properties.PolarisCorrelationId), DurationMs
+;
+//TimesForRedaction
+
+let DdeiExceptions = AppExceptions
+| where AppRoleName startswith "fa-polaris-ddei"
+| where OperationName in ("UploadDocument", "UploadDocumentOld")
+| extend PolarisCorrelationId = tostring(Properties.prop__CorrelationId)
+| summarize arg_min(TimeGenerated, *) by  PolarisCorrelationId
+| project PolarisCorrelationIdDdei = PolarisCorrelationId,
+    DdeiFailType = case(
+        OuterMessage contains "RequestEntityTooLarge", "RequestEntityTooLarge",
+        OuterMessage contains "User session not found", "Auth",
+        OuterMessage contains "Sequence contains no matching element", "DocumentRemoved",
+        OuterMessage contains "RegisterDocumentAsync", "RegisterDocument",
+        ExceptionType contains "SocketException", "Http",
+        Assembly contains "Polly", "Http",
+        OuterMessage contains "No matching mapping found", "e2e",
+        OuterMessage contains "AddOcrLayerToPdfAsync", "Ocr fail",
+        OuterType contains "CmsDocumentNotFoundException", "Document not found in cms",
+        "Unknown"
+)
+;
+//DdeiExceptions
+
+
+let PdfExceptions = AppExceptions
+| where AppRoleName startswith "fa-polaris-pdf-generator" or AppRoleName startswith "fa-polaris-pdf-redactor"
+| where OperationName == "RedactPdf"
+| project PolarisCorrelationIdPdf = tostring(Properties.prop__CorrelationId)
+;
+
+let CoordinatorExceptions = AppExceptions
+| where AppRoleName startswith "fa-polaris-coordinator"
+| where OperationName == "SaveRedactions"
+| project PolarisCorrelationIdCoordinator = tostring(Properties.prop__CorrelationId),
+    CoordinatorFailType = case(
+        OuterMessage contains "503", "Service Unavailable",
+        OuterMessage contains "BadGateway", "Http Bad Gateway",
+        "Unknown"
+    )
+;
+
+FailedRedactionsByDocumentId
+| join kind=leftouter TimingsForRedaction on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdTiming
+| join kind=leftouter OkRedactionsByDocumentId on DocumentId
+| join kind=leftouter DdeiExceptions on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdDdei
+| join kind=leftouter PdfExceptions on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdPdf
+| join kind=leftouter CoordinatorExceptions on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdCoordinator
+
+| extend WasRecovered =  TimeGeneratedOk > TimeGeneratedFailed 
+| extend SecondsToRecover = datetime_diff('second',TimeGeneratedOk,TimeGeneratedFailed)
+| extend RecoveryType = case(
+    isempty(TimeGeneratedOk), "NotRecovered",
+    isempty(OperationIdOk) and DdeiFailType == "DocumentRemoved", "DocumentRemoved",
+    OperationIdFailed == OperationIdOk and SecondsToRecover < 120, "SameOperationImmediate",
+    OperationIdFailed == OperationIdOk and SecondsToRecover >= 120, "SameOperationLater",
+    "SubsequentOperation")
+| extend IsTimeout = DurationMs > 100000
+| extend IsDdeiException = not(isempty(PolarisCorrelationIdDdei))
+| extend IsPdfException = not(isempty(PolarisCorrelationIdPdf))
+| extend IsCoordinatorException = not(isempty(PolarisCorrelationIdCoordinator))
+| project 
+    TimeGenerated = TimeGeneratedFailed, 
+    DocumentId, 
+    FailType = case(
+        IsDdeiException, strcat("Ddei ", DdeiFailType),
+        IsTimeout, "Timeout",
+        IsPdfException, "Pdf",
+        IsCoordinatorException, strcat("Coordinator ", CoordinatorFailType),
+        "Unknown"
+    ),
+    RecoveryType,
+    OperationIdFailed,
+    PolarisCorrelationIdFailed

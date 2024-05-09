@@ -12,7 +12,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
-  builtin_logging_enabled       = false 
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
@@ -22,6 +22,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobUserDelegationKeyExpirySecs"                 = 3600
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
@@ -94,6 +96,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["BlobServiceContainerName"],
       app_settings["BlobServiceUrl"],
       app_settings["BlobUserDelegationKeyExpirySecs"],
+      app_settings["ComputerVisionClientServiceKey"],
+      app_settings["ComputerVisionClientServiceUrl"],
       app_settings["CoordinatorOrchestratorTimeoutSecs"],
       app_settings["CoordinatorTaskHub"],
       app_settings["DdeiBaseUrl"],
@@ -187,28 +191,4 @@ resource "azurerm_private_endpoint" "pipeline_coordinator_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
-}
-
-resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_crypto_user" {
-  scope                = data.azurerm_key_vault.terraform_key_vault.id
-  role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-
-  depends_on = [
-    azurerm_linux_function_app.fa_coordinator,
-    azurerm_role_assignment.terraform_kv_role_terraform_sp,
-    azurerm_key_vault_access_policy.terraform_kvap_terraform_sp
-  ]
-}
-
-resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_secrets_user" {
-  scope                = data.azurerm_key_vault.terraform_key_vault.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-
-  depends_on = [
-    azurerm_linux_function_app.fa_coordinator,
-    azurerm_role_assignment.terraform_kv_role_terraform_sp,
-    azurerm_key_vault_access_policy.terraform_kvap_terraform_sp
-  ]
 }

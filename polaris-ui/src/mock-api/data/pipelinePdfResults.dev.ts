@@ -1,3 +1,4 @@
+import { ConversionStatus } from "../../app/features/cases/domain/gateway/PipelineDocument";
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 
@@ -34,6 +35,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: true,
+      hasNotes: true,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "2",
@@ -49,7 +52,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1029,
         documentType: "MG11",
-        documentCategory: "MGForm",
+        documentCategory: "InboxCommunication",
       },
       presentationFlags: {
         read: "Ok",
@@ -58,6 +61,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: true,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "3",
@@ -82,6 +87,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "4",
@@ -106,6 +113,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "5",
@@ -130,6 +139,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "6",
@@ -154,6 +165,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: "4",
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "7",
@@ -178,6 +191,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "8",
@@ -203,6 +218,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "9",
@@ -228,6 +245,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "10",
@@ -253,6 +272,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "10",
@@ -268,7 +289,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1031,
         documentType: "Statement",
-        documentCategory: "UsedStatement",
+        documentCategory: "Review",
       },
       presentationFlags: {
         read: "Ok",
@@ -277,6 +298,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: 2762766,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
     {
       documentId: "11",
@@ -301,6 +324,8 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
     },
   ],
 };

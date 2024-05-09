@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import {
   BackLink,
   Tooltip,
@@ -36,10 +36,12 @@ import {
   SURVEY_LINK,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
+import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
+import { NotesPanel } from "./notes/NotesPanel";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 export const path = "/case-details/:urn/:id";
 
@@ -47,6 +49,24 @@ type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [inFullScreen, setInFullScreen] = useState(false);
+  const [openNotesData, setOpenNoteData] = useState<{
+    open: boolean;
+    documentId: string;
+    documentCategory: string;
+    presentationFileName: string;
+    lastFocusDocumentId: string;
+  }>({
+    open: false,
+    documentId: "",
+    documentCategory: "",
+    presentationFileName: "",
+    lastFocusDocumentId: "",
+  });
+
+  const [accordionOldState, setAccordionOldState] =
+    useState<AccordionReducerState | null>(null);
+
+  const notesPanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -65,6 +85,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     redactionLog,
     featureFlags,
     storedUserData,
+    notes,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -84,6 +105,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
+    handleGetNotes,
+    handleAddNote,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -138,11 +161,33 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
+  useEffect(() => {
+    if (notesPanelRef.current) {
+      (notesPanelRef.current as HTMLElement).focus();
+    }
+  }, [openNotesData.open]);
+
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
     )!;
   }, [tabsState.activeTabId, tabsState.items]);
+
+  const accordionStateChangeCallback = useCallback(
+    (state: AccordionReducerState) => {
+      setAccordionOldState(state);
+    },
+    []
+  );
+  const handleCloseNotes = useCallback(() => {
+    setOpenNoteData({
+      ...openNotesData,
+      open: false,
+      documentId: "",
+      documentCategory: "",
+      presentationFileName: "",
+    });
+  }, [openNotesData]);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
@@ -155,6 +200,20 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const dacDocumentId = getDACDocumentId(
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
+
+  const handleOpenNotes = (
+    documentId: string,
+    documentCategory: string,
+    presentationFileName: string
+  ) => {
+    setOpenNoteData({
+      open: true,
+      documentId: documentId,
+      documentCategory: documentCategory,
+      presentationFileName: presentationFileName,
+      lastFocusDocumentId: documentId,
+    });
+  };
 
   return (
     <>
@@ -174,7 +233,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             message={errorModal.message}
             type={errorModal.type}
             handleClose={handleCloseErrorModal}
-            contextData={{ documentId: getActiveTabDocument?.documentId }}
+            contextData={{
+              documentId:
+                errorModal.type === "addnote"
+                  ? openNotesData.documentId
+                  : getActiveTabDocument?.documentId,
+            }}
           />
         </Modal>
       )}
@@ -294,7 +358,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          {!inFullScreen && (
+          {!inFullScreen && !openNotesData.open && (
             <div
               role="region"
               aria-labelledby="side-panel-region-label"
@@ -302,7 +366,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               data-testid="side-panel"
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
-              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.sidePanelArea}`}
             >
               <span
                 id="side-panel-region-label"
@@ -338,6 +402,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <AccordionWait />
                 ) : (
                   <Accordion
+                    initialState={accordionOldState}
                     readUnreadData={
                       storedUserData.status === "succeeded"
                         ? storedUserData.data.readUnread
@@ -348,9 +413,44 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
+                    handleOpenNotes={handleOpenNotes}
+                    showNotesFeature={featureFlags.notes}
+                    lastFocusDocumentId={openNotesData.lastFocusDocumentId}
+                    accordionStateChangeCallback={accordionStateChangeCallback}
+                    handleGetNotes={handleGetNotes}
+                    notesData={notes}
                   />
                 )}
               </div>
+            </div>
+          )}
+          {!inFullScreen && openNotesData.open && (
+            <div
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.notesArea}`}
+              id="notes-panel"
+              role="region"
+              aria-labelledby="notes-panel-region-label"
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+              tabIndex={0}
+              ref={notesPanelRef}
+              data-testid="notes-panel"
+            >
+              <span
+                id="notes-panel-region-label"
+                className={classes.sidePanelLabel}
+              >
+                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName}.`}
+              </span>
+              <NotesPanel
+                activeDocumentId={getActiveTabDocument?.documentId}
+                documentName={openNotesData.presentationFileName}
+                documentCategory={openNotesData.documentCategory}
+                documentId={openNotesData.documentId}
+                notesData={notes}
+                handleCloseNotes={handleCloseNotes}
+                handleAddNote={handleAddNote}
+                handleGetNotes={handleGetNotes}
+              />
             </div>
           )}
           {!!tabsState.items.length && featureFlags.fullScreen && (
@@ -374,6 +474,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(false);
+                      if (!openNotesData.open) {
+                        setOpenNoteData({
+                          ...openNotesData,
+                          lastFocusDocumentId: "",
+                        });
+                      }
                     } else {
                       trackEvent("View Full Screen", {
                         documentId: getActiveTabDocument.documentId,
