@@ -26,6 +26,7 @@ steps:
         $uiCount=0
         $ddeiClientCount=0
         $commonCount=0
+        $e2eCount=0
 
         For ($i=0; $i -lt $temp.Length; $i++)
         {
@@ -109,6 +110,12 @@ steps:
             Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
             $commonCount++
           }
+          if ($name -like 'polaris-e2e/*')
+          {
+            echo "e2e tests changed, deploy codebase..."
+            Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+            $e2eCount++
+          }
         }
 
         Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT;isOutput=true]$pipelineTerraformCount"
@@ -121,5 +128,6 @@ steps:
         Write-Host "##vso[task.setvariable variable=UI_COUNT;isOutput=true]$uiCount"
         Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT;isOutput=true]$ddeiClientCount"
         Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT;isOutput=true]$commonCount"
+        Write-Host "##vso[task.setvariable variable=E2E_TESTS_COUNT;isOutput=true]$e2eCount"
     name: Change_Results
     displayName: Processing changes to repo

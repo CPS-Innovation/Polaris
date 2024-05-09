@@ -32,6 +32,8 @@ parameters:
     type: string
   - name: commonLibraryCount
     type: string
+  - name: e2eCount
+    type: string
   - name: messageTitle
     type: string
   - name: buildResultsTitle
@@ -51,7 +53,7 @@ steps:
         $buildID = $(Build.BuildId)
 
         try {
-            # we need to stage ID which is only available via a REST call
+            # we need to get the stage ID which is only available via a REST call
             $getUri = "https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$buildId/timeline?api-version=6.0"
             $response = Invoke-RestMethod -Uri $getUri -Method get -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -ContentType application/json
             $stage = $response.records | where-object -property name -eq "${{ parameters.stageName}}"
@@ -175,6 +177,10 @@ steps:
                               {
                                 "title": "Common Lib Changes",
                                 "value": "${{ parameters.commonLibraryCount }}"
+                              },
+                              {
+                                "title": "e2e Test Changes",
+                                "value": "${{ parameters.e2eCount }}"
                               }
                             ]
                           }
