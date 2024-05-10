@@ -48,6 +48,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/polaris-ui/build-version.txt"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/polaris-ui/build-version.txt"
+    "WEBSITES_ENABLE_APP_CACHE"                       = "true"
   }
 
   site_config {
@@ -56,10 +57,10 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     # The -s in npx serve -s is very important.  It allows any url that hits the app
     #  to be served from the root index.html.  This is important as it accomodates any
     #  sub directory that the app may be hosted with, or none at all.
-    app_command_line       = "node polaris-ui/subsititute-config.js; npx serve -s"
-    always_on              = true
-    vnet_route_all_enabled = true
-
+    app_command_line                  = "node polaris-ui/subsititute-config.js; npx serve -s"
+    always_on                         = true
+    vnet_route_all_enabled            = true
+    
     application_stack {
       node_version = "18-lts"
     }
@@ -70,7 +71,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     require_authentication = true
     default_provider       = "AzureActiveDirectory"
     unauthenticated_action = "AllowAnonymous"
-    excluded_paths         = ["/status"]
+    excluded_paths         = ["/status", "/polaris-ui/build-version.txt"]
 
     # our default_provider:
     active_directory_v2 {
