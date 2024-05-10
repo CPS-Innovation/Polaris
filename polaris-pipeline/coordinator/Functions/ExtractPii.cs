@@ -15,8 +15,6 @@ using coordinator.Services.PiiService;
 using Common.Configuration;
 using Common.Extensions;
 using Common.Services.BlobStorageService;
-using Common.Telemetry;
-using Common.Wrappers;
 using Newtonsoft.Json;
 
 namespace coordinator.Functions
@@ -27,19 +25,15 @@ namespace coordinator.Functions
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IOcrResultsService _ocrResultsService;
         private readonly IPiiService _piiService;
-        private readonly ITextAnalysisClient _textAnalyticsClient;
-        private readonly ITelemetryClient _telemetryClient;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly ITextAnalysisClient _textAnalysisClient;
 
-        public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalyticsClient, ITelemetryClient telemetryClient, IJsonConvertWrapper jsonConvertWrapper)
+        public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalysisClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _ocrResultsService = ocrResultsService ?? throw new ArgumentNullException(nameof(ocrResultsService));
             _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
-            _textAnalyticsClient = textAnalyticsClient ?? throw new ArgumentNullException(nameof(textAnalyticsClient));
-            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
+            _textAnalysisClient = textAnalysisClient ?? throw new ArgumentNullException(nameof(textAnalysisClient));
         }
 
         [FunctionName(nameof(ExtractPii))]
@@ -74,7 +68,7 @@ namespace coordinator.Functions
                     var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000, currentCorrelationId);
                     var piiRequests = _piiService.CreatePiiRequests(piiChunks);
 
-                    var calls = piiRequests.Select(async piiRequest => await _textAnalyticsClient.CheckForPii(piiRequest));
+                    var calls = piiRequests.Select(async piiRequest => await _textAnalysisClient.CheckForPii(piiRequest));
                     var piiRequestResults = await Task.WhenAll(calls);
 
                     var piiResultsWrapper = _piiService.MapPiiResults(piiRequestResults);
@@ -94,9 +88,9 @@ namespace coordinator.Functions
                         );
                     }
 
-                    //Telemetry stats
-                    var piiEntityCount = piiResultsWrapper.PiiResultCollection.Sum(x => x.Items.Sum(resultCollection => resultCollection.Entities.Count));
-                    var hasError = piiResultsWrapper.PiiResultCollection.Any(x => x.Items.Any(resultCollection => resultCollection.HasError));
+                    //Telemetry stats for future use...
+                    // var piiEntityCount = piiResultsWrapper.PiiResultCollection.Sum(x => x.Items.Sum(resultCollection => resultCollection.Entities.Count));
+                    // var hasError = piiResultsWrapper.PiiResultCollection.Any(x => x.Items.Exists(resultCollection => resultCollection.HasError));
 
                     var results = _piiService.ReconcilePiiResults(piiChunks, piiResultsWrapper);
 

@@ -86,7 +86,8 @@ namespace coordinator.tests
         {
             OcrLine1(),
             OcrLine2(),
-            OcrLine3()
+            OcrLine3(),
+            OcrLine4()
         };
 
         public static Func<IEnumerable<ReconciledPiiEntity>> ReconciledPiiEntities { get; } = () => new[]

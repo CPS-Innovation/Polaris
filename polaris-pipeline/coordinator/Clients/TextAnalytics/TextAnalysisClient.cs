@@ -1,20 +1,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure;
 using Azure.AI.TextAnalytics;
 using coordinator.Domain;
+using coordinator.Factories.TextAnalyticsClientFactory;
 
 namespace coordinator.Clients.TextAnalytics
 {
     public class TextAnalysisClient : ITextAnalysisClient
     {
-        private readonly string Key = "4a3c4e0627934d36b0da46a5074fcfd8";
-        private readonly string EndpointUri = "https://lang-polaris-pipeline-dev.cognitiveservices.azure.com/";
         private readonly TextAnalyticsClient _textAnalyticsClient;
 
-        public TextAnalysisClient()
+        public TextAnalysisClient(ITextAnalyticsClientFactory textAnalyticsClientFactory)
         {
-            _textAnalyticsClient = new TextAnalyticsClient(new System.Uri(EndpointUri), new AzureKeyCredential(Key));
+            _textAnalyticsClient = textAnalyticsClientFactory.Create();
         }
 
         public async Task<RecognizePiiEntitiesResultCollection> CheckForPii(PiiRequestDto piiRequest)

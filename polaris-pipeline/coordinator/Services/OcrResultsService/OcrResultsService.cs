@@ -8,7 +8,6 @@ using Common.Wrappers;
 using coordinator.Helpers;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.WindowsAzure.Storage;
 
 namespace coordinator.Services.OcrResultsService
 {
@@ -65,7 +64,7 @@ namespace coordinator.Services.OcrResultsService
 
     public class PiiChunk
     {
-        private int _characterLimit;
+        private readonly int _characterLimit;
         private string _text;
 
         public PiiChunk(int id, int caseId, string documentId, int characterLimit)
@@ -178,7 +177,7 @@ namespace coordinator.Services.OcrResultsService
         {
             foreach (var word in words)
             {
-                var offsetMin = !Words.Any() ? OffsetRange.Min : Words.Last().RelativeOffset.Max + 2;
+                var offsetMin = !Words.Any() ? OffsetRange.Min : Words[^1].RelativeOffset.Max + 2;
                 Words.Add(new OcrWord(word, offsetMin));
             }
         }

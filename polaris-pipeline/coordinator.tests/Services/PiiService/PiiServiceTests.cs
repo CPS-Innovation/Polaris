@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
+using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Services.OcrResultsService;
@@ -16,7 +17,6 @@ namespace coordinator.tests.Services.PiiServiceTests
 {
     public class PiiServiceTests
     {
-        private readonly Mock<IConfiguration> _configuration;
         private readonly PiiService _piiService;
         private readonly Mock<PiiEntityMapper> _piiEntityMapper;
         private readonly OcrResultsService _ocrResultsService;
@@ -28,12 +28,11 @@ namespace coordinator.tests.Services.PiiServiceTests
 
         public PiiServiceTests()
         {
-            _configuration = new Mock<IConfiguration>();
             _piiEntityMapper = new Mock<PiiEntityMapper>();
             _blobStorageService = new Mock<IPolarisBlobStorageService>();
             _jsonConvertWrapper = new Mock<IJsonConvertWrapper>();
-            _piiService = new PiiService(_configuration.Object, _piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object);
             _piiCategories = new string[] { "Person", "Address", "Email" };
+            _piiService = new PiiService(_piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object);
 
             _ocrResultsService = new OcrResultsService(_blobStorageService.Object, _jsonConvertWrapper.Object);
         }
@@ -41,7 +40,7 @@ namespace coordinator.tests.Services.PiiServiceTests
         [Fact]
         public void WhenCreatingPiiRequests_AMaximumOf5Documents_AreAssignedToEachRequest()
         {
-            var documentCharacterLimit = 15;
+            var documentCharacterLimit = 10;
             var processedCount = 0;
 
             var readResult = new ReadResult
@@ -58,6 +57,8 @@ namespace coordinator.tests.Services.PiiServiceTests
             piiChunk.BuildChunk(analyzeResults, ref processedCount);
 
             var result = _piiService.CreatePiiRequests(new List<PiiChunk>() { piiChunk });
+
+            result.Count().Should().Be(1);
         }
 
         [Fact]

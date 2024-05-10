@@ -11,27 +11,23 @@ using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
-using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Services.PiiService
 {
     public class PiiService : IPiiService
     {
         private const int DocumentSize = 5;
+        private const string piiCategoriesConfigValue = "";
         private readonly string[] _piiCategories;
-        private readonly IConfiguration _configuration;
         private readonly IPiiEntityMapper _piiEntityMapper;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public PiiService(IConfiguration configuration, IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper)
+        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
-            // To come for config value...
-            var piiCategoriesConfigValue = ""; //"Person;PersonType;PhoneNumber;Organization;Address;Email;";
             _piiCategories = piiCategoriesConfigValue.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
@@ -57,7 +53,7 @@ namespace coordinator.Services.PiiService
 
         public IEnumerable<PiiLine> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults)
         {
-            if (piiChunks == null || piiResults == null) return null;
+            if (piiChunks == null || piiResults == null) return new List<PiiLine>();
 
             var results = new List<ReconciledPiiEntity>();
 
@@ -72,7 +68,7 @@ namespace coordinator.Services.PiiService
 
                     foreach (var (text, offset) in words)
                     {
-                        var chunkLine = chunk.Lines.Where(x => x.ContainsOffset(offset)).SingleOrDefault();
+                        var chunkLine = chunk.Lines.Single(x => x.ContainsOffset(offset));
                         var ocrWord = chunkLine.GetWord(text, offset);
 
                         if (ocrWord != null)

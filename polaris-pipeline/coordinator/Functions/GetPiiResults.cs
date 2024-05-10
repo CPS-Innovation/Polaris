@@ -18,18 +18,14 @@ namespace coordinator.Functions
     public class GetPiiResults
     {
         private readonly ILogger<GetPiiResults> _logger;
-        private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IOcrResultsService _ocrResultsService;
         private readonly IPiiService _piiService;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public GetPiiResults(ILogger<GetPiiResults> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, IJsonConvertWrapper jsonConvertWrapper)
+        public GetPiiResults(ILogger<GetPiiResults> logger, IOcrResultsService ocrResultsService, IPiiService piiService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _ocrResultsService = ocrResultsService ?? throw new ArgumentNullException(nameof(ocrResultsService));
             _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
-            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
         [FunctionName(nameof(GetPiiResults))]
