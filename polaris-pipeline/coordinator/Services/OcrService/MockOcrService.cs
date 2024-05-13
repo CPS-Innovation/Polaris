@@ -46,6 +46,16 @@ namespace coordinator.Services.OcrService
                 _log.LogMethodExit(correlationId, nameof(GetOcrResultsAsync), string.Empty);
             }
         }
+
+        public Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(bool, ReadOperationResult)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 #endif

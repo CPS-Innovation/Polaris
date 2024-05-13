@@ -30,6 +30,31 @@ namespace coordinator.Services.OcrService
 
         public async Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
         {
+            var watch = new Stopwatch();
+            watch.Start();
+
+            _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
+            var operationId = await InitiateOperationAsync(stream, correlationId);
+
+            while (true)
+            {
+                // always wait before the first read attempt, it will not be ready immediately
+                await Task.Delay(_pollingDelayMs);
+
+                var (isComplete, results) = await GetOperationResultsAsync(operationId, correlationId);
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
+
+                if (isComplete)
+                {
+                    watch.Stop();
+                    _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {watch.ElapsedMilliseconds}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+                    return results.AnalyzeResult;
+                }
+            }
+        }
+
+        public async Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId)
+        {
             try
             {
                 // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
@@ -37,39 +62,32 @@ namespace coordinator.Services.OcrService
                 //  it may not be seekable.  We have a helper method to ensure it is seekable.
                 //  n.b. this incurs an overhead for all executions, the vast majority of which do not need to retry.
                 stream = await stream.EnsureSeekableAsync();
-
-                var watch = new Stopwatch();
-                watch.Start();
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
                 var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream);
                 var operationLocation = textHeaders.OperationLocation;
 
                 const int numberOfCharsInOperationId = 36;
                 var operationId = operationLocation[^numberOfCharsInOperationId..];
 
-                ReadOperationResult results;
-                while (true)
+                return Guid.Parse(operationId);
+            }
+            catch (Exception ex)
+            {
+                _log.LogMethodError(correlationId, nameof(InitiateOperationAsync), "An OCR Library exception occurred", ex);
+                throw new OcrServiceException(ex.Message);
+            }
+        }
+
+        public async Task<(bool, ReadOperationResult)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        {
+            try
+            {
+                var results = await _computerVisionClient.GetReadResultAsync(operationId);
+                return results.Status switch
                 {
-                    // always wait before the first read attempt, it will not be ready immediately
-                    await Task.Delay(_pollingDelayMs);
-
-                    results = await _computerVisionClient.GetReadResultAsync(Guid.Parse(operationId));
-                    _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
-                    if (results.Status is OperationStatusCodes.Failed or OperationStatusCodes.Succeeded)
-                    {
-                        break;
-                    }
-                }
-
-                watch.Stop();
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {watch.ElapsedMilliseconds}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
-
-                if (results.Status == OperationStatusCodes.Failed)
-                {
-                    throw new OcrServiceException("OCR completed with Failed status");
-                }
-
-                return results.AnalyzeResult;
+                    OperationStatusCodes.Failed => throw new OcrServiceException("OCR completed with Failed status"),
+                    OperationStatusCodes.Succeeded => (true, results),
+                    _ => (false, null)
+                };
             }
             catch (Exception ex)
             {
