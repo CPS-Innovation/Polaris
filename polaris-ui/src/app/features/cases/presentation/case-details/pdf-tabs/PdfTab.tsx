@@ -11,6 +11,7 @@ import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { HeaderSearchPIIMode } from "./HeaderSearchPIIMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
+import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   caseId: number;
@@ -22,6 +23,7 @@ type PdfTabProps = {
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
+  searchPIIHighlights: ISearchPIIHighlight[];
   savedDocumentDetails: {
     documentId: string;
     polarisDocumentVersionId: number;
@@ -60,6 +62,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   savedDocumentDetails,
   contextData,
   isOkToSave,
+  searchPIIHighlights,
   handleOpenPdf,
   handleLaunchSearchResults,
   handleAddRedaction,
@@ -84,10 +87,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     saveStatus,
     cmsDocType: { documentType },
     attachments,
-    // hasFailedAttachments,
+    hasFailedAttachments,
   } = caseDocumentViewModel;
 
-  const hasFailedAttachments = true;
   const searchHighlights =
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
 
@@ -118,10 +120,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     );
   };
   const isSearchPIIOn = useMemo(() => {
-    console.log(
-      "ontextData.searchPIIOn.includes(documentId)>>",
-      contextData.searchPIIOn
-    );
     return contextData.searchPIIOn.includes(documentId);
   }, [contextData.searchPIIOn, documentId]);
 
@@ -191,6 +189,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           tabId={tabId}
           headers={headers}
           searchHighlights={searchHighlights}
+          searchPIIHighlights={searchPIIHighlights}
           documentWriteStatus={documentWriteStatus}
           contextData={{
             documentId,

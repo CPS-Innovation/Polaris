@@ -3,6 +3,8 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfTab } from "./PdfTab";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
+import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
+import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 
 type PdfTabsProps = {
   redactionTypesData: RedactionTypeData[];
@@ -24,6 +26,7 @@ type PdfTabsProps = {
   caseId: number;
   isOkToSave: boolean;
   showOverRedactionLog: boolean;
+  searchPIIData: SearchPIIData[];
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
@@ -49,6 +52,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   contextData,
   savedDocumentDetails,
   showOverRedactionLog,
+  searchPIIData,
   handleTabSelection,
   isOkToSave,
   handleOpenPdf,
@@ -75,6 +79,11 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               caseId={caseId}
+              searchPIIHighlights={
+                searchPIIData.find(
+                  (data) => data.documentId === item.documentId
+                )?.searchPIIHighlights ?? []
+              }
               tabIndex={index}
               showOverRedactionLog={showOverRedactionLog}
               redactionTypesData={redactionTypesData}

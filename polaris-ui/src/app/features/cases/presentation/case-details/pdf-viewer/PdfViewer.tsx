@@ -12,6 +12,7 @@ import { RedactButton } from "./RedactButton";
 import { RedactionWarning } from "./RedactionWarning";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
@@ -40,6 +41,7 @@ type Props = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
+  searchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
@@ -64,6 +66,7 @@ export const PdfViewer: React.FC<Props> = ({
   documentWriteStatus,
   contextData,
   searchHighlights = [],
+  searchPIIHighlights,
   redactionHighlights,
   isOkToSave,
   areaOnlyRedactionMode,
@@ -73,6 +76,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleSavedRedactions,
   focussedHighlightIndex,
 }) => {
+  console.log("searchPIIHighlights>>>>>11111", searchPIIHighlights);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
@@ -82,8 +86,9 @@ export const PdfViewer: React.FC<Props> = ({
     () => [
       ...searchHighlights,
       ...sortRedactionHighlights(redactionHighlights),
+      ...searchPIIHighlights,
     ],
-    [searchHighlights, redactionHighlights]
+    [searchHighlights, redactionHighlights, searchPIIHighlights]
   );
 
   useEffect(() => {

@@ -37,8 +37,9 @@ import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
+import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIDataItem } from "../../domain/gateway/SearchPIIData";
-
+import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
 export const reducer = (
   state: CombinedState,
   action:
@@ -1064,7 +1065,7 @@ export const reducer = (
         : {
             show: show,
             documentId: documentId,
-            searchPIIResult: [],
+            searchPIIHighlights: [],
             getSearchPIIStatus: "initial" as const,
           };
       return {
@@ -1086,7 +1087,10 @@ export const reducer = (
         (searchPIIResult) => searchPIIResult.documentId === documentId
       )!;
 
-      // const { notesData } = action.payload;
+      const searchPIIHighlights = mapSearchPIIHighlights(searchPIIResult);
+
+      const sortedSearchPIIHighlights =
+        sortSearchHighlights(searchPIIHighlights);
       return {
         ...state,
         searchPII: [
@@ -1094,7 +1098,7 @@ export const reducer = (
           {
             ...activeSearchPIIData,
             documentId,
-            searchPIIResult: searchPIIResult,
+            searchPIIHighlights: sortedSearchPIIHighlights,
             getSearchPIIStatus: getSearchPIIStatus,
           },
         ],

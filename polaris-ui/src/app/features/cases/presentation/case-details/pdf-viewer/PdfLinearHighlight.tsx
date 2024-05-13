@@ -1,15 +1,16 @@
 import React from "react";
 import { T_ViewportHighlight } from "../../../../../../react-pdf-highlighter/src/components/PdfHighlighter";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 
 import classes from "./PdfLinearHighlight.module.scss";
 import { PdfLinearHighlightPartRedaction } from "./PdfLinearHighlightPartRedaction";
 import { PdfLinearHighlightPartSearch } from "./PdfLinearHighlightPartSearch";
 
 interface Props {
-  type: "search" | "redaction";
+  type: "search" | "redaction" | "searchPII";
   isScrolledTo: boolean;
-  highlight: T_ViewportHighlight<IPdfHighlight>;
+  highlight: T_ViewportHighlight<IPdfHighlight | ISearchPIIHighlight>;
 }
 
 export const PdfLinearHighlight: React.FC<Props> = ({
@@ -33,7 +34,7 @@ export const PdfLinearHighlight: React.FC<Props> = ({
     >
       <div className={classes["Highlight__parts"]}>
         {rects.map((rect, index) =>
-          type === "search" ? (
+          type === "search" || type === "searchPII" ? (
             <PdfLinearHighlightPartSearch key={index} rect={rect} />
           ) : (
             <PdfLinearHighlightPartRedaction

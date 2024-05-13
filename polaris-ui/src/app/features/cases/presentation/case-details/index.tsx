@@ -509,6 +509,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
+                searchPIIData={searchPII.filter((data) => data.show)}
                 redactionTypesData={
                   redactionLog.redactionLogLookUpsData.status === "succeeded"
                     ? redactionLog.redactionLogLookUpsData.data.missedRedactions

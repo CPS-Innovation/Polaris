@@ -1,11 +1,25 @@
+import { ISearchPIIHighlight } from "../NewPdfHighlight";
+
 export type SearchPIIDataItem = {
   text: string;
-  context: string;
+  fileName: string;
+  id: string;
+  lineIndex: number;
+  pageHeight: number;
+  pageIndex: number;
+  pageWidth: number;
+  polarisDocumentId: string;
+  words: {
+    boundingBox: number[] | null;
+    matchType: "None" | "Exact" | "Fuzzy";
+    piiCategory: "Address" | "PersonType";
+    text: string;
+  }[];
 };
 
 export type SearchPIIData = {
   show: boolean;
   documentId: string;
-  searchPIIResult: SearchPIIDataItem[];
+  searchPIIHighlights: ISearchPIIHighlight[];
   getSearchPIIStatus: "failure" | "polling" | "success" | "initial";
 };

@@ -133,6 +133,7 @@ describe("useCaseDetailsState", () => {
         handleAddNote,
         handleGetNotes,
         handleShowHideRedactionSuggestions,
+        handleGetSearchPIIData,
         ...stateProperties
       } = result.current;
 
