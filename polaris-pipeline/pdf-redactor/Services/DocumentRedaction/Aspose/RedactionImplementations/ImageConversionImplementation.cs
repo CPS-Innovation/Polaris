@@ -64,6 +64,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 }
 
                 var pageToSwapOutRect = page.Rect.ToRect();
+                var pageToSwapOutMediaBox = page.MediaBox.ToRect();
                 var pageHeight = page.PageInfo.Height;
                 var pageWidth = page.PageInfo.Width;
 
@@ -86,6 +87,13 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                     pageToSwapIn.PageInfo.Margin.Top =
                     pageToSwapIn.PageInfo.Margin.Right =
                     pageToSwapIn.PageInfo.Margin.Left = 0;
+
+
+                if (pageToSwapOutMediaBox.Width > pageToSwapOutMediaBox.Height)
+                {
+                    // if the MediaBox width of the original page is greater than the height, then the page is in landscape
+                    pageToSwapIn.PageInfo.IsLandscape = true;
+                }
 
                 var i = new Image()
                 {
