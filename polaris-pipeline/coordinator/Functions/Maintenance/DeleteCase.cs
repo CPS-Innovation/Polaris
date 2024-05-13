@@ -62,7 +62,6 @@ namespace coordinator.Functions.Maintenance
                      waitForIndexToSettle: true);
 
                 return new AcceptedResult();
-
             }
             catch (Exception ex)
             {
