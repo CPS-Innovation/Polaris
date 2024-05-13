@@ -150,6 +150,7 @@ namespace coordinator.Durable.Entity
                          cmsDocument.CmsVersionId != incomingDocument.VersionId ||
                          cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
                          cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId ||
+                         cmsDocument.CmsDocType?.DocumentCategory != incomingDocument.CmsDocType?.DocumentCategory ||
                          cmsDocument.PresentationTitle != incomingDocument.PresentationTitle ||
                          cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
                          cmsDocument.WitnessId != incomingDocument.WitnessId ||
