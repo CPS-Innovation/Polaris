@@ -5,7 +5,7 @@ resource "azurerm_cognitive_account" "language_service" {
   location            = azurerm_resource_group.rg.location
   kind                = "TextAnalytics"
 
-  sku_name                           = "S1"
+  sku_name                           = "S"
   custom_subdomain_name              = "polaris${var.env}"
   outbound_network_access_restricted = false
   public_network_access_enabled      = false
