@@ -3,7 +3,7 @@ resource "azurerm_cognitive_account" "language_service" {
   name                = "lang-${local.resource_name}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  kind                = "Language"
+  kind                = "TextAnalytics"
 
   sku_name                           = "S1"
   custom_subdomain_name              = "polaris${var.env}"
