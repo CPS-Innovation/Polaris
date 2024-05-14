@@ -6,7 +6,7 @@ resource "azurerm_cognitive_account" "language_service" {
   kind                = "TextAnalytics"
 
   sku_name                           = "S"
-  custom_subdomain_name              = "polaris${var.env}"
+  custom_subdomain_name              = "lang-polaris-pipeline-${var.env}"
   outbound_network_access_restricted = false
   public_network_access_enabled      = false
   dynamic_throttling_enabled         = var.search_service_config.is_dynamic_throttling_enabled
