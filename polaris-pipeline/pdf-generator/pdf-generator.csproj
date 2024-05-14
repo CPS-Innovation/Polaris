@@ -86,4 +86,7 @@
   <ItemGroup>
     <Folder Include="Domain\Messaging\" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HealthCheckResources\TestPdf.pdf" />
+  </ItemGroup>
 </Project>

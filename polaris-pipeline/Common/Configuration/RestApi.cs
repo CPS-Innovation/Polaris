@@ -24,6 +24,7 @@ namespace Common.Configuration
         // Other
         public const string AuthInitialisation = "init";
         public const string Status = "status";
+        public const string Health = "health";
         public const string GetHostName = "gethostname";
 
         // Internal Pipeline
@@ -54,12 +55,6 @@ namespace Common.Configuration
         public static string GetCaseSearchQueryPath(string caseUrn, long caseId, string searchTerm)
         {
             return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
-        }
-
-        // todo: delete following
-        public static string GetCaseSearchPath(string caseUrn, long caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
