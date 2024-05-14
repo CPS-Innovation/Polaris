@@ -613,9 +613,16 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       pageNumber: pages[0].number,
     };
 
-    const content = {
-      text: range.toString(),
+    let content: { text: string } = {
+      text: "",
     };
+    if (range.toString()) {
+      content = { text: range.toString() };
+    } else {
+      const attributes: any = (range.startContainer as HTMLElement).attributes;
+      const textContent = attributes["text-content"].nodeValue;
+      content = { text: textContent ?? "" };
+    }
     const scaledPosition = this.viewportPositionToScaled(viewportPosition);
 
     this.setTip(

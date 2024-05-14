@@ -30,6 +30,8 @@ export const mapSearchPIIHighlights = (
             id: `${id}-${i}`,
             type: "searchPII",
             highlightType: "linear",
+            redactionStatus: "initial",
+            textContent: word.text,
             position: {
               pageNumber: pageIndex,
               boundingRect: rect,

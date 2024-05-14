@@ -80,9 +80,11 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
             <PdfTab
               caseId={caseId}
               searchPIIHighlights={
-                searchPIIData.find(
-                  (data) => data.documentId === item.documentId
-                )?.searchPIIHighlights ?? []
+                searchPIIData
+                  .find((data) => data.documentId === item.documentId)
+                  ?.searchPIIHighlights.filter(
+                    (highlight) => highlight.redactionStatus === "initial"
+                  ) ?? []
               }
               tabIndex={index}
               showOverRedactionLog={showOverRedactionLog}

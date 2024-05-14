@@ -211,6 +211,9 @@ export const PdfViewer: React.FC<Props> = ({
                           documentType: contextData.documentType,
                           documentId: contextData.documentId,
                         });
+
+                        console.log("position>>>", position);
+                        console.log("content>>>", content);
                         addRedaction(position, content, redactionType);
                         hideTipAndSelection();
                       }}

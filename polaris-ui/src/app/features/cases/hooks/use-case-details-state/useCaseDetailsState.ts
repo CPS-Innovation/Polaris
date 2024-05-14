@@ -443,12 +443,13 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           show: showSuggestion,
         },
       });
-      dispatch({
-        type: "GET_SEARCH_PII_DATA",
-        payload: {
-          documentId,
-        },
-      });
+      if (showSuggestion)
+        dispatch({
+          type: "GET_SEARCH_PII_DATA",
+          payload: {
+            documentId,
+          },
+        });
     },
     [dispatch]
   );
