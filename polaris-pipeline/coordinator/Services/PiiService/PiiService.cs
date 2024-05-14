@@ -155,7 +155,7 @@ namespace coordinator.Services.PiiService
 
             var piiStreamReader = new StreamReader(piiStream);
 
-            return _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(piiStreamReader.ReadToEnd());
+            return _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(await piiStreamReader.ReadToEndAsync());
         }
     }
 }

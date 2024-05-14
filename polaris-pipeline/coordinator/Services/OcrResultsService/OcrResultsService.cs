@@ -39,7 +39,7 @@ namespace coordinator.Services.OcrResultsService
 
             var streamReader = new StreamReader(jsonStream);
 
-            return _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
+            return _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(await streamReader.ReadToEndAsync());
         }
 
         public List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit, Guid correlationId) // char limit should be a config value
