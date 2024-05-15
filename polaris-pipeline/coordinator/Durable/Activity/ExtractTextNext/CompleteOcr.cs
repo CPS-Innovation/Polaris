@@ -1,37 +1,47 @@
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Services.BlobStorageService;
-using Common.Telemetry;
-using coordinator.Durable.Payloads;
+using Common.Wrappers;
 using coordinator.Services.OcrService;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using text_extractor.coordinator;
 
-namespace coordinator.Durable.Activity
+namespace coordinator.Durable.Activity.ExtractTextNext
 {
-    public class PollOcr
+    public class CompleteOcr
     {
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IOcrService _ocrService;
-        private readonly ITelemetryClient _telemetryClient;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public PollOcr(IPolarisBlobStorageService blobStorageService, IOcrService ocrService, ITelemetryClient telemetryClient)
+        public CompleteOcr(IPolarisBlobStorageService blobStorageService, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper)
         {
             _blobStorageService = blobStorageService;
             _ocrService = ocrService;
-            _telemetryClient = telemetryClient;
+            _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        [FunctionName(nameof(PollOcr))]
-        public async Task<ReadOperationResult> Run([ActivityTrigger] IDurableActivityContext context)
+        [FunctionName(nameof(CompleteOcr))]
+        public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var (operationId, correlationId) = context.GetInput<(Guid, Guid)>();
+            var (operationId, ocrBlobName, correlationId) = context.GetInput<(Guid, string, Guid)>();
+            var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
 
-            return await _ocrService.GetOperationResultsAsync(operationId, correlationId);
+            if (!isOperationComplete)
+            {
+                return false;
+            }
 
+            var jsonResults = _jsonConvertWrapper.SerializeObject(operationResults.AnalyzeResult);
+            using var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults));
+
+            await _blobStorageService.UploadDocumentAsync(
+                ocrStream,
+                ocrBlobName);
+
+            return true;
         }
     }
 }

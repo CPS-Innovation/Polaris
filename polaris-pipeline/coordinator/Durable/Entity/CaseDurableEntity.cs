@@ -27,11 +27,14 @@ namespace coordinator.Durable.Entity
             return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
         }
 
+        [Obsolete]
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
+        [Obsolete]
         private int? version = null;
 
+        [Obsolete]
         [JsonProperty("versionId")]
         public int? Version
         {
@@ -39,11 +42,13 @@ namespace coordinator.Durable.Entity
             set { version = value; }
         }
 
+        [Obsolete]
         public Task<int?> GetVersion()
         {
             return Task.FromResult(version);
         }
 
+        [Obsolete]
         public void SetVersion(int value)
         {
             version = value;
@@ -77,6 +82,7 @@ namespace coordinator.Durable.Entity
         [JsonProperty("defendantsAndCharges")]
         public DefendantsAndChargesEntity DefendantsAndCharges { get; set; }
 
+        [Obsolete]
         public void Reset(string transactionId)
         {
             TransactionId = transactionId;
@@ -86,6 +92,7 @@ namespace coordinator.Durable.Entity
             Completed = null;
             Failed = null;
             FailedReason = null;
+            // todo: this initialisation should be done in a more constructor-like way, at least only once
             CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
             PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
@@ -438,6 +445,7 @@ namespace coordinator.Durable.Entity
             }
         }
 
+        [Obsolete]
         public Task<string[]> GetPolarisDocumentIds()
         {
             var polarisDocumentIds =
@@ -449,6 +457,7 @@ namespace coordinator.Durable.Entity
             return Task.FromResult(polarisDocumentIds);
         }
 
+        [Obsolete]
         public void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args)
         {
             var (polarisDocumentId, isOcrProcessed, isDispatched) = args;
@@ -484,6 +493,7 @@ namespace coordinator.Durable.Entity
         }
 
         // Only required when debugging to manually set the Tracker state
+        [Obsolete]
         public void SetValue(CaseDurableEntity tracker)
         {
             Status = tracker.Status;
@@ -502,6 +512,7 @@ namespace coordinator.Durable.Entity
             return Task.FromResult(Running.GetValueOrDefault());
         }
 
+        [Obsolete]
         public Task<float> GetDurationToCompleted()
         {
             return Task.FromResult(Completed.GetValueOrDefault());
@@ -513,9 +524,29 @@ namespace coordinator.Durable.Entity
             return context.DispatchAsync<CaseDurableEntity>();
         }
 
-        Task<CaseDeltasEntity> ICaseDurableEntity.GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public void SetDocumentPdfConversionSucceeded(string polarisDocumentId)
         {
-            throw new NotImplementedException();
+            var document = GetDocument(polarisDocumentId);
+            document.Status = DocumentStatus.PdfUploadedToBlob;
+        }
+
+        public void SetDocumentPdfConversionFailed((string PolarisDocumentId, PdfConversionStatus PdfConversionStatus) arg)
+        {
+            var document = GetDocument(arg.PolarisDocumentId);
+            document.Status = DocumentStatus.UnableToConvertToPdf;
+            document.ConversionStatus = arg.PdfConversionStatus;
+        }
+
+        public void SetDocumentIndexingSucceeded(string polarisDocumentId)
+        {
+            var document = GetDocument(polarisDocumentId);
+            document.Status = DocumentStatus.Indexed;
+        }
+
+        public void SetDocumentIndexingFailed(string polarisDocumentId)
+        {
+            var document = GetDocument(polarisDocumentId);
+            document.Status = DocumentStatus.OcrAndIndexFailure;
         }
     }
 }

@@ -20,4 +20,18 @@ public class PdfBlobNameHelperTests
         // Assert
         result.Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData(12345, "6789", "12345/ocrs/CMS-6789.json")]
+    [InlineData(12345, "CMS-6789", "12345/ocrs/CMS-6789.json")]
+    [InlineData(12345, "CMS-PCD-6789", "12345/ocrs/CMS-PCD-6789.json")]
+    [InlineData(12345, "DAC-foo", "12345/ocrs/CMS-DAC.json")]
+    public void PdfBlobNameHelper_ReturnsExpectedOcrBlobName(int caseId, string cmsOrPolarisDocumentId, string expected)
+    {
+        // Act
+        var result = PdfBlobNameHelper.GetOcrBlobName(caseId, cmsOrPolarisDocumentId);
+
+        // Assert
+        result.Should().Be(expected);
+    }
 }

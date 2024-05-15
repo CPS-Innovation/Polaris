@@ -36,10 +36,9 @@ namespace Common.Services
 
             services.AddTransient((Func<IServiceProvider, IPolarisBlobStorageService>)(serviceProvider =>
             {
-                var logger = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 var blobServiceContainerName = GetValueFromConfig(configuration, BlobServiceContainerName);
-                return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName, logger);
+                return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName);
             }));
         }
 

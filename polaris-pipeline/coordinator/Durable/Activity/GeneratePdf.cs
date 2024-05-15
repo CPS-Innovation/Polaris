@@ -11,10 +11,8 @@ using DdeiClient.Services;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using System.Net.Http;
 using coordinator.Durable.Payloads;
 using coordinator.Clients.PdfGenerator;
-using coordinator.Domain;
 using Common.Constants;
 
 namespace coordinator.Durable.Activity
@@ -26,9 +24,6 @@ namespace coordinator.Durable.Activity
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
         private readonly IDdeiClient _ddeiClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
-        private readonly ILogger<GeneratePdf> _log;
-
-        const string loggingName = nameof(GeneratePdf);
 
         public GeneratePdf(
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
@@ -43,7 +38,6 @@ namespace coordinator.Durable.Activity
             _validatorWrapper = validatorWrapper;
             _ddeiClient = ddeiClient;
             _blobStorageService = blobStorageService;
-            _log = logger;
         }
 
         // todo: for the time being we have a boolean success flag return value. The coordinator refactor 
@@ -53,17 +47,17 @@ namespace coordinator.Durable.Activity
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
-            var results = _validatorWrapper.Validate(payload);
-            if (results?.Any() == true)
-                throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
-
-            var fileType = GetFileType(payload);
+            FileType fileType;
+            var isSupportedFileType = TryGetFileType(payload, out fileType);
+            if (!isSupportedFileType)
+            {
+                return PdfConversionStatus.DocumentTypeUnsupported;
+            }
 
             using var documentStream = await GetDocumentStreamAsync(payload);
 
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(
                         payload.CorrelationId,
-                        payload.CmsAuthValues,
                         payload.CmsCaseUrn,
                         payload.CmsCaseId.ToString(),
                         payload.CmsDocumentId,
@@ -71,39 +65,40 @@ namespace coordinator.Durable.Activity
                         documentStream,
                         fileType);
 
-
-            if (response.Status == PdfConversionStatus.DocumentConverted)
+            if (response.Status != PdfConversionStatus.DocumentConverted)
             {
-                await _blobStorageService.UploadDocumentAsync
-                    (
-                        response.PdfStream,
-                        payload.BlobName,
-                        payload.CmsCaseId.ToString(),
-                        payload.PolarisDocumentId,
-                        payload.CmsVersionId.ToString(),
-                        payload.CorrelationId
-                    );
-
-                response.PdfStream.Dispose();
+                return response.Status;
             }
 
+            await _blobStorageService.UploadDocumentAsync
+            (
+                response.PdfStream,
+                payload.BlobName,
+                payload.CmsCaseId.ToString(),
+                payload.PolarisDocumentId,
+                payload.CmsVersionId.ToString(),
+                payload.CorrelationId
+            );
+
+            response.PdfStream.Dispose();
             return response.Status;
         }
 
-        private FileType GetFileType(CaseDocumentOrchestrationPayload payload)
+        private bool TryGetFileType(CaseDocumentOrchestrationPayload payload, out FileType fileType)
         {
-            if (payload.PcdRequestTracker != null || payload.DefendantAndChargesTracker != null)
+            var isAPseudoDocument = payload.PcdRequestTracker != null || payload.DefendantAndChargesTracker != null;
+            if (isAPseudoDocument)
             {
-                return FileType.HTML;
+                fileType = FileType.HTML;
+                return true;
             }
-            else
-            {
-                var fileExtension = payload.CmsDocumentTracker.CmsOriginalFileExtension
-                    .Replace(".", string.Empty)
-                    .ToUpperInvariant();
 
-                return Enum.Parse<FileType>(fileExtension);
-            }
+            var fileExtension = payload.CmsDocumentTracker.CmsOriginalFileExtension
+                .Replace(".", string.Empty)
+                .ToUpperInvariant();
+
+            return Enum.TryParse(fileExtension, out fileType);
+
         }
 
         private async Task<Stream> GetDocumentStreamAsync(CaseDocumentOrchestrationPayload payload)

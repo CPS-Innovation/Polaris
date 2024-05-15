@@ -111,6 +111,16 @@ namespace coordinator.Durable.Payloads
             }
         }
 
+        public string OcrBlobName
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(CmsDocumentId)
+                    ? PdfBlobNameHelper.GetOcrBlobName(CmsCaseId, CmsDocumentId)
+                    : throw new Exception("No document tracker found");
+            }
+        }
+
         public CmsDocumentEntity CmsDocumentTracker { get; set; }
         public PcdRequestEntity PcdRequestTracker { get; set; }
         public DefendantsAndChargesEntity DefendantAndChargesTracker { get; set; }

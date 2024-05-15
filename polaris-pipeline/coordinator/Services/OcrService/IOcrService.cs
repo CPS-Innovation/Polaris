@@ -7,7 +7,7 @@ namespace coordinator.Services.OcrService
 {
     public interface IOcrService
     {
-        [Obsolete("Use GetOcrResultsInitiateAsync instead")]
+        [Obsolete("Use GetOcrResultsInitiateAsync and then GetOperationResultsAsync instead")]
         Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId);
 
         Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId);

@@ -7,7 +7,6 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Common.ValueObjects;
-using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 
 namespace Common.Services.BlobStorageService
@@ -16,13 +15,11 @@ namespace Common.Services.BlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;
-        private readonly ILogger<PolarisBlobStorageService> _logger;
 
-        public PolarisBlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName, ILogger<PolarisBlobStorageService> logger)
+        public PolarisBlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName)
         {
             _blobServiceClient = blobServiceClient;
             _blobServiceContainerName = blobServiceContainerName;
-            _logger = logger;
         }
 
         public async Task<Stream> GetDocumentAsync(string blobName, Guid correlationId)
@@ -47,18 +44,14 @@ namespace Common.Services.BlobStorageService
             return result.Value.Content;
         }
 
+        public async Task UploadDocumentAsync(Stream stream, string blobName)
+        {
+            await UploadDocumentInternal(stream, blobName);
+        }
+
         public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, PolarisDocumentId polarisDocumentId, string versionId, Guid correlationId)
         {
-            var decodedBlobName = UrlDecodeString(blobName);
-
-            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
-            if (!await blobContainerClient.ExistsAsync())
-                throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-
-            var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
-
-            await blobClient.UploadAsync(stream, true);
-            stream.Close();
+            var blobClient = await UploadDocumentInternal(stream, blobName);
 
             var metadata = new Dictionary<string, string>
             {
@@ -91,6 +84,22 @@ namespace Common.Services.BlobStorageService
         private static string UrlDecodeString(string value)
         {
             return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
+        }
+
+        private async Task<BlobClient> UploadDocumentInternal(Stream stream, string blobName)
+        {
+            var decodedBlobName = UrlDecodeString(blobName);
+
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
+            if (!await blobContainerClient.ExistsAsync())
+                throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
+
+            var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
+
+            await blobClient.UploadAsync(stream, true);
+            stream.Close();
+
+            return blobClient;
         }
     }
 }

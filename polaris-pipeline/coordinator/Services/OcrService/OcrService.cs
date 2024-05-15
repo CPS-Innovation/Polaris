@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
@@ -30,10 +29,6 @@ namespace coordinator.Services.OcrService
 
         public async Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
         {
-            var watch = new Stopwatch();
-            watch.Start();
-
-            _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
             var operationId = await InitiateOperationAsync(stream, correlationId);
 
             while (true)
@@ -42,12 +37,9 @@ namespace coordinator.Services.OcrService
                 await Task.Delay(_pollingDelayMs);
 
                 var (isComplete, results) = await GetOperationResultsAsync(operationId, correlationId);
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
 
                 if (isComplete)
                 {
-                    watch.Stop();
-                    _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {watch.ElapsedMilliseconds}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
                     return results.AnalyzeResult;
                 }
             }
@@ -57,6 +49,8 @@ namespace coordinator.Services.OcrService
         {
             try
             {
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
+
                 // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
                 //  and so will need to go through the stream again. Depending on the version/type of framework that is handing us this stream
                 //  it may not be seekable.  We have a helper method to ensure it is seekable.
@@ -81,13 +75,23 @@ namespace coordinator.Services.OcrService
         {
             try
             {
-                var results = await _computerVisionClient.GetReadResultAsync(operationId);
-                return results.Status switch
+                ReadOperationResult results = await _computerVisionClient.GetReadResultAsync(operationId);
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
+
+                if (results.Status == OperationStatusCodes.Running || results.Status == OperationStatusCodes.NotStarted)
                 {
-                    OperationStatusCodes.Failed => throw new OcrServiceException("OCR completed with Failed status"),
-                    OperationStatusCodes.Succeeded => (true, results),
-                    _ => (false, null)
-                };
+                    return (false, null);
+                }
+
+                var elapsedMs = (DateTime.Parse(results.LastUpdatedDateTime) - DateTime.Parse(results.CreatedDateTime)).TotalMilliseconds;
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+
+                if (results.Status == OperationStatusCodes.Failed)
+                {
+                    throw new OcrServiceException("OCR completed with Failed status");
+                }
+
+                return (true, results);
             }
             catch (Exception ex)
             {
