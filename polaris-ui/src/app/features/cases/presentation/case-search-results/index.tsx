@@ -119,12 +119,12 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                 errorMessage={
                   isError
                     ? {
-                      children: (
-                        <span data-testid="input-search-urn-error">
-                          {validationFailMessage}
-                        </span>
-                      ),
-                    }
+                        children: (
+                          <span data-testid="input-search-urn-error">
+                            {validationFailMessage}
+                          </span>
+                        ),
+                      }
                     : undefined
                 }
                 label={{
@@ -199,7 +199,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                         </span>
                       </div>
                       {item.isCaseCharged &&
-                        item.headlineCharge.nextHearingDate ? (
+                      item.headlineCharge.nextHearingDate ? (
                         <div className={classes["result-offence-line"]}>
                           <span>Court hearing:</span>
                           <span>
@@ -225,7 +225,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                         <span>
                           {item.isCaseCharged ? "Charges:" : "Proposed:"}
                         </span>
-                        <span>{item.headlineCharge.charge || 'N/A'}</span>
+                        <span>{item.headlineCharge.charge || "N/A"}</span>
                       </div>
                     </div>
                   </div>
