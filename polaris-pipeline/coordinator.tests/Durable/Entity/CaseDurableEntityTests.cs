@@ -15,13 +15,9 @@ public class CaseDurableEntityTests
 {
     private readonly Fixture _fixture;
 
-    private readonly CaseDurableEntity _caseDurableEntity;
-
     public CaseDurableEntityTests()
     {
         _fixture = new Fixture();
-
-        _caseDurableEntity = new CaseDurableEntity();
     }
 
     [Fact]
@@ -112,6 +108,43 @@ public class CaseDurableEntityTests
         result.UpdatedCmsDocuments.Should().BeEmpty();
 
         sut.CmsDocuments.First().PresentationTitle.Should().Be(newDocTitle);
+    }
+
+    [Fact]
+    public async Task GetCaseDocumentChanges_WhenDocumentCategoryChanges_EntityIsUpdatedAndNoDeltaReturned()
+    {
+        // Arrange
+        var newDocCategory = _fixture.Create<string>();
+
+        var docInEntity = _fixture.Create<CmsDocumentEntity>();
+
+        var docInIncoming = _fixture.Create<CmsDocumentDto>();
+        // make sure triggers for different delta types are not found
+        docInIncoming.DocumentId = docInEntity.CmsDocumentId;
+        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
+        // our operative change
+        docInIncoming.CmsDocType.DocumentCategory = newDocCategory;
+
+        var sut = new CaseDurableEntity
+        {
+            CmsDocuments = new List<CmsDocumentEntity> {
+                docInEntity,
+            }
+        };
+
+        var incomingDocs = new CmsDocumentDto[] {
+            docInIncoming,
+        };
+
+        //Act
+        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+
+        //Assert
+        result.CreatedCmsDocuments.Should().BeEmpty();
+        result.UpdatedCmsDocuments.Should().BeEmpty();
+
+        sut.CmsDocuments.First().CmsDocType.DocumentCategory.Should().Be(newDocCategory);
     }
 
     [Fact]
