@@ -231,7 +231,7 @@ const searchPII = [
         boundingBox: [
           3.6687, 4.645, 4.1617, 4.645, 4.1617, 4.7882, 3.6687, 4.7882,
         ],
-        text: "McCoy,",
+        text: "McCoy",
         matchType: "Exact",
         piiCategory: "Person",
       },

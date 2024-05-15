@@ -12,7 +12,10 @@ type Props = {
     count: number;
   };
   redactionTypesData: RedactionTypeData[];
-  onConfirm: (redactionType: { id: string; name: string }) => void;
+  onConfirm: (
+    redactionType: { id: string; name: string },
+    redactAll: boolean
+  ) => void;
 };
 
 const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
@@ -38,16 +41,18 @@ export const RedactButton: React.FC<Props> = ({
   useFocusTrap("#redact-modal");
   useLastFocus();
 
-  const handleClickRedact = () => {
+  const handleClickRedact = (redactAll: boolean) => {
     if (redactionTypesData.length) {
       const selectedType = redactionTypesData.find(
         (type) => type.id === redactionType
       )!;
-      onConfirm({ id: selectedType.id, name: selectedType.name });
+      onConfirm({ id: selectedType.id, name: selectedType.name }, redactAll);
       return;
     }
-    onConfirm({ id: "", name: "" });
+    onConfirm({ id: "", name: "" }, redactAll);
   };
+
+  const handleClickIgnore = (ignoreAll: boolean) => {};
   return (
     <div
       id="redact-modal"
@@ -99,7 +104,7 @@ export const RedactButton: React.FC<Props> = ({
         <Button
           disabled={redactionTypesData.length ? !redactionType : false}
           className={classes.redactButton}
-          onClick={handleClickRedact}
+          onClick={() => handleClickRedact(false)}
           data-testid="btn-redact"
           id="btn-redact"
         >
@@ -112,7 +117,7 @@ export const RedactButton: React.FC<Props> = ({
               <Button
                 disabled={redactionTypesData.length ? !redactionType : false}
                 className={classes.redactButton}
-                onClick={handleClickRedact}
+                onClick={() => handleClickRedact(true)}
                 data-testid="btn-redact"
                 id="btn-redact"
               >
@@ -121,7 +126,7 @@ export const RedactButton: React.FC<Props> = ({
             )}
             <Button
               disabled={false}
-              onClick={handleClickRedact}
+              onClick={() => handleClickIgnore(false)}
               data-testid="btn-redact"
               id="btn-redact"
               className="govuk-button--secondary"
@@ -132,7 +137,7 @@ export const RedactButton: React.FC<Props> = ({
             {searchPIIData.count > 0 && (
               <Button
                 disabled={false}
-                onClick={handleClickRedact}
+                onClick={() => handleClickIgnore(true)}
                 data-testid="btn-redact"
                 id="btn-redact"
                 className="govuk-button--secondary"

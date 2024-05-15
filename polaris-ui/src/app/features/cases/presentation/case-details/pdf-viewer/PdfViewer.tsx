@@ -24,6 +24,7 @@ import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
+import { roundToFixedDecimalPlaces } from "../../../../cases/hooks/utils/redactionUtils";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -100,12 +101,78 @@ export const PdfViewer: React.FC<Props> = ({
       scrollToFnRef.current(searchHighlights[focussedHighlightIndex]);
   }, [searchHighlights, focussedHighlightIndex]);
 
+  const getPIIHighlightsWithSameText = useCallback(
+    (text: string = "") => {
+      const sameTextHighlights = searchPIIHighlights.filter(
+        (highlight) => highlight.textContent === text
+      );
+
+      return sameTextHighlights;
+    },
+    [searchPIIHighlights]
+  );
+
   const addRedaction = useCallback(
     (
       position: ScaledPosition,
       content: { text?: string; image?: string },
-      redactionType: RedactionTypeData
+      redactionType: RedactionTypeData,
+      redactAll: boolean
     ) => {
+      if (redactAll) {
+        const sameTextHighlights = getPIIHighlightsWithSameText(content?.text);
+        const scaleFactor =
+          position.boundingRect.width /
+          sameTextHighlights[0].position.boundingRect.width;
+        const newRedactions = sameTextHighlights.reduce((acc, highlight) => {
+          const highlightBoundingRect = highlight.position.boundingRect;
+          const rects = highlight.position.rects;
+          const scaledBoundingRect = {
+            x1: roundToFixedDecimalPlaces(
+              highlightBoundingRect.x1 * scaleFactor
+            ),
+            y1: roundToFixedDecimalPlaces(
+              highlightBoundingRect.y1 * scaleFactor
+            ),
+            x2: roundToFixedDecimalPlaces(
+              highlightBoundingRect.x2 * scaleFactor
+            ),
+            y2: roundToFixedDecimalPlaces(
+              highlightBoundingRect.y2 * scaleFactor
+            ),
+            width: roundToFixedDecimalPlaces(
+              highlightBoundingRect.width * scaleFactor
+            ),
+            height: roundToFixedDecimalPlaces(
+              highlightBoundingRect.height * scaleFactor
+            ),
+            pageNumber: highlightBoundingRect?.pageNumber,
+          };
+          const scaledRects = rects.map((rect) => ({
+            x1: roundToFixedDecimalPlaces(rect.x1 * scaleFactor),
+            y1: roundToFixedDecimalPlaces(rect.y1 * scaleFactor),
+            x2: roundToFixedDecimalPlaces(rect.x2 * scaleFactor),
+            y2: roundToFixedDecimalPlaces(rect.y2 * scaleFactor),
+            width: roundToFixedDecimalPlaces(rect.width * scaleFactor),
+            height: roundToFixedDecimalPlaces(rect.height * scaleFactor),
+            pageNumber: rect?.pageNumber,
+          }));
+          acc.push({
+            type: "redaction",
+            position: {
+              ...position,
+              boundingRect: scaledBoundingRect,
+              rects: scaledRects,
+            },
+            textContent: content.text,
+            highlightType: "linear",
+            redactionType: redactionType,
+          });
+          return acc;
+        }, [] as NewPdfHighlight[]);
+        handleAddRedaction(newRedactions);
+        return;
+      }
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
         position,
@@ -119,7 +186,7 @@ export const PdfViewer: React.FC<Props> = ({
       handleAddRedaction([newRedaction]);
       window.getSelection()?.removeAllRanges();
     },
-    [handleAddRedaction]
+    [handleAddRedaction, getPIIHighlightsWithSameText]
   );
 
   const removeRedaction = (id: string) => {
@@ -138,17 +205,6 @@ export const PdfViewer: React.FC<Props> = ({
         : (event.target as HTMLElement).className === "textLayer";
     },
     [areaOnlyRedactionMode]
-  );
-
-  const getSearchPIITextCount = useCallback(
-    (text: string) => {
-      const count = searchPIIHighlights.filter(
-        (highlight) => highlight.textContent === text
-      ).length;
-
-      return count;
-    },
-    [searchPIIHighlights]
   );
 
   return (
@@ -220,11 +276,14 @@ export const PdfViewer: React.FC<Props> = ({
                         searchPIIOn: content.highlightType === "searchPII",
                         textContent: content.text ?? "",
                         count: content.text
-                          ? getSearchPIITextCount(content.text)
+                          ? getPIIHighlightsWithSameText(content.text)?.length
                           : 0,
                       }}
                       redactionTypesData={redactionTypesData}
-                      onConfirm={(redactionType: RedactionTypeData) => {
+                      onConfirm={(
+                        redactionType: RedactionTypeData,
+                        redactAll: boolean
+                      ) => {
                         trackEvent("Redact Content", {
                           documentType: contextData.documentType,
                           documentId: contextData.documentId,
@@ -232,7 +291,12 @@ export const PdfViewer: React.FC<Props> = ({
 
                         console.log("position>>>", position);
                         console.log("content>>>", content);
-                        addRedaction(position, content, redactionType);
+                        addRedaction(
+                          position,
+                          content,
+                          redactionType,
+                          redactAll
+                        );
                         hideTipAndSelection();
                       }}
                     />
