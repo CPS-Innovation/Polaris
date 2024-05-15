@@ -5,6 +5,7 @@ using Mapster;
 using Common.ValueObjects;
 using Common.Dto.Tracker;
 using Common.Constants;
+using System;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -63,6 +64,7 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("isPdfAvailable")]
         public bool IsPdfAvailable { get; set; }
 
+        [Obsolete("This shouldn't really be a property as it can always be worked out buy convention")]
         [JsonProperty("pdfBlobName")]
         public string PdfBlobName { get; set; }
 

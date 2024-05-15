@@ -64,7 +64,7 @@ namespace coordinator.Durable.Orchestration
                 return;
             }
 
-            caseEntity.SetDocumentPdfConversionSucceeded(payload.PolarisDocumentId.ToString());
+            caseEntity.SetDocumentPdfConversionSucceeded((payload.PolarisDocumentId.ToString(), payload.BlobName));
 
             try
             {
@@ -88,7 +88,7 @@ namespace coordinator.Durable.Orchestration
         {
             while (true)
             {
-                var nextCheck = context.CurrentUtcDateTime.AddMilliseconds(2000); // todo: to constant
+                var nextCheck = context.CurrentUtcDateTime.AddMilliseconds(4000); // todo: to constant
                 await context.CreateTimer(nextCheck, CancellationToken.None);
 
                 var isCompleted = await context.CallActivityAsync<bool>(activityName, activityInput);

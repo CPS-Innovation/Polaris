@@ -47,7 +47,7 @@ namespace coordinator.Durable.Orchestration
             _configuration = configuration;
             _cmsDocumentsResponseValidator = cmsDocumentsResponseValidator;
             _telemetryClient = telemetryClient;
-            _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorOrchestratorTimeoutSecs]));
+            _timeout = TimeSpan.FromSeconds(20000);
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
@@ -206,7 +206,7 @@ namespace coordinator.Durable.Orchestration
                     (
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
-                            nameof(RefreshDocumentOrchestrator),
+                            nameof(RefreshDocumentOrchestratorNext),
                             RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
                             payload
                         )

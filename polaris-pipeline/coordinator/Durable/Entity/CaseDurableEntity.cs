@@ -477,9 +477,6 @@ namespace coordinator.Durable.Entity
             if (status == DocumentStatus.PdfUploadedToBlob)
             {
                 document.IsPdfAvailable = true;
-            }
-            if (status == DocumentStatus.PdfUploadedToBlob)
-            {
                 document.PdfBlobName = pdfBlobName;
             }
         }
@@ -524,9 +521,10 @@ namespace coordinator.Durable.Entity
             return context.DispatchAsync<CaseDurableEntity>();
         }
 
-        public void SetDocumentPdfConversionSucceeded(string polarisDocumentId)
+        public void SetDocumentPdfConversionSucceeded((string polarisDocumentId, string pdfBlobName) arg)
         {
-            var document = GetDocument(polarisDocumentId);
+            var document = GetDocument(arg.polarisDocumentId);
+            document.PdfBlobName = arg.pdfBlobName;
             document.Status = DocumentStatus.PdfUploadedToBlob;
         }
 
