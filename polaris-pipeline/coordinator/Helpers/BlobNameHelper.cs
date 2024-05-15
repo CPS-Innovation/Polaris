@@ -1,9 +1,9 @@
 namespace coordinator.Helpers;
 
 // This is temporary code to help us through the current refactor
-public static class PdfBlobNameHelper
+public static class BlobNameHelper
 {
-    public static string GetPdfBlobName(int caseId, string cmsOrPolarisDocumentId)
+    public static string GetBlobName(int caseId, string cmsOrPolarisDocumentId, BlobType blobType)
     {
         // Each case has only one defendants and charges (DAC) document.
         //  If the caseId is then the PolarisDocumentId for a DAC is DAC-12345
@@ -21,6 +21,20 @@ public static class PdfBlobNameHelper
         {
             cmsOrPolarisDocumentId = cmsOrPolarisDocumentId.Substring(4);
         }
-        return $"{caseId}/pdfs/CMS-{cmsOrPolarisDocumentId}.pdf";
+
+        return blobType switch
+        {
+            BlobType.Pdf => $"{caseId}/pdfs/CMS-{cmsOrPolarisDocumentId}.pdf",
+            BlobType.Ocr => $"{caseId}/ocrs/CMS-{cmsOrPolarisDocumentId}.json",
+            BlobType.Pii => $"{caseId}/pii/CMS-{cmsOrPolarisDocumentId}.json",
+            _ => throw new System.NotImplementedException()
+        };
+    }
+
+    public enum BlobType
+    {
+        Pdf,
+        Ocr,
+        Pii
     }
 }

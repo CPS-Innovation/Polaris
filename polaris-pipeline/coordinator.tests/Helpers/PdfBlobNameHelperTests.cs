@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using coordinator.Helpers;
 using FluentAssertions;
 using Xunit;
@@ -15,7 +14,7 @@ public class PdfBlobNameHelperTests
     public void PdfBlobNameHelper_ReturnsExpectedPdfBlobName(int caseId, string cmsOrPolarisDocumentId, string expected)
     {
         // Act
-        var result = PdfBlobNameHelper.GetPdfBlobName(caseId, cmsOrPolarisDocumentId);
+        var result = BlobNameHelper.GetBlobName(caseId, cmsOrPolarisDocumentId, BlobNameHelper.BlobType.Pdf);
 
         // Assert
         result.Should().Be(expected);
