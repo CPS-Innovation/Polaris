@@ -23,28 +23,19 @@ namespace pdf_generator.Functions
         [Function("Health")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Health)] HttpRequest req)
         {
+            const string targetMessage = "The namespace declaration attribute has an incorrect 'namespaceURI': 'http://www.w3.org/2000/xmlns/'";
             await using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.HealthCheckResources.TestPdf.pdf");
-            try
+            var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, FileType.PDF, "12345", Guid.NewGuid());
+        
+            if (conversionResult.HasFailureReason() && conversionResult.Feedback.Contains(targetMessage))
             {
-                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, FileType.PDF, "12345", Guid.NewGuid());
-            
-                if (conversionResult.HasFailureReason())
-                {
-                    return new ObjectResult(conversionResult.GetFailureReason())
-                    {
-                        StatusCode = (int)HttpStatusCode.InternalServerError
-                    };
-                }
-
-                return new OkResult();
-            }
-            catch (Exception exception)
-            {
-                return new ObjectResult(exception.ToFormattedString())
+                return new ObjectResult(conversionResult.GetFailureReason())
                 {
                     StatusCode = (int)HttpStatusCode.InternalServerError
                 };
             }
+
+            return new OkResult();
         }
     }
 }
