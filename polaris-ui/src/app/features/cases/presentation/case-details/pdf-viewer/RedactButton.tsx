@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import classes from "./RedactButton.module.scss";
-import { Select } from "../../../../../common/presentation/components";
+import { Select, Button } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type Props = {
+  searchPIIData: {
+    searchPIIOn: boolean;
+    textContent: string;
+    count: number;
+  };
   redactionTypesData: RedactionTypeData[];
   onConfirm: (redactionType: { id: string; name: string }) => void;
 };
@@ -27,6 +32,7 @@ const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
 export const RedactButton: React.FC<Props> = ({
   onConfirm,
   redactionTypesData,
+  searchPIIData,
 }) => {
   const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
@@ -61,34 +67,83 @@ export const RedactButton: React.FC<Props> = ({
       <span id="redact-modal-description" className={classes.modalDescription}>
         A modal with a redact button to help user to redact selected text
       </span>
-      {redactionTypesData.length > 0 && (
-        <div className="govuk-form-group">
-          <Select
-            label={{
-              htmlFor: "select-redaction-type",
-              children: "Select Redaction Type",
-              className: classes.sortLabel,
-            }}
-            id="select-redaction-type"
-            data-testid="select-redaction-type"
-            value={redactionType}
-            items={getMappedRedactionTypes(redactionTypesData)}
-            formGroup={{
-              className: classes.select,
-            }}
-            onChange={(ev) => setRedactionType(ev.target.value)}
-          />
+      {searchPIIData.searchPIIOn && (
+        <div className={classes.piiHeader}>
+          <b>{`"${searchPIIData.textContent}" `}</b>
+          <i className={classes.smallText}>appears</i>{" "}
+          <b>{`${searchPIIData.count}`}</b>{" "}
+          <i className={classes.smallText}>times in the document</i>
         </div>
       )}
-      <button
-        disabled={redactionTypesData.length ? !redactionType : false}
-        className={classes.redactButton}
-        onClick={handleClickRedact}
-        data-testid="btn-redact"
-        id="btn-redact"
-      >
-        Redact
-      </button>
+      <div className={classes.contentWrapper}>
+        {redactionTypesData.length > 0 && (
+          <div className="govuk-form-group">
+            <Select
+              label={{
+                htmlFor: "select-redaction-type",
+                children: "Select Redaction Type",
+                className: classes.sortLabel,
+              }}
+              id="select-redaction-type"
+              data-testid="select-redaction-type"
+              value={redactionType}
+              items={getMappedRedactionTypes(redactionTypesData)}
+              formGroup={{
+                className: classes.select,
+              }}
+              onChange={(ev) => setRedactionType(ev.target.value)}
+            />
+          </div>
+        )}
+
+        <Button
+          disabled={redactionTypesData.length ? !redactionType : false}
+          className={classes.redactButton}
+          onClick={handleClickRedact}
+          data-testid="btn-redact"
+          id="btn-redact"
+        >
+          Redact
+        </Button>
+
+        {searchPIIData.searchPIIOn && (
+          <>
+            {searchPIIData.count > 0 && (
+              <Button
+                disabled={redactionTypesData.length ? !redactionType : false}
+                className={classes.redactButton}
+                onClick={handleClickRedact}
+                data-testid="btn-redact"
+                id="btn-redact"
+              >
+                {`Redact all(${searchPIIData.count})`}
+              </Button>
+            )}
+            <Button
+              disabled={false}
+              onClick={handleClickRedact}
+              data-testid="btn-redact"
+              id="btn-redact"
+              className="govuk-button--secondary"
+              name="secondary"
+            >
+              Ignore
+            </Button>
+            {searchPIIData.count > 0 && (
+              <Button
+                disabled={false}
+                onClick={handleClickRedact}
+                data-testid="btn-redact"
+                id="btn-redact"
+                className="govuk-button--secondary"
+                name="secondary"
+              >
+                {`Ignore all(${searchPIIData.count})`}
+              </Button>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

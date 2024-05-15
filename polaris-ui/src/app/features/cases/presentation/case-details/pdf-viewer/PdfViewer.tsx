@@ -140,6 +140,17 @@ export const PdfViewer: React.FC<Props> = ({
     [areaOnlyRedactionMode]
   );
 
+  const getSearchPIITextCount = useCallback(
+    (text: string) => {
+      const count = searchPIIHighlights.filter(
+        (highlight) => highlight.textContent === text
+      ).length;
+
+      return count;
+    },
+    [searchPIIHighlights]
+  );
+
   return (
     <>
       <div
@@ -205,6 +216,13 @@ export const PdfViewer: React.FC<Props> = ({
                   }
                   return (
                     <RedactButton
+                      searchPIIData={{
+                        searchPIIOn: content.highlightType === "searchPII",
+                        textContent: content.text ?? "",
+                        count: content.text
+                          ? getSearchPIITextCount(content.text)
+                          : 0,
+                      }}
                       redactionTypesData={redactionTypesData}
                       onConfirm={(redactionType: RedactionTypeData) => {
                         trackEvent("Redact Content", {

@@ -32,7 +32,11 @@ export const PdfLinearHighlight: React.FC<Props> = ({
       data-testid={`div-highlight-${id}`}
       data-test-isfocussed={isScrolledTo}
     >
-      <div className={classes["Highlight__parts"]} text-content={textContent}>
+      <div
+        className={classes["Highlight__parts"]}
+        text-content={textContent}
+        highlight-type={type}
+      >
         {rects.map((rect, index) =>
           type === "search" || type === "searchPII" ? (
             <PdfLinearHighlightPartSearch key={index} rect={rect} />
