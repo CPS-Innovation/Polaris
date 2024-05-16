@@ -87,13 +87,13 @@ namespace text_extractor.tests.Services
         }
 
         [Fact]
-        public void WhenGettingTheIndexCountForACase_AndTheCaseIdIsZero_AnExceptionIsThrown()
+        public async Task WhenGettingTheIndexCountForACase_AndTheCaseIdIsZero_AnExceptionIsThrown()
         {
-            Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetCaseIndexCount(0));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetCaseIndexCount(0));
         }
 
         [Fact]
-        public async void WhenGettingTheIndexCountForACase_WithAValidCaseId_AResultObjectIsReturned()
+        public async Task WhenGettingTheIndexCountForACase_WithAValidCaseId_AResultObjectIsReturned()
         {
             var result = await _searchIndexService.GetCaseIndexCount(ResultCaseId);
 
@@ -102,13 +102,13 @@ namespace text_extractor.tests.Services
         }
 
         [Fact]
-        public void WhenGettingTheIndexCountForADocument_AndTheCaseIdIsZero_AnExceptionIsThrown()
+        public async Task WhenGettingTheIndexCountForADocument_AndTheCaseIdIsZero_AnExceptionIsThrown()
         {
-            Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetDocumentIndexCount(0, "DOC1", 1));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetDocumentIndexCount(0, "DOC1", 1));
         }
 
         [Fact]
-        public async void WhenGettingTheIndexCountForADocument_WithAValidCaseId_AResultObjectIsReturned()
+        public async Task WhenGettingTheIndexCountForADocument_WithAValidCaseId_AResultObjectIsReturned()
         {
             var result = await _searchIndexService.GetDocumentIndexCount(ResultCaseId, "DOC1", 1);
 
@@ -117,13 +117,13 @@ namespace text_extractor.tests.Services
         }
 
         [Fact]
-        public void WhenRemovingCaseIndexEntries_AndTheCaseIdIsZero_AnExceptionIsThrown()
+        public async Task WhenRemovingCaseIndexEntries_AndTheCaseIdIsZero_AnExceptionIsThrown()
         {
-            Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.RemoveCaseIndexEntriesAsync(0));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.RemoveCaseIndexEntriesAsync(0));
         }
 
         [Fact]
-        public async void WhenRemovingCaseIndexEntries_AndNoResultsAreReturned_AnEmptyIndexDocumentsDeletedResultIsReturned()
+        public async Task WhenRemovingCaseIndexEntries_AndNoResultsAreReturned_AnEmptyIndexDocumentsDeletedResultIsReturned()
         {
             var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(NoResultCaseId);
 

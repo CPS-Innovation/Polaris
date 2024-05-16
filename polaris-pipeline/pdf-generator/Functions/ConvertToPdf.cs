@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
-using pdf_generator.Domain.Document;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
 using Common.Exceptions;
@@ -15,7 +14,7 @@ using Common.Logging;
 using Common.Telemetry;
 using Common.Streaming;
 using System.Threading.Tasks;
-using Common.Domain.Document;
+using Common.Constants;
 
 namespace pdf_generator.Functions
 {
@@ -83,7 +82,7 @@ namespace pdf_generator.Functions
                 var originalBytes = inputStream.Length;
                 telemetryEvent.OriginalBytes = originalBytes;
 
-                var conversionResult = _pdfOrchestratorService.ReadToPdfStream(inputStream, fileType, documentId, currentCorrelationId);
+                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, documentId, currentCorrelationId);
 
                 // #25834 - Successfully converted documents may still have a failure reason we need to record
                 if (conversionResult.HasFailureReason())
@@ -110,7 +109,7 @@ namespace pdf_generator.Functions
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                return new ObjectResult(conversionResult.GetFailureReason())
+                return new ObjectResult(conversionResult.ConversionStatus)
                 {
                     StatusCode = (int)HttpStatusCode.UnsupportedMediaType
                 };
