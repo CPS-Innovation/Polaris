@@ -560,17 +560,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const {
         payload: { documentId },
       } = action;
-      const { caseId, urn, notes } = getState();
+      const { caseId, urn } = getState();
       try {
-        // dispatch({
-        //   type: "UPDATE_NOTES_DATA",
-        //   payload: {
-        //     documentId,
-        //     notesData: [],
-        //     addNoteStatus: "initial",
-        //     getNoteStatus: "loading",
-        //   },
-        // });
         const searchPIIResult = await getSearchPIIData(urn, caseId, documentId);
         dispatch({
           type: "UPDATE_SEARCH_PII_DATA",
@@ -581,23 +572,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       } catch (e) {
-        // dispatch({
-        //   type: "SHOW_ERROR_MODAL",
-        //   payload: {
-        //     type: "getnotes",
-        //     title: "Something went wrong!",
-        //     message: "Failed to get notes for the documents. Please try again.",
-        //   },
-        // });
-        // dispatch({
-        //   type: "UPDATE_NOTES_DATA",
-        //   payload: {
-        //     documentId,
-        //     notesData: [],
-        //     addNoteStatus: "initial",
-        //     getNoteStatus: "failure",
-        //   },
-        // });
+        console.log("error>>");
       }
     },
 };
