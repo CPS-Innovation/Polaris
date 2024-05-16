@@ -37,6 +37,7 @@ export const mapSearchPIIHighlights = (
               boundingRect: rect,
               rects: [rect],
             },
+            piiCategory: word.piiCategory,
           });
         }
       });

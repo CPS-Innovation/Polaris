@@ -12,7 +12,7 @@ export type SearchPIIDataItem = {
   words: {
     boundingBox: number[] | null;
     matchType: "None" | "Exact" | "Fuzzy";
-    piiCategory: "Address" | "PersonType";
+    piiCategory: string;
     text: string;
   }[];
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import classes from "./RedactButton.module.scss";
 import { Select, Button } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
@@ -10,6 +10,7 @@ type Props = {
     searchPIIOn: boolean;
     textContent: string;
     count: number;
+    piiCategory: string;
   };
   redactionTypesData: RedactionTypeData[];
   onConfirm: (
@@ -40,6 +41,19 @@ export const RedactButton: React.FC<Props> = ({
   const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
   useLastFocus();
+
+  useEffect(() => {
+    if (searchPIIData.searchPIIOn) {
+      const redactionType = getRedactionTypeFromPIIData();
+      if (redactionType) setRedactionType(redactionType);
+    }
+  }, []);
+
+  const getRedactionTypeFromPIIData = () => {
+    return redactionTypesData.find(
+      (type) => type.name === searchPIIData.piiCategory
+    )?.name;
+  };
 
   const handleClickRedact = (redactAll: boolean) => {
     if (redactionTypesData.length) {

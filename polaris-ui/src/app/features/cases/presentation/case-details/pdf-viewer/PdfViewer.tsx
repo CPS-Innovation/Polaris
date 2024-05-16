@@ -278,6 +278,9 @@ export const PdfViewer: React.FC<Props> = ({
                         count: content.text
                           ? getPIIHighlightsWithSameText(content.text)?.length
                           : 0,
+                        piiCategory: getPIIHighlightsWithSameText(
+                          content.text
+                        )[0].piiCategory,
                       }}
                       redactionTypesData={redactionTypesData}
                       onConfirm={(
