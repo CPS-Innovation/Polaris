@@ -55,7 +55,7 @@ namespace Common.tests.Telemetry
         // code copes with missing value without blowing up (this is logging, not business logic)
         [InlineData("", "")]
         [InlineData(null, "")]
-        public void EnsureNumericId_ReturnsCleanDocumentId(string input, string expected)
+        public void EnsureNumericId_ReturnsCleanDocumentId(string? input, string expected)
         {
             // Act
             var result = BaseTelemetryEvent.EnsureNumericId(input);
