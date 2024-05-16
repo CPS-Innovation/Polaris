@@ -112,7 +112,6 @@ namespace Common.Configuration
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
 
-
         public static string GetCaseIndexCountResultsPath(string caseUrn, long caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/case-index-count";
@@ -121,6 +120,11 @@ namespace Common.Configuration
         public static string GetDocumentIndexCountResultsPath(string caseUrn, long caseId, string documentId, long versionId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
+        }
+
+        public static string GetPiiPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/pii";
         }
     }
 }
