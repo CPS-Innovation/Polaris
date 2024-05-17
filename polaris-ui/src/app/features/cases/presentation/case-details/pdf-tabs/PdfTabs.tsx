@@ -43,6 +43,7 @@ type PdfTabsProps = {
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
+  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -67,6 +68,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
+  handleIgnoreRedactionSuggestion,
 }) => {
   return (
     <Tabs
@@ -83,7 +85,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
                 searchPIIData
                   .find((data) => data.documentId === item.documentId)
                   ?.searchPIIHighlights.filter(
-                    (highlight) => highlight.redactionStatus === "initial"
+                    (highlight) => highlight.redactionStatus === "redacted"
                   ) ?? []
               }
               tabIndex={index}
@@ -108,6 +110,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleShowHideRedactionSuggestions={
                 handleShowHideRedactionSuggestions
               }
+              handleIgnoreRedactionSuggestion={handleIgnoreRedactionSuggestion}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}

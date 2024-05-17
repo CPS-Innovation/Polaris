@@ -1,7 +1,7 @@
 .redactionModal {
   display: flex;
   flex-direction: column;
-
+  width: 100%;
   z-index: 7;
   background: #fff;
   background-clip: padding-box;
@@ -18,11 +18,10 @@
   .piiHeader {
     display: block;
     position: relative;
-    padding: 5px 0;
+    padding: 5px 10px;
     border-top-left-radius: 0.3125rem;
     border-top-right-radius: 0.3125rem;
     text-align: center;
-    width: 100%;
     background-color: #1d70b8;
     color: #fff;
   }
@@ -32,6 +31,7 @@
   .contentWrapper {
     display: flex;
     flex-direction: row;
+    justify-content: center;
     align-items: flex-end;
     padding: 0.625rem;
   }

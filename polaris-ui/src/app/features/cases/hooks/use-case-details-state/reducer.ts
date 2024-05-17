@@ -38,7 +38,7 @@ import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
-import { SearchPIIDataItem } from "../../domain/gateway/SearchPIIData";
+import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { SearchPIIData } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
 export const reducer = (
@@ -216,8 +216,17 @@ export const reducer = (
         type: "UPDATE_SEARCH_PII_DATA";
         payload: {
           documentId: string;
-          searchPIIResult: SearchPIIDataItem[];
-          getSearchPIIStatus: "initial" | "failure" | "polling" | "success";
+          searchPIIResult: SearchPIIResultItem[];
+          getSearchPIIStatus: "initial" | "failure" | "loading" | "success";
+        };
+      }
+    | {
+        type: "IGNORE_SEARCH_PII_DATA";
+        payload: {
+          documentId: string;
+          textContent: string;
+          highlightId?: string;
+          ignoreAll: boolean;
         };
       }
 ): CombinedState => {
@@ -802,40 +811,42 @@ export const reducer = (
     case "ADD_REDACTION": {
       const { documentId, redactions } = action.payload;
 
+      console.log("redactions>>>", redactions);
+
       // compare and update the status of the searchPII highlights here
-      const searchPIIDataItem = state.searchPII?.find(
-        (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
-      );
-      let filteredByTextHighlights: ISearchPIIHighlight[] = [];
-      if (searchPIIDataItem?.searchPIIHighlights) {
-        redactions.forEach((redaction) => {
-          filteredByTextHighlights =
-            searchPIIDataItem.searchPIIHighlights.filter(
-              (highlight) => highlight.textContent === redaction.textContent
-            );
-          filteredByTextHighlights.map(
-            (highlight) => (highlight.redactionStatus = "redacted")
-          );
-        });
-      }
+      // const searchPIIDataItem = state.searchPII?.find(
+      //   (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
+      // );
+      // let filteredByTextHighlights: ISearchPIIHighlight[] = [];
+      // if (searchPIIDataItem?.searchPIIHighlights) {
+      //   redactions.forEach((redaction) => {
+      //     filteredByTextHighlights =
+      //       searchPIIDataItem.searchPIIHighlights.filter(
+      //         (highlight) => highlight.textContent === redaction.textContent
+      //       );
+      //     filteredByTextHighlights.map(
+      //       (highlight) => (highlight.redactionStatus = "redacted")
+      //     );
+      //   });
+      // }
 
       const newRedactions = redactions.map((redaction, index) => ({
         ...redaction,
         id: String(`${+new Date()}-${index}`),
       }));
-      let newSearchPII: SearchPIIData[] = [];
-      if (searchPIIDataItem && filteredByTextHighlights.length) {
-        newSearchPII = [
-          ...state.searchPII,
-          {
-            ...searchPIIDataItem,
-            searchPIIHighlights: [
-              ...searchPIIDataItem.searchPIIHighlights,
-              ...filteredByTextHighlights,
-            ],
-          },
-        ];
-      }
+      // let newSearchPII: SearchPIIData[] = [];
+      // if (searchPIIDataItem && filteredByTextHighlights.length) {
+      //   newSearchPII = [
+      //     ...state.searchPII,
+      //     {
+      //       ...searchPIIDataItem,
+      //       searchPIIHighlights: [
+      //         ...searchPIIDataItem.searchPIIHighlights,
+      //         ...filteredByTextHighlights,
+      //       ],
+      //     },
+      //   ];
+      // }
       let newState = {
         ...state,
         tabsState: {
@@ -853,9 +864,9 @@ export const reducer = (
           ),
         },
       };
-      if (newSearchPII.length) {
-        newState = { ...newState, searchPII: newSearchPII };
-      }
+      // if (newSearchPII.length) {
+      //   newState = { ...newState, searchPII: newSearchPII };
+      // }
       //adding redaction highlight to local storage
       const redactionHighlights = getRedactionsToSaveLocally(
         newState.tabsState.items,
@@ -1090,6 +1101,9 @@ export const reducer = (
 
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
       const { documentId, show } = action.payload;
+      const polarisDocumentVersionId = state.tabsState.items.find(
+        (data) => data.documentId === documentId
+      )?.polarisDocumentVersionId!;
       const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );
@@ -1098,6 +1112,7 @@ export const reducer = (
         : {
             show: show,
             documentId: documentId,
+            polarisDocumentVersionId: polarisDocumentVersionId,
             searchPIIHighlights: [],
             getSearchPIIStatus: "initial" as const,
           };
@@ -1136,6 +1151,45 @@ export const reducer = (
           },
         ],
       };
+    }
+
+    case "IGNORE_SEARCH_PII_DATA": {
+      const { documentId, textContent, ignoreAll, highlightId } =
+        action.payload;
+
+      // compare and update the status of the searchPII highlights here
+      const searchPIIDataItem = state.searchPII?.find(
+        (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
+      )!;
+      // let newHighlights: any = [];
+
+      const newHighlights = searchPIIDataItem.searchPIIHighlights.map(
+        (highlight) => {
+          if (ignoreAll) {
+            if (highlight.textContent === textContent) {
+              highlight.redactionStatus = "ignored";
+            }
+            return highlight;
+          }
+          if (highlight.id === highlightId) {
+            highlight.redactionStatus = "ignored";
+          }
+          return highlight;
+        }
+      );
+
+      const newState = {
+        ...state,
+        searchPII: [
+          ...state.searchPII,
+          {
+            ...searchPIIDataItem,
+            searchPIIHighlights: newHighlights,
+          },
+        ],
+      };
+
+      return newState;
     }
 
     default:

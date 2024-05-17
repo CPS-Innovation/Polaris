@@ -109,6 +109,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleGetNotes,
     handleAddNote,
     handleShowHideRedactionSuggestions,
+    handleIgnoreRedactionSuggestion,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -533,6 +534,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleShowRedactionLogModal={handleShowRedactionLogModal}
                 handleShowHideRedactionSuggestions={
                   handleShowHideRedactionSuggestions
+                }
+                handleIgnoreRedactionSuggestion={
+                  handleIgnoreRedactionSuggestion
                 }
                 contextData={{
                   correlationId: pipelineState?.correlationId,

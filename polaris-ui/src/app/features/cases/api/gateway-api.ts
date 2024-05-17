@@ -14,7 +14,7 @@ import {
 } from "../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
 import { Note } from "../domain/gateway/NotesData";
-import { SearchPIIDataItem } from "../domain/gateway/SearchPIIData";
+import { SearchPIIResultItem } from "../domain/gateway/SearchPIIData";
 import { removeNonDigits } from "../presentation/case-details/utils/redactionLogUtils";
 const buildHeaders = async (
   ...args: (
@@ -344,7 +344,7 @@ export const getSearchPIIData = async (
     throw new ApiError("Get Notes failed", path, response);
   }
 
-  return (await response.json()) as SearchPIIDataItem[];
+  return (await response.json()) as SearchPIIResultItem[];
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

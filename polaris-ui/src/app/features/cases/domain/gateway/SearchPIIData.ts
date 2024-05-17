@@ -1,6 +1,6 @@
 import { ISearchPIIHighlight } from "../NewPdfHighlight";
 
-export type SearchPIIDataItem = {
+export type SearchPIIResultItem = {
   text: string;
   fileName: string;
   id: string;
@@ -20,6 +20,7 @@ export type SearchPIIDataItem = {
 export type SearchPIIData = {
   show: boolean;
   documentId: string;
+  polarisDocumentVersionId: number;
   searchPIIHighlights: ISearchPIIHighlight[];
-  getSearchPIIStatus: "failure" | "polling" | "success" | "initial";
+  getSearchPIIStatus: "failure" | "success" | "loading" | "initial";
 };

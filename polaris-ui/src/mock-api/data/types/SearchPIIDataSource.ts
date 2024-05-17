@@ -1,3 +1,3 @@
-import { SearchPIIDataItem } from "../../../app/features/cases/domain/gateway/SearchPIIData";
+import { SearchPIIResultItem } from "../../../app/features/cases/domain/gateway/SearchPIIData";
 
-export type SearchPIIDataSource = (documentId: string) => SearchPIIDataItem[];
+export type SearchPIIDataSource = (documentId: string) => SearchPIIResultItem[];

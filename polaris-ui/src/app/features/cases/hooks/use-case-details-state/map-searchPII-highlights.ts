@@ -1,10 +1,10 @@
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
-import { SearchPIIDataItem } from "../../domain/gateway/SearchPIIData";
+import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 
 const PADDING_INCHES = 0.03;
 
 export const mapSearchPIIHighlights = (
-  searchPIIDataItems: SearchPIIDataItem[]
+  searchPIIDataItems: SearchPIIResultItem[]
 ): ISearchPIIHighlight[] => {
   const results: ISearchPIIHighlight[] = [];
 
@@ -30,7 +30,7 @@ export const mapSearchPIIHighlights = (
             id: `${id}-${i}`,
             type: "searchPII",
             highlightType: "linear",
-            redactionStatus: "initial",
+            redactionStatus: "redacted",
             textContent: word.text,
             position: {
               pageNumber: pageIndex,

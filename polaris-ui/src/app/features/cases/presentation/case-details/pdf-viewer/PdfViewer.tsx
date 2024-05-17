@@ -25,6 +25,7 @@ import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
 import { roundToFixedDecimalPlaces } from "../../../../cases/hooks/utils/redactionUtils";
+import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -51,6 +52,7 @@ type Props = {
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
+  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
 };
 
 const ensureAllPdfInView = () =>
@@ -76,6 +78,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
   focussedHighlightIndex,
+  handleIgnoreRedactionSuggestion,
 }) => {
   console.log("searchPIIHighlights>>>>>11111", searchPIIHighlights);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -280,27 +283,50 @@ export const PdfViewer: React.FC<Props> = ({
                           : 0,
                         piiCategory: getPIIHighlightsWithSameText(
                           content.text
-                        )[0].piiCategory,
+                        )[0]?.piiCategory,
                       }}
                       redactionTypesData={redactionTypesData}
                       onConfirm={(
                         redactionType: RedactionTypeData,
-                        redactAll: boolean
+                        actionType: "redact" | "ignore" | "ignoreAll"
                       ) => {
-                        trackEvent("Redact Content", {
-                          documentType: contextData.documentType,
-                          documentId: contextData.documentId,
-                        });
+                        switch (actionType) {
+                          case "redact": {
+                            trackEvent("Redact Content", {
+                              documentType: contextData.documentType,
+                              documentId: contextData.documentId,
+                            });
 
-                        console.log("position>>>", position);
-                        console.log("content>>>", content);
-                        addRedaction(
-                          position,
-                          content,
-                          redactionType,
-                          redactAll
-                        );
-                        hideTipAndSelection();
+                            addRedaction(
+                              position,
+                              content,
+                              redactionType,
+                              false
+                            );
+                            hideTipAndSelection();
+                            return;
+                          }
+                          case "ignore": {
+                            handleIgnoreRedactionSuggestion(
+                              contextData.documentId,
+                              content.text!,
+                              false,
+                              content.highlightId!
+                            );
+                            hideTipAndSelection();
+                            return;
+                          }
+                          case "ignoreAll": {
+                            handleIgnoreRedactionSuggestion(
+                              contextData.documentId,
+                              content.text!,
+                              true,
+                              content.highlightId!
+                            );
+                            hideTipAndSelection();
+                            return;
+                          }
+                        }
                       }}
                     />
                   );

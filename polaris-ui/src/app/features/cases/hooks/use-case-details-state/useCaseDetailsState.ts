@@ -463,6 +463,26 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleIgnoreRedactionSuggestion = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      textContent: string,
+      ignoreAll: boolean,
+      highlightId: string
+    ) => {
+      dispatch({
+        type: "IGNORE_SEARCH_PII_DATA",
+        payload: {
+          documentId,
+          textContent: textContent,
+          ignoreAll: ignoreAll,
+          highlightId: highlightId,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -489,5 +509,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleAddNote,
     handleShowHideRedactionSuggestions,
     handleGetSearchPIIData,
+    handleIgnoreRedactionSuggestion,
   };
 };

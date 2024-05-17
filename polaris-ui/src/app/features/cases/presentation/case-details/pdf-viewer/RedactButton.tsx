@@ -15,7 +15,7 @@ type Props = {
   redactionTypesData: RedactionTypeData[];
   onConfirm: (
     redactionType: { id: string; name: string },
-    redactAll: boolean
+    actionType: "redact" | "ignore" | "ignoreAll"
   ) => void;
 };
 
@@ -55,18 +55,17 @@ export const RedactButton: React.FC<Props> = ({
     )?.name;
   };
 
-  const handleClickRedact = (redactAll: boolean) => {
-    if (redactionTypesData.length) {
+  const handleBtnClick = (actionType: "redact" | "ignore" | "ignoreAll") => {
+    if (redactionTypesData.length && actionType === "redact") {
       const selectedType = redactionTypesData.find(
         (type) => type.id === redactionType
       )!;
-      onConfirm({ id: selectedType.id, name: selectedType.name }, redactAll);
+      onConfirm({ id: selectedType.id, name: selectedType.name }, actionType);
       return;
     }
-    onConfirm({ id: "", name: "" }, redactAll);
+    onConfirm({ id: "", name: "" }, actionType);
   };
 
-  const handleClickIgnore = (ignoreAll: boolean) => {};
   return (
     <div
       id="redact-modal"
@@ -95,54 +94,44 @@ export const RedactButton: React.FC<Props> = ({
         </div>
       )}
       <div className={classes.contentWrapper}>
-        {redactionTypesData.length > 0 && (
-          <div className="govuk-form-group">
-            <Select
-              label={{
-                htmlFor: "select-redaction-type",
-                children: "Select Redaction Type",
-                className: classes.sortLabel,
-              }}
-              id="select-redaction-type"
-              data-testid="select-redaction-type"
-              value={redactionType}
-              items={getMappedRedactionTypes(redactionTypesData)}
-              formGroup={{
-                className: classes.select,
-              }}
-              onChange={(ev) => setRedactionType(ev.target.value)}
-            />
-          </div>
-        )}
-
-        <Button
-          disabled={redactionTypesData.length ? !redactionType : false}
-          className={classes.redactButton}
-          onClick={() => handleClickRedact(false)}
-          data-testid="btn-redact"
-          id="btn-redact"
-        >
-          Redact
-        </Button>
-
-        {searchPIIData.searchPIIOn && (
+        {!searchPIIData.searchPIIOn && redactionTypesData.length > 0 && (
           <>
-            {searchPIIData.count > 0 && (
-              <Button
-                disabled={redactionTypesData.length ? !redactionType : false}
-                className={classes.redactButton}
-                onClick={() => handleClickRedact(true)}
-                data-testid="btn-redact"
-                id="btn-redact"
-              >
-                {`Redact all(${searchPIIData.count})`}
-              </Button>
-            )}
+            <div className="govuk-form-group">
+              <Select
+                label={{
+                  htmlFor: "select-redaction-type",
+                  children: "Select Redaction Type",
+                  className: classes.sortLabel,
+                }}
+                id="select-redaction-type"
+                data-testid="select-redaction-type"
+                value={redactionType}
+                items={getMappedRedactionTypes(redactionTypesData)}
+                formGroup={{
+                  className: classes.select,
+                }}
+                onChange={(ev) => setRedactionType(ev.target.value)}
+              />
+            </div>
+
             <Button
-              disabled={false}
-              onClick={() => handleClickIgnore(false)}
+              disabled={redactionTypesData.length ? !redactionType : false}
+              className={classes.redactButton}
+              onClick={() => handleBtnClick("redact")}
               data-testid="btn-redact"
               id="btn-redact"
+            >
+              Redact
+            </Button>
+          </>
+        )}
+        {searchPIIData.searchPIIOn && (
+          <>
+            <Button
+              disabled={false}
+              onClick={() => handleBtnClick("ignore")}
+              data-testid="btn-ignore"
+              id="btn-ignore"
               className="govuk-button--secondary"
               name="secondary"
             >
@@ -151,9 +140,9 @@ export const RedactButton: React.FC<Props> = ({
             {searchPIIData.count > 0 && (
               <Button
                 disabled={false}
-                onClick={() => handleClickIgnore(true)}
-                data-testid="btn-redact"
-                id="btn-redact"
+                onClick={() => handleBtnClick("ignoreAll")}
+                data-testid="btn-ignore-all"
+                id="btn-ignore-all"
                 className="govuk-button--secondary"
                 name="secondary"
               >
