@@ -2,11 +2,11 @@
 using System;
 using System.Threading.Tasks;
 using Common.Logging;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.IO;
+using coordinator.Services.OcrService.Domain;
 
 namespace coordinator.Services.OcrService
 {
@@ -52,7 +52,7 @@ namespace coordinator.Services.OcrService
             throw new NotImplementedException();
         }
 
-        public Task<(bool, ReadOperationResult)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        public Task<(bool, AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
         {
             throw new NotImplementedException();
         }

@@ -27,14 +27,14 @@ namespace coordinator.Durable.Activity.ExtractTextNext
         public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var (operationId, ocrBlobName, correlationId) = context.GetInput<(Guid, string, Guid)>();
-            var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
+            var (isOperationComplete, analyzeResult) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
 
             if (!isOperationComplete)
             {
                 return false;
             }
 
-            var jsonResults = _jsonConvertWrapper.SerializeObject(operationResults.AnalyzeResult);
+            var jsonResults = _jsonConvertWrapper.SerializeObject(analyzeResult);
             using var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults));
 
             await _blobStorageService.UploadDocumentAsync(

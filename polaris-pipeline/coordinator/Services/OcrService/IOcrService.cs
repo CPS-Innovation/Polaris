@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using coordinator.Services.OcrService.Domain;
 
 namespace coordinator.Services.OcrService
 {
@@ -12,6 +12,6 @@ namespace coordinator.Services.OcrService
 
         Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId);
 
-        Task<(bool, ReadOperationResult)> GetOperationResultsAsync(Guid operationId, Guid correlationId);
+        Task<(bool, AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId);
     }
 }
