@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using coordinator.Factories.ComputerVisionClientFactory;
 using Common.Logging;
 using Common.Streaming;
+using PolarisDomain = coordinator.Services.OcrService.Domain;
+using Mapster;
 
 namespace coordinator.Services.OcrService
 {
@@ -27,7 +29,7 @@ namespace coordinator.Services.OcrService
             _log = log;
         }
 
-        public async Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
+        public async Task<PolarisDomain.AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
         {
             var operationId = await InitiateOperationAsync(stream, correlationId);
 
@@ -40,7 +42,7 @@ namespace coordinator.Services.OcrService
 
                 if (isComplete)
                 {
-                    return results.AnalyzeResult;
+                    return results.Adapt<PolarisDomain.AnalyzeResults>();
                 }
             }
         }
@@ -71,7 +73,7 @@ namespace coordinator.Services.OcrService
             }
         }
 
-        public async Task<(bool, ReadOperationResult)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        public async Task<(bool, PolarisDomain.AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
         {
             try
             {
@@ -91,7 +93,7 @@ namespace coordinator.Services.OcrService
                     throw new OcrServiceException("OCR completed with Failed status");
                 }
 
-                return (true, results);
+                return (true, results.Adapt<PolarisDomain.AnalyzeResults>());
             }
             catch (Exception ex)
             {

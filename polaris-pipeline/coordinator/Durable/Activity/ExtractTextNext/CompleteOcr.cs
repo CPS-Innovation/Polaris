@@ -30,15 +30,17 @@ namespace coordinator.Durable.Activity.ExtractTextNext
         [FunctionName(nameof(CompleteOcr))]
         public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
         {
+            // var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
+            // var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
             var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
-            var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
+            var (isOperationComplete, analyzeResult) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
 
             if (!isOperationComplete)
             {
                 return false;
             }
 
-            var jsonResults = _jsonConvertWrapper.SerializeObject(operationResults.AnalyzeResult);
+            var jsonResults = _jsonConvertWrapper.SerializeObject(analyzeResult);
             using var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults));
 
             await _blobStorageService.UploadDocumentAsync(
