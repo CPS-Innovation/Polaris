@@ -106,7 +106,7 @@ namespace coordinator.Durable.Payloads
             get
             {
                 return !string.IsNullOrEmpty(CmsDocumentId)
-                    ? PdfBlobNameHelper.GetPdfBlobName(CmsCaseId, CmsDocumentId)
+                    ? BlobNameHelper.GetBlobName(CmsCaseId, CmsDocumentId, BlobNameHelper.BlobType.Pdf)
                     : throw new Exception("No document tracker found");
             }
         }

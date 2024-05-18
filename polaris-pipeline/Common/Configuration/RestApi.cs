@@ -24,6 +24,7 @@ namespace Common.Configuration
         // Other
         public const string AuthInitialisation = "init";
         public const string Status = "status";
+        public const string Health = "health";
         public const string GetHostName = "gethostname";
 
         // Internal Pipeline
@@ -31,6 +32,7 @@ namespace Common.Configuration
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
+        public const string PiiResults = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/pii";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId:min(1)}/wait-for-case-empty-results";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
@@ -54,12 +56,6 @@ namespace Common.Configuration
         public static string GetCaseSearchQueryPath(string caseUrn, long caseId, string searchTerm)
         {
             return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
-        }
-
-        // todo: delete following
-        public static string GetCaseSearchPath(string caseUrn, long caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
@@ -111,7 +107,6 @@ namespace Common.Configuration
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
 
-
         public static string GetCaseIndexCountResultsPath(string caseUrn, long caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/case-index-count";
@@ -120,6 +115,11 @@ namespace Common.Configuration
         public static string GetDocumentIndexCountResultsPath(string caseUrn, long caseId, string documentId, long versionId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
+        }
+
+        public static string GetPiiPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/pii";
         }
     }
 }

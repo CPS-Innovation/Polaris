@@ -31,6 +31,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
+    "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
+    "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
@@ -102,6 +104,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["CoordinatorTaskHub"],
       app_settings["DdeiBaseUrl"],
       app_settings["DdeiAccessKey"],
+      app_settings["LanguageServiceKey"],
+      app_settings["LanguageServiceUrl"],
       app_settings["OvernightClearDownSchedule"],
       app_settings["PolarisPipelineRedactPdfBaseUrl"],
       app_settings["PolarisPipelineRedactorPdfBaseUrl"],
