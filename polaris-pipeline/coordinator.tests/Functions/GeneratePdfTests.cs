@@ -57,6 +57,7 @@ namespace pdf_generator.tests.Functions
           (
               _fixture.Create<string>(),
               Guid.NewGuid(),
+              Guid.NewGuid(),
               _fixture.Create<string>(),
               _fixture.Create<int>(),
               JsonSerializer.Serialize(trackerCmsDocumentDto),

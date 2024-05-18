@@ -44,7 +44,7 @@ namespace coordinator.Durable.Orchestration
                 if (pdfConversionResult != PdfConversionStatus.DocumentConverted)
                 {
                     caseEntity.SetDocumentPdfConversionFailed((payload.PolarisDocumentId.ToString(), pdfConversionResult));
-                    return; // why return here ....
+                    return;
                 }
             }
             catch (Exception exception)
@@ -68,11 +68,11 @@ namespace coordinator.Durable.Orchestration
 
             try
             {
-                var operationId = await context.CallActivityAsync<Guid>(nameof(InitiateOcr), (payload.BlobName, payload.CorrelationId));
-                await PollActivityUntilComplete(context, nameof(CompleteOcr), (operationId, payload.OcrBlobName, payload.CorrelationId));
+                var operationId = await context.CallActivityAsync<Guid>(nameof(InitiateOcr), (payload.BlobName, payload.CorrelationId, payload.SubCorrelationId));
+                await PollActivityUntilComplete(context, nameof(CompleteOcr), (operationId, payload.OcrBlobName, payload.CorrelationId, payload.SubCorrelationId));
 
-                var storeIndexesResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(StoreIndex), payload);
-                await PollActivityUntilComplete(context, nameof(CheckIndexStored), (payload, storeIndexesResult.LineCount));
+                var storeIndexesResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
+                await PollActivityUntilComplete(context, nameof(CompleteIndex), (payload, storeIndexesResult.LineCount));
             }
             catch (Exception exception)
             {

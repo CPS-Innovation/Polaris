@@ -31,10 +31,10 @@ namespace coordinator.Durable.Entity
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-        [Obsolete]
+
         private int? version = null;
 
-        [Obsolete]
+        // Currently useful in analytics to e.g. determine if/when a case has been refreshed
         [JsonProperty("versionId")]
         public int? Version
         {

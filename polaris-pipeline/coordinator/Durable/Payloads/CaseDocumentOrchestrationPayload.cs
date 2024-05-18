@@ -11,6 +11,7 @@ namespace coordinator.Durable.Payloads
             (
                 string cmsAuthValues,
                 Guid correlationId,
+                Guid subCorrelationId,
                 string cmsCaseUrn,
                 int cmsCaseId,
                 string serializedTrackerCmsDocumentDto,
@@ -35,9 +36,13 @@ namespace coordinator.Durable.Payloads
                 DefendantAndChargesTracker = JsonSerializer.Deserialize<DefendantsAndChargesEntity>(serializedTrackerDefendantAndChargesDto);
                 PolarisDocumentId = DefendantAndChargesTracker.PolarisDocumentId;
             }
+            SubCorrelationId = subCorrelationId;
             CmsAuthValues = cmsAuthValues;
             DocumentDeltaType = documentDeltaType;
         }
+
+        public Guid? SubCorrelationId { get; set; }
+
         public string CmsAuthValues { get; set; }
 
         public DocumentDeltaType DocumentDeltaType { get; set; }

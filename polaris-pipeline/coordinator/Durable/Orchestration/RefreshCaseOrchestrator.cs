@@ -11,7 +11,6 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Telemetry;
-using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
@@ -152,6 +151,7 @@ namespace coordinator.Durable.Orchestration
                             (
                                 cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                                 correlationId: caseDocumentPayload.CorrelationId,
+                                subCorrelationId: context.NewGuid(),
                                 cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
                                 cmsCaseId: caseDocumentPayload.CmsCaseId,
                                 serializedTrackerCmsDocumentDto: JsonSerializer.Serialize(trackerCmsDocument.Item1),
@@ -173,6 +173,7 @@ namespace coordinator.Durable.Orchestration
                             (
                                 cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                                 correlationId: caseDocumentPayload.CorrelationId,
+                                subCorrelationId: context.NewGuid(),
                                 cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
                                 cmsCaseId: caseDocumentPayload.CmsCaseId,
                                 serializedTrackerCmsDocumentDto: null,
@@ -191,6 +192,7 @@ namespace coordinator.Durable.Orchestration
                 (
                     cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                     correlationId: caseDocumentPayload.CorrelationId,
+                    subCorrelationId: context.NewGuid(),
                     cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
                     cmsCaseId: caseDocumentPayload.CmsCaseId,
                     serializedTrackerCmsDocumentDto: null,

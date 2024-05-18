@@ -199,7 +199,7 @@ namespace coordinator.tests.Durable.Orchestration
             {
                 _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                 (
-                    nameof(RefreshDocumentOrchestrator),
+                    It.IsIn<string>(new[] { nameof(RefreshDocumentOrchestrator), nameof(RefreshDocumentOrchestratorNext) }),
                     It.IsAny<string>(),
                     It.Is<CaseDocumentOrchestrationPayload>
                     (
