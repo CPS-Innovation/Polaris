@@ -12,6 +12,7 @@ import { HeaderSearchPIIMode } from "./HeaderSearchPIIMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
+import { SearchPIIRedactionWarningModal } from "../modals/SearchPIIRedactionWarningModal";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   caseId: number;
@@ -79,6 +80,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
 
+  const [showRedactionWarning, setShowRedactionWarning] = useState(false);
   const {
     url,
     mode,
@@ -111,10 +113,13 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     [documentId, handleRemoveAllRedactions]
   );
 
-  const localHandleSavedRedactions = useCallback(
-    () => handleSavedRedactions(documentId),
-    [documentId, handleSavedRedactions]
-  );
+  const localHandleSavedRedactions = () => {
+    if (isSearchPIIOn) {
+      setShowRedactionWarning(true);
+      return;
+    }
+    handleSavedRedactions(documentId);
+  };
 
   const isDocumentRefreshing = () => {
     return savedDocumentDetails.find(
@@ -124,6 +129,11 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   const isSearchPIIOn = useMemo(() => {
     return contextData.searchPIIOn.includes(documentId);
   }, [contextData.searchPIIOn, documentId]);
+
+  const handleContinue = () => {
+    setShowRedactionWarning(false);
+    handleSavedRedactions(documentId);
+  };
 
   if (isDeleted) {
     return (
@@ -213,6 +223,18 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         <Wait
           dataTestId={`pdfTab-spinner-${tabIndex}`}
           ariaLabel="Refreshing document, please wait"
+        />
+      )}
+
+      {showRedactionWarning && (
+        <SearchPIIRedactionWarningModal
+          documentId={documentId}
+          potentialRedactionCount={2}
+          handleContinue={handleContinue}
+          // presentationTitle={contextData.presentationTitle!}
+          // polarisDocumentVersionId={polarisDocumentVersionId!}
+
+          hideRedactionWarningModal={() => setShowRedactionWarning(false)}
         />
       )}
     </>
