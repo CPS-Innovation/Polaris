@@ -34,7 +34,6 @@ namespace coordinator.Functions
         private readonly IOcrResultsService _ocrResultsService;
         private readonly IPiiService _piiService;
         private readonly ITextAnalysisClient _textAnalysisClient;
-        private readonly IConfiguration _configuration;
 
         public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalysisClient, IConfiguration configuration)
         {
@@ -43,8 +42,7 @@ namespace coordinator.Functions
             _ocrResultsService = ocrResultsService ?? throw new ArgumentNullException(nameof(ocrResultsService));
             _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
             _textAnalysisClient = textAnalysisClient ?? throw new ArgumentNullException(nameof(textAnalysisClient));
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            CharacterLimit = int.Parse(_configuration[ConfigKeys.PiiChunkCharacterLimit]);
+            CharacterLimit = int.Parse(configuration[ConfigKeys.PiiChunkCharacterLimit]);
         }
 
         [FunctionName(nameof(ExtractPii))]
