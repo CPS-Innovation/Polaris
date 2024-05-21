@@ -12,7 +12,7 @@ using Common.Extensions;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
 
-namespace coordinator.Functions
+namespace coordinator.Functions.Maintenance
 {
     public class DeleteCase
     {
@@ -35,7 +35,7 @@ namespace coordinator.Functions
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run
             (
-                [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req,
+                [HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.Case)] HttpRequest req,
                 string caseUrn,
                 int caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
@@ -45,7 +45,15 @@ namespace coordinator.Functions
 
             try
             {
-                currentCorrelationId = req.Headers.GetCorrelationId();
+                try
+                {
+                    currentCorrelationId = req.Headers.GetCorrelationId();
+                }
+                catch (Exception)
+                {
+                    // this is a maintenance function, so we don't want to fail the request if the correlationId is missing
+                    currentCorrelationId = Guid.NewGuid();
+                }
 
                 await _cleardownService.DeleteCaseAsync(orchestrationClient,
                      caseUrn,
@@ -54,7 +62,6 @@ namespace coordinator.Functions
                      waitForIndexToSettle: true);
 
                 return new AcceptedResult();
-
             }
             catch (Exception ex)
             {
