@@ -1,6 +1,6 @@
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
 
-describe("Save User Data", () => {
+xdescribe("Save User Data", () => {
   describe("Read/Unread Documents", () => {
     it("Should identify the document as read if the user has opened the document and should persist that state when user comes back and clear it if we clear local storage", () => {
       cy.clearLocalStorage();

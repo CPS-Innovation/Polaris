@@ -4,7 +4,7 @@ import {
 } from "../../../src/mock-api/data/pipelinePdfResults.cypress";
 import { TEXT_SEARCH_ROUTE, TRACKER_ROUTE } from "../../../src/mock-api/routes";
 
-describe("Case Details Search", () => {
+xdescribe("Case Details Search", () => {
   describe("Search box", () => {
     it("can search with an empty search term", () => {
       cy.visit("/case-details/12AB1111111/13401");

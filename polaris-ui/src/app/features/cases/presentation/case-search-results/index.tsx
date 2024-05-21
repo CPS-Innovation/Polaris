@@ -178,6 +178,15 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                     <span data-testid={`defendant-name-text-${index}`}>
                       {getDefendantNameText(item)}
                     </span>
+                    <span> "{item.leadDefendantDetails.firstNames}" </span>
+                    <span> "{item.leadDefendantDetails.surname}" </span>
+                    <span>
+                      {`${item.leadDefendantDetails.surname},${item.leadDefendantDetails.firstNames}`}
+                    </span>
+                    <span>
+                      {" "}
+                      {`${item.leadDefendantDetails.surname}-${item.leadDefendantDetails.firstNames}`}
+                    </span>
                     <br />
                     {item.leadDefendantDetails.type !== "Organisation" && (
                       <span data-testid={`defendant-DOB-${index}`}>
