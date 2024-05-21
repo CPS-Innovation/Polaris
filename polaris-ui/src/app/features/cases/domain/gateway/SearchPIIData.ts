@@ -14,6 +14,7 @@ export type SearchPIIResultItem = {
     matchType: "None" | "Exact" | "Fuzzy";
     piiCategory: string;
     text: string;
+    groupId: string;
   }[];
 };
 
