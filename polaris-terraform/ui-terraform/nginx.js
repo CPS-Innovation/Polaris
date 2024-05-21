@@ -6,16 +6,16 @@ async function polarisAuthRedirect(r) {
   const q = r.args["q"] ?? ""
   r.return(
     302,
-    `${redirectHostAddress}/api/init?cookie=${cookie}&referer=${referer}&polaris-ui-url=${polarisUiUrl}&q=${q}`
+    `${redirectHostAddress}/init?cookie=${cookie}&referer=${referer}&polaris-ui-url=${polarisUiUrl}&q=${q}`
   )
 }
 
 function taskListAuthRedirect(r) {
-  const taskListHostAddress = r.variables['taskListHostAddress'] ?? ""
+  const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
   const cookie = encodeURIComponent(r.headersIn.Cookie ?? "")
   r.return(
-      302,
-      `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
+    302,
+    `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
   )
 }
 

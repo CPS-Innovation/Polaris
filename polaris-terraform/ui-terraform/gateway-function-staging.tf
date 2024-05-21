@@ -21,8 +21,6 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
     "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
-    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
-    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
@@ -81,7 +79,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     require_authentication = true
     default_provider       = "AzureActiveDirectory"
     unauthenticated_action = "RedirectToLoginPage"
-    excluded_paths         = ["/api/status", "/api/init", "/api/init/"]
+    excluded_paths         = ["/api/status"]
 
     # our default_provider:
     active_directory_v2 {
