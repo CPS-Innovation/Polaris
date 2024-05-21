@@ -1107,8 +1107,17 @@ export const reducer = (
       const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );
+      const newSearchPIIHighlights =
+        availablePIIData?.searchPIIHighlights.map((highlight) => ({
+          ...highlight,
+          redactionStatus: "redacted" as const,
+        })) ?? [];
       const newData = availablePIIData
-        ? { ...availablePIIData, show: show }
+        ? {
+            ...availablePIIData,
+            show: show,
+            searchPIIHighlights: newSearchPIIHighlights,
+          }
         : {
             show: show,
             documentId: documentId,

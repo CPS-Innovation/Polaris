@@ -1,6 +1,6 @@
+import { useMemo } from "react";
 import { Button } from "../../../../../common/presentation/components";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
-import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import classes from "./Footer.module.scss";
@@ -12,7 +12,9 @@ type Props = {
     saveStatus: SaveStatus;
   };
   tabIndex: number;
-  redactionHighlights: IPdfHighlight[];
+  redactionHighlightsCount: number;
+  suggestedRedactionsCount: number;
+  searchPIIHighlightsCount: number;
   isOkToSave: boolean;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -21,7 +23,9 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   contextData,
   tabIndex,
-  redactionHighlights,
+  redactionHighlightsCount,
+  suggestedRedactionsCount,
+  searchPIIHighlightsCount,
   isOkToSave,
   handleRemoveAllRedactions,
   handleSavedRedactions,
@@ -32,7 +36,7 @@ export const Footer: React.FC<Props> = ({
     trackEvent("Remove All Redactions", {
       documentType: documentType,
       documentId: documentId,
-      redactionsCount: redactionHighlights.length,
+      redactionsCount: redactionHighlightsCount,
     });
     handleRemoveAllRedactions();
   };
@@ -40,9 +44,13 @@ export const Footer: React.FC<Props> = ({
     trackEvent("Save All Redactions", {
       documentType: documentType,
       documentId: documentId,
-      redactionsCount: redactionHighlights.length,
+      redactionsCount: redactionHighlightsCount,
     });
     handleSavedRedactions();
+  };
+
+  const getTotalRedactions = () => {
+    return suggestedRedactionsCount + redactionHighlightsCount;
   };
   return (
     <div className={classes.footer}>
@@ -60,10 +68,10 @@ export const Footer: React.FC<Props> = ({
         className={classes.summary}
         data-testid={`redaction-count-text-${tabIndex}`}
       >
-        {redactionHighlights.length === 1 ? (
+        {getTotalRedactions() === 1 ? (
           <>There is 1 redaction</>
         ) : (
-          <>There are {redactionHighlights.length} redactions</>
+          <>There are {getTotalRedactions()} redactions</>
         )}
       </div>
 

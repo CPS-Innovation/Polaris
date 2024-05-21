@@ -108,10 +108,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     [documentId, handleRemoveRedaction]
   );
 
-  const localHandleRemoveAllRedactions = useCallback(
-    () => handleRemoveAllRedactions(documentId),
-    [documentId, handleRemoveAllRedactions]
-  );
+  const localHandleRemoveAllRedactions = useCallback(() => {
+    handleRemoveAllRedactions(documentId);
+    handleShowHideRedactionSuggestions(documentId, false);
+  }, [
+    documentId,
+    handleRemoveAllRedactions,
+    handleShowHideRedactionSuggestions,
+  ]);
 
   const localHandleSavedRedactions = () => {
     if (isSearchPIIOn) {

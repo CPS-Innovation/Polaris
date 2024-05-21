@@ -210,6 +210,12 @@ export const PdfViewer: React.FC<Props> = ({
     [areaOnlyRedactionMode]
   );
 
+  const suggestedRedactions = useMemo(() => {
+    return searchPIIHighlights.filter(
+      (highlight) => highlight.redactionStatus === "redacted"
+    );
+  }, [searchPIIHighlights]);
+
   return (
     <>
       <div
@@ -356,11 +362,13 @@ export const PdfViewer: React.FC<Props> = ({
             </>
           )}
         </PdfLoader>
-        {!!redactionHighlights.length && (
+        {!!(redactionHighlights.length || suggestedRedactions.length) && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
-            redactionHighlights={redactionHighlights}
+            redactionHighlightsCount={redactionHighlights.length}
+            suggestedRedactionsCount={suggestedRedactions.length}
+            searchPIIHighlightsCount={searchPIIHighlights.length}
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
