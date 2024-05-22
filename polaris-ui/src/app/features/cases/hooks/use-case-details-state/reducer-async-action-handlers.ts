@@ -10,7 +10,10 @@ import {
   getSearchPIIData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
-import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import {
+  NewPdfHighlight,
+  ISearchPIIHighlight,
+} from "../../domain/NewPdfHighlight";
 import { mapRedactionSaveRequest } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
@@ -53,6 +56,7 @@ type AsyncActions =
       type: "SAVE_REDACTIONS";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
+        searchPIIOn: boolean;
       };
     }
   | {
@@ -291,22 +295,36 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const { payload } = action;
-      const { documentId } = payload;
+      const { documentId, searchPIIOn } = payload;
 
       const {
         tabsState: { items },
         caseId,
         urn,
+        searchPII,
       } = getState();
+      let suggestedRedactionHighlights: ISearchPIIHighlight[] = [];
+      if (searchPIIOn) {
+        const suggestedHighlights =
+          searchPII.find((data) => data.documentId === documentId && data.show)
+            ?.searchPIIHighlights ?? [];
+        suggestedRedactionHighlights = suggestedHighlights.filter(
+          (highlight) => highlight.redactionStatus === "redacted"
+        );
+      }
 
       const document = items.find((item) => item.documentId === documentId)!;
 
       const { redactionHighlights, polarisDocumentVersionId } = document;
 
-      const redactionSaveRequest = mapRedactionSaveRequest(
-        documentId,
-        redactionHighlights
-      );
+      console.log("redactionHighlights>>>", redactionHighlights);
+
+      const redactionSaveRequest = mapRedactionSaveRequest(documentId, [
+        ...redactionHighlights,
+        ...suggestedRedactionHighlights,
+      ]);
+
+      //need to add the suggested redactions redactionType here
       const savedRedactionTypes = redactionHighlights.map(
         (highlight) => highlight.redactionType!
       );

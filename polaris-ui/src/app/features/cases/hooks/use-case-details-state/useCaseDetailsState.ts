@@ -326,8 +326,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleSavedRedactions = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"]) =>
-      dispatch({ type: "SAVE_REDACTIONS", payload: { documentId } }),
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      searchPIIOn: boolean = false
+    ) =>
+      dispatch({
+        type: "SAVE_REDACTIONS",
+        payload: { documentId, searchPIIOn },
+      }),
     [dispatch]
   );
 

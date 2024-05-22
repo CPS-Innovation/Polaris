@@ -136,7 +136,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const handleContinue = () => {
     setShowRedactionWarning(false);
-    handleSavedRedactions(documentId);
+    handleSavedRedactions(documentId, true);
   };
 
   if (isDeleted) {
