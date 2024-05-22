@@ -71,8 +71,5 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
-
-        [JsonProperty("piiCmsVersionId")]
-        public long? PiiCmsVersionId { get; set; }
     }
 }

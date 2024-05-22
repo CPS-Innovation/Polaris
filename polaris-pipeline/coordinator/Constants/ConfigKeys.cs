@@ -13,6 +13,5 @@ namespace coordinator.Constants
     public const string ComputerVisionClientServiceUrl = "ComputerVisionClientServiceUrl";
     public const string LanguageServiceUrl = nameof(LanguageServiceUrl);
     public const string LanguageServiceKey = nameof(LanguageServiceKey);
-    public const string PiiChunkCharacterLimit = nameof(PiiChunkCharacterLimit);
   }
 }
