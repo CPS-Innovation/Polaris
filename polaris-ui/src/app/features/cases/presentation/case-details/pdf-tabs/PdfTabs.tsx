@@ -1,9 +1,9 @@
+import { useCallback } from "react";
 import { Tabs } from "../../../../../common/presentation/components/tabs";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfTab } from "./PdfTab";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
-import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 
 type PdfTabsProps = {
@@ -32,7 +32,7 @@ type PdfTabsProps = {
     mode: "read" | "search";
   }) => void;
   handleTabSelection: (documentId: string) => void;
-  handleClosePdf: (caseDocument: { documentId: string }) => void;
+  handleClosePdf: (documentId: string) => void;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -70,6 +70,13 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleShowHideRedactionSuggestions,
   handleIgnoreRedactionSuggestion,
 }) => {
+  const localHandleClosePdf = useCallback(
+    (documentId: string) => {
+      handleClosePdf(documentId);
+      handleShowHideRedactionSuggestions(documentId, false);
+    },
+    [handleClosePdf, handleShowHideRedactionSuggestions]
+  );
   return (
     <Tabs
       idPrefix="pdf"
@@ -120,7 +127,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
       }))}
       title="Contents"
       activeTabId={activeTabId}
-      handleClosePdf={handleClosePdf}
+      handleClosePdf={localHandleClosePdf}
       handleTabSelection={handleTabSelection}
       handleUnLockDocuments={handleUnLockDocuments}
     />

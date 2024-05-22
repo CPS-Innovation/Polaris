@@ -237,14 +237,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleClosePdf = useCallback(
-    (caseDocument: { documentId: string }) => {
+    (documentId: string) => {
       dispatch({
         type: "CLOSE_PDF",
         payload: {
-          pdfId: caseDocument.documentId,
+          pdfId: documentId,
         },
       });
-      trackEvent("Close Document", { documentId: caseDocument.documentId });
+      trackEvent("Close Document", { documentId: documentId });
     },
     [dispatch]
   );

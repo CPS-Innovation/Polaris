@@ -214,7 +214,7 @@ describe("useCaseDetailsState", () => {
         wrapper: MemoryRouter,
       });
 
-      act(() => handleClosePdf({ documentId: "1" }));
+      act(() => handleClosePdf("1"));
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "CLOSE_PDF",
