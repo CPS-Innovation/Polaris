@@ -12,7 +12,7 @@ pipeline_logging = {
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku           = "EP3"
+  coordinator_service_plan_sku           = "EP2"
   coordinator_always_ready_instances     = 1
   coordinator_maximum_scale_out_limit    = 1
   coordinator_plan_maximum_burst         = 10

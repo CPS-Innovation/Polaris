@@ -22,7 +22,6 @@ namespace coordinator.Durable.Entity
         void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
         void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
-        void SetPiiCmsVersionId(string polarisDocumentId);
         Task<bool> AllDocumentsFailed();
         Task<string[]> GetPolarisDocumentIds();
 
