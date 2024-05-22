@@ -1,6 +1,6 @@
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
 
-xdescribe("Redaction Assurance", () => {
+describe("Redaction Assurance", () => {
   const expectedSaveRedactionPayload = {
     documentId: "1",
     redactions: [

@@ -4,7 +4,7 @@ import { parseISO, differenceInYears } from "date-fns";
 export const getAgeFromIsoDate = (isoDateString: string) =>
   isoDateString && differenceInYears(new Date(), parseISO(isoDateString));
 
-xdescribe("case details page", () => {
+describe("case details page", () => {
   describe("case page navigation", () => {
     it("can navigate back from case page, having not previously visited results page, and land on search page", () => {
       cy.visit("/case-details/12AB1111111/13401");
