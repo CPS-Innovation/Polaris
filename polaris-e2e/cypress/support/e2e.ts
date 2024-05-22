@@ -22,7 +22,7 @@ require("cypress-timestamps/support")({
   commandLog: true,
 })
 require("cypress-terminal-report/src/installLogsCollector")()
-beforeEach(() => cy.checkDependencies())
+before(() => cy.checkDependencies())
 
 // "import" with `@ts-ignore`
 // @see error 2306 https://github.com/microsoft/TypeScript/blob/3fcd1b51a1e6b16d007b368229af03455c7d5794/src/compiler/diagnosticMessages.json#L1635
