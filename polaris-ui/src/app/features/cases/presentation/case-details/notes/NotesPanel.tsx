@@ -68,7 +68,6 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
     trackEvent("Add Note", {
       documentId: documentId,
       documentCategory: documentCategory,
-      noteText: newNoteValue,
     });
     setOldNoteValue(newNoteValue);
     setNewNoteValue("");
