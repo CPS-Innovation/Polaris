@@ -6,34 +6,43 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.TextAnalytics;
+using coordinator.Constants;
+using coordinator.Durable.Entity;
+using coordinator.Durable.Orchestration;
 using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
 using Common.Configuration;
+using Common.Dto.Tracker;
 using Common.Extensions;
 using Common.Services.BlobStorageService;
+using Common.ValueObjects;
 using Newtonsoft.Json;
 
 namespace coordinator.Functions
 {
-    public class ExtractPii
+    public class ExtractPii : BaseClient
     {
+        private readonly int CharacterLimit;
         private readonly ILogger<ExtractPii> _logger;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IOcrResultsService _ocrResultsService;
         private readonly IPiiService _piiService;
         private readonly ITextAnalysisClient _textAnalysisClient;
 
-        public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalysisClient)
+        public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalysisClient, IConfiguration configuration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _ocrResultsService = ocrResultsService ?? throw new ArgumentNullException(nameof(ocrResultsService));
             _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
             _textAnalysisClient = textAnalysisClient ?? throw new ArgumentNullException(nameof(textAnalysisClient));
+            CharacterLimit = int.Parse(configuration[ConfigKeys.PiiChunkCharacterLimit]);
         }
 
         [FunctionName(nameof(ExtractPii))]
@@ -43,7 +52,9 @@ namespace coordinator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.PiiResults)] HttpRequest req,
             string caseUrn,
             int caseId,
-            string polarisDocumentId)
+            string polarisDocumentId,
+            [DurableClient] IDurableEntityClient client
+            )
         {
             Guid currentCorrelationId = default;
 
@@ -51,12 +62,17 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
+                var response = await GetTrackerDocument(client, caseId.ToString(), new PolarisDocumentId(polarisDocumentId));
+                var document = response.CmsDocument;
+
                 var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
                 var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
 
-                if (ocrResults != null && piiResults != null)
+                if (document.PiiCmsVersionId != null &&
+                    document.PiiCmsVersionId == document.CmsVersionId &&
+                    ocrResults != null && piiResults != null)
                 {
-                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000, currentCorrelationId);
+                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, CharacterLimit, currentCorrelationId);
                     var results = _piiService.ReconcilePiiResults(piiChunks, piiResults);
 
                     return new OkObjectResult(results);
@@ -65,7 +81,7 @@ namespace coordinator.Functions
                 {
                     if (ocrResults == null) return new EmptyResult(); // need to handle this
 
-                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000, currentCorrelationId);
+                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, CharacterLimit, currentCorrelationId);
                     var piiRequests = _piiService.CreatePiiRequests(piiChunks);
 
                     var calls = piiRequests.Select(async piiRequest => await _textAnalysisClient.CheckForPii(piiRequest));
@@ -93,6 +109,13 @@ namespace coordinator.Functions
                     // var hasError = piiResultsWrapper.PiiResultCollection.Any(x => x.Items.Exists(resultCollection => resultCollection.HasError));
 
                     var results = _piiService.ReconcilePiiResults(piiChunks, piiResultsWrapper);
+
+                    var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
+                    var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
+
+                    await client.SignalEntityAsync<ICaseDurableEntity>(
+                        caseEntityId,
+                        x => x.SetPiiCmsVersionId(polarisDocumentId));
 
                     return new OkObjectResult(results);
                 }

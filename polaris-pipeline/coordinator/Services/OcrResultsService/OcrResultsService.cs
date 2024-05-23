@@ -13,7 +13,6 @@ namespace coordinator.Services.OcrResultsService
 {
     public class OcrResultsService : IOcrResultsService
     {
-        private const int CharacterLimit = 1000;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
