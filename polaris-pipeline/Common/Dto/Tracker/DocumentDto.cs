@@ -104,5 +104,8 @@ namespace Common.Dto.Tracker
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
+
+        [JsonProperty("piiCmsVersionId")]
+        public int? PiiCmsVersionId { get; set; }
     }
 }
