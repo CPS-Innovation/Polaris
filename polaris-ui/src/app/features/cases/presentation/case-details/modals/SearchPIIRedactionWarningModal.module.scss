@@ -1,12 +1,16 @@
 .redactionWarningModal {
-  width: 50%;
+  max-width: 35%;
 }
 .contentWrapper {
   padding: 2rem 2rem;
   position: relative;
   & :global(.govuk-warning-text__icon) {
     left: 30px;
-    top: 55px;
+    top: 50px;
+  }
+  & :global(.govuk-checkboxes__label) {
+    padding: 0px 15px 5px;
+    margin-top: -5px;
   }
 }
 
@@ -19,7 +23,7 @@
 }
 .contentText {
   font-weight: bold;
-  margin-left: 35px;
+  margin-left: 40px;
 }
 .actionWrapper {
   display: flex;
@@ -28,4 +32,7 @@
   .continueBtn {
     margin-right: 1rem;
   }
+}
+.mainText {
+  margin-bottom: 40px;
 }

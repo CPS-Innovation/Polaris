@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Button,
   LinkButton,
   Checkboxes,
   Modal,
 } from "../../../../../common/presentation/components/index";
+import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./SearchPIIRedactionWarningModal.module.scss";
 
 type Props = {
   documentId: string;
   polarisDocumentVersionId?: number;
-  potentialRedactionCount: number;
+  searchPIIHighlights: ISearchPIIHighlight[];
   presentationTitle?: string;
   hideRedactionWarningModal: () => void;
   handleContinue: () => void;
@@ -20,11 +21,16 @@ type Props = {
 export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   documentId,
   polarisDocumentVersionId,
-  potentialRedactionCount,
+  searchPIIHighlights,
   presentationTitle,
   hideRedactionWarningModal,
   handleContinue,
 }) => {
+  const suggestedRedactionCount = useMemo(() => {
+    return searchPIIHighlights.filter(
+      (highlight) => highlight.redactionStatus === "redacted"
+    ).length;
+  }, [searchPIIHighlights]);
   const [userConfirmation, setUserConfirmation] = useState(false);
   const [error, setError] = useState(false);
 
@@ -51,7 +57,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
         handleClose={handleIIRedactionWarningModalClose}
         className={classes.redactionWarningModal}
         ariaLabel="Use potential redactions confirmation Modal"
-        ariaDescription={`Your remaining 30 potential redactions will also be redacted, if you choose to continue`}
+        ariaDescription={`Your remaining ${suggestedRedactionCount} potential redactions will also be redacted, if you choose to continue`}
         defaultLastFocus={
           document.querySelector("#active-tab-panel") as HTMLElement
         }
@@ -60,13 +66,13 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
           <h2>{`Use potential redactions?`}</h2>
         </div>
         <div className={classes.contentWrapper}>
-          <div>
+          <div className={classes.mainText}>
             <span className="govuk-warning-text__icon" aria-hidden="true">
               !
             </span>
             <p className={classes.contentText}>
-              Your remaining 30 potential redactions will also be redacted, if
-              you choose to continue
+              {`Your remaining ${suggestedRedactionCount} potential redactions will also be redacted, if
+              you choose to continue`}
             </p>
           </div>
           <div>

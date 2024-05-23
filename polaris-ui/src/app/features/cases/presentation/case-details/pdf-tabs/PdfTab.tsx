@@ -184,7 +184,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleOpenPdf={handleOpenPdf}
         />
       )}
-      {isSearchPIIOn && <HeaderSearchPIIMode />}
+      {isSearchPIIOn && (
+        <HeaderSearchPIIMode searchPIIHighlights={searchPIIHighlights} />
+      )}
       {hasFailedAttachments && (
         <div className={classes.attachmentHeaderContent}>
           <span
@@ -233,7 +235,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       {showRedactionWarning && (
         <SearchPIIRedactionWarningModal
           documentId={documentId}
-          potentialRedactionCount={2}
+          searchPIIHighlights={searchPIIHighlights}
           handleContinue={handleContinue}
           // presentationTitle={contextData.presentationTitle!}
           // polarisDocumentVersionId={polarisDocumentVersionId!}
