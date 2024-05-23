@@ -30,14 +30,13 @@ describe("Refresh", { tags: "@ci" }, () => {
       .waitUntil(
         () =>
           cy
-            .api<PipelineResults>({
-              ...routes.GET_TRACKER(
+            .api<PipelineResults>(
+              routes.GET_TRACKER(
                 REFRESH_TARGET_URN,
                 REFRESH_TARGET_CASE_ID,
                 "PHASE_1"
-              ),
-              failOnStatusCode: false,
-            })
+              )
+            )
             .then(isTrackerReady),
         WAIT_UNTIL_OPTIONS
       )
@@ -159,14 +158,13 @@ describe("Refresh", { tags: "@ci" }, () => {
           .waitUntil(
             () =>
               cy
-                .api<PipelineResults>({
-                  ...routes.GET_TRACKER(
+                .api<PipelineResults>(
+                  routes.GET_TRACKER(
                     REFRESH_TARGET_URN,
                     REFRESH_TARGET_CASE_ID,
                     "PHASE_2"
-                  ),
-                  failOnStatusCode: false,
-                })
+                  )
+                )
                 .then((response) => {
                   return (
                     isTrackerReady(response) &&
@@ -292,14 +290,13 @@ describe("Refresh", { tags: "@ci" }, () => {
           .waitUntil(
             () =>
               cy
-                .api<PipelineResults>({
-                  ...routes.GET_TRACKER(
+                .api<PipelineResults>(
+                  routes.GET_TRACKER(
                     REFRESH_TARGET_URN,
                     REFRESH_TARGET_CASE_ID,
                     "PHASE_3"
-                  ),
-                  failOnStatusCode: false,
-                })
+                  )
+                )
                 .then((response) => {
                   return (
                     isTrackerReady(response) &&
