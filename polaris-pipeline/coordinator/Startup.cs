@@ -7,16 +7,20 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using coordinator;
+using coordinator.Clients.TextAnalytics;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
 using coordinator.Factories.ComputerVisionClientFactory;
+using coordinator.Factories.TextAnalyticsClientFactory;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
 using coordinator.Services.CleardownService;
 using coordinator.Services.DocumentToggle;
+using coordinator.Services.OcrResultsService;
 using coordinator.Services.OcrService;
+using coordinator.Services.PiiService;
 using coordinator.Services.RenderHtmlService;
 using coordinator.Services.TextExtractService;
 using coordinator.Validators;
@@ -33,6 +37,7 @@ using FluentValidation;
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
+
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -104,6 +109,10 @@ namespace coordinator
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
+            services.AddSingleton<IOcrResultsService, OcrResultsService>();
+            services.AddSingleton<IPiiService, PiiService>();
+            services.AddSingleton<ITextAnalyticsClientFactory, TextAnalyticsClientFactory>();
+            services.AddSingleton<ITextAnalysisClient, TextAnalysisClient>();
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
@@ -114,6 +123,7 @@ namespace coordinator
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
+            services.AddSingleton<IPiiEntityMapper, PiiEntityMapper>();
 
             services.AddDurableClientFactory();
         }

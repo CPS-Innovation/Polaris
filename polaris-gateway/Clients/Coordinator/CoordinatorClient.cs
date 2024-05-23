@@ -126,6 +126,14 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(addDocumentNoteRequestDto), Encoding.UTF8, "application/json"));
         }
 
+        public async Task<HttpResponseMessage> GetPii(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Put,
+                RestApi.GetPiiPath(caseUrn, caseId, polarisDocumentId),
+                correlationId);
+        }
+
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);

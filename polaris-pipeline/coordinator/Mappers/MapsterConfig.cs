@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using coordinator.Durable.Payloads.Domain;
+using Azure.AI.TextAnalytics;
+using coordinator.Domain;
 
 namespace coordinator.Mappers
 {
@@ -41,6 +43,44 @@ namespace coordinator.Mappers
                 (
                     dest => dest.Documents,
                     src => GetDocumentEntities(src)
+                );
+
+            TypeAdapterConfig<RecognizePiiEntitiesResultCollection, PiiEntitiesResultCollection>
+                .NewConfig()
+                .Map
+                (
+                    dest => dest.Items,
+                    src => src.Adapt<List<PiiEntitiesResult>>()
+                );
+
+            TypeAdapterConfig<RecognizePiiEntitiesResult, PiiEntitiesResult>
+                .NewConfig()
+                .Map
+                (
+                    dest => dest,
+                    src => src.Entities.Adapt<PiiResultEntityCollection>()
+                );
+
+            TypeAdapterConfig<PiiEntityCollection, PiiResultEntityCollection>
+                .NewConfig()
+                .Include<PiiEntityCollection, PiiResultEntityCollection>()
+                .Map
+                (
+                    dest => dest,
+                    src => src.Adapt<List<PiiResultEntity>>()
+                )
+                .Map
+                (
+                    dest => dest.Warnings,
+                    src => src.Warnings
+                );
+
+            TypeAdapterConfig<PiiEntity, PiiResultEntity>
+                .NewConfig()
+                .Map
+                (
+                    dest => dest.Category,
+                    src => src.Category.ToString()
                 );
         }
 
