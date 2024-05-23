@@ -70,9 +70,10 @@ namespace coordinator.Services.PiiService
                     {
                         var chunkLine = chunk.Lines.Single(x => x.ContainsOffset(offset));
                         var ocrWord = chunkLine.GetWord(text, offset);
+                        var category = GetRedactionLogCategoryMapping(piiEntity.Category);
 
                         if (ocrWord != null)
-                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category, chunk.DocumentId));
+                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, category, chunk.DocumentId));
                     }
                 }
             }
@@ -157,5 +158,30 @@ namespace coordinator.Services.PiiService
 
             return _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(await piiStreamReader.ReadToEndAsync());
         }
+
+        private static string GetRedactionLogCategoryMapping(string piiCategory)
+        {
+            PiiToRedactionLogCategoryMappings.TryGetValue(piiCategory, out var category);
+
+            return category ?? "Other";
+        }
+
+        private static Dictionary<string, string> PiiToRedactionLogCategoryMappings =>
+            new()
+            {
+                { "Address",                    "Address" },
+                { "Email",                      "Email Address"},
+                { "IPAdress",                   "Location" },
+                { "Person",                     "Named Individual" },
+                { "UKNationalHealthNumber",     "NHS number" },
+                { "UKNationalInsuranceNumber",  "NI number" },
+                { "PersonType",                 "Occupation" },
+                { "PhoneNumber",                "Phone number" },
+                { "CreditCardNumber",           "Other" },
+                { "EUDriversLicenseNumber",     "Other" },
+                { "UKDriversLicenseNumber",     "Other" },
+                { "EUPassportNumber",           "Other" },
+                { "USUKPassportNumber",         "Other" }
+            };
     }
 }
