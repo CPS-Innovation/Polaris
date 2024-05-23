@@ -12,4 +12,5 @@ export interface ISearchPIIHighlight extends NewHighlight {
   textContent?: string;
   redactionStatus: "redacted" | "ignored";
   piiCategory: string;
+  redactionType: RedactionTypeData;
 }

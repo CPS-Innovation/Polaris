@@ -27,7 +27,7 @@ const searchPII = [
         ],
         text: "William",
         matchType: "Exact",
-        piiCategory: "Person",
+        piiCategory: "Named individual",
         groupId: "1b3a5c94-631c-4b23-911a-b2615361ecc5-1",
       },
       {
@@ -36,7 +36,7 @@ const searchPII = [
         ],
         text: "McCoy",
         matchType: "Exact",
-        piiCategory: "Person",
+        piiCategory: "Named individual",
         groupId: "1b3a5c94-631c-4b23-911a-b2615361ecc5-1",
       },
       {
@@ -81,7 +81,7 @@ const searchPII = [
         ],
         text: "18:",
         matchType: "Exact",
-        piiCategory: "Quantity",
+        piiCategory: "Other",
         groupId: "8f742231-94ef-41d1-9ae7-cea085c669bc-1",
       },
       {
@@ -120,7 +120,7 @@ const searchPII = [
         ],
         text: "Computer",
         matchType: "Exact",
-        piiCategory: "PersonType",
+        piiCategory: "Occupation",
         groupId: "7c8a044f-df4c-4c93-8a5d-60ca4944757d-1",
       },
       {
@@ -129,7 +129,7 @@ const searchPII = [
         ],
         text: "Technician",
         matchType: "Exact",
-        piiCategory: "PersonType",
+        piiCategory: "Occupation",
         groupId: "7c8a044f-df4c-4c93-8a5d-60ca4944757d-1",
       },
       {
@@ -162,7 +162,7 @@ const searchPII = [
         ],
         text: "24/04/2024",
         matchType: "Exact",
-        piiCategory: "DateTime",
+        piiCategory: "Date of birth",
         groupId: "e731b13f-3066-40e5-a37f-4ef4da627a20-1",
       },
       {
@@ -231,7 +231,7 @@ const searchPII = [
         ],
         text: "Willie",
         matchType: "Exact",
-        piiCategory: "Person",
+        piiCategory: "Named individual",
         groupId: "31f564f7-d42f-4c58-8523-1f2cd0ef4e92-1",
       },
       {
@@ -240,7 +240,7 @@ const searchPII = [
         ],
         text: "McCoy",
         matchType: "Exact",
-        piiCategory: "Person",
+        piiCategory: "Named individual",
         groupId: "31f564f7-d42f-4c58-8523-1f2cd0ef4e92-1",
       },
       {
@@ -363,7 +363,7 @@ const searchPII = [
         ],
         text: "williesmadeupemail@gmail.com",
         matchType: "Exact",
-        piiCategory: "Email",
+        piiCategory: "Email address",
         groupId: "1feac44f-4365-4271-be2a-1c7e804e6e70-1",
       },
       {
@@ -414,7 +414,7 @@ const searchPII = [
         ],
         text: "206.192.1.10.",
         matchType: "Exact",
-        piiCategory: "IPAddress",
+        piiCategory: "Location",
         groupId: "c16c7b52-317b-4426-852d-17d09822fb74-1",
       },
       {
@@ -447,7 +447,7 @@ const searchPII = [
         ],
         text: "Acme",
         matchType: "Exact",
-        piiCategory: "Organization",
+        piiCategory: "Other",
         groupId: "c16c7b52-317b-4426-852d-17d09822fb74-2",
       },
       {
@@ -456,7 +456,7 @@ const searchPII = [
         ],
         text: "Computer",
         matchType: "Exact",
-        piiCategory: "Organization",
+        piiCategory: "Other",
         groupId: "c16c7b52-317b-4426-852d-17d09822fb74-2",
       },
       {
@@ -465,7 +465,7 @@ const searchPII = [
         ],
         text: "Services",
         matchType: "Exact",
-        piiCategory: "Organization",
+        piiCategory: "Other",
         groupId: "c16c7b52-317b-4426-852d-17d09822fb74-2",
       },
       {
@@ -585,7 +585,7 @@ const searchPII = [
         ],
         text: "customers",
         matchType: "Exact",
-        piiCategory: "PersonType",
+        piiCategory: "Occupation",
         groupId: "3713477d-bae5-4d7e-866c-be22d688bd35-1",
       },
       {

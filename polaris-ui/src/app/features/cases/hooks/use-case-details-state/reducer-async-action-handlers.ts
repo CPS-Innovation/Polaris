@@ -14,6 +14,7 @@ import {
   NewPdfHighlight,
   ISearchPIIHighlight,
 } from "../../domain/NewPdfHighlight";
+import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { mapRedactionSaveRequest } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
@@ -304,6 +305,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         searchPII,
       } = getState();
       let suggestedRedactionHighlights: ISearchPIIHighlight[] = [];
+
+      const document = items.find((item) => item.documentId === documentId)!;
+      const { redactionHighlights, polarisDocumentVersionId } = document;
+
+      console.log("redactionHighlights>>>", redactionHighlights);
+
+      let combinedRedactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[] =
+        redactionHighlights;
       if (searchPIIOn) {
         const suggestedHighlights =
           searchPII.find((data) => data.documentId === documentId && data.show)
@@ -311,21 +320,19 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         suggestedRedactionHighlights = suggestedHighlights.filter(
           (highlight) => highlight.redactionStatus === "redacted"
         );
+        combinedRedactionHighlights = [
+          ...redactionHighlights,
+          ...suggestedRedactionHighlights,
+        ];
       }
 
-      const document = items.find((item) => item.documentId === documentId)!;
-
-      const { redactionHighlights, polarisDocumentVersionId } = document;
-
-      console.log("redactionHighlights>>>", redactionHighlights);
-
-      const redactionSaveRequest = mapRedactionSaveRequest(documentId, [
-        ...redactionHighlights,
-        ...suggestedRedactionHighlights,
-      ]);
+      const redactionSaveRequest = mapRedactionSaveRequest(
+        documentId,
+        combinedRedactionHighlights
+      );
 
       //need to add the suggested redactions redactionType here
-      const savedRedactionTypes = redactionHighlights.map(
+      const savedRedactionTypes = combinedRedactionHighlights.map(
         (highlight) => highlight.redactionType!
       );
       try {

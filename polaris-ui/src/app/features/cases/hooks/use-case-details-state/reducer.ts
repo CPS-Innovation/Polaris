@@ -1144,7 +1144,15 @@ export const reducer = (
         (searchPIIResult) => searchPIIResult.documentId === documentId
       )!;
 
-      const searchPIIHighlights = mapSearchPIIHighlights(searchPIIResult);
+      const missedRedactionTypesData =
+        state.redactionLog.redactionLogLookUpsData.status === "succeeded"
+          ? state.redactionLog.redactionLogLookUpsData.data.missedRedactions
+          : [];
+
+      const searchPIIHighlights = mapSearchPIIHighlights(
+        searchPIIResult,
+        missedRedactionTypesData
+      );
 
       const sortedSearchPIIHighlights =
         sortSearchHighlights(searchPIIHighlights);
