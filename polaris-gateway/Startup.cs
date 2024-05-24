@@ -12,6 +12,9 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Common.Telemetry;
 using PolarisGateway.Handlers;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using System.Net;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -21,6 +24,8 @@ namespace PolarisGateway
     internal class Startup : FunctionsStartup
     {
         protected IConfigurationRoot Configuration { get; set; }
+        private const int RetryAttempts = 2;
+        private const int FirstRetryDelaySeconds = 1;
 
         // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
         public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
@@ -61,7 +66,7 @@ namespace PolarisGateway
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
+            }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
@@ -81,6 +86,30 @@ namespace PolarisGateway
             }
 
             return secret;
+        }
+
+        private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+            // https://learn.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly#add-a-jitter-strategy-to-the-retry-policy
+            var delay = Backoff.DecorrelatedJitterBackoffV2(
+                medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
+                retryCount: RetryAttempts);
+
+            static bool ShouldRetry(HttpRequestMessage request, HttpResponseMessage response)
+            {
+                // Skip retry if the custom header is present
+                if (request.Headers.Contains("X-Skip-Retry"))
+                {
+                    return false;
+                }
+
+                return response.StatusCode >= HttpStatusCode.InternalServerError;
+            }
+
+
+            return Policy
+                .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
+                .WaitAndRetryAsync(delay);
         }
     }
 }
