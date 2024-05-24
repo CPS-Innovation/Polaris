@@ -41,6 +41,7 @@ import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { SearchPIIData } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
+import { getRedactionSuggestionTextGroupedByGroupId } from "../utils/searchPIIUtils";
 export const reducer = (
   state: CombinedState,
   action:
@@ -225,7 +226,7 @@ export const reducer = (
         payload: {
           documentId: string;
           textContent: string;
-          highlightId?: string;
+          highlightGroupId: string;
           ignoreAll: boolean;
         };
       }
@@ -1112,6 +1113,7 @@ export const reducer = (
           ...highlight,
           redactionStatus: "redacted" as const,
         })) ?? [];
+
       const newData = availablePIIData
         ? {
             ...availablePIIData,
@@ -1124,6 +1126,7 @@ export const reducer = (
             polarisDocumentVersionId: polarisDocumentVersionId,
             searchPIIHighlights: [],
             getSearchPIIStatus: "initial" as const,
+            groupedTextByGroupId: {},
           };
       return {
         ...state,
@@ -1154,6 +1157,9 @@ export const reducer = (
         missedRedactionTypesData
       );
 
+      const groupedTextByGroupId =
+        getRedactionSuggestionTextGroupedByGroupId(searchPIIHighlights);
+
       const sortedSearchPIIHighlights =
         sortSearchHighlights(searchPIIHighlights);
       return {
@@ -1165,43 +1171,60 @@ export const reducer = (
             documentId,
             searchPIIHighlights: sortedSearchPIIHighlights,
             getSearchPIIStatus: getSearchPIIStatus,
+            groupedTextByGroupId,
           },
         ],
       };
     }
 
     case "IGNORE_SEARCH_PII_DATA": {
-      const { documentId, textContent, ignoreAll, highlightId } =
+      const { documentId, textContent, ignoreAll, highlightGroupId } =
         action.payload;
+      const filteredSearchPIIDatas = state.searchPII.filter(
+        (searchPIIResult) => searchPIIResult.documentId !== documentId
+      );
 
       // compare and update the status of the searchPII highlights here
       const searchPIIDataItem = state.searchPII?.find(
         (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
       )!;
-      // let newHighlights: any = [];
 
+      let groupIdsTobeIgnored = [highlightGroupId];
+      if (ignoreAll) {
+        const ignoredText =
+          searchPIIDataItem.groupedTextByGroupId[`${highlightGroupId}`];
+        groupIdsTobeIgnored = Object.entries(
+          searchPIIDataItem.groupedTextByGroupId
+        )
+          .filter((keyValue) => keyValue[1] === ignoredText)
+          .map((keyValue) => keyValue[0]);
+      }
       const newHighlights = searchPIIDataItem.searchPIIHighlights.map(
         (highlight) => {
-          if (ignoreAll) {
-            if (highlight.textContent === textContent) {
-              highlight.redactionStatus = "ignored";
-            }
-            return highlight;
-          }
-          if (highlight.id === highlightId) {
+          console.log("textContent>>>>,", textContent);
+          console.log("highlight.textContent>>>>,", highlight.textContent);
+
+          if (groupIdsTobeIgnored.includes(highlight.groupId)) {
+            console.log("ignored....0000");
             highlight.redactionStatus = "ignored";
           }
+
           return highlight;
         }
       );
+      const groupedTextByGroupId =
+        getRedactionSuggestionTextGroupedByGroupId(newHighlights);
+
+      console.log("groupedTextByGroupId>>0000", groupedTextByGroupId);
 
       const newState = {
         ...state,
         searchPII: [
-          ...state.searchPII,
+          ...filteredSearchPIIDatas,
           {
             ...searchPIIDataItem,
             searchPIIHighlights: newHighlights,
+            groupedTextByGroupId,
           },
         ],
       };
@@ -1213,9 +1236,3 @@ export const reducer = (
       throw new Error("Unknown action passed to case details reducer");
   }
 };
-function apiResults(
-  data: ApiTextSearchResult[],
-  data1: import("../../domain/MappedCaseDocument").MappedCaseDocument[]
-) {
-  throw new Error("Function not implemented.");
-}

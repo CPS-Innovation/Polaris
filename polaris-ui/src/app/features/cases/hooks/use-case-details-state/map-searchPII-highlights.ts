@@ -89,6 +89,7 @@ export const mapSearchPIIHighlights = (
             missedRedactionTypes,
             words[0].piiCategory
           ),
+          groupId: words[0].groupId,
         });
       }
     });

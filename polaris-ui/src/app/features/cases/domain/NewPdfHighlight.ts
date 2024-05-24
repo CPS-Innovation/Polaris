@@ -9,8 +9,9 @@ export interface NewPdfHighlight extends NewHighlight {
 export interface ISearchPIIHighlight extends NewHighlight {
   id: string;
   type: "searchPII";
-  textContent?: string;
+  textContent: string;
   redactionStatus: "redacted" | "ignored";
   piiCategory: string;
   redactionType: RedactionTypeData;
+  groupId: string;
 }

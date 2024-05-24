@@ -19,12 +19,17 @@ export const PdfLinearHighlight: React.FC<Props> = ({
     id,
     textContent,
   },
+  highlight,
   isScrolledTo,
   type,
 }) => {
   const className = `${classes["Highlight"]} ${
     isScrolledTo ? classes["Highlight--scrolledTo"] : ""
   }`;
+  let groupId = "";
+  if (highlight.type === "searchPII") {
+    groupId = (highlight as ISearchPIIHighlight).groupId;
+  }
 
   return (
     <div
@@ -36,7 +41,7 @@ export const PdfLinearHighlight: React.FC<Props> = ({
         className={classes["Highlight__parts"]}
         text-content={textContent}
         highlight-type={type}
-        highlight-id={id}
+        highlight-groupId={groupId}
       >
         {rects.map((rect, index) =>
           type === "search" || type === "searchPII" ? (

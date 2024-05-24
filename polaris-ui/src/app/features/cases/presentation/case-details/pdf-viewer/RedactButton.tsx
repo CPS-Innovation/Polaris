@@ -10,7 +10,6 @@ type Props = {
     searchPIIOn: boolean;
     textContent: string;
     count: number;
-    piiCategory: string;
   };
   redactionTypesData: RedactionTypeData[];
   onConfirm: (
@@ -43,17 +42,8 @@ export const RedactButton: React.FC<Props> = ({
   useLastFocus();
 
   useEffect(() => {
-    if (searchPIIData.searchPIIOn) {
-      const redactionType = getRedactionTypeFromPIIData();
-      if (redactionType) setRedactionType(redactionType);
-    }
+    if (redactionType) setRedactionType(redactionType);
   }, []);
-
-  const getRedactionTypeFromPIIData = () => {
-    return redactionTypesData.find(
-      (type) => type.name === searchPIIData.piiCategory
-    )?.name;
-  };
 
   const handleBtnClick = (actionType: "redact" | "ignore" | "ignoreAll") => {
     if (redactionTypesData.length && actionType === "redact") {

@@ -95,6 +95,11 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
                     (highlight) => highlight.redactionStatus === "redacted"
                   ) ?? []
               }
+              searchPIIGroupedText={
+                searchPIIData.find(
+                  (data) => data.documentId === item.documentId
+                )?.groupedTextByGroupId ?? {}
+              }
               tabIndex={index}
               showOverRedactionLog={showOverRedactionLog}
               redactionTypesData={redactionTypesData}

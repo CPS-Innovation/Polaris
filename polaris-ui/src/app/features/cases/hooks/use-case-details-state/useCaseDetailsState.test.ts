@@ -438,7 +438,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "SAVE_REDACTIONS",
-        payload: { documentId: "2" },
+        payload: { documentId: "2", searchPIIOn: false },
       });
     });
   });

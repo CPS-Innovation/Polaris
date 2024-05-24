@@ -26,6 +26,7 @@ import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
 import { roundToFixedDecimalPlaces } from "../../../../cases/hooks/utils/redactionUtils";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -44,6 +45,7 @@ type Props = {
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
   searchPIIHighlights: ISearchPIIHighlight[];
+  searchPIIGroupedText: Record<string, string>;
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
@@ -71,6 +73,7 @@ export const PdfViewer: React.FC<Props> = ({
   searchHighlights = [],
   searchPIIHighlights,
   redactionHighlights,
+  searchPIIGroupedText,
   isOkToSave,
   areaOnlyRedactionMode,
   handleAddRedaction,
@@ -104,78 +107,23 @@ export const PdfViewer: React.FC<Props> = ({
       scrollToFnRef.current(searchHighlights[focussedHighlightIndex]);
   }, [searchHighlights, focussedHighlightIndex]);
 
-  const getPIIHighlightsWithSameText = useCallback(
-    (text: string = "") => {
-      const sameTextHighlights = searchPIIHighlights.filter(
-        (highlight) => highlight.textContent === text
-      );
-
-      return sameTextHighlights;
+  const getPIISuggestionsWithSameText = useCallback(
+    (groupId: string) => {
+      const redactionText = searchPIIGroupedText[groupId];
+      const redactionSuggestionWithSameText = Object.entries(
+        searchPIIGroupedText
+      ).filter((keyValue) => keyValue[1] === redactionText);
+      return redactionSuggestionWithSameText;
     },
-    [searchPIIHighlights]
+    [searchPIIGroupedText]
   );
 
   const addRedaction = useCallback(
     (
       position: ScaledPosition,
       content: { text?: string; image?: string },
-      redactionType: RedactionTypeData,
-      redactAll: boolean
+      redactionType: RedactionTypeData
     ) => {
-      if (redactAll) {
-        const sameTextHighlights = getPIIHighlightsWithSameText(content?.text);
-        const scaleFactor =
-          position.boundingRect.width /
-          sameTextHighlights[0].position.boundingRect.width;
-        const newRedactions = sameTextHighlights.reduce((acc, highlight) => {
-          const highlightBoundingRect = highlight.position.boundingRect;
-          const rects = highlight.position.rects;
-          const scaledBoundingRect = {
-            x1: roundToFixedDecimalPlaces(
-              highlightBoundingRect.x1 * scaleFactor
-            ),
-            y1: roundToFixedDecimalPlaces(
-              highlightBoundingRect.y1 * scaleFactor
-            ),
-            x2: roundToFixedDecimalPlaces(
-              highlightBoundingRect.x2 * scaleFactor
-            ),
-            y2: roundToFixedDecimalPlaces(
-              highlightBoundingRect.y2 * scaleFactor
-            ),
-            width: roundToFixedDecimalPlaces(
-              highlightBoundingRect.width * scaleFactor
-            ),
-            height: roundToFixedDecimalPlaces(
-              highlightBoundingRect.height * scaleFactor
-            ),
-            pageNumber: highlightBoundingRect?.pageNumber,
-          };
-          const scaledRects = rects.map((rect) => ({
-            x1: roundToFixedDecimalPlaces(rect.x1 * scaleFactor),
-            y1: roundToFixedDecimalPlaces(rect.y1 * scaleFactor),
-            x2: roundToFixedDecimalPlaces(rect.x2 * scaleFactor),
-            y2: roundToFixedDecimalPlaces(rect.y2 * scaleFactor),
-            width: roundToFixedDecimalPlaces(rect.width * scaleFactor),
-            height: roundToFixedDecimalPlaces(rect.height * scaleFactor),
-            pageNumber: rect?.pageNumber,
-          }));
-          acc.push({
-            type: "redaction",
-            position: {
-              ...position,
-              boundingRect: scaledBoundingRect,
-              rects: scaledRects,
-            },
-            textContent: content.text,
-            highlightType: "linear",
-            redactionType: redactionType,
-          });
-          return acc;
-        }, [] as NewPdfHighlight[]);
-        handleAddRedaction(newRedactions);
-        return;
-      }
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
         position,
@@ -189,7 +137,7 @@ export const PdfViewer: React.FC<Props> = ({
       handleAddRedaction([newRedaction]);
       window.getSelection()?.removeAllRanges();
     },
-    [handleAddRedaction, getPIIHighlightsWithSameText]
+    [handleAddRedaction]
   );
 
   const removeRedaction = (id: string) => {
@@ -210,11 +158,9 @@ export const PdfViewer: React.FC<Props> = ({
     [areaOnlyRedactionMode]
   );
 
-  const suggestedRedactions = useMemo(() => {
-    return searchPIIHighlights.filter(
-      (highlight) => highlight.redactionStatus === "redacted"
-    );
-  }, [searchPIIHighlights]);
+  const suggestedRedactionsCount = useMemo(() => {
+    return Object.keys(searchPIIGroupedText).length;
+  }, [searchPIIGroupedText]);
 
   return (
     <>
@@ -283,13 +229,15 @@ export const PdfViewer: React.FC<Props> = ({
                     <RedactButton
                       searchPIIData={{
                         searchPIIOn: content.highlightType === "searchPII",
-                        textContent: content.text ?? "",
-                        count: content.text
-                          ? getPIIHighlightsWithSameText(content.text)?.length
+                        textContent: content.highlightGroupId
+                          ? searchPIIGroupedText[content.highlightGroupId] ?? ""
+                          : "",
+
+                        count: content.highlightGroupId
+                          ? getPIISuggestionsWithSameText(
+                              content.highlightGroupId
+                            )?.length
                           : 0,
-                        piiCategory: getPIIHighlightsWithSameText(
-                          content.text
-                        )[0]?.piiCategory,
                       }}
                       redactionTypesData={redactionTypesData}
                       onConfirm={(
@@ -305,9 +253,15 @@ export const PdfViewer: React.FC<Props> = ({
 
                             addRedaction(
                               position,
-                              content,
-                              redactionType,
-                              false
+                              {
+                                text: content.highlightGroupId
+                                  ? searchPIIGroupedText[
+                                      content.highlightGroupId
+                                    ] ?? ""
+                                  : content.text ?? "",
+                                image: content?.image,
+                              },
+                              redactionType
                             );
                             hideTipAndSelection();
                             return;
@@ -317,7 +271,7 @@ export const PdfViewer: React.FC<Props> = ({
                               contextData.documentId,
                               content.text!,
                               false,
-                              content.highlightId!
+                              content.highlightGroupId!
                             );
                             hideTipAndSelection();
                             return;
@@ -327,7 +281,7 @@ export const PdfViewer: React.FC<Props> = ({
                               contextData.documentId,
                               content.text!,
                               true,
-                              content.highlightId!
+                              content.highlightGroupId!
                             );
                             hideTipAndSelection();
                             return;
@@ -362,12 +316,12 @@ export const PdfViewer: React.FC<Props> = ({
             </>
           )}
         </PdfLoader>
-        {!!(redactionHighlights.length || suggestedRedactions.length) && (
+        {!!(redactionHighlights.length || suggestedRedactionsCount) && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
             redactionHighlightsCount={redactionHighlights.length}
-            suggestedRedactionsCount={suggestedRedactions.length}
+            suggestedRedactionsCount={suggestedRedactionsCount}
             searchPIIHighlightsCount={searchPIIHighlights.length}
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}

@@ -25,6 +25,7 @@ type PdfTabProps = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchPIIHighlights: ISearchPIIHighlight[];
+  searchPIIGroupedText: Record<string, string>;
   savedDocumentDetails: {
     documentId: string;
     polarisDocumentVersionId: number;
@@ -65,6 +66,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   contextData,
   isOkToSave,
   searchPIIHighlights,
+  searchPIIGroupedText,
   handleOpenPdf,
   handleLaunchSearchResults,
   handleAddRedaction,
@@ -208,6 +210,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           searchPIIHighlights={searchPIIHighlights}
+          searchPIIGroupedText={searchPIIGroupedText}
           documentWriteStatus={documentWriteStatus}
           contextData={{
             documentId,

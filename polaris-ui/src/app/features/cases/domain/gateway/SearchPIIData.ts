@@ -24,4 +24,5 @@ export type SearchPIIData = {
   polarisDocumentVersionId: number;
   searchPIIHighlights: ISearchPIIHighlight[];
   getSearchPIIStatus: "failure" | "success" | "loading" | "initial";
+  groupedTextByGroupId: Record<string, string>;
 };

@@ -474,7 +474,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       documentId: CaseDocumentViewModel["documentId"],
       textContent: string,
       ignoreAll: boolean,
-      highlightId: string
+      highlightGroupId: string
     ) => {
       dispatch({
         type: "IGNORE_SEARCH_PII_DATA",
@@ -482,7 +482,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           documentId,
           textContent: textContent,
           ignoreAll: ignoreAll,
-          highlightId: highlightId,
+          highlightGroupId: highlightGroupId,
         },
       });
     },
