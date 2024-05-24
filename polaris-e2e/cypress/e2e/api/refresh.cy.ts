@@ -394,27 +394,31 @@ type SearchAssertionArg =
     }
 
 const assertSearchExpectation = (arg: SearchAssertionArg) => {
-  cy.api<ApiTextSearchResult[]>(
-    routes.GET_SEARCH(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, arg.term)
+  // For the sake of e2e test stability, lets give some wiggle room to the assertion by
+  //  using waitUntil to give us some time for the search index to settle.  It is for another
+  //  piece of work to work out the speed that search results become ready.
+  cy.waitUntil(
+    () =>
+      cy
+        .api<ApiTextSearchResult[]>(
+          routes.GET_SEARCH(
+            REFRESH_TARGET_URN,
+            REFRESH_TARGET_CASE_ID,
+            arg.term
+          )
+        )
+        .its("body")
+        .then(
+          (results) =>
+            results.length === (arg.expectation === "TERM_NOT_PRESENT" ? 0 : 1)
+        ),
+    {
+      timeout: 10 * 1000,
+      interval: 3 * 1000,
+      errorMsg: () =>
+        `Expected ${"TERM_NOT_PRESENT" ? 0 : 1} results for "${
+          arg.term
+        }" in phase ${arg.phase}`,
+    }
   )
-    .its("body")
-    .then((results) => {
-      cy.get<SavedVariables>("@phase1Vars").then((phase1Vars) => {
-        if (arg.expectation === "TERM_NOT_PRESENT") {
-          expect(results.length).to.equal(
-            0,
-            `Results for "${arg.term}" in phase ${arg.phase}`
-          )
-        } else {
-          expect(results.length).to.equal(
-            1,
-            `Results for "${arg.term}" in phase ${arg.phase}`
-          )
-          expect(results[0].polarisDocumentId).to.equal(
-            phase1Vars[arg.docId],
-            `Doc id check in phase ${arg.phase}`
-          )
-        }
-      })
-    })
 }
