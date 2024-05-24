@@ -518,5 +518,12 @@ namespace coordinator.Durable.Entity
         {
             throw new NotImplementedException();
         }
+
+        public void SetPiiCmsVersionId(string polarisDocumentId)
+        {
+            var document = GetDocument(polarisDocumentId);
+
+            document.PiiCmsVersionId = document.CmsVersionId;
+        }
     }
 }

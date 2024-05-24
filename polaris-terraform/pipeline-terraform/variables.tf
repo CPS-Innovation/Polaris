@@ -104,6 +104,7 @@ variable "search_service_config" {
 
 variable "pii" {
   type = object({
-    categories = string
+    categories            = string
+    chunk_character_limit = number
   })
 }
