@@ -55,3 +55,8 @@ search_service_config = {
   partition_count               = 1
   is_dynamic_throttling_enabled = true
 }
+
+pii = {
+  categories            = "Address;CreditCardNumber;Email;EUDriversLicenseNumber;EUPassportNumber;IPAddress;Person;PersonType;PhoneNumber;UKDriversLicenseNumber;UKNationalHealthNumber;UKNationalInsuranceNumber;USUKPassportNumber"
+  chunk_character_limit = 1000
+}
