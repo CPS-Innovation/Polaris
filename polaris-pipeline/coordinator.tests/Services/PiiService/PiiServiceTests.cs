@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
-using coordinator.Constants;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Services.OcrResultsService;
@@ -22,17 +21,26 @@ namespace coordinator.tests.Services.PiiServiceTests
         private readonly OcrResultsService _ocrResultsService;
         private readonly Mock<IPolarisBlobStorageService> _blobStorageService;
         private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapper;
+        private readonly IConfiguration _configuration;
         private readonly string[] _piiCategories;
         private const int CaseId = 123456;
         private const string DocumentId = "CMS-1000";
 
         public PiiServiceTests()
         {
+            var inMemorySettings = new Dictionary<string, string> {
+                {"PiiCategories", "Address;PersonType"},
+            };
+
+            _configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+
             _piiEntityMapper = new Mock<PiiEntityMapper>();
             _blobStorageService = new Mock<IPolarisBlobStorageService>();
             _jsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _piiCategories = new string[] { "Person", "Address", "Email" };
-            _piiService = new PiiService(_piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object);
+            _piiService = new PiiService(_piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object, _configuration);
 
             _ocrResultsService = new OcrResultsService(_blobStorageService.Object, _jsonConvertWrapper.Object);
         }

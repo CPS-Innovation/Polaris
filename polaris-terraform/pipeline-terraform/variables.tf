@@ -101,3 +101,9 @@ variable "search_service_config" {
     is_dynamic_throttling_enabled = bool
   })
 }
+
+variable "pii" {
+  type = object({
+    categories = string
+  })
+}
