@@ -413,8 +413,9 @@ const assertSearchExpectation = (arg: SearchAssertionArg) => {
             results.length === (arg.expectation === "TERM_NOT_PRESENT" ? 0 : 1)
         ),
     {
-      timeout: 10 * 1000,
       interval: 3 * 1000,
+      // Lets wait for 4 cycles plus some wiggle room the time it takes for the http calls
+      timeout: 14 * 1000,
       errorMsg: () =>
         `Expected ${"TERM_NOT_PRESENT" ? 0 : 1} results for "${
           arg.term
