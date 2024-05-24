@@ -220,16 +220,39 @@ Cypress.Commands.add("fullLogin", () => {
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
   cy.getADTokens().then((adTokens) => {
-    cy.request({
-      url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
-      method: "DELETE",
-      followRedirect: false,
-      headers: {
-        authorization: `Bearer ${adTokens.access_token}`,
-        "correlation-id": correlationIds.BLANK,
-      },
-      timeout: 5 * 60 * 1000,
-    }).waitUntil(
+    const httpCallTimeoutMs = 32 * 1000
+    const intervalToNextCycleMs = 70 * 1000
+    cy.waitUntil(
+      () =>
+        cy
+          .request({
+            url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
+            method: "DELETE",
+            followRedirect: false,
+            headers: {
+              authorization: `Bearer ${adTokens.access_token}`,
+              "correlation-id": correlationIds.BLANK,
+            },
+            // At the time of writing, nginx will timeout a long running http call after 30 seconds
+            //  so lets cater for that with a 504
+            failOnStatusCode: false,
+            timeout: httpCallTimeoutMs,
+          })
+          .its("status")
+          .then((status) => status === 202),
+      {
+        // Aat the time of writing, DeleteCase will fail internally after 100 seconds, so lets hold off for 70 secs
+        interval: intervalToNextCycleMs,
+        //  and give ourselves 3 goes (plus some wiggle room of 3 seconds)
+        timeout:
+          httpCallTimeoutMs +
+          intervalToNextCycleMs +
+          httpCallTimeoutMs +
+          intervalToNextCycleMs +
+          httpCallTimeoutMs +
+          3 * 1000,
+      }
+    ).waitUntil(
       () =>
         cy
           .request({

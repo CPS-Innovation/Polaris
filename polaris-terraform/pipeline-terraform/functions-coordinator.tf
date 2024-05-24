@@ -18,6 +18,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
     "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
+    "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"

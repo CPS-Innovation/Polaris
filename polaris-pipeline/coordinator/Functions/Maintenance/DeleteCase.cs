@@ -35,7 +35,7 @@ namespace coordinator.Functions.Maintenance
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run
             (
-                [HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.Case)] HttpRequest req,
+                [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req,
                 string caseUrn,
                 int caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
