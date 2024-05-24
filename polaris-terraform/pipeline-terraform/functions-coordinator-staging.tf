@@ -32,7 +32,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
-    "PiiChunkCharacterLimit"                          = 1000
+    "PiiCategories"                                   = var.pii.categories
+    "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
