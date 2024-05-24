@@ -356,6 +356,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "REMOVE_ALL_REDACTIONS",
           payload: { documentId },
         });
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
+          payload: { documentId, show: false },
+        });
 
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
