@@ -25,14 +25,14 @@ export const mapSearchPIIHighlights = (
     const { words, lineIndex } = searchPIIDataItem;
 
     words.forEach((item1) => {
-      if (item1.groupId) {
-        acc[`${item1.groupId}`] = {
-          ...acc[`${item1.groupId}`],
+      if (item1.piiGroupId) {
+        acc[`${item1.piiGroupId}`] = {
+          ...acc[`${item1.piiGroupId}`],
           [`${lineIndex}`]: {
-            ...(acc[`${item1.groupId}`]?.[`${lineIndex}`] ?? {}),
+            ...(acc[`${item1.piiGroupId}`]?.[`${lineIndex}`] ?? {}),
             ...searchPIIDataItem,
             words: [
-              ...(acc[`${item1.groupId}`]?.[`${lineIndex}`]?.words ?? []),
+              ...(acc[`${item1.piiGroupId}`]?.[`${lineIndex}`]?.words ?? []),
               item1,
             ],
           },
@@ -89,7 +89,7 @@ export const mapSearchPIIHighlights = (
             missedRedactionTypes,
             words[0].piiCategory
           ),
-          groupId: words[0].groupId,
+          groupId: words[0].piiGroupId,
         });
       }
     });
