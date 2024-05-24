@@ -1,10 +1,11 @@
+using System;
 using coordinator.Services.OcrResultsService;
 
 namespace coordinator.Domain
 {
     public class ReconciledPiiEntity
     {
-        public ReconciledPiiEntity(OcrLineResult ocrLineResult, OcrWord ocrWord, string piiCategory, string polarisDocumentId)
+        public ReconciledPiiEntity(OcrLineResult ocrLineResult, OcrWord ocrWord, string piiCategory, string polarisDocumentId, Guid entityGroupId)
         {
             PageHeight = ocrLineResult.PageHeight;
             PageWidth = ocrLineResult.PageWidth;
@@ -15,6 +16,7 @@ namespace coordinator.Domain
             Word = ocrWord;
             PiiCategory = piiCategory;
             PolarisDocumentId = polarisDocumentId;
+            EntityGroupId = entityGroupId;
         }
 
         public OcrWord Word { get; protected set; }
@@ -26,5 +28,6 @@ namespace coordinator.Domain
         public int AccumulativeLineIndex { get; protected set; }
         public string LineText { get; protected set; }
         public string PiiCategory { get; protected set; }
+        public Guid EntityGroupId { get; protected set; }
     }
 }
