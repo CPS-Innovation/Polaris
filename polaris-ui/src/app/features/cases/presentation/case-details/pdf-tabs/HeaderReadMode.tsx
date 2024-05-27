@@ -22,7 +22,10 @@ type Props = {
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
-  handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
+  handleShowHideRedactionSuggestions: (
+    documentId: string,
+    showSuggestion: boolean
+  ) => void;
   contextData: {
     documentId: string;
     tabIndex: number;

@@ -1119,6 +1119,10 @@ export const reducer = (
             ...availablePIIData,
             show: show,
             searchPIIHighlights: newSearchPIIHighlights,
+            polarisDocumentVersionId: polarisDocumentVersionId,
+            groupedTextByGroupId: getRedactionSuggestionTextGroupedByGroupId(
+              newSearchPIIHighlights
+            ),
           }
         : {
             show: show,
@@ -1128,6 +1132,8 @@ export const reducer = (
             getSearchPIIStatus: "initial" as const,
             groupedTextByGroupId: {},
           };
+
+      console.log("newData>>>0000", newData);
       return {
         ...state,
         searchPII: [

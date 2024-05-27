@@ -322,7 +322,6 @@ export const PdfViewer: React.FC<Props> = ({
             tabIndex={tabIndex}
             redactionHighlightsCount={redactionHighlights.length}
             suggestedRedactionsCount={suggestedRedactionsCount}
-            searchPIIHighlightsCount={searchPIIHighlights.length}
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}

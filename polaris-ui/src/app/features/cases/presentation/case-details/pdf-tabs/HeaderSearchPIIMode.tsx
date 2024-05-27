@@ -12,7 +12,6 @@ export const HeaderSearchPIIMode: React.FC<Props> = ({
   const groupByRedactionType = useMemo(() => {
     const redactionTypeGroups =
       searchPIIHighlights.reduce((acc, highlight) => {
-        console.log("highlight.redactionType>>", highlight.redactionType);
         const { name } = highlight.redactionType;
         if (!acc[`${name}`]) {
           acc[`${name}`] = 1;

@@ -11,8 +11,8 @@ import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { HeaderSearchPIIMode } from "./HeaderSearchPIIMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
-import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { SearchPIIRedactionWarningModal } from "../modals/SearchPIIRedactionWarningModal";
+import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   caseId: number;
@@ -24,8 +24,8 @@ type PdfTabProps = {
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
-  searchPIIHighlights: ISearchPIIHighlight[];
-  searchPIIGroupedText: Record<string, string>;
+  searchPIIDataItem: SearchPIIData | undefined;
+  polarisDocumentVersionId: number;
   savedDocumentDetails: {
     documentId: string;
     polarisDocumentVersionId: number;
@@ -58,6 +58,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   redactionTypesData,
   activeTabId,
   tabId,
+  polarisDocumentVersionId,
   showOverRedactionLog,
   caseDocumentViewModel,
   headers,
@@ -65,8 +66,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   savedDocumentDetails,
   contextData,
   isOkToSave,
-  searchPIIHighlights,
-  searchPIIGroupedText,
+  searchPIIDataItem,
   handleOpenPdf,
   handleLaunchSearchResults,
   handleAddRedaction,
@@ -99,6 +99,17 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   const searchHighlights =
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
 
+  const searchPIIHighlights = useMemo(() => {
+    if (!searchPIIDataItem?.show) {
+      return [];
+    }
+    return (
+      searchPIIDataItem?.searchPIIHighlights.filter(
+        (highlight) => highlight.redactionStatus === "redacted"
+      ) ?? []
+    );
+  }, [searchPIIDataItem]);
+
   const localHandleAddRedaction = useCallback(
     (redactions: NewPdfHighlight[]) =>
       handleAddRedaction(documentId, redactions),
@@ -112,12 +123,27 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const localHandleRemoveAllRedactions = useCallback(() => {
     handleRemoveAllRedactions(documentId);
-    handleShowHideRedactionSuggestions(documentId, false);
+    handleShowHideRedactionSuggestions(documentId, false, false);
   }, [
     documentId,
     handleRemoveAllRedactions,
     handleShowHideRedactionSuggestions,
   ]);
+
+  const localHandleShowHideRedactionSuggestions = useCallback(
+    (documentId, showSuggestion) => {
+      handleShowHideRedactionSuggestions(
+        documentId,
+        showSuggestion,
+        searchPIIDataItem?.polarisDocumentVersionId !== polarisDocumentVersionId
+      );
+    },
+    [
+      handleShowHideRedactionSuggestions,
+      searchPIIDataItem,
+      polarisDocumentVersionId,
+    ]
+  );
 
   const localHandleSavedRedactions = () => {
     if (isSearchPIIOn) {
@@ -169,7 +195,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleShowRedactionLogModal={handleShowRedactionLogModal}
           handleAreaOnlyRedaction={handleAreaOnlyRedaction}
           handleShowHideRedactionSuggestions={
-            handleShowHideRedactionSuggestions
+            localHandleShowHideRedactionSuggestions
           }
           contextData={{
             documentId: documentId,
@@ -210,7 +236,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           searchPIIHighlights={searchPIIHighlights}
-          searchPIIGroupedText={searchPIIGroupedText}
+          searchPIIGroupedText={searchPIIDataItem?.groupedTextByGroupId ?? {}}
           documentWriteStatus={documentWriteStatus}
           contextData={{
             documentId,

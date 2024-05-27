@@ -10,7 +10,8 @@ const getMissedRedactionType = (
 ) => {
   return (
     missedRedactionTypes.find(
-      (redactionType) => redactionType.name === piiCategory
+      (redactionType) =>
+        redactionType.name?.toLowerCase() === piiCategory?.toLowerCase()
     ) ?? { id: "", name: "" }
   );
 };

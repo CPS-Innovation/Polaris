@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Button } from "../../../../../common/presentation/components";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
@@ -14,7 +13,6 @@ type Props = {
   tabIndex: number;
   redactionHighlightsCount: number;
   suggestedRedactionsCount: number;
-  searchPIIHighlightsCount: number;
   isOkToSave: boolean;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -25,7 +23,6 @@ export const Footer: React.FC<Props> = ({
   tabIndex,
   redactionHighlightsCount,
   suggestedRedactionsCount,
-  searchPIIHighlightsCount,
   isOkToSave,
   handleRemoveAllRedactions,
   handleSavedRedactions,

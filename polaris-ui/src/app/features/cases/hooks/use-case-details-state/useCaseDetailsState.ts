@@ -440,7 +440,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      showSuggestion: boolean
+      showSuggestion: boolean,
+      getData: boolean
     ) => {
       dispatch({
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
@@ -449,7 +450,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           show: showSuggestion,
         },
       });
-      if (showSuggestion)
+      if (getData)
         dispatch({
           type: "GET_SEARCH_PII_DATA",
           payload: {

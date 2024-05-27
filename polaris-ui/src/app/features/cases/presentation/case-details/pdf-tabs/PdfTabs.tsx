@@ -73,7 +73,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   const localHandleClosePdf = useCallback(
     (documentId: string) => {
       handleClosePdf(documentId);
-      handleShowHideRedactionSuggestions(documentId, false);
+      handleShowHideRedactionSuggestions(documentId, false, false);
     },
     [handleClosePdf, handleShowHideRedactionSuggestions]
   );
@@ -88,18 +88,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               caseId={caseId}
-              searchPIIHighlights={
-                searchPIIData
-                  .find((data) => data.documentId === item.documentId)
-                  ?.searchPIIHighlights.filter(
-                    (highlight) => highlight.redactionStatus === "redacted"
-                  ) ?? []
-              }
-              searchPIIGroupedText={
-                searchPIIData.find(
-                  (data) => data.documentId === item.documentId
-                )?.groupedTextByGroupId ?? {}
-              }
+              searchPIIDataItem={searchPIIData.find(
+                (data) => data.documentId === item.documentId
+              )}
               tabIndex={index}
               showOverRedactionLog={showOverRedactionLog}
               redactionTypesData={redactionTypesData}
@@ -126,6 +117,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}
+              polarisDocumentVersionId={item.polarisDocumentVersionId}
             />
           ),
         },
