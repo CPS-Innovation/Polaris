@@ -1,5 +1,5 @@
-import { RedactionSaveRequest } from "../../../../gateway/RedactionSaveRequest"
-import { CorrelationId, correlationIds } from "../../../support/correlation-ids"
+import { RedactionSaveRequest } from "../../../gateway/RedactionSaveRequest"
+import { CorrelationId, correlationIds } from "../correlation-ids"
 
 const { API_ROOT_DOMAIN } = Cypress.env()
 

@@ -1,9 +1,9 @@
 /// <reference types="cypress" />
 import "cypress-wait-until"
-import { PipelineResults } from "../../../gateway/PipelineResults"
-import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
-import { WAIT_UNTIL_OPTIONS } from "../../support/options"
-import { isTrackerReady } from "./helpers/tracker-helpers"
+import { PipelineResults } from "../../gateway/PipelineResults"
+import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes"
+import { WAIT_UNTIL_OPTIONS } from "../support/options"
+import { isTrackerReady } from "../support/helpers/tracker-helpers"
 
 const {
   CONVERSION_FAILURE_CASE_URN,

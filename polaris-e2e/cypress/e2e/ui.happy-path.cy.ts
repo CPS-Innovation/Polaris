@@ -4,11 +4,9 @@ const {
   HAPPY_PATH_URN,
   HAPPY_PATH_TARGET_DEFENDANT_NAME,
   HAPPY_PATH_TARGET_DOCUMENT_NAME,
-  HAPPY_PATH_NOTES_DOCUMENT_ID,
   HAPPY_PATH_TARGET_SEARCH_TEXT,
   HAPPY_PATH_CASE_ID,
   PRE_SEARCH_DELAY_MS,
-  HAPPY_PATH_NOTES_TARGET_TEXT,
 } = Cypress.env()
 
 describe("Happy Path", { tags: "@ci" }, () => {
@@ -53,6 +51,23 @@ describe("Happy Path", { tags: "@ci" }, () => {
     // have all docs processed ok?
     // (do this last to give the indexing time to work while we assert the above)
     cy.findByTestId("span-flag-all-indexed")
+
+    //verify that under/over redaction log feature is available
+    cy.findByText(HAPPY_PATH_TARGET_DOCUMENT_NAME).click()
+    cy.findByTestId("document-actions-dropdown-0").click()
+    cy.findByTestId("dropdown-panel")
+      .contains("Log an Under/Over redaction")
+      .click()
+    cy.findByTestId("div-modal").should("have.length", 1)
+    cy.findByTestId("rl-under-over-redaction-content").should("be.visible")
+    cy.findByTestId("btn-redaction-log-cancel").click()
+
+    //verify that under redaction log feature is available
+    cy.selectPDFTextElement("Multi Media Evidence")
+    cy.findByTestId("btn-redact").should("be.disabled")
+    cy.findByTestId("select-redaction-type").should("have.length", 1)
+    cy.findByTestId("select-redaction-type").select("2")
+    cy.findByTestId("btn-redact").should("not.be.disabled")
   })
 })
 
