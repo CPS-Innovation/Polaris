@@ -14,9 +14,6 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
   network_acls {
     default_action = "Deny"
     virtual_network_rules {
-      subnet_id = data.azurerm_subnet.polaris_textextractor_subnet.id
-    }
-    virtual_network_rules {
       subnet_id = data.azurerm_subnet.polaris_apps_subnet.id
     }
     virtual_network_rules {

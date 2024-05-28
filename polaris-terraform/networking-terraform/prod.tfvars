@@ -1,6 +1,6 @@
 environment = {
-  name       = "production"
-  alias      = "prod"
+  name  = "production"
+  alias = "prod"
 }
 
 ddeiServicesSubnet                  = "10.7.204.32/27"
@@ -8,7 +8,7 @@ polarisPipelineSaSubnet             = "10.7.204.96/28"
 polarisPipelineCoordinatorSubnet    = "10.7.204.208/28"
 polarisPipelinePdfGeneratorSubnet   = "10.7.204.80/28"
 polarisPipelinePdfRedactorSubnet    = "10.7.205.224/28"
-polarisPipelineTextExtractorSubnet  = "10.7.205.0/28"
+polarisAlertNotificationsSubnet     = "10.7.205.128/28"
 polarisPipelineTextExtractor2Subnet = "10.7.204.0/28"
 polarisGatewaySubnet                = "10.7.204.192/28"
 polarisUiSubnet                     = "10.7.204.16/28"

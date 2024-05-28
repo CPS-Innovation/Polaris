@@ -11,8 +11,8 @@ variable "app_name_prefix" {
 
 variable "environment" {
   type = object({
-    name       = string
-    alias      = string
+    name  = string
+    alias = string
   })
 }
 
@@ -35,7 +35,7 @@ variable "polarisPipelinePdfGeneratorSubnet" {
 variable "polarisPipelinePdfRedactorSubnet" {
 }
 
-variable "polarisPipelineTextExtractorSubnet" {
+variable "polarisAlertNotificationsSubnet" {
 }
 
 variable "polarisPipelineTextExtractor2Subnet" {

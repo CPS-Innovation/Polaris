@@ -1,8 +1,8 @@
 #touched file to prompt a PR build
 
 environment = {
-  name       = "development"
-  alias      = "dev"
+  name  = "development"
+  alias = "dev"
 }
 
 ddeiServicesSubnet                  = "10.7.196.64/27"
@@ -10,7 +10,7 @@ polarisPipelineSaSubnet             = "10.7.196.96/28"
 polarisPipelineCoordinatorSubnet    = "10.7.196.112/28"
 polarisPipelinePdfGeneratorSubnet   = "10.7.196.128/28"
 polarisPipelinePdfRedactorSubnet    = "10.7.197.224/28"
-polarisPipelineTextExtractorSubnet  = "10.7.196.144/28"
+polarisAlertNotificationsSubnet     = "10.7.197.128/28"
 polarisPipelineTextExtractor2Subnet = "10.7.197.0/28"
 polarisGatewaySubnet                = "10.7.196.176/28"
 polarisUiSubnet                     = "10.7.196.0/28"
