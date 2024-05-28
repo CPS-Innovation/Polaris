@@ -127,7 +127,7 @@ export const RedactButton: React.FC<Props> = ({
             >
               Ignore
             </Button>
-            {searchPIIData.count > 0 && (
+            {searchPIIData.count > 1 && (
               <Button
                 disabled={false}
                 onClick={() => handleBtnClick("ignoreAll")}
