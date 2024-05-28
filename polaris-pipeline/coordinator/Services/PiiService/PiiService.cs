@@ -63,6 +63,7 @@ namespace coordinator.Services.PiiService
             {
                 foreach (var piiEntity in item.Entities)
                 {
+                    var entityGroupId = Guid.NewGuid();
                     var words = piiEntity.GetWordsWithOffset();
                     var chunk = piiChunks[itemIndex];
 
@@ -73,7 +74,7 @@ namespace coordinator.Services.PiiService
                         var category = GetRedactionLogCategoryMapping(piiEntity.Category);
 
                         if (ocrWord != null)
-                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, category, chunk.DocumentId));
+                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, category, chunk.DocumentId, entityGroupId));
                     }
                 }
             }
@@ -131,7 +132,8 @@ namespace coordinator.Services.PiiService
                 {
                     Text = entity.Word.Text,
                     BoundingBox = entity.Word.BoundingBox,
-                    PiiCategory = entity.PiiCategory
+                    PiiCategory = entity.PiiCategory,
+                    PiiGroupId = entity.EntityGroupId
                 };
                 if (wordIndex != -1)
                     piiLine.Words[wordIndex] = word;
