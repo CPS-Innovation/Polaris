@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Common.Domain.SearchIndex;
 using Newtonsoft.Json;
@@ -19,5 +20,8 @@ namespace Common.Domain.Pii
 
         [JsonProperty(PropertyName = "piiCategory")]
         public string PiiCategory { get; set; }
+
+        [JsonProperty(PropertyName = "piiGroupId")]
+        public Guid? PiiGroupId { get; set; }
     }
 }

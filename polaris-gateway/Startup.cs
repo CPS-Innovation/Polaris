@@ -8,7 +8,6 @@ using PolarisGateway.Mappers;
 using PolarisGateway.Validators;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Common.Telemetry;
@@ -70,8 +69,6 @@ namespace PolarisGateway
             }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
-
-            services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
