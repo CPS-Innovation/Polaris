@@ -24,7 +24,6 @@ import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
-import { roundToFixedDecimalPlaces } from "../../../../cases/hooks/utils/redactionUtils";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 
 const SCROLL_TO_OFFSET = 120;
@@ -45,7 +44,6 @@ type Props = {
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
   searchPIIHighlights: ISearchPIIHighlight[];
-  searchPIIGroupedText: Record<string, string>;
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
@@ -73,7 +71,6 @@ export const PdfViewer: React.FC<Props> = ({
   searchHighlights = [],
   searchPIIHighlights,
   redactionHighlights,
-  searchPIIGroupedText,
   isOkToSave,
   areaOnlyRedactionMode,
   handleAddRedaction,
@@ -108,14 +105,13 @@ export const PdfViewer: React.FC<Props> = ({
   }, [searchHighlights, focussedHighlightIndex]);
 
   const getPIISuggestionsWithSameText = useCallback(
-    (groupId: string) => {
-      const redactionText = searchPIIGroupedText[groupId];
-      const redactionSuggestionWithSameText = Object.entries(
-        searchPIIGroupedText
-      ).filter((keyValue) => keyValue[1] === redactionText);
+    (redactionText: string = "") => {
+      const redactionSuggestionWithSameText = searchPIIHighlights.filter(
+        (highlight) => highlight.textContent === redactionText
+      );
       return redactionSuggestionWithSameText;
     },
-    [searchPIIGroupedText]
+    [searchPIIHighlights]
   );
 
   const addRedaction = useCallback(
@@ -159,8 +155,10 @@ export const PdfViewer: React.FC<Props> = ({
   );
 
   const suggestedRedactionsCount = useMemo(() => {
-    return Object.keys(searchPIIGroupedText).length;
-  }, [searchPIIGroupedText]);
+    return searchPIIHighlights.filter(
+      (highlight) => highlight.redactionStatus === "redacted"
+    ).length;
+  }, [searchPIIHighlights]);
 
   return (
     <>
@@ -229,14 +227,10 @@ export const PdfViewer: React.FC<Props> = ({
                     <RedactButton
                       searchPIIData={{
                         searchPIIOn: content.highlightType === "searchPII",
-                        textContent: content.highlightGroupId
-                          ? searchPIIGroupedText[content.highlightGroupId] ?? ""
-                          : "",
+                        textContent: content?.text ?? "",
 
                         count: content.highlightGroupId
-                          ? getPIISuggestionsWithSameText(
-                              content.highlightGroupId
-                            )?.length
+                          ? getPIISuggestionsWithSameText(content?.text)?.length
                           : 0,
                       }}
                       redactionTypesData={redactionTypesData}
@@ -254,11 +248,7 @@ export const PdfViewer: React.FC<Props> = ({
                             addRedaction(
                               position,
                               {
-                                text: content.highlightGroupId
-                                  ? searchPIIGroupedText[
-                                      content.highlightGroupId
-                                    ] ?? ""
-                                  : content.text ?? "",
+                                text: content.text ?? "",
                                 image: content?.image,
                               },
                               redactionType

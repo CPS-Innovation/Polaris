@@ -236,11 +236,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           searchPIIHighlights={searchPIIHighlights}
-          searchPIIGroupedText={
-            searchPIIDataItem?.show
-              ? searchPIIDataItem?.groupedTextByGroupId ?? {}
-              : {}
-          }
           documentWriteStatus={documentWriteStatus}
           contextData={{
             documentId,

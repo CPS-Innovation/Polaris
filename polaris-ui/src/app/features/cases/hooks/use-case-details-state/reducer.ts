@@ -39,9 +39,7 @@ import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
-import { SearchPIIData } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
-import { getRedactionSuggestionTextGroupedByGroupId } from "../utils/searchPIIUtils";
 export const reducer = (
   state: CombinedState,
   action:
@@ -1120,9 +1118,6 @@ export const reducer = (
             show: show,
             searchPIIHighlights: newSearchPIIHighlights,
             polarisDocumentVersionId: polarisDocumentVersionId,
-            groupedTextByGroupId: getRedactionSuggestionTextGroupedByGroupId(
-              newSearchPIIHighlights
-            ),
           }
         : {
             show: show,
@@ -1130,7 +1125,6 @@ export const reducer = (
             polarisDocumentVersionId: polarisDocumentVersionId,
             searchPIIHighlights: [],
             getSearchPIIStatus: "initial" as const,
-            groupedTextByGroupId: {},
           };
 
       console.log("newData>>>0000", newData);
@@ -1163,9 +1157,6 @@ export const reducer = (
         missedRedactionTypesData
       );
 
-      const groupedTextByGroupId =
-        getRedactionSuggestionTextGroupedByGroupId(searchPIIHighlights);
-
       const sortedSearchPIIHighlights =
         sortSearchHighlights(searchPIIHighlights);
       return {
@@ -1177,7 +1168,6 @@ export const reducer = (
             documentId,
             searchPIIHighlights: sortedSearchPIIHighlights,
             getSearchPIIStatus: getSearchPIIStatus,
-            groupedTextByGroupId,
           },
         ],
       };
@@ -1195,33 +1185,20 @@ export const reducer = (
         (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
       )!;
 
-      let groupIdsTobeIgnored = [highlightGroupId];
-      if (ignoreAll) {
-        const ignoredText =
-          searchPIIDataItem.groupedTextByGroupId[`${highlightGroupId}`];
-        groupIdsTobeIgnored = Object.entries(
-          searchPIIDataItem.groupedTextByGroupId
-        )
-          .filter((keyValue) => keyValue[1] === ignoredText)
-          .map((keyValue) => keyValue[0]);
-      }
-      const newHighlights = searchPIIDataItem.searchPIIHighlights.map(
-        (highlight) => {
-          console.log("textContent>>>>,", textContent);
-          console.log("highlight.textContent>>>>,", highlight.textContent);
+      let newHighlights: ISearchPIIHighlight[] = [];
 
-          if (groupIdsTobeIgnored.includes(highlight.groupId)) {
-            console.log("ignored....0000");
+      newHighlights = searchPIIDataItem.searchPIIHighlights.map((highlight) => {
+        if (ignoreAll) {
+          if (highlight.textContent === textContent) {
             highlight.redactionStatus = "ignored";
           }
-
           return highlight;
         }
-      );
-      const groupedTextByGroupId =
-        getRedactionSuggestionTextGroupedByGroupId(newHighlights);
-
-      console.log("groupedTextByGroupId>>0000", groupedTextByGroupId);
+        if (highlight.groupId === highlightGroupId) {
+          highlight.redactionStatus = "ignored";
+        }
+        return highlight;
+      });
 
       const newState = {
         ...state,
@@ -1230,7 +1207,6 @@ export const reducer = (
           {
             ...searchPIIDataItem,
             searchPIIHighlights: newHighlights,
-            groupedTextByGroupId,
           },
         ],
       };
