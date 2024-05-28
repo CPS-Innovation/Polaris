@@ -89,7 +89,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
               items={[
                 {
                   children:
-                    "I have manually checked all selected redactions in the document?",
+                    "I have manually checked all selected redactions in the document",
                   value: "yes",
                 },
               ]}
