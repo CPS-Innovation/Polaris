@@ -66,7 +66,7 @@ namespace Common.Services.BlobStorageService
         public async Task DeleteBlobsByCaseAsync(string caseId)
         {
             var blobCount = 0;
-            var targetFolderPath = $"{caseId}/pdfs";
+            var targetFolderPath = caseId;
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");

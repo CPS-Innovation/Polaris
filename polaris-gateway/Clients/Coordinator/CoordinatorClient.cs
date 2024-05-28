@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.ValueObjects;
@@ -57,11 +58,21 @@ namespace PolarisGateway.Clients.Coordinator
 
         public async Task<HttpResponseMessage> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
         {
-            return await SendRequestAsync(
+            var response = await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetCaseTrackerPath(caseUrn, caseId),
-                correlationId);
+                correlationId, skipRetry: true);
+
+
+            // #27357 we return 404 if 503 or 502 status code is returned. The client handles 404s and continues to poll
+            if (response.StatusCode == HttpStatusCode.ServiceUnavailable || response.StatusCode == HttpStatusCode.BadGateway)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            return response;
         }
+
 
         public async Task<HttpResponseMessage> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
@@ -126,9 +137,21 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(addDocumentNoteRequestDto), Encoding.UTF8, "application/json"));
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null)
+        public async Task<HttpResponseMessage> GetPii(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Put,
+                RestApi.GetPiiPath(caseUrn, caseId, polarisDocumentId),
+                correlationId);
+        }
+
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
+            if (skipRetry)
+            {
+                request.Headers.Add("X-Skip-Retry", "true");
+            }
             return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
     }

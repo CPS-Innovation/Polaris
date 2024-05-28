@@ -12,7 +12,7 @@ pipeline_logging = {
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku           = "EP2"
+  coordinator_service_plan_sku           = "EP3"
   coordinator_always_ready_instances     = 1
   coordinator_maximum_scale_out_limit    = 1
   coordinator_plan_maximum_burst         = 10
@@ -55,4 +55,9 @@ search_service_config = {
   replica_count                 = 3
   partition_count               = 6
   is_dynamic_throttling_enabled = true
+}
+
+pii = {
+  categories            = "Address;CreditCardNumber;Email;EUDriversLicenseNumber;EUPassportNumber;IPAddress;Person;PersonType;PhoneNumber;UKDriversLicenseNumber;UKNationalHealthNumber;UKNationalInsuranceNumber;USUKPassportNumber"
+  chunk_character_limit = 1000
 }

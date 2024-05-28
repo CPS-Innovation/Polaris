@@ -75,7 +75,7 @@ namespace Common.Tests.Handlers
         }
 
         [Fact]
-        public async void HandleExceptionWithData_Returns()
+        public async Task HandleExceptionWithData_Returns()
         {
             var ocrCompletedTime = DateTime.Now;
 

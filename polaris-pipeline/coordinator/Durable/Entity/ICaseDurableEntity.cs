@@ -37,6 +37,8 @@ namespace coordinator.Durable.Entity
         [Obsolete]
         void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
 
+        void SetPiiCmsVersionId(string polarisDocumentId);
+
         [Obsolete]
         Task<bool> AllDocumentsFailed();
 

@@ -36,8 +36,8 @@ export const ReportAnIssueModal: React.FC<Props> = ({
     trackEvent("Report Document Issue", {
       documentId: documentId,
       documentTypeId: documentTypeId,
-      polarisVersionId: correlationId,
-      correlationId: polarisDocumentVersionId,
+      polarisVersionId: polarisDocumentVersionId,
+      correlationId: correlationId,
       fileName: presentationTitle,
       moreDetails: issueDescription,
     });
