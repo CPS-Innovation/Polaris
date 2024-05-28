@@ -333,7 +333,7 @@ export const getSearchPIIData = async (
 ) => {
   const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/searchPii`
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/pii`
   );
 
   const response = await internalFetch(path, {

@@ -85,36 +85,35 @@ export const RedactButton: React.FC<Props> = ({
       )}
       <div className={classes.contentWrapper}>
         {!searchPIIData.searchPIIOn && redactionTypesData.length > 0 && (
-          <>
-            <div className="govuk-form-group">
-              <Select
-                label={{
-                  htmlFor: "select-redaction-type",
-                  children: "Select Redaction Type",
-                  className: classes.sortLabel,
-                }}
-                id="select-redaction-type"
-                data-testid="select-redaction-type"
-                value={redactionType}
-                items={getMappedRedactionTypes(redactionTypesData)}
-                formGroup={{
-                  className: classes.select,
-                }}
-                onChange={(ev) => setRedactionType(ev.target.value)}
-              />
-            </div>
-
-            <Button
-              disabled={redactionTypesData.length ? !redactionType : false}
-              className={classes.redactButton}
-              onClick={() => handleBtnClick("redact")}
-              data-testid="btn-redact"
-              id="btn-redact"
-            >
-              Redact
-            </Button>
-          </>
+          <div className="govuk-form-group">
+            <Select
+              label={{
+                htmlFor: "select-redaction-type",
+                children: "Select Redaction Type",
+                className: classes.sortLabel,
+              }}
+              id="select-redaction-type"
+              data-testid="select-redaction-type"
+              value={redactionType}
+              items={getMappedRedactionTypes(redactionTypesData)}
+              formGroup={{
+                className: classes.select,
+              }}
+              onChange={(ev) => setRedactionType(ev.target.value)}
+            />
+          </div>
         )}
+
+        <Button
+          disabled={redactionTypesData.length ? !redactionType : false}
+          className={classes.redactButton}
+          onClick={() => handleBtnClick("redact")}
+          data-testid="btn-redact"
+          id="btn-redact"
+        >
+          Redact
+        </Button>
+
         {searchPIIData.searchPIIOn && (
           <>
             <Button

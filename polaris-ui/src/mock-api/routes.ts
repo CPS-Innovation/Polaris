@@ -20,4 +20,4 @@ export const NOTES_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/notes";
 
 export const SEARCH_PII_ROUTE =
-  "api/urns/:urn/cases/:caseId/documents/:documentId/searchPii";
+  "api/urns/:urn/cases/:caseId/documents/:documentId/pii";
