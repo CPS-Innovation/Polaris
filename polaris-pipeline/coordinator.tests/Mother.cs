@@ -74,13 +74,13 @@ namespace coordinator.tests
         public static Func<OcrLineResult> OcrLineResult1 { get; } = () => new(OcrLine4(), ReadResult1(), 0, null);
 
         public static Func<ReconciledPiiEntity> ReconciledPiiEntity1 { get; } = () =>
-            new(OcrLineResult1(), new coordinator.Services.OcrResultsService.OcrWord(Word4(), 15), "Organization", "CMS-112233");
+            new(OcrLineResult1(), new coordinator.Services.OcrResultsService.OcrWord(Word4(), 15), "Organization", "CMS-112233", Guid.NewGuid());
 
         public static Func<ReconciledPiiEntity> ReconciledPiiEntity2 { get; } = () =>
-            new(OcrLineResult1(), new coordinator.Services.OcrResultsService.OcrWord(Word12(), 61), "Organization", "CMS-112233");
+            new(OcrLineResult1(), new coordinator.Services.OcrResultsService.OcrWord(Word12(), 61), "Organization", "CMS-112233", Guid.NewGuid());
 
         public static Func<ReconciledPiiEntity> ReconciledPiiEntity3 { get; } = () =>
-            new(OcrLineResult1(), new coordinator.Services.OcrResultsService.OcrWord(Word13(), 68), "Organization", "CMS-112233");
+            new(OcrLineResult1(), new coordinator.Services.OcrResultsService.OcrWord(Word13(), 68), "Organization", "CMS-112233", Guid.NewGuid());
 
         public static Func<IEnumerable<Line>> OcrLines { get; } = () => new[]
         {
