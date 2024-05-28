@@ -20,7 +20,7 @@ export const mapSearchPIIHighlights = (
   searchPIIDataItems: SearchPIIResultItem[],
   missedRedactionTypes: RedactionTypeData[]
 ): ISearchPIIHighlight[] => {
-  const results: ISearchPIIHighlight[] = [];
+  let results: ISearchPIIHighlight[] = [];
 
   const groupWords = searchPIIDataItems.reduce((acc, searchPIIDataItem) => {
     const { words, lineIndex } = searchPIIDataItem;
@@ -46,10 +46,6 @@ export const mapSearchPIIHighlights = (
   console.log("groupWords>>", groupWords);
 
   Object.keys(groupWords).forEach((groupKey) => {
-    console.log(
-      "Object.keys(groupWords[groupKey])>>",
-      Object.keys(groupWords[groupKey])
-    );
     Object.keys(groupWords[groupKey]).forEach((key) => {
       const searchPIIDataItem = groupWords[groupKey][key];
       const { pageIndex, pageHeight, pageWidth, words } = searchPIIDataItem;
@@ -72,26 +68,51 @@ export const mapSearchPIIHighlights = (
           return acc;
         }, "");
 
-        results.push({
-          // note: subsequent sorting means that the ids emerging from this function
-          //  are not in regular ascending order
-          id: `${groupKey}-${key}`,
-          type: "searchPII",
-          highlightType: "linear",
-          redactionStatus: "redacted",
-          textContent: textContent,
-          position: {
-            pageNumber: pageIndex,
-            boundingRect: rect,
-            rects: [rect],
-          },
-          piiCategory: words[0].piiCategory,
-          redactionType: getMissedRedactionType(
-            missedRedactionTypes,
-            words[0].piiCategory
-          ),
-          groupId: words[0].piiGroupId,
-        });
+        const filteredHighlights = results.filter(
+          (item) => item.id !== groupKey
+        );
+
+        const existingGroupHighlight = results.find(
+          (item) => item.id === groupKey
+        );
+
+        if (existingGroupHighlight) {
+          results = [
+            ...filteredHighlights,
+            {
+              ...existingGroupHighlight,
+              textContent: `${existingGroupHighlight.textContent} ${textContent}`,
+              position: {
+                ...existingGroupHighlight.position,
+                rects: [...existingGroupHighlight.position.rects, rect],
+              },
+            },
+          ];
+        } else {
+          results = [
+            ...results,
+            {
+              // note: subsequent sorting means that the ids emerging from this function
+              //  are not in regular ascending order
+              id: groupKey,
+              type: "searchPII",
+              highlightType: "linear",
+              redactionStatus: "redacted",
+              textContent: textContent,
+              position: {
+                pageNumber: pageIndex,
+                boundingRect: rect,
+                rects: [rect],
+              },
+              piiCategory: words[0].piiCategory,
+              redactionType: getMissedRedactionType(
+                missedRedactionTypes,
+                words[0].piiCategory
+              ),
+              groupId: words[0].piiGroupId,
+            },
+          ];
+        }
       }
     });
   });
