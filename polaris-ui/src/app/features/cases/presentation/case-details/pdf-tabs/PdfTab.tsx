@@ -132,11 +132,12 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const localHandleShowHideRedactionSuggestions = useCallback(
     (documentId, showSuggestion) => {
-      handleShowHideRedactionSuggestions(
-        documentId,
-        showSuggestion,
-        searchPIIDataItem?.polarisDocumentVersionId !== polarisDocumentVersionId
-      );
+      const getData =
+        searchPIIDataItem?.getSearchPIIStatus === "failure"
+          ? true
+          : searchPIIDataItem?.polarisDocumentVersionId !==
+            polarisDocumentVersionId;
+      handleShowHideRedactionSuggestions(documentId, showSuggestion, getData);
     },
     [
       handleShowHideRedactionSuggestions,

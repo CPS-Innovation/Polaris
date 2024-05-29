@@ -199,9 +199,9 @@ export const setupHandlers = ({
     }),
 
     rest.get(makeApiPath(routes.SEARCH_PII_ROUTE), (req, res, ctx) => {
-      // const { documentId } = req.params;
       const results = searchPIIDataSources[sourceName];
       return res(delay(ctx), ctx.json(results));
+      // return res(ctx.status(500), ctx.body("test_user_name"));
     }),
   ];
 };

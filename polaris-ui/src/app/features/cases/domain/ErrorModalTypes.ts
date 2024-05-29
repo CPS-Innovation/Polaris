@@ -5,4 +5,5 @@ export type ErrorModalTypes =
   | "documentalreadycheckedout"
   | "addnote"
   | "getnotes"
+  | "getsearchpii"
   | "";

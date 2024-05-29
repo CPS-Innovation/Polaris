@@ -601,7 +601,27 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       } catch (e) {
-        console.log("error>>");
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "getsearchpii",
+            title: "Something went wrong!",
+            message:
+              "Failed to get redaction suggestions for the documents. Please try again.",
+          },
+        });
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
+          payload: { documentId, show: false },
+        });
+        dispatch({
+          type: "UPDATE_SEARCH_PII_DATA",
+          payload: {
+            documentId,
+            searchPIIResult: [],
+            getSearchPIIStatus: "failure",
+          },
+        });
       }
     },
 };
