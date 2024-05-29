@@ -103,17 +103,17 @@ export const RedactButton: React.FC<Props> = ({
             />
           </div>
         )}
-
-        <Button
-          disabled={redactionTypesData.length ? !redactionType : false}
-          className={classes.redactButton}
-          onClick={() => handleBtnClick("redact")}
-          data-testid="btn-redact"
-          id="btn-redact"
-        >
-          Redact
-        </Button>
-
+        {!searchPIIData.searchPIIOn && (
+          <Button
+            disabled={redactionTypesData.length ? !redactionType : false}
+            className={classes.redactButton}
+            onClick={() => handleBtnClick("redact")}
+            data-testid="btn-redact"
+            id="btn-redact"
+          >
+            Redact
+          </Button>
+        )}
         {searchPIIData.searchPIIOn && (
           <>
             <Button
