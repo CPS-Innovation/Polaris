@@ -358,7 +358,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
-          payload: { documentId, show: false },
+          payload: { documentId, show: false, getData: false },
         });
 
         dispatch({
@@ -612,7 +612,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
-          payload: { documentId, show: false },
+          payload: { documentId, show: false, getData: false },
         });
         dispatch({
           type: "UPDATE_SEARCH_PII_DATA",

@@ -448,6 +448,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         payload: {
           documentId,
           show: showSuggestion,
+          getData: getData,
         },
       });
       if (getData)

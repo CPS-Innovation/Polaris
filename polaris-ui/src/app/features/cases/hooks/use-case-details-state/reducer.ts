@@ -209,6 +209,7 @@ export const reducer = (
         payload: {
           documentId: string;
           show: boolean;
+          getData: boolean;
         };
       }
     | {
@@ -1099,7 +1100,7 @@ export const reducer = (
     }
 
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
-      const { documentId, show } = action.payload;
+      const { documentId, show, getData } = action.payload;
       const polarisDocumentVersionId = state.tabsState.items.find(
         (data) => data.documentId === documentId
       )?.polarisDocumentVersionId!;
@@ -1116,7 +1117,7 @@ export const reducer = (
         ? {
             ...availablePIIData,
             show: show,
-            searchPIIHighlights: newSearchPIIHighlights,
+            searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
             polarisDocumentVersionId: polarisDocumentVersionId,
           }
         : {
