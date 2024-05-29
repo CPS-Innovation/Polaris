@@ -41,10 +41,6 @@ export const RedactButton: React.FC<Props> = ({
   useFocusTrap("#redact-modal");
   useLastFocus();
 
-  useEffect(() => {
-    if (redactionType) setRedactionType(redactionType);
-  }, []);
-
   const handleBtnClick = (actionType: "redact" | "ignore" | "ignoreAll") => {
     if (redactionTypesData.length && actionType === "redact") {
       const selectedType = redactionTypesData.find(
