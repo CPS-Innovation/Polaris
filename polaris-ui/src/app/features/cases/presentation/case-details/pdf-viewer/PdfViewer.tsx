@@ -80,7 +80,6 @@ export const PdfViewer: React.FC<Props> = ({
   focussedHighlightIndex,
   handleIgnoreRedactionSuggestion,
 }) => {
-  console.log("searchPIIHighlights>>>>>11111", searchPIIHighlights);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();

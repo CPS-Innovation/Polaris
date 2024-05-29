@@ -340,7 +340,7 @@ export const getSearchPIIData = async (
   });
 
   if (!response.ok) {
-    throw new ApiError("Get Notes failed", path, response);
+    throw new ApiError("Get search PII data failed", path, response);
   }
 
   return (await response.json()) as SearchPIIResultItem[];

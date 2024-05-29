@@ -43,8 +43,6 @@ export const mapSearchPIIHighlights = (
     return acc;
   }, {} as Record<string, { [key: string]: SearchPIIResultItem }>);
 
-  console.log("groupWords>>", groupWords);
-
   Object.keys(groupWords).forEach((groupKey) => {
     Object.keys(groupWords[groupKey]).forEach((key) => {
       const searchPIIDataItem = groupWords[groupKey][key];
@@ -92,8 +90,6 @@ export const mapSearchPIIHighlights = (
           results = [
             ...results,
             {
-              // note: subsequent sorting means that the ids emerging from this function
-              //  are not in regular ascending order
               id: groupKey,
               type: "searchPII",
               highlightType: "linear",
@@ -116,6 +112,6 @@ export const mapSearchPIIHighlights = (
       }
     });
   });
-  console.log("results>>>", results);
+
   return results;
 };

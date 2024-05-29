@@ -309,8 +309,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const document = items.find((item) => item.documentId === documentId)!;
       const { redactionHighlights, polarisDocumentVersionId } = document;
 
-      console.log("redactionHighlights>>>", redactionHighlights);
-
       let combinedRedactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[] =
         redactionHighlights;
       if (searchPIIOn) {

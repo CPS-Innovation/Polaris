@@ -13,7 +13,6 @@ type Props = {
   documentId: string;
   polarisDocumentVersionId?: number;
   searchPIIHighlights: ISearchPIIHighlight[];
-  presentationTitle?: string;
   hideRedactionWarningModal: () => void;
   handleContinue: () => void;
 };
@@ -22,7 +21,6 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   documentId,
   polarisDocumentVersionId,
   searchPIIHighlights,
-  presentationTitle,
   hideRedactionWarningModal,
   handleContinue,
 }) => {
@@ -46,7 +44,6 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
     hideRedactionWarningModal();
   };
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleCheckboxChange>>>", e.target.checked);
     setUserConfirmation(e.target.checked);
   };
 

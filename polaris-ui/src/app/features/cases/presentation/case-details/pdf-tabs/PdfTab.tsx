@@ -269,9 +269,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           documentId={documentId}
           searchPIIHighlights={searchPIIHighlights}
           handleContinue={handleContinue}
-          // presentationTitle={contextData.presentationTitle!}
-          // polarisDocumentVersionId={polarisDocumentVersionId!}
-
+          polarisDocumentVersionId={polarisDocumentVersionId!}
           hideRedactionWarningModal={() => setShowRedactionWarning(false)}
         />
       )}

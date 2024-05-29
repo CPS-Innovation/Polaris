@@ -811,42 +811,11 @@ export const reducer = (
     case "ADD_REDACTION": {
       const { documentId, redactions } = action.payload;
 
-      console.log("redactions>>>", redactions);
-
-      // compare and update the status of the searchPII highlights here
-      // const searchPIIDataItem = state.searchPII?.find(
-      //   (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
-      // );
-      // let filteredByTextHighlights: ISearchPIIHighlight[] = [];
-      // if (searchPIIDataItem?.searchPIIHighlights) {
-      //   redactions.forEach((redaction) => {
-      //     filteredByTextHighlights =
-      //       searchPIIDataItem.searchPIIHighlights.filter(
-      //         (highlight) => highlight.textContent === redaction.textContent
-      //       );
-      //     filteredByTextHighlights.map(
-      //       (highlight) => (highlight.redactionStatus = "redacted")
-      //     );
-      //   });
-      // }
-
       const newRedactions = redactions.map((redaction, index) => ({
         ...redaction,
         id: String(`${+new Date()}-${index}`),
       }));
-      // let newSearchPII: SearchPIIData[] = [];
-      // if (searchPIIDataItem && filteredByTextHighlights.length) {
-      //   newSearchPII = [
-      //     ...state.searchPII,
-      //     {
-      //       ...searchPIIDataItem,
-      //       searchPIIHighlights: [
-      //         ...searchPIIDataItem.searchPIIHighlights,
-      //         ...filteredByTextHighlights,
-      //       ],
-      //     },
-      //   ];
-      // }
+
       let newState = {
         ...state,
         tabsState: {
@@ -864,9 +833,6 @@ export const reducer = (
           ),
         },
       };
-      // if (newSearchPII.length) {
-      //   newState = { ...newState, searchPII: newSearchPII };
-      // }
       //adding redaction highlight to local storage
       const redactionHighlights = getRedactionsToSaveLocally(
         newState.tabsState.items,
@@ -1128,7 +1094,6 @@ export const reducer = (
             getSearchPIIStatus: "initial" as const,
           };
 
-      console.log("newData>>>0000", newData);
       return {
         ...state,
         searchPII: [
@@ -1181,7 +1146,6 @@ export const reducer = (
         (searchPIIResult) => searchPIIResult.documentId !== documentId
       );
 
-      // compare and update the status of the searchPII highlights here
       const searchPIIDataItem = state.searchPII?.find(
         (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
       )!;

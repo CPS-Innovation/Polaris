@@ -153,9 +153,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accordionState.status]);
-  useEffect(() => {
-    console.log("searchPII>>>", searchPII);
-  }, [searchPII]);
 
   useEffect(() => {
     trackEvent("Open Documents Count", {
