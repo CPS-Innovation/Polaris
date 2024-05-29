@@ -121,6 +121,32 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_pdfredact
   depends_on     = [azurerm_subnet.sn_polaris_pipeline_pdfredactor_subnet]
 }
 
+resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
+  name                 = "polaris-pipeline-textextractor-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg_networking.name
+  virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
+  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.CognitiveServices"]
+
+  delegation {
+    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  depends_on = [data.azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_textextractor_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_pipeline_textextractor_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_pipeline_textextractor_subnet]
+}
+
 resource "azurerm_subnet" "sn_polaris_alert_notifications_subnet" {
   #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-alert-notifications-subnet"
