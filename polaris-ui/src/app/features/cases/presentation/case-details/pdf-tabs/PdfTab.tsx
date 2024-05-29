@@ -214,7 +214,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         />
       )}
       {isSearchPIIOn && (
-        <HeaderSearchPIIMode searchPIIHighlights={searchPIIHighlights} />
+        <HeaderSearchPIIMode
+          searchPIIHighlights={searchPIIHighlights}
+          getSearchPIIStatus={searchPIIDataItem?.getSearchPIIStatus}
+        />
       )}
       {hasFailedAttachments && (
         <div className={classes.attachmentHeaderContent}>

@@ -3,10 +3,12 @@ import { ISearchPIIHighlight } from "../../../../cases/domain/NewPdfHighlight";
 import classes from "./HeaderSearchPIIMode.module.scss";
 
 type Props = {
+  getSearchPIIStatus?: "initial" | "loading" | "failure" | "success";
   searchPIIHighlights: ISearchPIIHighlight[];
 };
 
 export const HeaderSearchPIIMode: React.FC<Props> = ({
+  getSearchPIIStatus,
   searchPIIHighlights,
 }) => {
   const groupByRedactionType = useMemo(() => {
@@ -25,37 +27,47 @@ export const HeaderSearchPIIMode: React.FC<Props> = ({
     const sortedRedactionTypeGroups = Object.fromEntries(entries);
     return sortedRedactionTypeGroups;
   }, [searchPIIHighlights]);
+
+  if (getSearchPIIStatus !== "success") {
+    return <div></div>;
+  }
   return (
     <div className={classes.headerSearchPIIMode}>
       <h4 className={classes.title}>Potential redactions</h4>
-      <span>
-        The following terms are items that could potentially be redacted in this
-        document:{" "}
-      </span>
-      <ul className={classes.pIITypesList}>
-        {Object.entries(groupByRedactionType).map((keyValue, index) => {
-          return (
-            <li key={keyValue[0]} className={classes.pIITypesListItem}>
-              {index < Object.entries(groupByRedactionType).length - 1 ? (
-                <>
-                  <span
-                    className={classes.redactionTypeCount}
-                  >{`(${keyValue[1]}) `}</span>
-                  <span>{`${keyValue[0]},`}</span>
-                </>
-              ) : (
-                <>
-                  <span
-                    className={classes.redactionTypeCount}
-                  >{`(${keyValue[1]}) `}</span>
-                  <span>{`${keyValue[0]}`}</span>
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      <span className={classes.attachmentCountText}>{}</span>
+      {searchPIIHighlights.length === 0 && (
+        <span>There are no potential redactions for this document</span>
+      )}
+      {searchPIIHighlights.length > 0 && (
+        <>
+          <span>
+            The following terms are items that could potentially be redacted in
+            this document:{" "}
+          </span>
+          <ul className={classes.pIITypesList}>
+            {Object.entries(groupByRedactionType).map((keyValue, index) => {
+              return (
+                <li key={keyValue[0]} className={classes.pIITypesListItem}>
+                  {index < Object.entries(groupByRedactionType).length - 1 ? (
+                    <>
+                      <span
+                        className={classes.redactionTypeCount}
+                      >{`(${keyValue[1]}) `}</span>
+                      <span>{`${keyValue[0]},`}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span
+                        className={classes.redactionTypeCount}
+                      >{`(${keyValue[1]}) `}</span>
+                      <span>{`${keyValue[0]}`}</span>
+                    </>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
     </div>
   );
 };

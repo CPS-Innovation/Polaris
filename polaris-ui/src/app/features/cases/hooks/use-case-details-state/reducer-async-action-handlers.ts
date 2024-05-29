@@ -597,7 +597,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             documentId,
             searchPIIResult,
-            getSearchPIIStatus: "initial",
+            getSearchPIIStatus: "success",
           },
         });
       } catch (e) {
