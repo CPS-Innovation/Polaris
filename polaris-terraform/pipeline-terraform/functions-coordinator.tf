@@ -64,7 +64,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   }
 
   sticky_settings {
-    app_setting_names = ["CoordinatorTaskHub", "HostType"]
+    app_setting_names = ["CoordinatorTaskHub", "HostType", "AzureWebJobs.SlidingCaseClearDown.Disabled"]
   }
 
   site_config {
