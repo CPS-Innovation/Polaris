@@ -42,7 +42,7 @@ namespace coordinator.Services.OcrService
 
                 if (isComplete)
                 {
-                    return results.Adapt<PolarisDomain.AnalyzeResults>();
+                    return results;
                 }
             }
         }
@@ -93,7 +93,7 @@ namespace coordinator.Services.OcrService
                     throw new OcrServiceException("OCR completed with Failed status");
                 }
 
-                return (true, results.Adapt<PolarisDomain.AnalyzeResults>());
+                return (true, results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>());
             }
             catch (Exception ex)
             {
