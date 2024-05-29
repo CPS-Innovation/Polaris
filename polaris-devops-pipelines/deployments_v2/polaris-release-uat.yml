@@ -614,7 +614,7 @@ stages:
               statusCheckRetries: $(status-check-retries)
               statusCheckDelaySeconds: $(status-check-delay-seconds)
               statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "Welcome to nginx!"
+              successTextContent: "Polaris Proxy is online"
 
       - job: Check_SPA
         dependsOn: Get_Status_URIs
