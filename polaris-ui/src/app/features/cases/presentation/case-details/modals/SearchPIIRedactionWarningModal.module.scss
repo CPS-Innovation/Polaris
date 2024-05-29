@@ -5,12 +5,12 @@
   padding: 2rem 2rem;
   position: relative;
   & :global(.govuk-warning-text__icon) {
-    left: 30px;
-    top: 50px;
+    left: 1.875rem;
+    top: 3.125rem;
   }
   & :global(.govuk-checkboxes__label) {
-    padding: 0px 15px 5px;
-    margin-top: -5px;
+    padding: 0px 1rem 0.3125rem;
+    margin-top: -0.3125rem;
   }
 }
 
@@ -23,7 +23,7 @@
 }
 .contentText {
   font-weight: bold;
-  margin-left: 40px;
+  margin-left: 2.5rem;
 }
 .actionWrapper {
   display: flex;
@@ -34,5 +34,5 @@
   }
 }
 .mainText {
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
 }
