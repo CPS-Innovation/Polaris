@@ -6,12 +6,11 @@ const PADDING_INCHES = 0.03;
 
 const getMissedRedactionType = (
   missedRedactionTypes: RedactionTypeData[],
-  piiCategory: string
+  redactionType: string
 ) => {
   return (
     missedRedactionTypes.find(
-      (redactionType) =>
-        redactionType.name?.toLowerCase() === piiCategory?.toLowerCase()
+      (type) => type.name?.toLowerCase() === redactionType?.toLowerCase()
     ) ?? { id: "", name: "" }
   );
 };
@@ -103,7 +102,7 @@ export const mapSearchPIIHighlights = (
               piiCategory: words[0].piiCategory,
               redactionType: getMissedRedactionType(
                 missedRedactionTypes,
-                words[0].piiCategory
+                words[0]?.redactionType ?? words[0].piiCategory
               ),
               groupId: words[0].piiGroupId,
             },

@@ -13,6 +13,7 @@ export type SearchPIIResultItem = {
     boundingBox: number[] | null;
     matchType: "None" | "Exact" | "Fuzzy";
     piiCategory: string;
+    redactionType: string;
     text: string;
     piiGroupId: string;
   }[];
