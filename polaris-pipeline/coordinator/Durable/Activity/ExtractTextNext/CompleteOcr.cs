@@ -6,6 +6,7 @@ using Common.Services.BlobStorageService;
 using Common.Telemetry;
 using Common.Wrappers;
 using coordinator.Services.OcrService;
+using coordinator.Services.OcrService.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using text_extractor.coordinator;
@@ -28,7 +29,7 @@ namespace coordinator.Durable.Activity.ExtractTextNext
         }
 
         [FunctionName(nameof(CompleteOcr))]
-        public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(bool, AnalyzeResults)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             // var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
             // var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
@@ -37,7 +38,7 @@ namespace coordinator.Durable.Activity.ExtractTextNext
 
             if (!isOperationComplete)
             {
-                return false;
+                return (false, null);
             }
 
             var jsonResults = _jsonConvertWrapper.SerializeObject(analyzeResult);
@@ -49,7 +50,7 @@ namespace coordinator.Durable.Activity.ExtractTextNext
 
             _telemetryClient.TrackEvent(new VNextDummyEvent(correlationId, subCorrelationId, "CompleteOcr"));
 
-            return true;
+            return (true, analyzeResult);
         }
     }
 }

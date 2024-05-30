@@ -9,6 +9,7 @@ using Common.Logging;
 using Common.Streaming;
 using PolarisDomain = coordinator.Services.OcrService.Domain;
 using Mapster;
+using System.Threading;
 
 namespace coordinator.Services.OcrService
 {
@@ -19,6 +20,7 @@ namespace coordinator.Services.OcrService
         //  the occasional very slow document processing operation.  The article makes it clear that there is a limit in the number of requests
         //  per second, so by increasing the delay we are seeing if we can improve throughput by reducing the number of requests.
         private const int _pollingDelayMs = 2000;
+        private const int _httpTimeoutMs = 5000;
         private readonly ComputerVisionClient _computerVisionClient;
         private readonly ILogger<OcrService> _log;
 
@@ -58,7 +60,13 @@ namespace coordinator.Services.OcrService
                 //  it may not be seekable.  We have a helper method to ensure it is seekable.
                 //  n.b. this incurs an overhead for all executions, the vast majority of which do not need to retry.
                 stream = await stream.EnsureSeekableAsync();
-                var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream);
+
+                // There have been examples seen in production of ReadInStreamAsync taking 100 seconds and then hitting the default timeout of its internal
+                //  HttpClient (presumably).  This would time out our orchestrator execution, so lets time out early if we detect a "stuck" call 
+                //  and let the caller deal with resilient/retry.
+                using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
+                var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream, null, null, "latest", "basic", cancellationSource.Token);
+
                 var operationLocation = textHeaders.OperationLocation;
 
                 const int numberOfCharsInOperationId = 36;
@@ -69,7 +77,7 @@ namespace coordinator.Services.OcrService
             catch (Exception ex)
             {
                 _log.LogMethodError(correlationId, nameof(InitiateOperationAsync), "An OCR Library exception occurred", ex);
-                throw new OcrServiceException(ex.Message);
+                throw;
             }
         }
 
@@ -77,8 +85,10 @@ namespace coordinator.Services.OcrService
         {
             try
             {
-                ReadOperationResult results = await _computerVisionClient.GetReadResultAsync(operationId);
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
+                // See cancellationSource comment in InitiateOperationAsync.
+                using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
+                var results = await _computerVisionClient.GetReadResultAsync(operationId);
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
 
                 if (results.Status == OperationStatusCodes.Running || results.Status == OperationStatusCodes.NotStarted)
                 {
@@ -86,19 +96,19 @@ namespace coordinator.Services.OcrService
                 }
 
                 var elapsedMs = (DateTime.Parse(results.LastUpdatedDateTime) - DateTime.Parse(results.CreatedDateTime)).TotalMilliseconds;
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
 
                 if (results.Status == OperationStatusCodes.Failed)
                 {
-                    throw new OcrServiceException("OCR completed with Failed status");
+                    throw new Exception($"{nameof(GetOperationResultsAsync)} failed with status {results.Status}");
                 }
 
                 return (true, results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>());
             }
             catch (Exception ex)
             {
-                _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "An OCR Library exception occurred", ex);
-                throw new OcrServiceException(ex.Message);
+                _log.LogMethodError(correlationId, nameof(GetOperationResultsAsync), "An OCR Library exception occurred", ex);
+                throw;
             }
         }
     }

@@ -20,7 +20,7 @@ namespace coordinator.Durable.Activity.ExtractTextNext
         }
 
         [FunctionName(nameof(CompleteIndex))]
-        public async Task<bool> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(bool, long)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var (payload, targetCount) = context.GetInput<(CaseDocumentOrchestrationPayload, int)>();
             var results = await _textExtractorClient.GetDocumentIndexCount(
@@ -34,7 +34,7 @@ namespace coordinator.Durable.Activity.ExtractTextNext
 
             _telemetryClient.TrackEvent(new VNextDummyEvent(payload.CorrelationId, payload.SubCorrelationId, "CompleteIndex"));
 
-            return isComplete;
+            return (isComplete, results.LineCount);
         }
     }
 }

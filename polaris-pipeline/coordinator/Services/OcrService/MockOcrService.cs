@@ -39,7 +39,7 @@ namespace coordinator.Services.OcrService
             catch (Exception ex)
             {
                 _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "A Mock OCR Library exception occurred", ex);
-                throw new OcrServiceException(ex.Message);
+                throw new Exception(ex.Message);
             }
             finally
             {
