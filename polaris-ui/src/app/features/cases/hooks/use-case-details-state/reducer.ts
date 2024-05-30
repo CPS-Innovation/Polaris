@@ -1084,7 +1084,9 @@ export const reducer = (
             ...availablePIIData,
             show: show,
             searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
-            polarisDocumentVersionId: polarisDocumentVersionId,
+            polarisDocumentVersionId: getData
+              ? polarisDocumentVersionId
+              : availablePIIData.polarisDocumentVersionId,
           }
         : {
             show: show,
