@@ -284,6 +284,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       {showRedactionWarning && (
         <SearchPIIRedactionWarningModal
           documentId={documentId}
+          documentType={documentType}
           activeSearchPIIHighlights={activeSearchPIIHighlights}
           handleContinue={handleContinue}
           polarisDocumentVersionId={polarisDocumentVersionId!}

@@ -113,6 +113,15 @@ export const PdfViewer: React.FC<Props> = ({
     [activeSearchPIIHighlights]
   );
 
+  const getSelectedPIIHighlight = useCallback(
+    (highlightGroupId: string = "") => {
+      return activeSearchPIIHighlights.find(
+        (highlight) => highlight.groupId === highlightGroupId
+      );
+    },
+    [activeSearchPIIHighlights]
+  );
+
   const addRedaction = useCallback(
     (
       position: ScaledPosition,
@@ -251,16 +260,43 @@ export const PdfViewer: React.FC<Props> = ({
                             return;
                           }
                           case "ignore": {
+                            trackEvent("Ignore Redaction Suggestion", {
+                              documentType: contextData.documentType,
+                              documentId: contextData.documentId,
+                              redactionType: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.redactionType?.name,
+                              piiCategory: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.piiCategory,
+                              ignoreType: "once",
+                              ignoreCount: 1,
+                            });
                             handleIgnoreRedactionSuggestion(
                               contextData.documentId,
                               content.text!,
                               false,
                               content.highlightGroupId!
                             );
+
                             hideTipAndSelection();
                             return;
                           }
                           case "ignoreAll": {
+                            trackEvent("Ignore Redaction Suggestion", {
+                              documentType: contextData.documentType,
+                              documentId: contextData.documentId,
+                              redactionType: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.redactionType?.name,
+                              piiCategory: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.piiCategory,
+                              ignoreType: "all",
+                              ignoreCount: getPIISuggestionsWithSameText(
+                                content?.text
+                              )?.length,
+                            });
                             handleIgnoreRedactionSuggestion(
                               contextData.documentId,
                               content.text!,

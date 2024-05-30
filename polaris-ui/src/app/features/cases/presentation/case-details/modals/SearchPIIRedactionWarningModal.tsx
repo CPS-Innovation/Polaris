@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Button,
   LinkButton,
@@ -11,6 +11,7 @@ import classes from "./SearchPIIRedactionWarningModal.module.scss";
 
 type Props = {
   documentId: string;
+  documentType: string;
   polarisDocumentVersionId?: number;
   activeSearchPIIHighlights: ISearchPIIHighlight[];
   hideRedactionWarningModal: () => void;
@@ -19,16 +20,13 @@ type Props = {
 
 export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   documentId,
+  documentType,
   polarisDocumentVersionId,
   activeSearchPIIHighlights,
   hideRedactionWarningModal,
   handleContinue,
 }) => {
-  const suggestedRedactionCount = useMemo(() => {
-    return activeSearchPIIHighlights.filter(
-      (highlight) => highlight.redactionStatus === "redacted"
-    ).length;
-  }, [activeSearchPIIHighlights]);
+  const trackEvent = useAppInsightsTrackEvent();
   const [userConfirmation, setUserConfirmation] = useState(false);
   const [error, setError] = useState(false);
 
@@ -40,7 +38,13 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
     if (error) setError(false);
     handleContinue();
   };
-  const handleIIRedactionWarningModalClose = () => {
+  const handleClosePIIRedactionWarningModal = () => {
+    trackEvent("Cancel Save Redaction Suggestion Warning", {
+      documentId: documentId,
+      documentType: documentType,
+      polarisDocumentVersionId: polarisDocumentVersionId,
+      suggestedRedactionsCount: activeSearchPIIHighlights.length,
+    });
     hideRedactionWarningModal();
   };
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,10 +55,10 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
     <>
       <Modal
         isVisible={true}
-        handleClose={handleIIRedactionWarningModalClose}
+        handleClose={handleClosePIIRedactionWarningModal}
         className={classes.redactionWarningModal}
         ariaLabel="Use potential redactions confirmation Modal"
-        ariaDescription={`Your remaining ${suggestedRedactionCount} potential redactions will also be redacted, if you choose to continue`}
+        ariaDescription={`Your remaining ${activeSearchPIIHighlights.length} potential redactions will also be redacted, if you choose to continue`}
         defaultLastFocus={
           document.querySelector("#active-tab-panel") as HTMLElement
         }
@@ -68,7 +72,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
               !
             </span>
             <p className={classes.contentText}>
-              {`Your remaining ${suggestedRedactionCount} potential redactions will also be redacted, if
+              {`Your remaining ${activeSearchPIIHighlights.length} potential redactions will also be redacted, if
               you choose to continue`}
             </p>
           </div>
@@ -104,7 +108,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
             </Button>
             <LinkButton
               dataTestId="btn-cancel"
-              onClick={handleIIRedactionWarningModalClose}
+              onClick={handleClosePIIRedactionWarningModal}
             >
               Cancel
             </LinkButton>
