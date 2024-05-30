@@ -11,8 +11,7 @@ type Props = {
     saveStatus: SaveStatus;
   };
   tabIndex: number;
-  redactionHighlightsCount: number;
-  suggestedRedactionsCount: number;
+  totalRedactionsCount: number;
   isOkToSave: boolean;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -21,8 +20,7 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   contextData,
   tabIndex,
-  redactionHighlightsCount,
-  suggestedRedactionsCount,
+  totalRedactionsCount,
   isOkToSave,
   handleRemoveAllRedactions,
   handleSavedRedactions,
@@ -33,22 +31,14 @@ export const Footer: React.FC<Props> = ({
     trackEvent("Remove All Redactions", {
       documentType: documentType,
       documentId: documentId,
-      redactionsCount: redactionHighlightsCount,
+      redactionsCount: totalRedactionsCount,
     });
     handleRemoveAllRedactions();
   };
   const handleSaveAllRedactionsClick = () => {
-    trackEvent("Save All Redactions", {
-      documentType: documentType,
-      documentId: documentId,
-      redactionsCount: redactionHighlightsCount,
-    });
     handleSavedRedactions();
   };
 
-  const getTotalRedactions = () => {
-    return suggestedRedactionsCount + redactionHighlightsCount;
-  };
   return (
     <div className={classes.footer}>
       <LinkButton
@@ -65,10 +55,10 @@ export const Footer: React.FC<Props> = ({
         className={classes.summary}
         data-testid={`redaction-count-text-${tabIndex}`}
       >
-        {getTotalRedactions() === 1 ? (
+        {totalRedactionsCount === 1 ? (
           <>There is 1 redaction</>
         ) : (
-          <>There are {getTotalRedactions()} redactions</>
+          <>There are {totalRedactionsCount} redactions</>
         )}
       </div>
 

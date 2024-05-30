@@ -4,16 +4,16 @@ import classes from "./HeaderSearchPIIMode.module.scss";
 
 type Props = {
   getSearchPIIStatus?: "initial" | "loading" | "failure" | "success";
-  searchPIIHighlights: ISearchPIIHighlight[];
+  activeSearchPIIHighlights: ISearchPIIHighlight[];
 };
 
 export const HeaderSearchPIIMode: React.FC<Props> = ({
   getSearchPIIStatus,
-  searchPIIHighlights,
+  activeSearchPIIHighlights,
 }) => {
   const groupByRedactionType = useMemo(() => {
     const redactionTypeGroups =
-      searchPIIHighlights.reduce((acc, highlight) => {
+      activeSearchPIIHighlights.reduce((acc, highlight) => {
         const { name } = highlight.redactionType;
         if (!acc[`${name}`]) {
           acc[`${name}`] = 1;
@@ -26,7 +26,7 @@ export const HeaderSearchPIIMode: React.FC<Props> = ({
     entries.sort((a, b) => b[1] - a[1]);
     const sortedRedactionTypeGroups = Object.fromEntries(entries);
     return sortedRedactionTypeGroups;
-  }, [searchPIIHighlights]);
+  }, [activeSearchPIIHighlights]);
 
   if (getSearchPIIStatus !== "success") {
     return <div></div>;
@@ -34,10 +34,10 @@ export const HeaderSearchPIIMode: React.FC<Props> = ({
   return (
     <div className={classes.headerSearchPIIMode}>
       <h4 className={classes.title}>Potential redactions</h4>
-      {searchPIIHighlights.length === 0 && (
+      {activeSearchPIIHighlights.length === 0 && (
         <span>There are no potential redactions for this document</span>
       )}
-      {searchPIIHighlights.length > 0 && (
+      {activeSearchPIIHighlights.length > 0 && (
         <>
           <span>
             The following terms are items that could potentially be redacted in

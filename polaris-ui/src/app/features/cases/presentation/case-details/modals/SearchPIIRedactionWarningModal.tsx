@@ -12,7 +12,7 @@ import classes from "./SearchPIIRedactionWarningModal.module.scss";
 type Props = {
   documentId: string;
   polarisDocumentVersionId?: number;
-  searchPIIHighlights: ISearchPIIHighlight[];
+  activeSearchPIIHighlights: ISearchPIIHighlight[];
   hideRedactionWarningModal: () => void;
   handleContinue: () => void;
 };
@@ -20,15 +20,15 @@ type Props = {
 export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   documentId,
   polarisDocumentVersionId,
-  searchPIIHighlights,
+  activeSearchPIIHighlights,
   hideRedactionWarningModal,
   handleContinue,
 }) => {
   const suggestedRedactionCount = useMemo(() => {
-    return searchPIIHighlights.filter(
+    return activeSearchPIIHighlights.filter(
       (highlight) => highlight.redactionStatus === "redacted"
     ).length;
-  }, [searchPIIHighlights]);
+  }, [activeSearchPIIHighlights]);
   const [userConfirmation, setUserConfirmation] = useState(false);
   const [error, setError] = useState(false);
 

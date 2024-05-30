@@ -43,7 +43,7 @@ type Props = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
-  searchPIIHighlights: ISearchPIIHighlight[];
+  activeSearchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
@@ -69,7 +69,7 @@ export const PdfViewer: React.FC<Props> = ({
   documentWriteStatus,
   contextData,
   searchHighlights = [],
-  searchPIIHighlights,
+  activeSearchPIIHighlights,
   redactionHighlights,
   isOkToSave,
   areaOnlyRedactionMode,
@@ -89,9 +89,9 @@ export const PdfViewer: React.FC<Props> = ({
     () => [
       ...searchHighlights,
       ...sortRedactionHighlights(redactionHighlights),
-      ...searchPIIHighlights,
+      ...activeSearchPIIHighlights,
     ],
-    [searchHighlights, redactionHighlights, searchPIIHighlights]
+    [searchHighlights, redactionHighlights, activeSearchPIIHighlights]
   );
 
   useEffect(() => {
@@ -105,12 +105,12 @@ export const PdfViewer: React.FC<Props> = ({
 
   const getPIISuggestionsWithSameText = useCallback(
     (redactionText: string = "") => {
-      const redactionSuggestionWithSameText = searchPIIHighlights.filter(
+      const redactionSuggestionWithSameText = activeSearchPIIHighlights.filter(
         (highlight) => highlight.textContent === redactionText
       );
       return redactionSuggestionWithSameText;
     },
-    [searchPIIHighlights]
+    [activeSearchPIIHighlights]
   );
 
   const addRedaction = useCallback(
@@ -152,12 +152,6 @@ export const PdfViewer: React.FC<Props> = ({
     },
     [areaOnlyRedactionMode]
   );
-
-  const suggestedRedactionsCount = useMemo(() => {
-    return searchPIIHighlights.filter(
-      (highlight) => highlight.redactionStatus === "redacted"
-    ).length;
-  }, [searchPIIHighlights]);
 
   return (
     <>
@@ -242,6 +236,7 @@ export const PdfViewer: React.FC<Props> = ({
                             trackEvent("Redact Content", {
                               documentType: contextData.documentType,
                               documentId: contextData.documentId,
+                              redactionType: redactionType?.name,
                             });
 
                             addRedaction(
@@ -305,12 +300,13 @@ export const PdfViewer: React.FC<Props> = ({
             </>
           )}
         </PdfLoader>
-        {!!(redactionHighlights.length || suggestedRedactionsCount) && (
+        {redactionHighlights.length + activeSearchPIIHighlights.length && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
-            redactionHighlightsCount={redactionHighlights.length}
-            suggestedRedactionsCount={suggestedRedactionsCount}
+            totalRedactionsCount={
+              redactionHighlights.length + activeSearchPIIHighlights.length
+            }
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
