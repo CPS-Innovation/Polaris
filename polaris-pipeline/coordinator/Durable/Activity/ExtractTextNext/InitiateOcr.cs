@@ -25,7 +25,7 @@ namespace coordinator.Durable.Activity.ExtractTextNext
         [FunctionName(nameof(InitiateOcr))]
         public async Task<Guid> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var (blobName, correlationId, subCorrelationId) = context.GetInput<(string, Guid, Guid)>();
+            var (blobName, correlationId, subCorrelationId) = context.GetInput<(string, Guid, Guid?)>();
             using var documentStream = await _blobStorageService.GetDocumentAsync(blobName, correlationId);
             var operationId = await _ocrService.InitiateOperationAsync(documentStream, correlationId);
 

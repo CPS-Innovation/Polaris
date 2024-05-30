@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Common.Domain.Document;
-using Common.Exceptions;
 using Common.Services.BlobStorageService;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers;
