@@ -6,22 +6,22 @@ export type PipelineDocumentProperties = {
   pdfBlobName: string;
   isPdfAvailable?: boolean;
   status:
-  | "New"
-  | "PdfUploadedToBlob"
-  | "Indexed"
-  | "UnableToConvertToPdf"
-  | "UnexpectedFailure"
-  | "OcrAndIndexFailure";
+    | "New"
+    | "PdfUploadedToBlob"
+    | "Indexed"
+    | "UnableToConvertToPdf"
+    | "UnexpectedFailure"
+    | "OcrAndIndexFailure";
 };
 export type PresentationFlags = {
   read: "Ok" | "OnlyAvailableInCms";
   write:
-  | "Ok"
-  | "OnlyAvailableInCms"
-  | "DocTypeNotAllowed"
-  | "OriginalFileTypeNotAllowed"
-  | "IsDispatched"
-  | "IsRedactionServiceOffline";
+    | "Ok"
+    | "OnlyAvailableInCms"
+    | "DocTypeNotAllowed"
+    | "OriginalFileTypeNotAllowed"
+    | "IsDispatched"
+    | "IsRedactionServiceOffline";
 };
 
 export type ConversionStatus =
