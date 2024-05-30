@@ -102,7 +102,7 @@ export const mapSearchPIIHighlights = (
               piiCategory: words[0].piiCategory,
               redactionType: getMissedRedactionType(
                 missedRedactionTypes,
-                words[0]?.redactionType ?? words[0].piiCategory
+                words[0]?.redactionType
               ),
               groupId: words[0].piiGroupId,
             },

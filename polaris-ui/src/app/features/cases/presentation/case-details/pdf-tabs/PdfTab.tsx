@@ -162,7 +162,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   };
 
   const localHandleSavedRedactions = () => {
-    if (isSearchPIIOn) {
+    if (activeSearchPIIHighlights.length) {
       setShowRedactionWarning(true);
       return;
     }
