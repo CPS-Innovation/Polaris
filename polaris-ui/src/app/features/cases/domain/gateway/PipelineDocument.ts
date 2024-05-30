@@ -6,22 +6,22 @@ export type PipelineDocumentProperties = {
   pdfBlobName: string;
   isPdfAvailable?: boolean;
   status:
-    | "New"
-    | "PdfUploadedToBlob"
-    | "Indexed"
-    | "UnableToConvertToPdf"
-    | "UnexpectedFailure"
-    | "OcrAndIndexFailure";
+  | "New"
+  | "PdfUploadedToBlob"
+  | "Indexed"
+  | "UnableToConvertToPdf"
+  | "UnexpectedFailure"
+  | "OcrAndIndexFailure";
 };
 export type PresentationFlags = {
   read: "Ok" | "OnlyAvailableInCms";
   write:
-    | "Ok"
-    | "OnlyAvailableInCms"
-    | "DocTypeNotAllowed"
-    | "OriginalFileTypeNotAllowed"
-    | "IsDispatched"
-    | "IsRedactionServiceOffline";
+  | "Ok"
+  | "OnlyAvailableInCms"
+  | "DocTypeNotAllowed"
+  | "OriginalFileTypeNotAllowed"
+  | "IsDispatched"
+  | "IsRedactionServiceOffline";
 };
 
 export type ConversionStatus =
@@ -33,6 +33,7 @@ export type ConversionStatus =
   | "AsposePdfException"
   | "AsposeWordsUnsupportedFileFormat"
   | "AsposeWordsPasswordProtected"
+  | "AsposeSlidesPasswordProtected"
   | "AsposeCellsGeneralError"
   | "AsposeImagingCannotLoad"
   | "UnexpectedError";
@@ -46,6 +47,7 @@ export const mapConversionStatusToMessage = (
     case "PdfEncrypted":
     case "AsposePdfPasswordProtected":
     case "AsposeWordsPasswordProtected":
+    case "AsposeSlidesPasswordProtected":
       return "file is password protected";
     case "DocumentTypeUnsupported":
     case "AsposeWordsUnsupportedFileFormat":
