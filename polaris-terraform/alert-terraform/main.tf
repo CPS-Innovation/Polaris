@@ -20,7 +20,7 @@ terraform {
 provider "azurerm" {
   features {
     resource_group {
-      prevent_deletion_if_contains_resources = false
+      prevent_deletion_if_contains_resources = true
     }
   }
 }
@@ -28,11 +28,11 @@ provider "azurerm" {
 locals {
   env_name_suffix = var.environment.alias != "prod" ? "-${var.environment.alias}" : ""
   env_name        = var.environment.alias != "prod" ? var.environment.alias : ""
-  resource_name   = format("%s%s", var.resource_name_prefix, local.env_name_suffix)
-  global_name     = var.environment.alias != "prod" ? "${var.app_name_prefix}-${var.environment.alias}" : var.app_name_prefix
+  analytics_group_name = var.environment.alias != "prod" ? "${var.polaris_resource_name_prefix}-analytics-${var.environment.alias}" : "${var.polaris_resource_name_prefix}-analytics"
+  global_name   = format("%s%s", var.polaris_resource_name_prefix, local.env_name_suffix)
   common_tags = {
     environment = var.environment.name
-    project     = "polaris-${var.resource_name_prefix}"
+    project     = "Casework App"
     creator     = "Created by Terraform"
   }
 }

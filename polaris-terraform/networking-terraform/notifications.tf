@@ -102,7 +102,9 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
   app_service_plan_id        = azurerm_app_service_plan.asp_alert_notifications.id
   storage_account_name       = azurerm_storage_account.sa_alert_processing.name
   storage_account_access_key = azurerm_storage_account.sa_alert_processing.primary_access_key
-  virtual_network_subnet_id =  azurerm_subnet.sn_polaris_alert_notifications_subnet.id
+  virtual_network_subnet_id  =  azurerm_subnet.sn_polaris_alert_notifications_subnet.id
+  https_only                 = true
+  version                    = "~4"
   
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"              = "node"
