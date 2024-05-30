@@ -53,6 +53,11 @@ image_conversion_redaction = {
 
 search_service_config = {
   replica_count                 = 3
-  partition_count               = 6
+  partition_count               = 4
   is_dynamic_throttling_enabled = true
+}
+
+pii = {
+  categories            = "Address;CreditCardNumber;Email;EUDriversLicenseNumber;EUPassportNumber;IPAddress;Person;PersonType;PhoneNumber;UKDriversLicenseNumber;UKNationalHealthNumber;UKNationalInsuranceNumber;USUKPassportNumber"
+  chunk_character_limit = 1000
 }

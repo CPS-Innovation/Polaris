@@ -11,24 +11,24 @@ using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Services.PiiService
 {
     public class PiiService : IPiiService
     {
         private const int DocumentSize = 5;
-        private const string piiCategoriesConfigValue = "";
         private readonly string[] _piiCategories;
         private readonly IPiiEntityMapper _piiEntityMapper;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper)
+        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration)
         {
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
-            _piiCategories = piiCategoriesConfigValue.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            _piiCategories = configuration["PiiCategories"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         public IEnumerable<PiiRequestDto> CreatePiiRequests(List<PiiChunk> piiChunks)
@@ -63,6 +63,7 @@ namespace coordinator.Services.PiiService
             {
                 foreach (var piiEntity in item.Entities)
                 {
+                    var entityGroupId = Guid.NewGuid();
                     var words = piiEntity.GetWordsWithOffset();
                     var chunk = piiChunks[itemIndex];
 
@@ -70,9 +71,10 @@ namespace coordinator.Services.PiiService
                     {
                         var chunkLine = chunk.Lines.Single(x => x.ContainsOffset(offset));
                         var ocrWord = chunkLine.GetWord(text, offset);
+                        var redactionType = GetRedactionTypeCategoryMapping(piiEntity.Category);
 
                         if (ocrWord != null)
-                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category, chunk.DocumentId));
+                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category, redactionType, chunk.DocumentId, entityGroupId));
                     }
                 }
             }
@@ -130,7 +132,9 @@ namespace coordinator.Services.PiiService
                 {
                     Text = entity.Word.Text,
                     BoundingBox = entity.Word.BoundingBox,
-                    PiiCategory = entity.PiiCategory
+                    PiiCategory = entity.PiiCategory,
+                    PiiGroupId = entity.EntityGroupId,
+                    RedactionType = entity.RedactionType
                 };
                 if (wordIndex != -1)
                     piiLine.Words[wordIndex] = word;
@@ -157,5 +161,30 @@ namespace coordinator.Services.PiiService
 
             return _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(await piiStreamReader.ReadToEndAsync());
         }
+
+        private static string GetRedactionTypeCategoryMapping(string piiCategory)
+        {
+            PiiToRedactionLogCategoryMappings.TryGetValue(piiCategory, out var category);
+
+            return category ?? "Other";
+        }
+
+        private static Dictionary<string, string> PiiToRedactionLogCategoryMappings =>
+            new()
+            {
+                { "Address",                    "Address" },
+                { "Email",                      "Email Address"},
+                { "IPAddress",                  "Location" },
+                { "Person",                     "Named Individual" },
+                { "UKNationalHealthNumber",     "NHS number" },
+                { "UKNationalInsuranceNumber",  "NI number" },
+                { "PersonType",                 "Occupation" },
+                { "PhoneNumber",                "Phone number" },
+                { "CreditCardNumber",           "Other" },
+                { "EUDriversLicenseNumber",     "Other" },
+                { "UKDriversLicenseNumber",     "Other" },
+                { "EUPassportNumber",           "Other" },
+                { "USUKPassportNumber",         "Other" }
+            };
     }
 }

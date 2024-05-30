@@ -12,8 +12,10 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
 
   app_settings = {
     "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
-    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = 1
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
+    "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
@@ -30,6 +32,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
+    "PiiCategories"                                   = var.pii.categories
+    "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_name}-pdf-redactor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"

@@ -33,6 +33,10 @@ using Common.Telemetry;
 using Common.Wrappers;
 using Ddei.Services.Extensions;
 using FluentValidation;
+using System.Net.Http;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using System.Net;
 
 using PdfGenerator = coordinator.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
@@ -46,6 +50,8 @@ namespace coordinator
     internal class Startup : FunctionsStartup
     {
         protected IConfigurationRoot Configuration { get; set; }
+        private const int RetryAttempts = 2;
+        private const int FirstRetryDelaySeconds = 1;
 
         // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
         public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
@@ -87,7 +93,7 @@ namespace coordinator
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
+            }).AddPolicyHandler(GetRetryPolicy());
             services.AddHttpClient<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactorPdfBaseUrl));
@@ -137,6 +143,24 @@ namespace coordinator
             }
 
             return secret;
+        }
+
+        private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+            // https://learn.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly#add-a-jitter-strategy-to-the-retry-policy
+            var delay = Backoff.DecorrelatedJitterBackoffV2(
+                medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
+                retryCount: RetryAttempts);
+
+            static bool ShouldRetry(HttpRequestMessage request, HttpResponseMessage response)
+            {
+
+                return response.StatusCode >= HttpStatusCode.InternalServerError;
+            }
+
+            return Policy
+                .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
+                .WaitAndRetryAsync(delay);
         }
 
         private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
