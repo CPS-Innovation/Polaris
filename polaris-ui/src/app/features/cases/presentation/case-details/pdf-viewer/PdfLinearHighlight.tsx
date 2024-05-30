@@ -41,7 +41,7 @@ export const PdfLinearHighlight: React.FC<Props> = ({
         className={classes["Highlight__parts"]}
         text-content={textContent}
         highlight-type={type}
-        highlight-groupId={groupId}
+        highlight-groupid={groupId}
       >
         {rects.map((rect, index) =>
           type === "search" || type === "searchPII" ? (

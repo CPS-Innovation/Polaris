@@ -637,7 +637,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       const attributes: any = (range.startContainer as HTMLElement).attributes;
       const textContent = attributes["text-content"]?.nodeValue;
       const highlightType = attributes["highlight-type"]?.nodeValue;
-      const highlightGroupId = attributes["highlight-groupId"]?.nodeValue;
+      const highlightGroupId = attributes["highlight-groupid"]?.nodeValue;
       content = {
         text: textContent ?? "",
         highlightType: highlightType,
