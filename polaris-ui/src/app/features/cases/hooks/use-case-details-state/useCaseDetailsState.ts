@@ -69,9 +69,15 @@ export const initialState = {
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
   },
-  featureFlags: { redactionLog: false, fullScreen: false, notes: false },
+  featureFlags: {
+    redactionLog: false,
+    fullScreen: false,
+    notes: false,
+    searchPII: false,
+  },
   storedUserData: { status: "loading" },
   notes: [],
+  searchPII: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -140,7 +146,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       type: "UPDATE_FEATURE_FLAGS_DATA",
       payload: featureFlagData,
     });
-  }, [featureFlagData.fullScreen, featureFlagData.redactionLog, dispatch]);
+  }, [featureFlagData, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")
@@ -231,14 +237,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleClosePdf = useCallback(
-    (caseDocument: { documentId: string }) => {
+    (documentId: string) => {
       dispatch({
         type: "CLOSE_PDF",
         payload: {
-          pdfId: caseDocument.documentId,
+          pdfId: documentId,
         },
       });
-      trackEvent("Close Document", { documentId: caseDocument.documentId });
+      trackEvent("Close Document", { documentId: documentId });
     },
     [dispatch]
   );
@@ -320,8 +326,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleSavedRedactions = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"]) =>
-      dispatch({ type: "SAVE_REDACTIONS", payload: { documentId } }),
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      searchPIIOn: boolean = false
+    ) =>
+      dispatch({
+        type: "SAVE_REDACTIONS",
+        payload: { documentId, searchPIIOn },
+      }),
     [dispatch]
   );
 
@@ -425,6 +437,60 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleShowHideRedactionSuggestions = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      showSuggestion: boolean,
+      getData: boolean
+    ) => {
+      dispatch({
+        type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
+        payload: {
+          documentId,
+          show: showSuggestion,
+          getData: getData,
+        },
+      });
+      if (getData)
+        dispatch({
+          type: "GET_SEARCH_PII_DATA",
+          payload: {
+            documentId,
+          },
+        });
+    },
+    [dispatch]
+  );
+
+  const handleGetSearchPIIData = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "GET_SEARCH_PII_DATA",
+        payload: { documentId },
+      }),
+    [dispatch]
+  );
+
+  const handleIgnoreRedactionSuggestion = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      textContent: string,
+      ignoreAll: boolean,
+      highlightGroupId: string
+    ) => {
+      dispatch({
+        type: "IGNORE_SEARCH_PII_DATA",
+        payload: {
+          documentId,
+          textContent: textContent,
+          ignoreAll: ignoreAll,
+          highlightGroupId: highlightGroupId,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -449,5 +515,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleSaveReadUnreadData,
     handleGetNotes,
     handleAddNote,
+    handleShowHideRedactionSuggestions,
+    handleGetSearchPIIData,
+    handleIgnoreRedactionSuggestion,
   };
 };

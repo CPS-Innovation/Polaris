@@ -1,4 +1,5 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { RedactionSavePage } from "../../domain/gateway/RedactionSavePage";
 import { RedactionSaveRequest } from "../../domain/gateway/RedactionSaveRequest";
 import {
@@ -8,7 +9,7 @@ import {
 
 export const mapRedactionSaveRequest = (
   documentId: RedactionSaveRequest["documentId"],
-  redactionHighlights: IPdfHighlight[]
+  redactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[]
 ) => {
   const redactions = [] as RedactionSavePage[];
 

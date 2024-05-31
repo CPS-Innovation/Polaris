@@ -24,3 +24,4 @@ export { Guidance } from "./Guidance";
 export { Spinner } from "./Spinner";
 export { Tooltip } from "./Tooltip";
 export { CharacterCount } from "./CharacterCount";
+export { Checkboxes } from "./Checkboxes";

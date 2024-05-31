@@ -7,9 +7,14 @@ import {
   saveRedactionLog,
   getNotesData,
   addNoteData,
+  getSearchPIIData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
-import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import {
+  NewPdfHighlight,
+  ISearchPIIHighlight,
+} from "../../domain/NewPdfHighlight";
+import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { mapRedactionSaveRequest } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
@@ -52,6 +57,7 @@ type AsyncActions =
       type: "SAVE_REDACTIONS";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
+        searchPIIOn: boolean;
       };
     }
   | {
@@ -91,6 +97,12 @@ type AsyncActions =
       payload: {
         documentId: string;
         noteText: string;
+      };
+    }
+  | {
+      type: "GET_SEARCH_PII_DATA";
+      payload: {
+        documentId: string;
       };
     };
 
@@ -284,23 +296,41 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const { payload } = action;
-      const { documentId } = payload;
+      const { documentId, searchPIIOn } = payload;
 
       const {
         tabsState: { items },
         caseId,
         urn,
+        searchPII,
       } = getState();
+      let suggestedRedactionHighlights: ISearchPIIHighlight[] = [];
 
       const document = items.find((item) => item.documentId === documentId)!;
-
       const { redactionHighlights, polarisDocumentVersionId } = document;
+
+      let combinedRedactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[] =
+        redactionHighlights;
+      if (searchPIIOn) {
+        const suggestedHighlights =
+          searchPII.find((data) => data.documentId === documentId && data.show)
+            ?.searchPIIHighlights ?? [];
+        suggestedRedactionHighlights = suggestedHighlights.filter(
+          (highlight) => highlight.redactionStatus === "redacted"
+        );
+        combinedRedactionHighlights = [
+          ...redactionHighlights,
+          ...suggestedRedactionHighlights,
+        ];
+      }
 
       const redactionSaveRequest = mapRedactionSaveRequest(
         documentId,
-        redactionHighlights
+        combinedRedactionHighlights
       );
-      const savedRedactionTypes = redactionHighlights.map(
+
+      //need to add the suggested redactions redactionType here
+      const savedRedactionTypes = combinedRedactionHighlights.map(
         (highlight) => highlight.redactionType!
       );
       try {
@@ -323,6 +353,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
           payload: { documentId },
+        });
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
+          payload: { documentId, show: false, getData: false },
         });
 
         dispatch({
@@ -542,6 +576,48 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {
             startRefresh: true,
+          },
+        });
+      }
+    },
+
+  GET_SEARCH_PII_DATA:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId },
+      } = action;
+      const { caseId, urn } = getState();
+      try {
+        const searchPIIResult = await getSearchPIIData(urn, caseId, documentId);
+        dispatch({
+          type: "UPDATE_SEARCH_PII_DATA",
+          payload: {
+            documentId,
+            searchPIIResult,
+            getSearchPIIStatus: "success",
+          },
+        });
+      } catch (e) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "getsearchpii",
+            title: "Something went wrong!",
+            message:
+              "Failed to get redaction suggestions for the documents. Please try again.",
+          },
+        });
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
+          payload: { documentId, show: false, getData: false },
+        });
+        dispatch({
+          type: "UPDATE_SEARCH_PII_DATA",
+          payload: {
+            documentId,
+            searchPIIResult: [],
+            getSearchPIIStatus: "failure",
           },
         });
       }

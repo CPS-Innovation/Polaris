@@ -33,6 +33,7 @@ export type ConversionStatus =
   | "AsposePdfException"
   | "AsposeWordsUnsupportedFileFormat"
   | "AsposeWordsPasswordProtected"
+  | "AsposeSlidesPasswordProtected"
   | "AsposeCellsGeneralError"
   | "AsposeImagingCannotLoad"
   | "UnexpectedError";
@@ -46,6 +47,7 @@ export const mapConversionStatusToMessage = (
     case "PdfEncrypted":
     case "AsposePdfPasswordProtected":
     case "AsposeWordsPasswordProtected":
+    case "AsposeSlidesPasswordProtected":
       return "file is password protected";
     case "DocumentTypeUnsupported":
     case "AsposeWordsUnsupportedFileFormat":
