@@ -1,0 +1,27 @@
+.headerSearchPIIMode {
+  background: #f3f2f1;
+  color: #505a5f;
+  padding: 0.625rem 0.9375rem;
+  position: relative;
+  box-shadow: 0px 0.5rem 1rem 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  font-size: 0.875rem;
+}
+.title {
+  margin: 0;
+  font-size: 1.1875rem;
+}
+.pIITypesList {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin-top: 0;
+}
+.pIITypesListItem {
+  margin-right: 0.3125rem;
+}
+.redactionTypeCount {
+  color: #1d70b8;
+  font-weight: bold;
+}

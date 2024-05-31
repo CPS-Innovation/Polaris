@@ -216,7 +216,7 @@ describe("Tabs", () => {
         })
       );
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(1);
-      expect(mockHandleClosePdf).toHaveBeenCalledWith({ documentId: "t2" });
+      expect(mockHandleClosePdf).toHaveBeenCalledWith("t2");
       expect(mockHandleTabSelection).toHaveBeenCalledTimes(1);
       expect(mockHandleTabSelection).toHaveBeenCalledWith("t1");
     });
@@ -251,7 +251,7 @@ describe("Tabs", () => {
         })
       );
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(1);
-      expect(mockHandleClosePdf).toHaveBeenCalledWith({ documentId: "t1" });
+      expect(mockHandleClosePdf).toHaveBeenCalledWith("t1");
       expect(mockHandleTabSelection).toHaveBeenCalledTimes(1);
       expect(mockHandleTabSelection).toHaveBeenCalledWith("t2");
     });
@@ -282,7 +282,7 @@ describe("Tabs", () => {
         })
       );
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(1);
-      expect(mockHandleClosePdf).toHaveBeenCalledWith({ documentId: "t1" });
+      expect(mockHandleClosePdf).toHaveBeenCalledWith("t1");
       expect(mockHandleTabSelection).toHaveBeenCalledTimes(1);
       expect(mockHandleTabSelection).toHaveBeenCalledWith("");
     });

@@ -37,7 +37,9 @@ import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
-
+import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
+import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
+import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
 export const reducer = (
   state: CombinedState,
   action:
@@ -201,6 +203,31 @@ export const reducer = (
               addNoteStatus: "initial";
               getNoteStatus: "initial" | "loading" | "failure";
             };
+      }
+    | {
+        type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
+        payload: {
+          documentId: string;
+          show: boolean;
+          getData: boolean;
+        };
+      }
+    | {
+        type: "UPDATE_SEARCH_PII_DATA";
+        payload: {
+          documentId: string;
+          searchPIIResult: SearchPIIResultItem[];
+          getSearchPIIStatus: "initial" | "failure" | "loading" | "success";
+        };
+      }
+    | {
+        type: "IGNORE_SEARCH_PII_DATA";
+        payload: {
+          documentId: string;
+          textContent: string;
+          highlightGroupId: string;
+          ignoreAll: boolean;
+        };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -789,7 +816,7 @@ export const reducer = (
         id: String(`${+new Date()}-${index}`),
       }));
 
-      const newState = {
+      let newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -1038,13 +1065,123 @@ export const reducer = (
       }
     }
 
+    case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
+      const { documentId, show, getData } = action.payload;
+      const polarisDocumentVersionId = state.tabsState.items.find(
+        (data) => data.documentId === documentId
+      )?.polarisDocumentVersionId!;
+      const availablePIIData = state.searchPII.find(
+        (data) => data.documentId === documentId
+      );
+      const newSearchPIIHighlights =
+        availablePIIData?.searchPIIHighlights.map((highlight) => ({
+          ...highlight,
+          redactionStatus: "redacted" as const,
+        })) ?? [];
+
+      const newData = availablePIIData
+        ? {
+            ...availablePIIData,
+            show: show,
+            searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
+            polarisDocumentVersionId: getData
+              ? polarisDocumentVersionId
+              : availablePIIData.polarisDocumentVersionId,
+          }
+        : {
+            show: show,
+            documentId: documentId,
+            polarisDocumentVersionId: polarisDocumentVersionId,
+            searchPIIHighlights: [],
+            getSearchPIIStatus: "initial" as const,
+          };
+
+      return {
+        ...state,
+        searchPII: [
+          ...state.searchPII.filter((data) => data.documentId !== documentId),
+          newData,
+        ],
+      };
+    }
+
+    case "UPDATE_SEARCH_PII_DATA": {
+      const { documentId, searchPIIResult, getSearchPIIStatus } =
+        action.payload;
+      const filteredSearchPIIDatas = state.searchPII.filter(
+        (searchPIIResult) => searchPIIResult.documentId !== documentId
+      );
+      const activeSearchPIIData = state.searchPII.find(
+        (searchPIIResult) => searchPIIResult.documentId === documentId
+      )!;
+
+      const missedRedactionTypesData =
+        state.redactionLog.redactionLogLookUpsData.status === "succeeded"
+          ? state.redactionLog.redactionLogLookUpsData.data.missedRedactions
+          : [];
+
+      const searchPIIHighlights = mapSearchPIIHighlights(
+        searchPIIResult,
+        missedRedactionTypesData
+      );
+
+      const sortedSearchPIIHighlights =
+        sortSearchHighlights(searchPIIHighlights);
+      return {
+        ...state,
+        searchPII: [
+          ...filteredSearchPIIDatas,
+          {
+            ...activeSearchPIIData,
+            documentId,
+            searchPIIHighlights: sortedSearchPIIHighlights,
+            getSearchPIIStatus: getSearchPIIStatus,
+          },
+        ],
+      };
+    }
+
+    case "IGNORE_SEARCH_PII_DATA": {
+      const { documentId, textContent, ignoreAll, highlightGroupId } =
+        action.payload;
+      const filteredSearchPIIDatas = state.searchPII.filter(
+        (searchPIIResult) => searchPIIResult.documentId !== documentId
+      );
+
+      const searchPIIDataItem = state.searchPII?.find(
+        (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
+      )!;
+
+      let newHighlights: ISearchPIIHighlight[] = [];
+
+      newHighlights = searchPIIDataItem.searchPIIHighlights.map((highlight) => {
+        if (ignoreAll) {
+          if (highlight.textContent === textContent) {
+            highlight.redactionStatus = "ignored";
+          }
+          return highlight;
+        }
+        if (highlight.groupId === highlightGroupId) {
+          highlight.redactionStatus = "ignored";
+        }
+        return highlight;
+      });
+
+      const newState = {
+        ...state,
+        searchPII: [
+          ...filteredSearchPIIDatas,
+          {
+            ...searchPIIDataItem,
+            searchPIIHighlights: newHighlights,
+          },
+        ],
+      };
+
+      return newState;
+    }
+
     default:
       throw new Error("Unknown action passed to case details reducer");
   }
 };
-function apiResults(
-  data: ApiTextSearchResult[],
-  data1: import("../../domain/MappedCaseDocument").MappedCaseDocument[]
-) {
-  throw new Error("Function not implemented.");
-}

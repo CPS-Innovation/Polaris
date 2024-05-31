@@ -1,8 +1,10 @@
+import { useCallback } from "react";
 import { Tabs } from "../../../../../common/presentation/components/tabs";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfTab } from "./PdfTab";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
+import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 
 type PdfTabsProps = {
   redactionTypesData: RedactionTypeData[];
@@ -18,16 +20,19 @@ type PdfTabsProps = {
   }[];
   contextData: {
     correlationId: string;
+    searchPIIOn: string[];
+    showSearchPII: boolean;
   };
   caseId: number;
   isOkToSave: boolean;
   showOverRedactionLog: boolean;
+  searchPIIData: SearchPIIData[];
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
   }) => void;
   handleTabSelection: (documentId: string) => void;
-  handleClosePdf: (caseDocument: { documentId: string }) => void;
+  handleClosePdf: (documentId: string) => void;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -37,6 +42,8 @@ type PdfTabsProps = {
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
+  handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
+  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -46,6 +53,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   contextData,
   savedDocumentDetails,
   showOverRedactionLog,
+  searchPIIData,
   handleTabSelection,
   isOkToSave,
   handleOpenPdf,
@@ -59,7 +67,16 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
+  handleShowHideRedactionSuggestions,
+  handleIgnoreRedactionSuggestion,
 }) => {
+  const localHandleClosePdf = useCallback(
+    (documentId: string) => {
+      handleClosePdf(documentId);
+      handleShowHideRedactionSuggestions(documentId, false, false);
+    },
+    [handleClosePdf, handleShowHideRedactionSuggestions]
+  );
   return (
     <Tabs
       idPrefix="pdf"
@@ -71,6 +88,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               caseId={caseId}
+              searchPIIDataItem={searchPIIData.find(
+                (data) => data.documentId === item.documentId
+              )}
               tabIndex={index}
               showOverRedactionLog={showOverRedactionLog}
               redactionTypesData={redactionTypesData}
@@ -90,16 +110,21 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               }
               handleShowRedactionLogModal={handleShowRedactionLogModal}
               handleAreaOnlyRedaction={handleAreaOnlyRedaction}
+              handleShowHideRedactionSuggestions={
+                handleShowHideRedactionSuggestions
+              }
+              handleIgnoreRedactionSuggestion={handleIgnoreRedactionSuggestion}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}
+              polarisDocumentVersionId={item.polarisDocumentVersionId}
             />
           ),
         },
       }))}
       title="Contents"
       activeTabId={activeTabId}
-      handleClosePdf={handleClosePdf}
+      handleClosePdf={localHandleClosePdf}
       handleTabSelection={handleTabSelection}
       handleUnLockDocuments={handleUnLockDocuments}
     />

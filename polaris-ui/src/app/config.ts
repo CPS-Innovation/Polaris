@@ -53,6 +53,9 @@ export const FEATURE_FLAG_FULL_SCREEN =
 export const FEATURE_FLAG_NOTES =
   `${process.env.REACT_APP_FEATURE_FLAG_NOTES}` === "true";
 
+export const FEATURE_FLAG_SEARCH_PII =
+  `${process.env.REACT_APP_FEATURE_FLAG_SEARCH_PII}` === "true";
+
 export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
   .REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS
   ? parseInt(process.env.REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS)

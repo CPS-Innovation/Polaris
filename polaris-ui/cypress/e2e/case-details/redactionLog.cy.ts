@@ -352,10 +352,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("redaction-summary")
         .get("li:nth-child(1)")
         .should("contain", "2 - Relationships to others");
-
-      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
-        cy.findByTestId("redaction-log-notes").type("hello notes")
-      );
+      cy.waitUntil(() =>
+        cy.findByTestId("redaction-log-notes").should("not.be.disabled")
+      ).then(() => cy.findByTestId("redaction-log-notes").type("hello notes"));
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
 
@@ -644,9 +643,10 @@ describe("Redaction Log", () => {
       );
       cy.get(`#checkbox-overRedaction-type-4`).click();
 
-      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
-        cy.findByTestId("redaction-log-notes").type("test notes")
-      );
+      cy.waitUntil(() =>
+        cy.findByTestId("redaction-log-notes").should("not.be.disabled")
+      ).then(() => cy.findByTestId("redaction-log-notes").type("test notes"));
+
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
     });
@@ -674,9 +674,10 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-under-redaction`).click();
       cy.get(`#checkbox-underRedaction-type-1`).click();
       cy.get(`#checkbox-underRedaction-type-5`).click();
-      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
-        cy.findByTestId("redaction-log-notes").type("hello")
-      );
+
+      cy.waitUntil(() =>
+        cy.findByTestId("redaction-log-notes").should("not.be.disabled")
+      ).then(() => cy.findByTestId("redaction-log-notes").type("hello"));
 
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
@@ -714,9 +715,10 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-over-redaction`).click();
       cy.get(`#checkbox-overRedaction-type-2`).click();
       cy.get(`#checkbox-overRedaction-type-6`).click();
-      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
-        cy.findByTestId("redaction-log-notes").type("hello notes")
-      );
+      cy.waitUntil(() =>
+        cy.findByTestId("redaction-log-notes").should("not.be.disabled")
+      ).then(() => cy.findByTestId("redaction-log-notes").type("hello notes"));
+
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
 
@@ -802,9 +804,9 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-over-redaction`).click();
       cy.get(`#checkbox-overRedaction-type-2`).click();
       cy.get(`#checkbox-overRedaction-type-6`).click();
-      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
-        cy.findByTestId("redaction-log-notes").type("hello notes")
-      );
+      cy.waitUntil(() =>
+        cy.findByTestId("redaction-log-notes").should("not.be.disabled")
+      ).then(() => cy.findByTestId("redaction-log-notes").type("hello notes"));
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("rl-under-over-redaction-content").should("not.exist");
 
@@ -860,7 +862,9 @@ describe("Redaction Log", () => {
       cy.get(`#checkbox-over-redaction`).click();
       cy.get(`#checkbox-overRedaction-type-2`).click();
       cy.get(`#checkbox-overRedaction-type-6`).click();
-      cy.waitUntil(() => cy.findByTestId("redaction-log-notes")).then(() =>
+      cy.waitUntil(() =>
+        cy.findByTestId("redaction-log-notes").should("not.be.disabled")
+      ).then(() =>
         cy.findByTestId("redaction-log-notes").type(notes400CharacterText)
       );
       cy.realPress(".");
