@@ -44,10 +44,10 @@ namespace coordinator.Durable.Orchestration
             // 1. Get Pdf
             try
             {
-                var pdfConversionResult = await context.CallActivityAsync<PdfConversionStatus>(nameof(GeneratePdf), payload);
-                if (pdfConversionResult != PdfConversionStatus.DocumentConverted)
+                var pdfConversionStatus = await context.CallActivityAsync<PdfConversionStatus>(nameof(GeneratePdf), payload);
+                if (pdfConversionStatus != PdfConversionStatus.DocumentConverted)
                 {
-                    caseEntity.SetDocumentPdfConversionFailed((payload.PolarisDocumentId.ToString(), pdfConversionResult));
+                    caseEntity.SetDocumentPdfConversionFailed((payload.PolarisDocumentId.ToString(), pdfConversionStatus));
                     return;
                 }
             }

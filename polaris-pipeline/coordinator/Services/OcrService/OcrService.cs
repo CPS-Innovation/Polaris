@@ -20,7 +20,7 @@ namespace coordinator.Services.OcrService
         //  the occasional very slow document processing operation.  The article makes it clear that there is a limit in the number of requests
         //  per second, so by increasing the delay we are seeing if we can improve throughput by reducing the number of requests.
         private const int _pollingDelayMs = 2000;
-        private const int _httpTimeoutMs = 5000;
+        private const int _httpTimeoutMs = 50000; // temporarily set this high so we don't trigger timeouts
         private readonly ComputerVisionClient _computerVisionClient;
         private readonly ILogger<OcrService> _log;
 
@@ -62,13 +62,12 @@ namespace coordinator.Services.OcrService
                 stream = await stream.EnsureSeekableAsync();
 
                 // There have been examples seen in production of ReadInStreamAsync taking 100 seconds and then hitting the default timeout of its internal
-                //  HttpClient (presumably).  This would time out our orchestrator execution, so lets time out early if we detect a "stuck" call 
-                //  and let the caller deal with resilient/retry.
+                //  HttpClient (presumably).  This would time out our orchestrator execution, so lets time out and throw earlier if we detect a "hanging" call 
+                //  and let the caller deal with retries.
                 using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
                 var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream, null, null, "latest", "basic", cancellationSource.Token);
 
                 var operationLocation = textHeaders.OperationLocation;
-
                 const int numberOfCharsInOperationId = 36;
                 var operationId = operationLocation[^numberOfCharsInOperationId..];
 
@@ -87,7 +86,7 @@ namespace coordinator.Services.OcrService
             {
                 // See cancellationSource comment in InitiateOperationAsync.
                 using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
-                var results = await _computerVisionClient.GetReadResultAsync(operationId);
+                var results = await _computerVisionClient.GetReadResultAsync(operationId, cancellationSource.Token);
                 _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
 
                 if (results.Status == OperationStatusCodes.Running || results.Status == OperationStatusCodes.NotStarted)
