@@ -49,7 +49,7 @@ steps:
     inputs:
       targetType: "inline"
       script: |
-        sed -i 's/__subscriptionId__/${{ parameters.subscriptionId }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}/connections.json'
+        sed -i 's/__subscriptionId__/${{ parameters.azureSubscriptionId }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}/connections.json'
         sed -i 's/__resourceGroup__/${{ parameters.targetResourceGroup }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}/connections.json'
     
   # prepare a zip
