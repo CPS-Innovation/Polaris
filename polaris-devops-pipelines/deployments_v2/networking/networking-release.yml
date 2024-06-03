@@ -56,22 +56,35 @@ stages:
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
                     
-                - template: ../tasks/task_deploy-alert-processor.yml
-                  parameters:
-                    targetBuild: PolarisNetworkingBuild
-                    targetTerraformArtifact: "networking-terraform-files"
-                    targetLabel: "DEV"
-                    targetName: "Alert Processor CI Deployment"
-                    targetSuffix: "-dev"
-                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-                    azureSubscription: $(dev-azure-subscription)
-                    azureSubscriptionId: $(subscriptionId)
-                    targetResourceGroup: rg-polaris-analytics-dev
+  - stage: Deploy_Logic_Apps_DEV
+    displayName: DEV > Deploy Logic App
+    dependsOn: Apply_DEV
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: Deploy_Logic_Apps
+        steps:
+          - template: ../tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(dev-azure-subscription)
+              
+          - template: ../tasks/task_deploy-alert-processor.yml
+            parameters:
+              targetBuild: PolarisNetworkingBuild
+              targetTerraformArtifact: "networking-terraform-files"
+              targetLabel: "DEV"
+              targetName: "Alert Processor CI Deployment"
+              targetSuffix: "-dev"
+              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+              azureSubscription: $(dev-azure-subscription)
+              azureSubscriptionId: $(subscriptionId)
+              targetResourceGroup: rg-polaris-analytics-dev
                     
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_DEV
     displayName: DEV > Save Report
-    dependsOn: Apply_Dev
+    dependsOn: Deploy_Logic_Apps_DEV
     condition: succeeded()
     jobs:
       - job: Create_Commit_Report
