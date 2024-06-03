@@ -30,7 +30,7 @@ steps:
     
   # prepare a zip
   - task: ArchiveFiles@2
-    displayName: 'Create project zip'
+    displayName: Zip Logic App Definition
     inputs:
       rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions'
       includeRootFolder: false
@@ -39,7 +39,7 @@ steps:
       replaceExistingArchive: true
       
   - task: AzureFunctionApp@1
-    display: 'Create/Update Logic App Definition'
+    displayName: Create/Update Alert Processor
     inputs:
       azureSubscription: ${{ parameters.azureSubscription }}
       appType: functionAppLinux
