@@ -22,19 +22,12 @@ parameters:
 steps:
   # download pipeline terraform build artifact, which also contains the logic app definitions
   - download: ${{ parameters.targetBuild }}
-    displayName: Terraform > Download Terraform build
+    displayName: Logic App > Download Build
     artifact: ${{ parameters.targetTerraformArtifact }}
     
-  # send custom event to AppInsights
-  - template: task_send-to-app-insights.yml
-    parameters:
-      appInsightsKey: ${{ parameters.appInsightsKey }}
-      targetBuild: ${{ parameters.targetBuild }}
-      message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Alert Processor - Started"
-  
   # create candidate folder  
   - task: CopyFiles@2
-    displayName: Create Definition Folder
+    displayName: Logic App > Create Definition
     inputs:
       SourceFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions'
       Contents: |
@@ -45,7 +38,7 @@ steps:
    
   # replace values in template   
   - task: Bash@3
-    displayName: Replace values in template
+    displayName: Logic App > Replace Values
     inputs:
       targetType: "inline"
       script: |
@@ -54,7 +47,7 @@ steps:
     
   # prepare a zip
   - task: ArchiveFiles@2
-    displayName: Zip Logic App Definition
+    displayName: Logic App > Zip
     inputs:
       rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}'
       includeRootFolder: false
@@ -63,17 +56,10 @@ steps:
       replaceExistingArchive: true
       
   - task: AzureFunctionApp@1
-    displayName: Create/Update Alert Processor
+    displayName: Logic App > Publish
     inputs:
       azureSubscription: ${{ parameters.azureSubscription }}
       appType: functionAppLinux
       appName: "SendCaAlertToTc${{ parameters.targetSuffix }}"
       package: '$(Pipeline.Workspace)/$(Build.BuildId)_alert_processor_${{ parameters.targetName}}.zip'
       deploymentMethod: "zipDeploy"
-      
-  # send custom event to AppInsights
-  - template: task_send-to-app-insights.yml
-    parameters:
-      appInsightsKey: ${{ parameters.appInsightsKey }}
-      targetBuild: ${{ parameters.targetBuild }}
-      message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Alert Processor - Completed"
