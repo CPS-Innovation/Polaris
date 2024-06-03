@@ -11,6 +11,14 @@
 
   min_tls_version = "TLS1_2"
 
+  network_rules {
+    default_action = "Deny"
+    bypass         = ["Metrics", "Logging", "AzureServices"]
+    virtual_network_subnet_ids = [
+      azurerm_subnet.sn_polaris_alert_notifications_subnet.id
+    ]
+  }
+
   identity {
     type = "SystemAssigned"
   }
@@ -81,6 +89,12 @@ resource "azurerm_private_endpoint" "alert_processing_sa_queue_pe" {
   }
 }
 
+resource "azapi_resource" "sa_alert_processing_file_share" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "polaris-alert-processor-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris_workspace.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_alert_processing.name}/fileServices/default"
+}
+
 resource "azurerm_app_service_plan" "asp_alert_notifications" {
   name                = "asp-alert-notifications${local.env_name_suffix}"
   location            = azurerm_resource_group.rg_polaris_workspace.location
@@ -102,7 +116,7 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
   app_service_plan_id        = azurerm_app_service_plan.asp_alert_notifications.id
   storage_account_name       = azurerm_storage_account.sa_alert_processing.name
   storage_account_access_key = azurerm_storage_account.sa_alert_processing.primary_access_key
-  virtual_network_subnet_id  =  azurerm_subnet.sn_polaris_alert_notifications_subnet.id
+  virtual_network_subnet_id  = azurerm_subnet.sn_polaris_alert_notifications_subnet.id
   https_only                 = true
   version                    = "~4"
   
@@ -111,6 +125,8 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
     "WEBSITE_NODE_DEFAULT_VERSION"          = "~18"
     "APPINSIGHTS_INSTRUMENTATIONKEY"        = azurerm_application_insights.ai_polaris.instrumentation_key
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.ai_polaris.connection_string
+    "WEBSITE_CONTENTOVERVNET"               = "1"
+    "WEBSITE_CONTENTSHARE"                  = azapi_resource.sa_alert_processing_file_share.name
     "WEBSITE_RUN_FROM_PACKAGE"              = "1"
   }
   
