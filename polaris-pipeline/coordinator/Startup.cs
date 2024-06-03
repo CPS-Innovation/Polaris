@@ -130,6 +130,8 @@ namespace coordinator
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
             services.AddSingleton<IPiiEntityMapper, PiiEntityMapper>();
+            services.AddSingleton<IPiiAllowedListService, PiiAllowedListService>();
+            services.AddSingleton<IPiiAllowedList, PiiAllowedList>();
 
             services.AddDurableClientFactory();
         }

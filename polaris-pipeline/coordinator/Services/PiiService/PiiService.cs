@@ -22,12 +22,14 @@ namespace coordinator.Services.PiiService
         private readonly IPiiEntityMapper _piiEntityMapper;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly IPiiAllowedListService _piiAllowedList;
 
-        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration)
+        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration, IPiiAllowedListService allowedList)
         {
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
+            _piiAllowedList = allowedList ?? throw new ArgumentNullException(nameof(allowedList));
             _piiCategories = configuration["PiiCategories"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
@@ -69,6 +71,8 @@ namespace coordinator.Services.PiiService
 
                     foreach (var (text, offset) in words)
                     {
+                        if (_piiAllowedList.Contains(text, piiEntity.Category)) continue;
+
                         var chunkLine = chunk.Lines.Single(x => x.ContainsOffset(offset));
                         var ocrWord = chunkLine.GetWord(text, offset);
                         var redactionType = GetRedactionTypeCategoryMapping(piiEntity.Category);
