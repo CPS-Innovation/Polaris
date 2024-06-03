@@ -557,6 +557,32 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       hasNotes: false,
       conversionStatus: "DocumentConverted",
     },
+    {
+      documentId: "12",
+      cmsDocumentId: "12",
+      pdfBlobName: "SearchPII",
+      status: "Indexed",
+      cmsOriginalFileName: "SearchPII",
+      presentationTitle: "SearchPII",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-02",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 1019,
+        documentType: "MG12",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: null,
+      hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
+    },
   ],
 };
 

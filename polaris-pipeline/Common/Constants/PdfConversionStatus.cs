@@ -30,5 +30,7 @@ public enum PdfConversionStatus
     AsposeImagingCannotLoad,
 
     [EnumValue("An unexpected error occurred")]
-    UnexpectedError
+    UnexpectedError,
+    [EnumValue("Slides file is password protected")]
+    AsposeSlidesPasswordProtected,
 }

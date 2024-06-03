@@ -86,6 +86,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     featureFlags,
     storedUserData,
     notes,
+    searchPII,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -107,6 +108,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleAreaOnlyRedaction,
     handleGetNotes,
     handleAddNote,
+    handleShowHideRedactionSuggestions,
+    handleIgnoreRedactionSuggestion,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -504,6 +507,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
+                searchPIIData={searchPII}
                 redactionTypesData={
                   redactionLog.redactionLogLookUpsData.status === "succeeded"
                     ? redactionLog.redactionLogLookUpsData.data.missedRedactions
@@ -525,8 +529,18 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   handleShowHideDocumentIssueModal
                 }
                 handleShowRedactionLogModal={handleShowRedactionLogModal}
+                handleShowHideRedactionSuggestions={
+                  handleShowHideRedactionSuggestions
+                }
+                handleIgnoreRedactionSuggestion={
+                  handleIgnoreRedactionSuggestion
+                }
                 contextData={{
                   correlationId: pipelineState?.correlationId,
+                  searchPIIOn: searchPII
+                    .filter((data) => data.show)
+                    .map((data) => data.documentId),
+                  showSearchPII: featureFlags.searchPII,
                 }}
                 caseId={+caseId}
                 showOverRedactionLog={
