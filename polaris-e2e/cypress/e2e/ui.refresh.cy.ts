@@ -1,23 +1,23 @@
-const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, TARGET_NUMBERS_DOC_NAME } =
+const { REFRESH_UI_TARGET_URN, REFRESH_UI_TARGET_CASE_ID, TARGET_PEOPLE_DOC_NAME } =
   Cypress.env()
 
 describe("Refresh via guid-controlled ", { tags: "@ci" }, () => {
   it("can update a document", () => {
     cy.fullLogin()
 
-    cy.clearCaseTracker(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID)
+    cy.clearCaseTracker(REFRESH_UI_TARGET_URN, REFRESH_UI_TARGET_CASE_ID)
 
     cy.visit("/polaris-ui/case-search?redactionLog=false")
     cy.setPolarisInstrumentationGuid("PHASE_1")
 
-    cy.findByTestId("input-search-urn").type(`${REFRESH_TARGET_URN}{enter}`)
-    cy.findByTestId(`link-${REFRESH_TARGET_URN}`).click()
+    cy.findByTestId("input-search-urn").type(`${REFRESH_UI_TARGET_URN}{enter}`)
+    cy.findByTestId(`link-${REFRESH_UI_TARGET_URN}`).click()
 
     cy.findByTestId("btn-accordion-open-close-all").click()
-    cy.findByText(TARGET_NUMBERS_DOC_NAME).click()
+    cy.findByText(TARGET_PEOPLE_DOC_NAME).click()
 
     // our expected phase 1 text is present
-    cy.selectPDFTextElement("Three")
+    cy.selectPDFTextElement("Alice")
 
     cy.setPolarisInstrumentationGuid("PHASE_2")
     cy.findByTestId("btn-redact").click({ force: true })
@@ -34,7 +34,7 @@ describe("Refresh via guid-controlled ", { tags: "@ci" }, () => {
     cy.findByTestId("div-pdfviewer-0").should("exist")
 
     // our expected phase 2 text is present, the document has been refreshed in the tracker
-    cy.selectPDFTextElement("Four")
+    cy.selectPDFTextElement("Bob")
   })
 })
 
