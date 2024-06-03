@@ -15,9 +15,9 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
-    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "AzureWebJobs.ResetDurableState.Disabled"    = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled" = var.sliding_clear_down.disabled
+    "AzureWebJobsStorage"                        = azurerm_storage_account.sa_coordinator.primary_connection_string
     # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
     "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600

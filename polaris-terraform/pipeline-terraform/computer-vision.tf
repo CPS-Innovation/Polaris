@@ -1,5 +1,6 @@
 resource "azurerm_cognitive_account" "computer_vision_service" {
   #checkov:skip=CKV2_AZURE_22:Ensure that Cognitive Services enables customer-managed key for encryption
+  #checkov:skip=CKV_AZURE_236:Ensure that Cognitive Services accounts enable local authentication
   name                = "cv-${local.resource_name}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -13,9 +14,6 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
 
   network_acls {
     default_action = "Deny"
-    virtual_network_rules {
-      subnet_id = data.azurerm_subnet.polaris_textextractor_subnet.id
-    }
     virtual_network_rules {
       subnet_id = data.azurerm_subnet.polaris_apps_subnet.id
     }

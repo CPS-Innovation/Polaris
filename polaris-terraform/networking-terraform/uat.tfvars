@@ -1,6 +1,6 @@
 environment = {
-  name       = "uat"
-  alias      = "uat"
+  name  = "uat"
+  alias = "uat"
 }
 
 ddeiServicesSubnet                  = "10.7.200.128/27"
