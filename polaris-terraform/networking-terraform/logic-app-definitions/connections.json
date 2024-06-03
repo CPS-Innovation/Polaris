@@ -2,10 +2,10 @@
   "managedApiConnections": {
     "teams": {
       "api": {
-        "id": "/subscriptions/4ae5270e-9e32-4bdf-88f1-a677dd3280c0/providers/Microsoft.Web/locations/uksouth/managedApis/teams"
+        "id": "/subscriptions/__subscriptionId__/providers/Microsoft.Web/locations/uksouth/managedApis/teams"
       },
       "connection": {
-        "id": "/subscriptions/4ae5270e-9e32-4bdf-88f1-a677dd3280c0/resourceGroups/rg-polaris-analytics-dev/providers/Microsoft.Web/connections/teams"
+        "id": "/subscriptions/__subscriptionId__/resourceGroups/__resourceGroup__/providers/Microsoft.Web/connections/teams"
       },
       "authentication": {
         "type": "ManagedServiceIdentity"

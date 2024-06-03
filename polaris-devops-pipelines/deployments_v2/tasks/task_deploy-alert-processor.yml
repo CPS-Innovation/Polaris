@@ -14,6 +14,10 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
+  - name: azureSubscriptionId
+    type: string
+  - name: targetResourceGroup
+    type: string
     
 steps:
   # download pipeline terraform build artifact, which also contains the logic app definitions
@@ -27,15 +31,35 @@ steps:
       appInsightsKey: ${{ parameters.appInsightsKey }}
       targetBuild: ${{ parameters.targetBuild }}
       message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Alert Processor - Started"
+  
+  # create candidate folder  
+  - task: CopyFiles@2
+    displayName: Create Definition Folder
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions'
+      Contents: |
+        host.json
+        connections.json
+        alert-processor/**
+      TargetFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}'
+   
+  # replace values in template   
+  - task: Bash@3
+    displayName: Replace values in template
+    inputs:
+      targetType: "inline"
+      script: |
+        sed -i 's/__subscriptionId__/${{ parameters.subscriptionId }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}/connections.json'
+        sed -i 's/__resourceGroup__/${{ parameters.targetResourceGroup }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}/connections.json'
     
   # prepare a zip
   - task: ArchiveFiles@2
     displayName: Zip Logic App Definition
     inputs:
-      rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions'
+      rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}'
       includeRootFolder: false
       archiveType: 'zip'
-      archiveFile: '$(Pipeline.Workspace)/$(Build.BuildId)_alert_processor.zip'
+      archiveFile: '$(Pipeline.Workspace)/$(Build.BuildId)_alert_processor_${{ parameters.targetName}}.zip'
       replaceExistingArchive: true
       
   - task: AzureFunctionApp@1
@@ -44,7 +68,7 @@ steps:
       azureSubscription: ${{ parameters.azureSubscription }}
       appType: functionAppLinux
       appName: "SendCaAlertToTc${{ parameters.targetSuffix }}"
-      package: "$(Pipeline.Workspace)/$(Build.BuildId)_alert_processor.zip"
+      package: '$(Pipeline.Workspace)/$(Build.BuildId)_alert_processor_${{ parameters.targetName}}.zip'
       deploymentMethod: "zipDeploy"
       
   # send custom event to AppInsights

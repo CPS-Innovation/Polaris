@@ -56,6 +56,18 @@ stages:
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
                     
+                - template: ../tasks/task_deploy-alert-processor.yml
+                  parameters:
+                    targetBuild: PolarisNetworkingBuild
+                    targetTerraformArtifact: "networking-terraform-files"
+                    targetLabel: "DEV"
+                    targetName: "Alert Processor CI Deployment"
+                    targetSuffix: "-dev"
+                    appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+                    azureSubscription: $(dev-azure-subscription)
+                    azureSubscriptionId: $(subscriptionId)
+                    targetResourceGroup: rg-polaris-analytics-dev
+                    
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_DEV
     displayName: DEV > Save Report
