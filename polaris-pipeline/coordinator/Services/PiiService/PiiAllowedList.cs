@@ -4,22 +4,24 @@ namespace coordinator.Services.PiiService
 {
     public class PiiAllowedList : IPiiAllowedList
     {
+        private const string PersonType = "PersonType";
+
         public List<PiiAllowedWord> GetWords()
         {
             return new()
             {
-                new("colleague",    "PersonType"),
-                new("customer",     "PersonType"),
-                new("customers",    "PersonType"),
-                new("defendent",    "PersonType"),
-                new("interviewer",  "PersonType"),
-                new("officer",      "PersonType"),
-                new("officers",     "PersonType"),
-                new("police",       "PersonType"),
-                new("police",       "Organization"),
-                new("prosecutor",   "PersonType"),
-                new("victim",       "PersonType"),
-                new("witness",      "PersonType")
+                new("colleague",    PiiCategory.PersonType),
+                new("customer",     PiiCategory.PersonType),
+                new("customers",    PiiCategory.PersonType),
+                new("defendent",    PiiCategory.PersonType),
+                new("interviewer",  PiiCategory.PersonType),
+                new("officer",      PiiCategory.PersonType),
+                new("officers",     PiiCategory.PersonType),
+                new("police",       PiiCategory.PersonType),
+                new("police",       PiiCategory.Organization),
+                new("prosecutor",   PiiCategory.PersonType),
+                new("victim",       PiiCategory.PersonType),
+                new("witness",      PiiCategory.PersonType)
             };
         }
     }
