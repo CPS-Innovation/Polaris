@@ -1,8 +1,8 @@
 #touched file to prompt a PR build
 
 environment = {
-  name       = "development"
-  alias      = "dev"
+  name  = "development"
+  alias = "dev"
 }
 
 ddeiServicesSubnet                  = "10.7.196.64/27"

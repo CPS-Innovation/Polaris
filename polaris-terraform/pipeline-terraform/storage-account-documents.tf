@@ -26,7 +26,6 @@ resource "azurerm_storage_account" "sa" {
       data.azurerm_subnet.polaris_coordinator_subnet.id,
       data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
       data.azurerm_subnet.polaris_pdfredactor_subnet.id,
-      data.azurerm_subnet.polaris_textextractor_subnet.id,
       data.azurerm_subnet.polaris_textextractor_2_subnet.id,
       data.azurerm_subnet.polaris_gateway_subnet.id,
       data.azurerm_subnet.polaris_apps_subnet.id,

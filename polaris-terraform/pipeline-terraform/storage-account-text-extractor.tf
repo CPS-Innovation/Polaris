@@ -23,7 +23,6 @@ resource "azurerm_storage_account" "sa_text_extractor" {
     bypass         = ["Metrics", "Logging", "AzureServices"]
     virtual_network_subnet_ids = [
       data.azurerm_subnet.polaris_ci_subnet.id,
-      data.azurerm_subnet.polaris_textextractor_subnet.id,
       data.azurerm_subnet.polaris_apps_subnet.id,
       data.azurerm_subnet.polaris_apps2_subnet.id,
       data.azurerm_subnet.polaris_textextractor_2_subnet.id
