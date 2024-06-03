@@ -11,6 +11,7 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Telemetry;
+using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
@@ -33,7 +34,8 @@ namespace coordinator.Durable.Orchestration
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-
+        private readonly int _switchoverCaseId;
+        private readonly int _switchoverModulo;
         public static string GetKey(string caseId) => $"[{caseId}]";
 
         public RefreshCaseOrchestrator(
@@ -46,7 +48,9 @@ namespace coordinator.Durable.Orchestration
             _configuration = configuration;
             _cmsDocumentsResponseValidator = cmsDocumentsResponseValidator;
             _telemetryClient = telemetryClient;
-            _timeout = TimeSpan.FromSeconds(20000);
+            _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorOrchestratorTimeoutSecs]));
+            _switchoverCaseId = int.Parse(_configuration[ConfigKeys.CoordinatorSwitchoverCaseId]);
+            _switchoverModulo = int.Parse(_configuration[ConfigKeys.CoordinatorSwitchoverModulo]);
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
@@ -97,6 +101,17 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
+        public static string GetOrchestratorName(int switchoverCaseId, int switchoverModulo, int caseId)
+        {
+            var shouldUseNextOrchestrator = switchoverModulo > 0
+                && caseId >= switchoverCaseId
+                && caseId % switchoverModulo == 0;
+
+            return shouldUseNextOrchestrator
+                ? nameof(RefreshDocumentOrchestratorNext)
+                : nameof(RefreshDocumentOrchestrator);
+        }
+
         private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CaseOrchestrationPayload payload, RefreshedCaseEvent telemetryEvent)
         {
             caseEntity.Reset(context.InstanceId);
@@ -122,7 +137,7 @@ namespace coordinator.Durable.Orchestration
             return caseEntity.Adapt<TrackerDto>();
         }
 
-        private async static Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks
+        private async Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks
             (
                 IDurableOrchestrationContext context,
                 ICaseDurableEntity caseTracker,
@@ -204,11 +219,16 @@ namespace coordinator.Durable.Orchestration
             }
 
             var allPayloads = cmsDocumentPayloads.Concat(pcdRequestsPayloads).Concat(defendantsAndChargesPayloads);
+
+            // temporary code whilst we switch over to the new document orchestrator
+            var orchestratorName = GetOrchestratorName(
+                _switchoverCaseId, _switchoverModulo, caseDocumentPayload.CmsCaseId);
+
             var allTasks = allPayloads.Select
                     (
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
-                            nameof(RefreshDocumentOrchestrator),
+                            orchestratorName,
                             RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
                             payload
                         )
