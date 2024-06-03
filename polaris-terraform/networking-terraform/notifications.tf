@@ -130,6 +130,7 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
     min_tls_version = "1.2"
     public_network_access_enabled = false
     runtime_scale_monitoring_enabled = true
+    http2_enabled = true
   }
 
   identity {

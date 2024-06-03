@@ -56,8 +56,8 @@ stages:
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
                     
-  - stage: Deploy_Logic_Apps_DEV
-    displayName: DEV > Deploy Logic App
+  - stage: Deploy_DEV
+    displayName: DEV > Deploy Apps
     dependsOn: Apply_DEV
     condition: succeeded()
     pool:
@@ -84,7 +84,7 @@ stages:
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_DEV
     displayName: DEV > Save Report
-    dependsOn: Deploy_Logic_Apps_DEV
+    dependsOn: Deploy_DEV
     condition: succeeded()
     jobs:
       - job: Create_Commit_Report
