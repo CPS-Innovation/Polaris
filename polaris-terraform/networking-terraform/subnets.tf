@@ -128,6 +128,15 @@ resource "azurerm_subnet" "sn_polaris_alert_notifications_subnet" {
   virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisAlertNotificationsSubnet]
 
+  delegation {
+    name = "Microsoft.Web/serverFarms Proxy Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
   depends_on = [data.azurerm_virtual_network.vnet_networking]
 }
 
