@@ -37,11 +37,14 @@ const showFeature = (
   queryParam: string,
   groupClaims?: string[]
 ) => {
+  console.log("here");
   if (!featureFlag) return false;
 
   const isTestUser =
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
+
+  console.log(isTestUser);
 
   if (isTestUser && queryParam === "false") return false;
 
@@ -61,6 +64,17 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
   const userDetails = useUserDetails();
   const groupClaims = account?.idTokenClaims?.groups as string[];
 
+  console.log({
+    FEATURE_FLAG_REDACTION_LOG,
+    PRIVATE_BETA_CHECK_IGNORE_USER,
+    FEATURE_FLAG_FULL_SCREEN,
+    FEATURE_FLAG_NOTES,
+    FEATURE_FLAG_SEARCH_PII,
+    PRIVATE_BETA_FEATURE_USER_GROUP,
+    groupClaims,
+    userDetails,
+  });
+
   const getFeatureFlags = useCallback(
     () => ({
       redactionLog: showFeature(
@@ -73,12 +87,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         fullScreen
       ),
-      notes: showFeature(
-        FEATURE_FLAG_NOTES,
-        userDetails?.username,
-        notes,
-        groupClaims
-      ),
+      notes: showFeature(FEATURE_FLAG_NOTES, userDetails?.username, notes),
       searchPII: showFeature(
         FEATURE_FLAG_SEARCH_PII,
         userDetails?.username,
