@@ -44,8 +44,6 @@ const showFeature = (
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
-  console.log(isTestUser);
-
   if (isTestUser && queryParam === "false") return false;
 
   if (groupClaims) {
@@ -63,17 +61,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
   const groupClaims = account?.idTokenClaims?.groups as string[];
-
-  console.log({
-    FEATURE_FLAG_REDACTION_LOG,
-    PRIVATE_BETA_CHECK_IGNORE_USER,
-    FEATURE_FLAG_FULL_SCREEN,
-    FEATURE_FLAG_NOTES,
-    FEATURE_FLAG_SEARCH_PII,
-    PRIVATE_BETA_FEATURE_USER_GROUP,
-    groupClaims,
-    userDetails,
-  });
 
   const getFeatureFlags = useCallback(
     () => ({
