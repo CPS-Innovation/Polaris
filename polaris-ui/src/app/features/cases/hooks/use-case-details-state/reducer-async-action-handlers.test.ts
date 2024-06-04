@@ -629,7 +629,7 @@ describe("reducerAsyncActionHandlers", () => {
         .spyOn(api, "saveRedactions")
         .mockImplementation(() => Promise.resolve());
 
-      const mockRedactionSaveRequest = {} as RedactionSaveRequest;
+      const mockRedactionSaveRequest = { pii: {} } as RedactionSaveRequest;
 
       jest
         .spyOn(mapRedactionSaveRequest, "mapRedactionSaveRequest")
