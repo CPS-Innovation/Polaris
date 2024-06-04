@@ -37,7 +37,6 @@ const showFeature = (
   queryParam: string,
   groupClaims?: string[]
 ) => {
-  console.log("here");
   if (!featureFlag) return false;
 
   const isTestUser =
