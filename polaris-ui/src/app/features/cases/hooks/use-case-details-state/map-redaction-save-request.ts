@@ -91,6 +91,10 @@ export const mapSearchPIISaveRedactionObject = (
   if (!searchPIIHighlights.length) {
     return {};
   }
+  const amendedRedactions = getAmendedRedactionsCount(
+    manualRedactionHighlights,
+    searchPIIHighlights
+  );
 
   const piiCategoryGroupedHighlights: Record<string, ISearchPIIHighlight[]> =
     searchPIIHighlights.reduce((acc, highlight) => {
@@ -112,15 +116,11 @@ export const mapSearchPIISaveRedactionObject = (
           .length,
         countIgnored: value.filter((val) => val.redactionStatus !== "redacted")
           .length,
-        countAmended: getAmendedRedactionsCount(
-          manualRedactionHighlights,
-          value
-        ),
+        countAmended: amendedRedactions[key] ? amendedRedactions[key] : 0,
       };
     }
   );
 
-  console.log("piiData>>>", piiData);
   return {
     categories: piiData,
   };
@@ -144,34 +144,39 @@ const checkIfHighlightIsWithinBox = (
     width: number;
   }
 ) => {
+  const CORRECTION_VALUE = 10;
   return (
-    boundary.x1 - 10 <= highlight.x1 &&
-    boundary.y1 - 10 <= highlight.y1 &&
-    boundary.x2 + 10 >= highlight.x2 &&
-    boundary.y2 + 10 >= highlight.y2
+    boundary.x1 - CORRECTION_VALUE <= highlight.x1 &&
+    boundary.y1 - CORRECTION_VALUE <= highlight.y1 &&
+    boundary.x2 + CORRECTION_VALUE >= highlight.x2 &&
+    boundary.y2 + CORRECTION_VALUE >= highlight.y2
   );
 };
 
 const getAmendedRedactionsCount = (
   manualRedactionHighlights: IPdfHighlight[],
   searchPIIHighlights: ISearchPIIHighlight[]
-) => {
+): Record<string, number> => {
   if (!manualRedactionHighlights.length || !searchPIIHighlights.length) {
-    return 0;
+    return {};
   }
+
+  const ignoredHighlights = searchPIIHighlights.filter(
+    (highlight) => highlight.redactionStatus !== "redacted"
+  );
   const normalizedHighlights = getNormalizedRedactionHighlights([
     ...manualRedactionHighlights,
-    ...searchPIIHighlights,
+    ...ignoredHighlights,
   ]);
 
   const normalizedSearchPIIHighlights = normalizedHighlights.filter(
     (highlight) => highlight.type === "searchPII"
-  );
+  ) as ISearchPIIHighlight[];
   const normalizedManualHighlights = normalizedHighlights.filter(
     (highlight) => highlight.type === "redaction"
   );
 
-  let partialRedactions = [];
+  let partialRedactions: ISearchPIIHighlight[] = [];
 
   normalizedManualHighlights.forEach((highlight) => {
     const pageNumber = highlight.position.pageNumber;
@@ -184,10 +189,20 @@ const getAmendedRedactionsCount = (
         highlight.position.boundingRect
       );
     });
-
-    console.log("match>>", match);
     if (match) partialRedactions.push(match);
   });
 
-  return partialRedactions.length;
+  const partialRedactionsSummary = partialRedactions.reduce(
+    (acc, highlight) => {
+      if (!acc[highlight.piiCategory]) {
+        acc[highlight.piiCategory] = 1;
+        return acc;
+      }
+      acc[highlight.piiCategory] = acc[highlight.piiCategory] + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  return partialRedactionsSummary;
 };

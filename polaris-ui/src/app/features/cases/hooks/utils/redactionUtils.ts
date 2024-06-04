@@ -1,4 +1,5 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import {
   RedactionsData,
@@ -14,7 +15,7 @@ import { round } from "lodash";
  * @returns
  */
 export const getNormalizedRedactionHighlights = (
-  redactionHighlights: IPdfHighlight[]
+  redactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[]
 ) => {
   const basePageHeights = {} as any;
   const normalizedHighlights = redactionHighlights.map((highlight) => {
