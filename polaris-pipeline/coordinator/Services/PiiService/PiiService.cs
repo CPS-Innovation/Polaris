@@ -63,6 +63,7 @@ namespace coordinator.Services.PiiService
             {
                 foreach (var piiEntity in item.Entities)
                 {
+                    var entityGroupId = Guid.NewGuid();
                     var words = piiEntity.GetWordsWithOffset();
                     var chunk = piiChunks[itemIndex];
 
@@ -70,10 +71,10 @@ namespace coordinator.Services.PiiService
                     {
                         var chunkLine = chunk.Lines.Single(x => x.ContainsOffset(offset));
                         var ocrWord = chunkLine.GetWord(text, offset);
-                        var category = GetRedactionLogCategoryMapping(piiEntity.Category);
+                        var redactionType = GetRedactionTypeCategoryMapping(piiEntity.Category);
 
                         if (ocrWord != null)
-                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, category, chunk.DocumentId));
+                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category, redactionType, chunk.DocumentId, entityGroupId));
                     }
                 }
             }
@@ -131,7 +132,9 @@ namespace coordinator.Services.PiiService
                 {
                     Text = entity.Word.Text,
                     BoundingBox = entity.Word.BoundingBox,
-                    PiiCategory = entity.PiiCategory
+                    PiiCategory = entity.PiiCategory,
+                    PiiGroupId = entity.EntityGroupId,
+                    RedactionType = entity.RedactionType
                 };
                 if (wordIndex != -1)
                     piiLine.Words[wordIndex] = word;
@@ -159,7 +162,7 @@ namespace coordinator.Services.PiiService
             return _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(await piiStreamReader.ReadToEndAsync());
         }
 
-        private static string GetRedactionLogCategoryMapping(string piiCategory)
+        private static string GetRedactionTypeCategoryMapping(string piiCategory)
         {
             PiiToRedactionLogCategoryMappings.TryGetValue(piiCategory, out var category);
 

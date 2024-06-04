@@ -9,7 +9,7 @@
 .AreaHighlight__part {
   cursor: pointer;
   position: absolute;
-  background: black;
-  border: none;
+  background: rgba(0, 0, 0, 0.3);
+  border: solid;
   transition: background 0.3s;
 }

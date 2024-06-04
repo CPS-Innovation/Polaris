@@ -1,10 +1,12 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
-
+import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 // Sort to get a nice top-to-bottom, left-to-right sequence as the user iterates through
 //  the search highlights using the prev/next buttons
-export const sortSearchHighlights = (
-  highlights: IPdfHighlight[]
-): IPdfHighlight[] =>
+export const sortSearchHighlights = <
+  T extends IPdfHighlight | ISearchPIIHighlight
+>(
+  highlights: T[]
+): T[] =>
   highlights
     .slice()
     .sort(

@@ -2,8 +2,11 @@
 using System.IO;
 using System.Threading.Tasks;
 using Aspose.Slides.Export;
+using Aspose.Slides;
 using pdf_generator.Domain.Document;
 using pdf_generator.Factories.Contracts;
+using Common.Constants;
+using pdf_generator.Extensions;
 
 namespace pdf_generator.Services.PdfService
 {
@@ -21,11 +24,20 @@ namespace pdf_generator.Services.PdfService
             var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeSlides);
             var pdfStream = new MemoryStream();
 
-            using var presentation = _asposeItemFactory.CreatePresentation(inputStream, correlationId);
-            presentation.Save(pdfStream, SaveFormat.Pdf);
-            pdfStream.Seek(0, SeekOrigin.Begin);
+            try
+            {
+                using var presentation = _asposeItemFactory.CreatePresentation(inputStream, correlationId);
+                presentation.Save(pdfStream, SaveFormat.Pdf);
+                pdfStream.Seek(0, SeekOrigin.Begin);
 
-            conversionResult.RecordConversionSuccess(pdfStream);
+                conversionResult.RecordConversionSuccess(pdfStream);
+            }
+            catch (InvalidPasswordException ex)
+            {
+                inputStream?.Dispose();
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeSlidesPasswordProtected, ex.ToFormattedString());
+            }
+
             return conversionResult;
         }
 

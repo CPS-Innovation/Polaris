@@ -132,6 +132,9 @@ describe("useCaseDetailsState", () => {
         handleSaveReadUnreadData,
         handleAddNote,
         handleGetNotes,
+        handleShowHideRedactionSuggestions,
+        handleGetSearchPIIData,
+        handleIgnoreRedactionSuggestion,
         ...stateProperties
       } = result.current;
 
@@ -211,7 +214,7 @@ describe("useCaseDetailsState", () => {
         wrapper: MemoryRouter,
       });
 
-      act(() => handleClosePdf({ documentId: "1" }));
+      act(() => handleClosePdf("1"));
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "CLOSE_PDF",
@@ -435,7 +438,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "SAVE_REDACTIONS",
-        payload: { documentId: "2" },
+        payload: { documentId: "2", searchPIIOn: false },
       });
     });
   });

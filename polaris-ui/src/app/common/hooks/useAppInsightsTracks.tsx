@@ -46,7 +46,9 @@ type AppInsightsTrackEventNames =
   | "Add Note"
   | "Add Note Error"
   | "Notes Document Mismatch Ok"
-  | "Notes Document Mismatch Cancel";
+  | "Notes Document Mismatch Cancel"
+  | "Ignore Redaction Suggestion"
+  | "Cancel Save Redaction Suggestion Warning";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -132,6 +134,10 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "User has clicked Ok button in the document mismatch modal",
   "Notes Document Mismatch Cancel":
     "User has clicked cancel or close button in the document mismatch modal",
+  "Ignore Redaction Suggestion":
+    "User has clicked 'Ignore' or 'Ignore all' button, to ignore any search pii redaction suggestions",
+  "Cancel Save Redaction Suggestion Warning":
+    "User has clicked 'cancel' or close button on the save redaction suggestions warning modal",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

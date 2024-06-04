@@ -1,6 +1,6 @@
 environment = {
-  name       = "uat"
-  alias      = "uat"
+  name  = "uat"
+  alias = "uat"
 }
 
 ddeiServicesSubnet                  = "10.7.200.128/27"
@@ -8,7 +8,6 @@ polarisPipelineSaSubnet             = "10.7.200.96/28"
 polarisPipelineCoordinatorSubnet    = "10.7.200.208/28"
 polarisPipelinePdfGeneratorSubnet   = "10.7.200.80/28"
 polarisPipelinePdfRedactorSubnet    = "10.7.201.96/28"
-polarisPipelineTextExtractorSubnet  = "10.7.201.0/28"
 polarisPipelineTextExtractor2Subnet = "10.7.200.16/28"
 polarisGatewaySubnet                = "10.7.200.192/28"
 polarisUiSubnet                     = "10.7.200.0/28"
