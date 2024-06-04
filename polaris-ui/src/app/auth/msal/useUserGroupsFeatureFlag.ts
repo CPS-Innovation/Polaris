@@ -43,7 +43,9 @@ const showFeature = (
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
-  if (isTestUser && queryParam === "false") return false;
+  if (isTestUser && queryParam === "false") {
+    return false;
+  }
 
   if (groupClaims) {
     const isInPrivateBetaGroup = groupClaims?.includes(
