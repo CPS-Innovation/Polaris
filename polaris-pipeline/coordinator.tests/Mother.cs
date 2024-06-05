@@ -8,6 +8,9 @@ namespace coordinator.tests
 {
     internal static class Mother
     {
+        private const string OcrLine4Text = "Joint NPCC and CPS Evidence Gathering Checklist - For Use by Police Forces and";
+        private const string WhitelistedPiiTerm1 = "police";
+
         public static Func<Line> OcrLine1 { get; } = () => new(null, "This is line 1",
                     new List<Word> {
                         new(null, "This", 1),
@@ -36,6 +39,7 @@ namespace coordinator.tests
                         new(null, "analysis", 1)
                     });
 
+
         public static Func<Word> Word1 { get; } = () => new(new List<double?> { }, "Joint", 1);
         public static Func<Word> Word2 { get; } = () => new(new List<double?> { }, "NPCC", 1);
         public static Func<Word> Word3 { get; } = () => new(new List<double?> { }, "and", 1);
@@ -51,7 +55,7 @@ namespace coordinator.tests
         public static Func<Word> Word13 { get; } = () => new(new List<double?> { 6.3399, 1.0214, 6.8222, 1.0214, 6.8222, 1.1325, 6.3399, 1.1325 }, "Forces", 1);
         public static Func<Word> Word14 { get; } = () => new(new List<double?> { }, "and", 1);
 
-        public static Func<Line> OcrLine4 { get; } = () => new(null, "Joint NPCC and CPS Evidence Gathering Checklist – For Use by Police Forces and",
+        public static Func<Line> OcrLine4 { get; } = () => new(null, OcrLine4Text,
                     new List<Word> {
                         Word1(),
                         Word2(),
@@ -82,6 +86,14 @@ namespace coordinator.tests
         public static Func<ReconciledPiiEntity> ReconciledPiiEntity3 { get; } = () =>
             new(OcrLineResult1(), new coordinator.Services.OcrResultsService.OcrWord(Word13(), 68), "PersonType", "Occupation", "CMS-112233", Guid.NewGuid());
 
+        public static Func<PiiResultEntity> PiiResultEntity1 { get; } = () =>
+            new PiiResultEntity { Text = WhitelistedPiiTerm1, Category = "Organization", ConfidenceScore = 1, Length = WhitelistedPiiTerm1.Length, Offset = OcrLine4Text.IndexOf(WhitelistedPiiTerm1, StringComparison.OrdinalIgnoreCase) };
+
+        public static PiiResultEntityCollection PiiResultEntityCollection1 { get; set; }
+        public static PiiEntitiesResult PiiEntitiesResult1 { get; set; }
+        public static PiiEntitiesResultCollection PiiEntitiesResultCollection1 { get; set; }
+        public static PiiEntitiesWrapper PiiEntitiesWrapper1 { get; set; }
+
         public static Func<IEnumerable<Line>> OcrLines { get; } = () => new[]
         {
             OcrLine1(),
@@ -96,5 +108,29 @@ namespace coordinator.tests
             ReconciledPiiEntity2(),
             ReconciledPiiEntity3()
         };
+
+        public static Func<IEnumerable<PiiResultEntity>> PiiResultEntities { get; } = () => new[]
+        {
+            PiiResultEntity1(),
+        };
+
+        public static void BuildModels()
+        {
+            PiiResultEntityCollection1 = new PiiResultEntityCollection();
+            PiiResultEntityCollection1.AddRange(PiiResultEntities());
+
+            PiiEntitiesResult1 = new PiiEntitiesResult { Entities = PiiResultEntityCollection1, Id = "7b14998e-cba6-4204-8161-9202a12b5c85" };
+
+            PiiEntitiesResultCollection1 = new PiiEntitiesResultCollection
+            {
+                Items = new List<PiiEntitiesResult>()
+            };
+            PiiEntitiesResultCollection1.Items.Add(PiiEntitiesResult1);
+
+            PiiEntitiesWrapper1 = new PiiEntitiesWrapper
+            {
+                PiiResultCollection = new[] { PiiEntitiesResultCollection1 }
+            };
+        }
     }
 }

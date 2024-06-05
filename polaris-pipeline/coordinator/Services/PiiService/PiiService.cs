@@ -22,12 +22,14 @@ namespace coordinator.Services.PiiService
         private readonly IPiiEntityMapper _piiEntityMapper;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly IPiiAllowedListService _piiAllowedList;
 
-        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration)
+        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration, IPiiAllowedListService allowedList)
         {
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
+            _piiAllowedList = allowedList ?? throw new ArgumentNullException(nameof(allowedList));
             _piiCategories = configuration["PiiCategories"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
@@ -69,6 +71,8 @@ namespace coordinator.Services.PiiService
 
                     foreach (var (text, offset) in words)
                     {
+                        if (_piiAllowedList.Contains(text, piiEntity.Category)) continue;
+
                         var chunkLine = chunk.Lines.Single(x => x.ContainsOffset(offset));
                         var ocrWord = chunkLine.GetWord(text, offset);
                         var redactionType = GetRedactionTypeCategoryMapping(piiEntity.Category);
@@ -172,19 +176,19 @@ namespace coordinator.Services.PiiService
         private static Dictionary<string, string> PiiToRedactionLogCategoryMappings =>
             new()
             {
-                { "Address",                    "Address" },
-                { "Email",                      "Email Address"},
-                { "IPAddress",                  "Location" },
-                { "Person",                     "Named Individual" },
-                { "UKNationalHealthNumber",     "NHS number" },
-                { "UKNationalInsuranceNumber",  "NI number" },
-                { "PersonType",                 "Occupation" },
-                { "PhoneNumber",                "Phone number" },
-                { "CreditCardNumber",           "Other" },
-                { "EUDriversLicenseNumber",     "Other" },
-                { "UKDriversLicenseNumber",     "Other" },
-                { "EUPassportNumber",           "Other" },
-                { "USUKPassportNumber",         "Other" }
+                { PiiCategory.Address,                    "Address" },
+                { PiiCategory.Email,                      "Email Address"},
+                { PiiCategory.IPAddress,                  "Location" },
+                { PiiCategory.Person,                     "Named Individual" },
+                { PiiCategory.UKNationalHealthNumber,     "NHS number" },
+                { PiiCategory.UKNationalInsuranceNumber,  "NI number" },
+                { PiiCategory.PersonType,                 "Occupation" },
+                { PiiCategory.PhoneNumber,                "Phone number" },
+                { PiiCategory.CreditCardNumber,           "Other" },
+                { PiiCategory.EUDriversLicenseNumber,     "Other" },
+                { PiiCategory.UKDriversLicenseNumber,     "Other" },
+                { PiiCategory.EUPassportNumber,           "Other" },
+                { PiiCategory.USUKPassportNumber,         "Other" }
             };
     }
 }
