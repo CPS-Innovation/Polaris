@@ -11,7 +11,6 @@ export type PIIAnalyticsData = {
     providerCategory: string;
     countSuggestions: number;
     countAccepted: number;
-    countIgnored: number;
     countAmended: number;
   }[];
 };

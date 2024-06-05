@@ -114,8 +114,6 @@ export const mapSearchPIISaveRedactionObject = (
         countSuggestions: value.length,
         countAccepted: value.filter((val) => val.redactionStatus === "redacted")
           .length,
-        countIgnored: value.filter((val) => val.redactionStatus !== "redacted")
-          .length,
         countAmended: amendedRedactions[key] ? amendedRedactions[key] : 0,
       };
     }
