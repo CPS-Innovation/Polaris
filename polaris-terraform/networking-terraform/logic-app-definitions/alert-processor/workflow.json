@@ -3,58 +3,27 @@
     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
     "actions": {
       "Switch": {
-        "type": "Switch",
-        "expression": "@triggerBody()?['data']?['essentials']?['monitoringService']",
-        "default": {
-          "actions": {
-            "Send_General_Alert": {
-              "type": "ApiConnection",
-              "inputs": {
-                "host": {
-                  "connection": {
-                    "referenceName": "teams"
-                  }
-                },
-                "method": "post",
-                "body": {
-                  "recipient": {
-                    "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385",
-                    "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2"
-                  },
-                  "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"font-size: 15px;\">Basic Information</span><span style=\"font-size: 15px;\">:</span></p><p><span style=\"font-size: 15px;\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>"
-                },
-                "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
-              }
-            }
-          }
-        },
         "cases": {
           "Case": {
             "actions": {
-              "For_each": {
-                "type": "foreach",
-                "foreach": "@triggerOutputs()?['body']?['data']?['alertContext']?['condition']?['allOf']",
-                "actions": {
-                  "Send_Platform_Alert": {
-                    "type": "ApiConnection",
-                    "inputs": {
-                      "host": {
-                        "connection": {
-                          "referenceName": "teams"
-                        }
-                      },
-                      "method": "post",
-                      "body": {
-                        "recipient": {
-                          "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385",
-                          "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2"
-                        },
-                        "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"font-size: 15px;\">Basic Information</span><span style=\"font-size: 15px;\">:</span></p><p><span style=\"font-size: 15px;\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>"
-                      },
-                      "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
+              "Send_Platform_Alert": {
+                "inputs": {
+                  "body": {
+                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"\\&quot;font-size:\">Basic Information</span><span style=\"\\&quot;font-size:\">:</span></p><p><span style=\"\\&quot;font-size:\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>",
+                    "recipient": {
+                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2",
+                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385"
                     }
-                  }
-                }
+                  },
+                  "host": {
+                    "connection": {
+                      "referenceName": "teams"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
+                },
+                "type": "ApiConnection"
               }
             },
             "case": "Platform"
@@ -62,23 +31,23 @@
           "Case 2": {
             "actions": {
               "Send_Log_Analytics_Alert": {
-                "type": "ApiConnection",
                 "inputs": {
+                  "body": {
+                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"\\&quot;font-size:\">Basic Information</span><span style=\"\\&quot;font-size:\">:</span></p><p><span style=\"\\&quot;font-size:\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>",
+                    "recipient": {
+                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2",
+                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385"
+                    }
+                  },
                   "host": {
                     "connection": {
                       "referenceName": "teams"
                     }
                   },
                   "method": "post",
-                  "body": {
-                    "recipient": {
-                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385",
-                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2"
-                    },
-                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"font-size: 15px;\">Basic Information</span><span style=\"font-size: 15px;\">:</span></p><p><span style=\"font-size: 15px;\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>"
-                  },
                   "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
-                }
+                },
+                "type": "ApiConnection"
               }
             },
             "case": "Log Analytics"
@@ -86,23 +55,23 @@
           "Case 3": {
             "actions": {
               "Send_App_Insights_Alert": {
-                "type": "ApiConnection",
                 "inputs": {
+                  "body": {
+                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"\\&quot;font-size:\">Basic Information</span><span style=\"\\&quot;font-size:\">:</span></p><p><span style=\"\\&quot;font-size:\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>",
+                    "recipient": {
+                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2",
+                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385"
+                    }
+                  },
                   "host": {
                     "connection": {
                       "referenceName": "teams"
                     }
                   },
                   "method": "post",
-                  "body": {
-                    "recipient": {
-                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385",
-                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2"
-                    },
-                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"font-size: 15px;\">Basic Information</span><span style=\"font-size: 15px;\">:</span></p><p><span style=\"font-size: 15px;\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>"
-                  },
                   "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
-                }
+                },
+                "type": "ApiConnection"
               }
             },
             "case": "Application Insights"
@@ -110,23 +79,23 @@
           "Case 4": {
             "actions": {
               "Send_Log_Alert": {
-                "type": "ApiConnection",
                 "inputs": {
+                  "body": {
+                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"\\&quot;font-size:\">Basic Information</span><span style=\"\\&quot;font-size:\">:</span></p><p><span style=\"\\&quot;font-size:\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>",
+                    "recipient": {
+                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2",
+                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385"
+                    }
+                  },
                   "host": {
                     "connection": {
                       "referenceName": "teams"
                     }
                   },
                   "method": "post",
-                  "body": {
-                    "recipient": {
-                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385",
-                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2"
-                    },
-                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"font-size: 15px;\">Basic Information</span><span style=\"font-size: 15px;\">:</span></p><p><span style=\"font-size: 15px;\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>"
-                  },
                   "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
-                }
+                },
+                "type": "ApiConnection"
               }
             },
             "case": "Log Alerts V2"
@@ -134,23 +103,23 @@
           "Case 5": {
             "actions": {
               "Send_Service_Health_Alert": {
-                "type": "ApiConnection",
                 "inputs": {
+                  "body": {
+                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"\\&quot;font-size:\">Basic Information</span><span style=\"\\&quot;font-size:\">:</span></p><p><span style=\"\\&quot;font-size:\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>",
+                    "recipient": {
+                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2",
+                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385"
+                    }
+                  },
                   "host": {
                     "connection": {
                       "referenceName": "teams"
                     }
                   },
                   "method": "post",
-                  "body": {
-                    "recipient": {
-                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385",
-                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2"
-                    },
-                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"font-size: 15px;\">Basic Information</span><span style=\"font-size: 15px;\">:</span></p><p><span style=\"font-size: 15px;\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>"
-                  },
                   "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
-                }
+                },
+                "type": "ApiConnection"
               }
             },
             "case": "Service Health"
@@ -158,137 +127,74 @@
           "Case 6": {
             "actions": {
               "Send_Resource_Health_Alert": {
-                "type": "ApiConnection",
                 "inputs": {
+                  "body": {
+                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"\\&quot;font-size:\">Basic Information</span><span style=\"\\&quot;font-size:\">:</span></p><p><span style=\"\\&quot;font-size:\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>",
+                    "recipient": {
+                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2",
+                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385"
+                    }
+                  },
                   "host": {
                     "connection": {
                       "referenceName": "teams"
                     }
                   },
                   "method": "post",
-                  "body": {
-                    "recipient": {
-                      "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385",
-                      "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2"
-                    },
-                    "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"font-size: 15px;\">Basic Information</span><span style=\"font-size: 15px;\">:</span></p><p><span style=\"font-size: 15px;\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>"
-                  },
                   "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
-                }
+                },
+                "type": "ApiConnection"
               }
             },
             "case": "Resource Health"
           }
         },
-        "runAfter": {}
+        "default": {
+          "actions": {
+            "Send_General_Alert": {
+              "inputs": {
+                "body": {
+                  "messageBody": "<p><b><strong>Azure Monitor Alert</strong></b></p><br><p><span style=\"\\&quot;font-size:\">Basic Information</span><span style=\"\\&quot;font-size:\">:</span></p><p><span style=\"\\&quot;font-size:\">- Alert Id: </span>@{triggerBody()?['data']?['essentials']?['alertId']}</p><p>- Alert Rule Fired: @{triggerBody()?['data']?['essentials']?['alertRule']}</p><p>- Serverity: @{triggerBody()?['data']?['essentials']?['severity']}</p><p>- Description: @{triggerBody()?['data']?['essentials']?['description']}</p><p>- Fired at: @{triggerBody()?['data']?['essentials']?['firedDateTime']}</p><p>- Resolved at: @{triggerBody()?['data']?['essentials']?['resolvedDateTime']}</p><br><p>Additional Details:</p><p>- Monitor Condition: @{triggerBody()?['data']?['essentials']?['monitorCondition']}</p><p>- Monitoring Service: @{triggerBody()?['data']?['essentials']?['monitoringService']}</p><br><p>Metric Information:</p><p>- Namespace: @{item()?['metricNamespace']}</p><p>- Metric Name: @{item()?['metricName']}</p><p>- Threshold: @{item()?['threshold']}</p><p>- Metric Value: @{item()?['metricValue']}</p>",
+                  "recipient": {
+                    "channelId": "19:a67baafbdfea4e1cbb6fea96f449be1a@thread.tacv2",
+                    "groupId": "611db2ac-4627-44ad-923b-abb04ef0e385"
+                  }
+                },
+                "host": {
+                  "connection": {
+                    "referenceName": "teams"
+                  }
+                },
+                "method": "post",
+                "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Channel')}"
+              },
+              "type": "ApiConnection"
+            }
+          }
+        },
+        "expression": "@triggerBody()?['data']?['essentials']?['monitoringService']",
+        "runAfter": {},
+        "type": "Switch"
       }
     },
     "contentVersion": "1.0.0.0",
     "outputs": {},
     "triggers": {
       "When_an_alert_is_received": {
-        "type": "Request",
-        "kind": "Http",
         "inputs": {
           "schema": {
-            "type": "object",
             "properties": {
-              "schemaId": {
-                "type": "string"
-              },
               "data": {
-                "type": "object",
                 "properties": {
-                  "essentials": {
-                    "type": "object",
-                    "properties": {
-                      "alertId": {
-                        "type": "string"
-                      },
-                      "alertRule": {
-                        "type": "string"
-                      },
-                      "severity": {
-                        "type": "string"
-                      },
-                      "signalType": {
-                        "type": "string"
-                      },
-                      "monitorCondition": {
-                        "type": "string"
-                      },
-                      "monitoringService": {
-                        "type": "string"
-                      },
-                      "alertTargetIDs": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                      },
-                      "configurationItems": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                      },
-                      "originAlertId": {
-                        "type": "string"
-                      },
-                      "firedDateTime": {
-                        "type": "string"
-                      },
-                      "resolvedDateTime": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "essentialsVersion": {
-                        "type": "string"
-                      },
-                      "alertContextVersion": {
-                        "type": "string"
-                      }
-                    }
-                  },
                   "alertContext": {
-                    "type": "object",
                     "properties": {
-                      "properties": {},
-                      "conditionType": {
-                        "type": "string"
-                      },
                       "condition": {
-                        "type": "object",
                         "properties": {
-                          "windowSize": {
-                            "type": "string"
-                          },
                           "allOf": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
                               "properties": {
-                                "metricName": {
-                                  "type": "string"
-                                },
-                                "metricNamespace": {
-                                  "type": "string"
-                                },
-                                "operator": {
-                                  "type": "string"
-                                },
-                                "threshold": {
-                                  "type": "string"
-                                },
-                                "timeAggregation": {
-                                  "type": "string"
-                                },
                                 "dimensions": {
-                                  "type": "array",
                                   "items": {
-                                    "type": "object",
                                     "properties": {
                                       "name": {
                                         "type": "string"
@@ -300,11 +206,28 @@
                                     "required": [
                                       "name",
                                       "value"
-                                    ]
-                                  }
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "metricName": {
+                                  "type": "string"
+                                },
+                                "metricNamespace": {
+                                  "type": "string"
                                 },
                                 "metricValue": {
                                   "type": "number"
+                                },
+                                "operator": {
+                                  "type": "string"
+                                },
+                                "threshold": {
+                                  "type": "string"
+                                },
+                                "timeAggregation": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -315,15 +238,25 @@
                                 "timeAggregation",
                                 "dimensions",
                                 "metricValue"
-                              ]
-                            }
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "windowSize": {
+                            "type": "string"
                           }
-                        }
-                      }
-                    }
+                        },
+                        "type": "object"
+                      },
+                      "conditionType": {
+                        "type": "string"
+                      },
+                      "properties": {}
+                    },
+                    "type": "object"
                   },
                   "customProperties": {
-                    "type": "object",
                     "properties": {
                       "Key1": {
                         "type": "string"
@@ -331,13 +264,74 @@
                       "Key2": {
                         "type": "string"
                       }
-                    }
+                    },
+                    "type": "object"
+                  },
+                  "essentials": {
+                    "properties": {
+                      "alertContextVersion": {
+                        "type": "string"
+                      },
+                      "alertId": {
+                        "type": "string"
+                      },
+                      "alertRule": {
+                        "type": "string"
+                      },
+                      "alertTargetIDs": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "configurationItems": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "essentialsVersion": {
+                        "type": "string"
+                      },
+                      "firedDateTime": {
+                        "type": "string"
+                      },
+                      "monitorCondition": {
+                        "type": "string"
+                      },
+                      "monitoringService": {
+                        "type": "string"
+                      },
+                      "originAlertId": {
+                        "type": "string"
+                      },
+                      "resolvedDateTime": {
+                        "type": "string"
+                      },
+                      "severity": {
+                        "type": "string"
+                      },
+                      "signalType": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   }
-                }
+                },
+                "type": "object"
+              },
+              "schemaId": {
+                "type": "string"
               }
-            }
+            },
+            "type": "object"
           }
-        }
+        },
+        "kind": "Http",
+        "type": "Request"
       }
     }
   },
