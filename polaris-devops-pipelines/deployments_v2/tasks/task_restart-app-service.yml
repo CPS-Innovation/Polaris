@@ -1,0 +1,35 @@
+﻿---
+parameters:
+  - name: targetLabel
+    type: string
+  - name: targetName
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: appServiceName
+    type: string
+
+steps:
+  # send custom event to AppInsights
+  - template: task_send-to-app-insights.yml
+    parameters:
+      appInsightsKey: ${{ parameters.appInsightsKey }}
+      targetBuild: ${{ parameters.targetBuild }}
+      message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restart ${{ parameters.appServiceName }} - Started"
+      
+  # Restart app service    
+  - task: AzureAppServiceManage@0
+    displayName: 'Restart ${{ parameters.appServiceName }}'
+    inputs:
+      azureSubscription: Restart ${{ parameters.azureSubscription }}
+      Action: 'Restart Azure App Service'
+      WebAppName: ${{ parameters.appServiceName }}
+
+  # send custom event to AppInsights
+  - template: task_send-to-app-insights.yml
+    parameters:
+      appInsightsKey: ${{ parameters.appInsightsKey }}
+      targetBuild: ${{ parameters.targetBuild }}
+      message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restart ${{ parameters.appServiceName }} - Completed"
