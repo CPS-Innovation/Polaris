@@ -4,6 +4,7 @@ resource "azurerm_storage_account" "sa" {
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
+  #checkov:skip=CKV2_AZURE_50:Ensure Azure Storage Account storing Machine Learning workspace high business impact data is not publicly accessible
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -26,7 +27,6 @@ resource "azurerm_storage_account" "sa" {
       data.azurerm_subnet.polaris_coordinator_subnet.id,
       data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
       data.azurerm_subnet.polaris_pdfredactor_subnet.id,
-      data.azurerm_subnet.polaris_textextractor_subnet.id,
       data.azurerm_subnet.polaris_textextractor_2_subnet.id,
       data.azurerm_subnet.polaris_gateway_subnet.id,
       data.azurerm_subnet.polaris_apps_subnet.id,

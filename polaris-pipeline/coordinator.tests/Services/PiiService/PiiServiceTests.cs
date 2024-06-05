@@ -14,13 +14,14 @@ using Xunit;
 
 namespace coordinator.tests.Services.PiiServiceTests
 {
-    public class PiiServiceTests
+    public class PiiServiceTests : TestBase
     {
         private readonly PiiService _piiService;
         private readonly Mock<PiiEntityMapper> _piiEntityMapper;
         private readonly OcrResultsService _ocrResultsService;
         private readonly Mock<IPolarisBlobStorageService> _blobStorageService;
         private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapper;
+        private readonly Mock<IPiiAllowedListService> _piiAllowedList;
         private readonly IConfiguration _configuration;
         private readonly string[] _piiCategories;
         private const int CaseId = 123456;
@@ -39,8 +40,9 @@ namespace coordinator.tests.Services.PiiServiceTests
             _piiEntityMapper = new Mock<PiiEntityMapper>();
             _blobStorageService = new Mock<IPolarisBlobStorageService>();
             _jsonConvertWrapper = new Mock<IJsonConvertWrapper>();
+            _piiAllowedList = new Mock<IPiiAllowedListService>();
             _piiCategories = new string[] { "Person", "Address", "Email" };
-            _piiService = new PiiService(_piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object, _configuration);
+            _piiService = new PiiService(_piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object, _configuration, _piiAllowedList.Object);
 
             _ocrResultsService = new OcrResultsService(_blobStorageService.Object, _jsonConvertWrapper.Object);
         }

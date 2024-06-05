@@ -18,6 +18,7 @@ import { RedactionLogTypes } from "../domain/redactionLog/RedactionLogTypes";
 import { StoredUserData } from "./gateway/StoredUserData";
 import { ErrorModalTypes } from "./ErrorModalTypes";
 import { NotesData } from "../domain/gateway/NotesData";
+import { SearchPIIData } from "./gateway/SearchPIIData";
 
 export type CombinedState = {
   urn: string;
@@ -77,4 +78,5 @@ export type CombinedState = {
   featureFlags: FeatureFlagData;
   storedUserData: AsyncResult<StoredUserData>;
   notes: NotesData[];
+  searchPII: SearchPIIData[];
 };

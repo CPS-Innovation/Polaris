@@ -47,6 +47,7 @@ feature_flag_redaction_log            = "true"
 feature_flag_redaction_log_under_over = "true"
 feature_flag_full_screen              = "true"
 feature_flag_notes                    = "true"
+feature_flag_search_pii               = "true"
 local_storage_expiry_days             = "30"
 
 private_beta = {

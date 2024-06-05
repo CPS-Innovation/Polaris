@@ -9,16 +9,17 @@
 .Highlight__part__search {
   cursor: pointer;
   position: absolute;
-  background: rgba(255, 226, 143, 1);
-  border: 0;
+  background: rgba(255, 0, 0, 0.3);
+  border: dashed;
+  border-color: red;
   transition: background 0.3s;
 }
 
 .Highlight__part__redaction {
   cursor: pointer;
   position: absolute;
-  background: black;
-  border: none;
+  background: rgba(0, 0, 0, 0.3);
+  border: solid;
   margin-top: -0.0625rem;
   transition: background 0.3s;
 }

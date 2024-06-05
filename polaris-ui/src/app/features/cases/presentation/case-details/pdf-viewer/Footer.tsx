@@ -1,6 +1,5 @@
 import { Button } from "../../../../../common/presentation/components";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
-import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import classes from "./Footer.module.scss";
@@ -12,7 +11,7 @@ type Props = {
     saveStatus: SaveStatus;
   };
   tabIndex: number;
-  redactionHighlights: IPdfHighlight[];
+  totalRedactionsCount: number;
   isOkToSave: boolean;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -21,7 +20,7 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   contextData,
   tabIndex,
-  redactionHighlights,
+  totalRedactionsCount,
   isOkToSave,
   handleRemoveAllRedactions,
   handleSavedRedactions,
@@ -32,18 +31,14 @@ export const Footer: React.FC<Props> = ({
     trackEvent("Remove All Redactions", {
       documentType: documentType,
       documentId: documentId,
-      redactionsCount: redactionHighlights.length,
+      redactionsCount: totalRedactionsCount,
     });
     handleRemoveAllRedactions();
   };
   const handleSaveAllRedactionsClick = () => {
-    trackEvent("Save All Redactions", {
-      documentType: documentType,
-      documentId: documentId,
-      redactionsCount: redactionHighlights.length,
-    });
     handleSavedRedactions();
   };
+
   return (
     <div className={classes.footer}>
       <LinkButton
@@ -60,10 +55,10 @@ export const Footer: React.FC<Props> = ({
         className={classes.summary}
         data-testid={`redaction-count-text-${tabIndex}`}
       >
-        {redactionHighlights.length === 1 ? (
+        {totalRedactionsCount === 1 ? (
           <>There is 1 redaction</>
         ) : (
-          <>There are {redactionHighlights.length} redactions</>
+          <>There are {totalRedactionsCount} redactions</>
         )}
       </div>
 

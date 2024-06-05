@@ -655,6 +655,7 @@ describe("reducerAsyncActionHandlers", () => {
         type: "SAVE_REDACTIONS",
         payload: {
           documentId: "1",
+          searchPIIOn: false,
         },
       });
 

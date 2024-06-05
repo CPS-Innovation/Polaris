@@ -23,6 +23,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_FEATURE_FLAG_REDACTION_LOG_UNDER_OVER" = var.feature_flag_redaction_log_under_over
     "REACT_APP_FEATURE_FLAG_FULL_SCREEN"              = var.feature_flag_full_screen
     "REACT_APP_FEATURE_FLAG_NOTES"                    = var.feature_flag_notes
+    "REACT_APP_FEATURE_FLAG_SEARCH_PII"               = var.feature_flag_search_pii
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
@@ -57,10 +58,10 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     # The -s in npx serve -s is very important.  It allows any url that hits the app
     #  to be served from the root index.html.  This is important as it accomodates any
     #  sub directory that the app may be hosted with, or none at all.
-    app_command_line                  = "node polaris-ui/subsititute-config.js; npx serve -s"
-    always_on                         = true
-    vnet_route_all_enabled            = true
-    
+    app_command_line       = "node polaris-ui/subsititute-config.js; npx serve -s"
+    always_on              = true
+    vnet_route_all_enabled = true
+
     application_stack {
       node_version = "18-lts"
     }

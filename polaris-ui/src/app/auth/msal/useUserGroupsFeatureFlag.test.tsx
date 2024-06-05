@@ -1,3 +1,4 @@
+import { renderHook } from "@testing-library/react-hooks";
 import { useUserGroupsFeatureFlag } from "./useUserGroupsFeatureFlag";
 import * as authModule from "../../auth";
 import * as configModule from "../../config";
@@ -21,13 +22,12 @@ const mockConfig = configModule as {
   FEATURE_FLAG_REDACTION_LOG: boolean;
   PRIVATE_BETA_CHECK_IGNORE_USER: string;
   FEATURE_FLAG_NOTES: boolean;
+  FEATURE_FLAG_SEARCH_PII: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
 };
 
 describe("useUserGroupsFeatureFlag", () => {
-  let windowSpy: any;
   beforeEach(() => {
-    windowSpy = jest.spyOn(window, "window", "get");
     (
       useQueryParamsStateModule.useQueryParamsState as jest.Mock
     ).mockReturnValue({});
@@ -43,7 +43,7 @@ describe("useUserGroupsFeatureFlag", () => {
   });
 
   afterEach(() => {
-    windowSpy.mockRestore();
+    window.Cypress = undefined;
   });
 
   describe("redactionLog feature flag", () => {
@@ -51,85 +51,56 @@ describe("useUserGroupsFeatureFlag", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "test",
       });
-      (
-        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
-      ).mockReturnValue([
-        {
-          username: "test_username",
-          name: "test_name",
-          idTokenClaims: {
-            groups: [],
-          },
-        },
-      ]);
-
       mockConfig.FEATURE_FLAG_REDACTION_LOG = false;
-
-      const { redactionLog } = useUserGroupsFeatureFlag();
-      expect(redactionLog).toStrictEqual(false);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.redactionLog).toStrictEqual(false);
     });
-
     // cypress integration test and automation test (e2e) user and redactionLog query param
     test("Should return redactionLog feature false, if it is a cypress integration test user, and have redactionLog=false in query param and FEATURE_FLAG_REDACTION_LOG is true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "dev_user@example.org",
       });
-
-      windowSpy.mockImplementation(() => ({ Cypress: {} }));
+      window.Cypress = {};
       (
         useQueryParamsStateModule.useQueryParamsState as jest.Mock
       ).mockReturnValue({ redactionLog: "false" });
-
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "test";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
-
-      const { redactionLog } = useUserGroupsFeatureFlag();
-      expect(redactionLog).toStrictEqual(false);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.redactionLog).toStrictEqual(false);
     });
-
     test("Should return redactionLog feature true, if it is a cypress integration test user and does not have redactionLog=false in query param and FEATURE_FLAG_REDACTION_LOG is true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "dev_user@example.org",
       });
-
-      windowSpy.mockImplementation(() => ({ Cypress: {} }));
-
+      window.Cypress = {};
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "test";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
-
-      const { redactionLog } = useUserGroupsFeatureFlag();
-      expect(redactionLog).toStrictEqual(true);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.redactionLog).toStrictEqual(true);
     });
-
     test("Should return redactionLog feature false, if it is a cypress automation test(e2e) user, and have redactionLog=false in query param and FEATURE_FLAG_REDACTION_LOG is true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "private_beta_ignore_user",
       });
-
-      windowSpy.mockImplementation(() => ({ Cypress: {} }));
+      window.Cypress = {};
       (
         useQueryParamsStateModule.useQueryParamsState as jest.Mock
       ).mockReturnValue({ redactionLog: "false" });
-
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
-
-      const { redactionLog } = useUserGroupsFeatureFlag();
-      expect(redactionLog).toStrictEqual(false);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.redactionLog).toStrictEqual(false);
     });
-
     test("Should return redactionLog feature true, if it is a cypress automation test(e2e) user, and does not have redactionLog=false in query param and FEATURE_FLAG_REDACTION_LOG is true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "private_beta_ignore_user",
       });
-
-      windowSpy.mockImplementation(() => ({ Cypress: {} }));
-
+      window.Cypress = {};
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
       mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
-
-      const { redactionLog } = useUserGroupsFeatureFlag();
-      expect(redactionLog).toStrictEqual(true);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.redactionLog).toStrictEqual(true);
     });
   });
 
@@ -142,18 +113,15 @@ describe("useUserGroupsFeatureFlag", () => {
         msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
       ).mockReturnValue([
         {
-          username: "test_username",
-          name: "test_name",
           idTokenClaims: {
-            groups: [],
+            groups: ["private_beta_feature_group"],
           },
         },
       ]);
 
       mockConfig.FEATURE_FLAG_NOTES = false;
-
-      const { notes } = useUserGroupsFeatureFlag();
-      expect(notes).toStrictEqual(false);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.notes).toStrictEqual(false);
     });
 
     test("Should return notes feature true, if it is a cypress integration test user and does not have notes=false in query param and FEATURE_FLAG_NOTES is true", () => {
@@ -169,13 +137,12 @@ describe("useUserGroupsFeatureFlag", () => {
           },
         },
       ]);
-
-      windowSpy.mockImplementation(() => ({ Cypress: {} }));
+      window.Cypress = {};
       mockConfig.FEATURE_FLAG_NOTES = true;
       mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
 
-      const { notes } = useUserGroupsFeatureFlag();
-      expect(notes).toStrictEqual(true);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.notes).toStrictEqual(true);
     });
 
     test("Should return notes feature true, if it is a cypress automation test(e2e) user, and does not have notes=false in query param and FEATURE_FLAG_NOTES is true", () => {
@@ -191,32 +158,165 @@ describe("useUserGroupsFeatureFlag", () => {
           },
         },
       ]);
-
-      windowSpy.mockImplementation(() => ({ Cypress: {} }));
-
+      window.Cypress = {};
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
       mockConfig.FEATURE_FLAG_NOTES = true;
       mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
 
-      const { notes } = useUserGroupsFeatureFlag();
-      expect(notes).toStrictEqual(true);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.notes).toStrictEqual(true);
     });
 
     test("Should return notes feature false, if it is a cypress automation test(e2e) user, and have notes=false in query param and FEATURE_FLAG_NOTES is true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "private_beta_ignore_user",
       });
-
-      windowSpy.mockImplementation(() => ({ Cypress: {} }));
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+      window.Cypress = {};
       (
         useQueryParamsStateModule.useQueryParamsState as jest.Mock
       ).mockReturnValue({ notes: "false" });
-
       mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
       mockConfig.FEATURE_FLAG_NOTES = true;
 
-      const { notes } = useUserGroupsFeatureFlag();
-      expect(notes).toStrictEqual(false);
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.notes).toStrictEqual(false);
+    });
+
+    test("Should return notes feature true, if user is not in private beta feature group and FEATURE_FLAG_NOTES is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group1"],
+          },
+        },
+      ]);
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+      mockConfig.FEATURE_FLAG_NOTES = true;
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.notes).toStrictEqual(true);
+    });
+  });
+
+  describe("searchPII feature flag", () => {
+    test("Should return searchPII feature false, if FEATURE_FLAG_SEARCH_PII is false", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+
+      mockConfig.FEATURE_FLAG_SEARCH_PII = false;
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.searchPII).toStrictEqual(false);
+    });
+
+    test("Should return searchPII feature true, if it is a cypress integration test user and does not have notes=false in query param and FEATURE_FLAG_SEARCH_PII is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "dev_user@example.org",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+      window.Cypress = {};
+      mockConfig.FEATURE_FLAG_SEARCH_PII = true;
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.searchPII).toStrictEqual(true);
+    });
+
+    test("Should return searchPII feature true, if it is a cypress automation test(e2e) user, and does not have notes=false in query param and FEATURE_FLAG_SEARCH_PII is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "private_beta_ignore_user",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+      window.Cypress = {};
+      mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
+      mockConfig.FEATURE_FLAG_SEARCH_PII = true;
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.searchPII).toStrictEqual(true);
+    });
+
+    test("Should return searchPII feature false, if it is a cypress automation test(e2e) user, and have notes=false in query param and FEATURE_FLAG_SEARCH_PII is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "private_beta_ignore_user",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+      window.Cypress = {};
+      (
+        useQueryParamsStateModule.useQueryParamsState as jest.Mock
+      ).mockReturnValue({ searchPII: "false" });
+      mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
+      mockConfig.FEATURE_FLAG_SEARCH_PII = true;
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.searchPII).toStrictEqual(false);
+    });
+
+    test("Should return searchPII feature false, if user is not in private beta feature group and FEATURE_FLAG_SEARCH_PII is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group1"],
+          },
+        },
+      ]);
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+      mockConfig.FEATURE_FLAG_SEARCH_PII = true;
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.searchPII).toStrictEqual(false);
     });
   });
 });

@@ -9,7 +9,7 @@ import classes from "./Tabs.module.scss";
 export type TabsProps = CommonTabsProps & {
   activeTabId: string | undefined;
   handleTabSelection: (documentId: string) => void;
-  handleClosePdf: (caseDocument: { documentId: string }) => void;
+  handleClosePdf: (documentId: string) => void;
   handleUnLockDocuments: (documentIds: string[]) => void;
 };
 
@@ -52,7 +52,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
     handleTabSelection(nextTabId);
-    handleClosePdf({ documentId: items[activeTabIndex].id });
+    handleClosePdf(items[activeTabIndex].id);
   };
 
   const handleNavigateAwayCancelAction = () => {

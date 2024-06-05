@@ -22,10 +22,16 @@ type Props = {
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
+  handleShowHideRedactionSuggestions: (
+    documentId: string,
+    showSuggestion: boolean
+  ) => void;
   contextData: {
     documentId: string;
     tabIndex: number;
     areaOnlyRedactionMode: boolean;
+    isSearchPIIOn: boolean;
+    showSearchPII: boolean;
   };
 };
 
@@ -35,6 +41,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
+  handleShowHideRedactionSuggestions,
   contextData,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -51,6 +58,11 @@ export const HeaderReadMode: React.FC<Props> = ({
       case "2":
         handleShowHideDocumentIssueModal(true);
         break;
+      case "3":
+        handleShowHideRedactionSuggestions(
+          contextData.documentId,
+          !contextData.isSearchPIIOn
+        );
     }
   };
 
@@ -78,9 +90,29 @@ export const HeaderReadMode: React.FC<Props> = ({
         },
       ];
     }
+    if (contextData.showSearchPII) {
+      items = [
+        ...items,
+        {
+          id: "3",
+          label: contextData.isSearchPIIOn
+            ? "Turn off potential redactions"
+            : "Turn on potential redactions",
+          ariaLabel: contextData.isSearchPIIOn
+            ? "Turn off potential redactions"
+            : "Turn on potential redactions",
+          disabled: false,
+        },
+      ];
+    }
 
     return items;
-  }, [showOverRedactionLog, disableReportBtn]);
+  }, [
+    showOverRedactionLog,
+    disableReportBtn,
+    contextData.isSearchPIIOn,
+    contextData.showSearchPII,
+  ]);
 
   const handleRedactAreaToolButtonClick = useCallback(() => {
     if (window.getSelection()) {

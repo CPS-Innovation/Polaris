@@ -4,6 +4,7 @@ import {
   PRIVATE_BETA_CHECK_IGNORE_USER,
   FEATURE_FLAG_FULL_SCREEN,
   FEATURE_FLAG_NOTES,
+  FEATURE_FLAG_SEARCH_PII,
   PRIVATE_BETA_FEATURE_USER_GROUP,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
@@ -13,6 +14,7 @@ import {
 } from "../../features/cases/domain/FeatureFlagData";
 import { useUserDetails as getMockUserDetails } from "../mock/useUserDetails";
 import { useUserDetails } from "../../auth";
+import { useCallback, useMemo } from "react";
 
 const isAutomationTestUser = (username: string) => {
   return !!(
@@ -29,69 +31,59 @@ const isUIIntegrationTestUser = (username: string) => {
   );
 };
 
-const showRedactionLogFeature = (username: string, queryParam: string) => {
-  if (!FEATURE_FLAG_REDACTION_LOG) {
-    return false;
-  }
-
-  const isInCypressQueryParamFeatureFlag =
-    queryParam === "false" &&
-    window.Cypress &&
-    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-
-  if (isInCypressQueryParamFeatureFlag) return false;
-
-  return true;
-};
-
-const showFullScreenFeature = (username: string, queryParam: string) => {
-  if (!FEATURE_FLAG_FULL_SCREEN) {
-    return false;
-  }
-  const isInCypressQueryParamFeatureFlag =
-    queryParam === "false" &&
-    window.Cypress &&
-    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-  if (isInCypressQueryParamFeatureFlag) return false;
-
-  return true;
-};
-
-const showNotesFeature = (
+const showFeature = (
+  featureFlag: boolean,
   username: string,
   queryParam: string,
-  groupClaims: string[]
+  groupClaims?: string[]
 ) => {
-  if (!FEATURE_FLAG_NOTES) {
-    return false;
-  }
+  if (!featureFlag) return false;
 
   const isTestUser =
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
-  if (isTestUser) {
-    if (queryParam === "true") {
-      return true;
-    }
-    if (queryParam === "false") {
-      return false;
-    }
+  if (isTestUser && queryParam === "false") {
+    return false;
   }
 
+  if (groupClaims) {
+    const isInPrivateBetaGroup = groupClaims?.includes(
+      PRIVATE_BETA_FEATURE_USER_GROUP
+    );
+    if (!isInPrivateBetaGroup) return false;
+  }
   return true;
 };
 
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
-  const { redactionLog, fullScreen, notes } =
+  const { redactionLog, fullScreen, notes, searchPII } =
     useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
   const groupClaims = account?.idTokenClaims?.groups as string[];
 
-  return {
-    redactionLog: showRedactionLogFeature(userDetails?.username, redactionLog),
-    fullScreen: showFullScreenFeature(userDetails?.username, fullScreen),
-    notes: showNotesFeature(userDetails?.username, notes, groupClaims),
-  };
+  const getFeatureFlags = useCallback(
+    () => ({
+      redactionLog: showFeature(
+        FEATURE_FLAG_REDACTION_LOG,
+        userDetails?.username,
+        redactionLog
+      ),
+      fullScreen: showFeature(
+        FEATURE_FLAG_FULL_SCREEN,
+        userDetails?.username,
+        fullScreen
+      ),
+      notes: showFeature(FEATURE_FLAG_NOTES, userDetails?.username, notes),
+      searchPII: showFeature(
+        FEATURE_FLAG_SEARCH_PII,
+        userDetails?.username,
+        searchPII,
+        groupClaims
+      ),
+    }),
+    []
+  );
+  return useMemo(() => getFeatureFlags(), [getFeatureFlags]);
 };
