@@ -29,6 +29,11 @@ namespace coordinator.Clients.TextAnalytics
 
             RecognizePiiEntitiesOptions options = new() { IncludeStatistics = true };
 
+            foreach (var category in piiRequest.Parameters.PiiCategories)
+            {
+                options.CategoriesFilter.Add(category);
+            }
+
             return await _textAnalyticsClient.RecognizePiiEntitiesBatchAsync(batchedDocuments, options);
         }
     }
