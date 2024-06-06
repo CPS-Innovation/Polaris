@@ -61,3 +61,8 @@ pii = {
   categories            = "Address;CreditCardNumber;Email;EUDriversLicenseNumber;EUPassportNumber;IPAddress;Person;PersonType;PhoneNumber;UKDriversLicenseNumber;UKNationalHealthNumber;UKNationalInsuranceNumber;USUKPassportNumber"
   chunk_character_limit = 1000
 }
+
+orchestration_switchover = {
+  coordinator_switchover_case_id = 1
+  coordinator_switchover_modulo = 0
+}

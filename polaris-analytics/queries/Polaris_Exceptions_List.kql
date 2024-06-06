@@ -99,9 +99,9 @@ let isKnownBug = (
         and om contains "ConversionLog.xml' is denied",
         "23505 - Redact Conversion.log access denied",
 
-            op contains "PolarisPipelineGetCaseTracker"
+            op contains "GetDocument"
         and im contains "The specified blob does not exist",
-        "23618 - Blob does not exist",
+        "GetDocument - Blob does not exist",
 
         om contains "Buffer too small for CLOB to CHAR or BLOB to RAW conversion",
         "24757 - CLOB to CHAR or BLOB to RAW conversion",
@@ -143,7 +143,16 @@ let isKnownBug = (
         "26424 - OCR retry fail",
             om matches regex "Document \\d+ not found in case \\d+",
         "26677 - Redacted doc id no longer present",
-
+        im contains "Error converting value {null} to type 'System.Int32'. Path 'data.inboxCommunications",
+        "276035 - DDEI error on InboxCommunication with null MaterialId",
+        om contains "Object reference not set to an instance of an object" and me contains "GetTrackerDocumentResponse.GetBlobName",
+        "27038 - Post incident: error on not being able to retrieve document from tracker",
+        et contains "Aspose.Slides.InvalidPasswordException",
+        "27443 - password protected Powerpoint",
+        me contains "PolarisGateway.Clients.Coordinator.CoordinatorClient" and om contains "HttpClient.Timeout of 100 seconds elapsing",
+        "Gateway timeout calling coordinator", 
+        op contains "GetCase" and om contains "Error while copying content to a stream.",
+        "27446 - DDEI GetCase: Error while copying content to a stream",
     "");
 };
 
@@ -172,10 +181,11 @@ Polaris_Exceptions_Core
 | where ExceptionType !contains "CmsModernAuthorizationException"
 // noise from slot-swap
 | where not(AppRoleName contains "staging" and OuterMessage contains "Status")
-
-
 | where not(IsKnownBug startswith "24767" and (PolarisCorrelationId in ("00000000-0000-0000-0000-000000000000", "e2e00000-0000-0000-0000-000000000000")))
 
 
 // filter out e2e tests that are intentionally omitting CmsAuthValues
 | where not( IsKnownBug == "" and ExceptionType contains "CmsAuthenticationException" and User == "")
+
+// remove Status func timeouts from dashboard for the time being, reduce the noise
+| where IsKnownBug != "Status func timeout"

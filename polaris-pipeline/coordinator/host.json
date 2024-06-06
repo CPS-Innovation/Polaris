@@ -39,7 +39,9 @@
       "maxConcurrentOrchestratorFunctions": 225,
       "tracing": {
         "traceInputsAndOutputs": false,
-        "traceReplayEvents": false
+        "traceReplayEvents": false,
+        "distributedTracingEnabled": true,
+        "Version": "V2"
       }
     }
   }

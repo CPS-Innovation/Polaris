@@ -108,3 +108,10 @@ variable "pii" {
     chunk_character_limit = number
   })
 }
+
+variable "orchestration_switchover" {
+    type = object({
+    coordinator_switchover_case_id = number
+    coordinator_switchover_modulo = number # 0 to always use old, 1 to always use new, > 1 to use new if modulo caseId == 0
+  })
+}

@@ -27,11 +27,14 @@ namespace coordinator.Durable.Entity
             return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
         }
 
+        [Obsolete]
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
+
         private int? version = null;
 
+        // Currently useful in analytics to e.g. determine if/when a case has been refreshed
         [JsonProperty("versionId")]
         public int? Version
         {
@@ -39,11 +42,13 @@ namespace coordinator.Durable.Entity
             set { version = value; }
         }
 
+        [Obsolete]
         public Task<int?> GetVersion()
         {
             return Task.FromResult(version);
         }
 
+        [Obsolete]
         public void SetVersion(int value)
         {
             version = value;
@@ -77,6 +82,7 @@ namespace coordinator.Durable.Entity
         [JsonProperty("defendantsAndCharges")]
         public DefendantsAndChargesEntity DefendantsAndCharges { get; set; }
 
+        [Obsolete]
         public void Reset(string transactionId)
         {
             TransactionId = transactionId;
@@ -86,6 +92,7 @@ namespace coordinator.Durable.Entity
             Completed = null;
             Failed = null;
             FailedReason = null;
+            // todo: this initialisation should be done in a more constructor-like way, at least only once
             CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
             PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
@@ -439,6 +446,7 @@ namespace coordinator.Durable.Entity
             }
         }
 
+        [Obsolete]
         public Task<string[]> GetPolarisDocumentIds()
         {
             var polarisDocumentIds =
@@ -450,6 +458,7 @@ namespace coordinator.Durable.Entity
             return Task.FromResult(polarisDocumentIds);
         }
 
+        [Obsolete]
         public void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args)
         {
             var (polarisDocumentId, isOcrProcessed, isDispatched) = args;
@@ -469,9 +478,6 @@ namespace coordinator.Durable.Entity
             if (status == DocumentStatus.PdfUploadedToBlob)
             {
                 document.IsPdfAvailable = true;
-            }
-            if (status == DocumentStatus.PdfUploadedToBlob)
-            {
                 document.PdfBlobName = pdfBlobName;
             }
         }
@@ -485,6 +491,7 @@ namespace coordinator.Durable.Entity
         }
 
         // Only required when debugging to manually set the Tracker state
+        [Obsolete]
         public void SetValue(CaseDurableEntity tracker)
         {
             Status = tracker.Status;
@@ -503,6 +510,7 @@ namespace coordinator.Durable.Entity
             return Task.FromResult(Running.GetValueOrDefault());
         }
 
+        [Obsolete]
         public Task<float> GetDurationToCompleted()
         {
             return Task.FromResult(Completed.GetValueOrDefault());
@@ -514,9 +522,30 @@ namespace coordinator.Durable.Entity
             return context.DispatchAsync<CaseDurableEntity>();
         }
 
-        Task<CaseDeltasEntity> ICaseDurableEntity.GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public void SetDocumentPdfConversionSucceeded((string polarisDocumentId, string pdfBlobName) arg)
         {
-            throw new NotImplementedException();
+            var document = GetDocument(arg.polarisDocumentId);
+            document.PdfBlobName = arg.pdfBlobName;
+            document.Status = DocumentStatus.PdfUploadedToBlob;
+        }
+
+        public void SetDocumentPdfConversionFailed((string PolarisDocumentId, PdfConversionStatus PdfConversionStatus) arg)
+        {
+            var document = GetDocument(arg.PolarisDocumentId);
+            document.Status = DocumentStatus.UnableToConvertToPdf;
+            document.ConversionStatus = arg.PdfConversionStatus;
+        }
+
+        public void SetDocumentIndexingSucceeded(string polarisDocumentId)
+        {
+            var document = GetDocument(polarisDocumentId);
+            document.Status = DocumentStatus.Indexed;
+        }
+
+        public void SetDocumentIndexingFailed(string polarisDocumentId)
+        {
+            var document = GetDocument(polarisDocumentId);
+            document.Status = DocumentStatus.OcrAndIndexFailure;
         }
 
         public void SetPiiCmsVersionId(string polarisDocumentId)

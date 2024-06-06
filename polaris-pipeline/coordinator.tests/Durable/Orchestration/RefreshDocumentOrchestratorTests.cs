@@ -36,6 +36,7 @@ namespace coordinator.tests.Durable.Orchestration
                 (
                     _fixture.Create<string>(),
                     Guid.NewGuid(),
+                    Guid.NewGuid(),
                     _fixture.Create<string>(),
                     _fixture.Create<int>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),

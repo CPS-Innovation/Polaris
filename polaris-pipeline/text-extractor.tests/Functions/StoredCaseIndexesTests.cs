@@ -57,6 +57,7 @@ namespace text_extractor.tests.Functions
             {
                 Content = new StringContent(_serializedExtractTextRequest)
             };
+
             _storeCaseIndexesRequest = _fixture.Create<StoreCaseIndexesRequestDto>();
             _mockValidatorWrapper = new Mock<IValidatorWrapper<StoreCaseIndexesRequestDto>>();
             _mockSearchIndexService = new Mock<ISearchIndexService>();

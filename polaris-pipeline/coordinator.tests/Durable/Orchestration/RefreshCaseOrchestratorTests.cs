@@ -105,6 +105,14 @@ namespace coordinator.tests.Durable.Orchestration
                 .Setup(config => config[ConfigKeys.CoordinatorOrchestratorTimeoutSecs])
                 .Returns("300");
 
+            mockConfiguration
+                .Setup(config => config[ConfigKeys.CoordinatorSwitchoverCaseId])
+                .Returns(int.MaxValue.ToString());
+
+            mockConfiguration
+                .Setup(config => config[ConfigKeys.CoordinatorSwitchoverModulo])
+                .Returns(int.MaxValue.ToString());
+
             _mockCaseEntity
                 .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
@@ -199,7 +207,7 @@ namespace coordinator.tests.Durable.Orchestration
             {
                 _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                 (
-                    nameof(RefreshDocumentOrchestrator),
+                    It.IsIn<string>(new[] { nameof(RefreshDocumentOrchestrator), nameof(RefreshDocumentOrchestratorNext) }),
                     It.IsAny<string>(),
                     It.Is<CaseDocumentOrchestrationPayload>
                     (
@@ -281,6 +289,23 @@ namespace coordinator.tests.Durable.Orchestration
                 var arg = (It.IsAny<DateTime>(), CaseRefreshStatus.Failed, "Test Exception");
                 _mockCaseEntity.Verify(tracker => tracker.SetCaseStatus(arg));
             }
+        }
+
+        [Theory]
+        [InlineData(101, 3, 97, nameof(RefreshDocumentOrchestrator))]
+        [InlineData(101, 3, 98, nameof(RefreshDocumentOrchestrator))]
+        [InlineData(101, 3, 99, nameof(RefreshDocumentOrchestrator))]
+        [InlineData(101, 3, 100, nameof(RefreshDocumentOrchestrator))]
+        [InlineData(96, 3, 97, nameof(RefreshDocumentOrchestrator))]
+        [InlineData(96, 3, 98, nameof(RefreshDocumentOrchestrator))]
+        [InlineData(96, 3, 99, nameof(RefreshDocumentOrchestratorNext))]
+        [InlineData(96, 3, 100, nameof(RefreshDocumentOrchestrator))]
+        [InlineData(99, 3, 99, nameof(RefreshDocumentOrchestratorNext))]
+        [InlineData(99, 0, 99, nameof(RefreshDocumentOrchestrator))]
+        public void GetOrchestratorName_ReturnsCorrectName(int switchoverCaseId, int switchoverModulo, int caseId, string expectedName)
+        {
+            //Act
+            RefreshCaseOrchestrator.GetOrchestratorName(switchoverCaseId, switchoverModulo, caseId).Should().Be(expectedName);
         }
     }
 }

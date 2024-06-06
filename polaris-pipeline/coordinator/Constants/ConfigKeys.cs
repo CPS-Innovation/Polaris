@@ -3,6 +3,9 @@ namespace coordinator.Constants
   public static class ConfigKeys
   {
     public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
+    public const string CoordinatorSwitchoverCaseId = nameof(CoordinatorSwitchoverCaseId);
+    public const string CoordinatorSwitchoverModulo = nameof(CoordinatorSwitchoverModulo);
+
     public const string SlidingClearDownInputHours = nameof(SlidingClearDownInputHours);
     public const string SlidingClearDownProtectBlobs = nameof(SlidingClearDownProtectBlobs);
     public const string SlidingClearDownBatchSize = nameof(SlidingClearDownBatchSize);

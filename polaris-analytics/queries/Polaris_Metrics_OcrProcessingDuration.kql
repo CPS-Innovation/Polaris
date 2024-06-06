@@ -1,0 +1,10 @@
+AppTraces
+| where AppRoleName in ("fa-polaris-text-extractor", "fa-polaris-coordinator")
+| where OperationName == "ExtractText"
+| where Message contains "GetOcrResultsAsync"
+| where Message contains "OCR completed"
+| extend DurationMs = toint(extract("in (\\d+)ms", 1, Message))
+| project 
+    TimeGenerated = datetime_add('millisecond',-1 * DurationMs, TimeGenerated),
+    PageCount = toint(extract("pages: (\\d+)", 1, Message)),
+    DurationMs

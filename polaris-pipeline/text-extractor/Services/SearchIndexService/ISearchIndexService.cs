@@ -10,7 +10,7 @@ namespace text_extractor.Services.CaseSearchService
 {
     public interface ISearchIndexService
     {
-        Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId);
+        Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId);
 
         Task<IndexSettledResult> WaitForStoreResultsAsync(long cmsCaseId, string cmsDocumentId, long versionId, long targetCount);
 
