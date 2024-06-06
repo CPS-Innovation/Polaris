@@ -9,7 +9,7 @@ const {
   PRE_SEARCH_DELAY_MS,
 } = Cypress.env()
 
-describe("Happy Path", { tags: "@ci" }, () => {
+describe("Happy Path", { tags: ["@ci", "@ci-chunk-1"] }, () => {
   it("can view a case", () => {
     cy.on("uncaught:exception", () => false)
 

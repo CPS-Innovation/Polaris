@@ -8,7 +8,7 @@ const {
   WITNESS_NOT_EXPECTED_INDICATORS,
 } = Cypress.env()
 
-describe("Witness Indicators", { tags: '@ci' }, () => {
+describe("Witness Indicators", { tags: ["@ci", "@ci-chunk-3"] }, () => {
   it("can display witness indicators", () => {
     cy.on("uncaught:exception", () => false)
 

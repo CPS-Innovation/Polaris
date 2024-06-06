@@ -5,7 +5,7 @@ const { REFRESH_LOCK_URN, REFRESH_LOCK_CASE_ID } = Cypress.env()
 
 let routes: ApiRoutes
 
-describe("Subsequent Refresh Locks", { tags: "@ci" }, () => {
+describe("Subsequent Refresh Locks", { tags: ["@ci", "@ci-chunk-4"] }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)

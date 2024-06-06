@@ -65,56 +65,41 @@ const getRoutesToTest = (correlationId: CorrelationId, headers: any) => {
   return routesToTest
 }
 
-describe("Gateway endpoint auth failures", { tags: "@ci" }, () => {
-  ;["EMPTY", "UNDEFINED", "NOT_A_GUID"].forEach(
-    (correlationId: CorrelationId) => {
-      it(`rejects calls that have a token but do not have an appropriate correlation id: (${correlationId} correlation id)`, () => {
-        cy.getADTokens().then((adTokens) => {
-          const routesToTest = getRoutesToTest(correlationId, {
-            Authorization: `Bearer ${adTokens.access_token}`,
+describe(
+  "Gateway endpoint auth failures",
+  { tags: ["@ci", "@ci-chunk-4"] },
+  () => {
+    ;["EMPTY", "UNDEFINED", "NOT_A_GUID"].forEach(
+      (correlationId: CorrelationId) => {
+        it(`rejects calls that have a token but do not have an appropriate correlation id: (${correlationId} correlation id)`, () => {
+          cy.getADTokens().then((adTokens) => {
+            const routesToTest = getRoutesToTest(correlationId, {
+              Authorization: `Bearer ${adTokens.access_token}`,
+            })
+
+            for (const route of routesToTest) {
+              cy.log(`Testing ${route.headers["correlation-id"]}`)
+              cy.api({
+                ...route,
+                failOnStatusCode: false,
+              }).then((response) =>
+                expect(response.status).to.equal(statusCodes.BAD_REQUEST_400)
+              )
+            }
           })
-
-          for (const route of routesToTest) {
-            cy.log(`Testing ${route.headers["correlation-id"]}`)
-            cy.api({
-              ...route,
-              failOnStatusCode: false,
-            }).then((response) =>
-              expect(response.status).to.equal(statusCodes.BAD_REQUEST_400)
-            )
-          }
         })
-      })
-    }
-  )
-
-  describe("Broken AD auth", () => {
-    // Note: local tests and tests deployed in an environment will fail in a different way because
-    //  deployed gateway will have AD auth enforced before the azure function gets to handle the request.
-    //  Locally we will get a 400 as c# gets to process the request.  Deployed we receive a 302 as part of
-    //  the AD auth redirect flow.
-    //  In either case we can still usefully test to see if the requests fails or not.
-
-    it("rejects calls that have a correlation id but do not have a token", () => {
-      const routesToTest = getRoutesToTest("BLANK", {})
-
-      for (const route of routesToTest) {
-        cy.api({
-          ...route,
-          failOnStatusCode: false,
-          followRedirect: false,
-          // either a redirect or a fail
-        }).then((response) => expect(response.status).to.be.greaterThan(299))
       }
-    })
+    )
 
-    it("rejects calls that have a correlation id but do not have a valid token", () => {
-      cy.getADTokens().then((adTokens) => {
-        var brokenToken = adTokens.access_token.slice(0, -1)
+    describe("Broken AD auth", () => {
+      // Note: local tests and tests deployed in an environment will fail in a different way because
+      //  deployed gateway will have AD auth enforced before the azure function gets to handle the request.
+      //  Locally we will get a 400 as c# gets to process the request.  Deployed we receive a 302 as part of
+      //  the AD auth redirect flow.
+      //  In either case we can still usefully test to see if the requests fails or not.
 
-        const routesToTest = getRoutesToTest("BLANK", {
-          Authorization: `Bearer ${brokenToken}`,
-        })
+      it("rejects calls that have a correlation id but do not have a token", () => {
+        const routesToTest = getRoutesToTest("BLANK", {})
 
         for (const route of routesToTest) {
           cy.api({
@@ -125,23 +110,44 @@ describe("Gateway endpoint auth failures", { tags: "@ci" }, () => {
           }).then((response) => expect(response.status).to.be.greaterThan(299))
         }
       })
-    })
-  })
 
-  it("rejects calls that have a token and correlation id but do not have cms auth values", () => {
-    cy.getADTokens().then((adTokens) => {
-      const routesToTest = getRoutesToTest("BLANK", {
-        Authorization: `Bearer ${adTokens.access_token}`,
+      it("rejects calls that have a correlation id but do not have a valid token", () => {
+        cy.getADTokens().then((adTokens) => {
+          var brokenToken = adTokens.access_token.slice(0, -1)
+
+          const routesToTest = getRoutesToTest("BLANK", {
+            Authorization: `Bearer ${brokenToken}`,
+          })
+
+          for (const route of routesToTest) {
+            cy.api({
+              ...route,
+              failOnStatusCode: false,
+              followRedirect: false,
+              // either a redirect or a fail
+            }).then((response) =>
+              expect(response.status).to.be.greaterThan(299)
+            )
+          }
+        })
       })
-
-      for (const route of routesToTest) {
-        cy.api({
-          ...route,
-          failOnStatusCode: false,
-        }).then((response) =>
-          expect(response.status).to.equal(statusCodes.FORBIDDEN_403)
-        )
-      }
     })
-  })
-})
+
+    it("rejects calls that have a token and correlation id but do not have cms auth values", () => {
+      cy.getADTokens().then((adTokens) => {
+        const routesToTest = getRoutesToTest("BLANK", {
+          Authorization: `Bearer ${adTokens.access_token}`,
+        })
+
+        for (const route of routesToTest) {
+          cy.api({
+            ...route,
+            failOnStatusCode: false,
+          }).then((response) =>
+            expect(response.status).to.equal(statusCodes.FORBIDDEN_403)
+          )
+        }
+      })
+    })
+  }
+)
