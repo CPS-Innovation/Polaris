@@ -11,7 +11,7 @@ const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, PRE_SEARCH_DELAY_MS } =
 
 let routes: ApiRoutes
 
-describe("Refresh", { tags: "@ci" }, () => {
+describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)

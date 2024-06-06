@@ -43,6 +43,7 @@ type Props = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
+  isSearchPIIOn: boolean;
   activeSearchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
@@ -69,6 +70,7 @@ export const PdfViewer: React.FC<Props> = ({
   documentWriteStatus,
   contextData,
   searchHighlights = [],
+  isSearchPIIOn,
   activeSearchPIIHighlights,
   redactionHighlights,
   isOkToSave,
@@ -162,14 +164,18 @@ export const PdfViewer: React.FC<Props> = ({
     [areaOnlyRedactionMode]
   );
 
+  const getWrapperClassName = () => {
+    let className = classes.pdfViewer;
+    if (areaOnlyRedactionMode)
+      className = `${className} ${classes.areaOnlyRedaction}`;
+    if (isSearchPIIOn) className = `${className} ${classes.searchPiiOn}`;
+    return className;
+  };
+
   return (
     <>
       <div
-        className={
-          areaOnlyRedactionMode
-            ? `${classes.pdfViewer} ${classes.areaOnlyRedaction}`
-            : classes.pdfViewer
-        }
+        className={getWrapperClassName()}
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >

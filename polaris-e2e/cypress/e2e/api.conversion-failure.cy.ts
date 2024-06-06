@@ -15,7 +15,7 @@ const {
 
 let routes: ApiRoutes
 
-describe("Conversion failure", { tags: "@ci" }, () => {
+describe("Conversion failure", { tags: ["@ci", "@ci-chunk-2"] }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)

@@ -17,7 +17,7 @@ const {
 
 let routes: ApiRoutes
 
-describe("Search Integrity", { tags: "@ci" }, () => {
+describe("Search Integrity", { tags: ["@ci", "@ci-chunk-3"] }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)

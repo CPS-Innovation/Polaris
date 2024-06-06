@@ -9,7 +9,7 @@ const appendQParams = (url: string, qParamObject: {}) =>
 const EXPECTED_HOME_PAGE_URL_ROUTE = "/polaris-ui/"
 const EXPECTED_COOKIE_NAME = "Cms-Auth-Values"
 
-describe("CMS launch auth flow", { tags: "@ci" }, () => {
+describe("CMS launch auth flow", { tags: ["@ci", "@ci-chunk-4"] }, () => {
   it("can open Polaris UI from the CMS button when no q param is passed", () => {
     cy.getCmsCookieString()
       .then((cookies) => {

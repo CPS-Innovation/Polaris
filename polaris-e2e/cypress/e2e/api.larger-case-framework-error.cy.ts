@@ -8,7 +8,7 @@ const { LARGE_CASE_URN, LARGE_CASE_ID, LARGE_CASE_DOCUMENT_ID } = Cypress.env()
 
 let routes: ApiRoutes
 
-describe("Larger cases", { tags: "@ci" }, () => {
+describe("Larger cases", { tags: ["@ci", "@ci-chunk-2"] }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)
