@@ -5,7 +5,7 @@ const {
   REFRESH_NOTE_TARGET_TEXT,
 } = Cypress.env()
 
-describe("Notes refresh flow", { tags: "@ci" }, () => {
+describe("Notes refresh flow", { tags: ["@ci", "@ci-chunk-4"] }, () => {
   it("can add a note and refresh the tracker", () => {
     cy.fullLogin()
     cy.clearCaseTracker(REFRESH_NOTE_CASE_URN, REFRESH_NOTE_CASE_ID)
