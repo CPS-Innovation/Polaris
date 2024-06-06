@@ -1,10 +1,10 @@
 /// <reference types="cypress" />
 import "cypress-wait-until"
-import { PipelineResults } from "../../../gateway/PipelineResults"
-import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
-import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
-import { WAIT_UNTIL_OPTIONS } from "../../support/options"
-import { isTrackerReady } from "./helpers/tracker-helpers"
+import { PipelineResults } from "../../gateway/PipelineResults"
+import { ApiTextSearchResult } from "../../gateway/ApiTextSearchResult"
+import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes"
+import { WAIT_UNTIL_OPTIONS } from "../support/options"
+import { isTrackerReady } from "../support/helpers/tracker-helpers"
 
 const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, PRE_SEARCH_DELAY_MS } =
   Cypress.env()

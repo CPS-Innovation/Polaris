@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
-import { PipelineResults } from "../../../gateway/PipelineResults"
-import { WAIT_UNTIL_OPTIONS } from "../../support/options"
-import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
-import { isTrackerReady } from "./helpers/tracker-helpers"
+import { PipelineResults } from "../../gateway/PipelineResults"
+import { WAIT_UNTIL_OPTIONS } from "../support/options"
+import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes"
+import { isTrackerReady } from "../support/helpers/tracker-helpers"
 
 const { LARGE_CASE_URN, LARGE_CASE_ID, LARGE_CASE_DOCUMENT_ID } = Cypress.env()
 

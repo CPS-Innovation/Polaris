@@ -1,4 +1,4 @@
-import { PipelineResults } from "../../../../gateway/PipelineResults"
+import { PipelineResults } from "../../../gateway/PipelineResults"
 
 export const isTrackerReady = ({
   status,

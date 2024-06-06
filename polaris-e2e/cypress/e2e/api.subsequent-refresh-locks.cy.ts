@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
+import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes"
 
 const { REFRESH_LOCK_URN, REFRESH_LOCK_CASE_ID } = Cypress.env()
 

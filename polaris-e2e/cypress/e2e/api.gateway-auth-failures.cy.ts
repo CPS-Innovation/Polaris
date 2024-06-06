@@ -1,5 +1,5 @@
-import { CorrelationId, correlationIds } from "../../support/correlation-ids"
-import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
+import { CorrelationId } from "../support/correlation-ids"
+import { makeApiRoutes } from "../support/helpers/make-routes"
 
 const {
   HAPPY_PATH_URN,
