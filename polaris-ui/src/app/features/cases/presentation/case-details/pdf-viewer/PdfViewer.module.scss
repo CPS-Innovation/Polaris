@@ -30,3 +30,9 @@
     }
   }
 }
+
+.searchPiiOn {
+  :global(.pdfViewer .textLayer) {
+    z-index: 4;
+  }
+}
