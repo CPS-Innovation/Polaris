@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 import "cypress-wait-until"
-import { PipelineResults } from "../../../gateway/PipelineResults"
-import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
-import { WAIT_UNTIL_OPTIONS } from "../../support/options"
+import { PipelineResults } from "../../gateway/PipelineResults"
+import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes"
+import { WAIT_UNTIL_OPTIONS } from "../support/options"
 
 const {
   ATTACHMENT_TARGET_URN,
