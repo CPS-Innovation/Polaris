@@ -183,14 +183,6 @@ stages:
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
-                    
-                - template: tasks/task_restart-app-service.yml
-                  parameters:
-                    targetLabel: "QA"
-                    targetName: "UI Terraform CI Deployment"
-                    appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    azureSubscription: $(qa-azure-subscription)
-                    appServiceName: "polaris-qa-cmsproxy"
 
       - deployment: Apply_UI_Events_Terraform
         condition: and(succeeded(),eq(variables.runTerraform, 'true'))
