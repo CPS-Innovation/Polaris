@@ -191,7 +191,7 @@ describe("useUserGroupsFeatureFlag", () => {
       expect(result?.current?.notes).toStrictEqual(false);
     });
 
-    test("Should return notes feature false, if user is not in private beta feature group and FEATURE_FLAG_NOTES is true", () => {
+    test("Should return notes feature true, if user is not in private beta feature group and FEATURE_FLAG_NOTES is true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "test",
       });
@@ -208,7 +208,7 @@ describe("useUserGroupsFeatureFlag", () => {
       mockConfig.FEATURE_FLAG_NOTES = true;
 
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
-      expect(result?.current?.notes).toStrictEqual(false);
+      expect(result?.current?.notes).toStrictEqual(true);
     });
   });
 
