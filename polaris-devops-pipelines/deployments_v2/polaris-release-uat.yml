@@ -161,6 +161,14 @@ stages:
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
+                    
+                - template: tasks/task_restart-app-service.yml
+                  parameters:
+                    targetLabel: "UAT"
+                    targetName: "UI Terraform CI Deployment"
+                    appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+                    azureSubscription: $(uat-azure-subscription)
+                    appServiceName: "polaris-uat-cmsproxy"
 
       - deployment: Apply_UI_Events_Terraform
         condition: succeeded()
