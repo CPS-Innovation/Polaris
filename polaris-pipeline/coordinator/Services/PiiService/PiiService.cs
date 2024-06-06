@@ -11,6 +11,7 @@ using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
+using coordinator.Services.TextSanitizationService;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Services.PiiService
@@ -23,14 +24,16 @@ namespace coordinator.Services.PiiService
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IPiiAllowedListService _piiAllowedList;
+        private readonly ITextSanitizationService _textSanitizationService;
 
-        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration, IPiiAllowedListService allowedList)
+        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration, IPiiAllowedListService allowedList, ITextSanitizationService textSanitizationService)
         {
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _piiAllowedList = allowedList ?? throw new ArgumentNullException(nameof(allowedList));
             _piiCategories = configuration["PiiCategories"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            _textSanitizationService = textSanitizationService ?? throw new ArgumentNullException(nameof(textSanitizationService));
         }
 
         public IEnumerable<PiiRequestDto> CreatePiiRequests(List<PiiChunk> piiChunks)
@@ -94,7 +97,7 @@ namespace coordinator.Services.PiiService
             };
         }
 
-        internal static IEnumerable<PiiLine> MapReconcilledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
+        public IEnumerable<PiiLine> MapReconcilledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
         {
             var results = new List<PiiLine>();
 
@@ -120,7 +123,7 @@ namespace coordinator.Services.PiiService
                     var lineWords = entity.LineText.Split(' ');
                     foreach (var lineWord in lineWords)
                     {
-                        piiLine.Words.Add(new PiiWord { Text = lineWord });
+                        piiLine.Words.Add(new PiiWord { Text = lineWord, SanitizedText = _textSanitizationService.SantitizeText(lineWord) });
                     }
 
                     results.Add(piiLine);
