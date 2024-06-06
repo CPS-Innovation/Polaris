@@ -28,8 +28,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
-    "CoordinatorSwitchoverCaseId"                     = 18110000
-    "CoordinatorSwitchoverModulo"                     = 0 # 0 to always use old, 1 to always use new, > 1 to use new if modulo caseId == 0
+    "CoordinatorSwitchoverCaseId"                     = var.orchestration_switchover.coordinator_switchover_case_id
+    "CoordinatorSwitchoverModulo"                     = var.orchestration_switchover.coordinator_switchover_modulo
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
