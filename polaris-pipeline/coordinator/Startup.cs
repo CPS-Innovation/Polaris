@@ -21,6 +21,7 @@ using coordinator.Services.DocumentToggle;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.OcrService;
 using coordinator.Services.PiiService;
+using coordinator.Services.TextSanitizationService;
 using coordinator.Services.RenderHtmlService;
 using coordinator.Services.TextExtractService;
 using coordinator.Validators;
@@ -132,6 +133,7 @@ namespace coordinator
             services.AddSingleton<IPiiEntityMapper, PiiEntityMapper>();
             services.AddSingleton<IPiiAllowedListService, PiiAllowedListService>();
             services.AddSingleton<IPiiAllowedList, PiiAllowedList>();
+            services.AddSingleton<ITextSanitizationService, TextSanitizationService>();
 
             services.AddDurableClientFactory();
         }
