@@ -1,22 +1,18 @@
 using System.Threading.Tasks;
-using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Payloads;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using text_extractor.coordinator;
 
 namespace coordinator.Durable.Activity.ExtractTextNext
 {
     public class CompleteIndex
     {
         private readonly ITextExtractorClient _textExtractorClient;
-        private readonly ITelemetryClient _telemetryClient;
 
-        public CompleteIndex(ITextExtractorClient textExtractorClient, ITelemetryClient telemetryClient)
+        public CompleteIndex(ITextExtractorClient textExtractorClient)
         {
             _textExtractorClient = textExtractorClient;
-            _telemetryClient = telemetryClient;
         }
 
         [FunctionName(nameof(CompleteIndex))]
@@ -31,8 +27,6 @@ namespace coordinator.Durable.Activity.ExtractTextNext
                 payload.CorrelationId);
 
             var isComplete = results.LineCount >= targetCount;
-
-            _telemetryClient.TrackEvent(new VNextDummyEvent(payload.CorrelationId, payload.SubCorrelationId, "CompleteIndex"));
 
             return (isComplete, results.LineCount);
         }

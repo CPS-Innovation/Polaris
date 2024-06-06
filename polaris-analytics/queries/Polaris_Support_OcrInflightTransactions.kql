@@ -1,3 +1,5 @@
+let LongRunningTransactionBoundaryMs = 20000;
+
 let Base = AppTraces
 | where AppRoleName in ("fa-polaris-text-extractor", "fa-polaris-coordinator")
 | where OperationName == "ExtractText"
@@ -16,6 +18,7 @@ let Starts = Base
     TransactionTimeGenerated = datetime_add('millisecond',-1 * EventualDurationMs, TimeGenerated),
     TransactionCount = toint(extract("pages: (\\d+)", 1, Message)),
     EventualDurationMs,
+    IsLongRunningTransaction = EventualDurationMs >= LongRunningTransactionBoundaryMs,
     StartCount = 1,
     EndCount = 0;
 
@@ -25,6 +28,7 @@ let Polls = Base
     TransactionTimeGenerated = TimeGenerated,
     TransactionCount = int(1),
     EventualDurationMs = int(null),
+    IsLongRunningTransaction = false,
     StartCount = 0,
     EndCount = iif(Message contains "Succeeded", 1, 0);
 
@@ -32,11 +36,14 @@ union
     Starts,
     Polls
 | summarize 
-    TransactionCount = sum(TransactionCount), 
-    EventualDurationMs = make_set_if(EventualDurationMs, not(isempty(EventualDurationMs))), 
-    StartCount=sum(StartCount),
-    EndCount = sum(EndCount)
+    TransactionUnitCount = sum(TransactionCount), 
+    EventualDocumentProcessingDurationMs = make_set_if(EventualDurationMs, not(isempty(EventualDurationMs))), 
+    EventualLongRunningDocumentProcessingStartCount = countif(IsLongRunningTransaction),
+    DocumentProcessingStartCount=sum(StartCount),
+    DocumentProcessingEndCount = sum(EndCount)
 by bin(TransactionTimeGenerated, 1s)
 | order by TransactionTimeGenerated asc 
-| extend InFlightDocuments = row_cumsum( StartCount - EndCount)
+| where TransactionTimeGenerated between (datetime(2024-05-10T09:30Z) .. datetime(2024-05-10T11:00Z))
+| extend InFlightDocumentsBeingProcessed = row_cumsum( DocumentProcessingStartCount - DocumentProcessingEndCount)
+
 

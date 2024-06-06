@@ -33,6 +33,14 @@ let TimingsForRedaction = AppRequests
 ;
 //TimesForRedaction
 
+let GatewayServiceUnavailable = AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Name == "PolarisPipelineSaveDocumentRedactions"
+| where ResultCode == 503 or ResultCode == 502
+| project PolarisCorrelationIdGateway = tostring(Properties.PolarisCorrelationId)
+;
+// GatewayServiceUnavailable
+
 let DdeiExceptions = AppExceptions
 | where AppRoleName startswith "fa-polaris-ddei"
 | where OperationName in ("UploadDocument", "UploadDocumentOld")
@@ -63,7 +71,7 @@ let PdfExceptions = AppExceptions
 
 let CoordinatorExceptions = AppExceptions
 | where AppRoleName startswith "fa-polaris-coordinator"
-| where OperationName == "SaveRedactions"
+| where OperationName in ("SaveRedactions", "RedactDocument")
 | project PolarisCorrelationIdCoordinator = tostring(Properties.prop__CorrelationId),
     CoordinatorFailType = case(
         OuterMessage contains "503", "Service Unavailable",
@@ -78,6 +86,7 @@ FailedRedactionsByDocumentId
 | join kind=leftouter DdeiExceptions on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdDdei
 | join kind=leftouter PdfExceptions on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdPdf
 | join kind=leftouter CoordinatorExceptions on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdCoordinator
+| join kind=leftouter GatewayServiceUnavailable on $left.PolarisCorrelationIdFailed == $right.PolarisCorrelationIdGateway
 
 | extend WasRecovered =  TimeGeneratedOk > TimeGeneratedFailed 
 | extend SecondsToRecover = datetime_diff('second',TimeGeneratedOk,TimeGeneratedFailed)
@@ -91,6 +100,7 @@ FailedRedactionsByDocumentId
 | extend IsDdeiException = not(isempty(PolarisCorrelationIdDdei))
 | extend IsPdfException = not(isempty(PolarisCorrelationIdPdf))
 | extend IsCoordinatorException = not(isempty(PolarisCorrelationIdCoordinator))
+| extend IsGatewayServiceUnavailble = not(isempty(PolarisCorrelationIdGateway))
 | project 
     TimeGenerated = TimeGeneratedFailed, 
     DocumentId, 
@@ -99,6 +109,7 @@ FailedRedactionsByDocumentId
         IsTimeout, "Timeout",
         IsPdfException, "Pdf",
         IsCoordinatorException, strcat("Coordinator ", CoordinatorFailType),
+        IsGatewayServiceUnavailble, "Gateway Service Unavailable/ Bad Gateway",
         "Unknown"
     ),
     RecoveryType,

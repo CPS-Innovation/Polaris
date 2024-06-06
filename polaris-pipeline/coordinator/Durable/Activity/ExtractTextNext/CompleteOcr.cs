@@ -3,13 +3,11 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Services.BlobStorageService;
-using Common.Telemetry;
 using Common.Wrappers;
 using coordinator.Services.OcrService;
 using coordinator.Services.OcrService.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using text_extractor.coordinator;
 
 namespace coordinator.Durable.Activity.ExtractTextNext
 {
@@ -18,14 +16,12 @@ namespace coordinator.Durable.Activity.ExtractTextNext
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IOcrService _ocrService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly ITelemetryClient _telemetryClient;
 
-        public CompleteOcr(IPolarisBlobStorageService blobStorageService, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper, ITelemetryClient telemetryClient)
+        public CompleteOcr(IPolarisBlobStorageService blobStorageService, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper)
         {
             _blobStorageService = blobStorageService;
             _ocrService = ocrService;
             _jsonConvertWrapper = jsonConvertWrapper;
-            _telemetryClient = telemetryClient;
         }
 
         [FunctionName(nameof(CompleteOcr))]
@@ -47,8 +43,6 @@ namespace coordinator.Durable.Activity.ExtractTextNext
             await _blobStorageService.UploadDocumentAsync(
                 ocrStream,
                 ocrBlobName);
-
-            _telemetryClient.TrackEvent(new VNextDummyEvent(correlationId, subCorrelationId, "CompleteOcr"));
 
             return (true, analyzeResult);
         }
