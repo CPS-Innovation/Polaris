@@ -50,7 +50,7 @@ export default defineConfig({
       return { ...config, env: resolvedEnv }
     },
     baseUrl: "http://example.org",
-    video: false,
+    video: true,
     screenshotOnRunFailure: true,
     // reporter: "junit",
     // reporterOptions: {
