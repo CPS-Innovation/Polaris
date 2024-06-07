@@ -61,7 +61,7 @@ export const mapSearchPIIHighlights = (
         };
 
         const textContent = words.reduce((acc, word) => {
-          acc = acc ? `${acc} ${word.text}` : word.text;
+          acc = acc ? `${acc} ${word.sanitizedText}` : word.sanitizedText;
           return acc;
         }, "");
 
