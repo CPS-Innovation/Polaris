@@ -64,5 +64,5 @@ pii = {
 
 orchestration_switchover = {
   coordinator_switchover_case_id = 1
-  coordinator_switchover_modulo = 8
+  coordinator_switchover_modulo = 4
 }
