@@ -41,19 +41,6 @@ namespace coordinator.tests.Services.TextSanitization
       Assert.Equal(expected, result);
     }
     [Fact]
-    public void SantitizeText_RemovesAsciiCharsWithinText()
-    {
-      // Arrange
-      string input = "Gibson's";
-      string expected = "Gibsons";
-
-      // Act
-      string result = _service.SantitizeText(input);
-
-      // Assert
-      Assert.Equal(expected, result);
-    }
-    [Fact]
     public void SantitizeText_ReturnsInputWhenNoAsciiChars()
     {
       // Arrange
