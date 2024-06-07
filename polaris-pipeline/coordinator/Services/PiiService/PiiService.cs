@@ -141,7 +141,8 @@ namespace coordinator.Services.PiiService
                     BoundingBox = entity.Word.BoundingBox,
                     PiiCategory = entity.PiiCategory,
                     PiiGroupId = entity.EntityGroupId,
-                    RedactionType = entity.RedactionType
+                    RedactionType = entity.RedactionType,
+                    SanitizedText = _textSanitizationService.SantitizeText(entity.Word.Text)
                 };
                 if (wordIndex != -1)
                     piiLine.Words[wordIndex] = word;
