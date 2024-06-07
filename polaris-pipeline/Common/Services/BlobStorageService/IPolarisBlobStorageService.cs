@@ -9,6 +9,8 @@ namespace Common.Services.BlobStorageService
     {
         Task<Stream> GetDocumentAsync(string blobName, Guid correlationId);
 
+        Task UploadDocumentAsync(Stream stream, string blobName);
+
         Task UploadDocumentAsync(Stream stream, string blobName, string caseId, PolarisDocumentId polarisDocumentId, string versionId, Guid correlationId);
 
         Task DeleteBlobsByCaseAsync(string caseId);

@@ -10,6 +10,7 @@ namespace Common.Dto.Tracker
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
+        [Obsolete]
         [JsonProperty("versionId")]
         public int? VersionId { get; set; }
 
@@ -33,7 +34,7 @@ namespace Common.Dto.Tracker
         public float? Completed { get; set; }
 
         [JsonProperty("failed")]
-        public float? Failed{ get; set; }
+        public float? Failed { get; set; }
 
         [JsonProperty("failedReason")]
         public string FailedReason { get; set; }

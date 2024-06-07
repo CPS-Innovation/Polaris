@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import classes from "./RedactButton.module.scss";
 import { Select, Button } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
@@ -6,8 +6,7 @@ import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type Props = {
-  searchPIIData: {
-    searchPIIOn: boolean;
+  searchPIIData?: {
     textContent: string;
     count: number;
   };
@@ -71,7 +70,7 @@ export const RedactButton: React.FC<Props> = ({
       <span id="redact-modal-description" className={classes.modalDescription}>
         A modal with a redact button to help user to redact selected text
       </span>
-      {searchPIIData.searchPIIOn && (
+      {searchPIIData && (
         <div className={classes.piiHeader}>
           <b>{`"${searchPIIData.textContent}" `}</b>
           <i className={classes.smallText}>appears</i>{" "}
@@ -80,7 +79,7 @@ export const RedactButton: React.FC<Props> = ({
         </div>
       )}
       <div className={classes.contentWrapper}>
-        {!searchPIIData.searchPIIOn && redactionTypesData.length > 0 && (
+        {!searchPIIData && redactionTypesData.length > 0 && (
           <div className="govuk-form-group">
             <Select
               label={{
@@ -99,7 +98,7 @@ export const RedactButton: React.FC<Props> = ({
             />
           </div>
         )}
-        {!searchPIIData.searchPIIOn && (
+        {!searchPIIData && (
           <Button
             disabled={redactionTypesData.length ? !redactionType : false}
             className={classes.redactButton}
@@ -110,7 +109,7 @@ export const RedactButton: React.FC<Props> = ({
             Redact
           </Button>
         )}
-        {searchPIIData.searchPIIOn && (
+        {searchPIIData && (
           <>
             <Button
               disabled={false}

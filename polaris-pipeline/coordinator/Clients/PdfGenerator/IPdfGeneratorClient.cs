@@ -8,6 +8,6 @@ namespace coordinator.Clients.PdfGenerator
 {
     public interface IPdfGeneratorClient
     {
-        Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType);
+        Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType);
     }
 }

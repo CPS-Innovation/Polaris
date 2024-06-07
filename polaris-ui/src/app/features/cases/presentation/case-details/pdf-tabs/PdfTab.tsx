@@ -256,6 +256,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           tabId={tabId}
           headers={headers}
           searchHighlights={searchHighlights}
+          isSearchPIIOn={isSearchPIIOn}
           activeSearchPIIHighlights={activeSearchPIIHighlights}
           documentWriteStatus={documentWriteStatus}
           contextData={{

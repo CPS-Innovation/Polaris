@@ -6,6 +6,7 @@ using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
+using coordinator.Services.TextSanitizationService;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
@@ -14,13 +15,15 @@ using Xunit;
 
 namespace coordinator.tests.Services.PiiServiceTests
 {
-    public class PiiServiceTests
+    public class PiiServiceTests : TestBase
     {
         private readonly PiiService _piiService;
         private readonly Mock<PiiEntityMapper> _piiEntityMapper;
         private readonly OcrResultsService _ocrResultsService;
         private readonly Mock<IPolarisBlobStorageService> _blobStorageService;
         private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapper;
+        private readonly Mock<IPiiAllowedListService> _piiAllowedList;
+        private readonly Mock<ITextSanitizationService> _textSanitizationService;
         private readonly IConfiguration _configuration;
         private readonly string[] _piiCategories;
         private const int CaseId = 123456;
@@ -39,8 +42,10 @@ namespace coordinator.tests.Services.PiiServiceTests
             _piiEntityMapper = new Mock<PiiEntityMapper>();
             _blobStorageService = new Mock<IPolarisBlobStorageService>();
             _jsonConvertWrapper = new Mock<IJsonConvertWrapper>();
+            _piiAllowedList = new Mock<IPiiAllowedListService>();
             _piiCategories = new string[] { "Person", "Address", "Email" };
-            _piiService = new PiiService(_piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object, _configuration);
+            _textSanitizationService = new Mock<ITextSanitizationService>();
+            _piiService = new PiiService(_piiEntityMapper.Object, _blobStorageService.Object, _jsonConvertWrapper.Object, _configuration, _piiAllowedList.Object, _textSanitizationService.Object);
 
             _ocrResultsService = new OcrResultsService(_blobStorageService.Object, _jsonConvertWrapper.Object);
         }
@@ -77,7 +82,7 @@ namespace coordinator.tests.Services.PiiServiceTests
             var expectedWordCount = reconciledPiiEntity.LineText.Split(' ').Length;
             var reconciledPiiEntities = new List<ReconciledPiiEntity> { reconciledPiiEntity };
 
-            var result = PiiService.MapReconcilledPiiToResponse(reconciledPiiEntities);
+            var result = _piiService.MapReconcilledPiiToResponse(reconciledPiiEntities);
 
             result.Count().Should().Be(1);
             result.First().Text.Should().Be(expectedLineText);
@@ -96,7 +101,7 @@ namespace coordinator.tests.Services.PiiServiceTests
                 reconciledPiiEntity3
             };
 
-            var result = PiiService.MapReconcilledPiiToResponse(reconciledPiiEntities);
+            var result = _piiService.MapReconcilledPiiToResponse(reconciledPiiEntities);
 
             result.Count().Should().Be(1);
             result.First().Words.Count(x => x.BoundingBox != null).Should().Be(reconciledPiiEntities.Count);

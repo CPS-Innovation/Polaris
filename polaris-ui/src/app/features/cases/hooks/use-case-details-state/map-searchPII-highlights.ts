@@ -62,7 +62,7 @@ export const mapSearchPIIHighlights = (
         };
 
         const textContent = words.reduce((acc, word) => {
-          acc = acc ? `${acc} ${word.text}` : word.text;
+          acc = acc ? `${acc} ${word.sanitizedText}` : word.sanitizedText;
           return acc;
         }, "");
 
@@ -113,7 +113,9 @@ export const mapSearchPIIHighlights = (
     });
   });
 
-  const highlightsWithMultiLineBoundingBox = results.map((result) => {
+  const filteredResult = getFilteredByValidUkPhoneNumber(results);
+
+  const highlightsWithMultiLineBoundingBox = filteredResult.map((result) => {
     if (result.position.rects.length > 1) {
       return {
         ...result,
@@ -151,4 +153,17 @@ const getBoundingBoxFromRects = (rects: Scaled[]) => {
   }, {} as Scaled);
 
   return boundingRect;
+};
+
+export const getFilteredByValidUkPhoneNumber = (
+  results: ISearchPIIHighlight[]
+) => {
+  const UK_PHONE_NUMBER_REGEX =
+    /^(\+44\s?7\d{8,9}|\+44\s?([1-3]|[8-9])\d{8,9}|07\d{8,9}|0([1-3]|[8-9])\d{8,9}|\(?0([1-3]|[8-9])\d{2}\)?[\s-]?\d{3}[\s-]?\d{3,4}|\(?(0([1-3]|[8-9]))\d{3}\)?[\s-]?\d{3}[\s-]?\d{2,3})$/gm;
+  return results.filter((highlight) => {
+    if (highlight.piiCategory === "PhoneNumber") {
+      return !!highlight.textContent.match(UK_PHONE_NUMBER_REGEX);
+    }
+    return true;
+  });
 };

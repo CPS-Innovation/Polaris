@@ -53,9 +53,8 @@ namespace Common.tests.Services.BlobStorageService
             _mockBlobContainerClient.Setup(client => client.ExistsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_mockBlobContainerExistsResponse.Object);
             _mockBlobContainerClient.Setup(client => client.GetBlobClient(_blobName)).Returns(_mockBlobClient.Object);
-            var mockLogger = new Mock<ILogger<Common.Services.BlobStorageService.PolarisBlobStorageService>>();
 
-            _blobStorageService = new Common.Services.BlobStorageService.PolarisBlobStorageService(mockBlobServiceClient.Object, blobContainerName, mockLogger.Object);
+            _blobStorageService = new Common.Services.BlobStorageService.PolarisBlobStorageService(mockBlobServiceClient.Object, blobContainerName);
         }
 
         #region GetDocumentAsync

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
@@ -8,6 +7,9 @@ using Microsoft.Extensions.Logging;
 using coordinator.Factories.ComputerVisionClientFactory;
 using Common.Logging;
 using Common.Streaming;
+using PolarisDomain = coordinator.Services.OcrService.Domain;
+using Mapster;
+using System.Threading;
 
 namespace coordinator.Services.OcrService
 {
@@ -18,6 +20,7 @@ namespace coordinator.Services.OcrService
         //  the occasional very slow document processing operation.  The article makes it clear that there is a limit in the number of requests
         //  per second, so by increasing the delay we are seeing if we can improve throughput by reducing the number of requests.
         private const int _pollingDelayMs = 2000;
+        private const int _httpTimeoutMs = 50000; // temporarily set this high so we don't trigger timeouts
         private readonly ComputerVisionClient _computerVisionClient;
         private readonly ILogger<OcrService> _log;
 
@@ -28,53 +31,83 @@ namespace coordinator.Services.OcrService
             _log = log;
         }
 
-        public async Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
+        public async Task<PolarisDomain.AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
+        {
+            var operationId = await InitiateOperationAsync(stream, correlationId);
+
+            while (true)
+            {
+                // always wait before the first read attempt, it will not be ready immediately
+                await Task.Delay(_pollingDelayMs);
+
+                var (isComplete, results) = await GetOperationResultsAsync(operationId, correlationId);
+
+                if (isComplete)
+                {
+                    return results;
+                }
+            }
+        }
+
+        public async Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId)
         {
             try
             {
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
+
                 // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
                 //  and so will need to go through the stream again. Depending on the version/type of framework that is handing us this stream
                 //  it may not be seekable.  We have a helper method to ensure it is seekable.
                 //  n.b. this incurs an overhead for all executions, the vast majority of which do not need to retry.
                 stream = await stream.EnsureSeekableAsync();
 
-                var watch = new Stopwatch();
-                watch.Start();
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
-                var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream);
-                var operationLocation = textHeaders.OperationLocation;
+                // There have been examples seen in production of ReadInStreamAsync taking 100 seconds and then hitting the default timeout of its internal
+                //  HttpClient (presumably).  This would time out our orchestrator execution, so lets time out and throw earlier if we detect a "hanging" call 
+                //  and let the caller deal with retries.
+                using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
+                var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream, null, null, "latest", "basic", cancellationSource.Token);
 
+                var operationLocation = textHeaders.OperationLocation;
                 const int numberOfCharsInOperationId = 36;
                 var operationId = operationLocation[^numberOfCharsInOperationId..];
 
-                ReadOperationResult results;
-                while (true)
-                {
-                    // always wait before the first read attempt, it will not be ready immediately
-                    await Task.Delay(_pollingDelayMs);
-
-                    results = await _computerVisionClient.GetReadResultAsync(Guid.Parse(operationId));
-                    _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
-                    if (results.Status is OperationStatusCodes.Failed or OperationStatusCodes.Succeeded)
-                    {
-                        break;
-                    }
-                }
-
-                watch.Stop();
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR completed in {watch.ElapsedMilliseconds}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
-
-                if (results.Status == OperationStatusCodes.Failed)
-                {
-                    throw new OcrServiceException("OCR completed with Failed status");
-                }
-
-                return results.AnalyzeResult;
+                return Guid.Parse(operationId);
             }
             catch (Exception ex)
             {
-                _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "An OCR Library exception occurred", ex);
-                throw new OcrServiceException(ex.Message);
+                _log.LogMethodError(correlationId, nameof(InitiateOperationAsync), "An OCR Library exception occurred", ex);
+                throw;
+            }
+        }
+
+        public async Task<(bool, PolarisDomain.AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        {
+            try
+            {
+                // See cancellationSource comment in InitiateOperationAsync.
+                using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
+                var results = await _computerVisionClient.GetReadResultAsync(operationId, cancellationSource.Token);
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
+
+                if (results.Status == OperationStatusCodes.Running || results.Status == OperationStatusCodes.NotStarted)
+                {
+                    return (false, null);
+                }
+
+                var elapsedMs = (DateTime.Parse(results.LastUpdatedDateTime) - DateTime.Parse(results.CreatedDateTime)).TotalMilliseconds;
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+
+                if (results.Status == OperationStatusCodes.Failed)
+                {
+                    throw new Exception($"{nameof(GetOperationResultsAsync)} failed with status {results.Status}");
+                }
+
+                return (true, results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>());
+            }
+            catch (Exception ex)
+            {
+                _log.LogMethodError(correlationId, nameof(GetOperationResultsAsync), "An OCR Library exception occurred", ex);
+                throw;
             }
         }
     }
