@@ -3,7 +3,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
   #checkov:skip=CKV_AZURE_13:Ensure App Service Authentication is set on Azure App Service
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
   name                          = "staging1"
-  app_service_id                = azurerm_linux_web_app.as_web_polaris.id
+  app_service_id                = azurerm_linux_web_app.polaris_proxy.id
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_proxy_subnet.id
   public_network_access_enabled = false
   https_only                    = true
