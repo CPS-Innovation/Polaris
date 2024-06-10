@@ -467,6 +467,9 @@ stages:
         condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         strategy:
           matrix:
+            Proxy:
+              Name: "Proxy"
+              AppServiceName: "polaris-qa-cmsproxy"
             SPA:
               Name: "SPA"
               AppServiceName: "as-web-polaris-qa"
