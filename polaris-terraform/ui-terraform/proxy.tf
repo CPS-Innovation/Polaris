@@ -10,6 +10,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   public_network_access_enabled = false
 
   app_settings = {
+    "HostType"                                        = "Production"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -57,6 +58,10 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/"
+  }
+
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {
@@ -119,6 +124,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
 
   lifecycle {
     ignore_changes = [
+      app_settings["HostType"],
       app_settings["WEBSITE_CONTENTOVERVNET"],
       app_settings["WEBSITE_DNS_SERVER"],
       app_settings["WEBSITE_DNS_ALT_SERVER"],

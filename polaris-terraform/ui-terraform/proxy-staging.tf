@@ -10,6 +10,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
+    "HostType"                                        = "Staging1"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -27,7 +28,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_staging1_file_share.name
     "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
     "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
     "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
