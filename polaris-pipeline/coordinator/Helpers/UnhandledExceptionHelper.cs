@@ -22,6 +22,7 @@ namespace coordinator.Helpers
                     System.Net.HttpStatusCode.Unauthorized => StatusCodes.Status401Unauthorized,
                     System.Net.HttpStatusCode.Forbidden => StatusCodes.Status403Forbidden,
                     System.Net.HttpStatusCode.Gone => StatusCodes.Status410Gone,
+                    System.Net.HttpStatusCode.UnavailableForLegalReasons => StatusCodes.Status451UnavailableForLegalReasons,
                     _ => StatusCodes.Status500InternalServerError
                 }),
                 BadRequestException => new StatusCodeResult(StatusCodes.Status400BadRequest),

@@ -1,3 +1,4 @@
+import { ApiError } from "../../errors/ApiError";
 import { PageContentWrapper } from "./PageContentWrapper";
 
 type Props = { error: Error | undefined };
@@ -14,6 +15,7 @@ export const ErrorPage = ({ error }: Props) => (
       </a>
       .
     </p>
+    {error instanceof ApiError ? <p>{error.customMessage}</p> : null}
     <div className="govuk-inset-text">{error?.toString()}</div>
   </PageContentWrapper>
 );
