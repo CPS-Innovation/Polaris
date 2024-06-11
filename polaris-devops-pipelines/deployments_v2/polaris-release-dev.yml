@@ -467,9 +467,6 @@ stages:
         condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         strategy:
           matrix:
-            Proxy:
-              Name: "Proxy"
-              AppServiceName: "polaris-dev-cmsproxy"
             SPA:
               Name: "SPA"
               AppServiceName: "as-web-polaris-dev"
@@ -488,12 +485,34 @@ stages:
               resourceGroupName: "rg-polaris-dev"
               webAppName: $(AppServiceName)
               PreserveVnet: true
+              
+      - job: Swap_Proxy_Slot
+        dependsOn: Pause_Pipeline
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        strategy:
+          matrix:
+            Proxy:
+              Name: "Proxy"
+              AppServiceName: "polaris-dev-cmsproxy"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(dev-azure-subscription)
+              resourceGroupName: "rg-polaris-dev"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
 
       - job: Log_Result
         condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn:
           - Swap_Pipeline_Slots
           - Swap_UI_Slots
+          - Swap_Proxy_Slot
         steps:
           - template: tasks/task_log-result.yml
             parameters:
