@@ -13,18 +13,17 @@ AppRequests
 ) on OperationId | project-away OperationId1
 
 | join kind=leftouter (AppRequests
-    | where AppRoleName == "fa-polaris-text-extractor"
+    | where AppRoleName == "fa-polaris-text-extractor" or AppRoleName == "fa-polaris-coordinator"
     | where Name == "ExtractText"
     | project OperationId, 
         TextExtractorSuccess = ResultCode == 200, 
-        ActivityDurationMs = DurationMs,
-        ResultCode
+        ActivityDurationMs = DurationMs
 ) on OperationId | project-away OperationId1
 
 | join kind = leftouter(
     AppTraces
-    | where AppRoleName == "fa-polaris-text-extractor"
-    | where OperationName == "ExtractText"
+    | where AppRoleName == "fa-polaris-text-extractor" or AppRoleName == "fa-polaris-coordinator"
+    //| where OperationName == "ExtractText"
     | where Properties.prop__MethodName == "GetOcrResultsAsync"
     | where Message contains "OCR completed"
     | project 

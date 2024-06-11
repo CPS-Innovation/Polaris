@@ -3,6 +3,7 @@ resource "azurerm_storage_account" "sacpspolaris" {
   #checkov:skip=CKV_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
+  #checkov:skip=CKV2_AZURE_50:Ensure Azure Storage Account storing Machine Learning workspace high business impact data is not publicly accessible
   name                = "sacps${var.env != "prod" ? var.env : ""}polaris"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
@@ -130,6 +131,14 @@ resource "azurerm_private_endpoint" "polaris_sacpspolaris_file_pe" {
 resource "azapi_resource" "polaris_sacpspolaris_proxy_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-proxy-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
+
+  depends_on = [azurerm_storage_account.sacpspolaris]
+}
+
+resource "azapi_resource" "polaris_sacpspolaris_proxy_staging1_file_share" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "polaris-proxy-content-share-1"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
 
   depends_on = [azurerm_storage_account.sacpspolaris]

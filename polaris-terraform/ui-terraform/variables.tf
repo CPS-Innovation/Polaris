@@ -118,6 +118,11 @@ variable "feature_flag_notes" {
   type = string
 }
 
+variable "feature_flag_search_pii" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "local_storage_expiry_days" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string

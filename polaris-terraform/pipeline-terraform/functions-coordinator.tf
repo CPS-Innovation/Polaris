@@ -15,9 +15,9 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
-    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "AzureWebJobs.ResetDurableState.Disabled"    = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled" = var.sliding_clear_down.disabled
+    "AzureWebJobsStorage"                        = azurerm_storage_account.sa_coordinator.primary_connection_string
     # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
     "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
@@ -28,6 +28,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
+    "CoordinatorSwitchoverCaseId"                     = var.orchestration_switchover.coordinator_switchover_case_id
+    "CoordinatorSwitchoverModulo"                     = var.orchestration_switchover.coordinator_switchover_modulo
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"

@@ -1,15 +1,16 @@
 import React from "react";
 import { T_ViewportHighlight } from "../../../../../../react-pdf-highlighter/src/components/PdfHighlighter";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 
 import classes from "./PdfLinearHighlight.module.scss";
 import { PdfLinearHighlightPartRedaction } from "./PdfLinearHighlightPartRedaction";
 import { PdfLinearHighlightPartSearch } from "./PdfLinearHighlightPartSearch";
 
 interface Props {
-  type: "search" | "redaction";
+  type: "search" | "redaction" | "searchPII";
   isScrolledTo: boolean;
-  highlight: T_ViewportHighlight<IPdfHighlight>;
+  highlight: T_ViewportHighlight<IPdfHighlight | ISearchPIIHighlight>;
 }
 
 export const PdfLinearHighlight: React.FC<Props> = ({
@@ -18,12 +19,17 @@ export const PdfLinearHighlight: React.FC<Props> = ({
     id,
     textContent,
   },
+  highlight,
   isScrolledTo,
   type,
 }) => {
   const className = `${classes["Highlight"]} ${
     isScrolledTo ? classes["Highlight--scrolledTo"] : ""
   }`;
+  let groupId;
+  if (type === "searchPII") {
+    groupId = (highlight as ISearchPIIHighlight).groupId;
+  }
 
   return (
     <div
@@ -31,9 +37,14 @@ export const PdfLinearHighlight: React.FC<Props> = ({
       data-testid={`div-highlight-${id}`}
       data-test-isfocussed={isScrolledTo}
     >
-      <div className={classes["Highlight__parts"]}>
+      <div
+        className={classes["Highlight__parts"]}
+        text-content={textContent}
+        highlight-type={type}
+        highlight-groupid={groupId}
+      >
         {rects.map((rect, index) =>
-          type === "search" ? (
+          type === "search" || type === "searchPII" ? (
             <PdfLinearHighlightPartSearch key={index} rect={rect} />
           ) : (
             <PdfLinearHighlightPartRedaction

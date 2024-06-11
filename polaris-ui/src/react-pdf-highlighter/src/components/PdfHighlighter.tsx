@@ -82,7 +82,12 @@ interface Props<T_HT> {
   pdfScaleValue: string;
   onSelectionFinished: (
     position: ScaledPosition,
-    content: { text?: string; image?: string },
+    content: {
+      text?: string;
+      image?: string;
+      highlightType?: "search" | "searchPII" | "none";
+      highlightGroupId?: string;
+    },
     hideTipAndSelection: () => void,
     transformSelection: () => void
   ) => JSX.Element | null;
@@ -613,9 +618,28 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       pageNumber: pages[0].number,
     };
 
-    const content = {
-      text: range.toString(),
+    let content: {
+      text: string;
+      highlightType: "none" | "searchPII" | "search";
+      highlightGroupId: string;
+    } = {
+      text: "",
+      highlightType: "none",
+      highlightGroupId: "",
     };
+    if (range.toString()) {
+      content.text = range.toString();
+    } else {
+      const attributes: any = (range.startContainer as HTMLElement)?.attributes;
+      const textContent = attributes?.["text-content"]?.nodeValue;
+      const highlightType = attributes?.["highlight-type"]?.nodeValue;
+      const highlightGroupId = attributes?.["highlight-groupid"]?.nodeValue;
+      content = {
+        text: textContent ?? "",
+        highlightType: highlightType,
+        highlightGroupId: highlightGroupId,
+      };
+    }
     const scaledPosition = this.viewportPositionToScaled(viewportPosition);
 
     this.setTip(

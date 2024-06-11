@@ -1,5 +1,5 @@
 AppDependencies
-| where AppRoleName in ("fa-polaris-pipeline-text-extractor", "fa-polaris-text-extractor")
+| where AppRoleName in ("fa-polaris-coordinator")
 | where Target == "polarisprod.cognitiveservices.azure.com"
 | partition hint.strategy=shuffle by OperationId
 (

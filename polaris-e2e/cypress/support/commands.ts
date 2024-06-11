@@ -220,8 +220,8 @@ Cypress.Commands.add("fullLogin", () => {
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
   cy.getADTokens().then((adTokens) => {
-    const httpCallTimeoutMs = 32 * 1000
-    const intervalToNextCycleMs = 70 * 1000
+    const httpCallTimeoutMs = 62 * 1000
+    const intervalToNextCycleMs = 40 * 1000
     cy.waitUntil(
       () =>
         cy
@@ -233,8 +233,8 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
               authorization: `Bearer ${adTokens.access_token}`,
               "correlation-id": correlationIds.BLANK,
             },
-            // At the time of writing, nginx will timeout a long running http call after 30 seconds
-            //  so lets cater for that with a 504
+            // At the time of writing, nginx will timeout a long running http call after 60 seconds
+            //  and return a 504. So in this case lets survive that
             failOnStatusCode: false,
             timeout: httpCallTimeoutMs,
           })

@@ -12,6 +12,7 @@ import { RedactButton } from "./RedactButton";
 import { RedactionWarning } from "./RedactionWarning";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
@@ -23,6 +24,8 @@ import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
+import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -40,6 +43,8 @@ type Props = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
+  isSearchPIIOn: boolean;
+  activeSearchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
@@ -48,6 +53,7 @@ type Props = {
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
+  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
 };
 
 const ensureAllPdfInView = () =>
@@ -64,6 +70,8 @@ export const PdfViewer: React.FC<Props> = ({
   documentWriteStatus,
   contextData,
   searchHighlights = [],
+  isSearchPIIOn,
+  activeSearchPIIHighlights,
   redactionHighlights,
   isOkToSave,
   areaOnlyRedactionMode,
@@ -72,6 +80,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
   focussedHighlightIndex,
+  handleIgnoreRedactionSuggestion,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
@@ -82,8 +91,9 @@ export const PdfViewer: React.FC<Props> = ({
     () => [
       ...searchHighlights,
       ...sortRedactionHighlights(redactionHighlights),
+      ...activeSearchPIIHighlights,
     ],
-    [searchHighlights, redactionHighlights]
+    [searchHighlights, redactionHighlights, activeSearchPIIHighlights]
   );
 
   useEffect(() => {
@@ -94,6 +104,25 @@ export const PdfViewer: React.FC<Props> = ({
       //  about focussing search highlights anyway, so this works all round.
       scrollToFnRef.current(searchHighlights[focussedHighlightIndex]);
   }, [searchHighlights, focussedHighlightIndex]);
+
+  const getPIISuggestionsWithSameText = useCallback(
+    (redactionText: string = "") => {
+      const redactionSuggestionWithSameText = activeSearchPIIHighlights.filter(
+        (highlight) => highlight.textContent === redactionText
+      );
+      return redactionSuggestionWithSameText;
+    },
+    [activeSearchPIIHighlights]
+  );
+
+  const getSelectedPIIHighlight = useCallback(
+    (highlightGroupId: string = "") => {
+      return activeSearchPIIHighlights.find(
+        (highlight) => highlight.groupId === highlightGroupId
+      );
+    },
+    [activeSearchPIIHighlights]
+  );
 
   const addRedaction = useCallback(
     (
@@ -135,14 +164,18 @@ export const PdfViewer: React.FC<Props> = ({
     [areaOnlyRedactionMode]
   );
 
+  const getWrapperClassName = () => {
+    let className = classes.pdfViewer;
+    if (areaOnlyRedactionMode)
+      className = `${className} ${classes.areaOnlyRedaction}`;
+    if (isSearchPIIOn) className = `${className} ${classes.searchPiiOn}`;
+    return className;
+  };
+
   return (
     <>
       <div
-        className={
-          areaOnlyRedactionMode
-            ? `${classes.pdfViewer} ${classes.areaOnlyRedaction}`
-            : classes.pdfViewer
-        }
+        className={getWrapperClassName()}
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
@@ -200,14 +233,94 @@ export const PdfViewer: React.FC<Props> = ({
                   }
                   return (
                     <RedactButton
+                      searchPIIData={
+                        content.highlightType === "searchPII"
+                          ? {
+                              textContent: content?.text ?? "",
+                              count:
+                                getPIISuggestionsWithSameText(content?.text)
+                                  ?.length ?? 0,
+                            }
+                          : undefined
+                      }
                       redactionTypesData={redactionTypesData}
-                      onConfirm={(redactionType: RedactionTypeData) => {
-                        trackEvent("Redact Content", {
-                          documentType: contextData.documentType,
-                          documentId: contextData.documentId,
-                        });
-                        addRedaction(position, content, redactionType);
-                        hideTipAndSelection();
+                      onConfirm={(
+                        redactionType: RedactionTypeData,
+                        actionType: "redact" | "ignore" | "ignoreAll"
+                      ) => {
+                        switch (actionType) {
+                          case "redact": {
+                            trackEvent("Redact Content", {
+                              documentType: contextData.documentType,
+                              documentId: contextData.documentId,
+                              redactionType: redactionType?.name,
+                            });
+
+                            addRedaction(
+                              position,
+                              {
+                                text: content.text ?? "",
+                                image: content?.image,
+                              },
+                              redactionType
+                            );
+                            hideTipAndSelection();
+                            return;
+                          }
+                          case "ignore": {
+                            if (!content?.text || !content?.highlightGroupId) {
+                              return;
+                            }
+                            trackEvent("Ignore Redaction Suggestion", {
+                              documentType: contextData.documentType,
+                              documentId: contextData.documentId,
+                              redactionType: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.redactionType?.name,
+                              piiCategory: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.piiCategory,
+                              ignoreType: "once",
+                              ignoreCount: 1,
+                            });
+                            handleIgnoreRedactionSuggestion(
+                              contextData.documentId,
+                              content.text,
+                              false,
+                              content.highlightGroupId
+                            );
+
+                            hideTipAndSelection();
+                            return;
+                          }
+                          case "ignoreAll": {
+                            if (!content?.text || !content?.highlightGroupId) {
+                              return;
+                            }
+                            trackEvent("Ignore Redaction Suggestion", {
+                              documentType: contextData.documentType,
+                              documentId: contextData.documentId,
+                              redactionType: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.redactionType?.name,
+                              piiCategory: getSelectedPIIHighlight(
+                                content.highlightGroupId
+                              )?.piiCategory,
+                              ignoreType: "all",
+                              ignoreCount: getPIISuggestionsWithSameText(
+                                content.text
+                              )?.length,
+                            });
+                            handleIgnoreRedactionSuggestion(
+                              contextData.documentId,
+                              content.text,
+                              true,
+                              content.highlightGroupId
+                            );
+                            hideTipAndSelection();
+                            return;
+                          }
+                        }
                       }}
                     />
                   );
@@ -237,11 +350,13 @@ export const PdfViewer: React.FC<Props> = ({
             </>
           )}
         </PdfLoader>
-        {!!redactionHighlights.length && (
+        {redactionHighlights.length + activeSearchPIIHighlights.length && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
-            redactionHighlights={redactionHighlights}
+            totalRedactionsCount={
+              redactionHighlights.length + activeSearchPIIHighlights.length
+            }
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}

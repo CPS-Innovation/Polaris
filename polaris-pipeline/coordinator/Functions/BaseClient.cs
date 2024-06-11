@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
-using System.Net.Http;
-using Common.Constants;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Durable.Entity;
 using Common.ValueObjects;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads.Domain;
-using Microsoft.AspNetCore.Http;
 
 namespace coordinator.Functions
 {

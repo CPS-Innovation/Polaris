@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
@@ -46,7 +45,7 @@ namespace text_extractor.Services.CaseSearchService
             _logger = logger;
         }
 
-        public async Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
+        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
         {
             var blobName = Path.GetFileName(blobPath);
             var lines = new List<SearchLine>();
@@ -72,7 +71,7 @@ namespace text_extractor.Services.CaseSearchService
 
             if (lines.Count == 0)
             {
-                return;
+                return 0;
             }
 
             await using var indexer = _searchIndexingBufferedSenderFactory.Create(_azureSearchClient);
@@ -118,6 +117,8 @@ namespace text_extractor.Services.CaseSearchService
             {
                 throw new RequestFailedException($"At least one indexing action failed. Status(es) = {string.Join(", ", statuses)}");
             }
+
+            return lines.Count;
         }
 
         public async Task<IndexSettledResult> WaitForStoreResultsAsync(long cmsCaseId, string cmsDocumentId, long versionId, long targetCount)
