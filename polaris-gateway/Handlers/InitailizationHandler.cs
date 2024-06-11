@@ -53,9 +53,7 @@ public class InitializationHandler : IInitializationHandler
 
     private static string EstablishCmsAuthValues(HttpRequest req)
     {
-        if (!req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValues) || string.IsNullOrWhiteSpace(cmsAuthValues))
-            throw new CmsAuthenticationException();
-
+        req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValues);
         return cmsAuthValues;
     }
 }

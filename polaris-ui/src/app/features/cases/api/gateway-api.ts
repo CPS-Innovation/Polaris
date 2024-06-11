@@ -16,6 +16,9 @@ import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequ
 import { Note } from "../domain/gateway/NotesData";
 import { SearchPIIResultItem } from "../domain/gateway/SearchPIIData";
 import { removeNonDigits } from "../presentation/case-details/utils/redactionLogUtils";
+
+const FORBIDDEN_STATUS_CODE = 403;
+
 const buildHeaders = async (
   ...args: (
     | Record<string, string>
@@ -69,6 +72,10 @@ export const searchUrn = async (urn: string) => {
     headers,
   });
 
+  if (response.status === FORBIDDEN_STATUS_CODE) {
+    throw new ApiError("This case is secure", url, response);
+  }
+
   if (!response.ok) {
     throw new ApiError("Search URN failed", url, response);
   }
@@ -82,6 +89,10 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   const response = await internalReauthenticatingFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
+
+  if (response.status === FORBIDDEN_STATUS_CODE) {
+    throw new ApiError("This case is secure", url, response);
+  }
 
   if (!response.ok) {
     throw new ApiError("Get Case Details failed", url, response);

@@ -132,22 +132,5 @@ describe(
         })
       })
     })
-
-    it("rejects calls that have a token and correlation id but do not have cms auth values", () => {
-      cy.getADTokens().then((adTokens) => {
-        const routesToTest = getRoutesToTest("BLANK", {
-          Authorization: `Bearer ${adTokens.access_token}`,
-        })
-
-        for (const route of routesToTest) {
-          cy.api({
-            ...route,
-            failOnStatusCode: false,
-          }).then((response) =>
-            expect(response.status).to.equal(statusCodes.FORBIDDEN_403)
-          )
-        }
-      })
-    })
   }
 )
