@@ -1,16 +1,16 @@
-resource "azurerm_linux_web_app" "polaris_proxy" {
+resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
   #checkov:skip=CKV_AZURE_88:Ensure that app services use Azure Files
   #checkov:skip=CKV_AZURE_13:Ensure App Service Authentication is set on Azure App Service
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
-  name                          = "${local.resource_name}-cmsproxy"
-  resource_group_name           = azurerm_resource_group.rg_polaris.name
-  location                      = azurerm_resource_group.rg_polaris.location
-  service_plan_id               = azurerm_service_plan.asp_polaris_proxy.id
+  name                          = "staging1"
+  app_service_id                = azurerm_linux_web_app.polaris_proxy.id
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_proxy_subnet.id
   public_network_access_enabled = false
+  https_only                    = true
+  tags                          = local.common_tags
 
   app_settings = {
-    "HostType"                                        = "Production"
+    "HostType"                                        = "Staging1"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -28,7 +28,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_staging1_file_share.name
     "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
     "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
     "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
@@ -58,10 +58,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/"
-  }
-
-  sticky_settings {
-    app_setting_names = ["HostType"]
   }
 
   site_config {
@@ -119,141 +115,18 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   identity {
     type = "SystemAssigned"
   }
-
-  https_only = true
-
-  lifecycle {
-    ignore_changes = [
-      app_settings["HostType"],
-      app_settings["WEBSITE_CONTENTOVERVNET"],
-      app_settings["WEBSITE_DNS_SERVER"],
-      app_settings["WEBSITE_DNS_ALT_SERVER"],
-      app_settings["WEBSITE_SCHEME"],
-      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
-      app_settings["APPINSIGHTS_PROFILERFEATURE_VERSION"],
-      app_settings["APPINSIGHTS_SNAPSHOTFEATURE_VERSION"],
-      app_settings["APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"],
-      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
-      app_settings["ApplicationInsightsAgent_EXTENSION_VERSION"],
-      app_settings["DiagnosticServices_EXTENSION_VERSION"],
-      app_settings["InstrumentationEngine_EXTENSION_VERSION"],
-      app_settings["SnapshotDebugger_EXTENSION_VERSION"],
-      app_settings["XDT_MicrosoftApplicationInsights_BaseExtensions"],
-      app_settings["XDT_MicrosoftApplicationInsights_Mode"],
-      app_settings["XDT_MicrosoftApplicationInsights_PreemptSdk"],
-      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
-      app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["UPSTREAM_CMS_IP_CORSHAM"],
-      app_settings["UPSTREAM_CMS_MODERN_IP_CORSHAM"],
-      app_settings["UPSTREAM_CMS_IP_FARNBOROUGH"],
-      app_settings["UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
-      app_settings["UPSTREAM_CMS_DOMAIN_NAME"],
-      app_settings["UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
-      app_settings["UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
-      app_settings["APP_ENDPOINT_DOMAIN_NAME"],
-      app_settings["APP_SUBFOLDER_PATH"],
-      app_settings["API_ENDPOINT_DOMAIN_NAME"],
-      app_settings["AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"],
-      app_settings["DDEI_ENDPOINT_DOMAIN_NAME"],
-      app_settings["DDEI_ENDPOINT_FUNCTION_APP_KEY"],
-      app_settings["SAS_URL_DOMAIN_NAME"],
-      app_settings["DOCKER_REGISTRY_SERVER_URL"],
-      app_settings["DOCKER_REGISTRY_SERVER_USERNAME"],
-      app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
-      app_settings["ENDPOINT_HTTP_PROTOCOL"],
-      app_settings["NGINX_ENVSUBST_OUTPUT_DIR"],
-      app_settings["FORCE_REFRESH_CONFIG"],
-      app_settings["CMS_RATE_LIMIT_QUEUE"],
-      app_settings["CMS_RATE_LIMIT"],
-      app_settings["WM_TASK_LIST_HOST_NAME"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
-      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
-      app_settings["WEBSITE_WARMUP_PATH"]
-    ]
-  }
 }
 
-module "azurerm_app_reg_polaris_proxy" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "${local.resource_name}-cmsproxy-appreg"
-  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/${local.resource_name}-cmsproxy"]
-  owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
-  prevent_duplicate_names = true
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "asap_polaris_cms_proxy" {
-  application_object_id = module.azurerm_app_reg_polaris_proxy.object_id
-  end_date_relative     = "17520h"
-}
-
-module "azurerm_service_principal_sp_polaris_cms_proxy" {
-  source                       = "./modules/terraform-azurerm-azuread_service_principal"
-  application_id               = module.azurerm_app_reg_polaris_proxy.client_id
-  app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
-  depends_on                   = [module.azurerm_app_reg_polaris_proxy]
-}
-
-resource "azuread_service_principal_password" "sp_polaris_cms_proxy_pw" {
-  service_principal_id = module.azurerm_service_principal_sp_polaris_cms_proxy.object_id
-  depends_on           = [module.azurerm_service_principal_sp_polaris_cms_proxy]
-}
-
-resource "azurerm_role_assignment" "ra_blob_data_contributor_polaris_proxy" {
+resource "azurerm_role_assignment" "ra_blob_data_contributor_polaris_proxy_staging1" {
   scope                = azurerm_storage_container.polaris_proxy_content.resource_manager_id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_linux_web_app.polaris_proxy.identity[0].principal_id
+  principal_id         = azurerm_linux_web_app_slot.polaris_proxy_staging1.identity[0].principal_id
   depends_on           = [azurerm_storage_account.sacpspolaris, azurerm_storage_container.polaris_proxy_content]
 }
 
-resource "azurerm_storage_blob" "nginx_config" {
-  name                   = "nginx.conf.template"
-  content_md5            = md5(file("nginx.conf"))
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
-  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
-  type                   = "Block"
-  source                 = "nginx.conf"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
-}
-
-resource "azurerm_storage_blob" "nginx_js" {
-  name                   = "nginx.js"
-  content_md5            = md5(file("nginx.js"))
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
-  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
-  type                   = "Block"
-  source                 = "nginx.js"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
-}
-
-resource "azurerm_storage_blob" "nginx_injected_js" {
-  name                   = "polaris-script.js"
-  content_md5            = md5(file("polaris-script.js"))
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
-  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
-  type                   = "Block"
-  source                 = "polaris-script.js"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
-}
-
 # Create Private Endpoint
-resource "azurerm_private_endpoint" "polaris_proxy_pe" {
-  name                = "${azurerm_linux_web_app.polaris_proxy.name}-pe"
+resource "azurerm_private_endpoint" "polaris_proxy_staging1_pe" {
+  name                = "${azurerm_linux_web_app.polaris_proxy.name}-staging1-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
@@ -265,16 +138,16 @@ resource "azurerm_private_endpoint" "polaris_proxy_pe" {
   }
 
   private_service_connection {
-    name                           = "${azurerm_linux_web_app.polaris_proxy.name}-psc"
+    name                           = "${azurerm_linux_web_app.polaris_proxy.name}-staging1-psc"
     private_connection_resource_id = azurerm_linux_web_app.polaris_proxy.id
     is_manual_connection           = false
-    subresource_names              = ["sites"]
+    subresource_names              = ["sites-staging1"]
   }
 }
 
-resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
-  name                           = "proxy-diagnostic-settings"
-  target_resource_id             = azurerm_linux_web_app.polaris_proxy.id
+resource "azurerm_monitor_diagnostic_setting" "proxy_staging1_diagnostic_settings" {
+  name                           = "proxy-staging-diagnostic-settings"
+  target_resource_id             = azurerm_linux_web_app_slot.polaris_proxy_staging1.id
   log_analytics_workspace_id     = data.azurerm_log_analytics_workspace.global_la.id
   log_analytics_destination_type = "Dedicated"
 
@@ -282,5 +155,5 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
     category = "AppServiceConsoleLogs"
   }
 
-  depends_on = [azurerm_linux_web_app.polaris_proxy]
+  depends_on = [azurerm_linux_web_app_slot.polaris_proxy_staging1]
 }

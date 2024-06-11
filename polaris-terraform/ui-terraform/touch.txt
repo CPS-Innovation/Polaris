@@ -1,1 +1,1 @@
-﻿force a pr - 24/11/2023 - a
+﻿force a ui terraform release - 10/06/2024 - #1

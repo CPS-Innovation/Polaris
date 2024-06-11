@@ -219,7 +219,9 @@ const searchPII = [
         piiGroupId: null,
       },
       {
-        boundingBox: null,
+        boundingBox: [
+          6.8275, 5.7633, 7.0255, 5.7633, 7.0255, 5.8736, 6.8275, 5.8736,
+        ],
         text: "PII",
         sanitizedText: "PII",
         matchType: "Exact",
