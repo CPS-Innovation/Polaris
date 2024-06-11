@@ -19,7 +19,7 @@ import { removeNonDigits } from "../presentation/case-details/utils/redactionLog
 
 const FORBIDDEN_STATUS_CODE = 403;
 const GONE_STATUS_CODE = 410;
-const UNAVIAILABLE_FOR_LEGAL_REASONS_STATUS_CODE = 451;
+const UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE = 451;
 
 const buildHeaders = async (
   ...args: (
@@ -374,7 +374,7 @@ const handleGetCaseApiResponse = async (response: Response, url: string, errorMe
     throw new ApiError("This case no longer exists.", url, response, undefined, "This case no longer exists.");
   }
 
-  if (response.status === UNAVIAILABLE_FOR_LEGAL_REASONS_STATUS_CODE) {
+  if (response.status === UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE) {
     throw new ApiError(
       "CMS Modern unauthorized.",
       url,
