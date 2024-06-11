@@ -87,7 +87,7 @@ namespace coordinator.Services.OcrService
                 // See cancellationSource comment in InitiateOperationAsync.
                 using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
                 var results = await _computerVisionClient.GetReadResultAsync(operationId, cancellationSource.Token);
-                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}, operation id: {operationId}");
 
                 if (results.Status == OperationStatusCodes.Running || results.Status == OperationStatusCodes.NotStarted)
                 {
@@ -95,11 +95,11 @@ namespace coordinator.Services.OcrService
                 }
 
                 var elapsedMs = (DateTime.Parse(results.LastUpdatedDateTime) - DateTime.Parse(results.CreatedDateTime)).TotalMilliseconds;
-                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults?.Count}, operation id: {operationId}");
 
                 if (results.Status == OperationStatusCodes.Failed)
                 {
-                    throw new Exception($"{nameof(GetOperationResultsAsync)} failed with status {results.Status}");
+                    throw new Exception($"{nameof(GetOperationResultsAsync)} failed with status {results.Status}, operation id: {operationId}");
                 }
 
                 return (true, results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>());
