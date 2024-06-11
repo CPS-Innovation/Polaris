@@ -5,7 +5,7 @@ output "object_id" {
 
 output "client_id" {
   description = "The application id of AzureAD application created."
-  value       = azuread_application.main.application_id
+  value       = azuread_application.main.client_id
 }
 
 output "logo_url" {

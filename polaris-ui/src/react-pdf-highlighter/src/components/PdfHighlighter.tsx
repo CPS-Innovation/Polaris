@@ -628,16 +628,12 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       highlightGroupId: "",
     };
     if (range.toString()) {
-      content = {
-        text: range.toString(),
-        highlightType: "none",
-        highlightGroupId: "",
-      };
+      content.text = range.toString();
     } else {
-      const attributes: any = (range.startContainer as HTMLElement).attributes;
-      const textContent = attributes["text-content"]?.nodeValue;
-      const highlightType = attributes["highlight-type"]?.nodeValue;
-      const highlightGroupId = attributes["highlight-groupid"]?.nodeValue;
+      const attributes: any = (range.startContainer as HTMLElement)?.attributes;
+      const textContent = attributes?.["text-content"]?.nodeValue;
+      const highlightType = attributes?.["highlight-type"]?.nodeValue;
+      const highlightGroupId = attributes?.["highlight-groupid"]?.nodeValue;
       content = {
         text: textContent ?? "",
         highlightType: highlightType,

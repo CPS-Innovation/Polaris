@@ -55,8 +55,6 @@ namespace text_extractor.Functions
             string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
-            StoreCaseIndexesResult storeCaseIndexesResult = new StoreCaseIndexesResult();
-
             try
             {
                 currentCorrelationId = request.Headers.GetCorrelationId();
@@ -77,9 +75,10 @@ namespace text_extractor.Functions
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var streamReader = new StreamReader(inputStream);
-                var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(streamReader.ReadToEnd());
+                var content = await streamReader.ReadToEndAsync();
+                var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(content);
 
-                await _searchIndexService.SendStoreResultsAsync
+                var storedLinesCount = await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
                         extractTextRequest.PolarisDocumentId,
@@ -89,21 +88,25 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
-                storeCaseIndexesResult.IsSuccess = true;
-                storeCaseIndexesResult.IndexStoredTime = DateTime.UtcNow;
+
+                var result = new StoreCaseIndexesResult
+                {
+                    IsSuccess = true,
+                    IndexStoredTime = DateTime.UtcNow,
+                    LineCount = storedLinesCount
+                };
 
                 var response = new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(storeCaseIndexesResult), Encoding.UTF8, "application/json")
+                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(result), Encoding.UTF8, "application/json")
                 };
 
                 return response;
             }
             catch (Exception exception)
             {
-                storeCaseIndexesResult.IsSuccess = false;
-                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log, storeCaseIndexesResult);
+                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log, new StoreCaseIndexesResult { IsSuccess = false });
             }
         }
     }

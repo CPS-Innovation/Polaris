@@ -2,11 +2,11 @@
 using System;
 using System.Threading.Tasks;
 using Common.Logging;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.IO;
+using coordinator.Services.OcrService.Domain;
 
 namespace coordinator.Services.OcrService
 {
@@ -39,12 +39,22 @@ namespace coordinator.Services.OcrService
             catch (Exception ex)
             {
                 _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "A Mock OCR Library exception occurred", ex);
-                throw new OcrServiceException(ex.Message);
+                throw new Exception(ex.Message);
             }
             finally
             {
                 _log.LogMethodExit(correlationId, nameof(GetOcrResultsAsync), string.Empty);
             }
+        }
+
+        public Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(bool, AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -6,5 +6,6 @@ namespace Common.Dto.Response
     {
         public DateTime IndexStoredTime { get; set; }
         public bool IsSuccess { get; set; }
+        public int LineCount { get; set; }
     }
 }

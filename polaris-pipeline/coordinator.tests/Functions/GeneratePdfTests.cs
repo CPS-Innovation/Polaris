@@ -27,6 +27,7 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.Domain;
 using Common.Constants;
+using FluentAssertions;
 
 namespace pdf_generator.tests.Functions
 {
@@ -55,6 +56,7 @@ namespace pdf_generator.tests.Functions
       _generatePdfRequest = new CaseDocumentOrchestrationPayload
           (
               _fixture.Create<string>(),
+              Guid.NewGuid(),
               Guid.NewGuid(),
               _fixture.Create<string>(),
               _fixture.Create<int>(),
@@ -110,7 +112,6 @@ namespace pdf_generator.tests.Functions
       _mockPdfGeneratorClient
           .Setup(client => client.ConvertToPdfAsync(
               _generatePdfRequest.CorrelationId,
-              _generatePdfRequest.CmsAuthValues,
               _generatePdfRequest.CmsCaseUrn,
               _generatePdfRequest.CmsCaseId.ToString(),
               _generatePdfRequest.CmsDocumentId,
@@ -129,15 +130,11 @@ namespace pdf_generator.tests.Functions
     }
 
     [Fact]
-    public async Task Run_ReturnsBadRequestWhenThereAreAnyValidationErrors()
+    public async Task Run_ReturnsUnsupportedWhenFileTypeIsUnrecognised()
     {
-      var validationResults = _fixture.CreateMany<ValidationResult>(2).ToList();
-
-      _mockValidatorWrapper
-          .Setup(wrapper => wrapper.Validate(It.IsAny<CaseDocumentOrchestrationPayload>()))
-          .Returns(validationResults);
-
-      await Assert.ThrowsAsync<BadRequestException>(() => _generatePdf.Run(_mockDurableActivityContext.Object));
+      _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileExtension = ".junk";
+      var result = await _generatePdf.Run(_mockDurableActivityContext.Object);
+      result.Should().Be(PdfConversionStatus.DocumentTypeUnsupported);
     }
 
     [Fact]

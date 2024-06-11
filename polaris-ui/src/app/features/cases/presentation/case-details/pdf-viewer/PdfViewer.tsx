@@ -43,6 +43,7 @@ type Props = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
+  isSearchPIIOn: boolean;
   activeSearchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
@@ -69,6 +70,7 @@ export const PdfViewer: React.FC<Props> = ({
   documentWriteStatus,
   contextData,
   searchHighlights = [],
+  isSearchPIIOn,
   activeSearchPIIHighlights,
   redactionHighlights,
   isOkToSave,
@@ -162,14 +164,18 @@ export const PdfViewer: React.FC<Props> = ({
     [areaOnlyRedactionMode]
   );
 
+  const getWrapperClassName = () => {
+    let className = classes.pdfViewer;
+    if (areaOnlyRedactionMode)
+      className = `${className} ${classes.areaOnlyRedaction}`;
+    if (isSearchPIIOn) className = `${className} ${classes.searchPiiOn}`;
+    return className;
+  };
+
   return (
     <>
       <div
-        className={
-          areaOnlyRedactionMode
-            ? `${classes.pdfViewer} ${classes.areaOnlyRedaction}`
-            : classes.pdfViewer
-        }
+        className={getWrapperClassName()}
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
@@ -227,14 +233,16 @@ export const PdfViewer: React.FC<Props> = ({
                   }
                   return (
                     <RedactButton
-                      searchPIIData={{
-                        searchPIIOn: content.highlightType === "searchPII",
-                        textContent: content?.text ?? "",
-
-                        count: content.highlightGroupId
-                          ? getPIISuggestionsWithSameText(content?.text)?.length
-                          : 0,
-                      }}
+                      searchPIIData={
+                        content.highlightType === "searchPII"
+                          ? {
+                              textContent: content?.text ?? "",
+                              count:
+                                getPIISuggestionsWithSameText(content?.text)
+                                  ?.length ?? 0,
+                            }
+                          : undefined
+                      }
                       redactionTypesData={redactionTypesData}
                       onConfirm={(
                         redactionType: RedactionTypeData,
@@ -260,6 +268,9 @@ export const PdfViewer: React.FC<Props> = ({
                             return;
                           }
                           case "ignore": {
+                            if (!content?.text || !content?.highlightGroupId) {
+                              return;
+                            }
                             trackEvent("Ignore Redaction Suggestion", {
                               documentType: contextData.documentType,
                               documentId: contextData.documentId,
@@ -274,15 +285,18 @@ export const PdfViewer: React.FC<Props> = ({
                             });
                             handleIgnoreRedactionSuggestion(
                               contextData.documentId,
-                              content.text!,
+                              content.text,
                               false,
-                              content.highlightGroupId!
+                              content.highlightGroupId
                             );
 
                             hideTipAndSelection();
                             return;
                           }
                           case "ignoreAll": {
+                            if (!content?.text || !content?.highlightGroupId) {
+                              return;
+                            }
                             trackEvent("Ignore Redaction Suggestion", {
                               documentType: contextData.documentType,
                               documentId: contextData.documentId,
@@ -294,14 +308,14 @@ export const PdfViewer: React.FC<Props> = ({
                               )?.piiCategory,
                               ignoreType: "all",
                               ignoreCount: getPIISuggestionsWithSameText(
-                                content?.text
+                                content.text
                               )?.length,
                             });
                             handleIgnoreRedactionSuggestion(
                               contextData.documentId,
-                              content.text!,
+                              content.text,
                               true,
-                              content.highlightGroupId!
+                              content.highlightGroupId
                             );
                             hideTipAndSelection();
                             return;

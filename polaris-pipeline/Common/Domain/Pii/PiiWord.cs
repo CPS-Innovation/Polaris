@@ -13,6 +13,8 @@ namespace Common.Domain.Pii
 
         [JsonProperty(PropertyName = "text")]
         public string Text { get; set; }
+        [JsonProperty(PropertyName = "sanitizedText")]
+        public string SanitizedText { get; set; }
 
         [JsonProperty(PropertyName = "matchType")]
         [JsonConverter(typeof(StringEnumConverter))]

@@ -43,7 +43,9 @@ const showFeature = (
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
-  if (isTestUser && queryParam === "false") return false;
+  if (isTestUser && queryParam === "false") {
+    return false;
+  }
 
   if (groupClaims) {
     const isInPrivateBetaGroup = groupClaims?.includes(
@@ -73,12 +75,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         fullScreen
       ),
-      notes: showFeature(
-        FEATURE_FLAG_NOTES,
-        userDetails?.username,
-        notes,
-        groupClaims
-      ),
+      notes: showFeature(FEATURE_FLAG_NOTES, userDetails?.username, notes),
       searchPII: showFeature(
         FEATURE_FLAG_SEARCH_PII,
         userDetails?.username,

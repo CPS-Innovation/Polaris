@@ -27,10 +27,9 @@ namespace coordinator.Clients.PdfGenerator
             _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory ?? throw new ArgumentNullException(nameof(httpResponseMessageStreamFactory));
         }
 
-        public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
+        public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
             var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}", correlationId);
-            request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             request.Headers.Add(FiletypeKey, fileType.ToString());
 
             using var requestContent = new StreamContent(documentStream);
@@ -40,7 +39,7 @@ namespace coordinator.Clients.PdfGenerator
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             if (response.StatusCode == HttpStatusCode.UnsupportedMediaType)
             {
-                var result = response.Content.ReadAsStringAsync().Result;
+                var result = await response.Content.ReadAsStringAsync();
                 Enum.TryParse<PdfConversionStatus>(result, out var enumResult);
 
                 return new ConvertToPdfResponse

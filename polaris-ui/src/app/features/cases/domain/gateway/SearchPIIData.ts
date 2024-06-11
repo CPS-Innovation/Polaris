@@ -16,6 +16,7 @@ export type SearchPIIResultItem = {
     redactionType: string;
     text: string;
     piiGroupId: string;
+    sanitizedText: string;
   }[];
 };
 

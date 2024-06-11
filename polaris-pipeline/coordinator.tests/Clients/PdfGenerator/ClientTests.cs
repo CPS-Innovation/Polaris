@@ -89,7 +89,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
                       .Returns(HttpResponseMessageStream.Create(_httpResponseMessage));
 
       // Act
-      var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
+      var response = await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
       // Assert
       var responseText = await new StreamReader(response.PdfStream, System.Text.Encoding.UTF8).ReadToEndAsync();
@@ -114,7 +114,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
       _httpResponseMessage.StatusCode = HttpStatusCode.UnsupportedMediaType;
 
       // Act
-      var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
+      var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
       // Assert
       await act.Should().NotThrowAsync();
@@ -129,7 +129,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
       _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
       // Act
-      var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, string.Empty, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
+      var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
 
       await act.Should().ThrowAsync<HttpRequestException>();
