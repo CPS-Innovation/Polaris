@@ -1,3 +1,4 @@
+import { Scaled } from "../../../../../react-pdf-highlighter";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { RedactionTypeData } from "../../domain/redactionLog/RedactionLogData";
@@ -114,7 +115,44 @@ export const mapSearchPIIHighlights = (
 
   const filteredResult = getFilteredByValidUkPhoneNumber(results);
 
-  return filteredResult;
+  const highlightsWithMultiLineBoundingBox = filteredResult.map((result) => {
+    if (result.position.rects.length > 1) {
+      return {
+        ...result,
+        position: {
+          ...result.position,
+          boundingRect: getBoundingBoxFromRects(result.position.rects),
+        },
+      };
+    }
+    return result;
+  });
+
+  return highlightsWithMultiLineBoundingBox;
+};
+
+const getBoundingBoxFromRects = (rects: Scaled[]) => {
+  const boundingRect = rects.reduce((acc, value) => {
+    if (!acc.height) {
+      acc = { ...value };
+      return acc;
+    }
+    if (value.x1 < acc.x1) {
+      acc.x1 = value.x1;
+    }
+    if (value.y1 < acc.y1) {
+      acc.y1 = value.y1;
+    }
+    if (value.x2 > acc.x2) {
+      acc.x2 = value.x2;
+    }
+    if (value.y2 > acc.y2) {
+      acc.y2 = value.y2;
+    }
+    return acc;
+  }, {} as Scaled);
+
+  return boundingRect;
 };
 
 export const getFilteredByValidUkPhoneNumber = (

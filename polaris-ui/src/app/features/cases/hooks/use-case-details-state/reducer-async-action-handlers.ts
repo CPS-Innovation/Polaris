@@ -15,7 +15,10 @@ import {
   ISearchPIIHighlight,
 } from "../../domain/NewPdfHighlight";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
-import { mapRedactionSaveRequest } from "./map-redaction-save-request";
+import {
+  mapRedactionSaveRequest,
+  mapSearchPIISaveRedactionObject,
+} from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
@@ -311,6 +314,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       let combinedRedactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[] =
         redactionHighlights;
+      let piiData: any = {};
       if (searchPIIOn) {
         const suggestedHighlights =
           searchPII.find((data) => data.documentId === documentId && data.show)
@@ -322,14 +326,21 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           ...redactionHighlights,
           ...suggestedRedactionHighlights,
         ];
+        piiData = mapSearchPIISaveRedactionObject(
+          redactionHighlights,
+          suggestedHighlights
+        );
       }
 
-      const redactionSaveRequest = mapRedactionSaveRequest(
+      const redactionRequestData = mapRedactionSaveRequest(
         documentId,
         combinedRedactionHighlights
       );
 
-      //need to add the suggested redactions redactionType here
+      const redactionSaveRequest = piiData?.categories
+        ? { ...redactionRequestData, pii: piiData }
+        : redactionRequestData;
+
       const savedRedactionTypes = combinedRedactionHighlights.map(
         (highlight) => highlight.redactionType!
       );
