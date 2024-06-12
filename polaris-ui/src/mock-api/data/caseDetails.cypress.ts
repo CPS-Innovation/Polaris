@@ -313,4 +313,19 @@ const caseDetails: CaseDetails[] = [
     ],
     witnesses: [],
   },
+  {
+    id: 13701,
+    uniqueReferenceNumber: "12AB2222244",
+    isCaseCharged: true,
+    owningUnit: "Guildford Mags",
+    numberOfDefendants: 1,
+    leadDefendantDetails: null,
+    headlineCharge: {
+      charge: faker.lorem.sentence(),
+      date: "2022-02-01",
+      nextHearingDate: "2023-01-02",
+    },
+    defendants: [],
+    witnesses: [],
+  },
 ];

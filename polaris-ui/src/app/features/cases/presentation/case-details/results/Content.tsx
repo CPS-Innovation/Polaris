@@ -22,7 +22,7 @@ const MemoizedResults = React.memo(Results);
 export const Content: React.FC<Props> = ({
   caseState: {
     data: {
-      leadDefendantDetails: { surname },
+      leadDefendantDetails,
       uniqueReferenceNumber,
     },
   },
@@ -41,7 +41,7 @@ export const Content: React.FC<Props> = ({
   handleUpdateFilter,
   handleOpenPdf,
 }) => {
-  const labelText = `Search ${surname}, ${uniqueReferenceNumber}`;
+  const labelText = leadDefendantDetails ? `Search ${leadDefendantDetails.surname}, ${uniqueReferenceNumber}` : `Search ${uniqueReferenceNumber}`;
 
   return (
     <div

@@ -39,6 +39,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   const trackEvent = useAppInsightsTrackEvent();
 
   const getDefendantNameText = (item: CaseSearchResult) => {
+    if (!item.leadDefendantDetails) {
+      return null;
+    }
     let titleString =
       item.leadDefendantDetails.type === "Organisation"
         ? item.leadDefendantDetails.organisationName
@@ -174,6 +177,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       {item.uniqueReferenceNumber}
                     </Link>
                   </h2>
+                  {item.leadDefendantDetails && (
                   <Hint className={classes.defendantName}>
                     <span data-testid={`defendant-name-text-${index}`}>
                       {getDefendantNameText(item)}
@@ -189,6 +193,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       </span>
                     )}
                   </Hint>
+                  )}
 
                   <div>
                     <div className={classes["result-offence"]}>
