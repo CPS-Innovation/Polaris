@@ -178,21 +178,21 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                     </Link>
                   </h2>
                   {item.leadDefendantDetails && (
-                  <Hint className={classes.defendantName}>
-                    <span data-testid={`defendant-name-text-${index}`}>
-                      {getDefendantNameText(item)}
-                    </span>
-                    <br />
-                    {item.leadDefendantDetails.type !== "Organisation" && (
-                      <span data-testid={`defendant-DOB-${index}`}>
-                        Date of birth:{" "}
-                        {formatDate(
-                          item.leadDefendantDetails.dob,
-                          CommonDateTimeFormats.ShortDateFullTextMonth
-                        )}
+                    <Hint className={classes.defendantName}>
+                      <span data-testid={`defendant-name-text-${index}`}>
+                        {getDefendantNameText(item)}
                       </span>
-                    )}
-                  </Hint>
+                      <br />
+                      {item.leadDefendantDetails.type !== "Organisation" && (
+                        <span data-testid={`defendant-DOB-${index}`}>
+                          Date of birth:{" "}
+                          {formatDate(
+                            item.leadDefendantDetails.dob,
+                            CommonDateTimeFormats.ShortDateFullTextMonth
+                          )}
+                        </span>
+                      )}
+                    </Hint>
                   )}
 
                   <div>
