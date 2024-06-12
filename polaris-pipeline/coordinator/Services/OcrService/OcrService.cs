@@ -53,7 +53,7 @@ namespace coordinator.Services.OcrService
         {
             try
             {
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
+                _log.LogMethodFlow(correlationId, nameof(InitiateOperationAsync), $"OCR started");
 
                 // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
                 //  and so will need to go through the stream again. Depending on the version/type of framework that is handing us this stream

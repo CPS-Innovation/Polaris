@@ -33,13 +33,14 @@ public class PollingHelper
         }
     }
 
-    public static PollingArgs CreatePollingArgs(string activityName, int pollingIntervalMs, object activityInput)
+    public static PollingArgs CreatePollingArgs(string activityName, int pollingIntervalMs, object activityInput, int pollingTimeoutMs = 0)
     {
         return new PollingArgs
         {
             ActivityName = activityName,
             ActivityInput = activityInput,
-            PollingIntervalMs = pollingIntervalMs
+            PollingIntervalMs = pollingIntervalMs,
+            PollingTimeoutMs = pollingTimeoutMs
         };
     }
 }
@@ -49,4 +50,6 @@ public class PollingArgs
     public string ActivityName { get; set; }
     public object ActivityInput { get; set; }
     public int PollingIntervalMs { get; set; }
+    public int PollingTimeoutMs { get; set; }
+
 }

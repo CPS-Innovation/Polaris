@@ -106,12 +106,13 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent.LineCount = ocrResults.LineCount;
                 telemetryEvent.WordCount = ocrResults.WordCount;
 
-                var indexStoredResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
+                var indexStoredResult = await context.CallActivityWithRetryAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), retryOptions, payload);
                 telemetryEvent.IndexStoredTime = context.CurrentUtcDateTime;
 
                 var (waitRecordCounts, _) = await PollingHelper.PollActivityUntilComplete<long>(
                     context,
-                    PollingHelper.CreatePollingArgs(nameof(CompleteIndex), _pollingIntervalMs, (payload, indexStoredResult.LineCount)));
+                    PollingHelper.CreatePollingArgs(nameof(CompleteIndex), _pollingIntervalMs, (payload, indexStoredResult.LineCount)),
+                    retryOptions);
 
                 telemetryEvent.DidIndexSettle = true;
                 telemetryEvent.WaitRecordCounts = waitRecordCounts;
