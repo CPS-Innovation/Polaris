@@ -66,3 +66,8 @@ orchestration_switchover = {
   coordinator_switchover_case_id = 1
   coordinator_switchover_modulo = 1
 }
+
+coordinator = {
+  max_concurrent_orchestrator_functions = 225
+  max_concurrent_activity_functions = 225
+}
