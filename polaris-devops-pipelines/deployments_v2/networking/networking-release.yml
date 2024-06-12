@@ -72,7 +72,6 @@ stages:
           - template: ../tasks/task_deploy-alert-processor.yml
             parameters:
               targetBuild: PolarisNetworkingBuild
-              targetTerraformArtifact: "networking-terraform-files"
               targetLabel: "DEV"
               targetName: "Alert Processor CI Deployment"
               targetSuffix: "-dev"

@@ -2,8 +2,6 @@
 parameters:
   - name: targetBuild
     type: string
-  - name: targetTerraformArtifact
-    type: string
   - name: targetLabel
     type: string
   - name: targetName
@@ -23,18 +21,18 @@ steps:
   # download pipeline terraform build artifact, which also contains the logic app definitions
   - download: ${{ parameters.targetBuild }}
     displayName: Logic App > Download Build
-    artifact: ${{ parameters.targetTerraformArtifact }}
+    artifact: "logic-app-source"
     
   # create candidate folder  
   - task: CopyFiles@2
     displayName: Logic App > Create Definition
     inputs:
-      SourceFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions'
+      SourceFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/logic-app-source/logic-app-definitions'
       Contents: |
         host.json
         connections.json
         alert-processor/**
-      TargetFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}'
+      TargetFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/logic-app-source/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}'
    
   # replace values in template   
   - task: Bash@3
@@ -42,14 +40,14 @@ steps:
     inputs:
       targetType: "inline"
       script: |
-        sed -i 's/__subscriptionId__/${{ parameters.azureSubscriptionId }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}/connections.json'
-        sed -i 's/__resourceGroup__/${{ parameters.targetResourceGroup }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}/connections.json'
+        sed -i 's/__subscriptionId__/${{ parameters.azureSubscriptionId }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/logic-app-source/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}/connections.json'
+        sed -i 's/__resourceGroup__/${{ parameters.targetResourceGroup }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/logic-app-source/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}/connections.json'
     
   # prepare a zip
   - task: ArchiveFiles@2
     displayName: Logic App > Zip
     inputs:
-      rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}'
+      rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/logic-app-source/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}'
       includeRootFolder: false
       archiveType: 'zip'
       archiveFile: '$(Pipeline.Workspace)/$(Build.BuildId)_alert-processor${{ parameters.targetSuffix }}.zip'
