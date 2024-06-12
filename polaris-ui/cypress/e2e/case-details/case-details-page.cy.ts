@@ -74,6 +74,13 @@ describe("case details page", () => {
       });
     });
 
+    it("For null LeadDefendant, shouldn't show defendant details", () => {
+      cy.visit("/case-search-results?urn=12AB2222244");
+      cy.visit("/case-details/12AB2222244/13701");
+      cy.findByTestId("txt-case-urn").contains("12AB2222244");
+      cy.findByTestId("defendant-details").should("not.exist");
+    });
+
     it("For Single defendant and single charge,should read name from organisationName and shouldn't show date of birth in defendant details, if the defendant is an organisation ", () => {
       cy.visit("/case-search-results?urn=12AB1111122");
       cy.visit("/case-details/12AB1111122/13501");
