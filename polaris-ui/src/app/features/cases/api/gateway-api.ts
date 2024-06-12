@@ -364,14 +364,29 @@ const internalReauthenticatingFetch = async (
   return reauthenticationFilter(response, window);
 };
 
-
-const handleGetCaseApiResponse = async (response: Response, url: string, errorMessage: string) => {
+const handleGetCaseApiResponse = async (
+  response: Response,
+  url: string,
+  errorMessage: string
+) => {
   if (response.status === FORBIDDEN_STATUS_CODE) {
-    throw new ApiError("You do not have access to this case.", url, response, undefined, "You do not have access to this case.");
+    throw new ApiError(
+      "You do not have access to this case.",
+      url,
+      response,
+      undefined,
+      "You do not have access to this case."
+    );
   }
 
   if (response.status === GONE_STATUS_CODE) {
-    throw new ApiError("This case no longer exists.", url, response, undefined, "This case no longer exists.");
+    throw new ApiError(
+      "This case no longer exists.",
+      url,
+      response,
+      undefined,
+      "This case no longer exists."
+    );
   }
 
   if (response.status === UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE) {
@@ -380,7 +395,7 @@ const handleGetCaseApiResponse = async (response: Response, url: string, errorMe
       url,
       response,
       undefined,
-      "It looks like you do not have access to CMS Modern, please contact the service desk.",
+      "It looks like you do not have access to CMS Modern, please contact the service desk."
     );
   }
 
