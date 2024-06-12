@@ -335,5 +335,5 @@
       }
     }
   },
-  "kind": "Stateless"
+  "kind": "Stateful"
 }

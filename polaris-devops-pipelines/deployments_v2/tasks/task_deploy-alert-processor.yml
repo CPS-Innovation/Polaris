@@ -34,7 +34,7 @@ steps:
         host.json
         connections.json
         alert-processor/**
-      TargetFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}'
+      TargetFolder: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}'
    
   # replace values in template   
   - task: Bash@3
@@ -42,17 +42,17 @@ steps:
     inputs:
       targetType: "inline"
       script: |
-        sed -i 's/__subscriptionId__/${{ parameters.azureSubscriptionId }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}/connections.json'
-        sed -i 's/__resourceGroup__/${{ parameters.targetResourceGroup }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}/connections.json'
+        sed -i 's/__subscriptionId__/${{ parameters.azureSubscriptionId }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}/connections.json'
+        sed -i 's/__resourceGroup__/${{ parameters.targetResourceGroup }}/' '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}/connections.json'
     
   # prepare a zip
   - task: ArchiveFiles@2
     displayName: Logic App > Zip
     inputs:
-      rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/${{ parameters.targetName }}'
+      rootFolderOrFile: '$(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}/logic-app-definitions/alert-processor${{ parameters.targetSuffix }}'
       includeRootFolder: false
       archiveType: 'zip'
-      archiveFile: '$(Pipeline.Workspace)/$(Build.BuildId)_alert_processor_${{ parameters.targetName}}.zip'
+      archiveFile: '$(Pipeline.Workspace)/$(Build.BuildId)_alert-processor${{ parameters.targetSuffix }}.zip'
       replaceExistingArchive: true
       
   - task: AzureFunctionApp@1
@@ -60,6 +60,6 @@ steps:
     inputs:
       azureSubscription: ${{ parameters.azureSubscription }}
       appType: functionAppLinux
-      appName: "SendCaAlertToTc${{ parameters.targetSuffix }}"
-      package: '$(Pipeline.Workspace)/$(Build.BuildId)_alert_processor_${{ parameters.targetName}}.zip'
+      appName: "send-alert-teams{{ parameters.targetSuffix }}"
+      package: '$(Pipeline.Workspace)/$(Build.BuildId)_alert-processor${{ parameters.targetSuffix }}.zip'
       deploymentMethod: "zipDeploy"

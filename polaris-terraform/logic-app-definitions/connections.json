@@ -10,7 +10,7 @@
       "authentication": {
         "type": "ManagedServiceIdentity"
       },
-      "connectionRuntimeUrl": "https://logic-apis-uksouth.azure-apim.net/apim/teams/c0b40bb812e043aab2f123aaa7cbc99a"
+      "connectionRuntimeUrl": "https://logic-apis-uksouth.azure-apim.net/apim/teams/0b2fe4e76d9548c485900cceaaf82f08"
     }
   },
   "serviceProviderConnections": {}
