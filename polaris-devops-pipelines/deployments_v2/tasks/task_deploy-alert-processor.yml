@@ -57,7 +57,7 @@ steps:
     displayName: Logic App > Publish
     inputs:
       azureSubscription: ${{ parameters.azureSubscription }}
-      appType: functionAppLinux
+      appType: 'functionApp'
       appName: "send-alert-teams{{ parameters.targetSuffix }}"
       package: '$(Pipeline.Workspace)/$(Build.BuildId)_alert-processor${{ parameters.targetSuffix }}.zip'
       deploymentMethod: "zipDeploy"
