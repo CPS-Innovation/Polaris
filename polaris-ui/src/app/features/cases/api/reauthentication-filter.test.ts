@@ -39,7 +39,7 @@ describe("Reauthentication Filter", () => {
       location: { href: url },
     } as Window;
 
-    const response = { ok: false, status: 403 } as Response;
+    const response = { ok: false, status: 401 } as Response;
     const act = () => reauthenticationFilter(response, mockWindow);
 
     expect(act).toThrow(CmsAuthRedirectingError);
@@ -62,7 +62,7 @@ describe("Reauthentication Filter", () => {
       } as History,
     } as Window;
 
-    const response = { ok: false, status: 403 } as Response;
+    const response = { ok: false, status: 401 } as Response;
 
     const act = () => reauthenticationFilter(response, mockWindow);
     expect(act).toThrow(CmsAuthError);
