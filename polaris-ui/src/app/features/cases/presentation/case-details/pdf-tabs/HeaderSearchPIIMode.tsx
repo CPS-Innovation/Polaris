@@ -32,7 +32,10 @@ export const HeaderSearchPIIMode: React.FC<Props> = ({
     return <div></div>;
   }
   return (
-    <div className={classes.headerSearchPIIMode}>
+    <div
+      className={classes.headerSearchPIIMode}
+      data-testid="search-pii-header"
+    >
       <h4 className={classes.title}>Potential redactions</h4>
       {activeSearchPIIHighlights.length === 0 && (
         <span>There are no potential redactions for this document</span>

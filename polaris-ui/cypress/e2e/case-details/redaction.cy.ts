@@ -195,6 +195,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-save-redaction-0").should("be.disabled");
     cy.findByTestId("btn-link-removeAll-0").should("be.disabled");
   });
+
   it("Should show error message when failed to save the redaction and should enable back the save redaction button", () => {
     cy.overrideRoute(
       SAVE_REDACTION_ROUTE,
@@ -239,6 +240,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
     cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
   });
+
   it("Should handle the deleted document opened in a tab after the pipeline refresh and display document deleted message to user", () => {
     cy.overrideRoute(TRACKER_ROUTE, {
       body: refreshPipelineDeletedDocuments()[0],
@@ -277,6 +279,7 @@ describe("redaction refresh flow", () => {
       "exist"
     );
   });
+
   it("should show correct error message on unsuccessful checkout, due to the document is locked by another user", () => {
     cy.overrideRoute(
       DOCUMENT_CHECKOUT_ROUTE,
@@ -306,6 +309,7 @@ describe("redaction refresh flow", () => {
       );
     cy.findByTestId("btn-save-redaction-0").should("have.length", 0);
   });
+
   it("should show general error message on unsuccessful checkout, due to any reason other than document is locked by another user", () => {
     cy.overrideRoute(
       DOCUMENT_CHECKOUT_ROUTE,

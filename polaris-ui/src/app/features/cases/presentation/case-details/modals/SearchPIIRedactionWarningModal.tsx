@@ -94,7 +94,8 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
                   value: "yes",
                 },
               ]}
-              name="t-and-c"
+              name="terms-and-condition"
+              data-testid="terms-and-condition"
             />
           </div>
 

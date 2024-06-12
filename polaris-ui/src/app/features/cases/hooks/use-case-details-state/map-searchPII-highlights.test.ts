@@ -43,6 +43,26 @@ describe("map-searchPII-highlights", () => {
         { id: "36", piiCategory: "PhoneNumber", textContent: "(0912) 345678" },
         { id: "37", piiCategory: "PhoneNumber", textContent: "(0912) 345 678" },
         { id: "38", piiCategory: "PhoneNumber", textContent: "(0912)-345-678" },
+        {
+          id: "39",
+          piiCategory: "PhoneNumber",
+          textContent: "+447 12 34 56 78",
+        },
+        {
+          id: "40",
+          piiCategory: "PhoneNumber",
+          textContent: "07123 4 56 78",
+        },
+        {
+          id: "41",
+          piiCategory: "PhoneNumber",
+          textContent: "+441 12 34 5 6 78 ",
+        },
+        {
+          id: "42",
+          piiCategory: "PhoneNumber",
+          textContent: "09 12 345 6 78",
+        },
       ] as ISearchPIIHighlight[];
 
       const result = getFilteredByValidUkPhoneNumber(highlights);
@@ -132,6 +152,26 @@ describe("map-searchPII-highlights", () => {
           piiCategory: "PhoneNumber",
           textContent: "(0912)-345-6789",
         },
+        {
+          id: "39",
+          piiCategory: "PhoneNumber",
+          textContent: "+447 12 34 56 789",
+        },
+        {
+          id: "40",
+          piiCategory: "PhoneNumber",
+          textContent: "07123 4 56 78 9",
+        },
+        {
+          id: "41",
+          piiCategory: "PhoneNumber",
+          textContent: "+441 12 345 6 78 9",
+        },
+        {
+          id: "42",
+          piiCategory: "PhoneNumber",
+          textContent: "09 12 345 6 78 9",
+        },
       ] as ISearchPIIHighlight[];
 
       const result = getFilteredByValidUkPhoneNumber(highlights);
@@ -146,7 +186,7 @@ describe("map-searchPII-highlights", () => {
         { id: "5", piiCategory: "PhoneNumber", textContent: "+4411234567890" },
         { id: "6", piiCategory: "PhoneNumber", textContent: "+4471234567" },
         { id: "7", piiCategory: "PhoneNumber", textContent: "+4471234567890" },
-        { id: "8", piiCategory: "PhoneNumber", textContent: "07123 45678" },
+        { id: "8", piiCategory: "PhoneNumber", textContent: "0712 45678" },
         { id: "9", piiCategory: "PhoneNumber", textContent: "071234567890" },
         { id: "10", piiCategory: "PhoneNumber", textContent: "071234567" },
         { id: "11", piiCategory: "PhoneNumber", textContent: "456789" },
