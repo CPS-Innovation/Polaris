@@ -58,6 +58,6 @@ steps:
     inputs:
       azureSubscription: ${{ parameters.azureSubscription }}
       appType: 'functionApp'
-      appName: "send-alert-teams{{ parameters.targetSuffix }}"
+      appName: "send-alert-teams${{ parameters.targetSuffix }}"
       package: '$(Pipeline.Workspace)/$(Build.BuildId)_alert-processor${{ parameters.targetSuffix }}.zip'
       deploymentMethod: "zipDeploy"
