@@ -33,4 +33,4 @@ insights_configuration = {
 }
 
 teams_account = "Mark.Jones3@cps.gov.uk"
-dns_server      = "10.7.200.68"
+dns_server    = "10.7.200.68"
