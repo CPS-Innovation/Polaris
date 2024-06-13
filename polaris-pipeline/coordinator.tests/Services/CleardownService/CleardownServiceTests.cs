@@ -45,7 +45,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
 
       _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
       _mockTelemetryClient = new Mock<ITelemetryClient>();
-      _cleardownService = new CleardownService(_mockBlobStorageService.Object, _mockTextExtractorClient.Object, _mockTextExtractorService.Object, _mockOrchestrationProvider.Object, _mockTelemetryClient.Object);
+      _cleardownService = new CleardownService(_mockBlobStorageService.Object, _mockTextExtractorClient.Object, _mockOrchestrationProvider.Object, _mockTelemetryClient.Object);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
       var waitForIndexToSettle = true;
 
       // Act
-      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId, waitForIndexToSettle);
+      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId);
 
       // Assert
       _mockTextExtractorService.Verify(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId), Times.Once);
@@ -68,7 +68,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
       var waitForIndexToSettle = false;
 
       // Act
-      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId, waitForIndexToSettle);
+      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId);
 
       // Assert
       _mockTextExtractorService.Verify(m => m.WaitForCaseEmptyResultsAsync(_caseUrn, _caseId, _correlationId), Times.Never);
@@ -86,7 +86,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
         .ReturnsAsync(orchestrationResult);
 
       // Act
-      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId, false);
+      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId);
 
       // Assert
       _mockTelemetryClient.Verify(m => m.TrackEvent(It.IsAny<BaseTelemetryEvent>()), Times.Once);
@@ -104,7 +104,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
         .ReturnsAsync(orchestrationResult);
 
       // Act
-      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId, false);
+      _cleardownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId);
 
       // Assert
       _mockTelemetryClient.Verify(m => m.TrackEvent(It.IsAny<BaseTelemetryEvent>()), Times.Never);

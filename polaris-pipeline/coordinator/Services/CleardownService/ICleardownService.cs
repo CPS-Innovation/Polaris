@@ -6,6 +6,6 @@ namespace coordinator.Services.CleardownService
 {
     public interface ICleardownService
     {
-        Task DeleteCaseAsync(IDurableOrchestrationClient client, string caseUrn, int caseId, Guid correlationId, bool waitForIndexToSettle);
+        Task DeleteCaseAsync(IDurableOrchestrationClient client, string caseUrn, int caseId, Guid correlationId);
     }
 }
