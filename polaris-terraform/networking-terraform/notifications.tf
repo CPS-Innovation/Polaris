@@ -125,6 +125,7 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.alert_processing_sa_file_share.name
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
+    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
     "WEBSITE_NODE_DEFAULT_VERSION"             = "~18"
   }
 
