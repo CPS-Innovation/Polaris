@@ -21,7 +21,7 @@ namespace coordinator.Durable.Orchestration
     {
         private readonly ILogger<RefreshDocumentOrchestratorNext> _log;
         private readonly ITelemetryClient _telemetryClient;
-        const int _pollingIntervalMs = 1500;
+        const int _pollingIntervalMs = 3000;
 
         public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
         {

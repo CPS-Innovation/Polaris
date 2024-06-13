@@ -311,6 +311,10 @@ describe("Search PII", () => {
         "Your remaining 23 potential redactions will also be redacted, if you choose to continue"
       );
       cy.findByTestId("btn-continue").click();
+      cy.get("#terms-and-condition-error").should(
+        "have.text",
+        "Error: Please accept you have manually checked all selected redactions in the document"
+      );
       cy.findByTestId("terms-and-condition").click();
       cy.findByTestId("btn-continue").click();
       cy.findByTestId("div-modal")

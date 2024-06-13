@@ -15,6 +15,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   builtin_logging_enabled       = false
 
   app_settings = {
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentActivityFunctions" = var.coordinator.max_concurrent_activity_functions
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentOrchestratorFunctions" = var.coordinator.max_concurrent_orchestrator_functions
     "AzureWebJobs.ResetDurableState.Disabled"    = var.overnight_clear_down.disabled
     "AzureWebJobs.SlidingCaseClearDown.Disabled" = var.sliding_clear_down.disabled
     "AzureWebJobsStorage"                        = azurerm_storage_account.sa_coordinator.primary_connection_string
