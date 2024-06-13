@@ -52,3 +52,27 @@ stages:
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
+                    
+  - stage: Deploy_UAT
+    displayName: UAT > Deploy Apps
+    dependsOn: Apply_UAT
+    condition: succeeded()
+    pool:
+      name: $(uat-build-agent)
+    jobs:
+      - job: Deploy_Logic_Apps
+        steps:
+          - template: ../tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(uat-azure-subscription)
+
+          - template: ../tasks/task_deploy-alert-processor.yml
+            parameters:
+              targetBuild: PolarisNetworkingBuild
+              targetLabel: "UAT"
+              targetName: "Alert Processor CI Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
+              azureSubscriptionId: $(subscriptionId)
+              targetResourceGroup: rg-polaris-analytics-uat

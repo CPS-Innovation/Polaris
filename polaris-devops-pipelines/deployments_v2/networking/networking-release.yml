@@ -138,11 +138,35 @@ stages:
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
+                    
+  - stage: Deploy_QA
+    displayName: QA > Deploy Apps
+    dependsOn: Apply_QA
+    condition: succeeded()
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - job: Deploy_Logic_Apps
+        steps:
+          - template: ../tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(qa-azure-subscription)
+
+          - template: ../tasks/task_deploy-alert-processor.yml
+            parameters:
+              targetBuild: PolarisNetworkingBuild
+              targetLabel: "QA"
+              targetName: "Alert Processor CI Deployment"
+              targetSuffix: "-qa"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              azureSubscription: $(qa-azure-subscription)
+              azureSubscriptionId: $(subscriptionId)
+              targetResourceGroup: rg-polaris-analytics-qa
 
   # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_QA
     displayName: QA > Save Report
-    dependsOn: Apply_QA
+    dependsOn: Deploy_QA
     condition: succeeded()
     jobs:
       - job: Create_Commit_Report
@@ -197,11 +221,35 @@ stages:
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
+                    
+  - stage: Deploy_PROD
+    displayName: PROD > Deploy Apps
+    dependsOn: Apply_PROD
+    condition: succeeded()
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - job: Deploy_Logic_Apps
+        steps:
+          - template: ../tasks/task_get-credentials.yml
+            parameters:
+              azureSubscriptionId: $(prod-azure-subscription)
+
+          - template: ../tasks/task_deploy-alert-processor.yml
+            parameters:
+              targetBuild: PolarisNetworkingBuild
+              targetLabel: "PROD"
+              targetName: "Alert Processor CI Deployment"
+              targetSuffix: ""
+              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+              azureSubscription: $(prod-azure-subscription)
+              azureSubscriptionId: $(subscriptionId)
+              targetResourceGroup: rg-polaris-analytics
 
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_PROD
     displayName: PROD > Save Report
-    dependsOn: Apply_PROD
+    dependsOn: Deploy_PROD
     condition: succeeded()
     jobs:
       - job: Create_Commit_Report
