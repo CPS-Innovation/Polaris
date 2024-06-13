@@ -93,6 +93,12 @@ resource "azurerm_private_endpoint" "alert_processing_sa_queue_pe" {
   }
 }
 
+resource "azapi_resource" "alert_processing_sa_file_share" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "alert-processor-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris_workspace.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_alert_processing.name}/fileServices/default"
+}
+
 resource "azurerm_service_plan" "asp_alert_notifications" {
   name                = "asp-alert-notifications${local.env_name_suffix}"
   location            = azurerm_resource_group.rg_polaris_workspace.location
@@ -120,6 +126,7 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
     "APPLICATIONINSIGHTS_CONNECTION_STRING"    = azurerm_application_insights.ai_polaris.connection_string
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_alert_processing.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.alert_processing_sa_file_share.name
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
