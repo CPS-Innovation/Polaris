@@ -21,7 +21,15 @@ namespace coordinator.Durable.Orchestration
     {
         private readonly ILogger<RefreshDocumentOrchestratorNext> _log;
         private readonly ITelemetryClient _telemetryClient;
-        const int _pollingIntervalMs = 3000;
+        private const int _pollingIntervalMs = 3000;
+
+        // Here we use CallActivityWithRetryAsync for the OCR service interaction as it has ben seen to hang in production when making Http requests.
+        //  The service will cancel and timeout at N seconds and throw.  So lets use the durable framework's own retry mechanism.
+        //  (During the great OCR meltdown incident at Microsoft, a MS engineer told us it was OK to just abandon operations within reasonable limits)
+        private readonly RetryOptions _durableActivityRetryOptions = new RetryOptions(
+            firstRetryInterval: TimeSpan.FromSeconds(5),
+            maxNumberOfAttempts: 3
+        );
 
         public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
         {
@@ -84,37 +92,53 @@ namespace coordinator.Durable.Orchestration
 
             try
             {
-                // we use CallActivityWithRetryAsync for the OCR service interaction as it has ben seen to hang in production when making Http requests.
-                //  The service will cancel and timeout at N seconds and throw.  So lets use the frameworks own retry mechanism.
-                //  (During the great OCR meltdown incident at Microsoft, a MS engineer told us it was OK to just abandon operations within reasonable limits)
-                var retryOptions = new RetryOptions(
-                    firstRetryInterval: TimeSpan.FromSeconds(5),
-                    maxNumberOfAttempts: 3);
+                PollingResult<AnalyzeResults> ocrPollingResult;
+                ocrPollingResult = await GetOcrResults(context, payload);
+                if (!ocrPollingResult.IsCompleted)
+                {
+                    // Several times a day we see "stuck" OCR operations at Microsoft.  The recommendation is to a) just ditch an operation
+                    //  if it has not come back within an appropriate time and b) kick off another OCR operation.  So if our first OCR operation
+                    //  has not succeeded within the polling timeout period then let's try again.
+                    // Note: there is an optimisation possible here whereby we keep a handle on the first operation because it still may work eventually.
+                    //  We would still kick off another operation after a timeout but keep the first alive.  We'd then have a two horse race.
+                    //  (It is most likely that the first operation is stuck if our timeout is long enough, but it may not be stuck and just slow).
+                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), "OCR operation did not complete within the polling timeout period, starting a fallback operation");
+                    ocrPollingResult = await GetOcrResults(context, payload);
+                }
 
-                var ocrOperationId = await context.CallActivityWithRetryAsync<Guid>(
-                    nameof(InitiateOcr),
-                    retryOptions,
-                    (payload.BlobName, payload.CorrelationId, payload.SubCorrelationId));
-
-                var (_, ocrResults) = await PollingHelper.PollActivityUntilComplete<AnalyzeResults>(
-                    context,
-                    PollingHelper.CreatePollingArgs(nameof(CompleteOcr), _pollingIntervalMs, (ocrOperationId, payload.OcrBlobName, payload.CorrelationId, payload.SubCorrelationId)),
-                    retryOptions);
+                if (!ocrPollingResult.IsCompleted)
+                {
+                    throw new Exception("OCR operation did not complete within the polling timeout period");
+                }
 
                 telemetryEvent.OcrCompletedTime = context.CurrentUtcDateTime;
-                telemetryEvent.PageCount = ocrResults.PageCount;
-                telemetryEvent.LineCount = ocrResults.LineCount;
-                telemetryEvent.WordCount = ocrResults.WordCount;
+                telemetryEvent.PageCount = ocrPollingResult.FinalResult.PageCount;
+                telemetryEvent.LineCount = ocrPollingResult.FinalResult.LineCount;
+                telemetryEvent.WordCount = ocrPollingResult.FinalResult.WordCount;
 
                 var indexStoredResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
                 telemetryEvent.IndexStoredTime = context.CurrentUtcDateTime;
 
-                var (waitRecordCounts, _) = await PollingHelper.PollActivityUntilComplete<long>(
+                var indexPollingResult = await PollingHelper.PollActivityUntilComplete<long>(
                     context,
-                    PollingHelper.CreatePollingArgs(nameof(CompleteIndex), _pollingIntervalMs, (payload, indexStoredResult.LineCount)));
+                    PollingHelper.CreatePollingArgs(
+                        activityName: nameof(CompleteIndex),
+                        activityInput: (payload, indexStoredResult.LineCount),
+                        pollingIntervalMs: _pollingIntervalMs,
+                        maxPollingAttempts: 7,
+                        activityRetryOptions: _durableActivityRetryOptions
+                    )
+                );
 
-                telemetryEvent.DidIndexSettle = true;
-                telemetryEvent.WaitRecordCounts = waitRecordCounts;
+                if (!indexPollingResult.IsCompleted)
+                {
+                    // Aggressive option used here: if we haven't settled then carry on rather than throwing
+                    // todo: in the tracker we can record a flg that we do not have 100% confidence in the index for this document?
+                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), "Index operation did not complete within the polling timeout period - carrying on");
+                }
+
+                telemetryEvent.DidIndexSettle = indexPollingResult.IsCompleted;
+                telemetryEvent.WaitRecordCounts = indexPollingResult.Results;
                 telemetryEvent.IndexSettleTargetCount = indexStoredResult.LineCount;
                 telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
@@ -129,12 +153,33 @@ namespace coordinator.Durable.Orchestration
             }
             catch (Exception exception)
             {
+                // todo: there is no durable replay protection here, and there is evidence of several failure event records for the same failure event in our analytics.
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
                 caseEntity.SetDocumentIndexingFailed(payload.PolarisDocumentId.ToString());
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), $"Error when running {nameof(RefreshDocumentOrchestratorNext)} orchestration: {exception.Message}", exception);
                 return;
             }
+        }
+
+        private async Task<PollingResult<AnalyzeResults>> GetOcrResults(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload)
+        {
+            var ocrOperationId = await context.CallActivityWithRetryAsync<Guid>(
+                nameof(InitiateOcr),
+                _durableActivityRetryOptions,
+                (payload.BlobName, payload.CorrelationId, payload.SubCorrelationId)
+            );
+
+            return await PollingHelper.PollActivityUntilComplete<AnalyzeResults>(
+                context,
+                PollingHelper.CreatePollingArgs(
+                    activityName: nameof(CompleteOcr),
+                    activityInput: (ocrOperationId, payload.OcrBlobName, payload.CorrelationId, payload.SubCorrelationId),
+                    pollingIntervalMs: _pollingIntervalMs,
+                    maxPollingAttempts: 7,
+                    activityRetryOptions: _durableActivityRetryOptions
+                )
+           );
         }
     }
 }
