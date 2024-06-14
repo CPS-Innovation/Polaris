@@ -133,7 +133,7 @@ namespace coordinator.Durable.Orchestration
                 if (!indexPollingResult.IsCompleted)
                 {
                     // Aggressive option used here: if we haven't settled then carry on rather than throwing
-                    // todo: in the tracker we can record a flg that we do not have 100% confidence in the index for this document?
+                    // todo: in the tracker we can record a flag to say that we do not have 100% confidence in the index for this document?
                     log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), "Index operation did not complete within the polling timeout period - carrying on");
                 }
 
