@@ -35,6 +35,9 @@ variable "polarisPipelinePdfGeneratorSubnet" {
 variable "polarisPipelinePdfRedactorSubnet" {
 }
 
+variable "polarisAlertNotificationsSubnet" {
+}
+
 variable "polarisPipelineTextExtractor2Subnet" {
 }
 
@@ -81,4 +84,12 @@ variable "insights_configuration" {
     insights_internet_ingestion_enabled  = bool
     insights_internet_query_enabled      = bool
   })
+}
+
+variable "teams_account" {
+  type = string
+}
+
+variable "dns_server" {
+  type = string
 }

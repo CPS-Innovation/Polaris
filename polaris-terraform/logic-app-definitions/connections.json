@@ -1,0 +1,17 @@
+{
+  "managedApiConnections": {
+    "teams": {
+      "api": {
+        "id": "/subscriptions/__subscriptionId__/providers/Microsoft.Web/locations/uksouth/managedApis/teams"
+      },
+      "connection": {
+        "id": "/subscriptions/__subscriptionId__/resourceGroups/__resourceGroup__/providers/Microsoft.Web/connections/teams"
+      },
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      },
+      "connectionRuntimeUrl": "https://logic-apis-uksouth.azure-apim.net/apim/teams/0b2fe4e76d9548c485900cceaaf82f08"
+    }
+  },
+  "serviceProviderConnections": {}
+}

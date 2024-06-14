@@ -1,1 +1,24 @@
-{"cypress/e2e/api.attachments.cy.ts":{"time":6957,"weight":3},"cypress/e2e/api.case-search.cy.ts":{"time":621,"weight":0},"cypress/e2e/api.cms-launch-auth-flow.cy.ts":{"time":556,"weight":0},"cypress/e2e/api.conversion-failure.cy.ts":{"time":11497,"weight":6},"cypress/e2e/api.gateway-auth-failures.cy.ts":{"time":762,"weight":0},"cypress/e2e/api.larger-case-framework-error.cy.ts":{"time":61516,"weight":33},"cypress/e2e/api.refresh.cy.ts":{"time":55983,"weight":30},"cypress/e2e/api.search-integrity.cy.ts":{"time":33823,"weight":18},"cypress/e2e/api.subsequent-refresh-locks.cy.ts":{"time":2567,"weight":1},"cypress/e2e/ui.attachment-failure.cy.ts":{"time":15026,"weight":8},"cypress/e2e/ui.document-toggle.cy.ts":{"time":13348,"weight":7},"cypress/e2e/ui.happy-path.cy.ts":{"time":17446,"weight":9},"cypress/e2e/ui.notes.cy.ts":{"time":26065,"weight":14},"cypress/e2e/ui.reauth-flow.cy.ts":{"time":3517,"weight":1},"cypress/e2e/ui.refresh.cy.ts":{"time":31299,"weight":17},"cypress/e2e/ui.witness-indicators.cy.ts":{"time":9108,"weight":5}}
+{
+  "cypress/e2e/api.attachments.cy.ts": { "time": 5577, "weight": 3 },
+  "cypress/e2e/api.case-search.cy.ts": { "time": 780, "weight": 0 },
+  "cypress/e2e/api.cms-launch-auth-flow.cy.ts": { "time": 441, "weight": 0 },
+  "cypress/e2e/api.conversion-failure.cy.ts": { "time": 12055, "weight": 6 },
+  "cypress/e2e/api.gateway-auth-failures.cy.ts": { "time": 814, "weight": 0 },
+  "cypress/e2e/api.larger-case-framework-error.cy.ts": {
+    "time": 59236,
+    "weight": 33
+  },
+  "cypress/e2e/api.refresh.cy.ts": { "time": 54988, "weight": 31 },
+  "cypress/e2e/api.search-integrity.cy.ts": { "time": 36095, "weight": 20 },
+  "cypress/e2e/api.subsequent-refresh-locks.cy.ts": {
+    "time": 1555,
+    "weight": 0
+  },
+  "cypress/e2e/ui.attachment-failure.cy.ts": { "time": 13423, "weight": 7 },
+  "cypress/e2e/ui.document-toggle.cy.ts": { "time": 12809, "weight": 7 },
+  "cypress/e2e/ui.happy-path.cy.ts": { "time": 16232, "weight": 9 },
+  "cypress/e2e/ui.notes.cy.ts": { "time": 23110, "weight": 13 },
+  "cypress/e2e/ui.reauth-flow.cy.ts": { "time": 3219, "weight": 1 },
+  "cypress/e2e/ui.refresh.cy.ts": { "time": 33310, "weight": 18 },
+  "cypress/e2e/ui.witness-indicators.cy.ts": { "time": 8750, "weight": 4 }
+}

@@ -6,7 +6,6 @@ using Common.Logging;
 using Common.Telemetry;
 using Common.ValueObjects;
 using coordinator.Durable.Activity;
-using coordinator.Durable.Activity.ExtractTextNext;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.Services.OcrService.Domain;
@@ -17,9 +16,9 @@ using text_extractor.coordinator;
 
 namespace coordinator.Durable.Orchestration
 {
-    public class RefreshDocumentOrchestratorNext : BaseOrchestrator
+    public class RefreshDocumentOrchestrator : BaseOrchestrator
     {
-        private readonly ILogger<RefreshDocumentOrchestratorNext> _log;
+        private readonly ILogger<RefreshDocumentOrchestrator> _log;
         private readonly ITelemetryClient _telemetryClient;
         private const int _pollingIntervalMs = 3000;
 
@@ -36,13 +35,13 @@ namespace coordinator.Durable.Orchestration
             return $"[{caseId}]-{polarisDocumentId}";
         }
 
-        public RefreshDocumentOrchestratorNext(ILogger<RefreshDocumentOrchestratorNext> log, ITelemetryClient telemetryClient)
+        public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log, ITelemetryClient telemetryClient)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        [FunctionName(nameof(RefreshDocumentOrchestratorNext))]
+        [FunctionName(nameof(RefreshDocumentOrchestrator))]
         public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
@@ -62,7 +61,7 @@ namespace coordinator.Durable.Orchestration
             catch (Exception exception)
             {
                 caseEntity.SetDocumentPdfConversionFailed((payload.PolarisDocumentId.ToString(), PdfConversionStatus.UnexpectedError));
-                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), $"Error calling {nameof(RefreshDocumentOrchestratorNext)}: {exception.Message}", exception);
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
                 return;
             }
 
@@ -157,7 +156,7 @@ namespace coordinator.Durable.Orchestration
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
                 caseEntity.SetDocumentIndexingFailed(payload.PolarisDocumentId.ToString());
-                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), $"Error when running {nameof(RefreshDocumentOrchestratorNext)} orchestration: {exception.Message}", exception);
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 return;
             }
         }
