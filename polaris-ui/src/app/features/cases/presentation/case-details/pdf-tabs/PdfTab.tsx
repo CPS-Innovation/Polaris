@@ -107,7 +107,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     }
     return (
       searchPIIDataItem?.searchPIIHighlights.filter(
-        (highlight) => highlight.redactionStatus === "redacted"
+        (highlight) => highlight.redactionStatus === "initial"
       ) ?? []
     );
   }, [searchPIIDataItem]);
@@ -125,12 +125,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const localHandleRemoveAllRedactions = useCallback(() => {
     handleRemoveAllRedactions(documentId);
-    handleShowHideRedactionSuggestions(documentId, false, false);
-  }, [
-    documentId,
-    handleRemoveAllRedactions,
-    handleShowHideRedactionSuggestions,
-  ]);
+  }, [documentId, handleRemoveAllRedactions]);
 
   const localHandleShowHideRedactionSuggestions = useCallback(
     (documentId, showSuggestion) => {

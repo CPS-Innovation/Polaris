@@ -4,6 +4,7 @@ import { Select, Button } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
+import { PIIRedactionStatus } from "../../../domain/NewPdfHighlight";
 
 type Props = {
   searchPIIData?: {
@@ -13,7 +14,7 @@ type Props = {
   redactionTypesData: RedactionTypeData[];
   onConfirm: (
     redactionType: { id: string; name: string },
-    actionType: "redact" | "ignore" | "ignoreAll"
+    actionType: PIIRedactionStatus | "redact"
   ) => void;
 };
 
@@ -40,15 +41,18 @@ export const RedactButton: React.FC<Props> = ({
   useFocusTrap("#redact-modal");
   useLastFocus();
 
-  const handleBtnClick = (actionType: "redact" | "ignore" | "ignoreAll") => {
-    if (redactionTypesData.length && actionType === "redact") {
+  const handleSearchPIIBtnClick = (actionType: PIIRedactionStatus) => {
+    onConfirm({ id: "", name: "" }, actionType);
+  };
+
+  const handleRedactBtnClick = () => {
+    if (redactionTypesData.length) {
       const selectedType = redactionTypesData.find(
         (type) => type.id === redactionType
       )!;
-      onConfirm({ id: selectedType.id, name: selectedType.name }, actionType);
+      onConfirm({ id: selectedType.id, name: selectedType.name }, "redact");
       return;
     }
-    onConfirm({ id: "", name: "" }, actionType);
   };
 
   return (
@@ -102,7 +106,7 @@ export const RedactButton: React.FC<Props> = ({
           <Button
             disabled={redactionTypesData.length ? !redactionType : false}
             className={classes.redactButton}
-            onClick={() => handleBtnClick("redact")}
+            onClick={() => handleRedactBtnClick()}
             data-testid="btn-redact"
             id="btn-redact"
           >
@@ -113,7 +117,25 @@ export const RedactButton: React.FC<Props> = ({
           <>
             <Button
               disabled={false}
-              onClick={() => handleBtnClick("ignore")}
+              onClick={() => handleSearchPIIBtnClick("accepted")}
+              data-testid="btn-accept"
+              id="btn-accept"
+            >
+              Accept
+            </Button>
+            {searchPIIData.count > 1 && (
+              <Button
+                disabled={false}
+                onClick={() => handleSearchPIIBtnClick("acceptedAll")}
+                data-testid="btn-accept-all"
+                id="btn-accept-all"
+              >
+                {`Accept all(${searchPIIData.count})`}
+              </Button>
+            )}
+            <Button
+              disabled={false}
+              onClick={() => handleSearchPIIBtnClick("ignored")}
               data-testid="btn-ignore"
               id="btn-ignore"
               className="govuk-button--secondary"
@@ -124,7 +146,7 @@ export const RedactButton: React.FC<Props> = ({
             {searchPIIData.count > 1 && (
               <Button
                 disabled={false}
-                onClick={() => handleBtnClick("ignoreAll")}
+                onClick={() => handleSearchPIIBtnClick("ignoredAll")}
                 data-testid="btn-ignore-all"
                 id="btn-ignore-all"
                 className="govuk-button--secondary"

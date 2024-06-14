@@ -13,7 +13,10 @@ import { RedactionWarning } from "./RedactionWarning";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
-import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
+import {
+  NewPdfHighlight,
+  PIIRedactionStatus,
+} from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
@@ -146,6 +149,41 @@ export const PdfViewer: React.FC<Props> = ({
     [handleAddRedaction]
   );
 
+  const addSearchPIIRedaction = useCallback(
+    (groupId: string, isAcceptedAll: boolean) => {
+      const selectedHighlight = getSelectedPIIHighlight(groupId);
+      if (!selectedHighlight) {
+        return;
+      }
+      let newRedactions: NewPdfHighlight[] = [
+        {
+          type: "redaction",
+          position: selectedHighlight.position,
+          textContent: selectedHighlight.textContent,
+          highlightType: "linear",
+          redactionType: selectedHighlight.redactionType,
+          searchPIIId: selectedHighlight.id,
+        },
+      ];
+      if (isAcceptedAll) {
+        const highlightsWithSameSuggestion = getPIISuggestionsWithSameText(
+          selectedHighlight.textContent
+        );
+        newRedactions = highlightsWithSameSuggestion.map((highlight) => ({
+          type: "redaction",
+          position: highlight.position,
+          textContent: highlight.textContent,
+          highlightType: "linear",
+          redactionType: highlight.redactionType,
+          searchPIIId: highlight.id,
+        }));
+      }
+
+      handleAddRedaction(newRedactions);
+    },
+    [handleAddRedaction, getPIISuggestionsWithSameText, getSelectedPIIHighlight]
+  );
+
   const removeRedaction = (id: string) => {
     trackEvent("Remove Redact Content", {
       documentType: contextData.documentType,
@@ -153,6 +191,18 @@ export const PdfViewer: React.FC<Props> = ({
       redactionsCount: 1,
     });
     handleRemoveRedaction(id);
+
+    const selectedRedactionHighlight = redactionHighlights.find(
+      (highlight) => highlight.id === id
+    );
+    if (selectedRedactionHighlight?.searchPIIId) {
+      handleIgnoreRedactionSuggestion(
+        contextData.documentId,
+        "",
+        "initial" as const,
+        selectedRedactionHighlight.searchPIIId
+      );
+    }
   };
 
   const enableAreaSelection = useCallback(
@@ -246,7 +296,7 @@ export const PdfViewer: React.FC<Props> = ({
                       redactionTypesData={redactionTypesData}
                       onConfirm={(
                         redactionType: RedactionTypeData,
-                        actionType: "redact" | "ignore" | "ignoreAll"
+                        actionType: PIIRedactionStatus | "redact"
                       ) => {
                         switch (actionType) {
                           case "redact": {
@@ -267,57 +317,53 @@ export const PdfViewer: React.FC<Props> = ({
                             hideTipAndSelection();
                             return;
                           }
-                          case "ignore": {
+                          case "ignored":
+                          case "ignoredAll":
+                          case "accepted":
+                          case "acceptedAll": {
                             if (!content?.text || !content?.highlightGroupId) {
                               return;
                             }
-                            trackEvent("Ignore Redaction Suggestion", {
-                              documentType: contextData.documentType,
-                              documentId: contextData.documentId,
-                              redactionType: getSelectedPIIHighlight(
-                                content.highlightGroupId
-                              )?.redactionType?.name,
-                              piiCategory: getSelectedPIIHighlight(
-                                content.highlightGroupId
-                              )?.piiCategory,
-                              ignoreType: "once",
-                              ignoreCount: 1,
-                            });
                             handleIgnoreRedactionSuggestion(
                               contextData.documentId,
                               content.text,
-                              false,
+                              actionType,
                               content.highlightGroupId
                             );
 
                             hideTipAndSelection();
-                            return;
-                          }
-                          case "ignoreAll": {
-                            if (!content?.text || !content?.highlightGroupId) {
-                              return;
+                            if (
+                              actionType === "accepted" ||
+                              actionType === "acceptedAll"
+                            ) {
+                              addSearchPIIRedaction(
+                                content.highlightGroupId,
+                                actionType === "acceptedAll"
+                              );
                             }
-                            trackEvent("Ignore Redaction Suggestion", {
-                              documentType: contextData.documentType,
-                              documentId: contextData.documentId,
-                              redactionType: getSelectedPIIHighlight(
-                                content.highlightGroupId
-                              )?.redactionType?.name,
-                              piiCategory: getSelectedPIIHighlight(
-                                content.highlightGroupId
-                              )?.piiCategory,
-                              ignoreType: "all",
-                              ignoreCount: getPIISuggestionsWithSameText(
-                                content.text
-                              )?.length,
-                            });
-                            handleIgnoreRedactionSuggestion(
-                              contextData.documentId,
-                              content.text,
-                              true,
-                              content.highlightGroupId
-                            );
-                            hideTipAndSelection();
+                            if (
+                              actionType === "ignored" ||
+                              actionType === "ignoredAll"
+                            ) {
+                              trackEvent("Ignore Redaction Suggestion", {
+                                documentType: contextData.documentType,
+                                documentId: contextData.documentId,
+                                redactionType: getSelectedPIIHighlight(
+                                  content.highlightGroupId
+                                )?.redactionType?.name,
+                                piiCategory: getSelectedPIIHighlight(
+                                  content.highlightGroupId
+                                )?.piiCategory,
+                                ignoreType:
+                                  actionType === "ignored" ? "once" : "all",
+                                ignoreCount:
+                                  actionType === "ignored"
+                                    ? 1
+                                    : getPIISuggestionsWithSameText(
+                                        content.text
+                                      )?.length,
+                              });
+                            }
                             return;
                           }
                         }
@@ -350,13 +396,11 @@ export const PdfViewer: React.FC<Props> = ({
             </>
           )}
         </PdfLoader>
-        {redactionHighlights.length + activeSearchPIIHighlights.length && (
+        {redactionHighlights.length && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
-            totalRedactionsCount={
-              redactionHighlights.length + activeSearchPIIHighlights.length
-            }
+            totalRedactionsCount={redactionHighlights.length}
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}

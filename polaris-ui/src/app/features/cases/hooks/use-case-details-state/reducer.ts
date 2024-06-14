@@ -15,7 +15,10 @@ import { MappedDocumentResult } from "../../domain/MappedDocumentResult";
 import { isDocumentVisible } from "./is-document-visible";
 import { AsyncPipelineResult } from "../use-pipeline-api/AsyncPipelineResult";
 import { mapSearchHighlights } from "./map-search-highlights";
-import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import {
+  NewPdfHighlight,
+  PIIRedactionStatus,
+} from "../../domain/NewPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
@@ -221,12 +224,12 @@ export const reducer = (
         };
       }
     | {
-        type: "IGNORE_SEARCH_PII_DATA";
+        type: "HANDLE_SEARCH_PII_ACTION";
         payload: {
           documentId: string;
           textContent: string;
           highlightGroupId: string;
-          ignoreAll: boolean;
+          type: PIIRedactionStatus;
         };
       }
 ): CombinedState => {
@@ -1076,7 +1079,11 @@ export const reducer = (
       const newSearchPIIHighlights =
         availablePIIData?.searchPIIHighlights.map((highlight) => ({
           ...highlight,
-          redactionStatus: "redacted" as const,
+          redactionStatus:
+            highlight.redactionStatus === "ignored" ||
+            highlight.redactionStatus === "ignoredAll"
+              ? ("initial" as const)
+              : highlight.redactionStatus,
         })) ?? [];
 
       const newData = availablePIIData
@@ -1141,8 +1148,8 @@ export const reducer = (
       };
     }
 
-    case "IGNORE_SEARCH_PII_DATA": {
-      const { documentId, textContent, ignoreAll, highlightGroupId } =
+    case "HANDLE_SEARCH_PII_ACTION": {
+      const { documentId, textContent, type, highlightGroupId } =
         action.payload;
       const filteredSearchPIIDatas = state.searchPII.filter(
         (searchPIIResult) => searchPIIResult.documentId !== documentId
@@ -1155,14 +1162,14 @@ export const reducer = (
       let newHighlights: ISearchPIIHighlight[] = [];
 
       newHighlights = searchPIIDataItem.searchPIIHighlights.map((highlight) => {
-        if (ignoreAll) {
+        if (type === "ignoredAll" || type === "acceptedAll") {
           if (highlight.textContent === textContent) {
-            highlight.redactionStatus = "ignoredAll";
+            highlight.redactionStatus = type;
           }
           return highlight;
         }
         if (highlight.groupId === highlightGroupId) {
-          highlight.redactionStatus = "ignored";
+          highlight.redactionStatus = type;
         }
         return highlight;
       });

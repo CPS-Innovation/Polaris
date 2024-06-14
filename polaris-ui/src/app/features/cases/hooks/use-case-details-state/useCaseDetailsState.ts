@@ -11,7 +11,10 @@ import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
-import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import {
+  NewPdfHighlight,
+  PIIRedactionStatus,
+} from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
@@ -475,15 +478,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     (
       documentId: CaseDocumentViewModel["documentId"],
       textContent: string,
-      ignoreAll: boolean,
+      type: PIIRedactionStatus,
       highlightGroupId: string
     ) => {
       dispatch({
-        type: "IGNORE_SEARCH_PII_DATA",
+        type: "HANDLE_SEARCH_PII_ACTION",
         payload: {
           documentId,
           textContent: textContent,
-          ignoreAll: ignoreAll,
+          type: type,
           highlightGroupId: highlightGroupId,
         },
       });
