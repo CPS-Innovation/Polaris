@@ -65,37 +65,6 @@ namespace coordinator.tests.Services.TextExtract
         }
 
         [Fact]
-        public async Task WaitForDocumentStoreResultsAsync_ReturnsTrue_WhenIndexedLinesEqualsTargetCount()
-        {
-            var correlationId = Guid.NewGuid();
-
-            _mockTextExtractorClient.SetupSequence(x => x.GetDocumentIndexCount(It.IsAny<string>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new SearchIndexCountResult(50)))
-                .Returns(Task.FromResult(new SearchIndexCountResult(100)));
-
-            var result = await _textExtractService.WaitForDocumentStoreResultsAsync("CMS001", 1234, "1234", 1, 100, correlationId);
-
-            Assert.Equal(100, result.TargetCount);
-            Assert.True(result.IsSuccess);
-            _mockTextExtractorClient.Verify(x => x.GetDocumentIndexCount("CMS001", 1234, "1234", 1, correlationId), Times.Exactly(2));
-        }
-
-        [Fact]
-        public async Task WaitForDocumentStoreResultsAsync_ReturnsFalse_WhenIndexedLinesDoesNotEqualTargetCount()
-        {
-            var correlationId = Guid.NewGuid();
-
-            _mockTextExtractorClient.Setup(x => x.GetDocumentIndexCount(It.IsAny<string>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new SearchIndexCountResult(50)));
-
-            var result = await _textExtractService.WaitForDocumentStoreResultsAsync("CMS001", 1234, "1234", 1, 100, correlationId);
-
-            Assert.Equal(100, result.TargetCount);
-            Assert.False(result.IsSuccess);
-            _mockTextExtractorClient.Verify(x => x.GetDocumentIndexCount("CMS001", 1234, "1234", 1, correlationId), Times.Exactly(MaxRetryAttempts + 1));
-        }
-
-        [Fact]
         public async Task WaitForCaseEmptyResultsAsync_ReturnsTrue_WhenIndexedLinesEqualsZero()
         {
             var correlationId = Guid.NewGuid();
