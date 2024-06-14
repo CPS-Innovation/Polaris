@@ -8,6 +8,7 @@ polarisPipelineSaSubnet             = "10.7.200.96/28"
 polarisPipelineCoordinatorSubnet    = "10.7.200.208/28"
 polarisPipelinePdfGeneratorSubnet   = "10.7.200.80/28"
 polarisPipelinePdfRedactorSubnet    = "10.7.201.96/28"
+polarisAlertNotificationsSubnet     = "10.7.201.0/28"
 polarisPipelineTextExtractor2Subnet = "10.7.200.16/28"
 polarisGatewaySubnet                = "10.7.200.192/28"
 polarisUiSubnet                     = "10.7.200.0/28"
@@ -30,3 +31,6 @@ insights_configuration = {
   insights_internet_ingestion_enabled  = false
   insights_internet_query_enabled      = false
 }
+
+teams_account = "Mark.Jones3@cps.gov.uk"
+dns_server    = "10.7.200.68"
