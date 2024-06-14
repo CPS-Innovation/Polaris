@@ -127,7 +127,7 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
   name                       = "send-alert-teams${local.env_name_suffix}"
   location                   = azurerm_resource_group.rg_polaris_workspace.location
   resource_group_name        = azurerm_resource_group.rg_polaris_workspace.name
-  app_service_plan_id        = azurerm_service_plan.asp_alert_notifications.id
+  app_service_plan_id        = azurerm_service_plan.asp_alert_notifications[0].id
   storage_account_name       = azurerm_storage_account.sa_alert_processing[0].name
   storage_account_access_key = azurerm_storage_account.sa_alert_processing[0].primary_access_key
   virtual_network_subnet_id  = azurerm_subnet.sn_polaris_alert_notifications_subnet.id
@@ -169,7 +169,7 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
 resource "azurerm_private_endpoint" "alert_notifications_processor_pe" {
   count = var.environment.alias == "prod" ? 1 : 0
   
-  name                = "${azurerm_logic_app_standard.alert_notifications_processor.name}-pe"
+  name                = "${azurerm_logic_app_standard.alert_notifications_processor[0].name}-pe"
   resource_group_name = azurerm_resource_group.rg_polaris_workspace.name
   location            = azurerm_resource_group.rg_polaris_workspace.location
   subnet_id           = azurerm_subnet.sn_polaris_apps2_subnet.id
@@ -181,8 +181,8 @@ resource "azurerm_private_endpoint" "alert_notifications_processor_pe" {
   }
 
   private_service_connection {
-    name                           = "${azurerm_logic_app_standard.alert_notifications_processor.name}-psc"
-    private_connection_resource_id = azurerm_logic_app_standard.alert_notifications_processor.id
+    name                           = "${azurerm_logic_app_standard.alert_notifications_processor[0].name}-psc"
+    private_connection_resource_id = azurerm_logic_app_standard.alert_notifications_processor[0].id
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
