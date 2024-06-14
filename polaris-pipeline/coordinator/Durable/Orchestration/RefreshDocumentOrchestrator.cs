@@ -101,7 +101,7 @@ namespace coordinator.Durable.Orchestration
                     // Note: there is an optimisation possible here whereby we keep a handle on the first operation because it still may work eventually.
                     //  We would still kick off another operation after a timeout but keep the first alive.  We'd then have a two horse race.
                     //  (It is most likely that the first operation is stuck if our timeout is long enough, but it may not be stuck and just slow).
-                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), "OCR operation did not complete within the polling timeout period, starting a fallback operation");
+                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), "OCR operation did not complete within the polling timeout period, starting a fallback operation");
                     ocrPollingResult = await GetOcrResults(context, payload);
                 }
 
@@ -133,7 +133,7 @@ namespace coordinator.Durable.Orchestration
                 {
                     // Aggressive option used here: if we haven't settled then carry on rather than throwing
                     // todo: in the tracker we can record a flag to say that we do not have 100% confidence in the index for this document?
-                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestratorNext), "Index operation did not complete within the polling timeout period - carrying on");
+                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), "Index operation did not complete within the polling timeout period - carrying on");
                 }
 
                 telemetryEvent.DidIndexSettle = indexPollingResult.IsCompleted;
