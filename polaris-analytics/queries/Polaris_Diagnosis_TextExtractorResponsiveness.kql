@@ -4,7 +4,7 @@ AppDependencies
 | where AppRoleName == "fa-polaris-coordinator"
 | where DependencyType == "HTTP"
 | where Target == "fa-polaris-text-extractor.azurewebsites.net"
-| where OperationName == "ExtractText"
+| where OperationName in ("ExtractText", "RefreshDocumentOrchestratorNext", "RefreshDocumentOrchestrator")
 | summarize 
     FailedCount = countif(not(Success)),
     TotalCount = count() 

@@ -21,9 +21,6 @@ namespace text_extractor.coordinator
         public long VersionId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime OcrCompletedTime { get; set; }
-
-        [Obsolete("Not interesting and difficult to implement in newest orchestration classes.")]
-        public DateTime OcrResultsStoredTime { get; set; }
         public DateTime IndexStoredTime { get; set; }
         public DateTime EndTime { get; set; }
         public long PageCount { get; set; }

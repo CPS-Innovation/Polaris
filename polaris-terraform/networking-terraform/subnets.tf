@@ -127,6 +127,16 @@ resource "azurerm_subnet" "sn_polaris_alert_notifications_subnet" {
   resource_group_name  = data.azurerm_resource_group.rg_networking.name
   virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisAlertNotificationsSubnet]
+  service_endpoints    = ["Microsoft.Storage"]
+
+  delegation {
+    name = "Microsoft.Web/serverFarms Proxy Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 
   depends_on = [data.azurerm_virtual_network.vnet_networking]
 }

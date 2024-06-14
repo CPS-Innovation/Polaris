@@ -5,7 +5,7 @@ using coordinator.Services.OcrService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace coordinator.Durable.Activity.ExtractTextNext
+namespace coordinator.Durable.Activity
 {
     public class InitiateOcr
     {

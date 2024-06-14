@@ -18,6 +18,8 @@ let isKnownBug = (
     let lbd = tostring(loadBalancedDestination);
 
     case(
+                om contains "An exception occurred contacting Cms Modern" and om contains "Status Code: Unauthorized", 
+        "27573 - Cms Modern 401 error",
                 me contains "polaris_ddei.Factories.PreCharge.PcdRequestSummaryFactory.WalkTable",
         "25170 - DDEI walktable mapping error on PCD request",
                 csc contains "502",
@@ -63,11 +65,13 @@ let isKnownBug = (
         and om contains "Uncaught TypeError: Cannot read properties of undefined (reading 'rotation')",
         "22624 - UI Rotation",
 
-            op contains "ExtractText"
+            (op contains "ExtractText" or op contains "RefreshDocumentOrchestratorNext" or op contains "RefreshDocumentOrchestrator")
         and (om contains "The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing."
                 or 
              om contains "Search index update failed, timeout waiting for indexation validation")
-                or om contains "Exception while executing function: ExtractText", 
+                or om contains "Exception while executing function: ExtractText"
+                or om contains "Exception while executing function: RefreshDocumentOrchestratorNext"
+                or om contains "Exception while executing function: RefreshDocumentOrchestrator", 
         "23495 - Search Index",
 
             op contains "ExtractText"
@@ -101,7 +105,7 @@ let isKnownBug = (
 
             op contains "GetDocument"
         and im contains "The specified blob does not exist",
-        "GetDocument - Blob does not exist",
+        "27576 - GetDocument - Blob does not exist",
 
         om contains "Buffer too small for CLOB to CHAR or BLOB to RAW conversion",
         "24757 - CLOB to CHAR or BLOB to RAW conversion",
@@ -153,6 +157,10 @@ let isKnownBug = (
         "Gateway timeout calling coordinator", 
         op contains "GetCase" and om contains "Error while copying content to a stream.",
         "27446 - DDEI GetCase: Error while copying content to a stream",
+        (op contains "InitiateIndex" or op contains "CompleteIndex") and (om contains "HttpClient.Timeout" or om contains "502" or im contains "Connection reset by peer"),
+        "27574 - Timeouts and 502s contacting Text Extractor",
+        om contains "InitiateOcr" or om contains "CompleteOcr",
+        "27575 - Computer Vision errors",
     "");
 };
 

@@ -28,24 +28,6 @@ namespace coordinator.Services.TextExtractService
             _recordCounts = new List<long>();
         }
 
-        public async Task<IndexSettledResult> WaitForDocumentStoreResultsAsync(string caseUrn, long cmsCaseId, string cmsDocumentId, long versionId, long targetCount, Guid correlationId)
-        {
-            _targetCount = targetCount;
-
-            var indexCountPipeline = GetIndexCountResiliencePipeline(correlationId);
-
-            await indexCountPipeline.ExecuteAsync(async token =>
-                await _textExtractorClient.GetDocumentIndexCount(caseUrn, cmsCaseId, cmsDocumentId, versionId, correlationId),
-                CancellationToken.None);
-
-            return new IndexSettledResult
-            {
-                TargetCount = _targetCount,
-                IsSuccess = _recordCounts.Any() && _recordCounts.Last() == _targetCount,
-                RecordCounts = _recordCounts
-            };
-        }
-
         public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(string caseUrn, long cmsCaseId, Guid correlationId)
         {
             _targetCount = 0;
@@ -90,7 +72,7 @@ namespace coordinator.Services.TextExtractService
                     .HandleResult(searchIndexCount => !IsExpectedIndexCount(searchIndexCount)),
                 OnRetry = retryArguments =>
                 {
-                    _log.LogMethodFlow(correlationId, nameof(WaitForDocumentStoreResultsAsync), $"Get document index count attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
+                    _log.LogMethodFlow(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Get document index count attempt number: {retryArguments.AttemptNumber}, {retryArguments.Outcome.Exception}");
                     return ValueTask.CompletedTask;
                 }
             };
