@@ -33,7 +33,6 @@ type PdfTabProps = {
   }[];
   contextData: {
     correlationId: string;
-    searchPIIOn: string[];
     showSearchPII: boolean;
   };
   isOkToSave: boolean;
@@ -128,13 +127,18 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   }, [documentId, handleRemoveAllRedactions]);
 
   const localHandleShowHideRedactionSuggestions = useCallback(
-    (documentId, showSuggestion) => {
+    (documentId, showSuggestion, defaultOption) => {
       const getData =
         searchPIIDataItem?.getSearchPIIStatus === "failure"
           ? true
           : searchPIIDataItem?.polarisDocumentVersionId !==
             polarisDocumentVersionId;
-      handleShowHideRedactionSuggestions(documentId, showSuggestion, getData);
+      handleShowHideRedactionSuggestions(
+        documentId,
+        showSuggestion,
+        getData,
+        defaultOption
+      );
     },
     [
       handleShowHideRedactionSuggestions,
@@ -171,8 +175,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     );
   };
   const isSearchPIIOn = useMemo(() => {
-    return contextData.searchPIIOn.includes(documentId);
-  }, [contextData.searchPIIOn, documentId]);
+    return !!searchPIIDataItem?.show;
+  }, [searchPIIDataItem]);
 
   const handleContinue = () => {
     setShowRedactionWarning(false);
@@ -215,6 +219,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             tabIndex: tabIndex,
             areaOnlyRedactionMode: areaOnlyRedactionMode,
             isSearchPIIOn: isSearchPIIOn,
+            isSearchPIIDefaultOptionOn: !!searchPIIDataItem?.defaultOption,
             showSearchPII: contextData.showSearchPII,
           }}
         />
@@ -252,6 +257,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           isSearchPIIOn={isSearchPIIOn}
+          isSearchPIIDefaultOptionOn={!!searchPIIDataItem?.defaultOption}
           activeSearchPIIHighlights={activeSearchPIIHighlights}
           documentWriteStatus={documentWriteStatus}
           contextData={{

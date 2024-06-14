@@ -47,6 +47,7 @@ type Props = {
   documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
   isSearchPIIOn: boolean;
+  isSearchPIIDefaultOptionOn: boolean;
   activeSearchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
@@ -74,6 +75,7 @@ export const PdfViewer: React.FC<Props> = ({
   contextData,
   searchHighlights = [],
   isSearchPIIOn,
+  isSearchPIIDefaultOptionOn,
   activeSearchPIIHighlights,
   redactionHighlights,
   isOkToSave,
@@ -290,6 +292,8 @@ export const PdfViewer: React.FC<Props> = ({
                               count:
                                 getPIISuggestionsWithSameText(content?.text)
                                   ?.length ?? 0,
+                              isSearchPIIDefaultOptionOn:
+                                isSearchPIIDefaultOptionOn,
                             }
                           : undefined
                       }

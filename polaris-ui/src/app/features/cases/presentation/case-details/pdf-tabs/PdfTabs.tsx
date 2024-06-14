@@ -20,7 +20,6 @@ type PdfTabsProps = {
   }[];
   contextData: {
     correlationId: string;
-    searchPIIOn: string[];
     showSearchPII: boolean;
   };
   caseId: number;
@@ -73,7 +72,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   const localHandleClosePdf = useCallback(
     (documentId: string) => {
       handleClosePdf(documentId);
-      handleShowHideRedactionSuggestions(documentId, false, false);
+      handleShowHideRedactionSuggestions(documentId, false, false, true);
     },
     [handleClosePdf, handleShowHideRedactionSuggestions]
   );

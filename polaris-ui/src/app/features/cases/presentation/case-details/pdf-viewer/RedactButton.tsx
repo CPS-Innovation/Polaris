@@ -10,6 +10,7 @@ type Props = {
   searchPIIData?: {
     textContent: string;
     count: number;
+    isSearchPIIDefaultOptionOn: boolean;
   };
   redactionTypesData: RedactionTypeData[];
   onConfirm: (
@@ -133,28 +134,31 @@ export const RedactButton: React.FC<Props> = ({
                 {`Accept all(${searchPIIData.count})`}
               </Button>
             )}
-            <Button
-              disabled={false}
-              onClick={() => handleSearchPIIBtnClick("ignored")}
-              data-testid="btn-ignore"
-              id="btn-ignore"
-              className="govuk-button--secondary"
-              name="secondary"
-            >
-              Ignore
-            </Button>
-            {searchPIIData.count > 1 && (
+            {!searchPIIData.isSearchPIIDefaultOptionOn && (
               <Button
                 disabled={false}
-                onClick={() => handleSearchPIIBtnClick("ignoredAll")}
-                data-testid="btn-ignore-all"
-                id="btn-ignore-all"
+                onClick={() => handleSearchPIIBtnClick("ignored")}
+                data-testid="btn-ignore"
+                id="btn-ignore"
                 className="govuk-button--secondary"
                 name="secondary"
               >
-                {`Ignore all(${searchPIIData.count})`}
+                Ignore
               </Button>
             )}
+            {searchPIIData.count > 1 &&
+              !searchPIIData.isSearchPIIDefaultOptionOn && (
+                <Button
+                  disabled={false}
+                  onClick={() => handleSearchPIIBtnClick("ignoredAll")}
+                  data-testid="btn-ignore-all"
+                  id="btn-ignore-all"
+                  className="govuk-button--secondary"
+                  name="secondary"
+                >
+                  {`Ignore all(${searchPIIData.count})`}
+                </Button>
+              )}
           </>
         )}
       </div>

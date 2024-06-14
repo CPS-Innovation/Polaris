@@ -444,7 +444,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     (
       documentId: CaseDocumentViewModel["documentId"],
       showSuggestion: boolean,
-      getData: boolean
+      getData: boolean,
+      defaultOption: boolean
     ) => {
       dispatch({
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
@@ -452,6 +453,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           documentId,
           show: showSuggestion,
           getData: getData,
+          defaultOption: defaultOption,
         },
       });
       if (getData)

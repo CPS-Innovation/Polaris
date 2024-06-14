@@ -213,6 +213,7 @@ export const reducer = (
           documentId: string;
           show: boolean;
           getData: boolean;
+          defaultOption?: boolean;
         };
       }
     | {
@@ -1069,7 +1070,12 @@ export const reducer = (
     }
 
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
-      const { documentId, show, getData } = action.payload;
+      const {
+        documentId,
+        show,
+        getData,
+        defaultOption = true,
+      } = action.payload;
       const polarisDocumentVersionId = state.tabsState.items.find(
         (data) => data.documentId === documentId
       )?.polarisDocumentVersionId!;
@@ -1090,6 +1096,7 @@ export const reducer = (
         ? {
             ...availablePIIData,
             show: show,
+            defaultOption: defaultOption,
             searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
             polarisDocumentVersionId: getData
               ? polarisDocumentVersionId
@@ -1097,6 +1104,7 @@ export const reducer = (
           }
         : {
             show: show,
+            defaultOption: defaultOption,
             documentId: documentId,
             polarisDocumentVersionId: polarisDocumentVersionId,
             searchPIIHighlights: [],
