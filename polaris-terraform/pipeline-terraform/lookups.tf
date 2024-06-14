@@ -135,3 +135,12 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
   name                = "fa-${local.ddei_resource_name}"
   resource_group_name = "rg-${local.ddei_resource_name}"
 }
+
+data "azapi_resource_action" "callback_url_data" {
+  count = var.env == "prod" ? 1 : 0
+  
+  type = "Microsoft.Web/sites/hostruntime/webhooks/api/workflows/triggers@2022-03-01"
+  action = "listCallbackUrl"
+  resource_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/rg-${local.analytics_group_name}/providers/Microsoft.Web/sites/send-alert-teams${local.resource_suffix}/hostruntime/runtime/webhooks/workflow/api/management/workflows/alert-processor/triggers/When_a_HTTP_request_is_received"
+  response_export_values = ["*"]
+}
