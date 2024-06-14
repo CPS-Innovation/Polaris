@@ -49,7 +49,7 @@ resource "azurerm_private_endpoint" "alert_processing_sa_table_pe" {
 
   private_service_connection {
     name                           = "sacps${local.env_name}alertprocessing-table-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_alert_processing.id
+    private_connection_resource_id = azurerm_storage_account.sa_alert_processing[0].id
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
@@ -72,7 +72,7 @@ resource "azurerm_private_endpoint" "alert_processing_sa_file_pe" {
 
   private_service_connection {
     name                           = "sacps${local.env_name}alertprocessing-file-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_alert_processing.id
+    private_connection_resource_id = azurerm_storage_account.sa_alert_processing[0].id
     is_manual_connection           = false
     subresource_names              = ["file"]
   }
@@ -95,7 +95,7 @@ resource "azurerm_private_endpoint" "alert_processing_sa_queue_pe" {
 
   private_service_connection {
     name                           = "sacps${local.env_name}alertprocessing-queue-psc"
-    private_connection_resource_id = azurerm_storage_account.sa_alert_processing.id
+    private_connection_resource_id = azurerm_storage_account.sa_alert_processing[0].id
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
@@ -106,7 +106,7 @@ resource "azapi_resource" "alert_processing_sa_file_share" {
   
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "alert-processor-content-share"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris_workspace.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_alert_processing.name}/fileServices/default"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris_workspace.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_alert_processing[0].name}/fileServices/default"
 }
 
 resource "azurerm_service_plan" "asp_alert_notifications" {
