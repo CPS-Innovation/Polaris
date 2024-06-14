@@ -20,7 +20,9 @@ namespace coordinator.Durable.Orchestration
     {
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
         private readonly ITelemetryClient _telemetryClient;
+        private const int _prePollingDelayMs = 3000;
         private const int _pollingIntervalMs = 3000;
+        private const int _maxPollingAttempts = 6;
 
         // Here we use CallActivityWithRetryAsync for the OCR service interaction as it has ben seen to hang in production when making Http requests.
         //  The service will cancel and timeout at N seconds and throw.  So lets use the durable framework's own retry mechanism.
@@ -123,8 +125,9 @@ namespace coordinator.Durable.Orchestration
                     PollingHelper.CreatePollingArgs(
                         activityName: nameof(CompleteIndex),
                         activityInput: (payload, indexStoredResult.LineCount),
+                        prePollingDelayMs: _prePollingDelayMs,
                         pollingIntervalMs: _pollingIntervalMs,
-                        maxPollingAttempts: 7,
+                        maxPollingAttempts: _maxPollingAttempts,
                         activityRetryOptions: _durableActivityRetryOptions
                     )
                 );
@@ -174,8 +177,9 @@ namespace coordinator.Durable.Orchestration
                 PollingHelper.CreatePollingArgs(
                     activityName: nameof(CompleteOcr),
                     activityInput: (ocrOperationId, payload.OcrBlobName, payload.CorrelationId, payload.SubCorrelationId),
+                    prePollingDelayMs: _prePollingDelayMs,
                     pollingIntervalMs: _pollingIntervalMs,
-                    maxPollingAttempts: 7,
+                    maxPollingAttempts: _maxPollingAttempts,
                     activityRetryOptions: _durableActivityRetryOptions
                 )
            );

@@ -13,6 +13,10 @@ public class PollingHelper
 
     public static async Task<PollingResult<T>> PollActivityUntilComplete<T>(IDurableOrchestrationContext context, PollingArgs pollingArgs)
     {
+        // Pause before making the call because we want one interval before making the first call
+        var firstCheckTime = context.CurrentUtcDateTime.AddMilliseconds(pollingArgs.PrePollingDelayMs);
+        await context.CreateTimer(firstCheckTime, CancellationToken.None);
+
         var results = new List<T>();
         while (true)
         {
@@ -51,12 +55,19 @@ public class PollingHelper
         }
     }
 
-    public static PollingArgs CreatePollingArgs(string activityName, object activityInput, int pollingIntervalMs, int maxPollingAttempts, RetryOptions activityRetryOptions = null)
+    public static PollingArgs CreatePollingArgs(
+        string activityName,
+        object activityInput,
+        int prePollingDelayMs,
+        int pollingIntervalMs,
+        int maxPollingAttempts,
+        RetryOptions activityRetryOptions = null)
     {
         return new PollingArgs
         {
             ActivityName = activityName,
             ActivityInput = activityInput,
+            PrePollingDelayMs = prePollingDelayMs,
             PollingIntervalMs = pollingIntervalMs,
             MaxPollingAttempts = maxPollingAttempts,
             ActivityRetryOptions = activityRetryOptions,
@@ -75,6 +86,7 @@ public class PollingArgs
 {
     public string ActivityName { get; set; }
     public object ActivityInput { get; set; }
+    public int PrePollingDelayMs { get; set; }
     public int PollingIntervalMs { get; set; }
     public int MaxPollingAttempts { get; set; }
     public RetryOptions ActivityRetryOptions { get; set; }
