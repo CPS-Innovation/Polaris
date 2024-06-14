@@ -58,7 +58,7 @@ locals {
   resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
   ddei_resource_name   = var.env != "prod" ? "${var.ddei_resource_name_prefix}-${var.env}" : var.ddei_resource_name_prefix
   search_service_name  = var.env != "prod" ? "ss-polaris-pipeline-${var.env}" : "ss-polaris-pipeline"
-  resource_suffix      = var.env != "prod"? "-${var.env}" : ""
+  resource_suffix      = var.env != "prod" ? "-${var.env}" : ""
   common_tags = {
     environment = var.environment_tag
     project     = var.resource_name_prefix
