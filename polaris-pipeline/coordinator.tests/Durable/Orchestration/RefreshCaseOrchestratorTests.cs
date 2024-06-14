@@ -207,7 +207,7 @@ namespace coordinator.tests.Durable.Orchestration
             {
                 _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                 (
-                    It.IsIn<string>(new[] { nameof(RefreshDocumentOrchestrator), nameof(RefreshDocumentOrchestratorNext) }),
+                    It.IsIn<string>(new[] { nameof(RefreshDocumentOrchestrator), nameof(RefreshDocumentOrchestrator) }),
                     It.IsAny<string>(),
                     It.Is<CaseDocumentOrchestrationPayload>
                     (
@@ -289,23 +289,6 @@ namespace coordinator.tests.Durable.Orchestration
                 var arg = (It.IsAny<DateTime>(), CaseRefreshStatus.Failed, "Test Exception");
                 _mockCaseEntity.Verify(tracker => tracker.SetCaseStatus(arg));
             }
-        }
-
-        [Theory]
-        [InlineData(101, 3, 97, nameof(RefreshDocumentOrchestrator))]
-        [InlineData(101, 3, 98, nameof(RefreshDocumentOrchestrator))]
-        [InlineData(101, 3, 99, nameof(RefreshDocumentOrchestrator))]
-        [InlineData(101, 3, 100, nameof(RefreshDocumentOrchestrator))]
-        [InlineData(96, 3, 97, nameof(RefreshDocumentOrchestrator))]
-        [InlineData(96, 3, 98, nameof(RefreshDocumentOrchestrator))]
-        [InlineData(96, 3, 99, nameof(RefreshDocumentOrchestratorNext))]
-        [InlineData(96, 3, 100, nameof(RefreshDocumentOrchestrator))]
-        [InlineData(99, 3, 99, nameof(RefreshDocumentOrchestratorNext))]
-        [InlineData(99, 0, 99, nameof(RefreshDocumentOrchestrator))]
-        public void GetOrchestratorName_ReturnsCorrectName(int switchoverCaseId, int switchoverModulo, int caseId, string expectedName)
-        {
-            //Act
-            RefreshCaseOrchestrator.GetOrchestratorName(switchoverCaseId, switchoverModulo, caseId).Should().Be(expectedName);
         }
     }
 }

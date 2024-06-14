@@ -8,7 +8,6 @@
       "coordinator.Durable.Orchestration.RefreshCaseOrchestrator": "Information",
       "coordinator.Functions.Maintenance.SlidingCaseClearDown": "Information",
       "coordinator.Services.OcrService.OcrService": "Information",
-      "coordinator.Durable.Activity.ExtractText": "Information",
       "Host.Aggregator": "Information",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",

@@ -1,0 +1,62 @@
+Polaris_Metrics_CaseRefresh
+| where TimeGenerated between (datetime_add('hour', -1* hoursBack, endDateTime ) .. endDateTime)
+| where VersionId == 1
+| project 
+    TimeGenerated, 
+    PolarisCorrelationId,
+    OperationId,
+    IsFailure, 
+    CaseId, 
+    StartTime, 
+    EndTime, 
+    CmsDocsCount, 
+    DurationSeconds,
+    IsTimeout = datetime_diff( 'second', TimeGenerated, StartTime) > (10 * 60 - 3), // wiggle room
+    CountEntries
+| join kind=leftouter (
+    Polaris_Metrics_Conversion 
+    | summarize 
+        PdfEarliestStartTime = min(StartTime), 
+        PdfLatestStartTime = max(StartTime), 
+        PdfEarliestEndTime = min(EndTime),
+        PdfLatestEndTime = max(EndTime),
+        PdfMaxDurationSeconds = round(max(DurationSeconds), 2),
+        PdfAvgDurationSeconds = round(avg(DurationSeconds), 2),
+        PdfCount = count(),
+        PdfCountSuccess = countif(not(IsFailure))
+    by PolarisCorrelationId
+) on PolarisCorrelationId | project-away PolarisCorrelationId1
+| join kind=leftouter (
+    Polaris_Metrics_Indexing
+    | summarize 
+        IndexingEarliestStartTime = min(StartTime), 
+        IndexingLatestStartTime = max(StartTime), 
+        IndexingEarliestEndTime = min(EndTime),
+        IndexingLatestEndTime = max(EndTime),
+        IndexingMaxDurationSeconds = round(max(DurationSeconds), 2),
+        IndexingAvgDurationSeconds = round(avg(DurationSeconds), 2),
+        IndexingOcrMaxDurationSeconds = round(max(OcrDurationSeconds), 2),
+        IndexingIndexMaxDurationSeconds = round(max(IndexDurationSeconds), 2),
+        IndexingIndexSettledMaxDurationSeconds = round(max(IndexSettledDurationSeconds), 2),
+        IndexingCount = count(),
+        IndexingCountSuccess = countif(not(IsFailure))
+    by PolarisCorrelationId
+) on PolarisCorrelationId | project-away PolarisCorrelationId1
+| join kind=leftouter (
+    AppRequests
+    | where AppRoleName == "fa-polaris-ddei"
+    | extend 
+        DurationSeconds = round(DurationMs / 1000, 2), 
+        PolarisCorrelationId = tostring(Properties.PolarisCorrelationId)
+    | summarize 
+        DdeiCaseDurationSeconds = maxif(DurationSeconds, OperationName == "GetCase" ),
+        DdeiDocsDurationSeconds = maxif(DurationSeconds, OperationName == "ListDocuments"),
+        DdeiDocMaxDurationSeconds = maxif(DurationSeconds, OperationName == "GetDocumentFromFileStore" )
+    by PolarisCorrelationId
+) on PolarisCorrelationId | project-away PolarisCorrelationId1
+
+| extend FirstDocStartLatency = round(datetime_diff('millisecond', PdfEarliestStartTime, StartTime) / 1000.0, 2)
+| extend LastDocStartLatency = round(datetime_diff('millisecond', PdfLatestStartTime, StartTime) / 1000.0, 2)
+| extend LastDocCompletedDurationSeconds = round(datetime_diff('millisecond', IndexingLatestEndTime, StartTime) / 1000.0, 2)
+| extend DeltaExpectedIndexing = PdfCountSuccess - IndexingCount
+
