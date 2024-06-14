@@ -1,4 +1,6 @@
 resource "azurerm_storage_account" "sa_alert_processing" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   name                            = "sacps${local.env_name}alertprocessing"
   resource_group_name             = azurerm_resource_group.rg_polaris_workspace.name
   location                        = azurerm_resource_group.rg_polaris_workspace.location
@@ -32,6 +34,8 @@ resource "azurerm_storage_account" "sa_alert_processing" {
 
 # Create Private Endpoint for Tables
 resource "azurerm_private_endpoint" "alert_processing_sa_table_pe" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   name                = "sacps${local.env_name}alertprocessing-table-pe"
   resource_group_name = azurerm_resource_group.rg_polaris_workspace.name
   location            = azurerm_resource_group.rg_polaris_workspace.location
@@ -53,6 +57,8 @@ resource "azurerm_private_endpoint" "alert_processing_sa_table_pe" {
 
 # Create Private Endpoint for Files
 resource "azurerm_private_endpoint" "alert_processing_sa_file_pe" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   name                = "sacps${local.env_name}alertprocessing-file-pe"
   resource_group_name = azurerm_resource_group.rg_polaris_workspace.name
   location            = azurerm_resource_group.rg_polaris_workspace.location
@@ -74,6 +80,8 @@ resource "azurerm_private_endpoint" "alert_processing_sa_file_pe" {
 
 # Create Private Endpoint for Queues
 resource "azurerm_private_endpoint" "alert_processing_sa_queue_pe" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   name                = "sacps${local.env_name}alertprocessing-queue-pe"
   resource_group_name = azurerm_resource_group.rg_polaris_workspace.name
   location            = azurerm_resource_group.rg_polaris_workspace.location
@@ -94,12 +102,16 @@ resource "azurerm_private_endpoint" "alert_processing_sa_queue_pe" {
 }
 
 resource "azapi_resource" "alert_processing_sa_file_share" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "alert-processor-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris_workspace.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_alert_processing.name}/fileServices/default"
 }
 
 resource "azurerm_service_plan" "asp_alert_notifications" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   name                = "asp-alert-notifications${local.env_name_suffix}"
   location            = azurerm_resource_group.rg_polaris_workspace.location
   resource_group_name = azurerm_resource_group.rg_polaris_workspace.name
@@ -110,6 +122,8 @@ resource "azurerm_service_plan" "asp_alert_notifications" {
 }
 
 resource "azurerm_logic_app_standard" "alert_notifications_processor" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   name                       = "send-alert-teams${local.env_name_suffix}"
   location                   = azurerm_resource_group.rg_polaris_workspace.location
   resource_group_name        = azurerm_resource_group.rg_polaris_workspace.name
@@ -153,6 +167,8 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
 }
 
 resource "azurerm_private_endpoint" "alert_notifications_processor_pe" {
+  count = var.environment.alias == "prod" ? 1 : 0
+  
   name                = "${azurerm_logic_app_standard.alert_notifications_processor.name}-pe"
   resource_group_name = azurerm_resource_group.rg_polaris_workspace.name
   location            = azurerm_resource_group.rg_polaris_workspace.location

@@ -55,35 +55,36 @@ stages:
                     armClientSecret: $(clientSecret)
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
-                    
-  - stage: Deploy_DEV
-    displayName: DEV > Deploy Apps
-    dependsOn: Apply_DEV
-    condition: succeeded()
-    pool:
-      name: $(dev-build-agent)
-    jobs:
-      - job: Deploy_Logic_Apps
-        steps:
-          - template: ../tasks/task_get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
-              
-          - template: ../tasks/task_deploy-alert-processor.yml
-            parameters:
-              targetBuild: PolarisNetworkingBuild
-              targetLabel: "DEV"
-              targetName: "Alert Processor CI Deployment"
-              targetSuffix: "-dev"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              azureSubscription: $(dev-azure-subscription)
-              azureSubscriptionId: $(subscriptionId)
-              targetResourceGroup: rg-polaris-analytics-dev
+  
+  # notifications NOT enabled in DEV - if enabling this stage then remember to modify the "dependsOn" attribute of the subsequent stage                  
+  #- stage: Deploy_DEV
+  #  displayName: DEV > Deploy Apps
+  #  dependsOn: Apply_DEV
+  #  condition: succeeded()
+  #  pool:
+  #    name: $(dev-build-agent)
+  #  jobs:
+  #    - job: Deploy_Logic_Apps
+  #      steps:
+  #        - template: ../tasks/task_get-credentials.yml
+  #          parameters:
+  #            azureSubscriptionId: $(dev-azure-subscription)
+  #            
+  #        - template: ../tasks/task_deploy-alert-processor.yml
+  #          parameters:
+  #            targetBuild: PolarisNetworkingBuild
+  #            targetLabel: "DEV"
+  #            targetName: "Alert Processor CI Deployment"
+  #            targetSuffix: "-dev"
+  #            appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+  #            azureSubscription: $(dev-azure-subscription)
+  #            azureSubscriptionId: $(subscriptionId)
+  #            targetResourceGroup: rg-polaris-analytics-dev
                     
   # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_DEV
     displayName: DEV > Save Report
-    dependsOn: Deploy_DEV
+    dependsOn: Apply_DEV
     condition: succeeded()
     jobs:
       - job: Create_Commit_Report
@@ -139,34 +140,35 @@ stages:
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
                     
-  - stage: Deploy_QA
-    displayName: QA > Deploy Apps
-    dependsOn: Apply_QA
-    condition: succeeded()
-    pool:
-      name: $(qa-build-agent)
-    jobs:
-      - job: Deploy_Logic_Apps
-        steps:
-          - template: ../tasks/task_get-credentials.yml
-            parameters:
-              azureSubscriptionId: $(qa-azure-subscription)
-
-          - template: ../tasks/task_deploy-alert-processor.yml
-            parameters:
-              targetBuild: PolarisNetworkingBuild
-              targetLabel: "QA"
-              targetName: "Alert Processor CI Deployment"
-              targetSuffix: "-qa"
-              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              azureSubscription: $(qa-azure-subscription)
-              azureSubscriptionId: $(subscriptionId)
-              targetResourceGroup: rg-polaris-analytics-qa
+  # notifications NOT enabled in QA - if enabling this stage then remember to modify the "dependsOn" attribute of the subsequent stage
+  #- stage: Deploy_QA
+  #  displayName: QA > Deploy Apps
+  #  dependsOn: Apply_QA
+  #  condition: succeeded()
+  #  pool:
+  #    name: $(qa-build-agent)
+  #  jobs:
+  #    - job: Deploy_Logic_Apps
+  #      steps:
+  #        - template: ../tasks/task_get-credentials.yml
+  #          parameters:
+  #            azureSubscriptionId: $(qa-azure-subscription)
+  #
+  #        - template: ../tasks/task_deploy-alert-processor.yml
+  #          parameters:
+  #            targetBuild: PolarisNetworkingBuild
+  #            targetLabel: "QA"
+  #            targetName: "Alert Processor CI Deployment"
+  #            targetSuffix: "-qa"
+  #            appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+  #            azureSubscription: $(qa-azure-subscription)
+  #            azureSubscriptionId: $(subscriptionId)
+  #            targetResourceGroup: rg-polaris-analytics-qa
 
   # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report_QA
     displayName: QA > Save Report
-    dependsOn: Deploy_QA
+    dependsOn: Apply_QA
     condition: succeeded()
     jobs:
       - job: Create_Commit_Report
