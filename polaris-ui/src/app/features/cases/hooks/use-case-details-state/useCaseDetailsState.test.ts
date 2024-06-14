@@ -134,7 +134,7 @@ describe("useCaseDetailsState", () => {
         handleGetNotes,
         handleShowHideRedactionSuggestions,
         handleGetSearchPIIData,
-        handleIgnoreRedactionSuggestion,
+        handleSearchPIIAction,
         ...stateProperties
       } = result.current;
 

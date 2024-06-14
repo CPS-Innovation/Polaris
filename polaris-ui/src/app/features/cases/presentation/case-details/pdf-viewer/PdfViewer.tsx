@@ -57,7 +57,7 @@ type Props = {
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
-  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
+  handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
 };
 
 const ensureAllPdfInView = () =>
@@ -85,7 +85,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
   focussedHighlightIndex,
-  handleIgnoreRedactionSuggestion,
+  handleSearchPIIAction,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
@@ -198,7 +198,7 @@ export const PdfViewer: React.FC<Props> = ({
       (highlight) => highlight.id === id
     );
     if (selectedRedactionHighlight?.searchPIIId) {
-      handleIgnoreRedactionSuggestion(
+      handleSearchPIIAction(
         contextData.documentId,
         "",
         "initial" as const,
@@ -328,7 +328,7 @@ export const PdfViewer: React.FC<Props> = ({
                             if (!content?.text || !content?.highlightGroupId) {
                               return;
                             }
-                            handleIgnoreRedactionSuggestion(
+                            handleSearchPIIAction(
                               contextData.documentId,
                               content.text,
                               actionType,

@@ -476,7 +476,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleIgnoreRedactionSuggestion = useCallback(
+  const handleSearchPIIAction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
       textContent: string,
@@ -522,6 +522,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleAddNote,
     handleShowHideRedactionSuggestions,
     handleGetSearchPIIData,
-    handleIgnoreRedactionSuggestion,
+    handleSearchPIIAction,
   };
 };

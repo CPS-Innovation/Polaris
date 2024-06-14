@@ -49,7 +49,7 @@ type PdfTabProps = {
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
-  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
+  handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -77,7 +77,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
-  handleIgnoreRedactionSuggestion,
+  handleSearchPIIAction,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
@@ -274,7 +274,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleRemoveRedaction={localHandleRemoveRedaction}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
-          handleIgnoreRedactionSuggestion={handleIgnoreRedactionSuggestion}
+          handleSearchPIIAction={handleSearchPIIAction}
         />
       ) : (
         <Wait
