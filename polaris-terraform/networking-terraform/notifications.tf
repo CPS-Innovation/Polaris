@@ -128,8 +128,8 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
   location                   = azurerm_resource_group.rg_polaris_workspace.location
   resource_group_name        = azurerm_resource_group.rg_polaris_workspace.name
   app_service_plan_id        = azurerm_service_plan.asp_alert_notifications.id
-  storage_account_name       = azurerm_storage_account.sa_alert_processing.name
-  storage_account_access_key = azurerm_storage_account.sa_alert_processing.primary_access_key
+  storage_account_name       = azurerm_storage_account.sa_alert_processing[0].name
+  storage_account_access_key = azurerm_storage_account.sa_alert_processing[0].primary_access_key
   virtual_network_subnet_id  = azurerm_subnet.sn_polaris_alert_notifications_subnet.id
   https_only                 = true
   version                    = "~4"
@@ -138,9 +138,9 @@ resource "azurerm_logic_app_standard" "alert_notifications_processor" {
     "FUNCTIONS_WORKER_RUNTIME"                 = "node"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "APPLICATIONINSIGHTS_CONNECTION_STRING"    = azurerm_application_insights.ai_polaris.connection_string
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_alert_processing.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_alert_processing[0].primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.alert_processing_sa_file_share.name
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.alert_processing_sa_file_share[0].name
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
