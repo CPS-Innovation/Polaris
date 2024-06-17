@@ -5,7 +5,6 @@ import {
   Checkboxes,
   Modal,
 } from "../../../../../common/presentation/components/index";
-import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./SearchPIIRedactionWarningModal.module.scss";
 
@@ -13,7 +12,7 @@ type Props = {
   documentId: string;
   documentType: string;
   polarisDocumentVersionId?: number;
-  activeSearchPIIHighlights: ISearchPIIHighlight[];
+  acceptedSearchPIIRedactionsCount: number;
   hideRedactionWarningModal: () => void;
   handleContinue: () => void;
 };
@@ -22,7 +21,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   documentId,
   documentType,
   polarisDocumentVersionId,
-  activeSearchPIIHighlights,
+  acceptedSearchPIIRedactionsCount,
   hideRedactionWarningModal,
   handleContinue,
 }) => {
@@ -43,7 +42,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
       documentId: documentId,
       documentType: documentType,
       polarisDocumentVersionId: polarisDocumentVersionId,
-      suggestedRedactionsCount: activeSearchPIIHighlights.length,
+      suggestedRedactionsCount: acceptedSearchPIIRedactionsCount,
     });
     hideRedactionWarningModal();
   };
@@ -58,7 +57,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
         handleClose={handleClosePIIRedactionWarningModal}
         className={classes.redactionWarningModal}
         ariaLabel="Use potential redactions confirmation Modal"
-        ariaDescription={`Your remaining ${activeSearchPIIHighlights.length} potential redactions will also be redacted, if you choose to continue`}
+        ariaDescription={`Your remaining ${acceptedSearchPIIRedactionsCount} potential redactions will also be redacted, if you choose to continue`}
         defaultLastFocus={
           document.querySelector("#active-tab-panel") as HTMLElement
         }
@@ -72,7 +71,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
               !
             </span>
             <p className={classes.contentText}>
-              {`Your remaining ${activeSearchPIIHighlights.length} potential redactions will also be redacted, if
+              {`Your remaining ${acceptedSearchPIIRedactionsCount} potential redactions will also be redacted, if
               you choose to continue`}
             </p>
           </div>
