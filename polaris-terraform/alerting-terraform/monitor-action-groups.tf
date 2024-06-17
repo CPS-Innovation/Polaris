@@ -1,8 +1,8 @@
 ﻿resource "azurerm_monitor_action_group" "standard_polaris_action_group" {
   count = var.env == "prod" ? 0 : 1
   
-  name                = "ag-polaris-notify"
-  resource_group_name = "rg-polaris-analytics"
+  name                = "ag-polaris${local.resource_suffix}-notify"
+  resource_group_name = "rg-polaris-analytics${local.resource_suffix}"
   short_name          = "ag-polaris"
 
   email_receiver {
