@@ -1,7 +1,7 @@
 let Base = AppTraces
 | where AppRoleName in ("fa-polaris-text-extractor", "fa-polaris-coordinator")
-| where OperationName == "ExtractText"
-| where Message contains "GetOcrResultsAsync"
+| where OperationName in ("ExtractText", "CompleteOcr", "InitiateOcr")
+| where Message contains "GetOcrResultsAsync" or Message contains "InitiateOperationAsync" or Message contains "GetOperationResultsAsync"
 | where Message contains "OCR read" or Message contains "OCR completed"
 | project 
     TimeGenerated, 

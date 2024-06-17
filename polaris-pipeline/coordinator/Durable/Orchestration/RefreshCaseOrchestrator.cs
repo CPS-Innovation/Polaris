@@ -34,8 +34,6 @@ namespace coordinator.Durable.Orchestration
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-        private readonly int _switchoverCaseId;
-        private readonly int _switchoverModulo;
         public static string GetKey(string caseId) => $"[{caseId}]";
 
         public RefreshCaseOrchestrator(
@@ -49,8 +47,6 @@ namespace coordinator.Durable.Orchestration
             _cmsDocumentsResponseValidator = cmsDocumentsResponseValidator;
             _telemetryClient = telemetryClient;
             _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorOrchestratorTimeoutSecs]));
-            _switchoverCaseId = int.Parse(_configuration[ConfigKeys.CoordinatorSwitchoverCaseId]);
-            _switchoverModulo = int.Parse(_configuration[ConfigKeys.CoordinatorSwitchoverModulo]);
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
@@ -99,17 +95,6 @@ namespace coordinator.Durable.Orchestration
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;
             }
-        }
-
-        public static string GetOrchestratorName(int switchoverCaseId, int switchoverModulo, int caseId)
-        {
-            var shouldUseNextOrchestrator = switchoverModulo > 0
-                && caseId >= switchoverCaseId
-                && caseId % switchoverModulo == 0;
-
-            return shouldUseNextOrchestrator
-                ? nameof(RefreshDocumentOrchestratorNext)
-                : nameof(RefreshDocumentOrchestrator);
         }
 
         private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CaseOrchestrationPayload payload, RefreshedCaseEvent telemetryEvent)
@@ -220,15 +205,11 @@ namespace coordinator.Durable.Orchestration
 
             var allPayloads = cmsDocumentPayloads.Concat(pcdRequestsPayloads).Concat(defendantsAndChargesPayloads);
 
-            // temporary code whilst we switch over to the new document orchestrator
-            var orchestratorName = GetOrchestratorName(
-                _switchoverCaseId, _switchoverModulo, caseDocumentPayload.CmsCaseId);
-
             var allTasks = allPayloads.Select
                     (
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
-                            orchestratorName,
+                            nameof(RefreshDocumentOrchestrator),
                             RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
                             payload
                         )

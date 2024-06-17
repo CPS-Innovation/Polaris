@@ -23,30 +23,6 @@ namespace coordinator.Services.OcrService
             _log = log;
         }
 
-        public async Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
-        {
-            _log.LogMethodEntry(correlationId, $"{nameof(MockOcrService)}.{nameof(GetOcrResultsAsync)}", nameof(stream));
-
-            try
-            {
-                var resultsValue = _configuration[MockOcrServiceResults];
-                AnalyzeResults results = JsonConvert.DeserializeObject<AnalyzeResults>(resultsValue);
-
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), "Mock OCR process completed successfully");
-
-                return await Task.FromResult(results);
-            }
-            catch (Exception ex)
-            {
-                _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "A Mock OCR Library exception occurred", ex);
-                throw new Exception(ex.Message);
-            }
-            finally
-            {
-                _log.LogMethodExit(correlationId, nameof(GetOcrResultsAsync), string.Empty);
-            }
-        }
-
         public Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId)
         {
             throw new NotImplementedException();

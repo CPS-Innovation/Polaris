@@ -28,3 +28,12 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
               artifact: "networking-terraform-files"
               publishLocation: "pipeline"
+              
+      - job: Build_Logic_App_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Logic App artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/logic-app-definitions/"
+              artifact: "logic-app-source"
+              publishLocation: "pipeline"

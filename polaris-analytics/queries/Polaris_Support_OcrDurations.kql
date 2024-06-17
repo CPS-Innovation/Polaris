@@ -1,7 +1,7 @@
 AppTraces
 | where AppRoleName in ("fa-polaris-text-extractor", "fa-polaris-coordinator")
-| where OperationName == "ExtractText"
-| where Message contains "GetOcrResultsAsync"
+| where OperationName in ("ExtractText", "RefreshDocumentOrchestratorNext",  "RefreshDocumentOrchestrator")
+| where Message contains "GetOcrResultsAsync" or Message contains "GetOperationResultsAsync"
 | where Message contains "OCR completed"
 | extend DurationMs = toint(extract("in (\\d+)ms", 1, Message))
 | project 

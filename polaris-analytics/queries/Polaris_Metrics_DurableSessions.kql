@@ -1,0 +1,7 @@
+Polaris_Metrics_DurableBase
+| sort by ParentId, TimeGenerated asc 
+| extend SessionStarted = row_window_session(TimeGenerated, 1h, 1h, (ParentId != prev(ParentId)) or (FunctionName == "RefreshCaseOrchestrator" and State == "Scheduled"))
+| extend SessionSlug = substring(tolong(SessionStarted) / 100, -6, 6)
+| extend SessionId = strcat(SessionSlug, "-", ParentId)
+| extend SessionInstanceId = strcat(SessionSlug, "-", InstanceId)
+| project-away SessionSlug, SessionStarted
