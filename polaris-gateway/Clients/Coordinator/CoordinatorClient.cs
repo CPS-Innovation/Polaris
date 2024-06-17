@@ -118,6 +118,14 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
+        public async Task<HttpResponseMessage> GetCaseSearchIndexCount(string caseUrn, int caseId, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.CaseSearchCountPath(caseUrn, caseId),
+                correlationId);
+        }
+
         public async Task<HttpResponseMessage> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, int documentId, Guid correlationId)
         {
             return await SendRequestAsync(

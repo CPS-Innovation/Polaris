@@ -69,7 +69,7 @@ namespace coordinator.tests.Functions
                     It.IsAny<int>()));
 
             _mockCleardownService.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<bool>()));
+                    It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>()));
             _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
         }
 
