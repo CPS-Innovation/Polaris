@@ -55,6 +55,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     vnet_route_all_enabled                 = true
     elastic_instance_minimum               = var.pipeline_component_service_plans.pdf_generator_always_ready_instances
     app_scale_limit                        = var.pipeline_component_service_plans.pdf_generator_maximum_scale_out_limit
+    pre_warmed_instance_count              = var.pipeline_component_service_plans.pdf_generator_always_ready_instances
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {

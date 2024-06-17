@@ -70,6 +70,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     elastic_instance_minimum               = var.pipeline_component_service_plans.coordinator_always_ready_instances
     app_scale_limit                        = var.pipeline_component_service_plans.coordinator_maximum_scale_out_limit
+    pre_warmed_instance_count              = var.pipeline_component_service_plans.coordinator_always_ready_instances 
     runtime_scale_monitoring_enabled       = true
     application_stack {
       dotnet_version = "6.0"
