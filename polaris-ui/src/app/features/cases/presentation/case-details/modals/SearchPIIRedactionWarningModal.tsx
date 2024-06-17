@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Button,
   LinkButton,
   Checkboxes,
   Modal,
+  ErrorSummary,
 } from "../../../../../common/presentation/components/index";
 import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
@@ -28,14 +29,23 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [userConfirmation, setUserConfirmation] = useState(false);
-  const [error, setError] = useState(false);
+  const [userConfirmationError, setUserConfirmationError] = useState(false);
+  const errorSummaryRef = useRef(null);
+  useEffect(() => {
+    if (userConfirmationError && errorSummaryRef.current) {
+      (errorSummaryRef?.current as HTMLButtonElement).focus();
+    }
+  }, [userConfirmationError]);
 
   const handleContinueButtonClick = () => {
     if (!userConfirmation) {
-      setError(true);
+      setUserConfirmationError(true);
+      if (userConfirmationError && errorSummaryRef.current) {
+        (errorSummaryRef?.current as HTMLButtonElement).focus();
+      }
       return;
     }
-    if (error) setError(false);
+    if (userConfirmationError) setUserConfirmationError(false);
     handleContinue();
   };
   const handleClosePIIRedactionWarningModal = () => {
@@ -67,6 +77,26 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
           <h2>{`Use potential redactions?`}</h2>
         </div>
         <div className={classes.contentWrapper}>
+          {userConfirmationError && (
+            <div
+              ref={errorSummaryRef}
+              tabIndex={-1}
+              className={classes.errorSummaryWrapper}
+            >
+              <ErrorSummary
+                data-testid={"warning-error-summary"}
+                className={classes.errorSummary}
+                errorList={[
+                  {
+                    reactListKey: "1",
+                    children: `Please accept you have manually checked all selected redactions in the document`,
+                    href: "#terms-and-condition",
+                    "data-testid": "terms-and-condition-link",
+                  },
+                ]}
+              />
+            </div>
+          )}
           <div className={classes.mainText}>
             <span className="govuk-warning-text__icon" aria-hidden="true">
               !
@@ -80,7 +110,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
             <Checkboxes
               onChange={handleCheckboxChange}
               errorMessage={
-                error
+                userConfirmationError
                   ? {
                       children:
                         "Please accept you have manually checked all selected redactions in the document",

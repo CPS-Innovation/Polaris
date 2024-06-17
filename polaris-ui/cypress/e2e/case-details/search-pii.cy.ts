@@ -124,7 +124,27 @@ describe("Search PII", () => {
       cy.findByTestId("div-modal").contains(
         "Your remaining 23 potential redactions will also be redacted, if you choose to continue"
       );
+      cy.findByTestId("btn-cancel").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("btn-save-redaction-0").click();
+      cy.findByTestId("div-modal").should("exist");
+      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("btn-save-redaction-0").click();
+      cy.findByTestId("div-modal").contains("h2", "Use potential redactions?");
       cy.findByTestId("btn-continue").click();
+      cy.findByTestId("warning-error-summary").should("exist");
+      cy.findByTestId("terms-and-condition-link").should("exist");
+      cy.findByTestId("terms-and-condition-link").should(
+        "have.text",
+        "Please accept you have manually checked all selected redactions in the document"
+      );
+      cy.get("#terms-and-condition-error").should(
+        "have.text",
+        "Error: Please accept you have manually checked all selected redactions in the document"
+      );
+      cy.findByTestId("terms-and-condition-link").click();
+      cy.focused().should("have.id", "terms-and-condition");
       cy.get("#terms-and-condition-error").should(
         "have.text",
         "Error: Please accept you have manually checked all selected redactions in the document"
