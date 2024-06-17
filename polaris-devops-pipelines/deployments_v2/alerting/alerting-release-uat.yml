@@ -1,0 +1,79 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisNetworkingBuild
+      source: Polaris Networking Build - UAT
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+            
+variables:
+  - group: kv-uat-terraform
+  - group: polaris-global
+  - group: terraform-containers
+    
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Apply_UAT
+    displayName: UAT > Apply Terraform
+    jobs:
+      - deployment: Apply_Networking_Terraform
+        environment: "UAT"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(uat-azure-subscription)
+                    
+                - template: ../tasks/task_apply-networking-terraform.yml
+                  parameters:
+                    targetBuild: PolarisNetworkingBuild
+                    targetTerraformArtifact: "networking-terraform-files"
+                    targetLabel: "UAT"
+                    targetName: "Networking Terraform CI Deployment"
+                    targetPlanName: "uat"
+                    terraformStorageAccount: $(uat-terraform-storage-account)
+                    terraformContainerName: $(networking-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
+  
+  # notifications NOT enabled in UAT - if enabling this stage then remember to modify the "dependsOn" attribute of the subsequent stage                  
+  #- stage: Deploy_UAT
+  #  displayName: UAT > Deploy Apps
+  #  dependsOn: Apply_UAT
+  #  condition: succeeded()
+  #  pool:
+  #    name: $(uat-build-agent)
+  #  jobs:
+  #    - job: Deploy_Logic_Apps
+  #      steps:
+  #        - template: ../tasks/task_get-credentials.yml
+  #          parameters:
+  #            azureSubscriptionId: $(uat-azure-subscription)
+  #
+  #        - template: ../tasks/task_deploy-alert-processor.yml
+  #          parameters:
+  #            targetBuild: PolarisNetworkingBuild
+  #            targetLabel: "UAT"
+  #            targetName: "Alert Processor CI Deployment"
+  #            targetSuffix: "-uat"
+  #            appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+  #            azureSubscription: $(uat-azure-subscription)
+  #            azureSubscriptionId: $(subscriptionId)
+  #            targetResourceGroup: rg-polaris-analytics-uat
