@@ -81,35 +81,10 @@ stages:
   #            azureSubscriptionId: $(subscriptionId)
   #            targetResourceGroup: rg-polaris-analytics-dev
                     
-  # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report_DEV
-    displayName: DEV > Save Report
-    dependsOn: Apply_DEV
-    condition: succeeded()
-    jobs:
-      - job: Create_Commit_Report
-        steps:
-          - template: ../tasks/task_create-commit-report.yml
-            parameters:
-              targetLabel: "DEV"
-              targetLabelLower: "dev"
-
-  # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
-  - stage: Update_GitHub_Tag_DEV
-    displayName: DEV > Update Tag
-    dependsOn: Create_Commit_Report_DEV
-    condition: succeeded()
-    jobs:
-      - job: Update_Github_Tag
-        steps:
-          - template: ../tasks/task_update-github-tag.yml
-            parameters:
-              targetLabel: "DEV"
-
   # QA Apply to QA
   - stage: Apply_QA
     displayName: QA > Apply Terraform
-    dependsOn: Update_GitHub_Tag_DEV
+    dependsOn: Apply_DEV
     condition: succeeded()
     jobs:
       - deployment: Apply_Networking_Terraform
@@ -165,35 +140,10 @@ stages:
   #            azureSubscriptionId: $(subscriptionId)
   #            targetResourceGroup: rg-polaris-analytics-qa
 
-  # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report_QA
-    displayName: QA > Save Report
-    dependsOn: Apply_QA
-    condition: succeeded()
-    jobs:
-      - job: Create_Commit_Report
-        steps:
-          - template: ../tasks/task_create-commit-report.yml
-            parameters:
-              targetLabel: "QA"
-              targetLabelLower: "qa"
-
-  # QA: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
-  - stage: Update_GitHub_Tag_QA
-    displayName: QA > Update Tag
-    dependsOn: Create_Commit_Report_QA
-    condition: succeeded()
-    jobs:
-      - job: Update_Github_Tag
-        steps:
-          - template: ../tasks/task_update-github-tag.yml
-            parameters:
-              targetLabel: "QA"
-
   # Apply to PROD              
   - stage: Apply_PROD
     displayName: PROD > Apply Terraform
-    dependsOn: Update_GitHub_Tag_DEV
+    dependsOn: Apply_DEV
     condition: succeeded()
     jobs:
       - deployment: Apply_Networking_Terraform
@@ -247,28 +197,3 @@ stages:
               azureSubscription: $(prod-azure-subscription)
               azureSubscriptionId: $(subscriptionId)
               targetResourceGroup: rg-polaris-analytics
-
-  # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report_PROD
-    displayName: PROD > Save Report
-    dependsOn: Deploy_PROD
-    condition: succeeded()
-    jobs:
-      - job: Create_Commit_Report
-        steps:
-          - template: ../tasks/task_create-commit-report.yml
-            parameters:
-              targetLabel: "PROD"
-              targetLabelLower: "prod"
-
-  # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
-  - stage: Update_GitHub_Tag_PROD
-    displayName: PROD > Update Tag
-    dependsOn: Create_Commit_Report_PROD
-    condition: succeeded()
-    jobs:
-      - job: Update_Github_Tag
-        steps:
-          - template: ../tasks/task_update-github-tag.yml
-            parameters:
-              targetLabel: "PROD"
