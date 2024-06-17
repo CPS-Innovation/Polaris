@@ -479,7 +479,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const handleSearchPIIAction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      textContent: string,
       type: PIIRedactionStatus,
       highlightGroupId: string
     ) => {
@@ -487,7 +486,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         type: "HANDLE_SEARCH_PII_ACTION",
         payload: {
           documentId,
-          textContent: textContent,
           type: type,
           highlightGroupId: highlightGroupId,
         },

@@ -228,7 +228,6 @@ export const reducer = (
         type: "HANDLE_SEARCH_PII_ACTION";
         payload: {
           documentId: string;
-          textContent: string;
           highlightGroupId: string;
           type: PIIRedactionStatus;
         };
@@ -1157,8 +1156,7 @@ export const reducer = (
     }
 
     case "HANDLE_SEARCH_PII_ACTION": {
-      const { documentId, textContent, type, highlightGroupId } =
-        action.payload;
+      const { documentId, type, highlightGroupId } = action.payload;
       const filteredSearchPIIDatas = state.searchPII.filter(
         (searchPIIResult) => searchPIIResult.documentId !== documentId
       );
@@ -1166,6 +1164,10 @@ export const reducer = (
       const searchPIIDataItem = state.searchPII?.find(
         (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
       )!;
+
+      const textContent = searchPIIDataItem.searchPIIHighlights.find(
+        (highlight) => highlight.groupId === highlightGroupId
+      )?.textContent;
 
       let newHighlights: ISearchPIIHighlight[] = [];
 

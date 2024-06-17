@@ -200,7 +200,6 @@ export const PdfViewer: React.FC<Props> = ({
     if (selectedRedactionHighlight?.searchPIIId) {
       handleSearchPIIAction(
         contextData.documentId,
-        "",
         "initial" as const,
         selectedRedactionHighlight.searchPIIId
       );
@@ -330,7 +329,6 @@ export const PdfViewer: React.FC<Props> = ({
                             }
                             handleSearchPIIAction(
                               contextData.documentId,
-                              content.text,
                               actionType,
                               content.highlightGroupId
                             );
