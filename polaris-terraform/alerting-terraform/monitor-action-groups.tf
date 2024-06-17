@@ -3,7 +3,7 @@
   
   name                = "ag-polaris-notify"
   resource_group_name = "rg-polaris-analytics"
-  short_name          = "polaris-alert"
+  short_name          = "ag-polaris"
 
   email_receiver {
     email_address = "lee.spratt@cps.gov.uk"
@@ -40,7 +40,7 @@ resource "azurerm_monitor_action_group" "multi_dest_polaris_action_group" {
   
   name                = "ag-polaris-notify"
   resource_group_name = "rg-polaris-analytics"
-  short_name          = "polaris-alert"
+  short_name          = "ag-polaris"
   email_receiver {
     email_address = "lee.spratt@cps.gov.uk"
     name          = "lee_-EmailAction-"
