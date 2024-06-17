@@ -3,3 +3,4 @@
 main.local.tf_
 main.local.tf
 *.tf_
+*.tfplan
