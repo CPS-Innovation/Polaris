@@ -7,12 +7,12 @@ schedules:
   # Switch off pre-midnight runs for now, devs still working/releasing
   #  and the e2e tests runs use up agents and otherwise confound releases
 
-  - cron: "*/15 07-23 * * *"
-    displayName: Temp cron schedule during the day for durable performance diagnosis
-    branches:
-      include:
-        - main
-    always: true
+  # - cron: "*/15 07-23 * * *"
+  #   displayName: Temp cron schedule during the day for durable performance diagnosis
+  #   branches:
+  #     include:
+  #       - main
+  #   always: true
     
   # # run every 15 minutes between 7pm and 11:45pm
   # - cron: "*/15 19-23 * * *"
