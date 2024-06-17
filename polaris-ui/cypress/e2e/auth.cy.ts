@@ -4,7 +4,7 @@ describe("Cms Authentication", () => {
   it("can reauthenticate if api returns 403", () => {
     cy.overrideRoute(CASE_SEARCH_ROUTE, {
       type: "break",
-      httpStatusCode: 403,
+      httpStatusCode: 401,
     });
 
     cy.visit("/case-search-results?urn=12AB1111111");
@@ -18,7 +18,7 @@ describe("Cms Authentication", () => {
   it("can throw if api returns 403 after Polaris has tried to reauthenticate", () => {
     cy.overrideRoute(CASE_SEARCH_ROUTE, {
       type: "break",
-      httpStatusCode: 403,
+      httpStatusCode: 401,
     });
 
     cy.visit("/case-search-results?urn=12AB1111111&auth-refresh");

@@ -16,6 +16,11 @@ import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequ
 import { Note } from "../domain/gateway/NotesData";
 import { SearchPIIResultItem } from "../domain/gateway/SearchPIIData";
 import { removeNonDigits } from "../presentation/case-details/utils/redactionLogUtils";
+
+const FORBIDDEN_STATUS_CODE = 403;
+const GONE_STATUS_CODE = 410;
+const UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE = 451;
+
 const buildHeaders = async (
   ...args: (
     | Record<string, string>
@@ -69,9 +74,7 @@ export const searchUrn = async (urn: string) => {
     headers,
   });
 
-  if (!response.ok) {
-    throw new ApiError("Search URN failed", url, response);
-  }
+  await handleGetCaseApiResponse(response, url, "Search URN failed");
 
   return (await response.json()) as CaseSearchResult[];
 };
@@ -83,9 +86,7 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
-  if (!response.ok) {
-    throw new ApiError("Get Case Details failed", url, response);
-  }
+  await handleGetCaseApiResponse(response, url, "Get Case Details failed");
 
   return (await response.json()) as CaseDetails;
 };
@@ -361,4 +362,44 @@ const internalReauthenticatingFetch = async (
   const response = await internalFetch(...args);
 
   return reauthenticationFilter(response, window);
+};
+
+const handleGetCaseApiResponse = async (
+  response: Response,
+  url: string,
+  errorMessage: string
+) => {
+  if (response.status === FORBIDDEN_STATUS_CODE) {
+    throw new ApiError(
+      "You do not have access to this case.",
+      url,
+      response,
+      undefined,
+      "You do not have access to this case."
+    );
+  }
+
+  if (response.status === GONE_STATUS_CODE) {
+    throw new ApiError(
+      "This case no longer exists.",
+      url,
+      response,
+      undefined,
+      "This case no longer exists."
+    );
+  }
+
+  if (response.status === UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE) {
+    throw new ApiError(
+      "CMS Modern unauthorized.",
+      url,
+      response,
+      undefined,
+      "It looks like you do not have access to CMS Modern, please contact the service desk."
+    );
+  }
+
+  if (!response.ok) {
+    throw new ApiError(errorMessage, url, response);
+  }
 };

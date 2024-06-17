@@ -4,7 +4,7 @@ import { REAUTH_REDIRECT_URL } from "../../../config";
 
 const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
 
-const isCmsAuthFail = (response: Response) => response.status === 403;
+const isCmsAuthFail = (response: Response) => response.status === 401;
 
 const isAuthPageLoad = (window: Window) =>
   window.location.href.includes(REAUTHENTICATION_INDICATOR_QUERY_PARAM);
