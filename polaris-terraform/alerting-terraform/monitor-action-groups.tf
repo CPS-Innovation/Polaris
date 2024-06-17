@@ -2,7 +2,7 @@
   count = var.env == "prod" ? 0 : 1
   
   name                = "ag-polaris${local.resource_suffix}-notify"
-  resource_group_name = "rg-polaris-analytics${local.resource_suffix}"
+  resource_group_name = local.analytics_group_name
   short_name          = "ag-polaris"
 
   email_receiver {
