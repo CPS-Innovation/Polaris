@@ -228,7 +228,7 @@ export const reducer = (
         type: "HANDLE_SEARCH_PII_ACTION";
         payload: {
           documentId: string;
-          highlightGroupId: string;
+          highlightGroupIds: string[];
           type: PIIRedactionStatus;
         };
       }
@@ -1156,7 +1156,7 @@ export const reducer = (
     }
 
     case "HANDLE_SEARCH_PII_ACTION": {
-      const { documentId, type, highlightGroupId } = action.payload;
+      const { documentId, type, highlightGroupIds } = action.payload;
       const filteredSearchPIIDatas = state.searchPII.filter(
         (searchPIIResult) => searchPIIResult.documentId !== documentId
       );
@@ -1165,22 +1165,43 @@ export const reducer = (
         (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
       )!;
 
-      const textContent = searchPIIDataItem.searchPIIHighlights.find(
-        (highlight) => highlight.groupId === highlightGroupId
-      )?.textContent;
-
-      let newHighlights: ISearchPIIHighlight[] = [];
-
-      newHighlights = searchPIIDataItem.searchPIIHighlights.map((highlight) => {
-        if (type === "ignoredAll" || type === "acceptedAll") {
-          if (highlight.textContent === textContent) {
-            highlight.redactionStatus = type;
+      let textContent: string = "";
+      let selectedHighlights: {
+        selected: ISearchPIIHighlight[];
+        rest: ISearchPIIHighlight[];
+      } = { selected: [], rest: [] };
+      const isTextMatchAction = type === "ignoredAll" || type === "acceptedAll";
+      if (isTextMatchAction) {
+        textContent =
+          searchPIIDataItem.searchPIIHighlights.find(
+            (highlight) => highlight.groupId === highlightGroupIds[0]
+          )?.textContent ?? "";
+      }
+      selectedHighlights = searchPIIDataItem.searchPIIHighlights.reduce(
+        (acc, highlight) => {
+          if (isTextMatchAction && highlight.textContent === textContent) {
+            acc.selected.push(highlight);
+            return acc;
           }
-          return highlight;
+          if (
+            !isTextMatchAction &&
+            highlightGroupIds.includes(highlight.groupId)
+          ) {
+            acc.selected.push(highlight);
+            return acc;
+          }
+
+          acc.rest.push(highlight);
+          return acc;
+        },
+        {
+          selected: [] as ISearchPIIHighlight[],
+          rest: [] as ISearchPIIHighlight[],
         }
-        if (highlight.groupId === highlightGroupId) {
-          highlight.redactionStatus = type;
-        }
+      );
+
+      const newHighlights = selectedHighlights.selected.map((highlight) => {
+        highlight.redactionStatus = type;
         return highlight;
       });
 
@@ -1190,7 +1211,7 @@ export const reducer = (
           ...filteredSearchPIIDatas,
           {
             ...searchPIIDataItem,
-            searchPIIHighlights: newHighlights,
+            searchPIIHighlights: [...selectedHighlights.rest, ...newHighlights],
           },
         ],
       };

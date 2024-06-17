@@ -480,14 +480,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     (
       documentId: CaseDocumentViewModel["documentId"],
       type: PIIRedactionStatus,
-      highlightGroupId: string
+      highlightGroupIds: string[]
     ) => {
       dispatch({
         type: "HANDLE_SEARCH_PII_ACTION",
         payload: {
           documentId,
           type: type,
-          highlightGroupId: highlightGroupId,
+          highlightGroupIds: highlightGroupIds,
         },
       });
     },

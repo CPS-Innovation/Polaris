@@ -124,7 +124,23 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const localHandleRemoveAllRedactions = useCallback(() => {
     handleRemoveAllRedactions(documentId);
-  }, [documentId, handleRemoveAllRedactions]);
+
+    const piiGroupIds = redactionHighlights.reduce((acc, highlight) => {
+      if (highlight?.searchPIIId) {
+        acc.push(highlight?.searchPIIId);
+      }
+      return acc;
+    }, [] as string[]);
+
+    if (piiGroupIds.length) {
+      handleSearchPIIAction(documentId, "initial", piiGroupIds);
+    }
+  }, [
+    documentId,
+    handleRemoveAllRedactions,
+    handleSearchPIIAction,
+    redactionHighlights,
+  ]);
 
   const localHandleShowHideRedactionSuggestions = useCallback(
     (documentId, showSuggestion, defaultOption) => {

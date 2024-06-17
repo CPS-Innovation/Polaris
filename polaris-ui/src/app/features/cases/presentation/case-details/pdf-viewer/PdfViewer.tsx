@@ -198,11 +198,9 @@ export const PdfViewer: React.FC<Props> = ({
       (highlight) => highlight.id === id
     );
     if (selectedRedactionHighlight?.searchPIIId) {
-      handleSearchPIIAction(
-        contextData.documentId,
-        "initial" as const,
-        selectedRedactionHighlight.searchPIIId
-      );
+      handleSearchPIIAction(contextData.documentId, "initial" as const, [
+        selectedRedactionHighlight.searchPIIId,
+      ]);
     }
   };
 
@@ -330,7 +328,7 @@ export const PdfViewer: React.FC<Props> = ({
                             handleSearchPIIAction(
                               contextData.documentId,
                               actionType,
-                              content.highlightGroupId
+                              [content.highlightGroupId]
                             );
 
                             hideTipAndSelection();
