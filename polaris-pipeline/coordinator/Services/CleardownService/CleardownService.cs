@@ -2,7 +2,6 @@ using Common.Services.BlobStorageService;
 using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
-using coordinator.Services.TextExtractService;
 using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
@@ -14,24 +13,21 @@ namespace coordinator.Services.CleardownService
   {
     private readonly IPolarisBlobStorageService _blobStorageService;
     private readonly ITextExtractorClient _textExtractorClient;
-    private readonly ITextExtractService _textExtractorService;
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly ITelemetryClient _telemetryClient;
 
     public CleardownService(IPolarisBlobStorageService blobStorageService,
       ITextExtractorClient textExtractorClient,
-      ITextExtractService textExtractorService,
       IOrchestrationProvider orchestrationProvider,
       ITelemetryClient telemetryClient)
     {
       _blobStorageService = blobStorageService;
       _textExtractorClient = textExtractorClient;
-      _textExtractorService = textExtractorService;
       _orchestrationProvider = orchestrationProvider;
       _telemetryClient = telemetryClient;
     }
 
-    public async Task DeleteCaseAsync(IDurableOrchestrationClient client, string caseUrn, int caseId, Guid correlationId, bool waitForIndexToSettle)
+    public async Task DeleteCaseAsync(IDurableOrchestrationClient client, string caseUrn, int caseId, Guid correlationId)
     {
       var telemetryEvent = new DeletedCaseEvent(
           correlationId: correlationId,
@@ -45,15 +41,6 @@ namespace coordinator.Services.CleardownService
         telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
         telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
         telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
-
-        if (waitForIndexToSettle)
-        {
-          var waitResult = await _textExtractorService.WaitForCaseEmptyResultsAsync(caseUrn, caseId, correlationId);
-          telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
-          telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
-          telemetryEvent.IndexSettledTime = DateTime.UtcNow;
-        }
-        telemetryEvent.DidWaitForIndexToSettle = waitForIndexToSettle;
 
 
         await _blobStorageService.DeleteBlobsByCaseAsync(caseId.ToString());

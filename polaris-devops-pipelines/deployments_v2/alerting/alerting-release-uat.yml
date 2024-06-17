@@ -1,0 +1,54 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisAlertingBuild
+      source: Polaris Alerting Build - UAT
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+            
+variables:
+  - group: kv-uat-terraform
+  - group: polaris-global
+  - group: terraform-containers
+    
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Apply_UAT
+    displayName: UAT > Apply Terraform
+    jobs:
+      - deployment: Apply_Alerting_Terraform
+        environment: "UAT"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscriptionId: $(uat-azure-subscription)
+                    
+                - template: ../tasks/task_apply-alerting-terraform.yml
+                  parameters:
+                    targetBuild: PolarisAlertingBuild
+                    targetTerraformArtifact: "alerting-terraform-files"
+                    targetLabel: "UAT"
+                    targetName: "Alerting Terraform CI Deployment"
+                    targetPlanName: "uat"
+                    terraformStorageAccount: $(uat-terraform-storage-account)
+                    terraformContainerName: $(alerting-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)

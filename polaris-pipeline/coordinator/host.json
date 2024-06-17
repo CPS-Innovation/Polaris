@@ -8,13 +8,12 @@
       "coordinator.Durable.Orchestration.RefreshCaseOrchestrator": "Information",
       "coordinator.Functions.Maintenance.SlidingCaseClearDown": "Information",
       "coordinator.Services.OcrService.OcrService": "Information",
-      "coordinator.Durable.Activity.ExtractText": "Information",
       "Host.Aggregator": "Information",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
-      "DurableTask.AzureStorage": "Warning",
+      "DurableTask.AzureStorage": "Information",
       "DurableTask.Core": "Information",
-      "Microsoft.Azure.WebJobs.Host.Scale": "None"
+      "Microsoft.Azure.WebJobs.Host.Scale": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {

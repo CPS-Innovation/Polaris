@@ -4,7 +4,7 @@ export type CaseDetails = {
   isCaseCharged: boolean
   owningUnit: string
   numberOfDefendants: number
-  leadDefendantDetails: DefendantDetails
+  leadDefendantDetails: DefendantDetails | null
   headlineCharge: HeadlineCharge
   defendants: Defendant[]
   witnesses: Witness[]

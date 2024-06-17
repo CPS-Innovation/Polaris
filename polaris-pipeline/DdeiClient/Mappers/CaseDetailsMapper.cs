@@ -28,7 +28,7 @@ namespace Ddei.Mappers
                 IsCaseCharged = isCaseCharged,
                 NumberOfDefendants = summary.NumberOfDefendants,
                 OwningUnit = summary.OwningUnit,
-                LeadDefendantDetails = leadDefendant.DefendantDetails,
+                LeadDefendantDetails = leadDefendant != null ? leadDefendant.DefendantDetails : null,
                 DefendantsAndCharges = defendants,
                 HeadlineCharge = headlineCharge,
                 PreChargeDecisionRequests = preChargeDecisionRequests,

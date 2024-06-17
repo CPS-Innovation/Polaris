@@ -454,12 +454,34 @@ stages:
               resourceGroupName: "rg-polaris-uat"
               webAppName: $(AppServiceName)
               PreserveVnet: true
+              
+      - job: Swap_Proxy_Slot
+        dependsOn: Pause_Pipeline
+        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        strategy:
+          matrix:
+            Proxy:
+              Name: "Proxy"
+              AppServiceName: "polaris-uat-cmsproxy"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(uat-azure-subscription)
+              resourceGroupName: "rg-polaris-uat"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
 
       - job: Log_Result
         condition: succeeded()
         dependsOn:
           - Swap_Pipeline_Slots
           - Swap_UI_Slots
+          - Swap_Proxy_Slot
         steps:
           - template: tasks/task_log-result.yml
             parameters:
@@ -656,119 +678,10 @@ stages:
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
               devOpsPatToken: "$(System.AccessToken)"
               
-  - stage: Sync_Slot_Settings
-    displayName: Sync Slot Settings
-    dependsOn: Check_Status
-    condition: succeeded()
-    pool:
-      vmImage: ubuntu-latest
-    jobs:
-      - job: Log_Start
-        displayName: Log Start
-        condition: succeeded()
-        steps:
-          - template: tasks/task_log-start.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT"
-              targetName: "Sync Slot App Settings"
-              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-
-      - job: Sync_Coordinator_Settings
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: tasks/task_sync-slot-settings.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT Coordinator"
-              resourceGroupName: "rg-polaris-pipeline-uat"
-              appName: fa-polaris-uat-coordinator
-              azureSubscription: $(uat-azure-subscription)
-
-      - job: Sync_PDF_Generator_Settings
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: tasks/task_sync-slot-settings.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT PDF Generator"
-              resourceGroupName: "rg-polaris-pipeline-uat"
-              appName: fa-polaris-uat-pdf-generator
-              azureSubscription: $(uat-azure-subscription)
-
-      - job: Sync_PDF_Redactor_Settings
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: tasks/task_sync-slot-settings.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT PDF Redactor"
-              resourceGroupName: "rg-polaris-pipeline-uat"
-              appName: fa-polaris-uat-pdf-redactor
-              azureSubscription: $(uat-azure-subscription)
-
-      - job: Sync_Text_Extractor_Settings
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: tasks/task_sync-slot-settings.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT Text Extractor"
-              resourceGroupName: "rg-polaris-pipeline-uat"
-              appName: fa-polaris-uat-text-extractor
-              azureSubscription: $(uat-azure-subscription)
-
-      - job: Sync_Gateway_Settings
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: tasks/task_sync-slot-settings.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT Gateway"
-              resourceGroupName: "rg-polaris-uat"
-              appName: fa-polaris-uat-gateway
-              azureSubscription: $(uat-azure-subscription)
-
-      - job: Sync_SPA_Settings
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: tasks/task_sync-slot-settings.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT SPA"
-              resourceGroupName: "rg-polaris-uat"
-              appName: as-web-polaris-uat
-              azureSubscription: $(uat-azure-subscription)
-
-      - job: Log_Result
-        condition: succeeded()
-        dependsOn:
-          - Log_Start
-          - Sync_Coordinator_Settings
-          - Sync_PDF_Generator_Settings
-          - Sync_PDF_Redactor_Settings
-          - Sync_Text_Extractor_Settings
-          - Sync_Gateway_Settings
-          - Sync_SPA_Settings
-        steps:
-          - template: tasks/task_log-result.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "UAT"
-              targetName: "Sync Slot App Settings"
-              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
-
   #UAT: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
     displayName: e2e tests
-    dependsOn: Sync_Slot_Settings
+    dependsOn: Check_Status
     condition: succeeded()
     jobs:
       - job: Log_Start

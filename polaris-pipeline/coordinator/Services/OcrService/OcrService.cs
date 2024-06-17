@@ -31,29 +31,11 @@ namespace coordinator.Services.OcrService
             _log = log;
         }
 
-        public async Task<PolarisDomain.AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
-        {
-            var operationId = await InitiateOperationAsync(stream, correlationId);
-
-            while (true)
-            {
-                // always wait before the first read attempt, it will not be ready immediately
-                await Task.Delay(_pollingDelayMs);
-
-                var (isComplete, results) = await GetOperationResultsAsync(operationId, correlationId);
-
-                if (isComplete)
-                {
-                    return results;
-                }
-            }
-        }
-
         public async Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId)
         {
             try
             {
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
+                _log.LogMethodFlow(correlationId, nameof(InitiateOperationAsync), $"OCR started");
 
                 // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
                 //  and so will need to go through the stream again. Depending on the version/type of framework that is handing us this stream
@@ -71,6 +53,8 @@ namespace coordinator.Services.OcrService
                 const int numberOfCharsInOperationId = 36;
                 var operationId = operationLocation[^numberOfCharsInOperationId..];
 
+                _log.LogMethodFlow(correlationId, nameof(InitiateOperationAsync), $"OCR initiated, operation id: {operationId}");
+
                 return Guid.Parse(operationId);
             }
             catch (Exception ex)
@@ -87,7 +71,7 @@ namespace coordinator.Services.OcrService
                 // See cancellationSource comment in InitiateOperationAsync.
                 using var cancellationSource = new CancellationTokenSource(_httpTimeoutMs);
                 var results = await _computerVisionClient.GetReadResultAsync(operationId, cancellationSource.Token);
-                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}");
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR read, last updated: {results.LastUpdatedDateTime}, status: {results.Status}, operation id: {operationId}");
 
                 if (results.Status == OperationStatusCodes.Running || results.Status == OperationStatusCodes.NotStarted)
                 {
@@ -95,11 +79,11 @@ namespace coordinator.Services.OcrService
                 }
 
                 var elapsedMs = (DateTime.Parse(results.LastUpdatedDateTime) - DateTime.Parse(results.CreatedDateTime)).TotalMilliseconds;
-                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults.Count}");
+                _log.LogMethodFlow(correlationId, nameof(GetOperationResultsAsync), $"OCR completed in {elapsedMs}ms, status: {results.Status}, pages: {results.AnalyzeResult?.ReadResults?.Count}, operation id: {operationId}");
 
                 if (results.Status == OperationStatusCodes.Failed)
                 {
-                    throw new Exception($"{nameof(GetOperationResultsAsync)} failed with status {results.Status}");
+                    throw new Exception($"{nameof(GetOperationResultsAsync)} failed with status {results.Status}, operation id: {operationId}");
                 }
 
                 return (true, results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>());

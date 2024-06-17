@@ -1,7 +1,8 @@
 let Base = AppTraces
-| where AppRoleName == "fa-polaris-text-extractor"
-| where OperationName == "ExtractText"
-| where Message contains "GetOcrResultsAsync"
+| where AppRoleName in ("fa-polaris-text-extractor", "fa-polaris-coordinator")
+| where AppRoleName in ("fa-polaris-text-extractor", "fa-polaris-coordinator")
+| where OperationName in ("ExtractText", "CompleteOcr", "InitiateOcr")
+| where Message contains "GetOcrResultsAsync" or Message contains "InitiateOperationAsync" or Message contains "GetOperationResultsAsync"
 | where Message contains "OCR completed";
 
 let TotalCount = toscalar(Base | summarize count()); 

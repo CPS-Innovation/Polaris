@@ -214,7 +214,7 @@ Cypress.Commands.add("fullLogin", () => {
   cy.loginToAD().loginToCms()
   cy.visit(
     COOKIE_REDIRECT_URL +
-      encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
+    encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
   )
 })
 
@@ -240,8 +240,21 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
           })
           .its("status")
           .then((status) => status === 202),
+      WAIT_UNTIL_OPTIONS
+    ).waitUntil(
+      () =>
+        cy
+          .request({
+            url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/search/count`,
+            failOnStatusCode: false,
+            headers: {
+              authorization: `Bearer ${adTokens.access_token}`,
+              "correlation-id": correlationIds.BLANK,
+            },
+          })
+          .then((response) => response.body.lineCount === 0),
       {
-        // Aat the time of writing, DeleteCase will fail internally after 100 seconds, so lets hold off for 70 secs
+        // At the time of writing, DeleteCase will fail internally after 100 seconds, so lets hold off for 70 secs
         interval: intervalToNextCycleMs,
         //  and give ourselves 3 goes (plus some wiggle room of 3 seconds)
         timeout:
@@ -252,21 +265,22 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
           httpCallTimeoutMs +
           3 * 1000,
       }
-    ).waitUntil(
-      () =>
-        cy
-          .request({
-            url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
-            failOnStatusCode: false,
-            headers: {
-              authorization: `Bearer ${adTokens.access_token}`,
-              "correlation-id": correlationIds.BLANK,
-            },
-          })
-          .its("status")
-          .then((status) => status === 404),
-      WAIT_UNTIL_OPTIONS
     )
+      .waitUntil(
+        () =>
+          cy
+            .request({
+              url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
+              failOnStatusCode: false,
+              headers: {
+                authorization: `Bearer ${adTokens.access_token}`,
+                "correlation-id": correlationIds.BLANK,
+              },
+            })
+            .its("status")
+            .then((status) => status === 404),
+        WAIT_UNTIL_OPTIONS
+      )
   })
 })
 

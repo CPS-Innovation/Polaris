@@ -59,6 +59,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     runtime_scale_monitoring_enabled  = true
     elastic_instance_minimum          = var.ui_component_service_plans.gateway_always_ready_instances
     app_scale_limit                   = var.ui_component_service_plans.gateway_maximum_scale_out_limit
+    pre_warmed_instance_count         = var.ui_component_service_plans.gateway_always_ready_instances
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
     application_stack {

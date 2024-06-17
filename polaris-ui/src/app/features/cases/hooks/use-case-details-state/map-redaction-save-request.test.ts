@@ -1,5 +1,9 @@
-import { mapRedactionSaveRequest } from "./map-redaction-save-request";
+import {
+  mapRedactionSaveRequest,
+  mapSearchPIISaveRedactionObject,
+} from "./map-redaction-save-request";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 
 describe("map-redaction-save-request", () => {
   it("maps a redaction highlights to a RedactionSaveRequestObject and transposes y coordinates", () => {
@@ -187,6 +191,338 @@ describe("map-redaction-save-request", () => {
           height: 100.12,
           width: 100.46,
           redactionCoordinates: [{ x1: 1, y1: 0, x2: 3, y2: 96.12 }],
+        },
+      ],
+    });
+  });
+});
+
+describe("mapSearchPIISaveRedactionObject", () => {
+  it("Should correctly calculate the pii data and a single manual highlight should only be counted once across only pii categories when calculating countAmended", () => {
+    const manualHighlight = [
+      {
+        highlightType: "linear",
+        id: "1717577678814-0",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 304.74713134765625,
+            x2: 344.48260498046875,
+            y1: 358.4652099609375,
+            y2: 376.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 304.74713134765625,
+              x2: 344.48260498046875,
+              y1: 358.4652099609375,
+              y2: 376.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "1", name: "Named individual" },
+        textContent: ": Com",
+        type: "redaction",
+      },
+    ] as IPdfHighlight[];
+
+    const suggestedHighlights = [
+      {
+        groupId: "1",
+        piiCategory: "Person",
+        redactionStatus: "ignored",
+        highlightType: "linear",
+        id: "1",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 304.74713134765625,
+            x2: 384.48260498046875,
+            y1: 358.4652099609375,
+            y2: 376.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 304.74713134765625,
+              x2: 344.48260498046875,
+              y1: 358.4652099609375,
+              y2: 376.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "1", name: "Named individual" },
+        textContent: ": Com",
+        type: "searchPII",
+      },
+      {
+        groupId: "1",
+        piiCategory: "Person",
+        redactionStatus: "redacted",
+        highlightType: "linear",
+        id: "1",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 204.74713134765625,
+            x2: 284.48260498046875,
+            y1: 258.4652099609375,
+            y2: 276.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 204.74713134765625,
+              x2: 244.48260498046875,
+              y1: 258.4652099609375,
+              y2: 276.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "1", name: "Named individual" },
+        textContent: ": Com",
+        type: "searchPII",
+      },
+      {
+        groupId: "2",
+        piiCategory: "Occupation",
+        redactionStatus: "ignored",
+        highlightType: "linear",
+        id: "2",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 304.74713134765625,
+            x2: 384.48260498046875,
+            y1: 358.4652099609375,
+            y2: 376.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 304.74713134765625,
+              x2: 384.48260498046875,
+              y1: 358.4652099609375,
+              y2: 376.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "2", name: "Other" },
+        textContent: ": Com",
+        type: "searchPII",
+      },
+    ] as ISearchPIIHighlight[];
+
+    const result = mapSearchPIISaveRedactionObject(
+      manualHighlight,
+      suggestedHighlights
+    );
+
+    expect(result).toEqual({
+      categories: [
+        {
+          countAccepted: 1,
+          countAmended: 1,
+          countSuggestions: 2,
+          polarisCategory: "Named individual",
+          providerCategory: "Person",
+        },
+        {
+          countAccepted: 0,
+          countAmended: 0,
+          countSuggestions: 1,
+          polarisCategory: "Other",
+          providerCategory: "Occupation",
+        },
+      ],
+    });
+  });
+
+  it("Only ignored highlight should be considered in the amended count calculation", () => {
+    const manualHighlight = [
+      {
+        highlightType: "linear",
+        id: "1717577678814-0",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 304.74713134765625,
+            x2: 344.48260498046875,
+            y1: 358.4652099609375,
+            y2: 376.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 304.74713134765625,
+              x2: 344.48260498046875,
+              y1: 358.4652099609375,
+              y2: 376.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "1", name: "Named individual" },
+        textContent: ": Com",
+        type: "redaction",
+      },
+    ] as IPdfHighlight[];
+
+    const suggestedHighlights = [
+      {
+        groupId: "1",
+        piiCategory: "Person",
+        redactionStatus: "redacted",
+        highlightType: "linear",
+        id: "1",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 304.74713134765625,
+            x2: 384.48260498046875,
+            y1: 358.4652099609375,
+            y2: 376.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 304.74713134765625,
+              x2: 344.48260498046875,
+              y1: 358.4652099609375,
+              y2: 376.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "1", name: "Named individual" },
+        textContent: ": Com",
+        type: "searchPII",
+      },
+      {
+        groupId: "1",
+        piiCategory: "Person",
+        redactionStatus: "redacted",
+        highlightType: "linear",
+        id: "1",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 204.74713134765625,
+            x2: 284.48260498046875,
+            y1: 258.4652099609375,
+            y2: 276.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 204.74713134765625,
+              x2: 244.48260498046875,
+              y1: 258.4652099609375,
+              y2: 276.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "1", name: "Named individual" },
+        textContent: ": Com",
+        type: "searchPII",
+      },
+      {
+        groupId: "2",
+        piiCategory: "Occupation",
+        redactionStatus: "ignored",
+        highlightType: "linear",
+        id: "2",
+        position: {
+          boundingRect: {
+            height: 1122.8994154404354,
+            pageNumber: 1,
+            width: 794.0000000000001,
+            x1: 304.74713134765625,
+            x2: 384.48260498046875,
+            y1: 358.4652099609375,
+            y2: 376.9652099609375,
+          },
+
+          pageNumber: 1,
+          rects: [
+            {
+              height: 1122.8994154404354,
+              pageNumber: 1,
+              width: 794.0000000000001,
+              x1: 304.74713134765625,
+              x2: 384.48260498046875,
+              y1: 358.4652099609375,
+              y2: 376.9652099609375,
+            },
+          ],
+        },
+        redactionType: { id: "2", name: "Other" },
+        textContent: ": Com",
+        type: "searchPII",
+      },
+    ] as ISearchPIIHighlight[];
+
+    const result = mapSearchPIISaveRedactionObject(
+      manualHighlight,
+      suggestedHighlights
+    );
+
+    expect(result).toEqual({
+      categories: [
+        {
+          countAccepted: 2,
+          countAmended: 0,
+          countSuggestions: 2,
+          polarisCategory: "Named individual",
+          providerCategory: "Person",
+        },
+        {
+          countAccepted: 0,
+          countAmended: 1,
+          countSuggestions: 1,
+          polarisCategory: "Other",
+          providerCategory: "Occupation",
         },
       ],
     });

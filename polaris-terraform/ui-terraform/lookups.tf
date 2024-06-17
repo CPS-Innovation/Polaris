@@ -23,15 +23,15 @@ data "azurerm_storage_account" "sacpspolarispipeline" {
 }
 
 data "azuread_service_principal" "fa_pipeline_coordinator_service_principal" {
-  application_id = data.azuread_application.fa_pipeline_coordinator.application_id
+  client_id = data.azuread_application.fa_pipeline_coordinator.client_id
 }
 
 data "azuread_service_principal" "fa_pdf_generator_service_principal" {
-  application_id = data.azuread_application.fa_pipeline_pdf_generator.application_id
+  client_id = data.azuread_application.fa_pipeline_pdf_generator.client_id
 }
 
 data "azuread_service_principal" "fa_ddei_service_principal" {
-  application_id = data.azuread_application.fa_ddei.application_id
+  client_id = data.azuread_application.fa_ddei.client_id
 }
 
 data "azurerm_virtual_network" "polaris_vnet" {

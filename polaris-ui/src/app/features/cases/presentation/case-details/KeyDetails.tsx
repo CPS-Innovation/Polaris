@@ -72,7 +72,7 @@ export const KeyDetails: React.FC<{
           )}
         </>
       )}
-      {!isMultipleDefendantsOrCharges && (
+      {!isMultipleDefendantsOrCharges && caseDetails.leadDefendantDetails && (
         <div
           className={classes.defendantDetails}
           data-testid="defendant-details"

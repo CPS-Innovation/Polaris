@@ -4,6 +4,17 @@ trigger: none
 pool:
   name: $(build-agent)
 
+schedules:
+  # Switch off pre-midnight runs for now, devs still working/releasing
+  #  and the e2e tests runs use up agents and otherwise confound releases
+
+  - cron: "*/15 07-23 * * *"
+    displayName: Temp cron schedule during the day for durable performance diagnosis
+    branches:
+      include:
+        - main
+    always: true
+  
 resources:
   repositories:
     - repository: PolarisBranch

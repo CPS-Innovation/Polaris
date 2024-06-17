@@ -10,6 +10,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   public_network_access_enabled = false
 
   app_settings = {
+    "HostType"                                        = "Production"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -51,6 +52,16 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/"
+  }
+
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {
@@ -110,6 +121,59 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   }
 
   https_only = true
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["HostType"],
+      app_settings["WEBSITE_CONTENTOVERVNET"],
+      app_settings["WEBSITE_DNS_SERVER"],
+      app_settings["WEBSITE_DNS_ALT_SERVER"],
+      app_settings["WEBSITE_SCHEME"],
+      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
+      app_settings["APPINSIGHTS_PROFILERFEATURE_VERSION"],
+      app_settings["APPINSIGHTS_SNAPSHOTFEATURE_VERSION"],
+      app_settings["APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"],
+      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
+      app_settings["ApplicationInsightsAgent_EXTENSION_VERSION"],
+      app_settings["DiagnosticServices_EXTENSION_VERSION"],
+      app_settings["InstrumentationEngine_EXTENSION_VERSION"],
+      app_settings["SnapshotDebugger_EXTENSION_VERSION"],
+      app_settings["XDT_MicrosoftApplicationInsights_BaseExtensions"],
+      app_settings["XDT_MicrosoftApplicationInsights_Mode"],
+      app_settings["XDT_MicrosoftApplicationInsights_PreemptSdk"],
+      app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["APP_ENDPOINT_DOMAIN_NAME"],
+      app_settings["APP_SUBFOLDER_PATH"],
+      app_settings["API_ENDPOINT_DOMAIN_NAME"],
+      app_settings["AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"],
+      app_settings["DDEI_ENDPOINT_DOMAIN_NAME"],
+      app_settings["DDEI_ENDPOINT_FUNCTION_APP_KEY"],
+      app_settings["SAS_URL_DOMAIN_NAME"],
+      app_settings["DOCKER_REGISTRY_SERVER_URL"],
+      app_settings["DOCKER_REGISTRY_SERVER_USERNAME"],
+      app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
+      app_settings["ENDPOINT_HTTP_PROTOCOL"],
+      app_settings["NGINX_ENVSUBST_OUTPUT_DIR"],
+      app_settings["FORCE_REFRESH_CONFIG"],
+      app_settings["CMS_RATE_LIMIT_QUEUE"],
+      app_settings["CMS_RATE_LIMIT"],
+      app_settings["WM_TASK_LIST_HOST_NAME"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
+      app_settings["WEBSITE_WARMUP_PATH"]
+    ]
+  }
 }
 
 module "azurerm_app_reg_polaris_proxy" {

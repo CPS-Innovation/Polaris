@@ -1157,7 +1157,7 @@ export const reducer = (
       newHighlights = searchPIIDataItem.searchPIIHighlights.map((highlight) => {
         if (ignoreAll) {
           if (highlight.textContent === textContent) {
-            highlight.redactionStatus = "ignored";
+            highlight.redactionStatus = "ignoredAll";
           }
           return highlight;
         }

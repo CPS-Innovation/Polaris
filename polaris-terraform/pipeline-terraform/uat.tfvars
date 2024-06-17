@@ -13,8 +13,8 @@ pipeline_logging = {
 
 pipeline_component_service_plans = {
   coordinator_service_plan_sku           = "EP2"
-  coordinator_always_ready_instances     = 1
-  coordinator_maximum_scale_out_limit    = 1
+  coordinator_always_ready_instances     = 2
+  coordinator_maximum_scale_out_limit    = 2
   coordinator_plan_maximum_burst         = 10
   pdf_generator_service_plan_sku         = "EP2"
   pdf_generator_always_ready_instances   = 1
@@ -61,7 +61,8 @@ pii = {
   chunk_character_limit = 1000
 }
 
-orchestration_switchover = {
-  coordinator_switchover_case_id = 1
-  coordinator_switchover_modulo = 2
+coordinator = {
+  max_concurrent_orchestrator_functions = 225
+  max_concurrent_activity_functions = 225
+  max_queue_polling_interval = "00:00:02"
 }
