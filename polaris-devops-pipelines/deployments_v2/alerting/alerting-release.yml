@@ -5,7 +5,7 @@ pr: none
 resources:
   pipelines:
     - pipeline: PolarisAlertingBuild
-      source: Polaris Alerting Build
+      source: Polaris Alerting - Build
       trigger:
         branches:
           include:
