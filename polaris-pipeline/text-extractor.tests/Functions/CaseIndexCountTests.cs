@@ -46,7 +46,7 @@ namespace text_extractor.tests.Functions
             _caseId = _fixture.Create<long>();
 
             _mockSearchIndexService
-                .Setup(service => service.GetCaseIndexCount(It.IsAny<long>()))
+                .Setup(service => service.GetCaseIndexCount(It.IsAny<long>(), It.IsAny<Guid>()))
                 .ReturnsAsync(new SearchIndexCountResult(100));
 
             _caseIndexCount = new CaseIndexCount(

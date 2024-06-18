@@ -12,18 +12,12 @@ namespace text_extractor.Services.CaseSearchService
     {
         Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId);
 
-        Task<IndexSettledResult> WaitForStoreResultsAsync(long cmsCaseId, string cmsDocumentId, long versionId, long targetCount);
-
-        Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId);
-
         Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, string searchTerm);
 
-        IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm);
+        Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId, Guid correlationId);
 
-        Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId);
+        Task<SearchIndexCountResult> GetCaseIndexCount(long caseId, Guid correlationId);
 
-        Task<SearchIndexCountResult> GetCaseIndexCount(long caseId);
-
-        Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId);
+        Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId, Guid correlationId);
     }
 }
