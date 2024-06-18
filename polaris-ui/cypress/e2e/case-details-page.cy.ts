@@ -1,4 +1,4 @@
-import { CASE_ROUTE } from "../../../src/mock-api/routes";
+import { CASE_ROUTE } from "../../src/mock-api/routes";
 import { parseISO, differenceInYears } from "date-fns";
 
 export const getAgeFromIsoDate = (isoDateString: string) =>
