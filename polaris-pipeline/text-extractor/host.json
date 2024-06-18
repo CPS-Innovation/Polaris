@@ -3,8 +3,8 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Warning",
-      "Function": "Warning",
+      "default": "Information",
+      "Function": "Information",
       "Host.Aggregator": "Information",
       "Host.Results": "Information"
     },

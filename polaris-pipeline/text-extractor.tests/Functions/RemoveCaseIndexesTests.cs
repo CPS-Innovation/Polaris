@@ -51,7 +51,7 @@ namespace text_extractor.tests.Functions
             _mockLogger = new Mock<ILogger<RemoveCaseIndexes>>();
 
             _mockSearchIndexService
-                .Setup(service => service.RemoveCaseIndexEntriesAsync(It.IsAny<long>()))
+                .Setup(service => service.RemoveCaseIndexEntriesAsync(It.IsAny<long>(), It.IsAny<Guid>()))
                 .ReturnsAsync(new IndexDocumentsDeletedResult
                 {
                     DocumentCount = 1,

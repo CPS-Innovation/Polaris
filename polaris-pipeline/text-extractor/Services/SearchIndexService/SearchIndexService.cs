@@ -11,16 +11,14 @@ using Microsoft.Extensions.Logging;
 using Common.Domain.SearchIndex;
 using Common.Dto.Response;
 using Common.ValueObjects;
-using text_extractor.Extensions;
 using text_extractor.Mappers.Contracts;
 using text_extractor.Factories.Contracts;
+using Common.Logging;
 
 namespace text_extractor.Services.CaseSearchService
 {
     public class SearchIndexService : ISearchIndexService
     {
-        private const int IndexSettleUnitDelayMs = 200;
-        private const int IndexSettleRetryAttemptCount = 11;
         private const long MaximumIndexRetrievalSize = 20000;
         private readonly SearchClient _azureSearchClient;
         private readonly ISearchLineFactory _searchLineFactory;
@@ -118,19 +116,8 @@ namespace text_extractor.Services.CaseSearchService
                 throw new RequestFailedException($"At least one indexing action failed. Status(es) = {string.Join(", ", statuses)}");
             }
 
+            _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), $"Case: {cmsCaseId}, Document: {cmsDocumentId}, Version: {versionId}, indexed {lines.Count} lines");
             return lines.Count;
-        }
-
-        public async Task<IndexSettledResult> WaitForStoreResultsAsync(long cmsCaseId, string cmsDocumentId, long versionId, long targetCount)
-        {
-            var filter = $"caseId eq {cmsCaseId} and documentId eq '{cmsDocumentId}' and versionId eq {versionId}";
-            return await WaitForIndexCountResultsAsync(filter, targetCount, cmsCaseId);
-        }
-
-        public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId)
-        {
-            var filter = $"caseId eq {cmsCaseId}";
-            return await WaitForIndexCountResultsAsync(filter, 0, cmsCaseId);
         }
 
         public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, string searchTerm)
@@ -150,26 +137,21 @@ namespace text_extractor.Services.CaseSearchService
                 searchLines.Add(searchResult.Document);
             }
 
-            return BuildStreamlinedResults(searchLines, searchTerm);
-        }
-
-        public IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm)
-        {
             var streamlinedResults = new List<StreamlinedSearchLine>();
-            if (searchResults.Count == 0)
+            if (searchLines.Count == 0)
             {
                 return streamlinedResults;
             }
 
             var searchResultsValues
-                = searchResults.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm));
+                = searchLines.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm));
 
             streamlinedResults.AddRange(searchResultsValues);
 
             return streamlinedResults;
         }
 
-        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId)
+        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId, Guid correlationId)
         {
             if (caseId == 0)
             {
@@ -211,12 +193,12 @@ namespace text_extractor.Services.CaseSearchService
 
                     indexesToProcess -= indexSize;
                 }
-
+                _logger.LogMethodFlow(correlationId, nameof(RemoveCaseIndexEntriesAsync), $"Case: {caseId}, removed {indexTotal} lines");
                 return result;
             }
         }
 
-        public async Task<SearchIndexCountResult> GetCaseIndexCount(long caseId)
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(long caseId, Guid correlationId)
         {
             if (caseId == 0)
             {
@@ -234,10 +216,11 @@ namespace text_extractor.Services.CaseSearchService
             var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
             var indexTotal = countResult.Value.TotalCount.Value;
 
+            _logger.LogMethodFlow(correlationId, nameof(GetCaseIndexCount), $"Case: {caseId}, counted {indexTotal} lines");
             return new SearchIndexCountResult(indexTotal);
         }
 
-        public async Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId)
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId, Guid correlationId)
         {
             if (caseId == 0)
             {
@@ -255,6 +238,7 @@ namespace text_extractor.Services.CaseSearchService
             var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
             var indexTotal = countResult.Value.TotalCount.Value;
 
+            _logger.LogMethodFlow(correlationId, nameof(GetDocumentIndexCount), $"Case: {caseId}, Document: {documentId}, Version: {versionId},  counted {indexTotal} lines");
             return new SearchIndexCountResult(indexTotal);
         }
 
@@ -326,55 +310,6 @@ namespace text_extractor.Services.CaseSearchService
                 SuccessCount = successCount,
                 FailureCount = failureCount
             };
-        }
-
-        private async Task<IndexSettledResult> WaitForIndexCountResultsAsync(string filter, long targetCount, long caseId)
-        {
-            var options = new SearchOptions
-            {
-                Filter = filter,
-                Size = 0,
-                IncludeTotalCount = true,
-                Select = { "id" },
-                SessionId = caseId.ToString()
-            };
-
-            var baseDelayMs = IndexSettleUnitDelayMs;
-            var recordCounts = new List<long>();
-
-            foreach (var timeoutBase in Fibonacci(IndexSettleRetryAttemptCount))
-            {
-                var searchResults = await GetSearchResults<SearchLineId>(options);
-                var receivedLinesCount = searchResults.Value.TotalCount;
-                recordCounts.Add(receivedLinesCount ?? -1);
-
-                if (receivedLinesCount == targetCount || receivedLinesCount > targetCount && recordCounts.ValuesAreEqual(maxCount: 5))
-                {
-                    break;
-                }
-
-                var timeout = baseDelayMs * timeoutBase;
-                await Task.Delay(timeout);
-            }
-
-            return new IndexSettledResult
-            {
-                TargetCount = targetCount,
-                IsSuccess = recordCounts.Any() && recordCounts.Last() == targetCount,
-                RecordCounts = recordCounts
-            };
-        }
-
-        private IEnumerable<int> Fibonacci(int n)
-        {
-            int prev = 0, current = 1;
-            for (int i = 0; i < n; i++)
-            {
-                yield return current;
-                int temp = prev;
-                prev = current;
-                current = temp + current;
-            }
         }
     }
 }

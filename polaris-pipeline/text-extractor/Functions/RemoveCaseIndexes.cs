@@ -42,7 +42,7 @@ namespace text_extractor.Functions
                 correlationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-                var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);
+                var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
 
                 return new HttpResponseMessage
                 {

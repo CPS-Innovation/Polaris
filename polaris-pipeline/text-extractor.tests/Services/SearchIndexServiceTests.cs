@@ -21,6 +21,7 @@ namespace text_extractor.tests.Services
         private const long SearchLineTotal = 100;
         private const long ResultCaseId = 1234;
         private const long NoResultCaseId = 9999;
+        private readonly Guid _correlationId;
         private readonly Fixture _fixture;
         private readonly Mock<IAzureSearchClientFactory> _searchClientFactory;
         private readonly Mock<SearchClient> _azureSearchClient;
@@ -37,6 +38,7 @@ namespace text_extractor.tests.Services
             var responseMock = new Mock<Response>();
 
             _fixture = new Fixture();
+            _correlationId = _fixture.Create<Guid>();
 
             _azureSearchClient = new Mock<SearchClient>(() => new SearchClient(new Uri("https://localhost"), "index", new AzureKeyCredential("key")));
             _azureSearchClient.Setup(x => x.SearchAsync<SearchLineId>(It.IsAny<string>(), It.IsAny<SearchOptions>(), It.IsAny<CancellationToken>()))
@@ -89,13 +91,13 @@ namespace text_extractor.tests.Services
         [Fact]
         public async Task WhenGettingTheIndexCountForACase_AndTheCaseIdIsZero_AnExceptionIsThrown()
         {
-            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetCaseIndexCount(0));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetCaseIndexCount(0, _correlationId));
         }
 
         [Fact]
         public async Task WhenGettingTheIndexCountForACase_WithAValidCaseId_AResultObjectIsReturned()
         {
-            var result = await _searchIndexService.GetCaseIndexCount(ResultCaseId);
+            var result = await _searchIndexService.GetCaseIndexCount(ResultCaseId, _correlationId);
 
             Assert.True(result.GetType() == typeof(SearchIndexCountResult));
             Assert.Equal(SearchLineTotal, result.LineCount);
@@ -104,13 +106,13 @@ namespace text_extractor.tests.Services
         [Fact]
         public async Task WhenGettingTheIndexCountForADocument_AndTheCaseIdIsZero_AnExceptionIsThrown()
         {
-            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetDocumentIndexCount(0, "DOC1", 1));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.GetDocumentIndexCount(0, "DOC1", 1, _correlationId));
         }
 
         [Fact]
         public async Task WhenGettingTheIndexCountForADocument_WithAValidCaseId_AResultObjectIsReturned()
         {
-            var result = await _searchIndexService.GetDocumentIndexCount(ResultCaseId, "DOC1", 1);
+            var result = await _searchIndexService.GetDocumentIndexCount(ResultCaseId, "DOC1", 1, _correlationId);
 
             Assert.True(result.GetType() == typeof(SearchIndexCountResult));
             Assert.Equal(SearchLineTotal, result.LineCount);
@@ -119,13 +121,13 @@ namespace text_extractor.tests.Services
         [Fact]
         public async Task WhenRemovingCaseIndexEntries_AndTheCaseIdIsZero_AnExceptionIsThrown()
         {
-            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.RemoveCaseIndexEntriesAsync(0));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await _searchIndexService.RemoveCaseIndexEntriesAsync(0, _correlationId));
         }
 
         [Fact]
         public async Task WhenRemovingCaseIndexEntries_AndNoResultsAreReturned_AnEmptyIndexDocumentsDeletedResultIsReturned()
         {
-            var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(NoResultCaseId);
+            var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(NoResultCaseId, _correlationId);
 
             Assert.True(result.GetType() == typeof(IndexDocumentsDeletedResult));
             Assert.Equal(0, result.SuccessCount);

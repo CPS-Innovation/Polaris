@@ -1,7 +1,7 @@
 import "@testing-library/cypress/add-commands"
 import { loginViaAD } from "./loginViaAD"
 import { CorrelationId, correlationIds } from "./correlation-ids"
-import { WAIT_UNTIL_OPTIONS } from "./options"
+import { WAIT_UNTIL_OPTIONS, SLOW_WAIT_UNTIL_OPTIONS } from "./options"
 import "cypress-wait-until"
 
 type ADTokens = {
@@ -214,14 +214,13 @@ Cypress.Commands.add("fullLogin", () => {
   cy.loginToAD().loginToCms()
   cy.visit(
     COOKIE_REDIRECT_URL +
-    encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
+      encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
   )
 })
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
   cy.getADTokens().then((adTokens) => {
     const httpCallTimeoutMs = 62 * 1000
-    const intervalToNextCycleMs = 40 * 1000
     cy.waitUntil(
       () =>
         cy
@@ -241,31 +240,23 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
           .its("status")
           .then((status) => status === 202),
       WAIT_UNTIL_OPTIONS
-    ).waitUntil(
-      () =>
-        cy
-          .request({
-            url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/search/count`,
-            failOnStatusCode: false,
-            headers: {
-              authorization: `Bearer ${adTokens.access_token}`,
-              "correlation-id": correlationIds.BLANK,
-            },
-          })
-          .then((response) => response.body.lineCount === 0),
-      {
-        // At the time of writing, DeleteCase will fail internally after 100 seconds, so lets hold off for 70 secs
-        interval: intervalToNextCycleMs,
-        //  and give ourselves 3 goes (plus some wiggle room of 3 seconds)
-        timeout:
-          httpCallTimeoutMs +
-          intervalToNextCycleMs +
-          httpCallTimeoutMs +
-          intervalToNextCycleMs +
-          httpCallTimeoutMs +
-          3 * 1000,
-      }
     )
+      // no point asking straight away if the index is empty
+      .wait(WAIT_UNTIL_OPTIONS.interval)
+      .waitUntil(
+        () =>
+          cy
+            .request({
+              url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/search/count`,
+              failOnStatusCode: false,
+              headers: {
+                authorization: `Bearer ${adTokens.access_token}`,
+                "correlation-id": correlationIds.BLANK,
+              },
+            })
+            .then((response) => response.body.lineCount === 0),
+        SLOW_WAIT_UNTIL_OPTIONS
+      )
       .waitUntil(
         () =>
           cy
