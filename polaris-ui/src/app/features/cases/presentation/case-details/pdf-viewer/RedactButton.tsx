@@ -54,13 +54,15 @@ export const RedactButton: React.FC<Props> = ({
       onConfirm({ id: selectedType.id, name: selectedType.name }, "redact");
       return;
     }
+    // this is fallback for handling redaction without redactionLog
+    onConfirm({ id: "", name: "" }, "redact");
   };
 
   return (
     <div
       id="redact-modal"
       className={
-        redactionTypesData.length
+        redactionTypesData.length || searchPIIData
           ? classes.redactionModal
           : classes.redactBtnModal
       }
