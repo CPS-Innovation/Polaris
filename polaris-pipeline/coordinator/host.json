@@ -36,6 +36,12 @@
       "hubName": "%CoordinatorTaskHub%",
       "maxConcurrentActivityFunctions": 225,
       "maxConcurrentOrchestratorFunctions": 225,
+      "UseGracefulShutdown": true,
+      "storageProvider": {
+        "type": "Netherite",
+        "StorageConnectionName": "AzureWebJobsStorage",
+        "EventHubsConnectionName": "EventHubsConnection"
+      },
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false,
