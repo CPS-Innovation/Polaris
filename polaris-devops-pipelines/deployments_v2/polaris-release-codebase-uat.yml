@@ -21,7 +21,6 @@ stages:
   - stage: Deploy
     displayName: Deploy
     condition: succeeded()
-    dependsOn: Apply
     jobs:
       - job: Log_Start_Codebase
         condition: succeeded()
