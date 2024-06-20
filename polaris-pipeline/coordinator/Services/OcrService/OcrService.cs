@@ -31,29 +31,11 @@ namespace coordinator.Services.OcrService
             _log = log;
         }
 
-        public async Task<PolarisDomain.AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
-        {
-            var operationId = await InitiateOperationAsync(stream, correlationId);
-
-            while (true)
-            {
-                // always wait before the first read attempt, it will not be ready immediately
-                await Task.Delay(_pollingDelayMs);
-
-                var (isComplete, results) = await GetOperationResultsAsync(operationId, correlationId);
-
-                if (isComplete)
-                {
-                    return results;
-                }
-            }
-        }
-
         public async Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId)
         {
             try
             {
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"OCR started");
+                _log.LogMethodFlow(correlationId, nameof(InitiateOperationAsync), $"OCR started");
 
                 // The Computer Vision SDK requires a seekable stream as it will internally retry upon failures (rate limiting, etc.)
                 //  and so will need to go through the stream again. Depending on the version/type of framework that is handing us this stream
@@ -70,6 +52,8 @@ namespace coordinator.Services.OcrService
                 var operationLocation = textHeaders.OperationLocation;
                 const int numberOfCharsInOperationId = 36;
                 var operationId = operationLocation[^numberOfCharsInOperationId..];
+
+                _log.LogMethodFlow(correlationId, nameof(InitiateOperationAsync), $"OCR initiated, operation id: {operationId}");
 
                 return Guid.Parse(operationId);
             }

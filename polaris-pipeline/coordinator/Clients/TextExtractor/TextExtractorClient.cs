@@ -91,18 +91,6 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(string caseUrn, long cmsCaseId, Guid correlationId)
-        {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetWaitForCaseEmptyResultsPath(caseUrn, cmsCaseId), correlationId);
-
-            using (var response = await _httpClient.SendAsync(request))
-            {
-                response.EnsureSuccessStatusCode();
-                var result = await response.Content.ReadAsStringAsync();
-                return _jsonConvertWrapper.DeserializeObject<IndexSettledResult>(result);
-            }
-        }
-
         public async Task<SearchIndexCountResult> GetCaseIndexCount(string caseUrn, long cmsCaseId, Guid correlationId)
         {
             var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetCaseIndexCountResultsPath(caseUrn, cmsCaseId), correlationId);

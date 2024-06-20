@@ -7,7 +7,7 @@ AppEvents
     TimeGenerated,
     StartTime = todatetime(Properties.startTime),
     EndTime = todatetime(Properties.endTime),
-    IsFailure = tobool(Properties.isFailure),
+    IsFailure = tobool(Properties.isFailure) == true,
     CaseId = toint(Properties.caseId),
     DocumentId = tolong(Properties.documentId),
     DocumentIdAsString = tostring(Properties.documentId),

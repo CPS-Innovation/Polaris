@@ -5,8 +5,8 @@
   padding: 2rem 2rem;
   position: relative;
   & :global(.govuk-warning-text__icon) {
-    left: 1.875rem;
-    top: 3.125rem;
+    left: 0;
+    top: 0;
   }
   & :global(.govuk-checkboxes__label) {
     padding: 0px 1rem 0.3125rem;
@@ -35,4 +35,14 @@
 }
 .mainText {
   margin-bottom: 2.5rem;
+  position: relative;
+}
+.errorSummaryWrapper {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+  :global(.govuk-error-summary) {
+    margin-bottom: 1.5rem;
+    padding: 0.625rem;
+  }
 }

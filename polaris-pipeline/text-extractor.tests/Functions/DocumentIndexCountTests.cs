@@ -50,7 +50,7 @@ namespace text_extractor.tests.Functions
             _versionId = _fixture.Create<long>();
 
             _mockSearchIndexService
-                .Setup(service => service.GetDocumentIndexCount(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>()))
+                .Setup(service => service.GetDocumentIndexCount(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
                 .ReturnsAsync(new SearchIndexCountResult(100));
 
             _documentIndexCount = new DocumentIndexCount(

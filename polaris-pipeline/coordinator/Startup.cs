@@ -23,7 +23,6 @@ using coordinator.Services.OcrService;
 using coordinator.Services.PiiService;
 using coordinator.Services.TextSanitizationService;
 using coordinator.Services.RenderHtmlService;
-using coordinator.Services.TextExtractService;
 using coordinator.Validators;
 using Common.Domain.Validators;
 using Common.Dto.Request;
@@ -108,7 +107,6 @@ namespace coordinator
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            services.AddTransient<ITextExtractService, TextExtractService>();
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();

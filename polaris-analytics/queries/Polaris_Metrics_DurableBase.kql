@@ -1,0 +1,21 @@
+AppTraces
+| where AppRoleName == "fa-polaris-coordinator"
+| where Properties.Category == "Host.Triggers.DurableTask"
+| project 
+    TimeGenerated,
+    OperationId,
+    InstanceId = tostring(Properties.prop__instanceId),
+    FunctionType = tostring(Properties.prop__functionType),
+    FunctionName = tostring(Properties.prop__functionName),
+    State = tostring(Properties.prop__state),
+    RuntimeStatus = tostring(Properties.prop__runtimeStatus),
+    SequenceNumber = tolong(Properties.prop__sequenceNumber),
+    TaskEventId = toint(Properties.prop__taskEventId),
+    IsReplay = tobool(Properties.prop__isReplay)
+| where FunctionType in ("Activity", "Orchestrator")
+| extend
+    ParentId = extract("(\\[\\d+\\])", 1, InstanceId),
+    FunctionName = iif(FunctionName startswith "RefreshDocumentOrchestrator" and State == "Scheduled", "RefreshCaseOrchestrator", FunctionName),
+    State = iif(FunctionName startswith "RefreshDocumentOrchestrator" and State == "Scheduled", "ScheduledSubOrchestrator", State)
+
+

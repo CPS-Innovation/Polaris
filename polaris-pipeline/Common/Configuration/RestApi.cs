@@ -11,6 +11,7 @@ namespace Common.Configuration
         public const string Case = "urns/{caseUrn}/cases/{caseId:min(1)}";
         public const string CaseTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/tracker";
         public const string CaseSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
+        public const string CaseSearchCount = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
 
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
@@ -34,7 +35,6 @@ namespace Common.Configuration
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
         public const string PiiResults = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/pii";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
-        public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId:min(1)}/wait-for-case-empty-results";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
 
@@ -120,6 +120,11 @@ namespace Common.Configuration
         public static string GetPiiPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/pii";
+        }
+
+        public static string CaseSearchCountPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/search/count";
         }
     }
 }

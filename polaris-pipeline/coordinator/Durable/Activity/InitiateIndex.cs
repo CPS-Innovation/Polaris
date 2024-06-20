@@ -6,7 +6,7 @@ using coordinator.Durable.Payloads;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace coordinator.Durable.Activity.ExtractTextNext
+namespace coordinator.Durable.Activity
 {
     public class InitiateIndex
     {

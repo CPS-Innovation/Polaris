@@ -58,8 +58,7 @@ namespace coordinator.Functions.Maintenance
                 await _cleardownService.DeleteCaseAsync(orchestrationClient,
                      caseUrn,
                      caseId,
-                     currentCorrelationId,
-                     waitForIndexToSettle: true);
+                     currentCorrelationId);
 
                 return new AcceptedResult();
             }

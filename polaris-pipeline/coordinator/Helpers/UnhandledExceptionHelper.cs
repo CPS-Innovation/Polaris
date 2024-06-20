@@ -6,24 +6,28 @@ using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using DdeiClient.Exceptions;
 
-namespace coordinator.Helpers;
-
-// todo: temporary code during refactor
-public static class UnhandledExceptionHelper
+namespace coordinator.Helpers
 {
-    public static IActionResult HandleUnhandledException(ILogger logger, string logName, Guid correlationId, Exception ex)
+    // todo: temporary code during refactor
+    public static class UnhandledExceptionHelper
     {
-        logger.LogMethodError(correlationId, logName, ex.Message, ex);
-
-        return ex switch
+        public static IActionResult HandleUnhandledException(ILogger logger, string logName, Guid correlationId, Exception ex)
         {
-            // For the time being if we get 401 from DDEI, we transmit this to the client,
-            //  otherwise this is an unexpected error and we return 500
-            DdeiClientException e => new StatusCodeResult(e.StatusCode == System.Net.HttpStatusCode.Unauthorized
-                                        ? StatusCodes.Status401Unauthorized
-                                        : StatusCodes.Status500InternalServerError),
-            BadRequestException => new StatusCodeResult(StatusCodes.Status400BadRequest),
-            _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
-        };
+            logger.LogMethodError(correlationId, logName, ex.Message, ex);
+
+            return ex switch
+            {
+                DdeiClientException e => new StatusCodeResult(e.StatusCode switch
+                {
+                    System.Net.HttpStatusCode.Unauthorized => StatusCodes.Status401Unauthorized,
+                    System.Net.HttpStatusCode.Forbidden => StatusCodes.Status403Forbidden,
+                    System.Net.HttpStatusCode.Gone => StatusCodes.Status410Gone,
+                    System.Net.HttpStatusCode.UnavailableForLegalReasons => StatusCodes.Status451UnavailableForLegalReasons,
+                    _ => StatusCodes.Status500InternalServerError
+                }),
+                BadRequestException => new StatusCodeResult(StatusCodes.Status400BadRequest),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
+            };
+        }
     }
 }

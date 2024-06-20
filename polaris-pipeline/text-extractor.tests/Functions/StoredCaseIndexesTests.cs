@@ -80,13 +80,6 @@ namespace text_extractor.tests.Functions
 
             _mockLogger = new Mock<ILogger<StoreCaseIndexes>>();
 
-            _mockSearchIndexService
-                .Setup(service => service.WaitForStoreResultsAsync(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), _mockAnalyzeResults.ReadResults.Count))
-                .ReturnsAsync(new IndexSettledResult
-                {
-                    IsSuccess = true
-                });
-
             _mockJsonConvertWrapper
                 .Setup(wrapper => wrapper.DeserializeObject<AnalyzeResults>(It.IsAny<string>()))
                 .Returns(_mockAnalyzeResults);

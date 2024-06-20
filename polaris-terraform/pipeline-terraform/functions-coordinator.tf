@@ -15,11 +15,12 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentActivityFunctions" = var.coordinator.max_concurrent_activity_functions
-    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentOrchestratorFunctions" = var.coordinator.max_concurrent_orchestrator_functions
-    "AzureWebJobs.ResetDurableState.Disabled"    = var.overnight_clear_down.disabled
-    "AzureWebJobs.SlidingCaseClearDown.Disabled" = var.sliding_clear_down.disabled
-    "AzureWebJobsStorage"                        = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "AzureFunctionsJobHost__extensions__durableTask__storageProvider__MaxQueuePollingInterval"  = var.coordinator.max_queue_polling_interval
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentActivityFunctions"            = var.coordinator.max_concurrent_activity_functions
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentOrchestratorFunctions"        = var.coordinator.max_concurrent_orchestrator_functions
+    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
     # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
     "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
@@ -30,8 +31,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
-    "CoordinatorSwitchoverCaseId"                     = var.orchestration_switchover.coordinator_switchover_case_id
-    "CoordinatorSwitchoverModulo"                     = var.orchestration_switchover.coordinator_switchover_modulo
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
@@ -79,6 +78,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     elastic_instance_minimum               = var.pipeline_component_service_plans.coordinator_always_ready_instances
     app_scale_limit                        = var.pipeline_component_service_plans.coordinator_maximum_scale_out_limit
+    pre_warmed_instance_count              = var.pipeline_component_service_plans.coordinator_always_ready_instances
     runtime_scale_monitoring_enabled       = true
     application_stack {
       dotnet_version = "6.0"

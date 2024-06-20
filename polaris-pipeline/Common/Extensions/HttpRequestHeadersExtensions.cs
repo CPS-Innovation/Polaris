@@ -41,14 +41,9 @@ namespace Common.Extensions
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
 
-            if (!headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values))
-                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", nameof(headers));
+            headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values);
 
-            var value = values.First();
-            if (string.IsNullOrWhiteSpace(value))
-                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", value);
-
-            return value;
+            return values.First();
         }
 
         public static string GetCmsAuthValues(this IHeaderDictionary headers)
@@ -56,14 +51,9 @@ namespace Common.Extensions
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
 
-            if (!headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var values))
-                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", nameof(headers));
+            headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var values);
 
-            var value = values.First();
-            if (string.IsNullOrWhiteSpace(value))
-                throw new BadRequestException($"A valid {HttpHeaderKeys.CmsAuthValues} header is required.", value);
-
-            return value;
+            return values.First();
         }
     }
 }
