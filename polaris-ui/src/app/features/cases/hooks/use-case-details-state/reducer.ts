@@ -1179,7 +1179,11 @@ export const reducer = (
       }
       selectedHighlights = searchPIIDataItem.searchPIIHighlights.reduce(
         (acc, highlight) => {
-          if (isTextMatchAction && highlight.textContent === textContent) {
+          if (
+            isTextMatchAction &&
+            highlight.textContent === textContent &&
+            highlight.redactionStatus === "initial"
+          ) {
             acc.selected.push(highlight);
             return acc;
           }

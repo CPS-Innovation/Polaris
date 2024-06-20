@@ -53,7 +53,62 @@ describe("Search PII", () => {
       });
     });
 
-    it("Should show suggested redaction warning message and redaction log correctly", () => {
+    it("Should show suggested redaction warning message if there are redaction suggestions accepted through acceptAll and redaction log correctly", () => {
+      cy.visit("/case-details/12AB1111111/13401?searchPII=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-12").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .contains("WITNESS STATEMENT")
+        .should("exist");
+
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Turn on potential redactions 2")
+        .click();
+      cy.findByTestId("search-pii-header").contains(
+        "(8) Named individual,(5) Phone number,(4) Other,(2) Address,(2) NI Number,(1) Email address,(1) Location"
+      );
+      cy.findByTestId("div-highlight-dacaba11-312e-443a-b71e-9ca64f211bdf")
+        .findByRole("button")
+        .click();
+      cy.findByTestId("redact-modal").should("exist");
+      cy.findByTestId("redact-modal")
+        .contains(`"William McCoy" appears 7 times in the document`)
+        .should("exist");
+      cy.findByTestId("redact-modal").findByTestId("btn-accept-all").click();
+      cy.findByTestId("redaction-count-text-0").contains(
+        "There are 7 redaction"
+      );
+      cy.findByTestId("search-pii-header").contains(
+        "(5) Phone number,(4) Other,(2) Address,(2) NI Number,(1) Email address,(1) Location,(1) Named individual"
+      );
+      cy.findByTestId("btn-save-redaction-0").click();
+
+      cy.findByTestId("div-modal").should("exist");
+      cy.findByTestId("div-modal").contains(
+        "h2",
+        "Confirm redaction suggestion"
+      );
+      cy.findByTestId("div-modal").contains(
+        "You have chosen to 'accept all' for 7 redaction suggestions. If you choose to continue, redactions will be applied which you may not have reviewed individually"
+      );
+      cy.findByTestId("btn-continue").click();
+      cy.get("#terms-and-condition-error").should(
+        "have.text",
+        "Error: Please confirm you have reviewed the whole document and the redactions to be applied are intended."
+      );
+      cy.findByTestId("terms-and-condition").click();
+      cy.findByTestId("btn-continue").click();
+      cy.findByTestId("div-modal")
+        .contains("h2", "Confirm redaction suggestion")
+        .should("not.exist");
+      cy.findByTestId("div-modal")
+        .contains("99ZZ9999999 - Redaction Log")
+        .should("exist");
+      cy.findByTestId("div-modal").contains("li", "7 - Named individual");
+    });
+
+    it("Should not show suggested redaction warning message if there are no redaction suggestions accepted through acceptAll", () => {
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-12").click();
@@ -85,19 +140,11 @@ describe("Search PII", () => {
       cy.findByTestId("btn-save-redaction-0").click();
 
       cy.findByTestId("div-modal").should("exist");
-      cy.findByTestId("div-modal").contains("h2", "Use potential redactions?");
-      cy.findByTestId("div-modal").contains(
-        "Your remaining 1 potential redactions will also be redacted, if you choose to continue"
-      );
-      cy.findByTestId("btn-continue").click();
-      cy.get("#terms-and-condition-error").should(
-        "have.text",
-        "Error: Please accept you have manually checked all selected redactions in the document"
-      );
-      cy.findByTestId("terms-and-condition").click();
-      cy.findByTestId("btn-continue").click();
       cy.findByTestId("div-modal")
-        .contains("h2", "Use potential redactions?")
+        .contains("h2", "Confirm redaction suggestion")
+        .should("not.exist");
+      cy.findByTestId("div-modal")
+        .contains("h2", "Confirm redaction suggestion")
         .should("not.exist");
       cy.findByTestId("div-modal")
         .contains("99ZZ9999999 - Redaction Log")
@@ -354,19 +401,22 @@ describe("Search PII", () => {
       cy.findByTestId("btn-save-redaction-0").click();
 
       cy.findByTestId("div-modal").should("exist");
-      cy.findByTestId("div-modal").contains("h2", "Use potential redactions?");
       cy.findByTestId("div-modal").contains(
-        "Your remaining 8 potential redactions will also be redacted, if you choose to continue"
+        "h2",
+        "Confirm redaction suggestion"
+      );
+      cy.findByTestId("div-modal").contains(
+        "You have chosen to 'accept all' for 7 redaction suggestions. If you choose to continue, redactions will be applied which you may not have reviewed individually"
       );
       cy.findByTestId("btn-continue").click();
       cy.get("#terms-and-condition-error").should(
         "have.text",
-        "Error: Please accept you have manually checked all selected redactions in the document"
+        "Error: Please confirm you have reviewed the whole document and the redactions to be applied are intended."
       );
       cy.findByTestId("terms-and-condition").click();
       cy.findByTestId("btn-continue").click();
       cy.findByTestId("div-modal")
-        .contains("h2", "Use potential redactions?")
+        .contains("h2", "Confirm redaction suggestion")
         .should("not.exist");
       cy.findByTestId("div-modal")
         .contains("99ZZ9999999 - Redaction Log")
