@@ -330,7 +330,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         ? { ...redactionRequestData, pii: piiData }
         : redactionRequestData;
 
-      console.log("redactionHighlights>>", redactionHighlights);
       const savedRedactionTypes = redactionHighlights.map(
         (highlight) => highlight.redactionType!
       );
