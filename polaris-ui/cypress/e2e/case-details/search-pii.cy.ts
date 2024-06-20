@@ -99,24 +99,23 @@ describe("Search PII", () => {
       cy.findByTestId("btn-modal-close").click();
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.findByTestId("div-modal").contains("h2", "Use potential redactions?");
+      cy.findByTestId("div-modal").contains(
+        "h2",
+        "Confirm redaction suggestion"
+      );
       cy.findByTestId("btn-continue").click();
       cy.findByTestId("warning-error-summary").should("exist");
       cy.findByTestId("terms-and-condition-link").should("exist");
       cy.findByTestId("terms-and-condition-link").should(
         "have.text",
-        "Please accept you have manually checked all selected redactions in the document"
+        "Please confirm you have reviewed the whole document and the redactions to be applied are intended."
       );
-      cy.get("#terms-and-condition-error").should(
-        "have.text",
-        "Error: Please accept you have manually checked all selected redactions in the document"
-      );
-      cy.findByTestId("terms-and-condition-link").click();
-      cy.focused().should("have.id", "terms-and-condition");
       cy.get("#terms-and-condition-error").should(
         "have.text",
         "Error: Please confirm you have reviewed the whole document and the redactions to be applied are intended."
       );
+      cy.findByTestId("terms-and-condition-link").click();
+      cy.focused().should("have.id", "terms-and-condition");
       cy.findByTestId("terms-and-condition").click();
       cy.findByTestId("btn-continue").click();
       cy.findByTestId("div-modal")
