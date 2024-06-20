@@ -61,6 +61,7 @@ export const RedactButton: React.FC<Props> = ({
   return (
     <div
       id="redact-modal"
+      data-testid="redact-modal"
       className={
         redactionTypesData.length || searchPIIData
           ? classes.redactionModal

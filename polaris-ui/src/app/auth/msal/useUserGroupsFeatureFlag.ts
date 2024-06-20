@@ -38,14 +38,13 @@ const showFeature = (
   groupClaims?: string[]
 ) => {
   if (!featureFlag) return false;
-
   const isTestUser =
     window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
-  if (isTestUser && queryParam === "false") {
-    return false;
-  }
+  if (isTestUser && queryParam === "false") return false;
+  //bypassing group claims for cypress test users, if the featureFlag is true
+  if (isTestUser && queryParam === "true") return true;
 
   if (groupClaims) {
     const isInPrivateBetaGroup = groupClaims?.includes(
@@ -61,7 +60,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
-  const groupClaims = account?.idTokenClaims?.groups as string[];
+  const groupClaims = (account?.idTokenClaims?.groups as string[]) ?? [];
 
   const getFeatureFlags = useCallback(
     () => ({
