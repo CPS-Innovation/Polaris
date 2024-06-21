@@ -400,15 +400,33 @@ stages:
         displayName: Pause for 2 mins
         steps:
           - template: tasks/task_pause-pipeline.yml
+            
+      - job: Swap_Coordinator_Slot
+        dependsOn: Pause_Pipeline
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        strategy:
+          matrix:
+            Coordinator:
+              Name: "Coordinator"
+              AppServiceName: "fa-polaris-uat-coordinator"
+        displayName: Swap
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            displayName: Swap slot
+            inputs:
+              action: "Swap Slots"
+              sourceSlot: "staging1"
+              azureSubscription: $(uat-azure-subscription)
+              resourceGroupName: "rg-polaris-coordinator-uat"
+              webAppName: $(AppServiceName)
+              PreserveVnet: true
 
       - job: Swap_Pipeline_Slots
         dependsOn: Pause_Pipeline
         condition: succeeded()
         strategy:
           matrix:
-            Coordinator:
-              Name: "Coordinator"
-              AppServiceName: "fa-polaris-uat-coordinator"
             PDFGenerator:
               Name: "PDF Generator"
               AppServiceName: "fa-polaris-uat-pdf-generator"
@@ -479,6 +497,7 @@ stages:
       - job: Log_Result
         condition: succeeded()
         dependsOn:
+          - Swap_Coordinator_Slot
           - Swap_Pipeline_Slots
           - Swap_UI_Slots
           - Swap_Proxy_Slot
