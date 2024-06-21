@@ -93,7 +93,7 @@ export const mapSearchPIIHighlights = (
               id: groupKey,
               type: "searchPII",
               highlightType: "linear",
-              redactionStatus: "redacted",
+              redactionStatus: "initial",
               textContent: textContent,
               position: {
                 pageNumber: pageIndex,

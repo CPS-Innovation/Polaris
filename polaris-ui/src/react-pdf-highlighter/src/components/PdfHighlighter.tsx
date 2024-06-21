@@ -420,7 +420,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       tipChildren: null,
     });
 
-    this.setState({ ghostHighlight: null, tip: null }, () =>
+    this.setState({ ghostHighlight: null, tip: null, isCollapsed: true }, () =>
       this.renderHighlights()
     );
   };
