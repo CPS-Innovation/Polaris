@@ -11,12 +11,12 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureFunctionsJobHost__extensions__durableTask__storageProvider__MaxQueuePollingInterval"  = var.coordinator.max_queue_polling_interval
-    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentActivityFunctions"            = var.coordinator.max_concurrent_activity_functions
-    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentOrchestratorFunctions"        = var.coordinator.max_concurrent_orchestrator_functions
-    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
-    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = 1
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "AzureFunctionsJobHost__extensions__durableTask__storageProvider__MaxQueuePollingInterval" = var.coordinator.max_queue_polling_interval
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentActivityFunctions"           = var.coordinator.max_concurrent_activity_functions
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentOrchestratorFunctions"       = var.coordinator.max_concurrent_orchestrator_functions
+    "AzureWebJobs.ResetDurableState.Disabled"                                                  = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled"                                               = 1
+    "AzureWebJobsStorage"                                                                      = azurerm_storage_account.sa_coordinator.primary_connection_string
     # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
     "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
@@ -68,10 +68,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     vnet_route_all_enabled                 = true
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
-    elastic_instance_minimum               = var.pipeline_component_service_plans.coordinator_always_ready_instances
-    app_scale_limit                        = var.pipeline_component_service_plans.coordinator_maximum_scale_out_limit
-    pre_warmed_instance_count              = var.pipeline_component_service_plans.coordinator_always_ready_instances 
-    runtime_scale_monitoring_enabled       = true
+    runtime_scale_monitoring_enabled       = false
+    always_on                              = true
     application_stack {
       dotnet_version = "6.0"
     }
@@ -99,8 +97,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_coordinator_staging1_pe" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}-staging1-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
   tags                = local.common_tags
 

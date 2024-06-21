@@ -22,9 +22,6 @@ variable "env" {
 variable "pipeline_component_service_plans" {
   type = object({
     coordinator_service_plan_sku           = string
-    coordinator_always_ready_instances     = number
-    coordinator_maximum_scale_out_limit    = number
-    coordinator_plan_maximum_burst         = number
     pdf_generator_service_plan_sku         = string
     pdf_generator_always_ready_instances   = number
     pdf_generator_maximum_scale_out_limit  = number
@@ -110,9 +107,9 @@ variable "pii" {
 }
 
 variable "coordinator" {
-    type = object({
-    max_concurrent_activity_functions = number
+  type = object({
+    max_concurrent_activity_functions     = number
     max_concurrent_orchestrator_functions = number
-    max_queue_polling_interval = string #hh:mm:ss format e.g. "00:00:05" for 5 seconds
+    max_queue_polling_interval            = string #hh:mm:ss format e.g. "00:00:05" for 5 seconds
   })
 }

@@ -10,6 +10,11 @@ variable "pipeline_resource_name_prefix" {
   default = "polaris-pipeline"
 }
 
+variable "coordinator_resource_name_prefix" {
+  type    = string
+  default = "polaris-coordinator"
+}
+
 variable "env" {
   type = string
 }

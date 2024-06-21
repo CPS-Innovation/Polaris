@@ -1,6 +1,6 @@
 data "azurerm_linux_function_app" "fa_coordinator" {
   name                = "fa-${local.polaris_resource_name}-coordinator"
-  resource_group_name = "rg-${local.pipeline_resource_name}"
+  resource_group_name = "rg-${local.coordinator_resource_name}"
 }
 
 data "azurerm_windows_function_app" "fa_pdf_generator" {
