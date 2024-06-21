@@ -7,9 +7,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_resource_group" "rg_mv" {
-  count = var.env == "prod" ? 1 : 0
-
-  name     = "rg-${local.resource_name}-mv"
+  name     = "rg-polaris-mv-plans${local.resource_suffix}"
   location = "UK South"
   tags     = local.common_tags
 }
