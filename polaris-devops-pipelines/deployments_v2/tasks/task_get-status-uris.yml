@@ -44,7 +44,7 @@ steps:
       textExtractorAppName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
       gatewayAppName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
       spaAppName: "as-web-polaris${{ parameters.targetSuffix }}"
-      coordinatorResourceGroup: "rg-polaris-coordinator{{ parameters.targetSuffix }}"
+      coordinatorResourceGroup: "rg-polaris-coordinator${{ parameters.targetSuffix }}"
       pipelineResourceGroup: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
       uiResourceGroup: "rg-polaris${{ parameters.targetSuffix }}"
       proxyAppName: "polaris${{ parameters.targetSuffix}}-cmsproxy"
