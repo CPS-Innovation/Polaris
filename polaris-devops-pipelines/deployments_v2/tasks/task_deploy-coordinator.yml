@@ -40,7 +40,7 @@ steps:
       appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
       package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
       deployToSlotOrASE: true
-      resourceGroupName: "rg-polaris-coordinator{{ parameters.targetSuffix }}"
+      resourceGroupName: "rg-polaris-coordinator${{ parameters.targetSuffix }}"
       slotName: "staging1"
 
   # send custom event to AppInsights
