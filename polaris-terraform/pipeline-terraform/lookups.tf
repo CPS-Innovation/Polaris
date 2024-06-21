@@ -3,7 +3,7 @@ data "azuread_application" "fa_ddei" {
 }
 
 data "azuread_service_principal" "fa_ddei_service_principal" {
-  application_id = data.azuread_application.fa_ddei.application_id
+  client_id = data.azuread_application.fa_ddei.client_id
 }
 
 data "azurerm_virtual_network" "polaris_vnet" {
