@@ -20,7 +20,6 @@ type PdfTabsProps = {
   }[];
   contextData: {
     correlationId: string;
-    searchPIIOn: string[];
     showSearchPII: boolean;
   };
   caseId: number;
@@ -43,7 +42,7 @@ type PdfTabsProps = {
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
-  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
+  handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -68,12 +67,12 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
-  handleIgnoreRedactionSuggestion,
+  handleSearchPIIAction,
 }) => {
   const localHandleClosePdf = useCallback(
     (documentId: string) => {
       handleClosePdf(documentId);
-      handleShowHideRedactionSuggestions(documentId, false, false);
+      handleShowHideRedactionSuggestions(documentId, false, false, true);
     },
     [handleClosePdf, handleShowHideRedactionSuggestions]
   );
@@ -113,7 +112,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleShowHideRedactionSuggestions={
                 handleShowHideRedactionSuggestions
               }
-              handleIgnoreRedactionSuggestion={handleIgnoreRedactionSuggestion}
+              handleSearchPIIAction={handleSearchPIIAction}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}

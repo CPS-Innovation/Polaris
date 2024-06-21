@@ -109,7 +109,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleGetNotes,
     handleAddNote,
     handleShowHideRedactionSuggestions,
-    handleIgnoreRedactionSuggestion,
+    handleSearchPIIAction,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -532,14 +532,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleShowHideRedactionSuggestions={
                   handleShowHideRedactionSuggestions
                 }
-                handleIgnoreRedactionSuggestion={
-                  handleIgnoreRedactionSuggestion
-                }
+                handleSearchPIIAction={handleSearchPIIAction}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
-                  searchPIIOn: searchPII
-                    .filter((data) => data.show)
-                    .map((data) => data.documentId),
                   showSearchPII: featureFlags.searchPII,
                 }}
                 caseId={+caseId}

@@ -307,25 +307,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         urn,
         searchPII,
       } = getState();
-      let suggestedRedactionHighlights: ISearchPIIHighlight[] = [];
 
       const document = items.find((item) => item.documentId === documentId)!;
       const { redactionHighlights, polarisDocumentVersionId } = document;
-
-      let combinedRedactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[] =
-        redactionHighlights;
       let piiData: any = {};
       if (searchPIIOn) {
         const suggestedHighlights =
           searchPII.find((data) => data.documentId === documentId && data.show)
             ?.searchPIIHighlights ?? [];
-        suggestedRedactionHighlights = suggestedHighlights.filter(
-          (highlight) => highlight.redactionStatus === "redacted"
-        );
-        combinedRedactionHighlights = [
-          ...redactionHighlights,
-          ...suggestedRedactionHighlights,
-        ];
         piiData = mapSearchPIISaveRedactionObject(
           redactionHighlights,
           suggestedHighlights
@@ -334,14 +323,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const redactionRequestData = mapRedactionSaveRequest(
         documentId,
-        combinedRedactionHighlights
+        redactionHighlights
       );
 
       const redactionSaveRequest = piiData?.categories
         ? { ...redactionRequestData, pii: piiData }
         : redactionRequestData;
 
-      const savedRedactionTypes = combinedRedactionHighlights.map(
+      const savedRedactionTypes = redactionHighlights.map(
         (highlight) => highlight.redactionType!
       );
       try {

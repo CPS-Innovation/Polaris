@@ -112,8 +112,11 @@ export const mapSearchPIISaveRedactionObject = (
         polarisCategory: value[0].redactionType.name,
         providerCategory: key,
         countSuggestions: value.length,
-        countAccepted: value.filter((val) => val.redactionStatus === "redacted")
-          .length,
+        countAccepted: value.filter(
+          (val) =>
+            val.redactionStatus === "accepted" ||
+            val.redactionStatus === "acceptedAll"
+        ).length,
         countAmended: amendedRedactions[key] ? amendedRedactions[key] : 0,
       };
     }
@@ -160,7 +163,9 @@ const getAmendedRedactionsCount = (
   }
 
   const ignoredHighlights = searchPIIHighlights.filter(
-    (highlight) => highlight.redactionStatus !== "redacted"
+    (highlight) =>
+      highlight.redactionStatus === "ignored" ||
+      highlight.redactionStatus === "ignoredAll"
   );
   const normalizedHighlights = getNormalizedRedactionHighlights([
     ...manualRedactionHighlights,

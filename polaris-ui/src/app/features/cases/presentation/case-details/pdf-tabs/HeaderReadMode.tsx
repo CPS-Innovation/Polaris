@@ -24,13 +24,15 @@ type Props = {
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: (
     documentId: string,
-    showSuggestion: boolean
+    showSuggestion: boolean,
+    defaultOption: boolean
   ) => void;
   contextData: {
     documentId: string;
     tabIndex: number;
     areaOnlyRedactionMode: boolean;
     isSearchPIIOn: boolean;
+    isSearchPIIDefaultOptionOn: boolean;
     showSearchPII: boolean;
   };
 };
@@ -61,8 +63,17 @@ export const HeaderReadMode: React.FC<Props> = ({
       case "3":
         handleShowHideRedactionSuggestions(
           contextData.documentId,
-          !contextData.isSearchPIIOn
+          !contextData.isSearchPIIOn,
+          true
         );
+        break;
+      case "4":
+        handleShowHideRedactionSuggestions(
+          contextData.documentId,
+          !contextData.isSearchPIIOn,
+          false
+        );
+        break;
     }
   };
 
@@ -96,12 +107,25 @@ export const HeaderReadMode: React.FC<Props> = ({
         {
           id: "3",
           label: contextData.isSearchPIIOn
-            ? "Turn off potential redactions"
-            : "Turn on potential redactions",
+            ? "Turn off potential redactions 1"
+            : "Turn on potential redactions 1",
           ariaLabel: contextData.isSearchPIIOn
-            ? "Turn off potential redactions"
-            : "Turn on potential redactions",
-          disabled: false,
+            ? "Turn off potential redactions 1"
+            : "Turn on potential redactions 1",
+          disabled:
+            contextData.isSearchPIIOn &&
+            !contextData.isSearchPIIDefaultOptionOn,
+        },
+        {
+          id: "4",
+          label: contextData.isSearchPIIOn
+            ? "Turn off potential redactions 2"
+            : "Turn on potential redactions 2",
+          ariaLabel: contextData.isSearchPIIOn
+            ? "Turn off potential redactions 2"
+            : "Turn on potential redactions 2",
+          disabled:
+            contextData.isSearchPIIOn && contextData.isSearchPIIDefaultOptionOn,
         },
       ];
     }
@@ -112,6 +136,7 @@ export const HeaderReadMode: React.FC<Props> = ({
     disableReportBtn,
     contextData.isSearchPIIOn,
     contextData.showSearchPII,
+    contextData.isSearchPIIDefaultOptionOn,
   ]);
 
   const handleRedactAreaToolButtonClick = useCallback(() => {
