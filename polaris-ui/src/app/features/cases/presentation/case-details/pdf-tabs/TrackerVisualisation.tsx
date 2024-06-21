@@ -1,4 +1,5 @@
 import { PipelineDocument } from "../../../domain/gateway/PipelineDocument";
+import { PipelineResults } from "../../../domain/gateway/PipelineResults";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 
 type Props = {
@@ -7,16 +8,21 @@ type Props = {
 
 const zeroDocs = () => <>?</>;
 
-const renderDocResults = (docs: PipelineDocument[]) => {
-  const everyDocIndexed = docs.every((doc) => doc.status === "Indexed");
+const renderDocResults = (state: PipelineResults) => {
+  const isCaseCompleted = state.status == "Completed";
 
+  const everyDocIndexed = state.documents.every(
+    (doc) => doc.status === "Indexed"
+  );
   return (
     // WARNING: this is used by the e2e tests to check the status of the documents
     <span
-      data-testid={everyDocIndexed ? "span-flag-all-indexed" : ""}
+      data-testid={
+        isCaseCompleted && everyDocIndexed ? "span-flag-all-indexed" : ""
+      }
       style={{ color: "#dddddd" }}
     >
-      {docs.map((doc) => {
+      {state.documents.map((doc) => {
         return <span key={doc.documentId}>{renderDocResult(doc)}</span>;
       })}
     </span>
@@ -45,7 +51,7 @@ export const TrackerVisualisation: React.FC<Props> = ({ pipelineState }) => {
     <div style={{ textAlign: "center", fontFamily: "monospace" }}>
       {!pipelineState.data.documents.length
         ? zeroDocs()
-        : renderDocResults(pipelineState.data.documents)}
+        : renderDocResults(pipelineState.data)}
     </div>
   );
 };
