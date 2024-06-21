@@ -29,8 +29,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
 
             _imageConversionOptions = options.Value;
             _imageDevice = new JpegDevice(
-                new Resolution(_imageConversionOptions.Resolution),
-                _imageConversionOptions.QualityPercent);
+                new Resolution(150),
+                50);
             _logger = logger;
             _jsonConvertWrapper = jsonConvertWrapper;
         }
@@ -98,8 +98,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 {
                     ImageStream = memoryStream,
                     IsApplyResolution = true,
-                    FixHeight = pageHeight,
-                    FixWidth = pageWidth,
+                    FixHeight = pageToSwapOutRect.Height,
+                    FixWidth = pageToSwapOutRect.Width,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
