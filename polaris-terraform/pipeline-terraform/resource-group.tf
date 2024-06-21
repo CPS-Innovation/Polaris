@@ -6,8 +6,8 @@ resource "azurerm_resource_group" "rg" {
   tags     = local.common_tags
 }
 
-resource "azurerm_resource_group" "rg_mv" {
-  name     = "rg-polaris-mv-plans${local.resource_suffix}"
+resource "azurerm_resource_group" "rg_coordinator" {
+  name     = "rg-polaris-coordinator${local.resource_suffix}"
   location = "UK South"
   tags     = local.common_tags
 }

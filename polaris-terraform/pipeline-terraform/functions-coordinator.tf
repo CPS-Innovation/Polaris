@@ -2,8 +2,8 @@
 
 resource "azurerm_linux_function_app" "fa_coordinator" {
   name                          = "fa-${local.global_name}-coordinator"
-  location                      = azurerm_resource_group.rg.location
-  resource_group_name           = azurerm_resource_group.rg.name
+  location                      = azurerm_resource_group.rg_coordinator.location
+  resource_group_name           = azurerm_resource_group.rg_coordinator.name
   service_plan_id               = azurerm_service_plan.asp_polaris_pipeline_coordinator.id
   storage_account_name          = azurerm_storage_account.sa_coordinator.name
   storage_account_access_key    = azurerm_storage_account.sa_coordinator.primary_access_key
@@ -186,8 +186,8 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_coordin
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_coordinator_pe" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 

@@ -97,8 +97,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_coordinator_staging1_pe" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}-staging1-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
   tags                = local.common_tags
 

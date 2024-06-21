@@ -6,8 +6,8 @@ resource "azurerm_storage_account" "sa_coordinator" {
   #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
   #checkov:skip=CKV2_AZURE_50:Ensure Azure Storage Account storing Machine Learning workspace high business impact data is not publicly accessible
   name                = "sacps${var.env != "prod" ? var.env : ""}coordinator"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
 
   account_kind                    = "StorageV2"
   account_replication_type        = "LRS"
@@ -69,8 +69,8 @@ resource "azurerm_storage_account" "sa_coordinator" {
 # Create Private Endpoint for Blobs
 resource "azurerm_private_endpoint" "pipeline_sa_coordinator_blob_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-blob-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
@@ -90,8 +90,8 @@ resource "azurerm_private_endpoint" "pipeline_sa_coordinator_blob_pe" {
 # Create Private Endpoint for Tables
 resource "azurerm_private_endpoint" "pipeline_sa_coordinator_table_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-table-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
@@ -111,8 +111,8 @@ resource "azurerm_private_endpoint" "pipeline_sa_coordinator_table_pe" {
 # Create Private Endpoint for Files
 resource "azurerm_private_endpoint" "pipeline_sa_coordinator_file_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-file-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
@@ -132,8 +132,8 @@ resource "azurerm_private_endpoint" "pipeline_sa_coordinator_file_pe" {
 # Create Private Endpoint for Queues
 resource "azurerm_private_endpoint" "pipeline_sa_coordinator_queue_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-queue-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
@@ -153,11 +153,11 @@ resource "azurerm_private_endpoint" "pipeline_sa_coordinator_queue_pe" {
 resource "azapi_resource" "pipeline_sa_coordinator_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "pipeline-coordinator-content-share"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_coordinator.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
 }
 
 resource "azapi_resource" "pipeline_sa_coordinator_file_share_staging1" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "pipeline-coordinator-content-share-1"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_coordinator.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
 }
