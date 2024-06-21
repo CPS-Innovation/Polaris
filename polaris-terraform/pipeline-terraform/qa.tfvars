@@ -12,7 +12,7 @@ pipeline_logging = {
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku           = "B3"
+  coordinator_service_plan_sku           = "P1mv3"
   pdf_generator_service_plan_sku         = "EP2"
   pdf_generator_always_ready_instances   = 1
   pdf_generator_maximum_scale_out_limit  = 10
