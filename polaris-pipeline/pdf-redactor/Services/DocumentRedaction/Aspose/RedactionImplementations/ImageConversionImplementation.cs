@@ -29,8 +29,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
 
             _imageConversionOptions = options.Value;
             _imageDevice = new JpegDevice(
-                new Resolution(150),
-                50);
+                new Resolution(_imageConversionOptions.Resolution),
+                _imageConversionOptions.QualityPercent);
             _logger = logger;
             _jsonConvertWrapper = jsonConvertWrapper;
         }
