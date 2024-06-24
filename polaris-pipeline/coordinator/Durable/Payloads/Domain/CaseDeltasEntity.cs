@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -20,19 +19,22 @@ namespace coordinator.Durable.Payloads.Domain
         public DefendantsAndChargesEntity UpdatedDefendantsAndCharges { get; set; }
         public bool IsDeletedDefendantsAndCharges { get; set; }
 
-        public bool Any()
+        public int CmsDocsProcessedCount
         {
-            return CreatedCmsDocuments.Any() || UpdatedCmsDocuments.Any() || DeletedCmsDocuments.Any() ||
-                   CreatedPcdRequests.Any() || UpdatedPcdRequests.Any() || DeletedPcdRequests.Any() ||
-                   CreatedDefendantsAndCharges != null || UpdatedDefendantsAndCharges != null || IsDeletedDefendantsAndCharges;
+            get
+            {
+                return CreatedCmsDocuments?.Count ?? 0
+                    + UpdatedCmsDocuments?.Count ?? 0;
+            }
         }
 
-        public string GetLogMessage()
+        public int PcdRequestsProcessedCount
         {
-            return $"Refresh Documents, " +
-                                $"CMS:({CreatedCmsDocuments.Count} created, {UpdatedCmsDocuments.Count} updated, {DeletedCmsDocuments.Count} deleted), " +
-                                $"PCD :({CreatedPcdRequests.Count} created, {DeletedPcdRequests.Count} deleted), " +
-                                $"DAC :({(CreatedDefendantsAndCharges != null ? 1 : 0)} created, {(UpdatedDefendantsAndCharges != null ? 1 : 0)} deleted).";
+            get
+            {
+                return CreatedPcdRequests?.Count ?? 0
+                    + UpdatedPcdRequests?.Count ?? 0;
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ namespace coordinator.Durable.Orchestration
 {
     public class BaseOrchestrator
     {
-        protected ICaseDurableEntity GetEntityProxy(IDurableOrchestrationContext context, long caseId)
+        protected ICaseDurableEntity CreateEntityProxy(IDurableOrchestrationContext context, long caseId)
         {
             var caseEntityKey = InstanceIdHelper.OrchestratorKey(caseId.ToString());
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);

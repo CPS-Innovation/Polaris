@@ -27,9 +27,8 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(CompleteOcr))]
         public async Task<(bool, AnalyzeResults)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            // var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
-            // var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
-            var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
+
+            var (operationId, ocrBlobName, correlationId) = context.GetInput<(Guid, string, Guid)>();
             var (isOperationComplete, analyzeResult) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
 
             if (!isOperationComplete)

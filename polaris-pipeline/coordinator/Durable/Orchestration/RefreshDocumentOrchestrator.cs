@@ -4,7 +4,6 @@ using Common.Constants;
 using Common.Dto.Response;
 using Common.Logging;
 using Common.Telemetry;
-using Common.ValueObjects;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
@@ -43,7 +42,7 @@ namespace coordinator.Durable.Orchestration
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
             var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = GetEntityProxy(context, payload.CmsCaseId);
+            var caseEntity = CreateEntityProxy(context, payload.CmsCaseId);
 
             // 1. Get Pdf
             try
@@ -63,7 +62,6 @@ namespace coordinator.Durable.Orchestration
             }
 
             // todo: this is temporary code until the coordinator refactor exercise is done.
-
             if (payload.DocumentDeltaType != DocumentDeltaType.RequiresIndexing)
             {
                 // return and DO NOT set to PdfUploadedToBlob.  If we are refreshing the PDF it is because thr OCR flag has changed.
@@ -155,7 +153,6 @@ namespace coordinator.Durable.Orchestration
 
                 caseEntity.SetDocumentIndexingFailed(payload.PolarisDocumentId.ToString());
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
-                return;
             }
         }
 
@@ -164,14 +161,14 @@ namespace coordinator.Durable.Orchestration
             var ocrOperationId = await context.CallActivityWithRetryAsync<Guid>(
                 nameof(InitiateOcr),
                 _durableActivityRetryOptions,
-                (payload.BlobName, payload.CorrelationId, payload.SubCorrelationId)
+                (payload.BlobName, payload.CorrelationId)
             );
 
             return await PollingHelper.PollActivityUntilComplete<AnalyzeResults>(
                 context,
                 PollingHelper.CreatePollingArgs(
                     activityName: nameof(CompleteOcr),
-                    activityInput: (ocrOperationId, payload.OcrBlobName, payload.CorrelationId, payload.SubCorrelationId),
+                    activityInput: (ocrOperationId, payload.OcrBlobName, payload.CorrelationId),
                     prePollingDelayMs: _prePollingDelayMs,
                     pollingIntervalMs: _pollingIntervalMs,
                     maxPollingAttempts: _maxPollingAttempts,

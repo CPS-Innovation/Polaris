@@ -27,7 +27,7 @@ public class CaseDurableEntityTests
         var sut = new CaseDurableEntity();
 
         // Act
-        var result = await sut.GetCaseDocumentChanges((new CmsDocumentDto[] { }, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.MutateAndReturnDeltas((new CmsDocumentDto[] { }, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
         // Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -61,7 +61,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.MutateAndReturnDeltas((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().HaveCount(1);
@@ -101,7 +101,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.MutateAndReturnDeltas((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -138,7 +138,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.MutateAndReturnDeltas((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -174,7 +174,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.MutateAndReturnDeltas((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -210,7 +210,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.MutateAndReturnDeltas((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
         //Assert
         result.UpdatedCmsDocuments.Should().HaveCount(1);
@@ -246,7 +246,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.MutateAndReturnDeltas((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
         //Assert
         result.UpdatedCmsDocuments.Should().HaveCount(1);

@@ -2,7 +2,6 @@
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
-using Common.Dto.Tracker;
 using coordinator.Durable.Payloads.Domain;
 using System;
 using System.Threading.Tasks;
@@ -13,44 +12,15 @@ namespace coordinator.Durable.Entity
     // (A single tuple is acceptable)
     public interface ICaseDurableEntity
     {
-        [Obsolete]
-        void Reset(string TransactionId);
-
-        [Obsolete]
-        void SetValue(CaseDurableEntity tracker);
-        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
-
-        [Obsolete]
-        void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
-
-        [Obsolete]
-        void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args);
-
-        Task<int> InitialiseRefresh(DateTime args);
-
-        void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
-
-        [Obsolete]
-        void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
-
-        void SetPiiCmsVersionId(string polarisDocumentId);
-
-        [Obsolete]
-        Task<bool> AllDocumentsFailed();
-
-        [Obsolete]
-        Task<string[]> GetPolarisDocumentIds();
-
-        [Obsolete]
-        Task<DateTime> GetStartTime();
-
-        [Obsolete]
-        Task<float> GetDurationToCompleted();
-
-        // vNext stuff
+        Task<CaseDeltasEntity> MutateAndReturnDeltas((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
+        Task<int> InitialiseRefresh();
+        void SetCaseDocumentsRetrieved(DateTime args);
+        void SetCaseCompleted(DateTime args);
+        void SetCaseFailed(DateTime args);
         void SetDocumentPdfConversionSucceeded((string polarisDocumentId, string pdfBlobName) arg);
         void SetDocumentPdfConversionFailed((string PolarisDocumentId, PdfConversionStatus PdfConversionStatus) arg);
         void SetDocumentIndexingSucceeded(string polarisDocumentId);
         void SetDocumentIndexingFailed(string polarisDocumentId);
+        void SetPiiCmsVersionId(string polarisDocumentId);
     }
 }

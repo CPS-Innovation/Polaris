@@ -5,7 +5,6 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using coordinator.Services.DocumentToggle;
-using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

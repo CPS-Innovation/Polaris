@@ -21,7 +21,7 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(InitiateOcr))]
         public async Task<Guid> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var (blobName, correlationId, _) = context.GetInput<(string, Guid, Guid?)>();
+            var (blobName, correlationId) = context.GetInput<(string, Guid)>();
             using var documentStream = await _blobStorageService.GetDocumentAsync(blobName, correlationId);
             return await _ocrService.InitiateOperationAsync(documentStream, correlationId);
         }

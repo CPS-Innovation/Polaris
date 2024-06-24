@@ -31,16 +31,6 @@ namespace coordinator.Mappers
                 )
                 .Map
                 (
-                    dest => dest.DocumentsRetrieved,
-                    src => GetDocumentsRetrieved(src)
-                )
-                .Map
-                (
-                    dest => dest.ProcessingCompleted,
-                    src => GetProcessingCompleted(src)
-                )
-                .Map
-                (
                     dest => dest.Documents,
                     src => GetDocumentEntities(src)
                 );
@@ -104,22 +94,6 @@ namespace coordinator.Mappers
             }
 
             return documents;
-        }
-
-        private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity)
-        {
-            if (caseEntity.Running != null && caseEntity.Retrieved.HasValue)
-                return caseEntity.Running?.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime();
-
-            return null;
-        }
-
-        private static DateTime? GetProcessingCompleted(CaseDurableEntity caseEntity)
-        {
-            if (caseEntity.Running != null && caseEntity.Completed.HasValue)
-                return caseEntity.Running?.AddSeconds(caseEntity.Completed.Value).ToUniversalTime();
-
-            return null;
         }
 
         private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)

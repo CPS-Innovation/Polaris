@@ -114,7 +114,7 @@ namespace coordinator.tests.Durable.Orchestration
                 .Returns(int.MaxValue.ToString());
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
+                .Setup(tracker => tracker.MutateAndReturnDeltas(((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
 
             _mockCaseEntity
@@ -178,7 +178,7 @@ namespace coordinator.tests.Durable.Orchestration
                 .ReturnsAsync((new CmsDocumentDto[0], new PcdRequestDto[0], new DefendantsAndChargesListDto()));
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
+                .Setup(tracker => tracker.MutateAndReturnDeltas(It.IsAny<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
                 .ReturnsAsync(new CaseDeltasEntity
                 {
                     CreatedCmsDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>(),
