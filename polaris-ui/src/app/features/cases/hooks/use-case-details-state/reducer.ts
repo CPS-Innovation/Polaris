@@ -15,7 +15,10 @@ import { MappedDocumentResult } from "../../domain/MappedDocumentResult";
 import { isDocumentVisible } from "./is-document-visible";
 import { AsyncPipelineResult } from "../use-pipeline-api/AsyncPipelineResult";
 import { mapSearchHighlights } from "./map-search-highlights";
-import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import {
+  NewPdfHighlight,
+  PIIRedactionStatus,
+} from "../../domain/NewPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
@@ -210,6 +213,7 @@ export const reducer = (
           documentId: string;
           show: boolean;
           getData: boolean;
+          defaultOption?: boolean;
         };
       }
     | {
@@ -221,12 +225,11 @@ export const reducer = (
         };
       }
     | {
-        type: "IGNORE_SEARCH_PII_DATA";
+        type: "HANDLE_SEARCH_PII_ACTION";
         payload: {
           documentId: string;
-          textContent: string;
-          highlightGroupId: string;
-          ignoreAll: boolean;
+          highlightGroupIds: string[];
+          type: PIIRedactionStatus;
         };
       }
 ): CombinedState => {
@@ -1066,7 +1069,12 @@ export const reducer = (
     }
 
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
-      const { documentId, show, getData } = action.payload;
+      const {
+        documentId,
+        show,
+        getData,
+        defaultOption = true,
+      } = action.payload;
       const polarisDocumentVersionId = state.tabsState.items.find(
         (data) => data.documentId === documentId
       )?.polarisDocumentVersionId!;
@@ -1076,13 +1084,18 @@ export const reducer = (
       const newSearchPIIHighlights =
         availablePIIData?.searchPIIHighlights.map((highlight) => ({
           ...highlight,
-          redactionStatus: "redacted" as const,
+          redactionStatus:
+            highlight.redactionStatus === "ignored" ||
+            highlight.redactionStatus === "ignoredAll"
+              ? ("initial" as const)
+              : highlight.redactionStatus,
         })) ?? [];
 
       const newData = availablePIIData
         ? {
             ...availablePIIData,
             show: show,
+            defaultOption: defaultOption,
             searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
             polarisDocumentVersionId: getData
               ? polarisDocumentVersionId
@@ -1090,6 +1103,7 @@ export const reducer = (
           }
         : {
             show: show,
+            defaultOption: defaultOption,
             documentId: documentId,
             polarisDocumentVersionId: polarisDocumentVersionId,
             searchPIIHighlights: [],
@@ -1141,9 +1155,8 @@ export const reducer = (
       };
     }
 
-    case "IGNORE_SEARCH_PII_DATA": {
-      const { documentId, textContent, ignoreAll, highlightGroupId } =
-        action.payload;
+    case "HANDLE_SEARCH_PII_ACTION": {
+      const { documentId, type, highlightGroupIds } = action.payload;
       const filteredSearchPIIDatas = state.searchPII.filter(
         (searchPIIResult) => searchPIIResult.documentId !== documentId
       );
@@ -1152,18 +1165,47 @@ export const reducer = (
         (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
       )!;
 
-      let newHighlights: ISearchPIIHighlight[] = [];
-
-      newHighlights = searchPIIDataItem.searchPIIHighlights.map((highlight) => {
-        if (ignoreAll) {
-          if (highlight.textContent === textContent) {
-            highlight.redactionStatus = "ignoredAll";
+      let textContent: string = "";
+      let selectedHighlights: {
+        selected: ISearchPIIHighlight[];
+        rest: ISearchPIIHighlight[];
+      } = { selected: [], rest: [] };
+      const isTextMatchAction = type === "ignoredAll" || type === "acceptedAll";
+      if (isTextMatchAction) {
+        textContent =
+          searchPIIDataItem.searchPIIHighlights.find(
+            (highlight) => highlight.groupId === highlightGroupIds[0]
+          )?.textContent ?? "";
+      }
+      selectedHighlights = searchPIIDataItem.searchPIIHighlights.reduce(
+        (acc, highlight) => {
+          if (
+            isTextMatchAction &&
+            highlight.textContent === textContent &&
+            highlight.redactionStatus === "initial"
+          ) {
+            acc.selected.push(highlight);
+            return acc;
           }
-          return highlight;
+          if (
+            !isTextMatchAction &&
+            highlightGroupIds.includes(highlight.groupId)
+          ) {
+            acc.selected.push(highlight);
+            return acc;
+          }
+
+          acc.rest.push(highlight);
+          return acc;
+        },
+        {
+          selected: [] as ISearchPIIHighlight[],
+          rest: [] as ISearchPIIHighlight[],
         }
-        if (highlight.groupId === highlightGroupId) {
-          highlight.redactionStatus = "ignored";
-        }
+      );
+
+      const newHighlights = selectedHighlights.selected.map((highlight) => {
+        highlight.redactionStatus = type;
         return highlight;
       });
 
@@ -1173,7 +1215,7 @@ export const reducer = (
           ...filteredSearchPIIDatas,
           {
             ...searchPIIDataItem,
-            searchPIIHighlights: newHighlights,
+            searchPIIHighlights: [...selectedHighlights.rest, ...newHighlights],
           },
         ],
       };

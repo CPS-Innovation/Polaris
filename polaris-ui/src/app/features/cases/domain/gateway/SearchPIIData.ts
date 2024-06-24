@@ -22,6 +22,7 @@ export type SearchPIIResultItem = {
 
 export type SearchPIIData = {
   show: boolean;
+  defaultOption: boolean;
   documentId: string;
   polarisDocumentVersionId: number;
   searchPIIHighlights: ISearchPIIHighlight[];

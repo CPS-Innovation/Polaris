@@ -1,6 +1,6 @@
 const searchPII = [
   {
-    id: "07711c07-b815-4207-89df-54bf45088213",
+    id: "bf9c29a4-d279-48c5-84cd-deccf82d8f3b",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -36,7 +36,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "b7720b68-cb4e-44bb-87b4-a767ba3d2fb0",
+        piiGroupId: "dacaba11-312e-443a-b71e-9ca64f211bdf",
       },
       {
         boundingBox: [
@@ -47,7 +47,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "b7720b68-cb4e-44bb-87b4-a767ba3d2fb0",
+        piiGroupId: "dacaba11-312e-443a-b71e-9ca64f211bdf",
       },
       {
         boundingBox: null,
@@ -61,7 +61,7 @@ const searchPII = [
     ],
   },
   {
-    id: "852426e1-847a-473e-a2e9-97785eed39bb",
+    id: "9b27e951-e1f1-4991-8b6e-dfe83ca5ab26",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -142,7 +142,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "ccc399ef-2b91-497c-87b0-0bc9f7ce5780",
+        piiGroupId: "43df3652-d7c8-481d-8be1-27d4f2c68bc0",
       },
       {
         boundingBox: [
@@ -153,7 +153,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "ccc399ef-2b91-497c-87b0-0bc9f7ce5780",
+        piiGroupId: "43df3652-d7c8-481d-8be1-27d4f2c68bc0",
       },
       {
         boundingBox: null,
@@ -239,7 +239,7 @@ const searchPII = [
     ],
   },
   {
-    id: "a35795bb-5e04-40f8-95c2-6e12b862c785",
+    id: "4aea33ef-832f-4e2f-852b-7eb8402a0aee",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -325,11 +325,11 @@ const searchPII = [
           4.2716, 6.2048, 6.4706, 6.2048, 6.4706, 6.3548, 4.2716, 6.3548,
         ],
         text: "williesmadeupemail@gmail.com",
-        sanitizedText: "williesmadeupemailgmailcom",
+        sanitizedText: "williesmadeupemail@gmail.com",
         matchType: "Exact",
         piiCategory: "Email",
         redactionType: "Email Address",
-        piiGroupId: "62284e6b-b65d-45c2-b6ef-1f6ada6339e4",
+        piiGroupId: "fc62502f-c593-4d32-842e-1523416e49fe",
       },
       {
         boundingBox: null,
@@ -361,7 +361,7 @@ const searchPII = [
     ],
   },
   {
-    id: "eac92edf-ddb0-4a83-831f-eab7b6e1add6",
+    id: "d525eb86-1263-4bb8-a8fc-a4ca58baccd8",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -393,11 +393,11 @@ const searchPII = [
           2.0322, 6.4293, 2.9323, 6.4293, 2.9323, 6.5454, 2.0322, 6.5454,
         ],
         text: "206.192.1.10.",
-        sanitizedText: "206192110",
+        sanitizedText: "206.192.1.10",
         matchType: "Exact",
         piiCategory: "IPAddress",
         redactionType: "Location",
-        piiGroupId: "7d367052-7762-4682-a575-66b64468783d",
+        piiGroupId: "ba9509bc-bbaf-46e5-8374-37e5d9a4b111",
       },
       {
         boundingBox: null,
@@ -489,7 +489,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "f8d7d478-34a9-4284-a1d0-b5174d2efc7f",
+        piiGroupId: "e25e9cc8-15d8-4a54-b4f9-87540643c480",
       },
       {
         boundingBox: [
@@ -500,7 +500,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "f8d7d478-34a9-4284-a1d0-b5174d2efc7f",
+        piiGroupId: "e25e9cc8-15d8-4a54-b4f9-87540643c480",
       },
       {
         boundingBox: null,
@@ -514,7 +514,7 @@ const searchPII = [
     ],
   },
   {
-    id: "b29b427e-f2e6-47f4-bb40-30e0fa678a62",
+    id: "72d2bf9e-8c0f-4786-81e6-a039000a5c31",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -532,7 +532,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "f8d7d478-34a9-4284-a1d0-b5174d2efc7f",
+        piiGroupId: "e25e9cc8-15d8-4a54-b4f9-87540643c480",
       },
       {
         boundingBox: [
@@ -543,7 +543,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "f8d7d478-34a9-4284-a1d0-b5174d2efc7f",
+        piiGroupId: "e25e9cc8-15d8-4a54-b4f9-87540643c480",
       },
       {
         boundingBox: [
@@ -554,7 +554,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "f8d7d478-34a9-4284-a1d0-b5174d2efc7f",
+        piiGroupId: "e25e9cc8-15d8-4a54-b4f9-87540643c480",
       },
       {
         boundingBox: [
@@ -565,7 +565,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "f8d7d478-34a9-4284-a1d0-b5174d2efc7f",
+        piiGroupId: "e25e9cc8-15d8-4a54-b4f9-87540643c480",
       },
       {
         boundingBox: [
@@ -576,7 +576,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "f8d7d478-34a9-4284-a1d0-b5174d2efc7f",
+        piiGroupId: "e25e9cc8-15d8-4a54-b4f9-87540643c480",
       },
       {
         boundingBox: null,
@@ -653,7 +653,7 @@ const searchPII = [
     ],
   },
   {
-    id: "8af01dbe-c34f-47f3-a6f5-8ecfc1e0577d",
+    id: "71a4d173-bb0b-4b8e-a59b-1882ad1a7d82",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -665,7 +665,7 @@ const searchPII = [
       {
         boundingBox: null,
         text: "self-service",
-        sanitizedText: "selfservice",
+        sanitizedText: "self-service",
         matchType: "Exact",
         piiCategory: null,
         redactionType: null,
@@ -692,7 +692,7 @@ const searchPII = [
       {
         boundingBox: null,
         text: "acs-fake-web.co.uk.",
-        sanitizedText: "acsfakewebcouk",
+        sanitizedText: "acs-fake-web.co.uk",
         matchType: "Exact",
         piiCategory: null,
         redactionType: null,
@@ -761,7 +761,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "3232479b-951f-4ee7-a66e-cb23b296878a",
+        piiGroupId: "acc882df-3803-4f2c-8be2-e591cc1e3538",
       },
       {
         boundingBox: [
@@ -772,7 +772,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "3232479b-951f-4ee7-a66e-cb23b296878a",
+        piiGroupId: "acc882df-3803-4f2c-8be2-e591cc1e3538",
       },
       {
         boundingBox: null,
@@ -786,7 +786,7 @@ const searchPII = [
     ],
   },
   {
-    id: "fe013032-8e9a-469d-b723-a17654114737",
+    id: "dc84683f-ca8d-43d5-869c-68fa55c52a35",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -813,7 +813,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "26ac54bf-6d78-413e-8b7b-c0c3150970e7",
+        piiGroupId: "f16a8381-a667-4451-8475-6251aadb3fd2",
       },
       {
         boundingBox: [
@@ -824,7 +824,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "26ac54bf-6d78-413e-8b7b-c0c3150970e7",
+        piiGroupId: "f16a8381-a667-4451-8475-6251aadb3fd2",
       },
       {
         boundingBox: null,
@@ -973,7 +973,7 @@ const searchPII = [
     ],
   },
   {
-    id: "efb39b5c-2e4b-449d-9875-fe982c0f0807",
+    id: "10a0e133-4e59-4889-adc3-6c2a24e3248f",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1099,7 +1099,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "56fcf5f7-1ebe-4ca0-ac91-e746bb30747e",
+        piiGroupId: "b9746007-5e31-45fc-ae4f-80789493716e",
       },
       {
         boundingBox: null,
@@ -1113,7 +1113,7 @@ const searchPII = [
     ],
   },
   {
-    id: "b681d1b5-f588-4a3c-b5bc-b93ca8c1d2dd",
+    id: "e28ebff2-3eab-43ad-bb81-6be2f043f425",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1131,7 +1131,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "56fcf5f7-1ebe-4ca0-ac91-e746bb30747e",
+        piiGroupId: "b9746007-5e31-45fc-ae4f-80789493716e",
       },
       {
         boundingBox: null,
@@ -1262,7 +1262,7 @@ const searchPII = [
     ],
   },
   {
-    id: "1bba6f42-5c28-4acc-9b52-245f80c59023",
+    id: "6d2957f5-327a-4b1c-aa47-7b477188a41d",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1370,7 +1370,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "d0e971c4-a92c-4c54-a1ab-8c33efedd32b",
+        piiGroupId: "8355edd5-cd8b-4056-9f34-04f03c1b9186",
       },
       {
         boundingBox: [
@@ -1381,7 +1381,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "d0e971c4-a92c-4c54-a1ab-8c33efedd32b",
+        piiGroupId: "8355edd5-cd8b-4056-9f34-04f03c1b9186",
       },
       {
         boundingBox: null,
@@ -1404,7 +1404,7 @@ const searchPII = [
     ],
   },
   {
-    id: "7e5cb95d-1f98-49f7-a3e4-e952b48945b0",
+    id: "3c47ac17-1da7-4c35-a1de-1a42fac1a0b4",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1548,7 +1548,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "249b385d-1dde-4afe-84e8-6f6c363c0aff",
+        piiGroupId: "02887629-36ae-4f1e-9fca-bde1458474a8",
       },
       {
         boundingBox: null,
@@ -1562,7 +1562,7 @@ const searchPII = [
     ],
   },
   {
-    id: "10b3c2e0-dcc9-45ea-bd58-a2fffc3e1c0d",
+    id: "d558a105-dec1-4b11-905d-3f5d01a45287",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1580,7 +1580,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "249b385d-1dde-4afe-84e8-6f6c363c0aff",
+        piiGroupId: "02887629-36ae-4f1e-9fca-bde1458474a8",
       },
       {
         boundingBox: null,
@@ -1693,7 +1693,7 @@ const searchPII = [
     ],
   },
   {
-    id: "b78968c6-3835-4c8e-9c30-61d0209157b9",
+    id: "20660840-a78c-4e9d-955a-333a0dfc62b2",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1738,7 +1738,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "09cc7aaf-204d-43d4-b22d-c6099ac7a020",
+        piiGroupId: "5b636e59-666f-460f-8d8a-075437f257bb",
       },
       {
         boundingBox: [
@@ -1749,7 +1749,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "09cc7aaf-204d-43d4-b22d-c6099ac7a020",
+        piiGroupId: "5b636e59-666f-460f-8d8a-075437f257bb",
       },
       {
         boundingBox: null,
@@ -1772,7 +1772,7 @@ const searchPII = [
     ],
   },
   {
-    id: "37f7cd5a-d98f-497c-8a56-94d0c0742ad6",
+    id: "81da47ba-ad68-4f53-8a22-ef78786d31a8",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1826,7 +1826,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "5f5b5edd-78d4-4d8f-a79d-256b1ed33895",
+        piiGroupId: "4bc4e83d-cc93-4656-a4bf-b337fb17433d",
       },
       {
         boundingBox: [
@@ -1837,7 +1837,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "5f5b5edd-78d4-4d8f-a79d-256b1ed33895",
+        piiGroupId: "4bc4e83d-cc93-4656-a4bf-b337fb17433d",
       },
       {
         boundingBox: null,
@@ -1869,7 +1869,7 @@ const searchPII = [
       {
         boundingBox: null,
         text: "£10,000",
-        sanitizedText: "£10000",
+        sanitizedText: "£10,000",
         matchType: "Exact",
         piiCategory: null,
         redactionType: null,
@@ -1923,7 +1923,7 @@ const searchPII = [
       {
         boundingBox: null,
         text: "83-31-",
-        sanitizedText: "8331",
+        sanitizedText: "83-31",
         matchType: "Exact",
         piiCategory: null,
         redactionType: null,
@@ -1941,7 +1941,7 @@ const searchPII = [
     ],
   },
   {
-    id: "59758d80-367a-44a2-875c-360951ca544a",
+    id: "5e12d67e-e08f-4e43-8046-019203956c97",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 1,
@@ -1959,7 +1959,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "56495ab6-4318-4632-b0b6-a160c7e95ec2",
+        piiGroupId: "1da92018-078e-458a-ae8e-fa43c3a24b98",
       },
       {
         boundingBox: [
@@ -1970,7 +1970,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "PhoneNumber",
         redactionType: "Phone number",
-        piiGroupId: "56495ab6-4318-4632-b0b6-a160c7e95ec2",
+        piiGroupId: "1da92018-078e-458a-ae8e-fa43c3a24b98",
       },
       {
         boundingBox: null,
@@ -2026,7 +2026,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "ec1994bf-27ec-46ad-8243-6f7a161acb16",
+        piiGroupId: "5cb29919-fbee-4460-8522-041b3e4498a4",
       },
       {
         boundingBox: [
@@ -2037,7 +2037,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "ec1994bf-27ec-46ad-8243-6f7a161acb16",
+        piiGroupId: "5cb29919-fbee-4460-8522-041b3e4498a4",
       },
       {
         boundingBox: [
@@ -2048,7 +2048,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "ec1994bf-27ec-46ad-8243-6f7a161acb16",
+        piiGroupId: "5cb29919-fbee-4460-8522-041b3e4498a4",
       },
       {
         boundingBox: [
@@ -2059,7 +2059,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "ec1994bf-27ec-46ad-8243-6f7a161acb16",
+        piiGroupId: "5cb29919-fbee-4460-8522-041b3e4498a4",
       },
       {
         boundingBox: [
@@ -2070,7 +2070,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "ec1994bf-27ec-46ad-8243-6f7a161acb16",
+        piiGroupId: "5cb29919-fbee-4460-8522-041b3e4498a4",
       },
       {
         boundingBox: null,
@@ -2129,7 +2129,7 @@ const searchPII = [
     ],
   },
   {
-    id: "7c723d0a-f85f-43df-84db-3de6f349070a",
+    id: "5238f32d-8412-4933-9483-f035f82c8b02",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 2,
@@ -2156,7 +2156,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "CreditCardNumber",
         redactionType: "Other",
-        piiGroupId: "aadcb8b3-7bd0-4b94-9236-7623849f7ba0",
+        piiGroupId: "0a33fdea-ce14-4ce0-a0bd-b4d695851f11",
       },
       {
         boundingBox: [
@@ -2167,7 +2167,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "CreditCardNumber",
         redactionType: "Other",
-        piiGroupId: "aadcb8b3-7bd0-4b94-9236-7623849f7ba0",
+        piiGroupId: "0a33fdea-ce14-4ce0-a0bd-b4d695851f11",
       },
       {
         boundingBox: [
@@ -2178,7 +2178,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "CreditCardNumber",
         redactionType: "Other",
-        piiGroupId: "aadcb8b3-7bd0-4b94-9236-7623849f7ba0",
+        piiGroupId: "0a33fdea-ce14-4ce0-a0bd-b4d695851f11",
       },
       {
         boundingBox: [
@@ -2189,7 +2189,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "CreditCardNumber",
         redactionType: "Other",
-        piiGroupId: "aadcb8b3-7bd0-4b94-9236-7623849f7ba0",
+        piiGroupId: "0a33fdea-ce14-4ce0-a0bd-b4d695851f11",
       },
       {
         boundingBox: null,
@@ -2209,7 +2209,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "CreditCardNumber",
         redactionType: "Other",
-        piiGroupId: "db5f0e2f-50b0-4f85-b2af-bf6fd7ff78d5",
+        piiGroupId: "cefaa6d2-3336-4c76-b00f-39decccb08ee",
       },
       {
         boundingBox: null,
@@ -2295,7 +2295,7 @@ const searchPII = [
     ],
   },
   {
-    id: "2171e1b8-70f7-4446-9da2-e3f8c33424b8",
+    id: "6d152855-7294-4f12-b233-b0853f0d1b9d",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 2,
@@ -2313,7 +2313,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "7b16438d-67e9-4719-bd5c-9151e053c844",
+        piiGroupId: "1c9559b0-d4ad-468f-8513-63808005f072",
       },
       {
         boundingBox: [
@@ -2324,7 +2324,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "7b16438d-67e9-4719-bd5c-9151e053c844",
+        piiGroupId: "1c9559b0-d4ad-468f-8513-63808005f072",
       },
       {
         boundingBox: null,
@@ -2344,7 +2344,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "776b8ade-3692-4443-ae2b-a5675e38c394",
+        piiGroupId: "b0ff3092-7105-4af4-8a43-ef2b41aff414",
       },
       {
         boundingBox: [
@@ -2355,7 +2355,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "776b8ade-3692-4443-ae2b-a5675e38c394",
+        piiGroupId: "b0ff3092-7105-4af4-8a43-ef2b41aff414",
       },
       {
         boundingBox: null,
@@ -2369,7 +2369,7 @@ const searchPII = [
     ],
   },
   {
-    id: "6b0ba36f-ca80-4d88-b362-bb9b2b0d1cf3",
+    id: "befbbe6d-510c-4538-bc02-4694a3e9981d",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 2,
@@ -2387,7 +2387,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "EUPassportNumber",
         redactionType: "Other",
-        piiGroupId: "57adec30-d17c-43a4-a126-e987eb9afb6a",
+        piiGroupId: "e0359d3d-91d7-43b3-85a7-20573a3c6242",
       },
       {
         boundingBox: null,
@@ -2434,7 +2434,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "EUDriversLicenseNumber",
         redactionType: "Other",
-        piiGroupId: "1711dd4b-e5e0-4f8f-b7b2-01e3baeb1ea1",
+        piiGroupId: "5db41b75-759c-44a0-ae32-c0c00e8f8935",
       },
       {
         boundingBox: null,
@@ -2454,7 +2454,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "5507f1d1-15d2-4feb-bfd6-0dfb026ee026",
+        piiGroupId: "baa16540-044d-4c80-a9cd-bd706369ffab",
       },
       {
         boundingBox: [
@@ -2465,7 +2465,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "5507f1d1-15d2-4feb-bfd6-0dfb026ee026",
+        piiGroupId: "baa16540-044d-4c80-a9cd-bd706369ffab",
       },
       {
         boundingBox: [
@@ -2476,7 +2476,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "5507f1d1-15d2-4feb-bfd6-0dfb026ee026",
+        piiGroupId: "baa16540-044d-4c80-a9cd-bd706369ffab",
       },
       {
         boundingBox: [
@@ -2487,7 +2487,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "5507f1d1-15d2-4feb-bfd6-0dfb026ee026",
+        piiGroupId: "baa16540-044d-4c80-a9cd-bd706369ffab",
       },
       {
         boundingBox: [
@@ -2498,7 +2498,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "UKNationalInsuranceNumber",
         redactionType: "NI number",
-        piiGroupId: "5507f1d1-15d2-4feb-bfd6-0dfb026ee026",
+        piiGroupId: "baa16540-044d-4c80-a9cd-bd706369ffab",
       },
       {
         boundingBox: null,
@@ -2512,7 +2512,7 @@ const searchPII = [
     ],
   },
   {
-    id: "7b2d0a7c-146d-4b15-8a1a-ce148166f921",
+    id: "547ea6f9-141c-4b49-8cc5-35656290b7a3",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 2,
@@ -2566,7 +2566,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "1a3b0142-19d7-4d44-bddc-4c55b444e45f",
+        piiGroupId: "fa09df4d-5af7-40e0-b07e-1860e79998de",
       },
       {
         boundingBox: [
@@ -2577,7 +2577,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Person",
         redactionType: "Named Individual",
-        piiGroupId: "1a3b0142-19d7-4d44-bddc-4c55b444e45f",
+        piiGroupId: "fa09df4d-5af7-40e0-b07e-1860e79998de",
       },
       {
         boundingBox: null,
@@ -2651,7 +2651,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "e9b464e5-b0e0-40de-82ab-cc1ca08503e3",
+        piiGroupId: "9c0318ae-4815-491b-85c3-1c076ca804eb",
       },
       {
         boundingBox: [
@@ -2662,7 +2662,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "e9b464e5-b0e0-40de-82ab-cc1ca08503e3",
+        piiGroupId: "9c0318ae-4815-491b-85c3-1c076ca804eb",
       },
       {
         boundingBox: null,
@@ -2676,7 +2676,7 @@ const searchPII = [
     ],
   },
   {
-    id: "baa0db28-8768-4f49-8afd-60a359a160d1",
+    id: "c1ea638b-8ab2-460a-aa80-b296e74be4f0",
     polarisDocumentId: "CMS-8748547",
     fileName: null,
     pageIndex: 2,
@@ -2694,7 +2694,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "e9b464e5-b0e0-40de-82ab-cc1ca08503e3",
+        piiGroupId: "9c0318ae-4815-491b-85c3-1c076ca804eb",
       },
       {
         boundingBox: [
@@ -2705,7 +2705,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "e9b464e5-b0e0-40de-82ab-cc1ca08503e3",
+        piiGroupId: "9c0318ae-4815-491b-85c3-1c076ca804eb",
       },
       {
         boundingBox: [
@@ -2716,7 +2716,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "e9b464e5-b0e0-40de-82ab-cc1ca08503e3",
+        piiGroupId: "9c0318ae-4815-491b-85c3-1c076ca804eb",
       },
       {
         boundingBox: [
@@ -2727,7 +2727,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "e9b464e5-b0e0-40de-82ab-cc1ca08503e3",
+        piiGroupId: "9c0318ae-4815-491b-85c3-1c076ca804eb",
       },
       {
         boundingBox: [
@@ -2738,7 +2738,7 @@ const searchPII = [
         matchType: "Exact",
         piiCategory: "Address",
         redactionType: "Address",
-        piiGroupId: "e9b464e5-b0e0-40de-82ab-cc1ca08503e3",
+        piiGroupId: "9c0318ae-4815-491b-85c3-1c076ca804eb",
       },
       {
         boundingBox: null,

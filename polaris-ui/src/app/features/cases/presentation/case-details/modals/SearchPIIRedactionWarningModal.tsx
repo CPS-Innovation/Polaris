@@ -6,7 +6,6 @@ import {
   Modal,
   ErrorSummary,
 } from "../../../../../common/presentation/components/index";
-import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./SearchPIIRedactionWarningModal.module.scss";
 
@@ -14,7 +13,7 @@ type Props = {
   documentId: string;
   documentType: string;
   polarisDocumentVersionId?: number;
-  activeSearchPIIHighlights: ISearchPIIHighlight[];
+  acceptedAllSearchPIIRedactionsCount: number;
   hideRedactionWarningModal: () => void;
   handleContinue: () => void;
 };
@@ -23,7 +22,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   documentId,
   documentType,
   polarisDocumentVersionId,
-  activeSearchPIIHighlights,
+  acceptedAllSearchPIIRedactionsCount,
   hideRedactionWarningModal,
   handleContinue,
 }) => {
@@ -53,7 +52,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
       documentId: documentId,
       documentType: documentType,
       polarisDocumentVersionId: polarisDocumentVersionId,
-      suggestedRedactionsCount: activeSearchPIIHighlights.length,
+      acceptedAllRedactionsCount: acceptedAllSearchPIIRedactionsCount,
     });
     hideRedactionWarningModal();
   };
@@ -67,14 +66,14 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
         isVisible={true}
         handleClose={handleClosePIIRedactionWarningModal}
         className={classes.redactionWarningModal}
-        ariaLabel="Use potential redactions confirmation Modal"
-        ariaDescription={`Your remaining ${activeSearchPIIHighlights.length} potential redactions will also be redacted, if you choose to continue`}
+        ariaLabel="Confirm redaction suggestions Modal"
+        ariaDescription={`You have chosen to 'accept all' for ${acceptedAllSearchPIIRedactionsCount} redaction suggestions. If you choose to continue, redactions will be applied which you may not have reviewed individually`}
         defaultLastFocus={
           document.querySelector("#active-tab-panel") as HTMLElement
         }
       >
         <div className={classes.modalHeader}>
-          <h2>{`Use potential redactions?`}</h2>
+          <h2>{`Confirm redaction suggestions`}</h2>
         </div>
         <div className={classes.contentWrapper}>
           {userConfirmationError && (
@@ -89,7 +88,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
                 errorList={[
                   {
                     reactListKey: "1",
-                    children: `Please accept you have manually checked all selected redactions in the document`,
+                    children: `Please confirm you have reviewed the whole document and the redactions to be applied are intended.`,
                     href: "#terms-and-condition",
                     "data-testid": "terms-and-condition-link",
                   },
@@ -102,8 +101,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
               !
             </span>
             <p className={classes.contentText}>
-              {`Your remaining ${activeSearchPIIHighlights.length} potential redactions will also be redacted, if
-              you choose to continue`}
+              {`You have chosen to 'accept all' for ${acceptedAllSearchPIIRedactionsCount} redaction suggestions. If you choose to continue, redactions will be applied which you may not have reviewed individually.`}
             </p>
           </div>
           <div>
@@ -113,14 +111,14 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
                 userConfirmationError
                   ? {
                       children:
-                        "Please accept you have manually checked all selected redactions in the document",
+                        "Please confirm you have reviewed the whole document and the redactions to be applied are intended.",
                     }
                   : undefined
               }
               items={[
                 {
                   children:
-                    "I have manually checked all selected redactions in the document",
+                    "I have reviewed the whole document and confirm the redactions to be applied are intended.",
                   value: "yes",
                 },
               ]}

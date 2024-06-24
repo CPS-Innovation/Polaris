@@ -4,13 +4,21 @@ export interface NewPdfHighlight extends NewHighlight {
   type: "search" | "redaction" | "searchPII";
   textContent?: string;
   redactionType?: RedactionTypeData;
+  searchPIIId?: string;
 }
+
+export type PIIRedactionStatus =
+  | "accepted"
+  | "acceptedAll"
+  | "ignored"
+  | "ignoredAll"
+  | "initial";
 
 export interface ISearchPIIHighlight extends NewHighlight {
   id: string;
   type: "searchPII";
   textContent: string;
-  redactionStatus: "redacted" | "ignored" | "ignoredAll";
+  redactionStatus: PIIRedactionStatus;
   piiCategory: string;
   redactionType: RedactionTypeData;
   groupId: string;

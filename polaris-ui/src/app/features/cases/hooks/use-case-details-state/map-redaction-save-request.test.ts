@@ -271,7 +271,7 @@ describe("mapSearchPIISaveRedactionObject", () => {
       {
         groupId: "1",
         piiCategory: "Person",
-        redactionStatus: "redacted",
+        redactionStatus: "accepted",
         highlightType: "linear",
         id: "1",
         position: {
@@ -402,7 +402,7 @@ describe("mapSearchPIISaveRedactionObject", () => {
       {
         groupId: "1",
         piiCategory: "Person",
-        redactionStatus: "redacted",
+        redactionStatus: "acceptedAll",
         highlightType: "linear",
         id: "1",
         position: {
@@ -436,7 +436,7 @@ describe("mapSearchPIISaveRedactionObject", () => {
       {
         groupId: "1",
         piiCategory: "Person",
-        redactionStatus: "redacted",
+        redactionStatus: "accepted",
         highlightType: "linear",
         id: "1",
         position: {

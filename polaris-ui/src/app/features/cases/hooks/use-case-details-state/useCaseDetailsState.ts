@@ -11,7 +11,10 @@ import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
-import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import {
+  NewPdfHighlight,
+  PIIRedactionStatus,
+} from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
@@ -441,7 +444,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     (
       documentId: CaseDocumentViewModel["documentId"],
       showSuggestion: boolean,
-      getData: boolean
+      getData: boolean,
+      defaultOption: boolean
     ) => {
       dispatch({
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
@@ -449,6 +453,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           documentId,
           show: showSuggestion,
           getData: getData,
+          defaultOption: defaultOption,
         },
       });
       if (getData)
@@ -471,20 +476,18 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleIgnoreRedactionSuggestion = useCallback(
+  const handleSearchPIIAction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      textContent: string,
-      ignoreAll: boolean,
-      highlightGroupId: string
+      type: PIIRedactionStatus,
+      highlightGroupIds: string[]
     ) => {
       dispatch({
-        type: "IGNORE_SEARCH_PII_DATA",
+        type: "HANDLE_SEARCH_PII_ACTION",
         payload: {
           documentId,
-          textContent: textContent,
-          ignoreAll: ignoreAll,
-          highlightGroupId: highlightGroupId,
+          type: type,
+          highlightGroupIds: highlightGroupIds,
         },
       });
     },
@@ -517,6 +520,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleAddNote,
     handleShowHideRedactionSuggestions,
     handleGetSearchPIIData,
-    handleIgnoreRedactionSuggestion,
+    handleSearchPIIAction,
   };
 };

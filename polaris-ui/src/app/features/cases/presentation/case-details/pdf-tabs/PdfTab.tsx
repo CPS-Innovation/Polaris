@@ -33,7 +33,6 @@ type PdfTabProps = {
   }[];
   contextData: {
     correlationId: string;
-    searchPIIOn: string[];
     showSearchPII: boolean;
   };
   isOkToSave: boolean;
@@ -50,7 +49,7 @@ type PdfTabProps = {
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
-  handleIgnoreRedactionSuggestion: CaseDetailsState["handleIgnoreRedactionSuggestion"];
+  handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -78,7 +77,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
-  handleIgnoreRedactionSuggestion,
+  handleSearchPIIAction,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
@@ -107,7 +106,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     }
     return (
       searchPIIDataItem?.searchPIIHighlights.filter(
-        (highlight) => highlight.redactionStatus === "redacted"
+        (highlight) => highlight.redactionStatus === "initial"
       ) ?? []
     );
   }, [searchPIIDataItem]);
@@ -125,21 +124,37 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const localHandleRemoveAllRedactions = useCallback(() => {
     handleRemoveAllRedactions(documentId);
-    handleShowHideRedactionSuggestions(documentId, false, false);
+
+    const piiGroupIds = redactionHighlights.reduce((acc, highlight) => {
+      if (highlight?.searchPIIId) {
+        acc.push(highlight?.searchPIIId);
+      }
+      return acc;
+    }, [] as string[]);
+
+    if (piiGroupIds.length) {
+      handleSearchPIIAction(documentId, "initial", piiGroupIds);
+    }
   }, [
     documentId,
     handleRemoveAllRedactions,
-    handleShowHideRedactionSuggestions,
+    handleSearchPIIAction,
+    redactionHighlights,
   ]);
 
   const localHandleShowHideRedactionSuggestions = useCallback(
-    (documentId, showSuggestion) => {
+    (documentId, showSuggestion, defaultOption) => {
       const getData =
         searchPIIDataItem?.getSearchPIIStatus === "failure"
           ? true
           : searchPIIDataItem?.polarisDocumentVersionId !==
             polarisDocumentVersionId;
-      handleShowHideRedactionSuggestions(documentId, showSuggestion, getData);
+      handleShowHideRedactionSuggestions(
+        documentId,
+        showSuggestion,
+        getData,
+        defaultOption
+      );
     },
     [
       handleShowHideRedactionSuggestions,
@@ -152,17 +167,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     trackEvent("Save All Redactions", {
       documentType: documentType,
       documentId: documentId,
-      redactionsCount:
-        redactionHighlights?.length + activeSearchPIIHighlights?.length,
-      suggestedRedactionsCount: searchPIIDataItem?.show
-        ? searchPIIDataItem?.searchPIIHighlights?.length ?? 0
-        : 0,
+      redactionsCount: redactionHighlights?.length,
+      suggestedRedactionsCount: searchPIIDataItem?.searchPIIHighlights?.length,
       acceptedSuggestedRedactionsCount: activeSearchPIIHighlights?.length,
     });
   };
 
   const localHandleSavedRedactions = () => {
-    if (activeSearchPIIHighlights.length) {
+    if (acceptedAllSearchPIIRedactionsCount) {
       setShowRedactionWarning(true);
       return;
     }
@@ -176,8 +188,16 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     );
   };
   const isSearchPIIOn = useMemo(() => {
-    return contextData.searchPIIOn.includes(documentId);
-  }, [contextData.searchPIIOn, documentId]);
+    return !!searchPIIDataItem?.show;
+  }, [searchPIIDataItem]);
+
+  const acceptedAllSearchPIIRedactionsCount = useMemo(() => {
+    const acceptedAllRedactions =
+      searchPIIDataItem?.searchPIIHighlights.filter(
+        (highlight) => highlight.redactionStatus === "acceptedAll"
+      ) ?? [];
+    return acceptedAllRedactions.length;
+  }, [searchPIIDataItem?.searchPIIHighlights]);
 
   const handleContinue = () => {
     setShowRedactionWarning(false);
@@ -220,6 +240,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             tabIndex: tabIndex,
             areaOnlyRedactionMode: areaOnlyRedactionMode,
             isSearchPIIOn: isSearchPIIOn,
+            isSearchPIIDefaultOptionOn: !!searchPIIDataItem?.defaultOption,
             showSearchPII: contextData.showSearchPII,
           }}
         />
@@ -257,6 +278,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           isSearchPIIOn={isSearchPIIOn}
+          isSearchPIIDefaultOptionOn={!!searchPIIDataItem?.defaultOption}
           activeSearchPIIHighlights={activeSearchPIIHighlights}
           documentWriteStatus={documentWriteStatus}
           contextData={{
@@ -273,7 +295,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleRemoveRedaction={localHandleRemoveRedaction}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
-          handleIgnoreRedactionSuggestion={handleIgnoreRedactionSuggestion}
+          handleSearchPIIAction={handleSearchPIIAction}
         />
       ) : (
         <Wait
@@ -286,7 +308,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         <SearchPIIRedactionWarningModal
           documentId={documentId}
           documentType={documentType}
-          activeSearchPIIHighlights={activeSearchPIIHighlights}
+          acceptedAllSearchPIIRedactionsCount={
+            acceptedAllSearchPIIRedactionsCount
+          }
           handleContinue={handleContinue}
           polarisDocumentVersionId={polarisDocumentVersionId!}
           hideRedactionWarningModal={() => setShowRedactionWarning(false)}
