@@ -11,8 +11,8 @@
       "Host.Aggregator": "Information",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
-      "DurableTask.AzureStorage": "Information",
-      "DurableTask.Core": "Information",
+      "DurableTask.AzureStorage": "Warning",
+      "DurableTask.Core": "Warning",
       "Microsoft.Azure.WebJobs.Host.Scale": "Information"
     },
     "applicationInsights": {
