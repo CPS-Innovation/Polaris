@@ -32,11 +32,6 @@ namespace coordinator.Durable.Orchestration
             maxNumberOfAttempts: 3
         );
 
-        public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
-        {
-            return $"[{caseId}]-{polarisDocumentId}";
-        }
-
         public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log, ITelemetryClient telemetryClient)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));

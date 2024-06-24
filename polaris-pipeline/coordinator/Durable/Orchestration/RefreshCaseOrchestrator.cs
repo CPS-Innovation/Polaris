@@ -209,7 +209,7 @@ namespace coordinator.Durable.Orchestration
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
                             nameof(RefreshDocumentOrchestrator),
-                            RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
+                            InstanceIdHelper.DocumentOrchestratorKey(payload.CmsCaseId.ToString(), payload.PolarisDocumentId.ToString()),
                             payload
                         )
                     );
