@@ -41,7 +41,7 @@ namespace coordinator.tests.Functions
 
             var cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
-            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId.ToString());
+            _instanceId = InstanceIdHelper.OrchestratorKey(_caseId.ToString());
 
             _httpRequest = new DefaultHttpContext().Request;
             _httpRequest.Method = "POST";

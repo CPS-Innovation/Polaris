@@ -38,7 +38,7 @@ namespace coordinator.Functions
         {
             var response = new GetTrackerDocumentResponse { Success = false };
 
-            var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
+            var entityId = new EntityId(nameof(CaseDurableEntity), InstanceIdHelper.OrchestratorKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
             if (!stateResponse.EntityExists)
             {

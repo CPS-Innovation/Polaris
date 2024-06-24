@@ -48,7 +48,7 @@ namespace coordinator.Durable.Orchestration
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
             var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = CreateOrGetCaseDurableEntity(context, payload.CmsCaseId);
+            var caseEntity = GetEntityProxy(context, payload.CmsCaseId);
 
             // 1. Get Pdf
             try

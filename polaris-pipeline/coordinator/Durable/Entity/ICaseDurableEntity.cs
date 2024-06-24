@@ -14,12 +14,6 @@ namespace coordinator.Durable.Entity
     public interface ICaseDurableEntity
     {
         [Obsolete]
-        Task<int?> GetVersion();
-
-        [Obsolete]
-        void SetVersion(int value);
-
-        [Obsolete]
         void Reset(string TransactionId);
 
         [Obsolete]
@@ -31,6 +25,8 @@ namespace coordinator.Durable.Entity
 
         [Obsolete]
         void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args);
+
+        Task<int> InitialiseRefresh(DateTime args);
 
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
 

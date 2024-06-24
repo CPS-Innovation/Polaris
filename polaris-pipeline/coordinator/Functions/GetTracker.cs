@@ -49,7 +49,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
                 // todo: temporary code
-                var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
+                var caseEntityKey = InstanceIdHelper.OrchestratorKey(caseId);
                 var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
                 EntityStateResponse<CaseDurableEntity> caseEntity = default;
                 try

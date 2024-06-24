@@ -18,7 +18,6 @@ using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
 using Common.Configuration;
-using Common.Dto.Tracker;
 using Common.Extensions;
 using Common.Services.BlobStorageService;
 using Common.ValueObjects;
@@ -110,7 +109,7 @@ namespace coordinator.Functions
 
                     var results = _piiService.ReconcilePiiResults(piiChunks, piiResultsWrapper);
 
-                    var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
+                    var caseEntityKey = InstanceIdHelper.OrchestratorKey(caseId.ToString());
                     var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
 
                     await client.SignalEntityAsync<ICaseDurableEntity>(

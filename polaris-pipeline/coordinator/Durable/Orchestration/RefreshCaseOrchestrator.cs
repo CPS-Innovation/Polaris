@@ -34,8 +34,6 @@ namespace coordinator.Durable.Orchestration
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-        public static string GetKey(string caseId) => $"[{caseId}]";
-
         public RefreshCaseOrchestrator(
             ILogger<RefreshCaseOrchestrator> log,
             IConfiguration configuration,
@@ -57,8 +55,9 @@ namespace coordinator.Durable.Orchestration
 
             var log = context.CreateReplaySafeLogger(_log);
 
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
+            var caseEntity = GetEntityProxy(context, payload.CmsCaseId);
+            var startTime = context.CurrentUtcDateTime;
+            var versionId = await caseEntity.InitialiseRefresh(startTime);
 
             RefreshedCaseEvent telemetryEvent = default;
             try
@@ -66,8 +65,8 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent = new RefreshedCaseEvent(
                     correlationId: payload.CorrelationId,
                     caseId: payload.CmsCaseId,
-                    versionId: await caseEntity.GetVersion(),
-                    startTime: await caseEntity.GetStartTime()
+                    versionId: versionId,
+                    startTime: startTime
                 );
 
                 var orchestratorTask = RunCaseOrchestrator(context, caseEntity, payload, telemetryEvent);

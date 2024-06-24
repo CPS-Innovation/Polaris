@@ -3,7 +3,6 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
-using coordinator.Durable.Orchestration;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -22,37 +21,13 @@ namespace coordinator.Durable.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
-        public static string GetInstanceId(string caseId)
-        {
-            return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
-        }
-
         [Obsolete]
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-
-        private int? version = null;
-
         // Currently useful in analytics to e.g. determine if/when a case has been refreshed
         [JsonProperty("versionId")]
-        public int? Version
-        {
-            get { return version; }
-            set { version = value; }
-        }
-
-        [Obsolete]
-        public Task<int?> GetVersion()
-        {
-            return Task.FromResult(version);
-        }
-
-        [Obsolete]
-        public void SetVersion(int value)
-        {
-            version = value;
-        }
+        public int? Version { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
@@ -96,6 +71,14 @@ namespace coordinator.Durable.Entity
             CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
             PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
+        }
+
+        public Task<int> InitialiseRefresh(DateTime args)
+        {
+            Running = args;
+            Status = CaseRefreshStatus.Running;
+            Version += 1;
+            return Task.FromResult(Version.Value);
         }
 
         public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
