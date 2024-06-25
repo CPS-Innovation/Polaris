@@ -34,8 +34,8 @@
   "extensions": {
     "durableTask": {
       "hubName": "%CoordinatorTaskHub%",
-      "maxConcurrentActivityFunctions": 225,
-      "maxConcurrentOrchestratorFunctions": 225,
+      "maxConcurrentActivityFunctions": 325,
+      "maxConcurrentOrchestratorFunctions": 325,
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false,
