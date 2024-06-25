@@ -98,8 +98,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 {
                     ImageStream = memoryStream,
                     IsApplyResolution = true,
-                    FixHeight = pageHeight,
-                    FixWidth = pageWidth,
+                    FixHeight = pageToSwapOutRect.Height,
+                    FixWidth = pageToSwapOutRect.Width,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
