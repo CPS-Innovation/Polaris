@@ -92,9 +92,13 @@ describe("useCaseDetailsState", () => {
       throw new Error("Should not be here");
     });
 
-    jest
-      .spyOn(pipelineApi, "usePipelineApi")
-      .mockImplementation(() => ({} as AsyncPipelineResult<PipelineResults>));
+    jest.spyOn(pipelineApi, "usePipelineApi").mockImplementation(
+      () =>
+        ({} as {
+          pipelineResults: AsyncPipelineResult<PipelineResults>;
+          pipelineBusy: boolean;
+        })
+    );
 
     reducerSpy = jest
       .spyOn(reducer, "reducer")
