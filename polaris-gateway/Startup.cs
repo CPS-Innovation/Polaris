@@ -103,7 +103,8 @@ namespace PolarisGateway
                     return false;
                 }
 
-                return response.StatusCode >= HttpStatusCode.InternalServerError;
+                // #27567 - retry on 404 as well as 5xx as coordinator can return 404 when the entity is not found in the durable entity store
+                return response.StatusCode == HttpStatusCode.NotFound || response.StatusCode >= HttpStatusCode.InternalServerError;
             }
 
 

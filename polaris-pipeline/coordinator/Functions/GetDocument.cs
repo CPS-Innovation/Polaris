@@ -42,7 +42,7 @@ namespace coordinator.Functions
             try
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
-                var response = await GetTrackerDocument(client, caseId.ToString(), new PolarisDocumentId(polarisDocumentId));
+                var response = await GetTrackerDocument(client, caseId.ToString(), new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(GetDocument));
                 var blobName = response.GetBlobName();
 
                 var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);

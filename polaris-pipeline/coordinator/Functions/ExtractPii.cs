@@ -62,7 +62,7 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId.ToString(), new PolarisDocumentId(polarisDocumentId));
+                var response = await GetTrackerDocument(client, caseId.ToString(), new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(ExtractPii));
                 var document = response.CmsDocument;
 
                 var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
