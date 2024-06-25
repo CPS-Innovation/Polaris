@@ -7,6 +7,8 @@ using coordinator.Durable.Entity;
 using Common.ValueObjects;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads.Domain;
+using Microsoft.Extensions.Logging;
+using Common.Logging;
 
 namespace coordinator.Functions
 {
@@ -33,21 +35,36 @@ namespace coordinator.Functions
         (
                 IDurableEntityClient client,
                 string caseId,
-                PolarisDocumentId polarisDocumentId
+                PolarisDocumentId polarisDocumentId,
+                ILogger logger,
+                Guid currentCorrelationId,
+                string loggerSource
             )
         {
             var response = new GetTrackerDocumentResponse { Success = false };
+            CaseDurableEntity entityState;
 
             var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
-            var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
-            if (!stateResponse.EntityExists)
+
+            try
             {
-                var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                response.Error = new NotFoundObjectResult(baseMessage);
+                var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
+                if (!stateResponse.EntityExists)
+                {
+                    throw new Exception($"No pipeline tracker found with id '{caseId}'");
+                }
+                entityState = stateResponse.EntityState;
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"Error when retrieving entity for {loggerSource}: {ex.Message}";
+
+                logger.LogMethodError(currentCorrelationId, loggerSource, errorMessage, ex);
+
+                response.Error = new NotFoundObjectResult(errorMessage);
                 return response;
             }
 
-            CaseDurableEntity entityState = stateResponse.EntityState;
             response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
             if (response.CmsDocument == null)
             {
