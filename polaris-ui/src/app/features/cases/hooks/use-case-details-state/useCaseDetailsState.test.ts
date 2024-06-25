@@ -94,7 +94,7 @@ describe("useCaseDetailsState", () => {
 
     jest.spyOn(pipelineApi, "usePipelineApi").mockImplementation(
       () =>
-        ({} as {
+        ({ pipelineBusy: false, pipelineResults: {} } as {
           pipelineResults: AsyncPipelineResult<PipelineResults>;
           pipelineBusy: boolean;
         })
