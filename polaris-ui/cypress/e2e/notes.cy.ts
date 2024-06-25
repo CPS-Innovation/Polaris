@@ -1,4 +1,4 @@
-import { NOTES_ROUTE } from "../../../src/mock-api/routes";
+import { NOTES_ROUTE } from "../../src/mock-api/routes";
 describe("Feature Notes", () => {
   it("Should show and hide blue circle in the notes icon depending on whether the document has notes available or not", () => {
     cy.visit("/case-details/12AB1111111/13401?notes=true");
