@@ -78,17 +78,6 @@ stages:
               
       - job: Build_Coordinator_Artifact
         steps:
-          # Add build version
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              workingDirectory: 'polaris-pipeline/coordinator'
-              script: |
-                New-Item build-version.txt -force
-                $currentDate = Get-Date
-                Set-Content build-version.txt "{`"name`":`"Coordinator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
-            displayName: "Record version details"
-            
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -97,6 +86,17 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Coordinator artifact"
+            
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/coordinator'
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"Coordinator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
             
           - task: PublishPipelineArtifact@1
             inputs:
