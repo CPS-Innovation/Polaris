@@ -81,6 +81,7 @@ stages:
                 New-Item build-version.txt -force
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Coordinator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
 
           - task: PublishPipelineArtifact@1
             inputs:
@@ -124,6 +125,7 @@ stages:
                 New-Item build-version.txt -force
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"PDF Generator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
 
           - task: PublishPipelineArtifact@1
             inputs:
@@ -167,13 +169,14 @@ stages:
                 New-Item build-version.txt -force
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"PDF Redactor`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-redactor"
               artifact: "polaris-pdf-redactor-drop"
             displayName: "Publish PDF-Redactor codebase artifact"
-  
+            
       - job: Build_Text_Extractor_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -194,6 +197,7 @@ stages:
                 New-Item build-version.txt -force
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Text Extractor`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
 
           - task: PublishPipelineArtifact@1
             inputs:
@@ -221,6 +225,7 @@ stages:
                 New-Item build-version.txt -force
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Gateway`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
 
           - task: PublishPipelineArtifact@1
             inputs:
