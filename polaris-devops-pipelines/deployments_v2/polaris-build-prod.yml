@@ -71,6 +71,16 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Coordinator artifact"
+            
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-pipeline/coordinator
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"Coordinator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
 
           - task: PublishPipelineArtifact@1
             inputs:
@@ -104,6 +114,16 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build PDF-Generator artifact"
+            
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-pipeline/pdf-generator
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"PDF Generator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
 
           - task: PublishPipelineArtifact@1
             inputs:
@@ -137,13 +157,23 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build PDF-Redactor artifact"
+            
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-pipeline/pdf-redactor
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"PDF Redactor`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-redactor"
               artifact: "polaris-pdf-redactor-drop"
             displayName: "Publish PDF-Redactor codebase artifact"
- 
+            
       - job: Build_Text_Extractor_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -154,6 +184,16 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Text-Extractor artifact"
+            
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-pipeline/text-extractor
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"Text Extractor`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
 
           - task: PublishPipelineArtifact@1
             inputs:
@@ -171,6 +211,16 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Gateway artifact"
+            
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-gateway
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"Gateway`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
 
           - task: PublishPipelineArtifact@1
             inputs:
