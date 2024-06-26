@@ -14,14 +14,14 @@ schedules:
   #       - main
   #   always: true
     
-  # # run every 15 minutes between 7pm and 11:45pm
+  # # run every 15 minutes between 7pm and 11:45pm UTC
   # - cron: "*/15 19-23 * * *"
   #   displayName: Cron schedule after work and before midnight
   #   branches:
   #     include:
   #       - main
   #   always: true
-  # run every 15 minutes between midnight and 2:45pm
+  # run every 15 minutes between midnight and 2:45am UTC
 
   - cron: "*/15 00-02 * * *"
     displayName: Cron schedule after midnight before 3am cleardown operations
@@ -29,9 +29,9 @@ schedules:
       include:
         - main
     always: true
-  # run every 15 minutes between 4am and 6:45pm
-  - cron: "*/15 04-06 * * *"
-    displayName: Cron schedule after 3am cleardown operations
+  # run every 15 minutes between 4am and 5:45am UTC
+  - cron: "*/15 04-05 * * *"
+    displayName: Cron schedule after 4am cleardown operations
     branches:
       include:
         - main
