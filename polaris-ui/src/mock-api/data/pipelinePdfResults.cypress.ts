@@ -52,7 +52,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1019,
         documentType: "MG12",
-        documentCategory: "MGForm",
+        documentCategory: "Exhibit",
       },
       presentationFlags: {
         read: "Ok",
@@ -232,7 +232,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1019,
         documentType: "MG12",
-        documentCategory: "MGForm",
+        documentCategory: "Exhibit",
       },
       presentationFlags: {
         read: "Ok",
