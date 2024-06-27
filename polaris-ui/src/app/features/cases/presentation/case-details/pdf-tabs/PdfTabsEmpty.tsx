@@ -1,5 +1,5 @@
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-import { TrackerVisualisation } from "./TrackerVisualisation";
+import { TrackerSummary } from "./TrackerSummary";
 import classes from "./PdfTabsEmpty.module.scss";
 
 type Props = {
@@ -15,6 +15,6 @@ export const PdfTabsEmpty: React.FC<Props> = ({ pipelineState }) => (
       Search or choose a file to start reviewing documents
     </p>
 
-    <TrackerVisualisation pipelineState={pipelineState} />
+    <TrackerSummary pipelineState={pipelineState} />
   </div>
 );
