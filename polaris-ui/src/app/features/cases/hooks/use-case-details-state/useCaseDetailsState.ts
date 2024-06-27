@@ -33,7 +33,7 @@ export const initialState = {
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false, correlationId: "" },
   pipelineRefreshData: {
-    startRefresh: true,
+    startRefresh: false,
     savedDocumentDetails: [],
     lastProcessingCompleted: "",
   },
@@ -157,11 +157,29 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   }, [caseState, dispatch]);
 
   useEffect(() => {
-    dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState });
-  }, [pipelineState, dispatch]);
+    dispatch({
+      type: "UPDATE_PIPELINE",
+      payload: pipelineState.pipelineResults,
+    });
+  }, [pipelineState.pipelineResults, dispatch]);
 
   useEffect(() => {
     const { startRefresh } = combinedState.pipelineRefreshData;
+    const caseStateStatus = combinedState.caseState.status;
+    const pipelineResultStatus = pipelineState.pipelineResults.status;
+    if (
+      !startRefresh &&
+      caseStateStatus === "succeeded" &&
+      pipelineResultStatus === "initiating" &&
+      !pipelineState.pipelineBusy
+    ) {
+      dispatch({
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: true,
+        },
+      });
+    }
     if (startRefresh) {
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
@@ -170,7 +188,13 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         },
       });
     }
-  }, [combinedState.pipelineRefreshData, dispatch]);
+  }, [
+    combinedState.pipelineRefreshData,
+    combinedState.caseState.status,
+    pipelineState.pipelineResults.status,
+    pipelineState.pipelineBusy,
+    dispatch,
+  ]);
 
   const searchResults = useApi(
     searchCase,
