@@ -49,25 +49,27 @@ const renderDocResults = (state: PipelineResults) => {
     return `Search index creation in progress`;
   };
 
-  const getCaseReadyText = () => {
+  const getCaseSearchReadyText = () => {
     if (isCaseCompleted) return "Case is ready to search";
     return "Case is not ready to search";
   };
 
   return (
     // WARNING: this is used by the e2e tests to check the status of the documents
-    <div
-      data-testid={
-        isCaseCompleted && everyDocIndexed ? "span-flag-all-indexed" : ""
-      }
-      className={classes.trackerSummary}
-    >
+    <div data-testid="tracker-summary" className={classes.trackerSummary}>
       <span aria-live="polite">
-        {`Total documents ${state.documents.length}`}{" "}
+        {`Total documents ${state.documents.length}`}
       </span>
       <span aria-live="polite">{getDocumentsReadyToReadText()}</span>
       <span aria-live="polite">{getDocumentsSearchIndexText()}</span>
-      <span aria-live="polite">{getCaseReadyText()}</span>
+      <span
+        aria-live="polite"
+        data-testid={
+          isCaseCompleted && everyDocIndexed ? "span-flag-all-indexed" : ""
+        }
+      >
+        {getCaseSearchReadyText()}
+      </span>
     </div>
   );
 };

@@ -146,7 +146,7 @@ const pipelinePdfResult: PipelineResults = {
       documentId: "6",
       cmsDocumentId: "null",
       pdfBlobName: "CM01",
-      status: "UnexpectedFailure",
+      status: "Indexed",
       cmsOriginalFileName: "Test DAC.pdf",
       presentationTitle: "Test DAC",
       cmsOriginalFileExtension: ".pdf",
