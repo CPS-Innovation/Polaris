@@ -62,6 +62,7 @@ const documentCategoryDefinitions: {
     category: "Exhibits",
     showIfEmpty: true,
     testFn: (doc) =>
+      doc.cmsDocType.documentCategory === "Exhibit" &&
       docTypeTest(
         doc,
         [
