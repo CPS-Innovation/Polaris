@@ -6,7 +6,10 @@ import { AsyncPipelineResult } from "./AsyncPipelineResult";
 
 describe("usePipelineApi", () => {
   it("can return results", async () => {
-    const expectedResults = {} as AsyncPipelineResult<PipelineResults>;
+    const expectedResults = {
+      pipelineBusy: true,
+      pipelineResults: {} as AsyncPipelineResult<PipelineResults>,
+    };
 
     jest
       .spyOn(polling, "initiateAndPoll")
@@ -20,7 +23,7 @@ describe("usePipelineApi", () => {
           del
         ) => {
           new Promise((resolve) => setTimeout(resolve, 50)).then(() =>
-            del(expectedResults)
+            del(expectedResults.pipelineResults)
           );
           return () => {};
         }
@@ -35,9 +38,12 @@ describe("usePipelineApi", () => {
     );
 
     expect(result.current).toEqual({
-      status: "initiating",
-      haveData: false,
-      correlationId: "",
+      pipelineBusy: true,
+      pipelineResults: {
+        status: "initiating",
+        haveData: false,
+        correlationId: "",
+      },
     });
 
     await waitForNextUpdate();
