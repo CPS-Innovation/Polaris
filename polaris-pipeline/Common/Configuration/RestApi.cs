@@ -18,6 +18,7 @@ namespace Common.Configuration
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
         public const string AddNoteToDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
         public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/redact";
+        public const string RemoveDocumentPages = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/remove-pages";
 
         // Documents (plural)
         public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
@@ -120,6 +121,11 @@ namespace Common.Configuration
         public static string GetPiiPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/pii";
+        }
+
+        public static string GetRemoveDocumentPagesPath(string caseUrn, string caseId, string documentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/remove-pages";
         }
 
         public static string CaseSearchCountPath(string caseUrn, long caseId)

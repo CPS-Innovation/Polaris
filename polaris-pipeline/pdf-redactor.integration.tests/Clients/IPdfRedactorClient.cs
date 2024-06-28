@@ -2,9 +2,10 @@ using Common.Dto.Request;
 
 namespace pdf_redactor.integration.tests.Clients
 {
-  public interface IPdfRedactorClient
-  {
-    Task<Stream> RedactPdfAsync(RedactPdfRequestWithDocumentDto redactPdfRequest);
-  }
+    public interface IPdfRedactorClient
+    {
+        Task<Stream> RedactPdfAsync(RedactPdfRequestWithDocumentDto redactPdfRequest);
+        Task<Stream> RemoveDocumentPagesAsync(RemoveDocumentPagesWithDocumentDto removeDocumentPagesWithDocument);
+    }
 }
 

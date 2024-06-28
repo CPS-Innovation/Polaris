@@ -1,21 +1,17 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using Common.Exceptions;
+using Common.Constants;
 using Common.Dto.Request;
-using Common.Dto.Response;
+using Common.Exceptions;
 using Common.Extensions;
 using Common.Handlers;
 using Common.Telemetry;
 using Common.Wrappers;
 using FluentValidation;
-using Microsoft.Extensions.Logging;
 using pdf_redactor.Services.DocumentRedaction;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Common.Streaming;
 
 namespace pdf_redactor.Functions
 {
@@ -27,7 +23,6 @@ namespace pdf_redactor.Functions
         private readonly ILogger<RedactPdf> _logger;
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
-        private const string PdfContentType = "application/pdf";
 
         public RedactPdf(
             IExceptionHandler exceptionHandler,
@@ -82,7 +77,7 @@ namespace pdf_redactor.Functions
 
                 var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, documentId, redactions, currentCorrelationId);
 
-                return new FileStreamResult(redactPdfStream, PdfContentType);
+                return new FileStreamResult(redactPdfStream, ContentType.Pdf);
             }
             catch (Exception ex)
             {
