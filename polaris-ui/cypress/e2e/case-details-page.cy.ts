@@ -180,17 +180,15 @@ describe("case details page", () => {
         return cy.findByTestId("tracker-summary").should("exist");
       }).then(() => {
         expect(
-          cy.findByTestId("tracker-summary").contains("Total documents 10")
+          cy.findByTestId("tracker-summary").contains("Total documents: 10")
         );
         expect(
           cy
             .findByTestId("tracker-summary")
-            .contains("Documents ready to read - 10")
+            .contains("Documents ready to read: 10")
         );
         expect(
-          cy
-            .findByTestId("tracker-summary")
-            .contains("Search index creation complete")
+          cy.findByTestId("tracker-summary").contains("Documents indexed: 10")
         );
         expect(
           cy

@@ -14,39 +14,32 @@ const renderDocResults = (state: PipelineResults) => {
   );
 
   const getDocumentsReadyToReadText = () => {
-    const docsUploaded = state.documents.filter(
-      (doc) => doc.status === "PdfUploadedToBlob" || doc.status === "Indexed"
-    )?.length;
     const docFailed = state.documents.filter(
       (doc) =>
         doc.status === "UnableToConvertToPdf" ||
         doc.status === "UnexpectedFailure" ||
         doc.status === "New"
     )?.length;
-
-    console.log("docFailed");
-    if (isCaseCompleted) {
-      return docFailed > 0
-        ? `Documents ready to read - ${docsUploaded} (unable to convert [${docFailed}] ${
-            docFailed > 1 ? "documents" : "document"
-          })`
-        : `Documents ready to read - ${docsUploaded}`;
+    const docsUploaded = state.documents.length - docFailed;
+    if (isCaseCompleted && docFailed) {
+      return `Documents ready to read: ${docsUploaded} (unable to convert ${docFailed} ${
+        docFailed > 1 ? "documents" : "document"
+      })`;
     }
-    return `Documents ready to read - ${docsUploaded}`;
+    return `Documents ready to read: ${docsUploaded}`;
   };
 
   const getDocumentsSearchIndexText = () => {
-    if (isCaseCompleted) {
-      const docsNotIndexed = state.documents.filter(
-        (doc) => doc.status !== "Indexed"
-      ).length;
-      return docsNotIndexed
-        ? `Search index creation complete  (unable to index [${docsNotIndexed}] ${
-            docsNotIndexed > 1 ? "documents" : "document"
-          })`
-        : "Search index creation complete";
+    const docsNotIndexed = state.documents.filter(
+      (doc) => doc.status !== "Indexed"
+    ).length;
+    const docsIndexed = state.documents.length - docsNotIndexed;
+    if (isCaseCompleted && docsNotIndexed) {
+      return `Documents indexed: ${docsIndexed} (unable to index ${docsNotIndexed} ${
+        docsNotIndexed > 1 ? "documents" : "document"
+      })`;
     }
-    return `Search index creation in progress`;
+    return `Documents indexed: ${docsIndexed}`;
   };
 
   const getCaseSearchReadyText = () => {
@@ -58,7 +51,7 @@ const renderDocResults = (state: PipelineResults) => {
     // WARNING: this is used by the e2e tests to check the status of the documents
     <div data-testid="tracker-summary" className={classes.trackerSummary}>
       <span aria-live="polite">
-        {`Total documents ${state.documents.length}`}
+        {`Total documents: ${state.documents.length}`}
       </span>
       <span aria-live="polite">{getDocumentsReadyToReadText()}</span>
       <span aria-live="polite">{getDocumentsSearchIndexText()}</span>
