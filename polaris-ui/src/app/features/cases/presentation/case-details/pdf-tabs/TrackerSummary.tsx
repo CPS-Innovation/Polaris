@@ -71,11 +71,11 @@ export const TrackerSummary: React.FC<Props> = ({
   pipelineState,
   isMultipleDefendantsOrCharges,
 }) => {
+  // remove the filter out of DAC logic(validDocs) when the BUG 27712 is resolved
   const validDocs = useMemo(() => {
     if (!pipelineState.haveData) {
       return [];
     }
-
     return isMultipleDefendantsOrCharges
       ? pipelineState.data.documents
       : pipelineState.data.documents.filter(
