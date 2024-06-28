@@ -1,26 +1,28 @@
+import { useMemo } from "react";
 import { PipelineResults } from "../../../domain/gateway/PipelineResults";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import classes from "./TrackerSummary.module.scss";
 
 type Props = {
   pipelineState: CaseDetailsState["pipelineState"];
+  isMultipleDefendantsOrCharges: boolean;
 };
 
-const renderDocResults = (state: PipelineResults) => {
-  const isCaseCompleted = state.status === "Completed";
-
-  const everyDocIndexed = state.documents.every(
-    (doc) => doc.status === "Indexed"
-  );
+const renderDocResults = (
+  status: PipelineResults["status"],
+  validDocs: PipelineResults["documents"]
+) => {
+  const isCaseCompleted = status === "Completed";
+  const everyDocIndexed = validDocs.every((doc) => doc.status === "Indexed");
 
   const getDocumentsReadyToReadText = () => {
-    const docFailed = state.documents.filter(
+    const docFailed = validDocs.filter(
       (doc) =>
         doc.status === "UnableToConvertToPdf" ||
         doc.status === "UnexpectedFailure" ||
         doc.status === "New"
     )?.length;
-    const docsUploaded = state.documents.length - docFailed;
+    const docsUploaded = validDocs.length - docFailed;
     if (isCaseCompleted && docFailed) {
       return `Documents ready to read: ${docsUploaded} (unable to convert ${docFailed} ${
         docFailed > 1 ? "documents" : "document"
@@ -30,10 +32,10 @@ const renderDocResults = (state: PipelineResults) => {
   };
 
   const getDocumentsSearchIndexText = () => {
-    const docsNotIndexed = state.documents.filter(
+    const docsNotIndexed = validDocs.filter(
       (doc) => doc.status !== "Indexed"
     ).length;
-    const docsIndexed = state.documents.length - docsNotIndexed;
+    const docsIndexed = validDocs.length - docsNotIndexed;
     if (isCaseCompleted && docsNotIndexed) {
       return `Documents indexed: ${docsIndexed} (unable to index ${docsNotIndexed} ${
         docsNotIndexed > 1 ? "documents" : "document"
@@ -48,11 +50,9 @@ const renderDocResults = (state: PipelineResults) => {
   };
 
   return (
-    // WARNING: this is used by the e2e tests to check the status of the documents
+    // WARNING: "span-flag-all-indexed" is used by the e2e tests to check the status of the documents
     <div data-testid="tracker-summary" className={classes.trackerSummary}>
-      <span aria-live="polite">
-        {`Total documents: ${state.documents.length}`}
-      </span>
+      <span aria-live="polite">{`Total documents: ${validDocs.length}`}</span>
       <span aria-live="polite">{getDocumentsReadyToReadText()}</span>
       <span aria-live="polite">{getDocumentsSearchIndexText()}</span>
       <span
@@ -67,15 +67,25 @@ const renderDocResults = (state: PipelineResults) => {
   );
 };
 
-export const TrackerSummary: React.FC<Props> = ({ pipelineState }) => {
-  if (!pipelineState.haveData) {
+export const TrackerSummary: React.FC<Props> = ({
+  pipelineState,
+  isMultipleDefendantsOrCharges,
+}) => {
+  const validDocs = useMemo(() => {
+    if (!pipelineState.haveData) {
+      return [];
+    }
+
+    return isMultipleDefendantsOrCharges
+      ? pipelineState.data.documents
+      : pipelineState.data.documents.filter(
+          (doc) => doc.cmsDocType.documentType !== "DAC"
+        );
+  }, [pipelineState, isMultipleDefendantsOrCharges]);
+
+  if (!pipelineState.haveData || !validDocs.length) {
     return null;
   }
 
-  return (
-    <div>
-      {!!pipelineState.data.documents.length &&
-        renderDocResults(pipelineState.data)}
-    </div>
-  );
+  return <div>{renderDocResults(pipelineState.data.status, validDocs)}</div>;
 };

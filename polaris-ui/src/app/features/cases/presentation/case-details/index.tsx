@@ -504,7 +504,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             }`}
           >
             {!tabsState.items.length ? (
-              <PdfTabsEmpty pipelineState={pipelineState} />
+              <PdfTabsEmpty
+                pipelineState={pipelineState}
+                isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+              />
             ) : (
               <PdfTabs
                 searchPIIData={searchPII}
