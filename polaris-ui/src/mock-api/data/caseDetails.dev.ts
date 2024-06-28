@@ -88,5 +88,6 @@ const caseDetails: CaseDetails[] = [
         victim: true,
       },
     ],
+    preChargeDecisionRequests: [],
   },
 ];

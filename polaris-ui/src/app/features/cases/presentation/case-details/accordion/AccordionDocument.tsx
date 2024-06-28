@@ -21,6 +21,7 @@ import {
 import { Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { mapConversionStatusToMessage } from "../../../domain/gateway/PipelineDocument";
+import { PreChargeDecisionRequest } from "../../../domain/gateway/CaseDetails";
 
 type Props = {
   activeDocumentId: string;
@@ -38,6 +39,7 @@ type Props = {
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
+  pcdRequests: PreChargeDecisionRequest[];
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -50,6 +52,7 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPdf,
   handleOpenNotes,
   handleGetNotes,
+  pcdRequests,
 }) => {
   const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
@@ -71,6 +74,12 @@ export const AccordionDocument: React.FC<Props> = ({
   };
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
+
+  const pcdRequestDate = caseDocument.documentId.startsWith("PCD")
+    ? pcdRequests.find(
+        (pcd) => pcd.id === parseInt(caseDocument.documentId.split("-")[1])
+      )?.decisionRequested
+    : null;
 
   const openNotesRefProps =
     caseDocument.documentId === lastFocusDocumentId
@@ -185,6 +194,21 @@ export const AccordionDocument: React.FC<Props> = ({
                 <span>
                   {formatDate(
                     caseDocument.cmsFileCreatedDate,
+                    CommonDateTimeFormats.ShortDateTextMonth
+                  )}
+                </span>
+              </div>
+            )}
+            {pcdRequestDate && (
+              <div className={`${classes["accordion-document-date"]}`}>
+                <span className={`${classes["visuallyHidden"]}`}>
+                  {" "}
+                  Date Added
+                </span>
+                <DateIcon className={classes.dateIcon} />
+                <span>
+                  {formatDate(
+                    pcdRequestDate,
                     CommonDateTimeFormats.ShortDateTextMonth
                   )}
                 </span>

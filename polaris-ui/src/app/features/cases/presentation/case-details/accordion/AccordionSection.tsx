@@ -5,6 +5,7 @@ import { ReactComponent as EmailIcon } from "../../../../../common/presentation/
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
+import { PreChargeDecisionRequest } from "../../../domain/gateway/CaseDetails";
 
 type Props = {
   activeDocumentId: string;
@@ -26,6 +27,7 @@ type Props = {
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
+  pcdRequests: PreChargeDecisionRequest[];
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -49,6 +51,7 @@ export const AccordionSection: React.FC<Props> = ({
   handleOpenPdf,
   handleOpenNotes,
   handleGetNotes,
+  pcdRequests,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -105,6 +108,7 @@ export const AccordionSection: React.FC<Props> = ({
                     lastFocusDocumentId={lastFocusDocumentId}
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
+                    pcdRequests={pcdRequests}
                   />
                 ))}
               </ul>

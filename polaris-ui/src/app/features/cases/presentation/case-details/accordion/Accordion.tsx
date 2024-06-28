@@ -7,6 +7,7 @@ import { AccordionSection } from "./AccordionSection";
 import { buildInitialState, reducer, AccordionReducerState } from "./reducer";
 import { AccordionDocumentSection } from "./types";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { PreChargeDecisionRequest } from "../../../domain/gateway/CaseDetails";
 
 type Props = {
   initialState: AccordionReducerState | null;
@@ -28,6 +29,7 @@ type Props = {
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
+  pcdRequests: PreChargeDecisionRequest[];
 };
 
 export const Accordion: React.FC<Props> = ({
@@ -42,6 +44,7 @@ export const Accordion: React.FC<Props> = ({
   handleOpenNotes,
   accordionStateChangeCallback,
   handleGetNotes,
+  pcdRequests,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
@@ -97,6 +100,7 @@ export const Accordion: React.FC<Props> = ({
           lastFocusDocumentId={lastFocusDocumentId}
           handleGetNotes={handleGetNotes}
           notesData={notesData}
+          pcdRequests={pcdRequests}
         />
       ))}
     </div>

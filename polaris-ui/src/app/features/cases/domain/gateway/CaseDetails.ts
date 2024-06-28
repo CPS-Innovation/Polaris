@@ -8,12 +8,18 @@ export type CaseDetails = {
   headlineCharge: HeadlineCharge;
   defendants: Defendant[];
   witnesses: Witness[];
+  preChargeDecisionRequests: PreChargeDecisionRequest[];
 };
 
 type Defendant = {
   defendantDetails: DefendantDetails;
   custodyTimeLimit: CustodyTimeLimit;
   charges: Charge[];
+};
+
+export type PreChargeDecisionRequest = {
+  id: number;
+  decisionRequested: string;
 };
 
 export type Witness = {

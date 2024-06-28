@@ -1,11 +1,10 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using coordinator.Services.DocumentToggle;
-using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -65,26 +64,27 @@ namespace coordinator.Durable.Activity
                 payload.CmsCaseUrn,
                 payload.CmsCaseId);
 
-            var getCaseTask = _ddeiClient.GetCaseAsync(arg);
+            var getPcdRequestsTask = _ddeiClient.GetPcdRequests(arg);
+            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndCharges(arg);
 
-            await Task.WhenAll(getDocumentsTask, getCaseTask);
+            await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
             var cmsDocuments = getDocumentsTask.Result
                 .Select(doc => MapPresentationFlags(doc))
                 .ToArray();
 
-            // todo: rather than a call the get case, we should consider making separate calls to the 
-            //  pcd and defendants endpoints. 
-            var @case = getCaseTask.Result;
 
-            var pcdRequests = @case.PreChargeDecisionRequests
-                       .Select(MapPresentationFlags)
-                       .ToArray();
+            var pcdRequests = getPcdRequestsTask.Result
+                .Select(id => MapPresentationFlags(MapPcdRequest(id)))
+                .ToArray();
+
+            var defendantsAndChargesResult = getDefendantsAndChargesTask.Result;
+
 
             var defendantsAndCharges = new DefendantsAndChargesListDto
             {
-                CaseId = @case.Id,
-                DefendantsAndCharges = @case.DefendantsAndCharges.OrderBy(dac => dac.ListOrder)
+                CaseId = payload.CmsCaseId,
+                DefendantsAndCharges = defendantsAndChargesResult.OrderBy(dac => dac.ListOrder)
             };
 
             defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
@@ -104,6 +104,17 @@ namespace coordinator.Durable.Activity
             pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
 
             return pcdRequest;
+        }
+
+        // todo: PcdRequests need to remain in this shape for backwards compatibility in the durable state
+        // it should become a list of int in the future
+        private PcdRequestDto MapPcdRequest(int id)
+        {
+            return new PcdRequestDto
+            {
+                Id = id,
+
+            };
         }
     }
 }

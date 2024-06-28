@@ -422,6 +422,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     accordionStateChangeCallback={accordionStateChangeCallback}
                     handleGetNotes={handleGetNotes}
                     notesData={notes}
+                    pcdRequests={caseState.data.preChargeDecisionRequests}
                   />
                 )}
               </div>

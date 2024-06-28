@@ -11,6 +11,8 @@ using DdeiClient.Services;
 using DdeiClient.Mappers;
 using Microsoft.Extensions.Logging;
 using Ddei.Mappers;
+using Common.Dto.Case.PreCharge;
+using Ddei.Domain.PreCharge;
 
 namespace Ddei.Services
 {
@@ -87,6 +89,23 @@ namespace Ddei.Services
         {
             var @case = await GetCaseInternalAsync(arg);
             return _caseDetailsMapper.MapCaseDetails(@case);
+        }
+
+        public async Task<IEnumerable<int>> GetPcdRequests(DdeiCmsCaseArgDto arg)
+        {
+            return await CallDdei<IEnumerable<int>>(_ddeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
+        }
+
+        public async Task<PcdRequestDto> GetPcdRequest(DdeiCmsPcdArgDto arg)
+        {
+            var pcdRequest = await CallDdei<DdeiPcdRequestDto>(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
+            return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
+        }
+
+        public async Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndCharges(DdeiCmsCaseArgDto arg)
+        {
+            var defendantAndCharges = await CallDdei<IEnumerable<DdeiCaseDefendantDto>>(_ddeiClientRequestFactory.CreateGetDefendantAndChargesRequest(arg));
+            return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges);
         }
 
         public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)

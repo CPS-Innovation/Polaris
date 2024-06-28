@@ -50,6 +50,7 @@ const caseDetails: CaseDetails[] = [
       },
     ],
     witnesses: [],
+    preChargeDecisionRequests: [],
   },
   {
     id: 13301,
@@ -129,6 +130,7 @@ const caseDetails: CaseDetails[] = [
       },
     ],
     witnesses: [],
+    preChargeDecisionRequests: [],
   },
 
   {
@@ -206,6 +208,7 @@ const caseDetails: CaseDetails[] = [
       },
     ],
     witnesses: [],
+    preChargeDecisionRequests: [],
   },
 
   {
@@ -250,6 +253,7 @@ const caseDetails: CaseDetails[] = [
       },
     ],
     witnesses: [],
+    preChargeDecisionRequests: [],
   },
 
   {
@@ -312,6 +316,7 @@ const caseDetails: CaseDetails[] = [
       },
     ],
     witnesses: [],
+    preChargeDecisionRequests: [],
   },
   {
     id: 13701,
@@ -327,5 +332,6 @@ const caseDetails: CaseDetails[] = [
     },
     defendants: [],
     witnesses: [],
+    preChargeDecisionRequests: [],
   },
 ];
