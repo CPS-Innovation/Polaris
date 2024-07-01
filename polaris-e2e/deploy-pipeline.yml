@@ -15,15 +15,22 @@ pool:
   #         - main
   #     always: true
 
+variables:
+  - name: PdfRedactorUrl
+    value: $(PdfRedactorLocation)
+  - name: "branchName"
+    ${{ if eq(parameters.branchName, '') }}:
+      value: $(Build.SourceBranch)
+    ${{ else }}:
+      value: ${{ parameters.branchName }}
+
 resources:
   repositories:
     - repository: PolarisBranch
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-
-variables:
-  PdfRedactorUrl: $(PdfRedactorLocation)
+      ref: $(branchName)
 
 stages:
   - stage: Run_e2e_Tests
