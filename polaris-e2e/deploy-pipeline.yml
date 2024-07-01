@@ -27,7 +27,7 @@ resources:
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: $(branchName)
+      ref: "refs/heads/$(branchName)"
 
 stages:
   - stage: Run_e2e_Tests
