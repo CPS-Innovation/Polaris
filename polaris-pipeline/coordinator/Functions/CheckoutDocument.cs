@@ -47,7 +47,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId));
+                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(CheckoutDocument));
                 var document = response.CmsDocument;
 
                 var arg = _ddeiArgFactory.CreateDocumentArgDto(

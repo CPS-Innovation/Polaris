@@ -25,83 +25,98 @@ resources:
 variables:
   PdfRedactorUrl: $(PdfRedactorLocation)
 
-steps:
-  - checkout: PolarisBranch
-    clean: true
-    persistCredentials: true
-    fetchDepth: 1
-    displayName: "Checkout polaris-e2e"
+stages:
+  - stage: Run_e2e_Tests
+    displayName: Run e2e Tests
+    jobs:
+      - job: Run_DotNet_Tests
+        displayName: Run DotNet Tests
+        steps:
+          - checkout: PolarisBranch
+            clean: true
+            persistCredentials: true
+            fetchDepth: 1
+            displayName: "Checkout polaris-e2e"
+            
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: "Aspose.Total.NET.lic"
+            displayName: "Download Aspose Licence"
 
-  - task: DownloadSecureFile@1
-    name: licence
-    inputs:
-      secureFile: "Aspose.Total.NET.lic"
-    displayName: "Download Aspose Licence"
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/pdf-redactor.integration.tests/pdf-redactor.integration.tests.csproj"
+              arguments: "--configuration Release"
+            displayName: "Build PDF Redactor Integration Tests"
 
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: "build"
-      projects: "polaris-pipeline/pdf-redactor.integration.tests/pdf-redactor.integration.tests.csproj"
-      arguments: "--configuration Release"
-    displayName: "Build PDF Redactor Integration Tests"
+          - task: FileTransform@2
+            displayName: 'Transform Integration Test Settings'
+            inputs:
+              folderPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+              jsonTargetFiles: "appSettings.json"
+              xmlTransformationRules: '' # disabled, prevents non-windows-platform error
 
-  - task: FileTransform@2
-    displayName: 'Transform Integration Test Settings'
-    inputs:
-      folderPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
-      jsonTargetFiles: "appSettings.json"
-      xmlTransformationRules: '' # disabled, prevents non-windows-platform error
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+            displayName: "Copy Aspose.Total.NET.lic"
 
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: $(Agent.TempDirectory)
-      contents: Aspose.Total.NET.lic
-      targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
-    displayName: "Copy Aspose.Total.NET.lic"
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+              script: |
+                dotnet ./pdf-redactor.integration.tests.dll
+              failOnStderr: true
+            displayName: "Run PDF Redactor Integration Tests"
+          
+      - job: Run_Cypress_Tests
+        displayName: Run Cypress Tests
+        steps:
+          - checkout: PolarisBranch
+            clean: true
+            persistCredentials: true
+            fetchDepth: 1
+            displayName: "Checkout polaris-e2e"
+            
+          - task: Bash@3
+            inputs:
+              targetType: "inline"
+              script: "env | sort"
 
-  - task: PowerShell@2
-    inputs:
-      targetType: 'inline'
-      workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
-      script: |
-        dotnet ./pdf-redactor.integration.tests.dll
-      failOnStderr: true
-    displayName: "Run PDF Redactor Integration Tests"
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-e2e"
+            displayName: "npm install"
 
-  - task: Bash@3
-    inputs:
-      targetType: "inline"
-      script: "env | sort"
+          - task: CmdLine@2
+            env:
+              CYPRESS_CLIENTSECRET: "$(cypress_clientsecret)"
+              CYPRESS_AD_USERNAME: "$(cypress_ad_username)"
+              CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
+              CYPRESS_ENVIRONMENT: "$(cypress_environment)"
+              CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
+            condition: succeeded()
+            inputs:
+              workingDirectory: "polaris-e2e"
+              script: "npm run cy:ci"
+            displayName: "cypress run tests"
 
-  - task: Npm@1
-    inputs:
-      command: "install"
-      workingDir: "polaris-e2e"
-    displayName: "npm install"
+          - task: PublishBuildArtifacts@1
+            condition: always() # this step will always run, helpful to diagnose failing cypress tests
+            inputs:
+              PathtoPublish: "polaris-e2e/cypress/videos"
+              ArtifactName: "Cypress failure vidoes"
+              publishLocation: "Container"
 
-  - task: CmdLine@2
-    env:
-      CYPRESS_CLIENTSECRET: "$(cypress_clientsecret)"
-      CYPRESS_AD_USERNAME: "$(cypress_ad_username)"
-      CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
-      CYPRESS_ENVIRONMENT: "$(cypress_environment)"
-      CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
-    condition: succeeded()
-    inputs:
-      workingDirectory: "polaris-e2e"
-      script: "npm run cy:ci"
-    displayName: "cypress run tests"
-
-  - task: PublishBuildArtifacts@1
-    condition: always() # this step will always run, helpful to diagnose failing cypress tests
-    inputs:
-      PathtoPublish: "polaris-e2e/cypress/videos"
-      ArtifactName: "Cypress failure vidoes"
-      publishLocation: "Container"
-
-  - task: PublishBuildArtifacts@1
-    condition: always() # this step will always run, helpful to diagnose failing cypress tests
-    inputs:
-      PathtoPublish: "polaris-e2e/cypress/screenshots"
-      ArtifactName: "Cypress failure screenshots"
-      publishLocation: "Container"
+          - task: PublishBuildArtifacts@1
+            condition: always() # this step will always run, helpful to diagnose failing cypress tests
+            inputs:
+              PathtoPublish: "polaris-e2e/cypress/screenshots"
+              ArtifactName: "Cypress failure screenshots"
+              publishLocation: "Container"

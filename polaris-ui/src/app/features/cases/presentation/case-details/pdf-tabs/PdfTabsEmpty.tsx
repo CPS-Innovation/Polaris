@@ -1,12 +1,16 @@
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-import { TrackerVisualisation } from "./TrackerVisualisation";
+import { TrackerSummary } from "./TrackerSummary";
 import classes from "./PdfTabsEmpty.module.scss";
 
 type Props = {
   pipelineState: CaseDetailsState["pipelineState"];
+  isMultipleDefendantsOrCharges: boolean;
 };
 
-export const PdfTabsEmpty: React.FC<Props> = ({ pipelineState }) => (
+export const PdfTabsEmpty: React.FC<Props> = ({
+  pipelineState,
+  isMultipleDefendantsOrCharges,
+}) => (
   <div className={`${classes.pdfTabsEmpty}`}>
     <h2 className={`govuk-heading-m ${classes.heading}`}>
       View your documents
@@ -15,6 +19,9 @@ export const PdfTabsEmpty: React.FC<Props> = ({ pipelineState }) => (
       Search or choose a file to start reviewing documents
     </p>
 
-    <TrackerVisualisation pipelineState={pipelineState} />
+    <TrackerSummary
+      pipelineState={pipelineState}
+      isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+    />
   </div>
 );

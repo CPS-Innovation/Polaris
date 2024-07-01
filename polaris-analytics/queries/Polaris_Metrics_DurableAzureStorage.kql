@@ -1,0 +1,25 @@
+AppTraces  
+| where AppRoleName == "fa-polaris-coordinator"
+| where Properties.Category == "DurableTask.AzureStorage"
+| extend EventName = tostring(Properties.EventName)
+| extend InstanceId = tostring(Properties["prop__InstanceId"]) 
+| extend ExecutionId = tostring(Properties["prop__ExecutionId"]) 
+| extend TargetInstanceId = tostring(Properties["prop__TargetInstanceId"]) 
+| extend TargetExecutionId = tostring(Properties["prop__TargetExecutionId"]) 
+| extend PartitionId = tostring(Properties["prop__PartitionId"])
+| extend TaskName = tostring(Properties["EventName"])
+| extend EventType = tostring(Properties["prop__EventType"]) 
+| extend ExtendedSession = Properties["prop__IsExtendedSession"]
+| extend Account = tostring(Properties["prop__Account"]) 
+| extend Details = tostring(Properties["prop__Details"])
+| extend MessageId = tostring(Properties["prop__MessageId"]) 
+| extend Age = toint(Properties["prop__Age"]) 
+| extend LatencyMs = Properties["prop__LatencyMs"] 
+| extend DequeueCount = Properties["prop__DequeueCount"] 
+| extend PartitionId = tostring(Properties["prop__PartitionId"])
+| extend EventCount = Properties["prop__TotalEventCount"] 
+| extend TaskHub = Properties["prop__TaskHub"] 
+| extend Pid = Properties["ProcessId"]
+| extend NewEvents = Properties["prop__NewEvents"]
+| extend
+    ParentId = extract("(\\[\\d+\\])", 1, InstanceId)

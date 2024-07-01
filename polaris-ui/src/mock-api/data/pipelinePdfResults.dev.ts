@@ -1,4 +1,3 @@
-import { ConversionStatus } from "../../app/features/cases/domain/gateway/PipelineDocument";
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 
@@ -16,7 +15,7 @@ const pipelinePdfResult: PipelineResults = {
       documentId: "1",
       cmsDocumentId: "1",
       pdfBlobName: "MCLOVEMG3",
-      status: "PdfUploadedToBlob",
+      status: "Indexed",
       cmsOriginalFileName: "MCLOVEMG3 very long .docx",
       presentationTitle: "UM MCLOVEMG3 very long",
       cmsOriginalFileExtension: ".pdf",
@@ -68,7 +67,7 @@ const pipelinePdfResult: PipelineResults = {
       documentId: "3",
       cmsDocumentId: "3",
       pdfBlobName: "MG05MCLOVE",
-      status: "Indexed",
+      status: "UnexpectedFailure",
       cmsOriginalFileName: "MG05MCLOVE very long .docx",
       presentationTitle: "MG05MCLOVE very long",
       cmsOriginalFileExtension: ".pdf",
@@ -281,7 +280,7 @@ const pipelinePdfResult: PipelineResults = {
       pdfBlobName: "MG06_10june",
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june  very long .docx",
-      presentationTitle: "MG06_10june  very long",
+      presentationTitle: "MG06_11june  very long",
       cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,

@@ -403,7 +403,7 @@ stages:
             
       - job: Swap_Coordinator_Slot
         dependsOn: Pause_Pipeline
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        condition: succeeded()
         strategy:
           matrix:
             Coordinator:
@@ -475,7 +475,7 @@ stages:
               
       - job: Swap_Proxy_Slot
         dependsOn: Pause_Pipeline
-        condition: and(succeeded(),eq(variables.runTerraform, 'true'))
+        condition: succeeded()
         strategy:
           matrix:
             Proxy:
