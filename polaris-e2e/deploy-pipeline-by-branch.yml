@@ -101,7 +101,7 @@ stages:
               CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
               CYPRESS_ENVIRONMENT: "$(cypress_environment)"
               CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
-              CYPRESS_grepTags: "@ci-chunk-1+-@notrunprodci @ci-chunk-3+-@notrunprodci"
+              CYPRESS_grepTags: "$(cypress_grep_tags_a)"
             condition: succeeded()
             inputs:
               workingDirectory: "polaris-e2e"
@@ -149,7 +149,7 @@ stages:
               CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
               CYPRESS_ENVIRONMENT: "$(cypress_environment)"
               CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
-              CYPRESS_grepTags: "$(cypress_grep_tags)"
+              CYPRESS_grepTags: "$(cypress_grep_tags_b)"
             condition: succeeded()
             inputs:
               workingDirectory: "polaris-e2e"
