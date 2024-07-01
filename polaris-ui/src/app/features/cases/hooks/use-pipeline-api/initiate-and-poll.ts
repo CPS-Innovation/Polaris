@@ -34,7 +34,8 @@ export const initiateAndPoll = (
   delayMs: number,
   pipelineRefreshData: CombinedState["pipelineRefreshData"],
   correlationId: string,
-  del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void
+  del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void,
+  shouldStopPolling: () => boolean
 ) => {
   let keepPolling = true;
   let trackingCallCount = 0;
@@ -83,7 +84,7 @@ export const initiateAndPoll = (
   };
 
   const startInitiatePipelinePolling = async () => {
-    while (keepPolling) {
+    while (keepPolling && !shouldStopPolling()) {
       try {
         await delay(delayMs);
         const trackerArgs = await initiatePipeline(urn, caseId, correlationId);
@@ -104,7 +105,7 @@ export const initiateAndPoll = (
   const startTrackerPolling = async (
     trackerArgs: Awaited<ReturnType<typeof initiatePipeline>>
   ) => {
-    while (keepPolling) {
+    while (keepPolling && !shouldStopPolling()) {
       try {
         await delay(delayMs);
 
