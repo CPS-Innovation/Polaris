@@ -1,49 +1,26 @@
+pr: none
 trigger: none
 
 pool:
   name: $(build-agent)
-
-schedules:
-  # Switch off pre-midnight runs for now, devs still working/releasing
-  #  and the e2e tests runs use up agents and otherwise confound releases
-
-  # - cron: "*/15 07-23 * * *"
-  #   displayName: Temp cron schedule during the day for durable performance diagnosis
-  #   branches:
-  #     include:
-  #       - main
-  #   always: true
-    
-  # # run every 15 minutes between 7pm and 11:45pm UTC
-  # - cron: "*/15 19-23 * * *"
-  #   displayName: Cron schedule after work and before midnight
-  #   branches:
-  #     include:
-  #       - main
-  #   always: true
-  # run every 15 minutes between midnight and 2:45am UTC
-
-  - cron: "*/15 00-02 * * *"
-    displayName: Cron schedule after midnight before 3am cleardown operations
-    branches:
-      include:
-        - main
-    always: true
-  # run every 15 minutes between 4am and 5:45am UTC
-  - cron: "*/15 04-05 * * *"
-    displayName: Cron schedule after 4am cleardown operations
-    branches:
-      include:
-        - main
-    always: true
+  
+  # schedules:
+  #   # Switch off pre-midnight runs for now, devs still working/releasing
+  #   #  and the e2e tests runs use up agents and otherwise confound releases
+  
+  #   - cron: "*/15 07-23 * * *"
+  #     displayName: Temp cron schedule during the day for durable performance diagnosis
+  #     branches:
+  #       include:
+  #         - main
+  #     always: true
 
 resources:
   repositories:
-    - repository: PolarisTagged
+    - repository: PolarisBranch
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/tags/$(cypress_environment)
 
 variables:
   PdfRedactorUrl: $(PdfRedactorLocation)
@@ -55,12 +32,12 @@ stages:
       - job: Run_DotNet_Tests
         displayName: Run DotNet Tests
         steps:
-          - checkout: PolarisTagged
+          - checkout: PolarisBranch
             clean: true
             persistCredentials: true
             fetchDepth: 1
-            displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
-            
+            displayName: "Checkout polaris-e2e"
+
           - task: DownloadSecureFile@1
             name: licence
             inputs:
@@ -96,16 +73,16 @@ stages:
                 dotnet ./pdf-redactor.integration.tests.dll
               failOnStderr: true
             displayName: "Run PDF Redactor Integration Tests"
-            
+
       - job: Run_Cypress_Tests
         displayName: Run Cypress Tests
         steps:
-          - checkout: PolarisTagged
+          - checkout: PolarisBranch
             clean: true
             persistCredentials: true
             fetchDepth: 1
-            displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
-            
+            displayName: "Checkout polaris-e2e"
+
           - task: Bash@3
             inputs:
               targetType: "inline"
