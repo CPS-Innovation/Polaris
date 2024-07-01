@@ -15,12 +15,13 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureFunctionsJobHost__extensions__durableTask__storageProvider__MaxQueuePollingInterval" = var.coordinator.max_queue_polling_interval
-    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentActivityFunctions"           = var.coordinator.max_concurrent_activity_functions
-    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentOrchestratorFunctions"       = var.coordinator.max_concurrent_orchestrator_functions
-    "AzureWebJobs.ResetDurableState.Disabled"                                                  = var.overnight_clear_down.disabled
-    "AzureWebJobs.SlidingCaseClearDown.Disabled"                                               = var.sliding_clear_down.disabled
-    "AzureWebJobsStorage"                                                                      = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "AzureFunctionsJobHost__extensions__durableTask__storageProvider__MaxQueuePollingInterval"      = var.coordinator.max_queue_polling_interval
+    "AzureFunctionsJobHost__extensions__durableTask__storageProvider__ControlQueueBufferThreshold"  = var.coordinator.control_queue_buffer_threshold
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentActivityFunctions"                = var.coordinator.max_concurrent_activity_functions
+    "AzureFunctionsJobHost__extensions__durableTask__MaxConcurrentOrchestratorFunctions"            = var.coordinator.max_concurrent_orchestrator_functions
+    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
     # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
     "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
