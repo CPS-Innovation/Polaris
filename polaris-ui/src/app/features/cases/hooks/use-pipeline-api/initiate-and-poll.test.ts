@@ -29,7 +29,8 @@ describe("initiateAndPoll", () => {
         lastProcessingCompleted: "",
       },
       "corId_1",
-      mockCallback
+      mockCallback,
+      () => false
     );
     clock.tick(1000);
     await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
@@ -76,7 +77,8 @@ describe("initiateAndPoll", () => {
         lastProcessingCompleted: "",
       },
       "corId_1",
-      mockCallback
+      mockCallback,
+      () => false
     );
     clock.tick(1000);
     await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
@@ -131,7 +133,8 @@ describe("initiateAndPoll", () => {
         lastProcessingCompleted: "",
       },
       "corId_1",
-      mockCallback
+      mockCallback,
+      () => false
     );
     clock.tick(1000);
     await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
@@ -188,7 +191,8 @@ describe("initiateAndPoll", () => {
         lastProcessingCompleted: "",
       },
       "corId_1",
-      mockCallback
+      mockCallback,
+      () => false
     );
 
     clock.tick(1000);
@@ -268,7 +272,8 @@ describe("initiateAndPoll", () => {
         lastProcessingCompleted: "",
       },
       "corId_1",
-      mockCallback
+      mockCallback,
+      () => false
     );
     clock.tick(1000);
     await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);

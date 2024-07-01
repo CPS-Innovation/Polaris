@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
@@ -9,7 +9,8 @@ import { generateGuid } from "../../../cases/api/generate-guid";
 export const usePipelineApi = (
   urn: string,
   caseId: number,
-  pipelineRefreshData: CombinedState["pipelineRefreshData"]
+  pipelineRefreshData: CombinedState["pipelineRefreshData"],
+  isUnMounting: () => boolean
 ): {
   pipelineResults: AsyncPipelineResult<PipelineResults>;
   pipelineBusy: boolean;
@@ -27,18 +28,19 @@ export const usePipelineApi = (
   useEffect(() => {
     if (pipelineRefreshData.startRefresh && !pipelineBusy) {
       const correlationId = generateGuid();
-      //get correlationID here and add it ot the setPipelineResults and remove it from gateway
+      //get correlationID here and add it to the setPipelineResults and remove it from gateway
       initiateAndPoll(
         urn,
         caseId,
         PIPELINE_POLLING_DELAY,
         pipelineRefreshData,
         correlationId,
-        (results) => setPipelineResults(results)
+        (results) => setPipelineResults(results),
+        isUnMounting
       );
       setPipelineBusy(true);
     }
-  }, [caseId, urn, pipelineRefreshData, pipelineBusy]);
+  }, [caseId, urn, pipelineRefreshData, pipelineBusy, isUnMounting]);
 
   useEffect(() => {
     if (pipelineResults.status !== "initiating") {
