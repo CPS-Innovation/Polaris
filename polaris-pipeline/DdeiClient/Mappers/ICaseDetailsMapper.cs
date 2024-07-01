@@ -10,5 +10,6 @@ namespace DdeiClient.Mappers
         CaseDto MapCaseDetails(DdeiCaseDetailsDto caseDetails);
         IEnumerable<DefendantAndChargesDto> MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants);
         PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr);
+        IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<DdeiPcdRequestCoreDto> pcdRequests);
     }
 }

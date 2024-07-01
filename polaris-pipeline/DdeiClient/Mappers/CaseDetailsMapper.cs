@@ -54,6 +54,21 @@ namespace Ddei.Mappers
             };
         }
 
+        public IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<DdeiPcdRequestCoreDto> pcdRequests)
+        {
+            return pcdRequests.Select(pcd => MapCorePreChargeDecisionRequest(pcd));
+        }
+
+        private PcdRequestCoreDto MapCorePreChargeDecisionRequest(DdeiPcdRequestCoreDto pcd)
+        {
+            return new PcdRequestCoreDto
+            {
+                Id = pcd.Id,
+                DecisionRequiredBy = pcd.DecisionRequiredBy,
+                DecisionRequested = pcd.DecisionRequested,
+            };
+        }
+
         private DefendantAndChargesDto MapDefendantAndCharges(DdeiCaseDefendantDto defendant)
         {
             return new DefendantAndChargesDto

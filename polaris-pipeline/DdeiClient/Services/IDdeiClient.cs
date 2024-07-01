@@ -2,6 +2,7 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.PreCharge;
 
 namespace DdeiClient.Services
 {
@@ -11,7 +12,7 @@ namespace DdeiClient.Services
 		Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCmsCaseIdArgDto arg);
 		Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg);
 		Task<CaseDto> GetCaseAsync(DdeiCmsCaseArgDto arg);
-		Task<IEnumerable<int>> GetPcdRequests(DdeiCmsCaseArgDto arg);
+		Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequests(DdeiCmsCaseArgDto arg);
 		Task<PcdRequestDto> GetPcdRequest(DdeiCmsPcdArgDto arg);
 		Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndCharges(DdeiCmsCaseArgDto arg);
 		Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId);

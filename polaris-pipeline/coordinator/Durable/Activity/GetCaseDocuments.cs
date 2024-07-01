@@ -38,7 +38,7 @@ namespace coordinator.Durable.Activity
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -75,7 +75,7 @@ namespace coordinator.Durable.Activity
 
 
             var pcdRequests = getPcdRequestsTask.Result
-                .Select(id => MapPresentationFlags(MapPcdRequest(id)))
+                .Select(corePcd => MapPresentationFlags(corePcd))
                 .ToArray();
 
             var defendantsAndChargesResult = getDefendantsAndChargesTask.Result;
@@ -99,22 +99,11 @@ namespace coordinator.Durable.Activity
             return document;
         }
 
-        private PcdRequestDto MapPresentationFlags(PcdRequestDto pcdRequest)
+        private PcdRequestCoreDto MapPresentationFlags(PcdRequestCoreDto pcdRequest)
         {
             pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
 
             return pcdRequest;
-        }
-
-        // todo: PcdRequests need to remain in this shape for backwards compatibility in the durable state
-        // it should become a list of int in the future
-        private PcdRequestDto MapPcdRequest(int id)
-        {
-            return new PcdRequestDto
-            {
-                Id = id,
-
-            };
         }
     }
 }

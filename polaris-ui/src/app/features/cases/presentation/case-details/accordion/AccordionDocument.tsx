@@ -21,7 +21,6 @@ import {
 import { Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { mapConversionStatusToMessage } from "../../../domain/gateway/PipelineDocument";
-import { PreChargeDecisionRequest } from "../../../domain/gateway/CaseDetails";
 
 type Props = {
   activeDocumentId: string;
@@ -39,7 +38,6 @@ type Props = {
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
-  pcdRequests: PreChargeDecisionRequest[];
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -52,7 +50,6 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPdf,
   handleOpenNotes,
   handleGetNotes,
-  pcdRequests,
 }) => {
   const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
@@ -74,12 +71,6 @@ export const AccordionDocument: React.FC<Props> = ({
   };
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
-
-  const pcdRequestDate = caseDocument.documentId.startsWith("PCD")
-    ? pcdRequests.find(
-        (pcd) => pcd.id === parseInt(caseDocument.documentId.split("-")[1])
-      )?.decisionRequested
-    : null;
 
   const openNotesRefProps =
     caseDocument.documentId === lastFocusDocumentId
@@ -137,22 +128,18 @@ export const AccordionDocument: React.FC<Props> = ({
         : `${notes[notes.length - 1].text}`;
     }
     return ariaLiveText
-      ? `recent note text is ${notes[notes.length - 1].text}, and ${
-          notes.length - 1
-        } more`
+      ? `recent note text is ${notes[notes.length - 1].text}, and ${notes.length - 1
+      } more`
       : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
   };
 
   return (
     <li
-      className={`${classes["accordion-document-list-item"]} ${
-        readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
-      } ${
-        activeDocumentId === caseDocument.documentId ? classes.docActive : ""
-      }`}
-      data-read={`${
-        readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
-      }`}
+      className={`${classes["accordion-document-list-item"]} ${readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
+        } ${activeDocumentId === caseDocument.documentId ? classes.docActive : ""
+        }`}
+      data-read={`${readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
+        }`}
     >
       <div className={classes.listItemWrapper}>
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
@@ -194,21 +181,6 @@ export const AccordionDocument: React.FC<Props> = ({
                 <span>
                   {formatDate(
                     caseDocument.cmsFileCreatedDate,
-                    CommonDateTimeFormats.ShortDateTextMonth
-                  )}
-                </span>
-              </div>
-            )}
-            {pcdRequestDate && (
-              <div className={`${classes["accordion-document-date"]}`}>
-                <span className={`${classes["visuallyHidden"]}`}>
-                  {" "}
-                  Date Added
-                </span>
-                <DateIcon className={classes.dateIcon} />
-                <span>
-                  {formatDate(
-                    pcdRequestDate,
                     CommonDateTimeFormats.ShortDateTextMonth
                   )}
                 </span>
@@ -314,8 +286,8 @@ export const AccordionDocument: React.FC<Props> = ({
             Document only available on CMS
             {caseDocument.conversionStatus !== "DocumentConverted"
               ? `: ${mapConversionStatusToMessage(
-                  caseDocument.conversionStatus
-                )}`
+                caseDocument.conversionStatus
+              )}`
               : ""}
           </span>
         )}

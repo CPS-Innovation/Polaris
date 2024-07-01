@@ -422,7 +422,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     accordionStateChangeCallback={accordionStateChangeCallback}
                     handleGetNotes={handleGetNotes}
                     notesData={notes}
-                    pcdRequests={caseState.data.preChargeDecisionRequests}
                   />
                 )}
               </div>
@@ -469,9 +468,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   ariaLabel={
                     inFullScreen ? "Exit full screen" : "View full screen"
                   }
-                  className={`${classes.resizeBtn} ${
-                    inFullScreen && classes.inFullScreen
-                  }`}
+                  className={`${classes.resizeBtn} ${inFullScreen && classes.inFullScreen
+                    }`}
                   onClick={() => {
                     if (inFullScreen) {
                       trackEvent("Exit Full Screen", {
@@ -498,11 +496,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             </div>
           )}
           <div
-            className={`${classes.rightColumn} ${
-              inFullScreen
+            className={`${classes.rightColumn} ${inFullScreen
                 ? "govuk-grid-column-full"
                 : "govuk-grid-column-three-quarters"
-            }`}
+              }`}
           >
             {!tabsState.items.length ? (
               <PdfTabsEmpty pipelineState={pipelineState} />

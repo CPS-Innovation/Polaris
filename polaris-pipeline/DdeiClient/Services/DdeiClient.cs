@@ -91,9 +91,10 @@ namespace Ddei.Services
             return _caseDetailsMapper.MapCaseDetails(@case);
         }
 
-        public async Task<IEnumerable<int>> GetPcdRequests(DdeiCmsCaseArgDto arg)
+        public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequests(DdeiCmsCaseArgDto arg)
         {
-            return await CallDdei<IEnumerable<int>>(_ddeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
+            var pcdRequests = await CallDdei<IEnumerable<DdeiPcdRequestCoreDto>>(_ddeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
+            return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
         }
 
         public async Task<PcdRequestDto> GetPcdRequest(DdeiCmsPcdArgDto arg)

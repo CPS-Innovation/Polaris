@@ -31,7 +31,6 @@ const searchResults: CaseSearchResult[] = [
       nextHearingDate: "2023-01-02",
     },
     witnesses: [],
-    preChargeDecisionRequests: [],
   },
   {
     id: 13401,
@@ -55,7 +54,6 @@ const searchResults: CaseSearchResult[] = [
       nextHearingDate: "2023-01-02",
     },
     witnesses: [],
-    preChargeDecisionRequests: [],
   },
   {
     id: 13401,
@@ -79,7 +77,6 @@ const searchResults: CaseSearchResult[] = [
       nextHearingDate: "2023-01-02",
     },
     witnesses: [],
-    preChargeDecisionRequests: [],
   },
 
   {
@@ -104,7 +101,6 @@ const searchResults: CaseSearchResult[] = [
       nextHearingDate: "2023-01-02",
     },
     witnesses: [],
-    preChargeDecisionRequests: [],
   },
   {
     id: 13401,
@@ -119,6 +115,5 @@ const searchResults: CaseSearchResult[] = [
       nextHearingDate: "2023-01-02",
     },
     witnesses: [],
-    preChargeDecisionRequests: [],
   },
 ];
