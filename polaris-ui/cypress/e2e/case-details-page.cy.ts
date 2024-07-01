@@ -1,4 +1,4 @@
-import { CASE_ROUTE } from "../../../src/mock-api/routes";
+import { CASE_ROUTE } from "../../src/mock-api/routes";
 import { parseISO, differenceInYears } from "date-fns";
 
 export const getAgeFromIsoDate = (isoDateString: string) =>
@@ -42,6 +42,81 @@ describe("case details page", () => {
 
       // we are showing the error page
       cy.findByTestId("txt-error-page-heading");
+    });
+
+    it("Should not call initiatePipeline or the tracker, if the getCaseDetails is not successful", () => {
+      cy.overrideRoute(CASE_ROUTE, {
+        type: "break",
+        httpStatusCode: 500,
+      });
+      const initiatePipelineCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13201"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13201/tracker"
+      );
+      const getCaseDetailsCounter = { count: 0 };
+      cy.trackRequestCount(
+        getCaseDetailsCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13201"
+      );
+      cy.visit("/case-details/12AB1111111/13201");
+      cy.waitUntil(() => {
+        return cy.findByTestId("txt-error-page-heading");
+      }).then(() => {
+        expect(getCaseDetailsCounter.count).to.equal(1);
+        expect(initiatePipelineCounter.count).to.equal(0);
+        expect(trackerCounter.count).to.equal(0);
+      });
+    });
+    it("Should call the initiatePipeline only once, if the getCaseDetails is successful", () => {
+      const initiatePipelineCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13201"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13201/tracker"
+      );
+
+      const getCaseDetailsCounter = { count: 0 };
+      cy.trackRequestCount(
+        getCaseDetailsCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13201"
+      );
+
+      cy.visit("/case-details/12AB1111111/13201");
+
+      cy.findByTestId("link-defendant-details").contains(
+        "View 1 defendant and charges"
+      );
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE OUTLINE");
+      cy.waitUntil(() => {
+        return cy
+          .findByTestId("div-pdfviewer-0")
+          .should("exist")
+          .contains("CASE OUTLINE");
+      }).then(() => {
+        expect(getCaseDetailsCounter.count).to.equal(1);
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
     });
   });
 
@@ -170,6 +245,32 @@ describe("case details page", () => {
       cy.findByTestId("redaction-warning").contains(
         "Redaction is not supported for this document type."
       );
+    });
+
+    it("should show the tracker summary and span with data testId `span-flag-all-indexed' when all the documents are ready for search", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13201");
+      cy.findByTestId("txt-case-urn").contains("12AB1111111");
+      cy.waitUntil(() => {
+        return cy.findByTestId("tracker-summary").should("exist");
+      }).then(() => {
+        expect(
+          cy.findByTestId("tracker-summary").contains("Total documents: 10")
+        );
+        expect(
+          cy
+            .findByTestId("tracker-summary")
+            .contains("Documents ready to read: 10")
+        );
+        expect(
+          cy.findByTestId("tracker-summary").contains("Documents indexed: 10")
+        );
+        expect(
+          cy
+            .findByTestId("span-flag-all-indexed")
+            .contains("Case is ready to search")
+        );
+      });
     });
   });
 

@@ -1,4 +1,4 @@
-import { RedactionSaveRequest } from "../../../src/app/features/cases/domain/gateway/RedactionSaveRequest";
+import { RedactionSaveRequest } from "../../src/app/features/cases/domain/gateway/RedactionSaveRequest";
 
 /**
  * This is to normalize the save redaction request based on the height of the known save request data for each page

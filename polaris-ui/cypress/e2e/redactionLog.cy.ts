@@ -3,13 +3,13 @@ import {
   SAVE_REDACTION_LOG_ROUTE,
   REDACTION_LOG_MAPPING_ROUTE,
   REDACTION_LOG_LOOKUP_ROUTE,
-} from "../../../src/mock-api/routes";
+} from "../../src/mock-api/routes";
 import {
   expectedUnderRedactionType1Payload,
   expectedUnderRedactionType2Payload,
   expectedOverRedactionLogPayload,
   expectedOverUnderRedactionLogPayload,
-} from "../../fixtures/redactionLogSaveRequests";
+} from "../fixtures/redactionLogSaveRequests";
 
 const redactionTypeLabels = [
   "Named individual",

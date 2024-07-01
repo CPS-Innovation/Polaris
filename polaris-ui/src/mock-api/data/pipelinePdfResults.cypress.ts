@@ -52,7 +52,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1019,
         documentType: "MG12",
-        documentCategory: "MGForm",
+        documentCategory: "Exhibit",
       },
       presentationFlags: {
         read: "Ok",
@@ -146,7 +146,7 @@ const pipelinePdfResult: PipelineResults = {
       documentId: "6",
       cmsDocumentId: "null",
       pdfBlobName: "CM01",
-      status: "UnexpectedFailure",
+      status: "Indexed",
       cmsOriginalFileName: "Test DAC.pdf",
       presentationTitle: "Test DAC",
       cmsOriginalFileExtension: ".pdf",
@@ -232,7 +232,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1019,
         documentType: "MG12",
-        documentCategory: "MGForm",
+        documentCategory: "Exhibit",
       },
       presentationFlags: {
         read: "Ok",

@@ -3,9 +3,9 @@ import {
   SAVE_REDACTION_ROUTE,
   TRACKER_ROUTE,
   DOCUMENT_CHECKOUT_ROUTE,
-} from "../../../src/mock-api/routes";
+} from "../../src/mock-api/routes";
 
-import { refreshPipelineDeletedDocuments } from "../../../src/mock-api/data/pipelinePdfResults.cypress";
+import { refreshPipelineDeletedDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 
 describe("redaction refresh flow", () => {
   it("should successfully complete the redaction refresh flow for saving redaction of single document two times", () => {
