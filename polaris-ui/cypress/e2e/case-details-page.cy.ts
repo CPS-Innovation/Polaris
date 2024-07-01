@@ -246,6 +246,32 @@ describe("case details page", () => {
         "Redaction is not supported for this document type."
       );
     });
+
+    it("should show the tracker summary and span with data testId `span-flag-all-indexed' when all the documents are ready for search", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13201");
+      cy.findByTestId("txt-case-urn").contains("12AB1111111");
+      cy.waitUntil(() => {
+        return cy.findByTestId("tracker-summary").should("exist");
+      }).then(() => {
+        expect(
+          cy.findByTestId("tracker-summary").contains("Total documents: 10")
+        );
+        expect(
+          cy
+            .findByTestId("tracker-summary")
+            .contains("Documents ready to read: 10")
+        );
+        expect(
+          cy.findByTestId("tracker-summary").contains("Documents indexed: 10")
+        );
+        expect(
+          cy
+            .findByTestId("span-flag-all-indexed")
+            .contains("Case is ready to search")
+        );
+      });
+    });
   });
 
   describe("Document navigation away alert modal", () => {
