@@ -19,11 +19,8 @@ variables:
   - name: PdfRedactorUrl
     value: $(PdfRedactorLocation)
   - name: "branchName"
-    ${{ if eq(parameters.branchName, '') }}:
-      value: $(Build.SourceBranch)
-    ${{ else }}:
-      value: ${{ parameters.branchName }}
-
+    value: $(Build.SourceBranch)
+    
 resources:
   repositories:
     - repository: PolarisBranch
