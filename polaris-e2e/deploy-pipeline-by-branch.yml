@@ -74,8 +74,8 @@ stages:
               failOnStderr: true
             displayName: "Run PDF Redactor Integration Tests"
 
-      - job: Run_Cypress_Tests
-        displayName: Run Cypress Tests
+      - job: Run_Cypress_Tests_A
+        displayName: Run Cypress Tests A
         steps:
           - checkout: PolarisBranch
             clean: true
@@ -101,7 +101,55 @@ stages:
               CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
               CYPRESS_ENVIRONMENT: "$(cypress_environment)"
               CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
-              CYPRESS_grepTags: "@ci-chunk-3+-@notrunprodci"
+              CYPRESS_grepTags: "@ci-chunk-1+-@notrunprodci @ci-chunk-3+-@notrunprodci"
+            condition: succeeded()
+            inputs:
+              workingDirectory: "polaris-e2e"
+              script: "npm run cy:ci"
+            displayName: "cypress run tests"
+
+          - task: PublishBuildArtifacts@1
+            condition: always() # this step will always run, helpful to diagnose failing cypress tests
+            inputs:
+              PathtoPublish: "polaris-e2e/cypress/videos"
+              ArtifactName: "Cypress failure vidoes"
+              publishLocation: "Container"
+
+          - task: PublishBuildArtifacts@1
+            condition: always() # this step will always run, helpful to diagnose failing cypress tests
+            inputs:
+              PathtoPublish: "polaris-e2e/cypress/screenshots"
+              ArtifactName: "Cypress failure screenshots"
+              publishLocation: "Container"
+
+      - job: Run_Cypress_Tests_B
+        displayName: Run Cypress Tests B
+        steps:
+          - checkout: PolarisBranch
+            clean: true
+            persistCredentials: true
+            fetchDepth: 1
+            displayName: "Checkout polaris-e2e"
+
+          - task: Bash@3
+            inputs:
+              targetType: "inline"
+              script: "env | sort"
+
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-e2e"
+            displayName: "npm install"
+
+          - task: CmdLine@2
+            env:
+              CYPRESS_CLIENTSECRET: "$(cypress_clientsecret)"
+              CYPRESS_AD_USERNAME: "$(cypress_ad_username)"
+              CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
+              CYPRESS_ENVIRONMENT: "$(cypress_environment)"
+              CYPRESS_PRE_SEARCH_DELAY_MS: "$(cypress_pre_search_delay_ms)"
+              CYPRESS_grepTags: "@ci-chunk-2+-@notrunprodci @ci-chunk-4+-@notrunprodci"
             condition: succeeded()
             inputs:
               workingDirectory: "polaris-e2e"
