@@ -108,6 +108,7 @@ variable "pii" {
 
 variable "coordinator" {
   type = object({
+    control_queue_buffer_threshold        = number
     max_concurrent_activity_functions     = number
     max_concurrent_orchestrator_functions = number
     max_queue_polling_interval            = string #hh:mm:ss format e.g. "00:00:05" for 5 seconds

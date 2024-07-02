@@ -60,7 +60,8 @@ pii = {
 }
 
 coordinator = {
-  max_concurrent_orchestrator_functions = 675
-  max_concurrent_activity_functions     = 675
+  control_queue_buffer_threshold        = 512
+  max_concurrent_orchestrator_functions = 800
+  max_concurrent_activity_functions     = 800
   max_queue_polling_interval            = "00:00:02"
 }
