@@ -15,21 +15,21 @@ using pdf_redactor.Services.DocumentManipulation;
 
 namespace pdf_redactor.Functions
 {
-    public class RemoveDocumentPages
+    public class ModifyDocument
     {
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDocumentManipulationService _documentManipulationService;
-        private readonly ILogger<RemoveDocumentPages> _logger;
-        private readonly IValidator<RemoveDocumentPagesWithDocumentDto> _requestValidator;
+        private readonly ILogger<ModifyDocument> _logger;
+        private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
-        public RemoveDocumentPages(
+        public ModifyDocument(
             IExceptionHandler exceptionHandler,
             IJsonConvertWrapper jsonConvertWrapper,
             IDocumentManipulationService documentManipulationService,
-            ILogger<RemoveDocumentPages> logger,
-            IValidator<RemoveDocumentPagesWithDocumentDto> requestValidator,
+            ILogger<ModifyDocument> logger,
+            IValidator<ModifyDocumentWithDocumentDto> requestValidator,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper
         )
         {
@@ -41,8 +41,8 @@ namespace pdf_redactor.Functions
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
         }
 
-        [Function(nameof(RemoveDocumentPages))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveDocumentPages)] HttpRequest request, string caseUrn, string caseId, string documentId)
+        [Function(nameof(ModifyDocument))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest request, string caseUrn, string caseId, string documentId)
         {
             Guid currentCorrelationId = default;
 
@@ -68,21 +68,35 @@ namespace pdf_redactor.Functions
                     throw new BadRequestException("Request body cannot be null or an empty JSON message", nameof(request));
                 }
 
-                var pageIndexes = _jsonConvertWrapper.DeserializeObject<RemoveDocumentPagesWithDocumentDto>(content);
+                var modifications = _jsonConvertWrapper.DeserializeObject<ModifyDocumentWithDocumentDto>(content);
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
-                _telemetryAugmentationWrapper.RegisterDocumentVersionId(pageIndexes.VersionId.ToString());
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(modifications.VersionId.ToString());
 
-                var validationResult = await _requestValidator.ValidateAsync(pageIndexes);
+                var validationResult = await _requestValidator.ValidateAsync(modifications);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
 
-                var modifiedPdfStream = await _documentManipulationService.RemovePagesAsync(caseId, documentId, pageIndexes, currentCorrelationId);
+                Stream modifiedPdfStream = default;
+
+                foreach (var change in modifications.DocumentChanges.OrderByDescending(x => x.PageIndex))
+                {
+                    switch (change.Operation)
+                    {
+                        case DocumentManipulationOperation.RemovePage:
+                        case DocumentManipulationOperation.RotatePage:
+                            modifiedPdfStream = await _documentManipulationService.RemoveOrRotatePagesAsync(caseId, documentId, modifications, currentCorrelationId);
+                            break;
+                        default:
+                            modifiedPdfStream = null;
+                            break;
+                    }
+                }
 
                 return new FileStreamResult(modifiedPdfStream, ContentType.Pdf);
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RemoveDocumentPages), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(ModifyDocument), _logger);
             }
         }
     }

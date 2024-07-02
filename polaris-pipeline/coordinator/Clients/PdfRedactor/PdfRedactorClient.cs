@@ -51,13 +51,13 @@ namespace coordinator.Clients.PdfRedactor
             }
         }
 
-        public async Task<Stream> RemoveDocumentPages(string caseUrn, string caseId, string documentId, RemoveDocumentPagesWithDocumentDto removeDocumentPagesDto, Guid correlationId)
+        public async Task<Stream> ModifyDocument(string caseUrn, string caseId, string documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId)
         {
             try
             {
-                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(removeDocumentPagesDto), Encoding.UTF8, "application/json");
+                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(modifyDocumentDto), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetRemoveDocumentPagesPath(caseUrn, caseId, documentId)}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId)}", correlationId);
                 request.Content = requestMessage;
 
                 var response = await _httpClient.SendAsync(request);

@@ -74,7 +74,7 @@ namespace PolarisGateway
             services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
             services.AddSingleton<IInitializationHandler, InitializationHandler>();
             services.AddSingleton<IDocumentNoteRequestMapper, DocumentNoteRequestMapper>();
-            services.AddSingleton<IRemoveDocumentPagesRequestMapper, RemoveDocumentPagesRequestMapper>();
+            services.AddSingleton<IModifyDocumentRequestMapper, ModifyDocumentRequestMapper>();
             services.AddTransient<IRequestFactory, RequestFactory>();
         }
 

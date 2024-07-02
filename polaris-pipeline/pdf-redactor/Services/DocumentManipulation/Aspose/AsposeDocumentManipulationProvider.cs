@@ -1,4 +1,5 @@
 using Aspose.Pdf;
+using Common.Constants;
 using Common.Dto.Request;
 using Common.Streaming;
 using Common.Telemetry;
@@ -14,18 +15,22 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        public async Task<Stream> RemovePages(Stream stream, string caseId, string documentId, RemoveDocumentPagesDto removeDocumentPages, Guid correlationId)
+        public async Task<Stream> ModifyDocument(Stream stream, string caseId, string documentId, ModifyDocumentDto modifications, Guid correlationId)
         {
-            DocumentPagesRemovedEvent telemetryEvent = default;
+            DocumentModifiedEvent telemetryEvent = default;
             try
             {
                 var inputStream = await stream.EnsureSeekableAsync();
 
-                telemetryEvent = new DocumentPagesRemovedEvent(
+                var pagesRemoved = modifications.DocumentChanges.Where(x => x.Operation == DocumentManipulationOperation.RemovePage).SelectMany(x => new[] { x.PageIndex }).ToArray();
+                var pagesRotated = modifications.DocumentChanges.Where(x => x.Operation == DocumentManipulationOperation.RotatePage).SelectMany(x => new[] { x.PageIndex }).ToArray();
+
+                telemetryEvent = new DocumentModifiedEvent(
                     correlationId: correlationId,
                     caseId: caseId,
                     documentId: documentId,
-                    pageNumbersRemoved: removeDocumentPages.PagesIndexesToRemove,
+                    pageNumbersRemoved: pagesRemoved,
+                    pageNumbersRotated: pagesRotated,
                     startTime: DateTime.UtcNow,
                     originalBytes: inputStream.Length
                 );
@@ -35,7 +40,18 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
                 telemetryEvent.PdfFormat = document.PdfFormat.ToString();
                 telemetryEvent.PageCount = document.Pages.Count;
 
-                document.Pages.Delete(removeDocumentPages.PagesIndexesToRemove);
+                foreach (var change in modifications.DocumentChanges.OrderByDescending(x => x.PageIndex))
+                {
+                    switch (change.Operation)
+                    {
+                        case DocumentManipulationOperation.RemovePage:
+                            document.Pages.Delete(change.PageIndex);
+                            break;
+                        case DocumentManipulationOperation.RotatePage:
+                            document.Pages[change.PageIndex].Rotate = GetRotation(change.Arg.ToString());
+                            break;
+                    }
+                }
 
                 var outputStream = new MemoryStream();
                 await document.SaveAsync(outputStream, CancellationToken.None);
@@ -55,6 +71,13 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
                 throw;
             }
         }
-    }
 
+        private static Rotation GetRotation(string value) => value switch
+        {
+            "90" => Rotation.on90,
+            "180" => Rotation.on180,
+            "270" => Rotation.on270,
+            _ => throw new Exception("Rotation input value not recognised.")
+        };
+    }
 }

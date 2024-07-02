@@ -154,14 +154,14 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<HttpResponseMessage> RemoveDocumentPages(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RemoveDocumentPagesDto removeDocumentPageRequest, string cmsAuthValues, Guid correlationId)
+        public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
-                RestApi.GetRemoveDocumentPagesPath(caseUrn, caseId.ToString(), polarisDocumentId.Value),
+                RestApi.GetModifyDocumentPath(caseUrn, caseId.ToString(), polarisDocumentId.Value),
                 correlationId,
                 cmsAuthValues,
-                new StringContent(JsonConvert.SerializeObject(removeDocumentPageRequest), Encoding.UTF8, ContentType.Json));
+                new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)

@@ -55,7 +55,7 @@ var host = new HostBuilder()
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
         services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
-        services.AddScoped<IValidator<RemoveDocumentPagesWithDocumentDto>, RemoveDocumentPagesWithDocumentValidator>();
+        services.AddScoped<IValidator<ModifyDocumentWithDocumentDto>, RemoveDocumentPagesWithDocumentValidator>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

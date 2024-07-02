@@ -16,36 +16,36 @@ using PolarisGateway.Validators;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineRemoveDocumentPages
+    public class PolarisPipelineModifyDocument
     {
-        private readonly ILogger<PolarisPipelineRemoveDocumentPages> _logger;
+        private readonly ILogger<PolarisPipelineModifyDocument> _logger;
         private readonly ICoordinatorClient _coordinatorClient;
-        private readonly IRemoveDocumentPagesRequestMapper _removeDocumentPagesRequestMapper;
+        private readonly IModifyDocumentRequestMapper _modifyDocumentRequestMapper;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
         private readonly ITelemetryClient _telemetryClient;
 
-        public PolarisPipelineRemoveDocumentPages(
-            ILogger<PolarisPipelineRemoveDocumentPages> logger,
+        public PolarisPipelineModifyDocument(
+            ILogger<PolarisPipelineModifyDocument> logger,
             ICoordinatorClient coordinatorClient,
-            IRemoveDocumentPagesRequestMapper removeDocumentPagesRequestMapper,
+            IModifyDocumentRequestMapper modifyDocumentRequestMapper,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,
             ITelemetryClient telemetryClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
-            _removeDocumentPagesRequestMapper = removeDocumentPagesRequestMapper ?? throw new ArgumentNullException(nameof(removeDocumentPagesRequestMapper));
+            _modifyDocumentRequestMapper = modifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(modifyDocumentRequestMapper));
             _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        [FunctionName(nameof(PolarisPipelineRemoveDocumentPages))]
+        [FunctionName(nameof(PolarisPipelineModifyDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveDocumentPages)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
-            var telemetryEvent = new RemoveDocumentPageEvent(caseId, polarisDocumentId);
+            var telemetryEvent = new DocumentModifiedEvent(caseId, polarisDocumentId);
 
             HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
             {
@@ -61,10 +61,10 @@ namespace PolarisGateway.Functions
                 telemetryEvent.IsRequestValid = true;
                 telemetryEvent.CorrelationId = context.CorrelationId;
 
-                var pageIndexes = await ValidatorHelper.GetJsonBody<DocumentPageRemovalRequestDto, RemoveDocumentPagesValidator>(req);
-                var isRequestJsonValid = pageIndexes.IsValid;
+                var documentChanges = await ValidatorHelper.GetJsonBody<DocumentModificationRequestDto, ModifyDocumentPagesValidator>(req);
+                var isRequestJsonValid = documentChanges.IsValid;
                 telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
-                telemetryEvent.RequestJson = pageIndexes.RequestJson;
+                telemetryEvent.RequestJson = documentChanges.RequestJson;
 
                 if (!isRequestJsonValid)
                 {
@@ -74,12 +74,12 @@ namespace PolarisGateway.Functions
                     });
                 }
 
-                var removeDocumentPagesDto = _removeDocumentPagesRequestMapper.Map(pageIndexes.Value);
-                var response = await _coordinatorClient.RemoveDocumentPages(
+                var modifyDocumentDto = _modifyDocumentRequestMapper.Map(documentChanges.Value);
+                var response = await _coordinatorClient.ModifyDocument(
                     caseUrn,
                     caseId,
                     new PolarisDocumentId(polarisDocumentId),
-                    removeDocumentPagesDto,
+                    modifyDocumentDto,
                     context.CmsAuthValues,
                     context.CorrelationId);
 
@@ -92,7 +92,7 @@ namespace PolarisGateway.Functions
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 return _unhandledExceptionHandler.HandleUnhandledException(
                   _logger,
-                  nameof(PolarisPipelineRemoveDocumentPages),
+                  nameof(PolarisPipelineModifyDocument),
                   context.CorrelationId,
                   ex
                 );

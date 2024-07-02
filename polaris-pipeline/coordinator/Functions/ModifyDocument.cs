@@ -25,26 +25,26 @@ using FluentValidation;
 
 namespace coordinator.Functions
 {
-    public class RemoveDocumentPages : BaseClient
+    public class ModifyDocument : BaseClient
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IValidator<RemoveDocumentPagesWithDocumentDto> _requestValidator;
+        private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _pdfRedactorClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
-        private readonly ILogger<RemoveDocumentPages> _logger;
+        private readonly ILogger<ModifyDocument> _logger;
 
-        public RemoveDocumentPages(
+        public ModifyDocument(
             IJsonConvertWrapper jsonConvertWrapper,
-            IValidator<RemoveDocumentPagesWithDocumentDto> requestValidator,
+            IValidator<ModifyDocumentWithDocumentDto> requestValidator,
             IPdfRedactorClient pdfRedactorClient,
             IPolarisBlobStorageService blobStorageService,
             IUploadFileNameFactory uploadFileNameFactory,
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
-            ILogger<RemoveDocumentPages> logger)
+            ILogger<ModifyDocument> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
@@ -56,12 +56,12 @@ namespace coordinator.Functions
             _logger = logger;
         }
 
-        [FunctionName(nameof(RemoveDocumentPages))]
+        [FunctionName(nameof(ModifyDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveDocumentPages)]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)]
             HttpRequestMessage req,
             string caseUrn,
             string caseId,
@@ -78,7 +78,7 @@ namespace coordinator.Functions
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
-                var pageIndexes = _jsonConvertWrapper.DeserializeObject<RemoveDocumentPagesRequestDto>(content);
+                var documentChanges = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
 
                 using var documentStream = await _blobStorageService.GetDocumentAsync(document.PdfBlobName, currentCorrelationId);
 
@@ -88,33 +88,33 @@ namespace coordinator.Functions
 
                 var base64Document = Convert.ToBase64String(bytes);
 
-                var removeDocumentPageRequest = new RemoveDocumentPagesWithDocumentDto
+                var modifyDocumentRequest = new ModifyDocumentWithDocumentDto
                 {
                     Document = base64Document,
-                    FileName = pageIndexes.FileName,
-                    PagesIndexesToRemove = pageIndexes.PagesIndexesToRemove,
-                    VersionId = pageIndexes.VersionId
+                    FileName = documentChanges.FileName,
+                    DocumentChanges = documentChanges.DocumentChanges,
+                    VersionId = documentChanges.VersionId
                 };
 
-                var validationResult = await _requestValidator.ValidateAsync(removeDocumentPageRequest);
+                var validationResult = await _requestValidator.ValidateAsync(modifyDocumentRequest);
                 if (!validationResult.IsValid)
-                    throw new BadRequestException(validationResult.FlattenErrors(), nameof(removeDocumentPageRequest));
+                    throw new BadRequestException(validationResult.FlattenErrors(), nameof(modifyDocumentRequest));
 
-                using var modifiedDocumentStream = await _pdfRedactorClient.RemoveDocumentPages(caseUrn, caseId, polarisDocumentId, removeDocumentPageRequest, currentCorrelationId);
+                using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modifyDocumentRequest, currentCorrelationId);
                 if (modifiedDocumentStream == null)
                 {
-                    string error = $"Error removing pages from document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                    string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
                     throw new Exception(error);
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(removeDocumentPageRequest.FileName);
+                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(modifyDocumentRequest.FileName);
 
                 await _blobStorageService.UploadDocumentAsync(
                     modifiedDocumentStream,
                     uploadFileName,
                     caseId,
                     polarisDocumentId,
-                    removeDocumentPageRequest.VersionId.ToString(),
+                    modifyDocumentRequest.VersionId.ToString(),
                     currentCorrelationId);
 
                 using var pdfStream = await _blobStorageService.GetDocumentAsync(uploadFileName, currentCorrelationId);
@@ -141,7 +141,7 @@ namespace coordinator.Functions
             }
             catch (Exception ex)
             {
-                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(RemoveDocumentPages), currentCorrelationId, ex);
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(ModifyDocument), currentCorrelationId, ex);
             }
         }
     }

@@ -17,23 +17,23 @@ namespace pdf_redactor.Services.DocumentManipulation
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Stream> RemovePagesAsync(string caseId, string documentId, RemoveDocumentPagesWithDocumentDto removeDocumentPages, Guid correlationId)
+        public async Task<Stream> RemoveOrRotatePagesAsync(string caseId, string documentId, ModifyDocumentWithDocumentDto removeOrRotateDocumentPages, Guid correlationId)
         {
             try
             {
-                byte[] documentBytes = Convert.FromBase64String(removeDocumentPages.Document);
+                byte[] documentBytes = Convert.FromBase64String(removeOrRotateDocumentPages.Document);
                 using var documentStream = new MemoryStream(documentBytes);
 
-                var removePages = new RemoveDocumentPagesDto
+                var modifications = new ModifyDocumentDto
                 {
-                    PagesIndexesToRemove = removeDocumentPages.PagesIndexesToRemove
+                    DocumentChanges = removeOrRotateDocumentPages.DocumentChanges
                 };
 
-                return await _documentManipulationProvider.RemovePages(documentStream, caseId, documentId, removePages, correlationId);
+                return await _documentManipulationProvider.ModifyDocument(documentStream, caseId, documentId, modifications, correlationId);
             }
             catch (Exception ex)
             {
-                _logger.LogMethodError(correlationId, nameof(RemovePagesAsync), ex.Message, ex);
+                _logger.LogMethodError(correlationId, nameof(RemoveOrRotatePagesAsync), ex.Message, ex);
                 throw;
             }
         }

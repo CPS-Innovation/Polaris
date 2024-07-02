@@ -1,8 +1,8 @@
 namespace PolarisGateway.TelemetryEvents
 {
-    public class RemoveDocumentPageEvent : BaseRequestEvent
+    public class DocumentModifiedEvent : BaseRequestEvent
     {
-        public RemoveDocumentPageEvent(
+        public DocumentModifiedEvent(
             long caseId,
             string documentId)
         {
