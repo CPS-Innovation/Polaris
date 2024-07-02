@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using Common.Configuration;
+using Common.Constants;
 using Common.Dto.Request;
 using Common.ValueObjects;
 using Newtonsoft.Json;
@@ -107,7 +108,7 @@ namespace PolarisGateway.Clients.Coordinator
                 RestApi.GetRedactDocumentPath(caseUrn, caseId, polarisDocumentId),
                 correlationId,
                 cmsAuthValues,
-                new StringContent(JsonConvert.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json"));
+                new StringContent(JsonConvert.SerializeObject(redactPdfRequest), Encoding.UTF8, ContentType.Json));
         }
 
         public async Task<HttpResponseMessage> SearchCase(string caseUrn, int caseId, string searchTerm, Guid correlationId)
@@ -142,7 +143,7 @@ namespace PolarisGateway.Clients.Coordinator
                 RestApi.GetDocumentNotesPath(caseUrn, caseId, documentId),
                 correlationId,
                 cmsAuthValues,
-                new StringContent(JsonConvert.SerializeObject(addDocumentNoteRequestDto), Encoding.UTF8, "application/json"));
+                new StringContent(JsonConvert.SerializeObject(addDocumentNoteRequestDto), Encoding.UTF8, ContentType.Json));
         }
 
         public async Task<HttpResponseMessage> GetPii(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
@@ -151,6 +152,16 @@ namespace PolarisGateway.Clients.Coordinator
                 HttpMethod.Put,
                 RestApi.GetPiiPath(caseUrn, caseId, polarisDocumentId),
                 correlationId);
+        }
+
+        public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Post,
+                RestApi.GetModifyDocumentPath(caseUrn, caseId.ToString(), polarisDocumentId.Value),
+                correlationId,
+                cmsAuthValues,
+                new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)

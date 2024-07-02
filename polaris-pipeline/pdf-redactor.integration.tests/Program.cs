@@ -1,9 +1,11 @@
-﻿using coordinator.Clients.PdfRedactor;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Codeuctivity.ImageSharpCompare;
 using Aspose.Pdf;
+using coordinator.Clients.PdfRedactor;
+using Codeuctivity.ImageSharpCompare;
 using Common.Streaming;
+using pdf_redactor.integration.tests.Helpers;
+using Common.Constants;
 
 /* 
 Aspose.PDF.Drawing 24.2.0 behaves differently when running unit tests compared to in production env
@@ -13,19 +15,19 @@ ImageSharpCompare is then used to assert the AbsoluteError is 0 comparing to our
 namespace pdf_redactor.integration.tests
 {
     using IPdfRedactorClient = Clients.IPdfRedactorClient;
-    
+
     internal static class Program
     {
         private static string _pdfRedactorUrl = string.Empty;
-        
+
         public static async Task<int> Main()
         {
             var serviceProvider = BuildServiceProvider();
 
             StartupHelpers.SetAsposeLicence();
 
-
             var redactorClient = serviceProvider.GetRequiredService<IPdfRedactorClient>();
+
 
             Console.WriteLine($"Running tests against PDF Redactor: '{_pdfRedactorUrl}'");
             Console.WriteLine("Asserting Document Image Redactions - Started");
@@ -37,6 +39,16 @@ namespace pdf_redactor.integration.tests
             Console.WriteLine("Asserting Broken OCR Redactions - Started");
             await AssertRedactedPdf(redactorClient, "pdf_redactor.integration.tests.Resources.broken_ocr_redactions.json", "pdf_redactor.integration.tests.Resources.broken_ocr.pdf", "pdf_redactor.integration.tests.Resources.broken_ocr_page_1.png", null);
             Console.WriteLine("Asserting Broken OCR Redactions - Completed");
+            Console.WriteLine("Asserting Single Page Removal - Started");
+            await AssertModificationsToPdf(redactorClient, "pdf_redactor.integration.tests.Resources.page_removal.pdf", [2], null);
+            Console.WriteLine("Asserting Single Page Removal - Completed");
+            Console.WriteLine("Asserting Single Page Removal and Single Page Rotation - Started");
+            await AssertModificationsToPdf(redactorClient, "pdf_redactor.integration.tests.Resources.page_removal.pdf", [2], new Dictionary<int, string> { { 3, "90" } });
+            Console.WriteLine("Asserting Single Page Removal and Single Page Rotation - Completed");
+            Console.WriteLine("Asserting Single Page Rotation - Started");
+            await AssertModificationsToPdf(redactorClient, "pdf_redactor.integration.tests.Resources.page_removal.pdf", null, new Dictionary<int, string> { { 3, "90" } });
+            Console.WriteLine("Asserting Single Page Rotation - Completed");
+
 
             Console.WriteLine("Successfully asserted all pdf test cases");
             return 0;
@@ -75,6 +87,42 @@ namespace pdf_redactor.integration.tests
             }
         }
 
+        private static async Task AssertModificationsToPdf(IPdfRedactorClient redactorClient, string pdfResourceName, int[]? pageIndexesToRemove, Dictionary<int, string>? pageIndexsToRotate)
+        {
+            var documentStream = typeof(Program).Assembly.GetManifestResourceStream(pdfResourceName) ?? throw new Exception($"{pdfResourceName} not found");
+            var originalDocument = new Document(documentStream);
+
+            var modifications = DocumentManipulationHelper.LoadDocumentModificationDataForPdf(documentStream, pdfResourceName, pageIndexesToRemove, pageIndexsToRotate);
+            var manipulatedDocumentStream = await redactorClient.RemoveOrRotateDocumentPagesAsync(modifications);
+
+            var fullStream = await manipulatedDocumentStream.EnsureSeekableAsync();
+            var manipulatedDocument = new Document(fullStream);
+
+            if (pageIndexesToRemove != null)
+            {
+                if (manipulatedDocument.Pages.Count == originalDocument.Pages.Count)
+                {
+                    throw new Exception("The page count of the manipulated document equals the original after page removal");
+                }
+            }
+
+            if (pageIndexsToRotate != null)
+            {
+                var documentChanges = modifications.DocumentChanges.OrderBy(x => x.PageIndex).ToList();
+                var firstPageRotated = documentChanges.First(x => x.Operation == DocumentManipulationOperation.RotatePage);
+                var itemIndex = documentChanges.IndexOf(firstPageRotated);
+                var numberOfPagesRemovedBeforeFirstRotation = modifications.DocumentChanges.Take(itemIndex).Where(x => x.Operation == DocumentManipulationOperation.RemovePage).Count();
+                var firstRotatedPageIndex = pageIndexsToRotate.First().Key - numberOfPagesRemovedBeforeFirstRotation;
+
+                var firstRotationValue = GetRotation(pageIndexsToRotate.First().Value);
+
+                if (manipulatedDocument.Pages[firstRotatedPageIndex].Rotate != firstRotationValue)
+                {
+                    throw new Exception("The page rotation of the manipulated document does not equal the value provided");
+                }
+            }
+        }
+
         private static ServiceProvider BuildServiceProvider()
         {
             var configuration = new ConfigurationBuilder()
@@ -96,5 +144,13 @@ namespace pdf_redactor.integration.tests
 
             return services.BuildServiceProvider();
         }
+
+        private static Rotation GetRotation(string value) => value switch
+        {
+            "90" => Rotation.on90,
+            "180" => Rotation.on180,
+            "270" => Rotation.on270,
+            _ => throw new Exception("Rotation input value not recognised.")
+        };
     }
 }
