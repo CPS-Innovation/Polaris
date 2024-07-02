@@ -10,7 +10,10 @@ export const usePipelineApi = (
   urn: string,
   caseId: number,
   pipelineRefreshData: CombinedState["pipelineRefreshData"]
-): AsyncPipelineResult<PipelineResults> => {
+): {
+  pipelineResults: AsyncPipelineResult<PipelineResults>;
+  pipelineBusy: boolean;
+} => {
   const [pipelineResults, setPipelineResults] = useState<
     AsyncPipelineResult<PipelineResults>
   >({
@@ -19,8 +22,10 @@ export const usePipelineApi = (
     correlationId: "",
   });
 
+  const [pipelineBusy, setPipelineBusy] = useState(false);
+
   useEffect(() => {
-    if (pipelineRefreshData.startRefresh) {
+    if (pipelineRefreshData.startRefresh && !pipelineBusy) {
       const correlationId = generateGuid();
       //get correlationID here and add it ot the setPipelineResults and remove it from gateway
       initiateAndPoll(
@@ -31,8 +36,15 @@ export const usePipelineApi = (
         correlationId,
         (results) => setPipelineResults(results)
       );
+      setPipelineBusy(true);
     }
-  }, [caseId, urn, pipelineRefreshData]);
+  }, [caseId, urn, pipelineRefreshData, pipelineBusy]);
 
-  return pipelineResults;
+  useEffect(() => {
+    if (pipelineResults.status !== "initiating") {
+      setPipelineBusy(false);
+    }
+  }, [pipelineResults]);
+
+  return { pipelineResults, pipelineBusy };
 };
