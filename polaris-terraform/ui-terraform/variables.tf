@@ -25,6 +25,7 @@ variable "ui_component_service_plans" {
     gateway_maximum_scale_out_limit = number
     spa_service_plan_sku            = string
     proxy_service_plan_sku          = string
+    maintenance_service_plan_sku    = string
   })
 }
 

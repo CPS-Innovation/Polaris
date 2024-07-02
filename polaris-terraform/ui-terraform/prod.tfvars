@@ -9,6 +9,7 @@ ui_component_service_plans = {
   gateway_maximum_scale_out_limit = 10
   spa_service_plan_sku            = "P1v2"
   proxy_service_plan_sku          = "P1v2"
+  maintenance_service_plan_sku    = "B1"
 }
 
 polaris_webapp_details = {
