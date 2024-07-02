@@ -76,21 +76,7 @@ namespace pdf_redactor.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
 
-                Stream modifiedPdfStream = default;
-
-                foreach (var change in modifications.DocumentChanges.OrderByDescending(x => x.PageIndex))
-                {
-                    switch (change.Operation)
-                    {
-                        case DocumentManipulationOperation.RemovePage:
-                        case DocumentManipulationOperation.RotatePage:
-                            modifiedPdfStream = await _documentManipulationService.RemoveOrRotatePagesAsync(caseId, documentId, modifications, currentCorrelationId);
-                            break;
-                        default:
-                            modifiedPdfStream = null;
-                            break;
-                    }
-                }
+                var modifiedPdfStream = await _documentManipulationService.RemoveOrRotatePagesAsync(caseId, documentId, modifications, currentCorrelationId);
 
                 return new FileStreamResult(modifiedPdfStream, ContentType.Pdf);
             }

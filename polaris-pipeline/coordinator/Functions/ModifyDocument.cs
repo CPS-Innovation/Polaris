@@ -74,7 +74,7 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId));
+                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(ModifyDocument));
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
