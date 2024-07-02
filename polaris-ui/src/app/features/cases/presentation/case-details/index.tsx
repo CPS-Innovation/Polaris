@@ -177,9 +177,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   }, [openNotesData.open]);
 
   useEffect(() => {
-    console.log("mounting case details>>>");
     return () => {
-      console.log("unmounting case details>>>");
       unMounting.current = true;
     };
   }, []);
