@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import { useUserDetails } from "../../../../auth";
 import {
   getCaseDetails,
   searchCase,

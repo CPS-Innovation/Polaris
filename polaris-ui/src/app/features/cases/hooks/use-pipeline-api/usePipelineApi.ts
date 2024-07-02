@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
