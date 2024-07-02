@@ -71,6 +71,12 @@ variable "polarisScaleSetSubnet" {
 variable "polarisApps2Subnet" {
 }
 
+variable "polarisAppGatewaySubnet" {
+}
+
+variable "polarisMaintenanceSubnet" {
+}
+
 variable "terraform_service_principal_display_name" {
   type = string
 }
