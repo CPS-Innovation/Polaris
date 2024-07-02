@@ -14,17 +14,17 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
   builtin_logging_enabled       = false
 
   app_settings = {
-    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_gateway.primary_connection_string
-    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
-    "WEBSITE_CONTENTOVERVNET"                         = "1"
-    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sa_maintenance_file_share.name
-    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
-    "WEBSITE_DNS_SERVER"                              = var.dns_server
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
-    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "AzureWebJobsStorage"                      = azurerm_storage_account.sa_gateway.primary_connection_string
+    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
+    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet-isolated"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_gateway.primary_connection_string
+    "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sa_maintenance_file_share.name
+    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
+    "WEBSITE_DNS_SERVER"                       = var.dns_server
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "true"
   }
 
   site_config {
@@ -34,9 +34,9 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
     vnet_route_all_enabled            = true
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
-    use_32_bit_worker                 = false 
+    use_32_bit_worker                 = false
     application_stack {
-      dotnet_version = "v8.0"
+      dotnet_version = "8.0"
     }
   }
 
