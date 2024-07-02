@@ -78,7 +78,7 @@ namespace coordinator.Functions
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
-                var documentChanges = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
+                var modifyDocumentRequest = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
 
                 using var documentStream = await _blobStorageService.GetDocumentAsync(document.PdfBlobName, currentCorrelationId);
 
@@ -88,33 +88,33 @@ namespace coordinator.Functions
 
                 var base64Document = Convert.ToBase64String(bytes);
 
-                var modifyDocumentRequest = new ModifyDocumentWithDocumentDto
+                var modificationRequest = new ModifyDocumentWithDocumentDto
                 {
                     Document = base64Document,
-                    FileName = documentChanges.FileName,
-                    DocumentChanges = documentChanges.DocumentChanges,
-                    VersionId = documentChanges.VersionId
+                    FileName = document.PdfBlobName,
+                    DocumentChanges = modifyDocumentRequest.DocumentChanges,
+                    VersionId = modifyDocumentRequest.VersionId
                 };
 
-                var validationResult = await _requestValidator.ValidateAsync(modifyDocumentRequest);
+                var validationResult = await _requestValidator.ValidateAsync(modificationRequest);
                 if (!validationResult.IsValid)
-                    throw new BadRequestException(validationResult.FlattenErrors(), nameof(modifyDocumentRequest));
+                    throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
 
-                using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modifyDocumentRequest, currentCorrelationId);
+                using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modificationRequest, currentCorrelationId);
                 if (modifiedDocumentStream == null)
                 {
                     string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
                     throw new Exception(error);
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(modifyDocumentRequest.FileName);
+                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(modificationRequest.FileName);
 
                 await _blobStorageService.UploadDocumentAsync(
                     modifiedDocumentStream,
                     uploadFileName,
                     caseId,
                     polarisDocumentId,
-                    modifyDocumentRequest.VersionId.ToString(),
+                    modificationRequest.VersionId.ToString(),
                     currentCorrelationId);
 
                 using var pdfStream = await _blobStorageService.GetDocumentAsync(uploadFileName, currentCorrelationId);
