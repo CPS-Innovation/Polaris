@@ -21,6 +21,7 @@ resources:
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
+      ref: $(Build.SourceBranch)
 
 variables:
   PdfRedactorUrl: $(PdfRedactorLocation)
