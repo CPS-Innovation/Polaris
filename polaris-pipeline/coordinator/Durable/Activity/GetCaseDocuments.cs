@@ -1,11 +1,10 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using coordinator.Services.DocumentToggle;
-using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -39,7 +38,7 @@ namespace coordinator.Durable.Activity
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -65,26 +64,27 @@ namespace coordinator.Durable.Activity
                 payload.CmsCaseUrn,
                 payload.CmsCaseId);
 
-            var getCaseTask = _ddeiClient.GetCaseAsync(arg);
+            var getPcdRequestsTask = _ddeiClient.GetPcdRequests(arg);
+            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndCharges(arg);
 
-            await Task.WhenAll(getDocumentsTask, getCaseTask);
+            await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
             var cmsDocuments = getDocumentsTask.Result
                 .Select(doc => MapPresentationFlags(doc))
                 .ToArray();
 
-            // todo: rather than a call the get case, we should consider making separate calls to the 
-            //  pcd and defendants endpoints. 
-            var @case = getCaseTask.Result;
 
-            var pcdRequests = @case.PreChargeDecisionRequests
-                       .Select(MapPresentationFlags)
-                       .ToArray();
+            var pcdRequests = getPcdRequestsTask.Result
+                .Select(corePcd => MapPresentationFlags(corePcd))
+                .ToArray();
+
+            var defendantsAndChargesResult = getDefendantsAndChargesTask.Result;
+
 
             var defendantsAndCharges = new DefendantsAndChargesListDto
             {
-                CaseId = @case.Id,
-                DefendantsAndCharges = @case.DefendantsAndCharges.OrderBy(dac => dac.ListOrder)
+                CaseId = payload.CmsCaseId,
+                DefendantsAndCharges = defendantsAndChargesResult.OrderBy(dac => dac.ListOrder)
             };
 
             defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
@@ -99,7 +99,7 @@ namespace coordinator.Durable.Activity
             return document;
         }
 
-        private PcdRequestDto MapPresentationFlags(PcdRequestDto pcdRequest)
+        private PcdRequestCoreDto MapPresentationFlags(PcdRequestCoreDto pcdRequest)
         {
             pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
 

@@ -11,6 +11,7 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Telemetry;
+using Common.ValueObjects;
 using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
@@ -188,6 +189,7 @@ namespace coordinator.Durable.Orchestration
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
+                PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, caseDocumentPayload.CmsCaseId.ToString());
                 var payload = new CaseDocumentOrchestrationPayload
                 (
                     cmsAuthValues: caseDocumentPayload.CmsAuthValues,
@@ -197,7 +199,7 @@ namespace coordinator.Durable.Orchestration
                     cmsCaseId: caseDocumentPayload.CmsCaseId,
                     serializedTrackerCmsDocumentDto: null,
                     serializedTrackerPcdRequestDto: null,
-                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(createdOrUpdatedDefendantsAndCharges),
+                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(polarisDocumentId, 1, new DefendantsAndChargesListDto { })),
                     documentDeltaType: DocumentDeltaType.RequiresIndexing
                 );
                 defendantsAndChargesPayloads.Add(payload);

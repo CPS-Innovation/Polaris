@@ -28,6 +28,7 @@ using coordinator.Durable.Payloads.Domain;
 using coordinator.Domain;
 using Common.Constants;
 using FluentAssertions;
+using Ddei.Factories;
 
 namespace pdf_generator.tests.Functions
 {
@@ -41,6 +42,7 @@ namespace pdf_generator.tests.Functions
     private readonly string _serializedGeneratePdfResponse;
     private readonly Mock<IConvertModelToHtmlService> _mockConvertPcdRequestToHtmlService;
     private readonly Mock<IDdeiClient> _mockDDeiClient;
+    private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
     private readonly Mock<ILogger<GeneratePdf>> _mockLogger;
     private readonly Mock<IValidatorWrapper<CaseDocumentOrchestrationPayload>> _mockValidatorWrapper;
@@ -80,6 +82,7 @@ namespace pdf_generator.tests.Functions
 
       _mockValidatorWrapper = new Mock<IValidatorWrapper<CaseDocumentOrchestrationPayload>>();
       _mockDDeiClient = new Mock<IDdeiClient>();
+      _mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
       _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
       _mockLogger = new Mock<ILogger<GeneratePdf>>();
       _mockDurableActivityContext = new Mock<IDurableActivityContext>();
@@ -126,6 +129,7 @@ namespace pdf_generator.tests.Functions
                           _mockValidatorWrapper.Object,
                           _mockDDeiClient.Object,
                           _mockBlobStorageService.Object,
+                          _mockDdeiArgFactory.Object,
                           _mockLogger.Object);
     }
 
