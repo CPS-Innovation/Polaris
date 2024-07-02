@@ -1,0 +1,34 @@
+---
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/pipeline-terraform/*
+      - polaris-terraform/pipeline-events-terraform/*
+      - polaris-terraform/ui-terraform/*
+      - polaris-terraform/ui-events-terraform/*
+      - polaris-gateway/*
+      - polaris-pipeline/*
+      - polaris-ui/*
+      - polaris-e2e/*
+
+pr: none
+
+variables:
+  - name: buildConfiguration
+    value: "Release"
+  - name: majorMinorVersion
+    value: "1.0"
+  - name: semanticVersion
+    value: "$[counter(variables['majorMinorVersion'], 1)]"
+
+pool:
+  name: $(build-agent)
+
+stages:
+  - template: stages/stage_publish-all-artifacts.yml
