@@ -1,8 +1,8 @@
 #################### App Service Plan ####################
 
 resource "azurerm_service_plan" "asp_polaris_maintenance" {
-  count = var.env == "uat" ? 0 : 1
-
+  count = var.env == "dev" ? 1 : 0
+  
   #checkov:skip=CKV_AZURE_212:Ensure App Service has a minimum number of instances for fail over
   #checkov:skip=CKV_AZURE_225:Ensure the App Service Plan is zone redundant
   name                = "asp-${local.resource_name}-maintenance"

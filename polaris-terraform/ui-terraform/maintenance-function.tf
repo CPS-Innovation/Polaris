@@ -1,6 +1,6 @@
 #################### Functions ####################
 resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   name                          = "fa-${local.resource_name}-maintenance"
   location                      = azurerm_resource_group.rg_polaris.location
@@ -56,7 +56,7 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
 }
 
 module "azurerm_app_reg_fa_maintenance" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "fa-${local.resource_name}-maintenance-appreg"
@@ -77,14 +77,14 @@ module "azurerm_app_reg_fa_maintenance" {
 }
 
 resource "azuread_application_password" "faap_fa_maintenance_app_service" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   application_object_id = module.azurerm_app_reg_fa_maintenance[0].object_id
   end_date_relative     = "17520h"
 }
 
 module "azurerm_service_principal_fa_maintenance" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_fa_maintenance[0].client_id
@@ -93,13 +93,13 @@ module "azurerm_service_principal_fa_maintenance" {
 }
 
 resource "azuread_service_principal_password" "sp_fa_maintenance_pw" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   service_principal_id = module.azurerm_service_principal_fa_maintenance[0].object_id
 }
 
 resource "azuread_service_principal_delegated_permission_grant" "polaris_maintenance_grant_access_to_msgraph" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   service_principal_object_id          = module.azurerm_service_principal_fa_maintenance[0].object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
@@ -108,7 +108,7 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_mainten
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_maintenance_pe" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   name                = "${azurerm_linux_function_app.fa_polaris_maintenance[0].name}-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name

@@ -165,7 +165,7 @@ resource "azapi_resource" "polaris_sa_gateway_file_share_staging1" {
 }
 
 resource "azapi_resource" "polaris_sa_maintenance_file_share" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
   
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-maintenance-content-share"

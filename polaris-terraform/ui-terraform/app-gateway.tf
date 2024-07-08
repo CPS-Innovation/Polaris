@@ -1,5 +1,5 @@
 resource "azurerm_user_assigned_identity" "polaris_app_gateway_identity" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   location            = azurerm_resource_group.rg_polaris.location
   name                = "polaris-app-gateway-identity${local.resource_suffix}"
@@ -10,7 +10,7 @@ resource "azurerm_user_assigned_identity" "polaris_app_gateway_identity" {
 }
 
 resource "azurerm_web_application_firewall_policy" "polaris_app_gateway_waf_policy" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   location            = azurerm_resource_group.rg_polaris.location
   name                = "polaris-app-gateway-waf-policy${local.resource_suffix}"
@@ -28,7 +28,7 @@ resource "azurerm_web_application_firewall_policy" "polaris_app_gateway_waf_poli
 }
 
 resource "azurerm_public_ip" "polaris_app_gateway_public_ip" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   allocation_method   = "Static"
   domain_name_label   = "caseworkapp${local.env_name}"
@@ -41,7 +41,7 @@ resource "azurerm_public_ip" "polaris_app_gateway_public_ip" {
 }
 
 resource "azurerm_application_gateway" "polaris_app_gateway" {
-  count = var.env == "uat" ? 0 : 1
+  count = var.env == "dev" ? 1 : 0
 
   enable_http2                      = true
   firewall_policy_id                = azurerm_web_application_firewall_policy.polaris_app_gateway_waf_policy[0].id
