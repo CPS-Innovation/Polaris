@@ -123,7 +123,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     }
   }
   probe {
-    host                = "${azurerm_linux_function_app.fa_polaris_maintenance.name}.azurewebsites.net"
+    host                = "${azurerm_linux_function_app.fa_polaris_maintenance[0].name}.azurewebsites.net"
     interval            = 30
     name                = "polaris-app-gateway-bes-proxy-probe-2${local.resource_suffix}"
     path                = "/"
