@@ -122,6 +122,18 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
       status_code = ["200-399"]
     }
   }
+  probe {
+    host                = "${azurerm_linux_function_app.fa_polaris_maintenance.name}.azurewebsites.net"
+    interval            = 30
+    name                = "polaris-app-gateway-bes-proxy-probe-2${local.resource_suffix}"
+    path                = "/"
+    protocol            = "Https"
+    timeout             = 30
+    unhealthy_threshold = 3
+    match {
+      status_code = ["200-399"]
+    }
+  }
   request_routing_rule {
     backend_address_pool_name  = "polaris-app-bep${local.resource_suffix}"
     backend_http_settings_name = "polaris-app-gateway-bes${local.resource_suffix}"
@@ -157,7 +169,8 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   depends_on = [
     azurerm_web_application_firewall_policy.polaris_app_gateway_waf_policy,
     azurerm_public_ip.polaris_app_gateway_public_ip,
-    azurerm_user_assigned_identity.polaris_app_gateway_identity
+    azurerm_user_assigned_identity.polaris_app_gateway_identity,
+    azurerm_linux_function_app.fa_polaris_maintenance
   ]
 }
 
