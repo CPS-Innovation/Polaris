@@ -4,6 +4,7 @@ import {
   ErrorSummary,
   Hint,
   Input,
+  Tag,
 } from "../../../../common/presentation/components";
 import { CaseSearchQueryParams } from "../../types/CaseSearchQueryParams";
 import { useQueryParamsState } from "../../../../common/hooks/useQueryParamsState";
@@ -149,7 +150,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                 {data.length !== 1
                   ? " cases that match "
                   : " case that matches "}
-                <span data-testid="txt-result-urn">{urnFromSearchParams}</span>
+                <span data-testid="txt-result-urn" className={classes.urnText}>
+                  {urnFromSearchParams}
+                </span>
               </p>
 
               <SectionBreak />
@@ -200,7 +203,13 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       <div className={classes["result-offence-line"]}>
                         <span>Status:</span>
                         <span>
-                          {item.isCaseCharged ? "Charged" : "Not yet charged"}
+                          {item.isCaseCharged ? (
+                            <Tag> Charged</Tag>
+                          ) : (
+                            <Tag className="govuk-tag--yellow">
+                              Not yet charged
+                            </Tag>
+                          )}
                         </span>
                       </div>
                       {item.isCaseCharged &&
@@ -230,7 +239,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                         <span>
                           {item.isCaseCharged ? "Charges:" : "Proposed:"}
                         </span>
-                        <span>{item.headlineCharge.charge || "N/A"}</span>
+                        <span className={classes.chargesText}>
+                          {item.headlineCharge.charge || "N/A"}
+                        </span>
                       </div>
                     </div>
                   </div>
