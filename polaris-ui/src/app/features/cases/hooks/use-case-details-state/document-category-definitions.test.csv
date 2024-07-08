@@ -276,6 +276,7 @@
 224298,Communications
 224462,Communications
 225043,Communications
+225357,Communications
 225525,Communications
 225526,Communications
 225552,Communications
@@ -287,6 +288,7 @@
 225584,Communications
 225595,Communications
 225596,Communications
+225638,Communications
 225798,Communications
 225804,Communications
 225812,Communications
@@ -297,9 +299,12 @@
 225906,Communications
 225908,Communications
 225909,Communications
+225911,Communications
 225914,Communications
 225916,Communications
+225917,Communications
 225929,Communications
+225933,Communications
 225956,Communications
 225972,Communications
 226015,Communications
@@ -345,10 +350,7 @@
 225627,Court preparation
 225644,Court preparation
 225902,Court preparation
-225911,Court preparation
-225917,Court preparation
 225925,Court preparation
-225933,Court preparation
 225936,Court preparation
 225944,Court preparation
 225950,Court preparation
@@ -362,8 +364,6 @@
 1056,Defendant
 1057,Defendant
 1058,Defendant
-225357,Defendant
-225638,Defendant
 225654,Defendant
 1019,Exhibits,Exhibit
 1020,Exhibits,Exhibit
