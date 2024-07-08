@@ -140,3 +140,8 @@ variable "private_beta" {
 variable "polaris_ui_reauth_redirect_url" {
   type = string
 }
+
+variable "ssl_certificate_name" {
+  type        = string
+  description = "main app service SSL certificate name, as defined in the cert key vault"
+}

@@ -144,3 +144,13 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
 data "azuread_application" "fa_redaction_log_reporting" {
   display_name = "fa-${local.redaction_log_resource_name}-reporting"
 }
+
+data "azurerm_key_vault" "kv_polaris_cert" {
+  name                = local.app_service_certificate_store
+  resource_group_name = "rg-${local.resource_name}"
+}
+
+data "azurerm_key_vault_secret" "kv_polaris_cert_ssl" {
+  name         = var.ssl_certificate_name
+  key_vault_id = data.azurerm_key_vault.kv_polaris_cert.id
+}
