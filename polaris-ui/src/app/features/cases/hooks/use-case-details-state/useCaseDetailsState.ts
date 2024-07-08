@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import { useUserDetails } from "../../../../auth";
 import {
   getCaseDetails,
   searchCase,
@@ -83,8 +82,11 @@ export const initialState = {
   searchPII: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
-export const useCaseDetailsState = (urn: string, caseId: number) => {
-  const userDetails = useUserDetails();
+export const useCaseDetailsState = (
+  urn: string,
+  caseId: number,
+  isUnMounting: () => boolean
+) => {
   const featureFlagData = useUserGroupsFeatureFlag();
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
@@ -98,7 +100,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   const pipelineState = usePipelineApi(
     urn,
     caseId,
-    combinedState.pipelineRefreshData
+    combinedState.pipelineRefreshData,
+    isUnMounting
   );
 
   const redactionLogLookUpsData = useApi(

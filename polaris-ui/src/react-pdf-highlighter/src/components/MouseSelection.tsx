@@ -183,6 +183,7 @@ class MouseSelection extends Component<Props, State> {
               onSelection(startTarget, boundingRect, that.reset);
 
               onDragEnd();
+              window.getSelection()?.removeAllRanges();
             }
           }
         );

@@ -134,7 +134,7 @@ export const RedactButton: React.FC<Props> = ({
                 data-testid="btn-accept-all"
                 id="btn-accept-all"
               >
-                {`Accept all(${searchPIIData.count})`}
+                {`Accept all (${searchPIIData.count})`}
               </Button>
             )}
             {!searchPIIData.isSearchPIIDefaultOptionOn && (
@@ -159,7 +159,7 @@ export const RedactButton: React.FC<Props> = ({
                   className="govuk-button--secondary"
                   name="secondary"
                 >
-                  {`Ignore all(${searchPIIData.count})`}
+                  {`Ignore all (${searchPIIData.count})`}
                 </Button>
               )}
           </>

@@ -1,0 +1,19 @@
+---
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
+
+trigger: none
+pr: none
+
+variables:
+  - name: buildConfiguration
+    value: "Release"
+  - name: majorMinorVersion
+    value: "1.0"
+  - name: semanticVersion
+    value: "$[counter(variables['majorMinorVersion'], 1)]"
+
+pool:
+  name: $(build-agent)
+
+stages:
+  - template: stages/stage_publish-all-artifacts.yml

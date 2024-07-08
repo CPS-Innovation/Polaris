@@ -168,8 +168,8 @@ export const HeaderReadMode: React.FC<Props> = ({
       <Tooltip
         text={
           contextData.areaOnlyRedactionMode
-            ? "Redact area tool on"
-            : "Redact area tool off"
+            ? "Redact area tool Off"
+            : "Redact area tool On"
         }
       >
         <LinkButton
@@ -181,9 +181,9 @@ export const HeaderReadMode: React.FC<Props> = ({
           dataTestId={`btn-area-tool-${contextData.tabIndex}`}
           id={`btn-area-tool-${contextData.tabIndex}`}
           ariaLabel={
-            !contextData.areaOnlyRedactionMode
-              ? "enable area redaction mode"
-              : "disable area redaction mode"
+            contextData.areaOnlyRedactionMode
+              ? "disable area redaction mode"
+              : "enable area redaction mode"
           }
           onClick={handleRedactAreaToolButtonClick}
         >

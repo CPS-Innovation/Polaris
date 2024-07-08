@@ -1,20 +1,4 @@
----
-name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
-
-trigger: none
-pr: none
-
-variables:
-  - group: polaris-global
-  - name: buildConfiguration
-    value: "Release"
-  - name: majorMinorVersion
-    value: "1.0"
-  - name: semanticVersion
-    value: "$[counter(variables['majorMinorVersion'], 1)]"
-      
-pool:
-  name: $(uat-build-agent)
+﻿---
 
 stages:
   - stage: Publish_Artifacts
@@ -28,7 +12,7 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
-  
+
       - job: Build_Coordinator_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -39,6 +23,17 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Coordinator artifact"
+          
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/coordinator'
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"Coordinator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
 
           - task: PublishPipelineArtifact@1
             inputs:

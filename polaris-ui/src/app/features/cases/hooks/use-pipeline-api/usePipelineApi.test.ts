@@ -30,11 +30,16 @@ describe("usePipelineApi", () => {
       );
 
     const { result, waitForNextUpdate } = renderHook(() =>
-      usePipelineApi("0", 1, {
-        startRefresh: true,
-        savedDocumentDetails: [],
-        lastProcessingCompleted: "",
-      })
+      usePipelineApi(
+        "0",
+        1,
+        {
+          startRefresh: true,
+          savedDocumentDetails: [],
+          lastProcessingCompleted: "",
+        },
+        () => false
+      )
     );
 
     expect(result.current).toEqual({
