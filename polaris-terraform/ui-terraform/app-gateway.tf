@@ -8,20 +8,16 @@ resource "azurerm_user_assigned_identity" "polaris_app_gateway_identity" {
 }
 
 resource "azurerm_web_application_firewall_policy" "polaris_app_gateway_waf_policy" {
-  location            = "uksouth"
+  location            = azurerm_resource_group.rg_polaris.location
   name                = "polaris-app-gateway-waf-policy${local.resource_suffix}"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   managed_rules {
     managed_rule_set {
-      version = "3.2"
-    }
-    managed_rule_set {
-      type    = "Microsoft_BotManagerRuleSet"
-      version = "0.1"
+      version = "3.0"
     }
   }
   policy_settings {
-    enabled = false
+    enabled = true
     mode    = "Detection"
   }
   depends_on = [azurerm_resource_group.rg_polaris]
