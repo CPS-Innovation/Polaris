@@ -1,9 +1,11 @@
 #################### Functions ####################
 resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
+  count = var.env == "uat" ? 0 : 1
+
   name                          = "fa-${local.resource_name}-maintenance"
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
-  service_plan_id               = azurerm_service_plan.asp_polaris_maintenance.id
+  service_plan_id               = azurerm_service_plan.asp_polaris_maintenance[0].id
   storage_account_name          = azurerm_storage_account.sa_gateway.name
   storage_account_access_key    = azurerm_storage_account.sa_gateway.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_maintenance_subnet.id
@@ -19,7 +21,7 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet-isolated"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_gateway.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sa_maintenance_file_share.name
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sa_maintenance_file_share[0].name
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "1"
@@ -54,6 +56,8 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
 }
 
 module "azurerm_app_reg_fa_maintenance" {
+  count = var.env == "uat" ? 0 : 1
+
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "fa-${local.resource_name}-maintenance-appreg"
   identifier_uris         = ["api://fa-${local.resource_name}-maintenance"]
@@ -73,30 +77,40 @@ module "azurerm_app_reg_fa_maintenance" {
 }
 
 resource "azuread_application_password" "faap_fa_maintenance_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_maintenance.object_id
+  count = var.env == "uat" ? 0 : 1
+
+  application_object_id = module.azurerm_app_reg_fa_maintenance[0].object_id
   end_date_relative     = "17520h"
 }
 
 module "azurerm_service_principal_fa_maintenance" {
+  count = var.env == "uat" ? 0 : 1
+
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
-  application_id               = module.azurerm_app_reg_fa_maintenance.client_id
+  application_id               = module.azurerm_app_reg_fa_maintenance[0].client_id
   app_role_assignment_required = false
   owners                       = [data.azurerm_client_config.current.object_id]
 }
 
 resource "azuread_service_principal_password" "sp_fa_maintenance_pw" {
-  service_principal_id = module.azurerm_service_principal_fa_maintenance.object_id
+  count = var.env == "uat" ? 0 : 1
+
+  service_principal_id = module.azurerm_service_principal_fa_maintenance[0].object_id
 }
 
 resource "azuread_service_principal_delegated_permission_grant" "polaris_maintenance_grant_access_to_msgraph" {
-  service_principal_object_id          = module.azurerm_service_principal_fa_maintenance.object_id
+  count = var.env == "uat" ? 0 : 1
+
+  service_principal_object_id          = module.azurerm_service_principal_fa_maintenance[0].object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
 }
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_maintenance_pe" {
-  name                = "${azurerm_linux_function_app.fa_polaris_maintenance.name}-pe"
+  count = var.env == "uat" ? 0 : 1
+
+  name                = "${azurerm_linux_function_app.fa_polaris_maintenance[0].name}-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
@@ -108,8 +122,8 @@ resource "azurerm_private_endpoint" "polaris_maintenance_pe" {
   }
 
   private_service_connection {
-    name                           = "${azurerm_linux_function_app.fa_polaris_maintenance.name}-psc"
-    private_connection_resource_id = azurerm_linux_function_app.fa_polaris_maintenance.id
+    name                           = "${azurerm_linux_function_app.fa_polaris_maintenance[0].name}-psc"
+    private_connection_resource_id = azurerm_linux_function_app.fa_polaris_maintenance[0].id
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }

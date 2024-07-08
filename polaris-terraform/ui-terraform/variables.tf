@@ -145,3 +145,8 @@ variable "ssl_certificate_name" {
   type        = string
   description = "main app service SSL certificate name, as defined in the cert key vault"
 }
+
+variable "ssl_policy_name" {
+  type        = string
+  description = "name of predefined transport/comms security definitions to use"
+}

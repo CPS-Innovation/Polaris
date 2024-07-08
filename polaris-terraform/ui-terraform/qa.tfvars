@@ -60,3 +60,6 @@ private_beta = {
 }
 
 polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
+
+ssl_certificate_name = "polaris-qa-notprod59598f87-3bda-4304-9ed4-e9c143ee793e"
+ssl_policy_name      = "AppGwSslPolicy20220101"

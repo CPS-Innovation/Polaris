@@ -1,4 +1,6 @@
 resource "azurerm_user_assigned_identity" "polaris_app_gateway_identity" {
+  count = var.env == "uat" ? 0 : 1
+
   location            = azurerm_resource_group.rg_polaris.location
   name                = "polaris-app-gateway-identity${local.resource_suffix}"
   resource_group_name = azurerm_resource_group.rg_polaris.name
@@ -8,12 +10,14 @@ resource "azurerm_user_assigned_identity" "polaris_app_gateway_identity" {
 }
 
 resource "azurerm_web_application_firewall_policy" "polaris_app_gateway_waf_policy" {
+  count = var.env == "uat" ? 0 : 1
+
   location            = azurerm_resource_group.rg_polaris.location
   name                = "polaris-app-gateway-waf-policy${local.resource_suffix}"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   managed_rules {
     managed_rule_set {
-      version = "3.0"
+      version = "3.2"
     }
   }
   policy_settings {
@@ -24,6 +28,8 @@ resource "azurerm_web_application_firewall_policy" "polaris_app_gateway_waf_poli
 }
 
 resource "azurerm_public_ip" "polaris_app_gateway_public_ip" {
+  count = var.env == "uat" ? 0 : 1
+
   allocation_method   = "Static"
   domain_name_label   = "caseworkapp${local.env_name}"
   location            = azurerm_resource_group.rg_polaris.location
@@ -35,8 +41,10 @@ resource "azurerm_public_ip" "polaris_app_gateway_public_ip" {
 }
 
 resource "azurerm_application_gateway" "polaris_app_gateway" {
+  count = var.env == "uat" ? 0 : 1
+
   enable_http2                      = true
-  firewall_policy_id                = azurerm_web_application_firewall_policy.polaris_app_gateway_waf_policy.id
+  firewall_policy_id                = azurerm_web_application_firewall_policy.polaris_app_gateway_waf_policy[0].id
   force_firewall_policy_association = true
   location                          = azurerm_resource_group.rg_polaris.location
   name                              = "polaris-app-gateway${local.resource_suffix}"
@@ -66,7 +74,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   }
   frontend_ip_configuration {
     name                 = "appGwPublicFrontendIpIPv4"
-    public_ip_address_id = azurerm_public_ip.polaris_app_gateway_public_ip.id
+    public_ip_address_id = azurerm_public_ip.polaris_app_gateway_public_ip[0].id
   }
   frontend_ip_configuration {
     name                          = "polaris-app-gateway-prip${local.resource_suffix}"
@@ -99,7 +107,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     protocol                       = "Http"
   }
   identity {
-    identity_ids = [azurerm_user_assigned_identity.polaris_app_gateway_identity.id]
+    identity_ids = [azurerm_user_assigned_identity.polaris_app_gateway_identity[0].id]
     type         = "UserAssigned"
   }
   probe {
@@ -138,6 +146,14 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     name                = var.ssl_certificate_name
     key_vault_secret_id = data.azurerm_key_vault_secret.kv_polaris_cert_ssl.id
   }
+  ssl_profile {
+    name = "polaris-app-gateway${local.resource_suffix}-ssl-policy"
+    ssl_policy {
+      policy_name = var.ssl_policy_name
+      policy_type = "Predefined"
+    }
+  }
+
   depends_on = [
     azurerm_web_application_firewall_policy.polaris_app_gateway_waf_policy,
     azurerm_public_ip.polaris_app_gateway_public_ip,
