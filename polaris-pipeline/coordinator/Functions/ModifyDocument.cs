@@ -65,7 +65,7 @@ namespace coordinator.Functions
             HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            string polarisDocumentId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -74,7 +74,7 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(ModifyDocument));
+                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(documentId), _logger, currentCorrelationId, nameof(ModifyDocument));
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
@@ -100,10 +100,10 @@ namespace coordinator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
 
-                using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modificationRequest, currentCorrelationId);
+                using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
                 if (modifiedDocumentStream == null)
                 {
-                    string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                    string error = $"Error modifying document for {caseId}, polarisDocumentId {documentId}";
                     throw new Exception(error);
                 }
 
@@ -113,7 +113,7 @@ namespace coordinator.Functions
                     modifiedDocumentStream,
                     uploadFileName,
                     caseId,
-                    polarisDocumentId,
+                    documentId,
                     modificationRequest.VersionId.ToString(),
                     currentCorrelationId);
 

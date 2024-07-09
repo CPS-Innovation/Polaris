@@ -8,6 +8,6 @@ namespace Common.Dto.Request
         public List<DocumentChangesDto> DocumentChanges { get; set; }
         public string Document { get; set; }
         public string FileName { get; set; }
-        public string VersionId { get; set; }
+        public long VersionId { get; set; }
     }
 }

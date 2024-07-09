@@ -27,7 +27,7 @@ namespace pdf_redactor.integration.tests.Helpers
                 FileName = fileName,
                 DocumentChanges = documentChanges,
                 Document = base64Document,
-                VersionId = "1234"
+                VersionId = 1
             };
         }
     }
