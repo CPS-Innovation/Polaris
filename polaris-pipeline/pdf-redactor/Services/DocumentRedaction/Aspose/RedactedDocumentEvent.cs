@@ -10,7 +10,8 @@ namespace pdf_redactor.TelemetryEvents
   {
     private const string redactionCount = nameof(redactionCount);
     protected const string sanitizedDurationSeconds = nameof(sanitizedDurationSeconds);
-
+    protected const string annotationsDurationSeconds = nameof(annotationsDurationSeconds);
+    protected const string finaliseAnnotationsDurationSeconds = nameof(finaliseAnnotationsDurationSeconds);
     public Guid CorrelationId;
     public string CaseId;
     public string DocumentId;
@@ -25,6 +26,12 @@ namespace pdf_redactor.TelemetryEvents
     public int NullCharCount;
     public int PageCount;
     public string PdfFormat;
+    public DateTime AddAnnotationsStartTime;
+    public DateTime AddAnnotationsEndTime;
+    public DateTime FinaliseAnnotationsStartTime;
+    public DateTime FinaliseAnnotationsEndTime;
+    public DateTime SanitiseStartTime;
+    public DateTime SanitiseEndTime;
 
     public RedactedDocumentEvent(
         Guid correlationId,
@@ -69,7 +76,10 @@ namespace pdf_redactor.TelemetryEvents
                     { nameof(Bytes), Bytes },
                     { nameof(OriginalNullCharCount), OriginalNullCharCount },
                     { nameof(NullCharCount), NullCharCount },
-                    { nameof(PageCount), PageCount }
+                    { nameof(PageCount), PageCount },
+                    { annotationsDurationSeconds, GetDurationSeconds(AddAnnotationsStartTime, AddAnnotationsEndTime)},
+                    { finaliseAnnotationsDurationSeconds, GetDurationSeconds(FinaliseAnnotationsStartTime, FinaliseAnnotationsEndTime)},
+                    { sanitizedDurationSeconds, GetDurationSeconds(SanitiseStartTime, SanitiseEndTime)}
           }
       );
     }
