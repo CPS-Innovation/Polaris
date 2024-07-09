@@ -63,6 +63,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     lastFocusDocumentId: "",
   });
 
+  const unMounting = useRef(false);
+
   const [accordionOldState, setAccordionOldState] =
     useState<AccordionReducerState | null>(null);
 
@@ -71,6 +73,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
+
+  const unMountingCallback = useCallback(() => {
+    return unMounting.current;
+  }, []);
 
   const {
     caseState,
@@ -110,7 +116,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleAddNote,
     handleShowHideRedactionSuggestions,
     handleSearchPIIAction,
-  } = useCaseDetailsState(urn, +caseId);
+  } = useCaseDetailsState(urn, +caseId, unMountingCallback);
 
   const {
     showAlert,
@@ -169,6 +175,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       (notesPanelRef.current as HTMLElement).focus();
     }
   }, [openNotesData.open]);
+
+  useEffect(() => {
+    return () => {
+      unMounting.current = true;
+    };
+  }, []);
 
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
@@ -504,7 +516,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             }`}
           >
             {!tabsState.items.length ? (
-              <PdfTabsEmpty pipelineState={pipelineState} />
+              <PdfTabsEmpty
+                pipelineState={pipelineState}
+                isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+              />
             ) : (
               <PdfTabs
                 searchPIIData={searchPII}

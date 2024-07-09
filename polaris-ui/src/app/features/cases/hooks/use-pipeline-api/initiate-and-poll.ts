@@ -34,7 +34,8 @@ export const initiateAndPoll = (
   delayMs: number,
   pipelineRefreshData: CombinedState["pipelineRefreshData"],
   correlationId: string,
-  del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void
+  del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void,
+  shouldStopPolling: () => boolean
 ) => {
   let keepPolling = true;
   let trackingCallCount = 0;
@@ -86,6 +87,10 @@ export const initiateAndPoll = (
     while (keepPolling) {
       try {
         await delay(delayMs);
+        if (shouldStopPolling()) {
+          keepPolling = false;
+          break;
+        }
         const trackerArgs = await initiatePipeline(urn, caseId, correlationId);
         //if you get 423 and there are redacted documents, keep polling initiate pipeline
         const shouldKeepPollingInitiate =
@@ -107,6 +112,10 @@ export const initiateAndPoll = (
     while (keepPolling) {
       try {
         await delay(delayMs);
+        if (shouldStopPolling()) {
+          keepPolling = false;
+          break;
+        }
 
         const pipelineResult = await getPipelinePdfResults(
           trackerArgs.trackerUrl,

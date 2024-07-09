@@ -31,4 +31,8 @@
 
 .areaToolBtnEnabled {
   background: #000;
+  &:hover:not(:disabled):not(:focus) {
+    color: #fff;
+    background: #555;
+  }
 }
