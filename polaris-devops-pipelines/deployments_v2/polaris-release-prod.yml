@@ -64,7 +64,7 @@ stages:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
-                    devOpsPatToken: "$(System.AccessToken)"
+                    devOpsPatToken: $(System.AccessToken)
 
       - deployment: Log_Start
         displayName: Log Start
@@ -111,7 +111,7 @@ stages:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
               webhookUrl: $(ddei-webhook-url)
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
@@ -144,7 +144,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
+                    azureSubscription: $(prod-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -176,7 +176,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
+                    azureSubscription: $(prod-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -208,7 +208,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
+                    azureSubscription: $(prod-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -240,7 +240,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
+                    azureSubscription: $(prod-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -270,7 +270,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
+                    azureSubscription: $(prod-azure-subscription)
                     
                 - template: tasks/task_set-log-analytics-archival-periods.yml
                   parameters:
@@ -306,7 +306,7 @@ stages:
                     targetLabel: "PROD"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(System.AccessToken)"
+                    devOpsPatToken: $(System.AccessToken)
                     
   - stage: Deploy
     displayName: Deploy
@@ -430,7 +430,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Codebase CI Deployment"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
       - job: Log_Result_Ended
         condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -443,7 +443,7 @@ stages:
               targetLabel: "PROD"
               targetName: "CI Deployment"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
   # PROD: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -582,7 +582,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   # PROD: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_Status
@@ -612,7 +612,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(prod-azure-subscription)
+              azureSubscription: $(prod-azure-subscription)
               
           - template: tasks/task_get-status-uris.yml
             parameters:
@@ -774,7 +774,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   # PROD: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
@@ -819,7 +819,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
   # PROD: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
@@ -862,7 +862,7 @@ stages:
               targetLabel: "PROD"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
   #PROD: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
@@ -894,7 +894,7 @@ stages:
             parameters:
               targetLabel: "PROD"
               buildDefinitionId: 240
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -908,7 +908,7 @@ stages:
               targetLabel: "PROD"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   - stage: Send_Success_Report
     displayName: Send Success Report
@@ -939,7 +939,7 @@ stages:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
               webhookUrl: $(ddei-webhook-url)
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
@@ -988,7 +988,7 @@ stages:
           - template: tasks/task_send-progress-message-to-teams.yml
             parameters:
               webhookUrl: $(ddei-webhook-url)
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)

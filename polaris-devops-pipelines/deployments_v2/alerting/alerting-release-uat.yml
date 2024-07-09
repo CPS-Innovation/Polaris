@@ -35,7 +35,7 @@ stages:
               steps:
                 - template: ../tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
                 - template: ../tasks/task_apply-alerting-terraform.yml
                   parameters:

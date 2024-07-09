@@ -1,0 +1,52 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: azureSubscription
+    type: string
+  
+stages:
+  - stage: Swap
+    displayName: Swap Slots
+    dependsOn:
+      - Apply
+      - Deploy
+    condition: succeeded()
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_log-start.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+
+      - template: jobs/job_swap-slots.yml
+        parameters:
+          targetSuffix: ${{ parameters.targetSuffix }}
+          azureSubscription: ${{ parameters.azureSubscription }}
+
+      - job: Log_Result
+        condition: succeeded()
+        dependsOn:
+          - Swap_Coordinator_Slot
+          - Swap_Pipeline_Slots
+          - Swap_UI_Slots
+          - Swap_Proxy_Slot
+        steps:
+          - template: jobs/tasks/task_log-result.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Swap Polaris Codebase Slots"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              devOpsPatToken: $(System.AccessToken)

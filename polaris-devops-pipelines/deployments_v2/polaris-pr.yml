@@ -186,7 +186,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+              azureSubscription: $(dev-azure-subscription)
               
           # Terraform Init
           - bash: |
@@ -251,7 +251,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+              azureSubscription: $(dev-azure-subscription)
               
           # Terraform Init
           - bash: |
@@ -316,7 +316,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+              azureSubscription: $(dev-azure-subscription)
               
           # Terraform Init
           - bash: |
@@ -381,7 +381,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+              azureSubscription: $(dev-azure-subscription)
               
           # Terraform Init
           - bash: |

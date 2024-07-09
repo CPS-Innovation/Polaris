@@ -58,7 +58,7 @@ stages:
               targetLabel: "UAT"
               targetName: "Codebase Only CI Deployment"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
   
   # UAT: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -115,7 +115,7 @@ stages:
               targetLabel: "UAT"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   # UAT: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_Status
@@ -140,7 +140,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(uat-azure-subscription)
+              azureSubscription: $(uat-azure-subscription)
               
           - template: tasks/task_get-status-uris.yml
             parameters:
@@ -182,4 +182,4 @@ stages:
               targetLabel: "UAT"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)

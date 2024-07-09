@@ -30,7 +30,7 @@ stages:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
-                    devOpsPatToken: "$(System.AccessToken)"
+                    devOpsPatToken: $(System.AccessToken)
 
       - deployment: Log_Start
         displayName: Log Start
@@ -79,7 +79,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -111,7 +111,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -143,7 +143,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -175,7 +175,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -205,7 +205,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
                 - template: tasks/task_set-log-analytics-archival-periods.yml
                   parameters:
@@ -241,7 +241,7 @@ stages:
                     targetLabel: "UAT"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(System.AccessToken)"
+                    devOpsPatToken: $(System.AccessToken)
                     
   - stage: Deploy
     displayName: Deploy
@@ -360,7 +360,7 @@ stages:
               targetLabel: "UAT"
               targetName: "Codebase CI Deployment"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
       - job: Log_Result_Ended
         condition: not(or(failed(), canceled()))
@@ -373,7 +373,7 @@ stages:
               targetLabel: "UAT"
               targetName: "CI Deployment"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
   
   # UAT: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -508,7 +508,7 @@ stages:
               targetLabel: "UAT"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   # UAT: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_Status
@@ -533,7 +533,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(uat-azure-subscription)
+              azureSubscription: $(uat-azure-subscription)
               
           - template: tasks/task_get-status-uris.yml
             parameters:
@@ -695,7 +695,7 @@ stages:
               targetLabel: "UAT"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   #UAT: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
@@ -722,7 +722,7 @@ stages:
             parameters:
               targetLabel: "UAT"
               buildDefinitionId: 421
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
       - job: Log_Result
         condition: succeeded()
@@ -736,4 +736,4 @@ stages:
               targetLabel: "UAT"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)

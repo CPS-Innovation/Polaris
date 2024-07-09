@@ -52,7 +52,7 @@ stages:
               steps:
                 - template: tasks/task_wait-for-running-releases.yml
                   parameters:
-                    devOpsPatToken: "$(System.AccessToken)"
+                    devOpsPatToken: $(System.AccessToken)
 
       - deployment: Log_Start
         displayName: Log Start
@@ -101,7 +101,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
+                    azureSubscription: $(qa-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -133,7 +133,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
+                    azureSubscription: $(qa-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -165,7 +165,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
+                    azureSubscription: $(qa-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -197,7 +197,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
+                    azureSubscription: $(qa-azure-subscription)
                     
                 - template: tasks/task_apply-terraform.yml
                   parameters:
@@ -227,7 +227,7 @@ stages:
               steps:
                 - template: tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
+                    azureSubscription: $(qa-azure-subscription)
                     
                 - template: tasks/task_set-log-analytics-archival-periods.yml
                   parameters:
@@ -263,7 +263,7 @@ stages:
                     targetLabel: "QA"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-                    devOpsPatToken: "$(System.AccessToken)"
+                    devOpsPatToken: $(System.AccessToken)
                     
   - stage: Deploy
     displayName: Deploy
@@ -387,7 +387,7 @@ stages:
               targetLabel: "QA"
               targetName: "Codebase CI Deployment"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
       - job: Log_Result_Ended
         condition: and(not(or(failed(), canceled())), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -400,7 +400,7 @@ stages:
               targetLabel: "QA"
               targetName: "CI Deployment"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
   
   # QA: BEGIN SLOT SWAP PROCESS
   - stage: Swap
@@ -539,7 +539,7 @@ stages:
               targetLabel: "QA"
               targetName: "Swap Polaris Codebase Slots"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   # QA: CHECK FOR VALID STATUS RESPONSES FROM /API/STATUS ENDPOINTS IN SWAPPED APPS
   - stage: Check_Status
@@ -569,7 +569,7 @@ stages:
         steps:
           - template: tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(qa-azure-subscription)
+              azureSubscription: $(qa-azure-subscription)
               
           - template: tasks/task_get-status-uris.yml
             parameters:
@@ -731,7 +731,7 @@ stages:
               targetLabel: "QA"
               targetName: "Status Checks"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
               
   # QA: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
   - stage: Create_Commit_Report
@@ -776,7 +776,7 @@ stages:
               targetLabel: "QA"
               targetName: "Create Commit Report"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
   # QA: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
   - stage: Update_GitHub_Tag
@@ -819,7 +819,7 @@ stages:
               targetLabel: "QA"
               targetName: "Update GitHub Tag"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
   #QA: RUN E2E TESTS AS FINAL CHECKS          
   - stage: Run_e2e_Tests
@@ -851,7 +851,7 @@ stages:
             parameters:
               targetLabel: "QA"
               buildDefinitionId: 210
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)
 
       - job: Log_Result
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
@@ -865,4 +865,4 @@ stages:
               targetLabel: "QA"
               targetName: "e2e Tests"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-              devOpsPatToken: "$(System.AccessToken)"
+              devOpsPatToken: $(System.AccessToken)

@@ -38,7 +38,7 @@ stages:
               steps:
                 - template: ../tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(dev-azure-subscription)
+                    azureSubscription: $(dev-azure-subscription)
                     
                 - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
@@ -68,7 +68,7 @@ stages:
   #      steps:
   #        - template: ../tasks/task_get-credentials.yml
   #          parameters:
-  #            azureSubscriptionId: $(dev-azure-subscription)
+  #            azureSubscription: $(dev-azure-subscription)
   #            
   #        - template: ../tasks/task_deploy-alert-processor.yml
   #          parameters:
@@ -78,7 +78,7 @@ stages:
   #            targetSuffix: "-dev"
   #            appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
   #            azureSubscription: $(dev-azure-subscription)
-  #            azureSubscriptionId: $(subscriptionId)
+  #            azureSubscription: $(subscriptionId)
   #            targetResourceGroup: rg-polaris-analytics-dev
                     
   # QA Apply to QA
@@ -97,7 +97,7 @@ stages:
               steps:
                 - template: ../tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
+                    azureSubscription: $(qa-azure-subscription)
                     
                 - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
@@ -127,7 +127,7 @@ stages:
   #      steps:
   #        - template: ../tasks/task_get-credentials.yml
   #          parameters:
-  #            azureSubscriptionId: $(qa-azure-subscription)
+  #            azureSubscription: $(qa-azure-subscription)
   #
   #        - template: ../tasks/task_deploy-alert-processor.yml
   #          parameters:
@@ -137,7 +137,7 @@ stages:
   #            targetSuffix: "-qa"
   #            appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
   #            azureSubscription: $(qa-azure-subscription)
-  #            azureSubscriptionId: $(subscriptionId)
+  #            azureSubscription: $(subscriptionId)
   #            targetResourceGroup: rg-polaris-analytics-qa
 
   # Apply to PROD              
@@ -156,7 +156,7 @@ stages:
               steps:
                 - template: ../tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
+                    azureSubscription: $(prod-azure-subscription)
                     
                 - template: ../tasks/task_apply-networking-terraform.yml
                   parameters:
@@ -185,7 +185,7 @@ stages:
         steps:
           - template: ../tasks/task_get-credentials.yml
             parameters:
-              azureSubscriptionId: $(prod-azure-subscription)
+              azureSubscription: $(prod-azure-subscription)
 
           - template: ../tasks/task_deploy-alert-processor.yml
             parameters:
