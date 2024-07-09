@@ -54,6 +54,7 @@ stages:
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
       e2eCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.E2E_TESTS_COUNT']]
+      maintenanceFunctionCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.MAINTENANCE_FUNCTION_COUNT']]
     dependsOn: Determine_Changes
     jobs:
       - deployment: Wait_For_Running_Builds
@@ -127,6 +128,7 @@ stages:
               ddeiClientCount: $(ddeiClientCount)
               commonLibraryCount: $(commonLibraryCount)
               e2eCount: $(e2eCount)
+              maintenanceFunctionCount: $(maintenanceFunctionCount)
               messageTitle: "Polaris Release to PROD started"
               buildResultsTitle: "View Progress"
               buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
@@ -409,6 +411,20 @@ stages:
               targetBuild: PolarisBuild
               targetLabel: "PROD"
               targetName: "Gateway Deployment"
+              targetSuffix: ""
+              appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+              azureSubscription: $(prod-azure-subscription)
+              
+      - job: Deploy_Maintenance_Function
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Maintenance Function
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        steps:
+          - template: tasks/task_deploy-maintenance-function.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "PROD"
+              targetName: "Maintenance Function Deployment"
               targetSuffix: ""
               appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
               azureSubscription: $(prod-azure-subscription)
@@ -930,6 +946,7 @@ stages:
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
       e2eCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.E2E_TESTS_COUNT']]
+      maintenanceFunctionCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.MAINTENANCE_FUNCTION_COUNT']]
     condition: succeeded()
     jobs:
       - job: Send_Success_Report
@@ -955,6 +972,7 @@ stages:
               ddeiClientCount: $(ddeiClientCount)
               commonLibraryCount: $(commonLibraryCount)
               e2eCount: $(e2eCount)
+              maintenanceFunctionCount: $(maintenanceFunctionCount)
               messageTitle: "✔ Polaris Release to PROD Completed!"
               buildResultsTitle: "View Release Commits"
               buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
@@ -979,6 +997,7 @@ stages:
       ddeiClientCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.DDEI_CLIENT_COUNT']]
       commonLibraryCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COMMON_LIBRARY_COUNT']]
       e2eCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.E2E_TESTS_COUNT']]
+      maintenanceFunctionCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.MAINTENANCE_FUNCTION_COUNT']]
     condition: or(failed(), canceled())
     jobs:
       - job: Send_Failure_Report
@@ -1004,6 +1023,7 @@ stages:
               ddeiClientCount: $(ddeiClientCount)
               commonLibraryCount: $(commonLibraryCount)
               e2eCount: $(e2eCount)
+              maintenanceFunctionCount: $(maintenanceFunctionCount)
               messageTitle: "❗ Polaris Release to PROD failed!"
               buildResultsTitle: "View Failure Details"
               buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=results"

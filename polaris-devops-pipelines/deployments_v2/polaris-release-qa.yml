@@ -369,6 +369,20 @@ stages:
               targetSuffix: "-qa"
               appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
               azureSubscription: $(qa-azure-subscription)
+              
+      - job: Deploy_Maintenance_Function
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Maintenance Function
+        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
+        steps:
+          - template: tasks/task_deploy-maintenance-function.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "QA"
+              targetName: "Maintenance Function Deployment"
+              targetSuffix: "-qa"
+              appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+              azureSubscription: $(qa-azure-subscription)
 
       - job: Log_Result_Codebase_Ended
         condition: succeeded()
@@ -380,6 +394,7 @@ stages:
           - Deploy_Text_Extractor
           - Deploy_Spa
           - Deploy_Gateway
+          - Deploy_Maintenance_Function
         steps:
           - template: tasks/task_log-result-deployment.yml
             parameters:

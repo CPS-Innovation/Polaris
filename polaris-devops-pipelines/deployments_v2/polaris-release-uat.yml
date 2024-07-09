@@ -342,6 +342,20 @@ stages:
               targetSuffix: "-uat"
               appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
               azureSubscription: $(uat-azure-subscription)
+              
+      - job: Deploy_Maintenance_Function
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Maintenance Function
+        condition: succeeded()
+        steps:
+          - template: tasks/task_deploy-maintenance-function.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetLabel: "UAT"
+              targetName: "Maintenance Function Deployment"
+              targetSuffix: "-uat"
+              appInsightsKey: "$(innovation-uat-app-insights-instrumentation-key)"
+              azureSubscription: $(uat-azure-subscription)
 
       - job: Log_Result_Codebase_Ended
         condition: succeeded()
@@ -353,6 +367,7 @@ stages:
           - Deploy_Text_Extractor
           - Deploy_Spa
           - Deploy_Gateway
+          - Deploy_Maintenance_Function
         steps:
           - template: tasks/task_log-result-deployment.yml
             parameters:

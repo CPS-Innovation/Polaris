@@ -216,6 +216,34 @@ stages:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway artifact"
+            
+      - job: Build_Maintenance_Function_Artifact
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-maintenance/polaris-maintenance.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Build Maintenance Function artifact"
+
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/polaris-maintenance'
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"Maintenance Function`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-maintenance"
+              artifact: "polaris-maintenance-drop"
+            displayName: "Publish Maintenance Function artifact"
 
       - job: Build_SPA_Artifacts
         steps:
