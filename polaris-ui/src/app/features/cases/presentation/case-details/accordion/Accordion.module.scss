@@ -88,6 +88,9 @@
   color: inherit;
   text-align: left;
 }
+.accordion .accordion-section-header .zeroDocsCategory {
+  color: #505a5f;
+}
 
 .accordion .icon {
   right: 0.9375rem;
@@ -267,7 +270,7 @@
 }
 
 .witnessIndicators {
-  margin: 0;
+  margin-top: 0.25rem;
   font-size: 0.875rem;
 }
 

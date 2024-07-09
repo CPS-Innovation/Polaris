@@ -27,18 +27,15 @@ const renderDocResults = (
     return (
       <span>
         Documents ready to read:{" "}
-        <span>
+        <span className={classes.documentsReadyToReadText}>
           {isCaseCompleted && docFailed ? (
-            <>
-              <span className={classes.documentsReadyToReadText}>
-                {docsUploaded}
-              </span>
-              <span>{` (unable to convert ${docFailed} ${
-                docFailed > 1 ? "documents" : "document"
-              })`}</span>
-            </>
+            `${docsUploaded}
+
+                (unable to convert ${docFailed} ${
+              docFailed > 1 ? "documents" : "document"
+            })`
           ) : (
-            <span>{docsUploaded}</span>
+            <>{docsUploaded}</>
           )}
         </span>
       </span>
