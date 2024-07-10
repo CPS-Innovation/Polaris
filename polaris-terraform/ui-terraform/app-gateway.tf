@@ -99,12 +99,76 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     name                           = "polaris-app-gateway-listener-https${local.resource_suffix}"
     protocol                       = "Https"
     ssl_certificate_name           = var.ssl_certificate_name
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus502
+      status_code           = "HttpStatus502"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus403
+      status_code           = "HttpStatus403"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus500
+      status_code           = "HttpStatus500"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus503
+      status_code           = "HttpStatus503"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus504
+      status_code           = "HttpStatus504"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus400
+      status_code           = "HttpStatus400"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus405
+      status_code           = "HttpStatus405"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus408
+      status_code           = "HttpStatus408"
+    }
   }
   http_listener {
     frontend_ip_configuration_name = "polaris-app-gateway-prip${local.resource_suffix}"
     frontend_port_name             = "port_80"
     name                           = "polaris-app-gateway-listener${local.resource_suffix}"
     protocol                       = "Http"
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus502
+      status_code           = "HttpStatus502"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus403
+      status_code           = "HttpStatus403"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus500
+      status_code           = "HttpStatus500"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus503
+      status_code           = "HttpStatus503"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus504
+      status_code           = "HttpStatus504"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus400
+      status_code           = "HttpStatus400"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus405
+      status_code           = "HttpStatus405"
+    }
+    custom_error_configuration {
+      custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus408
+      status_code           = "HttpStatus408"
+    }
   }
   identity {
     identity_ids = [azurerm_user_assigned_identity.polaris_app_gateway_identity[0].id]
