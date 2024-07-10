@@ -50,9 +50,17 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
                 telemetryEvent.PageCount = document.Pages.Count;
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 
+                telemetryEvent.AddAnnotationsStartTime = DateTime.UtcNow;
                 AddAnnotations(document, redactPdfRequest, correlationId);
+                telemetryEvent.AddAnnotationsEndTime = DateTime.UtcNow;
+
+                telemetryEvent.FinaliseAnnotationsStartTime = DateTime.UtcNow;
                 FinaliseAnnotations(document, correlationId);
+                telemetryEvent.FinaliseAnnotationsEndTime = DateTime.UtcNow;
+
+                telemetryEvent.SanitiseStartTime = DateTime.UtcNow;
                 SanitiseDocument(document);
+                telemetryEvent.SanitiseEndTime = DateTime.UtcNow;
 
                 telemetryEvent.NullCharCount = GetNullCharacterCount(document);
 
@@ -106,18 +114,21 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
 
         private static int GetNullCharacterCount(Document document)
         {
-            try
-            {
-                var textAbsorber = new TextAbsorber();
-                textAbsorber.ExtractionOptions.FormattingMode = TextExtractionOptions.TextFormattingMode.Raw;
-                document.Pages.Accept(textAbsorber);
-                var extractedText = textAbsorber.Text;
-                return extractedText.Count(c => c == 0);
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
+            // this is disabled as it has a performance time impact on redactions
+            // we are temporarily returning -1 and recording this for telemetry 
+            return -1;
+            // try
+            // {
+            //     var textAbsorber = new TextAbsorber();
+            //     textAbsorber.ExtractionOptions.FormattingMode = TextExtractionOptions.TextFormattingMode.Raw;
+            //     document.Pages.Accept(textAbsorber);
+            //     var extractedText = textAbsorber.Text;
+            //     return extractedText.Count(c => c == 0);
+            // }
+            // catch (Exception)
+            // {
+            //     return -1;
+            // }
         }
         public static void SanitiseDocument(Document document)
         {
