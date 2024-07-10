@@ -33,11 +33,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_get-credentials.yml
+                - template: ../stages/jobs/tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
-                - template: ../tasks/task_apply-alerting-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-alerting-terraform.yml
                   parameters:
                     targetBuild: PolarisAlertingBuild
                     targetTerraformArtifact: "alerting-terraform-files"

@@ -1,0 +1,107 @@
+﻿---
+parameters:
+  - name: targetSuffix
+    type: string
+  - name: azureSubscription
+    type: string
+  
+jobs:
+  - job: Pause_Pipeline
+    dependsOn: Log_Start
+    condition: succeeded()
+    displayName: Pause for 2 mins
+    steps:
+      - template: tasks/task_pause-pipeline.yml
+
+  - job: Swap_Coordinator_Slot
+    dependsOn: Pause_Pipeline
+    condition: succeeded()
+    strategy:
+      matrix:
+        Coordinator:
+          Name: "Coordinator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+    displayName: Swap
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris-coordinator${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true
+
+  - job: Swap_Pipeline_Slots
+    dependsOn: Pause_Pipeline
+    condition: succeeded()
+    strategy:
+      matrix:
+        PDFGenerator:
+          Name: "PDF Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+        PDFRedactor:
+          Name: "PDF Redactor"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-redactor"
+        TextExtractor:
+          Name: "Text Extractor"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+    displayName: Swap
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true
+
+  - job: Swap_UI_Slots
+    dependsOn: Pause_Pipeline
+    condition: succeeded()
+    strategy:
+      matrix:
+        SPA:
+          Name: "SPA"
+          AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
+        PolarisGateway:
+          Name: "Polaris Gateway"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+    displayName: Swap
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true
+
+  - job: Swap_Proxy_Slot
+    dependsOn: Pause_Pipeline
+    condition: succeeded()
+    strategy:
+      matrix:
+        Proxy:
+          Name: "Proxy"
+          AppServiceName: "polaris${{ parameters.targetSuffix }}-cmsproxy"
+    displayName: Swap
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true

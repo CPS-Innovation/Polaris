@@ -1,0 +1,51 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetLabelLower
+    type: string
+  - name: appInsightsKey
+    type: string
+  
+stages:
+  - stage: Create_Commit_Report
+    displayName: Save Report
+    dependsOn: Check_Status
+    condition: succeeded()
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_log-start.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Create Commit Report"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+
+      - job: Create_Commit_Report
+        dependsOn: Log_Start
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_create-commit-report.yml
+            parameters:
+              targetLabel: ${{ parameters.targetLabel }}
+              targetLabelLower: ${{ parameters.targetLabelLower }}
+
+      - job: Log_Result
+        condition: succeeded()
+        displayName: Log End
+        dependsOn:
+          - Log_Start
+          - Create_Commit_Report
+        steps:
+          - template: jobs/tasks/task_log-result.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Create Commit Report"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              devOpsPatToken: $(System.AccessToken)

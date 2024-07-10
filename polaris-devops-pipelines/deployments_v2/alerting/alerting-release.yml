@@ -35,11 +35,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_get-credentials.yml
+                - template: ../stages/jobs/tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(dev-azure-subscription)
+                    azureSubscription: $(dev-azure-subscription)
                     
-                - template: ../tasks/task_apply-alerting-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-alerting-terraform.yml
                   parameters:
                     targetBuild: PolarisAlertingBuild
                     targetTerraformArtifact: "alerting-terraform-files"
@@ -69,11 +69,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_get-credentials.yml
+                - template: ../stages/jobs/tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(qa-azure-subscription)
+                    azureSubscription: $(qa-azure-subscription)
                     
-                - template: ../tasks/task_apply-alerting-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-alerting-terraform.yml
                   parameters:
                     targetBuild: PolarisAlertingBuild
                     targetTerraformArtifact: "alerting-terraform-files"
@@ -103,11 +103,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_get-credentials.yml
+                - template: ../stages/jobs/tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(prod-azure-subscription)
+                    azureSubscription: $(prod-azure-subscription)
                     
-                - template: ../tasks/task_apply-alerting-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-alerting-terraform.yml
                   parameters:
                     targetBuild: PolarisAlertingBuild
                     targetTerraformArtifact: "alerting-terraform-files"
