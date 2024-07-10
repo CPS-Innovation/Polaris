@@ -181,10 +181,10 @@ stages:
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_Pipeline_Terraform
-        condition: eq(variables.runPipelineTerraform, 'true')
+        condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
         displayName: Check Pipeline Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
@@ -243,13 +243,13 @@ stages:
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
     
       - job: Check_Pipeline_Events_Plan
-        condition: eq(variables.runPipelineEventsTerraform, 'true')
+        condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_Pipeline_Events_Terraform
         displayName: Check Pipeline Events Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
@@ -308,13 +308,13 @@ stages:
             workingDirectory: $(uiTerraformWorkingDir)
       
       - job: Check_UI_Plan
-        condition: eq(variables.runUITerraform, 'true')
+        condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_UI_Terraform
         displayName: Check UI Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
@@ -373,13 +373,13 @@ stages:
             workingDirectory: $(uiEventsTerraformWorkingDir)
     
       - job: Check_UI_Events_Plan
-        condition: eq(variables.runUIEventsTerraform, 'true')
+        condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
         pool:
           name: $(dev-build-agent)
         dependsOn: Validate_UI_Events_Terraform
         displayName: Check UI Events Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               

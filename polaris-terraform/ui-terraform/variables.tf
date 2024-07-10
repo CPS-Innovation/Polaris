@@ -25,6 +25,7 @@ variable "ui_component_service_plans" {
     gateway_maximum_scale_out_limit = number
     spa_service_plan_sku            = string
     proxy_service_plan_sku          = string
+    maintenance_service_plan_sku    = string
   })
 }
 
@@ -138,4 +139,21 @@ variable "private_beta" {
 
 variable "polaris_ui_reauth_redirect_url" {
   type = string
+}
+
+variable "ssl_certificate_name" {
+  type        = string
+  description = "main app service SSL certificate name, as defined in the cert key vault"
+}
+
+variable "ssl_policy_name" {
+  type        = string
+  description = "name of predefined transport/comms security definitions to use"
+}
+
+variable "app_gateway_custom_error_pages" {
+  type = object({
+    HttpStatus502 = string
+    HttpStatus403 = string
+  })
 }

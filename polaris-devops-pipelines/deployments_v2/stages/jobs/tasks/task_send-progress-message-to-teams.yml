@@ -34,6 +34,8 @@ parameters:
     type: string
   - name: e2eCount
     type: string
+  - name: maintenanceFunctionCount
+    type: string
   - name: messageTitle
     type: string
   - name: buildResultsTitle
@@ -165,6 +167,10 @@ steps:
                               {
                                 "title": "Gateway Changes",
                                 "value": "${{ parameters.gatewayCount }}"
+                              },
+                              {
+                                "title": "Maintenance Function Changes",
+                                "value": "${{ parameters.maintenanceFunctionCount }}"
                               },
                               {
                                 "title": "SPA Changes",

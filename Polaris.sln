@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor.tests", "polar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor.integration.tests", "polaris-pipeline\pdf-redactor.integration.tests\pdf-redactor.integration.tests.csproj", "{7CDF2DED-89D0-479F-9CC4-586451766FC1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-maintenance", "polaris-maintenance\polaris-maintenance.csproj", "{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -154,6 +156,12 @@ Global
 		{7CDF2DED-89D0-479F-9CC4-586451766FC1}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
 		{7CDF2DED-89D0-479F-9CC4-586451766FC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CDF2DED-89D0-479F-9CC4-586451766FC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Integration Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
+		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

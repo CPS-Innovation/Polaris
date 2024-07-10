@@ -27,6 +27,7 @@ steps:
         $ddeiClientCount=0
         $commonCount=0
         $e2eCount=0
+        $maintenanceFunctionCount=0
 
         For ($i=0; $i -lt $temp.Length; $i++)
         {
@@ -92,6 +93,12 @@ steps:
             Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
             $gatewayCount++
           }
+          if ($name -like 'polaris-maintenance/*')
+          {
+            echo "run maintenance function..."
+            Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+            $maintenanceFunctionCount++
+          }
           if ($name -like 'polaris-ui/*')
           {
             echo "run ui codebase..."
@@ -129,5 +136,6 @@ steps:
         Write-Host "##vso[task.setvariable variable=DDEI_CLIENT_COUNT;isOutput=true]$ddeiClientCount"
         Write-Host "##vso[task.setvariable variable=COMMON_LIBRARY_COUNT;isOutput=true]$commonCount"
         Write-Host "##vso[task.setvariable variable=E2E_TESTS_COUNT;isOutput=true]$e2eCount"
+        Write-Host "##vso[task.setvariable variable=MAINTENANCE_FUNCTION_COUNT;isOutput=true]$maintenanceFunctionCount"
     name: Change_Results
     displayName: Processing changes to repo

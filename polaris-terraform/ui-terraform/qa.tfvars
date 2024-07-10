@@ -9,6 +9,7 @@ ui_component_service_plans = {
   gateway_maximum_scale_out_limit = 10
   spa_service_plan_sku            = "P1v2"
   proxy_service_plan_sku          = "P1v2"
+  maintenance_service_plan_sku    = "B1"
 }
 
 polaris_webapp_details = {
@@ -59,3 +60,11 @@ private_beta = {
 }
 
 polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
+
+ssl_certificate_name = "polaris-qa-notprod59598f87-3bda-4304-9ed4-e9c143ee793e"
+ssl_policy_name      = "AppGwSslPolicy20220101"
+
+app_gateway_custom_error_pages = {
+  HttpStatus502 = "https://cpsqastorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus403 = "https://cpsqastorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+}

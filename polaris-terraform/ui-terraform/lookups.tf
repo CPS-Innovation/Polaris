@@ -75,6 +75,18 @@ data "azurerm_subnet" "polaris_ci_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_app_gateway_subnet" {
+  name                 = "${var.resource_name_prefix}-app-gateway-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_maintenance_subnet" {
+  name                 = "${var.resource_name_prefix}-maintenance-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_private_dns_zone" "dns_zone_blob_storage" {
   name                = "privatelink.blob.core.windows.net"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
@@ -131,4 +143,14 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
 
 data "azuread_application" "fa_redaction_log_reporting" {
   display_name = "fa-${local.redaction_log_resource_name}-reporting"
+}
+
+data "azurerm_key_vault" "kv_polaris_cert" {
+  name                = local.app_service_certificate_store
+  resource_group_name = "rg-${local.resource_name}"
+}
+
+data "azurerm_key_vault_secret" "kv_polaris_cert_ssl" {
+  name         = var.ssl_certificate_name
+  key_vault_id = data.azurerm_key_vault.kv_polaris_cert.id
 }
