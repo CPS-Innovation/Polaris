@@ -84,7 +84,7 @@ stages:
         displayName: Send Message to Teams
         condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
         dependsOn:
-          - Log_Start
+          - Log_Start_Terraform
           - Wait_For_Running_Builds
         continueOnError: false
         steps:
