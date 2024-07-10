@@ -67,10 +67,4 @@ ssl_policy_name      = "AppGwSslPolicy20220101"
 app_gateway_custom_error_pages = {
   HttpStatus502 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
   HttpStatus403 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus500 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus503 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus504 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus400 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus405 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus408 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
 }
