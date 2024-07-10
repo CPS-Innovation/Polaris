@@ -66,7 +66,6 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-      successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
   - template: stages/stage_create-commit-report.yml
     parameters:
