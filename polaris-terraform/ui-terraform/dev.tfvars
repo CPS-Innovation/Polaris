@@ -63,3 +63,14 @@ polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
 
 ssl_certificate_name = "polaris-dev-notprod3536a9f3-a9a0-48b4-9b40-8c76083cad2e"
 ssl_policy_name      = "AppGwSslPolicy20220101"
+
+app_gateway_custom_error_pages = {
+  HttpStatus502 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus403 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus500 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus503 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus504 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus400 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus405 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+  HttpStatus408 = "https://cpsdevstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
+}

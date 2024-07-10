@@ -150,3 +150,16 @@ variable "ssl_policy_name" {
   type        = string
   description = "name of predefined transport/comms security definitions to use"
 }
+
+variable "app_gateway_custom_error_pages" {
+  type = object({
+    HttpStatus502 = string
+    HttpStatus403 = string
+    HttpStatus500 = string
+    HttpStatus503 = string
+    HttpStatus504 = string
+    HttpStatus400 = string
+    HttpStatus405 = string
+    HttpStatus408 = string
+  })
+}
