@@ -111,6 +111,20 @@ stages:
               targetSuffix: ${{ parameters.targetSuffix }}
               appInsightsKey: ${{ parameters.appInsightsKey }}
               azureSubscription: ${{ parameters.azureSubscription }}
+              
+      - job: Deploy_Maintenance_Function
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Maintenance Function
+        steps:
+          - ${{ if eq(parameters.targetLabel, 'DEV') }}:
+              - template: jobs/tasks/task_deploy-maintenance-function.yml
+                parameters:
+                  targetBuild: ${{ parameters.targetBuild }}
+                  targetLabel: ${{ parameters.targetLabel }}
+                  targetName: "Maintenance Function Deployment"
+                  targetSuffix: ${{ parameters.targetSuffix }}
+                  appInsightsKey: ${{ parameters.appInsightsKey }}
+                  azureSubscription: ${{ parameters.azureSubscription }}
 
       - job: Log_Result_Codebase_Ended
         condition: succeeded()
