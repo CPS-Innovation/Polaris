@@ -1,0 +1,69 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: qaTargetLabel
+    type: string
+  - name: qaBuildDefinitionId
+    type: string
+  - name: prodTargetLabel
+    type: string
+  - name: prodBuildDefinitionId
+    type: string
+  
+stages:
+  - stage: Schedule_Releases
+    displayName: Schedule Releases
+    dependsOn: Run_e2e_Tests
+    condition: succeeded()
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_log-start.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Schedule Releases"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+
+      - job: Schedule_Release_QA
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: jobs/tasks/task_schedule-release.yml
+            parameters:
+              targetLabel: ${{ parameters.qaTargetLabel }}
+              buildDefinitionId: ${{ parameters.qaBuildDefinitionId }}
+              devOpsPatToken: $(System.AccessToken)
+
+      - job: Schedule_Release_PROD
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: jobs/tasks/task_schedule-release.yml
+            parameters:
+              targetLabel: ${{ parameters.prodTargetLabel }}
+              buildDefinitionId: ${{ parameters.prodBuildDefinitionId }}
+              devOpsPatToken: $(System.AccessToken)
+
+      - job: Log_Result
+        condition: succeeded()
+        displayName: Log End
+        dependsOn:
+          - Log_Start
+          - Schedule_Release_QA
+          - Schedule_Release_PROD
+        steps:
+          - template: jobs/tasks/task_log-result.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Schedule Releases"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              devOpsPatToken: $(System.AccessToken)

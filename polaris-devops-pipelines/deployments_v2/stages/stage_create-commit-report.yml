@@ -4,19 +4,15 @@ parameters:
     type: string
   - name: targetLabel
     type: string
+  - name: targetLabelLower
+    type: string
   - name: appInsightsKey
-    type: string
-  - name: targetSuffix
-    type: string
-  - name: azureSubscription
     type: string
   
 stages:
-  - stage: Swap
-    displayName: Swap Slots
-    dependsOn:
-      - Apply
-      - Deploy
+  - stage: Create_Commit_Report
+    displayName: Save Report
+    dependsOn: Check_Status
     condition: succeeded()
     jobs:
       - job: Log_Start
@@ -27,27 +23,29 @@ stages:
             parameters:
               targetBuild: ${{ parameters.targetBuild }}
               targetLabel: ${{ parameters.targetLabel }}
-              targetName: "Swap Polaris Codebase Slots"
+              targetName: "Create Commit Report"
               appInsightsKey: ${{ parameters.appInsightsKey }}
 
-      - template: jobs/job_swap-slots.yml
-        parameters:
-          targetSuffix: ${{ parameters.targetSuffix }}
-          azureSubscription: ${{ parameters.azureSubscription }}
+      - job: Create_Commit_Report
+        dependsOn: Log_Start
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_create-commit-report.yml
+            parameters:
+              targetLabel: ${{ parameters.targetLabel }}
+              targetLabelLower: ${{ parameters.targetLabelLower }}
 
       - job: Log_Result
         condition: succeeded()
         displayName: Log End
         dependsOn:
-          - Swap_Coordinator_Slot
-          - Swap_Pipeline_Slots
-          - Swap_UI_Slots
-          - Swap_Proxy_Slot
+          - Log_Start
+          - Create_Commit_Report
         steps:
           - template: jobs/tasks/task_log-result.yml
             parameters:
               targetBuild: ${{ parameters.targetBuild }}
               targetLabel: ${{ parameters.targetLabel }}
-              targetName: "Swap Polaris Codebase Slots"
+              targetName: "Create Commit Report"
               appInsightsKey: ${{ parameters.appInsightsKey }}
               devOpsPatToken: $(System.AccessToken)

@@ -55,384 +55,45 @@ stages:
       targetSuffix: "-dev"
       azureSubscription: $(dev-azure-subscription)
               
-  - stage: Check_Status
-    displayName: Status Checks
-    dependsOn:
-      - Swap
-      - Determine_Changes
-    condition: succeeded()
-    variables:
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-    jobs:
-      - job: Log_Start
-        displayName: Log Start
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        steps:
-          - template: stages/jobs/tasks/task_log-start.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Status Checks"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-
-      - job: Get_Status_URIs
-        dependsOn: Log_Start
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        steps:
-          - template: stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(dev-azure-subscription)
+  - template: stages/stage_check-status.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "DEV"
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+      targetSuffix: "-dev"
+      azureSubscription: $(dev-azure-subscription)
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      successTextContent: $(resources.pipeline.PolarisBuild.runName)
               
-          - template: stages/jobs/tasks/task_get-status-uris.yml
-            parameters:
-              targetSuffix: "-dev"
-              armClientId: $(clientId)
-              armClientSecret: $(clientSecret)
-              armTenantId: $(tenantId)
-              armSubscriptionId: $(subscriptionId)
-
-      - job: Check_Coordinator
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
-        steps:
-          - template: stages/jobs/tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "Coordinator"
-              targetScript: "InvokeRequestWithRetry.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.PolarisBuild.runName)
-
-      - job: Check_PDF_Generator
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfGeneratorUri']]
-        steps:
-          - template: stages/jobs/tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "PDF Generator"
-              targetScript: "InvokeRequestWithRetry.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.PolarisBuild.runName)
-
-
-      - job: Check_PDF_Redactor
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfRedactorUri']]
-        steps:
-          - template: stages/jobs/tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "PDF Redactor"
-              targetScript: "InvokeRequestWithRetry.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.PolarisBuild.runName)
-
-      - job: Check_Text_Extractor
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.textExtractorUri']]
-        steps:
-          - template: stages/jobs/tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "Text Extractor"
-              targetScript: "InvokeRequestWithRetry.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.PolarisBuild.runName)
-              
-      - job: Check_Gateway
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.gatewayUri']]
-        steps:
-          - template: stages/jobs/tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "Gateway"
-              targetScript: "InvokeRequestWithRetry.ps1"
-              endpointUri: "$(uri)/api/status"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.PolarisBuild.runName)
-
-      - job: Check_Proxy
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.proxyUri']]
-        steps:
-          - template: stages/jobs/tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "Proxy"
-              targetScript: "InvokeRequestWithRetryNonNumeric.ps1"
-              endpointUri: "$(uri)/"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: "Polaris Proxy is online"
-
-      - job: Check_SPA
-        dependsOn: Get_Status_URIs
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        variables:
-          uri: $[dependencies.Get_Status_URIs.outputs['uris.spaUri']]
-        steps:
-          - template: stages/jobs/tasks/task_call-status-endpoint.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetAppName: "UI"
-              targetScript: "InvokeRequestWithRetry.ps1"
-              endpointUri: "$(uri)/polaris-ui/build-version.txt"
-              statusCheckMethod: $(status-check-method)
-              statusCheckRetries: $(status-check-retries)
-              statusCheckDelaySeconds: $(status-check-delay-seconds)
-              statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              successTextContent: $(resources.pipeline.PolarisBuild.runName)
-
-      - job: Log_Result
-        condition: and(succeeded(),or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn:
-          - Log_Start
-          - Get_Status_URIs
-          - Check_Coordinator
-          - Check_PDF_Generator
-          - Check_PDF_Redactor
-          - Check_Text_Extractor
-          - Check_Gateway
-          - Check_Proxy
-          - Check_SPA
-        steps:
-          - template: stages/jobs/tasks/task_log-result.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Status Checks"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: $(System.AccessToken)
-              
-  # DEV: SAVE COMMIT REPORTS TO THE PIPELINE REPO          
-  - stage: Create_Commit_Report
-    displayName: Save Report
-    dependsOn:
-      - Check_Status
-      - Determine_Changes
-    condition: succeeded()
-    variables:
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    jobs:
-      - job: Log_Start
-        displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        steps:
-          - template: stages/jobs/tasks/task_log-start.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Create Commit Report"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-
-      - job: Create_Commit_Report
-        dependsOn: Log_Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        steps:
-          - template: stages/jobs/tasks/task_create-commit-report.yml
-            parameters:
-              targetLabel: "DEV"
-              targetLabelLower: "dev"
-
-      - job: Log_Result
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn:
-          - Log_Start
-          - Create_Commit_Report
-        steps:
-          - template: stages/jobs/tasks/task_log-result.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Create Commit Report"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: $(System.AccessToken)
+  - template: stages/stage_create-commit-report.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "DEV"
+      targetLabelLower: "dev"
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
   
-  # DEV: MOVE THE GITHUB TAG TO THE TIP OF MAIN          
-  - stage: Update_GitHub_Tag
-    displayName: Update Tag
-    dependsOn:
-      - Create_Commit_Report
-      - Determine_Changes
-    condition: succeeded()
-    variables:
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    jobs:
-      - job: Log_Start
-        displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        steps:
-          - template: stages/jobs/tasks/task_log-start.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Update GitHub Tag"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-
-      - job: Update_Github_Tag
-        dependsOn: Log_Start
-        steps:
-          - template: stages/jobs/tasks/task_update-github-tag.yml
-            parameters:
-              targetLabel: "DEV"
-
-      - job: Log_Result
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn:
-          - Log_Start
-          - Update_GitHub_Tag
-        steps:
-          - template: stages/jobs/tasks/task_log-result.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Update GitHub Tag"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: $(System.AccessToken)
+  - template: stages/stage_update-git-hub-tag.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "DEV"
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
   
-  #DEV: RUN E2E TESTS AS FINAL CHECKS          
-  - stage: Run_e2e_Tests
-    displayName: e2e tests
-    dependsOn:
-      - Update_GitHub_Tag
-      - Determine_Changes
-    condition: succeeded()
-    variables:
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    jobs:
-      - job: Log_Start
-        displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        steps:
-          - template: stages/jobs/tasks/task_log-start.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "e2e Tests"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+  - template: stages/stage_run-e2e-tests.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "DEV"
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+      buildDefinitionId: 129
 
-      - job: Run_e2e_Tests
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn: Log_Start
-        steps:
-          - template: stages/jobs/tasks/task_run-e2e-tests.yml
-            parameters:
-              targetLabel: "DEV"
-              buildDefinitionId: 129
-              devOpsPatToken: $(System.AccessToken)
-
-      - job: Log_Result
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn:
-          - Log_Start
-          - Run_e2e_Tests
-        steps:
-          - template: stages/jobs/tasks/task_log-result.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "e2e Tests"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: $(System.AccessToken)
-
-  - stage: Schedule_Releases
-    displayName: Schedule Releases
-    dependsOn:
-      - Run_e2e_Tests
-      - Determine_Changes
-    condition: succeeded()
-    variables:
-      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_TERRAFORM']]
-      runCodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_CODEBASE']]
-    jobs:
-      - job: Log_Start
-        displayName: Log Start
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        steps:
-          - template: stages/jobs/tasks/task_log-start.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Schedule Releases"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-
-      - job: Schedule_Release_QA
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn: Log_Start
-        steps:
-          - template: stages/jobs/tasks/task_schedule-release.yml
-            parameters:
-              targetLabel: "QA"
-              buildDefinitionId: 352
-              devOpsPatToken: $(System.AccessToken)
-
-      - job: Schedule_Release_PROD
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn: Log_Start
-        steps:
-          - template: stages/jobs/tasks/task_schedule-release.yml
-            parameters:
-              targetLabel: "PROD"
-              buildDefinitionId: 353
-              devOpsPatToken: $(System.AccessToken)
-
-      - job: Log_Result
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn:
-          - Log_Start
-          - Schedule_Release_QA
-          - Schedule_Release_PROD
-        steps:
-          - template: stages/jobs/tasks/task_log-result.yml
-            parameters:
-              targetBuild: PolarisBuild
-              targetLabel: "DEV"
-              targetName: "Schedule Releases"
-              appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-              devOpsPatToken: $(System.AccessToken)
+  - template: stages/stage_schedule-releases.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "DEV"
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+      qaTargetLabel: "QA"
+      qaBuildDefinitionId: 352
+      prodTargetLabel: "PROD"
+      prodBuildDefinitionId: 353

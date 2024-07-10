@@ -26,7 +26,7 @@ stages:
         condition: succeeded()
         displayName: Log Codebase Start
         steps:
-          - template: tasks/task_log-start-deployment.yml
+          - template: stages/jobs/tasks/task_log-start-deployment.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
@@ -38,7 +38,7 @@ stages:
         displayName: Deploy Coordinator
         condition: succeeded()
         steps:
-          - template: tasks/task_deploy-coordinator.yml
+          - template: stages/jobs/tasks/task_deploy-coordinator.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
@@ -52,7 +52,7 @@ stages:
         displayName: Log Codebase End
         dependsOn: Deploy_Coordinator
         steps:
-          - template: tasks/task_log-result-deployment.yml
+          - template: stages/jobs/tasks/task_log-result-deployment.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
@@ -70,7 +70,7 @@ stages:
         displayName: Log Start
         condition: succeeded()
         steps:
-          - template: tasks/task_log-start.yml
+          - template: stages/jobs/tasks/task_log-start.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
@@ -82,7 +82,7 @@ stages:
         condition: succeeded()
         displayName: Pause for 2 mins
         steps:
-          - template: tasks/task_pause-pipeline.yml
+          - template: stages/jobs/tasks/task_pause-pipeline.yml
 
       - job: Swap_Pipeline_Slots
         dependsOn: Pause_Pipeline
@@ -109,7 +109,7 @@ stages:
         condition: succeeded()
         dependsOn: Swap_Pipeline_Slots
         steps:
-          - template: tasks/task_log-result.yml
+          - template: stages/jobs/tasks/task_log-result.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
@@ -127,7 +127,7 @@ stages:
         displayName: Log Start
         condition: succeeded()
         steps:
-          - template: tasks/task_log-start.yml
+          - template: stages/jobs/tasks/task_log-start.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
@@ -138,11 +138,11 @@ stages:
         dependsOn: Log_Start
         condition: succeeded()
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(uat-azure-subscription)
               
-          - template: tasks/task_get-status-uris.yml
+          - template: stages/jobs/tasks/task_get-status-uris.yml
             parameters:
               targetSuffix: "-uat"
               armClientId: $(clientId)
@@ -156,7 +156,7 @@ stages:
         variables:
           uri: $[dependencies.Get_Status_URIs.outputs['uris.coordinatorUri']]
         steps:
-          - template: tasks/task_call-status-endpoint.yml
+          - template: stages/jobs/tasks/task_call-status-endpoint.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
@@ -176,7 +176,7 @@ stages:
           - Get_Status_URIs
           - Check_Coordinator
         steps:
-          - template: tasks/task_log-result.yml
+          - template: stages/jobs/tasks/task_log-result.yml
             parameters:
               targetBuild: PolarisBuild
               targetLabel: "UAT"
