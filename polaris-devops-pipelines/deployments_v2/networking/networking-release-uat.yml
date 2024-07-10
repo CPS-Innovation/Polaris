@@ -33,11 +33,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../tasks/task_get-credentials.yml
+                - template: ../stages/jobs/tasks/task_get-credentials.yml
                   parameters:
-                    azureSubscriptionId: $(uat-azure-subscription)
+                    azureSubscription: $(uat-azure-subscription)
                     
-                - template: ../tasks/task_apply-networking-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-networking-terraform.yml
                   parameters:
                     targetBuild: PolarisNetworkingBuild
                     targetTerraformArtifact: "networking-terraform-files"
@@ -63,11 +63,11 @@ stages:
   #  jobs:
   #    - job: Deploy_Logic_Apps
   #      steps:
-  #        - template: ../tasks/task_get-credentials.yml
+  #        - template: ../stages/jobs/tasks/task_get-credentials.yml
   #          parameters:
-  #            azureSubscriptionId: $(uat-azure-subscription)
+  #            azureSubscription: $(uat-azure-subscription)
   #
-  #        - template: ../tasks/task_deploy-alert-processor.yml
+  #        - template: ../stages/jobs/tasks/task_deploy-alert-processor.yml
   #          parameters:
   #            targetBuild: PolarisNetworkingBuild
   #            targetLabel: "UAT"

@@ -1,0 +1,51 @@
+﻿parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: buildDefinitionId
+    type: string
+  
+stages:
+  - stage: Run_e2e_Tests
+    displayName: e2e tests
+    dependsOn: Update_GitHub_Tag
+    condition: succeeded()
+    jobs:
+      - job: Log_Start
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_log-start.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "e2e Tests"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+
+      - job: Run_e2e_Tests
+        condition: succeeded()
+        dependsOn: Log_Start
+        steps:
+          - template: jobs/tasks/task_run-e2e-tests.yml
+            parameters:
+              targetLabel: ${{ parameters.targetLabel }}
+              buildDefinitionId: ${{ parameters.buildDefinitionId }}
+              devOpsPatToken: $(System.AccessToken)
+
+      - job: Log_Result
+        condition: succeeded()
+        displayName: Log End
+        dependsOn:
+          - Log_Start
+          - Run_e2e_Tests
+        steps:
+          - template: jobs/tasks/task_log-result.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "e2e Tests"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              devOpsPatToken: $(System.AccessToken)

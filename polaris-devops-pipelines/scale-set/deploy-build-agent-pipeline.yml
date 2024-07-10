@@ -39,7 +39,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+              azureSubscription: $(dev-azure-subscription)
 
           - template: steps/create-build-agent-image.yml
             parameters:
@@ -67,7 +67,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(qa-azure-subscription)
+              azureSubscription: $(qa-azure-subscription)
 
           - template: steps/create-build-agent-image.yml
             parameters:
@@ -95,7 +95,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(uat-azure-subscription)
+              azureSubscription: $(uat-azure-subscription)
 
           - template: steps/create-build-agent-image.yml
             parameters:
@@ -123,7 +123,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(prod-azure-subscription)
+              azureSubscription: $(prod-azure-subscription)
 
           - template: steps/create-build-agent-image.yml
             parameters:
@@ -151,7 +151,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(dev-azure-subscription)
+              azureSubscription: $(dev-azure-subscription)
 
           - template: steps/update-image-version.yml
             parameters:
@@ -176,7 +176,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(qa-azure-subscription)
+              azureSubscription: $(qa-azure-subscription)
 
           - template: steps/update-image-version.yml
             parameters:
@@ -201,7 +201,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(uat-azure-subscription)
+              azureSubscription: $(uat-azure-subscription)
 
           - template: steps/update-image-version.yml
             parameters:
@@ -226,7 +226,7 @@ stages:
         steps:
           - template: steps/get-credentials.yml
             parameters:
-              azureSubscriptionId: $(prod-azure-subscription)
+              azureSubscription: $(prod-azure-subscription)
 
           - template: steps/update-image-version.yml
             parameters:

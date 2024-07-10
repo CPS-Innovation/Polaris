@@ -1,0 +1,132 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: azureSubscription
+    type: string
+  
+stages:
+  - stage: Deploy
+    displayName: Deploy
+    condition: succeeded()
+    dependsOn: Apply
+    jobs:
+      - job: Log_Start_Codebase
+        condition: succeeded()
+        displayName: Log Start
+        steps:
+          - template: jobs/tasks/task_log-start-deployment.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Codebase CI Deployment"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+
+      - job: Deploy_Coordinator
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Coordinator
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_deploy-coordinator.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Coordinator Deployment"
+              targetSuffix: ${{ parameters.targetSuffix }}
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              azureSubscription: ${{ parameters.azureSubscription }}
+
+      - job: Deploy_Pdf_Generator
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy PDF Generator
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_deploy-pdf-generator.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "PDF Generator Deployment"
+              targetSuffix: ${{ parameters.targetSuffix }}
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              azureSubscription: ${{ parameters.azureSubscription }}
+
+      - job: Deploy_Pdf_Redactor
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy PDF Redactor
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_deploy-pdf-redactor.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "PDF Redactor Deployment"
+              targetSuffix: ${{ parameters.targetSuffix }}
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              azureSubscription: ${{ parameters.azureSubscription }}
+
+      - job: Deploy_Text_Extractor
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Text Extractor
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_deploy-text-extractor.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Text Extractor Deployment"
+              targetSuffix: ${{ parameters.targetSuffix }}
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              azureSubscription: ${{ parameters.azureSubscription }}
+
+      - job: Deploy_Spa
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy SPA
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_deploy-spa.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "SPA Deployment"
+              targetSuffix: ${{ parameters.targetSuffix }}
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              azureSubscription: ${{ parameters.azureSubscription }}
+
+      - job: Deploy_Gateway
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy Gateway
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_deploy-gateway.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Gateway Deployment"
+              targetSuffix: ${{ parameters.targetSuffix }}
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              azureSubscription: ${{ parameters.azureSubscription }}
+
+      - job: Log_Result_Codebase_Ended
+        condition: succeeded()
+        displayName: Log End
+        dependsOn:
+          - Deploy_Coordinator
+          - Deploy_Pdf_Generator
+          - Deploy_Pdf_Redactor
+          - Deploy_Text_Extractor
+          - Deploy_Spa
+          - Deploy_Gateway
+        steps:
+          - template: jobs/tasks/task_log-result-deployment.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "Codebase CI Deployment"
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              devOpsPatToken: $(System.AccessToken)
