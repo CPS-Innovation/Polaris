@@ -184,7 +184,7 @@ stages:
         condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
         displayName: Check Pipeline Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
@@ -249,7 +249,7 @@ stages:
         dependsOn: Validate_Pipeline_Events_Terraform
         displayName: Check Pipeline Events Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
@@ -314,7 +314,7 @@ stages:
         dependsOn: Validate_UI_Terraform
         displayName: Check UI Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
@@ -379,7 +379,7 @@ stages:
         dependsOn: Validate_UI_Events_Terraform
         displayName: Check UI Events Terraform
         steps:
-          - template: tasks/task_get-credentials.yml
+          - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
