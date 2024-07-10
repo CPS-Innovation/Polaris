@@ -14,7 +14,13 @@ parameters:
     type: string
   - name: terraformStorageAccount
     type: string
-  - name: terraformContainerName
+  - name: pipelineTerraformContainerName
+    type: string
+  - name: pipelineEventsTerraformContainerName
+    type: string
+  - name: uiTerraformContainerName
+    type: string
+  - name: uiEventsTerraformContainerName
     type: string
   - name: terraformStateKey
     type: string
@@ -81,7 +87,7 @@ stages:
                     targetPlanName: ${{ parameters.targetPlanName }}
                     appInsightsKey: ${{ parameters.appInsightsKey }}
                     terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-                    terraformContainerName: ${{ parameters.terraformContainerName }}
+                    terraformContainerName: ${{ parameters.pipelineTerraformContainerName }}
                     terraformStateKey: ${{ parameters.terraformStateKey }}
                     terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
                     armClientId: $(clientId)
@@ -113,7 +119,7 @@ stages:
                     targetPlanName: ${{ parameters.targetPlanName }}
                     appInsightsKey: ${{ parameters.appInsightsKey }}
                     terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-                    terraformContainerName: ${{ parameters.terraformContainerName }}
+                    terraformContainerName: ${{ parameters.pipelineEventsTerraformContainerName }}
                     terraformStateKey: ${{ parameters.terraformStateKey }}
                     terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
                     armClientId: $(clientId)
@@ -145,7 +151,7 @@ stages:
                     targetPlanName: ${{ parameters.targetPlanName }}
                     appInsightsKey: ${{ parameters.appInsightsKey }}
                     terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-                    terraformContainerName: $(ui-terraform-container-name)
+                    terraformContainerName: ${{ parameters.uiTerraformContainerName }}
                     terraformStateKey: ${{ parameters.terraformStateKey }}
                     terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
                     armClientId: $(clientId)
@@ -177,7 +183,7 @@ stages:
                     targetPlanName: ${{ parameters.targetPlanName }}
                     appInsightsKey: ${{ parameters.appInsightsKey }}
                     terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-                    terraformContainerName: $(ui-events-terraform-container-name)
+                    terraformContainerName: ${{ parameters.uiEventsTerraformContainerName }}
                     terraformStateKey: ${{ parameters.terraformStateKey }}
                     terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
                     armClientId: $(clientId)
