@@ -59,26 +59,11 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     name  = "polaris-app-gateway${local.resource_suffix}-pool"
   }
   backend_http_settings {
-    affinity_cookie_name                = "ApplicationGatewayAffinity"
-    cookie_based_affinity               = "Enabled"
-    name                                = "polaris-app-gateway${local.resource_suffix}-proxy-http-settings"
-    pick_host_name_from_backend_address = true
-    port                                = 80
-    probe_name                          = "polaris-app-gateway${local.resource_suffix}-http-probe"
-    protocol                            = "Http"
-    request_timeout                     = 20
-    connection_draining {
-      drain_timeout_sec = 60
-      enabled           = true
-    }
-  }
-  backend_http_settings {
     affinity_cookie_name  = "ApplicationGatewayAffinity"
     cookie_based_affinity = "Enabled"
-    host_name             = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
+    host_name             = var.app_gateway_back_end_host_name
     name                  = "polaris-app-gateway${local.resource_suffix}-proxy-https-settings"
     port                  = 443
-    probe_name            = "polaris-app-gateway${local.resource_suffix}-https-probe"
     protocol              = "Https"
     request_timeout       = 20
     connection_draining {
@@ -150,39 +135,19 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
       subnet_id                     = data.azurerm_subnet.polaris_apps2_subnet.id
     }
   }
-  probe {
-    host                = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
-    interval            = 10
-    name                = "polaris-app-gateway${local.resource_suffix}-http-probe"
-    path                = "/api/status"
-    port                = 80
-    protocol            = "Http"
-    timeout             = 5
-    unhealthy_threshold = 1
-    match {
-      status_code = ["200-399"]
-    }
-  }
-  probe {
-    host                = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
-    interval            = 10
-    name                = "polaris-app-gateway${local.resource_suffix}-https-probe"
-    path                = "/api/status"
-    port                = 443
-    protocol            = "Https"
-    timeout             = 5
-    unhealthy_threshold = 1
-    match {
-      status_code = ["200-399"]
-    }
+  redirect_configuration {
+    include_path         = true
+    include_query_string = true
+    name                 = "polaris-app-gateway${local.resource_suffix}-http-rule"
+    redirect_type        = "Permanent"
+    target_listener_name = "polaris-app-gateway${local.resource_suffix}-https-listener"
   }
   request_routing_rule {
-    backend_address_pool_name  = "polaris-app-gateway${local.resource_suffix}-pool"
-    backend_http_settings_name = "polaris-app-gateway${local.resource_suffix}-proxy-http-settings"
-    http_listener_name         = "polaris-app-gateway${local.resource_suffix}-http-listener"
-    name                       = "polaris-app-gateway${local.resource_suffix}-http-rule"
-    priority                   = 2
-    rule_type                  = "Basic"
+    http_listener_name          = "polaris-app-gateway${local.resource_suffix}-http-listener"
+    name                        = "polaris-app-gateway${local.resource_suffix}-http-rule"
+    priority                    = 2
+    redirect_configuration_name = "polaris-app-gateway${local.resource_suffix}-http-rule"
+    rule_type                   = "Basic"
   }
   request_routing_rule {
     backend_address_pool_name  = "polaris-app-gateway${local.resource_suffix}-pool"
