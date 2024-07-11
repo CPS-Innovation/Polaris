@@ -157,3 +157,7 @@ variable "app_gateway_custom_error_pages" {
     HttpStatus403 = string
   })
 }
+
+variable "app_gateway_back_end_host_name" {
+  type = string
+}
