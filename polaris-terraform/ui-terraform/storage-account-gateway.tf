@@ -166,7 +166,7 @@ resource "azapi_resource" "polaris_sa_gateway_file_share_staging1" {
 
 resource "azapi_resource" "polaris_sa_maintenance_file_share" {
   count = var.env == "dev" ? 1 : 0
-  
+
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-maintenance-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_gateway.name}/fileServices/default"

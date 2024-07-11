@@ -59,28 +59,28 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     name  = "polaris-app-gateway${local.resource_suffix}-pool"
   }
   backend_http_settings {
-    affinity_cookie_name  = "ApplicationGatewayAffinity"
-    cookie_based_affinity = "Enabled"
+    affinity_cookie_name                = "ApplicationGatewayAffinity"
+    cookie_based_affinity               = "Enabled"
     name                                = "polaris-app-gateway${local.resource_suffix}-proxy-http-settings"
     pick_host_name_from_backend_address = true
     port                                = 80
-    probe_name                          = "polaris-app-gateway${local.resource_suffix}-maintenance-http-probe"
-    protocol              = "Http"
-    request_timeout       = 20
+    probe_name                          = "polaris-app-gateway${local.resource_suffix}-http-probe"
+    protocol                            = "Http"
+    request_timeout                     = 20
     connection_draining {
       drain_timeout_sec = 60
       enabled           = true
     }
   }
   backend_http_settings {
-    affinity_cookie_name  = "ApplicationGatewayAffinity"
-    cookie_based_affinity = "Enabled"
+    affinity_cookie_name                = "ApplicationGatewayAffinity"
+    cookie_based_affinity               = "Enabled"
     name                                = "polaris-app-gateway${local.resource_suffix}-proxy-https-settings"
     pick_host_name_from_backend_address = true
     port                                = 443
-    probe_name                          = "polaris-app-gateway${local.resource_suffix}-maintenance-https-probe"
+    probe_name                          = "polaris-app-gateway${local.resource_suffix}-https-probe"
     protocol                            = "Https"
-    request_timeout       = 20
+    request_timeout                     = 20
     connection_draining {
       drain_timeout_sec = 60
       enabled           = true
@@ -141,11 +141,10 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     type         = "UserAssigned"
   }
   probe {
-    host                                      = "10.7.196.239"
     interval                                  = 30
-    name                                      = "polaris-app-gateway${local.resource_suffix}-maintenance-http-probe"
-    path                                      = "/api/status"
-    port                                      = 80
+    name                                      = "polaris-app-gateway${local.resource_suffix}-http-probe"
+    path                                      = "/"
+    pick_host_name_from_backend_http_settings = true
     protocol                                  = "Http"
     timeout                                   = 10
     unhealthy_threshold                       = 1
@@ -154,11 +153,9 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     }
   }
   probe {
-    host                                      = "10.7.196.239"
     interval                                  = 30
-    name                                      = "polaris-app-gateway${local.resource_suffix}-maintenance-https-probe"
+    name                                      = "polaris-app-gateway${local.resource_suffix}-https-probe"
     path                                      = "/"
-    port                                      = 443
     pick_host_name_from_backend_http_settings = true
     protocol                                  = "Https"
     timeout                                   = 10
