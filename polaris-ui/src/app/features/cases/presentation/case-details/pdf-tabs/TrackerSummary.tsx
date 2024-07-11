@@ -23,17 +23,13 @@ const renderDocResults = (
         doc.status === "New"
     )?.length;
     const docsUploaded = validDocs.length - docFailed;
-
+    const documentText = docFailed > 1 ? "documents" : "document";
     return (
       <span>
         Documents ready to read:{" "}
         <span className={classes.documentsReadyToReadText}>
           {isCaseCompleted && docFailed ? (
-            `${docsUploaded}
-
-                (unable to convert ${docFailed} ${
-              docFailed > 1 ? "documents" : "document"
-            })`
+            `${docsUploaded} (unable to convert ${docFailed} ${documentText})`
           ) : (
             <>{docsUploaded}</>
           )}
@@ -47,15 +43,13 @@ const renderDocResults = (
       (doc) => doc.status !== "Indexed"
     ).length;
     const docsIndexed = validDocs.length - docsNotIndexed;
-
+    const documentText = docsNotIndexed > 1 ? "documents" : "document";
     return (
       <span>
         Documents indexed:{" "}
         <span className={classes.documentsSearchIndexText}>
           {isCaseCompleted && docsNotIndexed ? (
-            `${docsIndexed} (unable to index ${docsNotIndexed} ${
-              docsNotIndexed > 1 ? "documents" : "document"
-            })`
+            `${docsIndexed} (unable to index ${docsNotIndexed} ${documentText})`
           ) : (
             <>{docsIndexed}</>
           )}

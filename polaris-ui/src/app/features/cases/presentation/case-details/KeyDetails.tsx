@@ -56,17 +56,13 @@ export const KeyDetails: React.FC<{
   const getDOBText = () => {
     if (
       isMultipleDefendantsOrCharges ||
-      !caseDetails ||
-      !caseDetails.leadDefendantDetails ||
-      caseDetails.leadDefendantDetails.type === "Organisation"
+      !caseDetails?.leadDefendantDetails ||
+      caseDetails?.leadDefendantDetails?.type === "Organisation"
     ) {
       return "";
     }
     return (
-      <h2
-        className={`govuk-heading-s ${classes.defendantDOB}`}
-        data-testid="txt-defendant-DOB"
-      >
+      <>
         DOB:{" "}
         <span className={classes.dobValue}>
           {formatDate(
@@ -78,7 +74,7 @@ export const KeyDetails: React.FC<{
         <span className={classes.ageValue}>
           {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
         </span>
-      </h2>
+      </>
     );
   };
 
@@ -117,7 +113,14 @@ export const KeyDetails: React.FC<{
           >
             {caseDetails.uniqueReferenceNumber}
           </h2>
-          {getDOBText() && getDOBText()}
+          {getDOBText() && (
+            <h2
+              className={`govuk-heading-s ${classes.defendantDOB}`}
+              data-testid="txt-defendant-DOB"
+            >
+              {getDOBText()}
+            </h2>
+          )}
           {isYouthOffender() && (
             <Tag className="govuk-tag--blue"> Youth offender</Tag>
           )}

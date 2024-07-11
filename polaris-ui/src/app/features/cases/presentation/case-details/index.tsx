@@ -31,10 +31,7 @@ import {
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import {
-  SURVEY_LINK,
-  FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
-} from "../../../../config";
+import { FEATURE_FLAG_REDACTION_LOG_UNDER_OVER } from "../../../../config";
 import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
