@@ -10,7 +10,7 @@ export type CaseDetails = {
   witnesses: Witness[];
 };
 
-type Defendant = {
+export type Defendant = {
   defendantDetails: DefendantDetails;
   custodyTimeLimit: CustodyTimeLimit;
   charges: Charge[];
