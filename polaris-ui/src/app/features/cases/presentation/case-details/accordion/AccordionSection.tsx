@@ -134,7 +134,7 @@ export const AccordionSection: React.FC<Props> = ({
             !docs.length ? classes.zeroDocsCategory : ""
           }`}
         >
-          {sectionLabel}
+          {`${sectionLabel} (${docs.length})`}
         </h2>
         <span className={`${classes["icon"]}`}></span>
       </button>
