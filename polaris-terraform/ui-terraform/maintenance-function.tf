@@ -38,7 +38,7 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
     health_check_eviction_time_in_min = "2"
     use_32_bit_worker                 = false
     application_stack {
-      dotnet_version = "8.0"
+      dotnet_version              = "8.0"
       use_dotnet_isolated_runtime = true
     }
   }
