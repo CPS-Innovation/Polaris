@@ -73,14 +73,14 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     }
   }
   backend_http_settings {
-    affinity_cookie_name                = "ApplicationGatewayAffinity"
-    cookie_based_affinity               = "Enabled"
-    host_name                           = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
-    name                                = "polaris-app-gateway${local.resource_suffix}-proxy-https-settings"
-    port                                = 443
-    probe_name                          = "polaris-app-gateway${local.resource_suffix}-https-probe"
-    protocol                            = "Https"
-    request_timeout                     = 20
+    affinity_cookie_name  = "ApplicationGatewayAffinity"
+    cookie_based_affinity = "Enabled"
+    host_name             = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
+    name                  = "polaris-app-gateway${local.resource_suffix}-proxy-https-settings"
+    port                  = 443
+    probe_name            = "polaris-app-gateway${local.resource_suffix}-https-probe"
+    protocol              = "Https"
+    request_timeout       = 20
     connection_draining {
       drain_timeout_sec = 60
       enabled           = true
@@ -91,10 +91,10 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     public_ip_address_id = azurerm_public_ip.polaris_app_gateway_public_ip[0].id
   }
   frontend_ip_configuration {
-    name                          = "polaris-app-gateway-prip${local.resource_suffix}"
-    private_ip_address_allocation = "Static"
+    name                            = "polaris-app-gateway-prip${local.resource_suffix}"
+    private_ip_address_allocation   = "Static"
     private_link_configuration_name = "polaris-app-gateway${local.resource_suffix}-plink"
-    subnet_id                     = data.azurerm_subnet.polaris_app_gateway_subnet.id
+    subnet_id                       = data.azurerm_subnet.polaris_app_gateway_subnet.id
   }
   frontend_port {
     name = "port_443"
@@ -151,27 +151,27 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     }
   }
   probe {
-    host                                      = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
-    interval                                  = 10
-    name                                      = "polaris-app-gateway${local.resource_suffix}-http-probe"
-    path                                      = "/api/status"
-    port                                      = 80
-    protocol                                  = "Http"
-    timeout                                   = 5
-    unhealthy_threshold                       = 1
+    host                = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
+    interval            = 10
+    name                = "polaris-app-gateway${local.resource_suffix}-http-probe"
+    path                = "/api/status"
+    port                = 80
+    protocol            = "Http"
+    timeout             = 5
+    unhealthy_threshold = 1
     match {
       status_code = ["200-399"]
     }
   }
   probe {
-    host                                      = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
-    interval                                  = 10
-    name                                      = "polaris-app-gateway${local.resource_suffix}-https-probe"
-    path                                      = "/api/status"
-    port                                      = 443
-    protocol                                  = "Https"
-    timeout                                   = 5
-    unhealthy_threshold                       = 1
+    host                = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
+    interval            = 10
+    name                = "polaris-app-gateway${local.resource_suffix}-https-probe"
+    path                = "/api/status"
+    port                = 443
+    protocol            = "Https"
+    timeout             = 5
+    unhealthy_threshold = 1
     match {
       status_code = ["200-399"]
     }
