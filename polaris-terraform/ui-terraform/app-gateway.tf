@@ -75,8 +75,8 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   backend_http_settings {
     affinity_cookie_name                = "ApplicationGatewayAffinity"
     cookie_based_affinity               = "Enabled"
+    host_name                           = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
     name                                = "polaris-app-gateway${local.resource_suffix}-proxy-https-settings"
-    pick_host_name_from_backend_address = true
     port                                = 443
     probe_name                          = "polaris-app-gateway${local.resource_suffix}-https-probe"
     protocol                            = "Https"
@@ -93,6 +93,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   frontend_ip_configuration {
     name                          = "polaris-app-gateway-prip${local.resource_suffix}"
     private_ip_address_allocation = "Static"
+    private_link_configuration_name = "polaris-app-gateway${local.resource_suffix}-plink"
     subnet_id                     = data.azurerm_subnet.polaris_app_gateway_subnet.id
   }
   frontend_port {
@@ -140,25 +141,36 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     identity_ids = [azurerm_user_assigned_identity.polaris_app_gateway_identity[0].id]
     type         = "UserAssigned"
   }
+  private_link_configuration {
+    name = "polaris-app-gateway${local.resource_suffix}-plink"
+    ip_configuration {
+      name                          = "privateLinkIpConfig1"
+      primary                       = false
+      private_ip_address_allocation = "Dynamic"
+      subnet_id                     = data.azurerm_subnet.polaris_apps2_subnet.id
+    }
+  }
   probe {
-    interval                                  = 30
+    host                                      = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
+    interval                                  = 10
     name                                      = "polaris-app-gateway${local.resource_suffix}-http-probe"
-    path                                      = "/"
-    pick_host_name_from_backend_http_settings = true
+    path                                      = "/api/status"
+    port                                      = 80
     protocol                                  = "Http"
-    timeout                                   = 10
+    timeout                                   = 5
     unhealthy_threshold                       = 1
     match {
       status_code = ["200-399"]
     }
   }
   probe {
-    interval                                  = 30
+    host                                      = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
+    interval                                  = 10
     name                                      = "polaris-app-gateway${local.resource_suffix}-https-probe"
-    path                                      = "/"
-    pick_host_name_from_backend_http_settings = true
+    path                                      = "/api/status"
+    port                                      = 443
     protocol                                  = "Https"
-    timeout                                   = 10
+    timeout                                   = 5
     unhealthy_threshold                       = 1
     match {
       status_code = ["200-399"]
@@ -204,3 +216,24 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   ]
 }
 
+resource "azurerm_private_endpoint" "polaris_app_gateway_pe" {
+  count = var.env == "dev" ? 1 : 0
+
+  name                = "${azurerm_application_gateway.polaris_app_gateway[0].name}-pe"
+  resource_group_name = azurerm_resource_group.rg_polaris.name
+  location            = azurerm_resource_group.rg_polaris.location
+  subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
+  tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_apps.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
+  }
+
+  private_service_connection {
+    name                           = "${azurerm_application_gateway.polaris_app_gateway[0].name}-psc"
+    private_connection_resource_id = azurerm_application_gateway.polaris_app_gateway[0].id
+    is_manual_connection           = false
+    subresource_names              = ["polaris-app-gateway-prip${local.resource_suffix}"]
+  }
+}
