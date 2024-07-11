@@ -56,21 +56,35 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   }
   backend_address_pool {
     fqdns = ["${local.resource_name}-cmsproxy.azurewebsites.net"]
-    name  = "polaris-app-bep${local.resource_suffix}"
+    name  = "polaris-app-gateway${local.resource_suffix}-proxy-pool"
+  }
+  backend_address_pool {
+    fqdns = ["fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"]
+    name  = "polaris-app-gateway${local.resource_suffix}-maintenance-pool"
   }
   backend_http_settings {
     affinity_cookie_name  = "ApplicationGatewayAffinity"
     cookie_based_affinity = "Enabled"
     host_name             = "${local.resource_name}-cmsproxy.azurewebsites.net"
-    name                  = "polaris-app-gateway-bes${local.resource_suffix}"
+    name                  = "polaris-app-gateway${local.resource_suffix}-proxy-settings"
     port                  = 443
-    probe_name            = "polaris-app-gateway-bes-proxy-probe-1${local.resource_suffix}"
+    probe_name            = "polaris-app-gateway${local.resource_suffix}-proxy-probe"
     protocol              = "Https"
     request_timeout       = 20
     connection_draining {
       drain_timeout_sec = 60
       enabled           = true
     }
+  }
+  backend_http_settings {
+    affinity_cookie_name  = "ApplicationGatewayAffinity"
+    cookie_based_affinity = "Disabled"
+    host_name             = "fa-polaris${local.resource_suffix}-maintenance.azurewebsites.net"
+    name                  = "polaris-app-gateway${local.resource_suffix}-maintenance-settings"
+    port                  = 80
+    probe_name            = "polaris-app-gateway${local.resource_suffix}-maintenance-probe"
+    protocol              = "Http"
+    request_timeout       = 20
   }
   frontend_ip_configuration {
     name                 = "appGwPublicFrontendIpIPv4"
@@ -96,7 +110,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   http_listener {
     frontend_ip_configuration_name = "polaris-app-gateway-prip${local.resource_suffix}"
     frontend_port_name             = "port_443"
-    name                           = "polaris-app-gateway-listener-https${local.resource_suffix}"
+    name                           = "polaris-app-gateway${local.resource_suffix}-proxy-https-listener"
     protocol                       = "Https"
     ssl_certificate_name           = var.ssl_certificate_name
     custom_error_configuration {
@@ -111,7 +125,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   http_listener {
     frontend_ip_configuration_name = "polaris-app-gateway-prip${local.resource_suffix}"
     frontend_port_name             = "port_80"
-    name                           = "polaris-app-gateway-listener${local.resource_suffix}"
+    name                           = "polaris-app-gateway${local.resource_suffix}-maintenance-http-listener"
     protocol                       = "Http"
     custom_error_configuration {
       custom_error_page_url = var.app_gateway_custom_error_pages.HttpStatus502
@@ -127,43 +141,43 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     type         = "UserAssigned"
   }
   probe {
-    host                = "${local.resource_name}-cmsproxy.azurewebsites.net"
-    interval            = 30
-    name                = "polaris-app-gateway-bes-proxy-probe-1${local.resource_suffix}"
-    path                = "/"
-    protocol            = "Https"
-    timeout             = 30
-    unhealthy_threshold = 3
+    interval                                  = 30
+    name                                      = "polaris-app-gateway${local.resource_suffix}-maintenance-probe"
+    path                                      = "/api/status"
+    pick_host_name_from_backend_http_settings = true
+    protocol                                  = "Http"
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
     match {
       status_code = ["200-399"]
     }
   }
   probe {
-    host                = "${azurerm_linux_function_app.fa_polaris_maintenance[0].name}.azurewebsites.net"
-    interval            = 30
-    name                = "polaris-app-gateway-bes-proxy-probe-2${local.resource_suffix}"
-    path                = "/"
-    protocol            = "Https"
-    timeout             = 30
-    unhealthy_threshold = 3
+    interval                                  = 30
+    name                                      = "polaris-app-gateway${local.resource_suffix}-proxy-probe"
+    path                                      = "/"
+    pick_host_name_from_backend_http_settings = true
+    protocol                                  = "Https"
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
     match {
       status_code = ["200-399"]
     }
   }
   request_routing_rule {
-    backend_address_pool_name  = "polaris-app-bep${local.resource_suffix}"
-    backend_http_settings_name = "polaris-app-gateway-bes${local.resource_suffix}"
-    http_listener_name         = "polaris-app-gateway-listener${local.resource_suffix}"
-    name                       = "polaris-app-gateway-http-rule${local.resource_suffix}"
-    priority                   = 1
+    backend_address_pool_name  = "polaris-app-gateway${local.resource_suffix}-maintenance-pool"
+    backend_http_settings_name = "polaris-app-gateway${local.resource_suffix}-maintenance-settings"
+    http_listener_name         = "polaris-app-gateway${local.resource_suffix}-maintenance-http-listener"
+    name                       = "polaris-app-gateway${local.resource_suffix}-maintenance-http-rule"
+    priority                   = 2
     rule_type                  = "Basic"
   }
   request_routing_rule {
-    backend_address_pool_name  = "polaris-app-bep${local.resource_suffix}"
-    backend_http_settings_name = "polaris-app-gateway-bes${local.resource_suffix}"
-    http_listener_name         = "polaris-app-gateway-listener-https${local.resource_suffix}"
-    name                       = "polaris-app-gateway-https-rule${local.resource_suffix}"
-    priority                   = 2
+    backend_address_pool_name  = "polaris-app-gateway${local.resource_suffix}-proxy-pool"
+    backend_http_settings_name = "polaris-app-gateway${local.resource_suffix}-proxy-settings"
+    http_listener_name         = "polaris-app-gateway${local.resource_suffix}-proxy-https-listener"
+    name                       = "polaris-app-gateway${local.resource_suffix}-proxy-https-rule"
+    priority                   = 1
     rule_type                  = "Basic"
   }
   sku {
