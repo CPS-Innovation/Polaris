@@ -59,8 +59,8 @@ private_beta = {
 
 polaris_ui_reauth_redirect_url = "/polaris-deployed?polaris-ui-url="
 
-ssl_certificate_name = "polaris-prod58a2bb2c-0fbb-416c-9d39-44423b2f42ac"
-ssl_policy_name      = "AppGwSslPolicy20220101"
+ssl_certificate_name           = "polaris-prod58a2bb2c-0fbb-416c-9d39-44423b2f42ac"
+ssl_policy_name                = "AppGwSslPolicy20220101"
 app_gateway_back_end_host_name = "polaris.cps.gov.uk"
 
 app_gateway_custom_error_pages = {
