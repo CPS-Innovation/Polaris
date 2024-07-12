@@ -1,4 +1,4 @@
-﻿---
+---
 
 trigger: none
 pr: none
@@ -27,4 +27,4 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              targetSuffix: $(targetSuffix)
+              targetSuffix: $(target-suffix)
