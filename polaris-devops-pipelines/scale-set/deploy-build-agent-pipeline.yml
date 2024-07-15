@@ -37,7 +37,7 @@ stages:
       - job: build
         displayName: DEV - Build Image
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
 
@@ -65,7 +65,7 @@ stages:
       - job: build
         displayName: QA - Build Image
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(qa-azure-subscription)
 
@@ -93,7 +93,7 @@ stages:
       - job: build
         displayName: UAT - Build Image
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(uat-azure-subscription)
 
@@ -121,7 +121,7 @@ stages:
       - job: build
         displayName: PROD - Build Image
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(prod-azure-subscription)
 
@@ -149,7 +149,7 @@ stages:
       - job: update
         displayName: Update Resources
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
 
@@ -174,7 +174,7 @@ stages:
       - job: update
         displayName: Update QA
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(qa-azure-subscription)
 
@@ -199,7 +199,7 @@ stages:
       - job: update
         displayName: Update UAT
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(uat-azure-subscription)
 
@@ -224,7 +224,7 @@ stages:
       - job: update
         displayName: Update PROD
         steps:
-          - template: steps/get-credentials.yml
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(prod-azure-subscription)
 
