@@ -36,6 +36,51 @@ namespace Ddei.Mappers
             };
         }
 
+        public IEnumerable<DefendantAndChargesDto> MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants)
+        {
+            return defendants.Select(defendant => MapDefendantAndCharges(defendant));
+        }
+
+        public PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)
+        {
+            return new PcdRequestDto
+            {
+                Id = pcdr.Id,
+                DecisionRequiredBy = pcdr.DecisionRequiredBy,
+                DecisionRequested = pcdr.DecisionRequested,
+                CaseOutline = pcdr.CaseOutline.Select(ol => MapPcdCaseOutlineLine(ol)).ToList(),
+                Comments = MapPreChargeDecisionComments(pcdr.Comments),
+                Suspects = pcdr.Suspects.Select(s => MapPcdSuspect(s)).ToList()
+            };
+        }
+
+        public IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<DdeiPcdRequestCoreDto> pcdRequests)
+        {
+            return pcdRequests.Select(pcd => MapCorePreChargeDecisionRequest(pcd));
+        }
+
+        private PcdRequestCoreDto MapCorePreChargeDecisionRequest(DdeiPcdRequestCoreDto pcd)
+        {
+            return new PcdRequestCoreDto
+            {
+                Id = pcd.Id,
+                DecisionRequiredBy = pcd.DecisionRequiredBy,
+                DecisionRequested = pcd.DecisionRequested,
+            };
+        }
+
+        private DefendantAndChargesDto MapDefendantAndCharges(DdeiCaseDefendantDto defendant)
+        {
+            return new DefendantAndChargesDto
+            {
+                Id = defendant.Id,
+                ListOrder = defendant.ListOrder,
+                DefendantDetails = MapDefendantDetails(defendant),
+                CustodyTimeLimit = MapCustodyTimeLimit(defendant.CustodyTimeLimit),
+                Charges = MapCharges(defendant),
+            };
+        }
+
         private IEnumerable<DefendantAndChargesDto> MapDefendants(DdeiCaseDetailsDto caseDetails)
         {
             return caseDetails.Defendants.Select(defendant => MapDefendant(defendant, caseDetails.PreChargeDecisionRequests));
@@ -242,19 +287,6 @@ namespace Ddei.Mappers
         private IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> preChargeDecisionRequests)
         {
             return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
-        }
-
-        private PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)
-        {
-            return new PcdRequestDto
-            {
-                Id = pcdr.Id,
-                DecisionRequiredBy = pcdr.DecisionRequiredBy,
-                DecisionRequested = pcdr.DecisionRequested,
-                CaseOutline = pcdr.CaseOutline.Select(ol => MapPcdCaseOutlineLine(ol)).ToList(),
-                Comments = MapPreChargeDecisionComments(pcdr.Comments),
-                Suspects = pcdr.Suspects.Select(s => MapPcdSuspect(s)).ToList()
-            };
         }
 
         private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(DdeiPcdCaseOutlineLineDto ol)

@@ -12,6 +12,9 @@ using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
 using coordinator.Clients.PdfGenerator;
 using Common.Constants;
+using Ddei.Factories;
+using Common.Dto.Case;
+using System.Linq;
 
 namespace coordinator.Durable.Activity
 {
@@ -21,6 +24,7 @@ namespace coordinator.Durable.Activity
         private readonly IPdfGeneratorClient _pdfGeneratorClient;
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
         private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IPolarisBlobStorageService _blobStorageService;
 
         public GeneratePdf(
@@ -29,6 +33,7 @@ namespace coordinator.Durable.Activity
             IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
             IDdeiClient ddeiClient,
             IPolarisBlobStorageService blobStorageService,
+            IDdeiArgFactory ddeiArgFactory,
             ILogger<GeneratePdf> logger)
         {
             _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
@@ -36,10 +41,9 @@ namespace coordinator.Durable.Activity
             _validatorWrapper = validatorWrapper;
             _ddeiClient = ddeiClient;
             _blobStorageService = blobStorageService;
+            _ddeiArgFactory = ddeiArgFactory;
         }
 
-        // todo: for the time being we have a boolean success flag return value. The coordinator refactor 
-        //  exercise will do something better than this.
         [FunctionName(nameof(GeneratePdf))]
         public async Task<PdfConversionStatus> Run([ActivityTrigger] IDurableActivityContext context)
         {
@@ -101,14 +105,33 @@ namespace coordinator.Durable.Activity
 
         private async Task<Stream> GetDocumentStreamAsync(CaseDocumentOrchestrationPayload payload)
         {
-
             if (payload.PcdRequestTracker != null)
             {
-                return await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
+                var arg = _ddeiArgFactory.CreatePcdArg(
+                    payload.CmsAuthValues,
+                    payload.CorrelationId,
+                    payload.CmsCaseUrn,
+                    payload.CmsCaseId,
+                    payload.PcdRequestTracker.PcdRequest.Id);
+                var pcdRequest = await _ddeiClient.GetPcdRequest(arg);
+                return await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);
             }
             else if (payload.DefendantAndChargesTracker != null)
             {
-                return await _convertPcdRequestToHtmlService.ConvertAsync(payload.DefendantAndChargesTracker.DefendantsAndCharges);
+                var arg = _ddeiArgFactory.CreateCaseArg(
+                    payload.CmsAuthValues,
+                    payload.CorrelationId,
+                    payload.CmsCaseUrn,
+                    payload.CmsCaseId);
+
+                var defendantsAndChargesResult = await _ddeiClient.GetDefendantAndCharges(arg);
+
+                var defendantsAndCharges = new DefendantsAndChargesListDto
+                {
+                    CaseId = payload.CmsCaseId,
+                    DefendantsAndCharges = defendantsAndChargesResult.OrderBy(dac => dac.ListOrder)
+                };
+                return await _convertPcdRequestToHtmlService.ConvertAsync(defendantsAndCharges);
             }
             else
             {
