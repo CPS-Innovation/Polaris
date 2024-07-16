@@ -208,6 +208,13 @@ export const reducer = (
             };
       }
     | {
+        type: "UPDATE_RENAME_DATA";
+        payload: {
+          documentId: string;
+          saveRenameStatus: "saving" | "failure" | "success";
+        };
+      }
+    | {
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
         payload: {
           documentId: string;
@@ -1066,6 +1073,23 @@ export const reducer = (
             ],
           };
       }
+    }
+
+    case "UPDATE_RENAME_DATA": {
+      const { documentId, saveRenameStatus } = action.payload;
+      const filteredData = state.renameDocuments.filter(
+        (data) => data.documentId !== documentId
+      );
+      return {
+        ...state,
+        renameDocuments: [
+          ...filteredData,
+          {
+            documentId,
+            saveRenameStatus,
+          },
+        ],
+      };
     }
 
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {

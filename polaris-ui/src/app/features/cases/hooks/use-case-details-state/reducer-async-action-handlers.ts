@@ -7,6 +7,7 @@ import {
   saveRedactionLog,
   getNotesData,
   addNoteData,
+  saveDocumentRename,
   getSearchPIIData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
@@ -100,6 +101,13 @@ type AsyncActions =
       payload: {
         documentId: string;
         noteText: string;
+      };
+    }
+  | {
+      type: "SAVE_RENAME_DOCUMENT";
+      payload: {
+        documentId: string;
+        newName: string;
       };
     }
   | {
@@ -576,6 +584,55 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {
             startRefresh: true,
+          },
+        });
+      }
+    },
+
+  SAVE_RENAME_DOCUMENT:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId, newName },
+      } = action;
+      const { caseId, urn } = getState();
+
+      try {
+        dispatch({
+          type: "UPDATE_RENAME_DATA",
+          payload: {
+            documentId,
+            saveRenameStatus: "saving",
+          },
+        });
+        await saveDocumentRename(urn, caseId, documentId, newName);
+        dispatch({
+          type: "UPDATE_RENAME_DATA",
+          payload: {
+            documentId,
+            saveRenameStatus: "success",
+          },
+        });
+        dispatch({
+          type: "UPDATE_REFRESH_PIPELINE",
+          payload: {
+            startRefresh: true,
+          },
+        });
+      } catch (e) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "saverename",
+            title: "Something went wrong!",
+            message: "Failed to rename the document. Please try again.",
+          },
+        });
+        dispatch({
+          type: "UPDATE_RENAME_DATA",
+          payload: {
+            documentId,
+            saveRenameStatus: "failure",
           },
         });
       }

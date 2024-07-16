@@ -327,6 +327,30 @@ export const addNoteData = async (
   return (await response.json()) as Note[];
 };
 
+export const saveDocumentRename = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  name: string
+) => {
+  const docId = parseInt(removeNonDigits(documentId));
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/rename`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+    body: JSON.stringify({ documentId: docId, name: name }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Rename document failed", path, response);
+  }
+
+  return (await response.json()) as Note[];
+};
+
 export const getSearchPIIData = async (
   urn: string,
   caseId: number,

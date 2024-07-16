@@ -118,6 +118,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleAreaOnlyRedaction,
     handleGetNotes,
     handleAddNote,
+    handleSaveRename,
     handleShowHideRedactionSuggestions,
     handleSearchPIIAction,
   } = useCaseDetailsState(urn, +caseId, unMountingCallback);
@@ -491,7 +492,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       documentId={actionsSidePanel.documentId}
                       renameDocuments={renameDocuments}
                       handleClose={handleClosePanel}
-                      handleSaveRename={handleAddNote}
+                      handleSaveRename={handleSaveRename}
                     />
                   </div>
                 )}

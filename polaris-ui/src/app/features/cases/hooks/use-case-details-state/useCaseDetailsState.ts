@@ -468,6 +468,18 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleSaveRename = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"], newName: string) =>
+      dispatch({
+        type: "SAVE_RENAME_DOCUMENT",
+        payload: {
+          documentId,
+          newName,
+        },
+      }),
+    [dispatch]
+  );
+
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
@@ -546,6 +558,7 @@ export const useCaseDetailsState = (
     handleSaveReadUnreadData,
     handleGetNotes,
     handleAddNote,
+    handleSaveRename,
     handleShowHideRedactionSuggestions,
     handleGetSearchPIIData,
     handleSearchPIIAction,

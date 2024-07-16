@@ -1,5 +1,5 @@
 export type RenameDocumentData = {
   documentId: string;
-  value: string;
   saveRenameStatus: "failure" | "saving" | "success" | "initial";
+  // saveRenameRefreshStatus: "initial" | "updating" | "updated";
 };
