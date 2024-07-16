@@ -9,7 +9,9 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+
   svg {
+    // width: 30px;
     fill: #1d70b8;
   }
   &:focus {
@@ -48,7 +50,7 @@
   filter: drop-shadow(0 1px 0.15rem #000);
 }
 
-.tabList {
+.panelList {
   display: flex;
   white-space: nowrap;
   flex-direction: column;
@@ -57,16 +59,15 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  width: 15.625rem;
 }
 
-.tabListWithSeparator {
+.panelListWithSeparator {
   & li:last-child {
     border-top: 1px solid #b1b4b6;
   }
 }
 
-.tabListItem {
+.panelListItem {
   width: 100%;
   & button {
     margin: 0;

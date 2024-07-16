@@ -42,6 +42,7 @@ import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
+import { RenamePanel } from "./rename/RenamePanel";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 export const path = "/case-details/:urn/:id";
 
@@ -49,14 +50,16 @@ type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [inFullScreen, setInFullScreen] = useState(false);
-  const [openNotesData, setOpenNoteData] = useState<{
+  const [actionsSidePanel, setActionsSidePanel] = useState<{
     open: boolean;
+    type: "notes" | "rename" | "";
     documentId: string;
     documentCategory: string;
     presentationFileName: string;
     lastFocusDocumentId: string;
   }>({
     open: false,
+    type: "",
     documentId: "",
     documentCategory: "",
     presentationFileName: "",
@@ -93,6 +96,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     storedUserData,
     notes,
     searchPII,
+    renameDocuments,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -174,7 +178,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     if (notesPanelRef.current) {
       (notesPanelRef.current as HTMLElement).focus();
     }
-  }, [openNotesData.open]);
+  }, [actionsSidePanel.open]);
 
   useEffect(() => {
     return () => {
@@ -194,15 +198,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     },
     []
   );
-  const handleCloseNotes = useCallback(() => {
-    setOpenNoteData({
-      ...openNotesData,
+  const handleClosePanel = useCallback(() => {
+    setActionsSidePanel({
+      ...actionsSidePanel,
       open: false,
+      type: "",
       documentId: "",
       documentCategory: "",
       presentationFileName: "",
     });
-  }, [openNotesData]);
+  }, [actionsSidePanel]);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
@@ -216,13 +221,15 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
-  const handleOpenNotes = (
+  const handleOpenPanel = (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string
+    presentationFileName: string,
+    type: "notes" | "rename"
   ) => {
-    setOpenNoteData({
+    setActionsSidePanel({
       open: true,
+      type: type,
       documentId: documentId,
       documentCategory: documentCategory,
       presentationFileName: presentationFileName,
@@ -251,7 +258,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             contextData={{
               documentId:
                 errorModal.type === "addnote"
-                  ? openNotesData.documentId
+                  ? actionsSidePanel.documentId
                   : getActiveTabDocument?.documentId,
             }}
           />
@@ -373,7 +380,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          {!inFullScreen && !openNotesData.open && (
+          {!inFullScreen && !actionsSidePanel.open && (
             <div
               role="region"
               aria-labelledby="side-panel-region-label"
@@ -428,9 +435,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       handleOpenPdf({ ...caseDoc, mode: "read" });
                     }}
                     activeDocumentId={getActiveTabDocument?.documentId ?? ""}
-                    handleOpenNotes={handleOpenNotes}
+                    handleOpenPanel={handleOpenPanel}
                     showNotesFeature={featureFlags.notes}
-                    lastFocusDocumentId={openNotesData.lastFocusDocumentId}
+                    lastFocusDocumentId={actionsSidePanel.lastFocusDocumentId}
                     accordionStateChangeCallback={accordionStateChangeCallback}
                     handleGetNotes={handleGetNotes}
                     notesData={notes}
@@ -439,34 +446,57 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               </div>
             </div>
           )}
-          {!inFullScreen && openNotesData.open && (
-            <div
-              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.notesArea}`}
-              id="notes-panel"
-              role="region"
-              aria-labelledby="notes-panel-region-label"
-              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-              tabIndex={0}
-              ref={notesPanelRef}
-              data-testid="notes-panel"
-            >
-              <span
-                id="notes-panel-region-label"
-                className={classes.sidePanelLabel}
+          {!inFullScreen && actionsSidePanel.open && (
+            <>
+              <div
+                className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.notesArea}`}
+                id="notes-panel"
+                role="region"
+                aria-labelledby="notes-panel-region-label"
+                // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                tabIndex={0}
+                ref={notesPanelRef}
+                data-testid="notes-panel"
               >
-                {`Notes panel, you can add and read notes for the document ${openNotesData.presentationFileName}.`}
-              </span>
-              <NotesPanel
-                activeDocumentId={getActiveTabDocument?.documentId}
-                documentName={openNotesData.presentationFileName}
-                documentCategory={openNotesData.documentCategory}
-                documentId={openNotesData.documentId}
-                notesData={notes}
-                handleCloseNotes={handleCloseNotes}
-                handleAddNote={handleAddNote}
-                handleGetNotes={handleGetNotes}
-              />
-            </div>
+                {actionsSidePanel.type === "notes" && (
+                  <div>
+                    <span
+                      id="notes-panel-region-label"
+                      className={classes.sidePanelLabel}
+                    >
+                      {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationFileName}.`}
+                    </span>
+                    <NotesPanel
+                      activeDocumentId={getActiveTabDocument?.documentId}
+                      documentName={actionsSidePanel.presentationFileName}
+                      documentCategory={actionsSidePanel.documentCategory}
+                      documentId={actionsSidePanel.documentId}
+                      notesData={notes}
+                      handleCloseNotes={handleClosePanel}
+                      handleAddNote={handleAddNote}
+                      handleGetNotes={handleGetNotes}
+                    />
+                  </div>
+                )}
+                {actionsSidePanel.type === "rename" && (
+                  <div>
+                    <span
+                      id="notes-panel-region-label"
+                      className={classes.sidePanelLabel}
+                    >
+                      {`Rename document panel, you can rename document ${actionsSidePanel.presentationFileName}.`}
+                    </span>
+                    <RenamePanel
+                      documentName={actionsSidePanel.presentationFileName}
+                      documentId={actionsSidePanel.documentId}
+                      renameDocuments={renameDocuments}
+                      handleClose={handleClosePanel}
+                      handleSaveRename={handleAddNote}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
           )}
           {!!tabsState.items.length && featureFlags.fullScreen && (
             <div className={classes.resizeBtnWrapper}>
@@ -489,9 +519,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(false);
-                      if (!openNotesData.open) {
-                        setOpenNoteData({
-                          ...openNotesData,
+                      if (!actionsSidePanel.open) {
+                        setActionsSidePanel({
+                          ...actionsSidePanel,
                           lastFocusDocumentId: "",
                         });
                       }

@@ -18,10 +18,11 @@ type Props = {
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
-  handleOpenNotes: (
+  handleOpenPanel: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string
+    presentationFileName: string,
+    type: "notes" | "rename"
   ) => void;
   accordionStateChangeCallback: (
     accordionCurrentState: AccordionReducerState
@@ -39,7 +40,7 @@ export const Accordion: React.FC<Props> = ({
   showNotesFeature,
   notesData,
   handleOpenPdf,
-  handleOpenNotes,
+  handleOpenPanel,
   accordionStateChangeCallback,
   handleGetNotes,
 }) => {
@@ -93,7 +94,7 @@ export const Accordion: React.FC<Props> = ({
           showNotesFeature={showNotesFeature}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
-          handleOpenNotes={handleOpenNotes}
+          handleOpenPanel={handleOpenPanel}
           lastFocusDocumentId={lastFocusDocumentId}
           handleGetNotes={handleGetNotes}
           notesData={notesData}

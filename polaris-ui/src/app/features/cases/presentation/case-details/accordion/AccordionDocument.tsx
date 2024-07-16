@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useMemo } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -12,6 +12,7 @@ import { ReactComponent as DateIcon } from "../../../../../common/presentation/s
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
+import { ReactComponent as MoreIcon } from "../../../../../common/presentation/svgs/more.svg";
 
 import classes from "./Accordion.module.scss";
 import {
@@ -21,6 +22,10 @@ import {
 import { Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { mapConversionStatusToMessage } from "../../../domain/gateway/PipelineDocument";
+import {
+  DropdownButton,
+  DropdownButtonItem,
+} from "../../../../../common/presentation/components/DropdownButton";
 
 type Props = {
   activeDocumentId: string;
@@ -28,13 +33,15 @@ type Props = {
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
   showNotesFeature: boolean;
+  showDocumentRenameFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
-  handleOpenNotes: (
+  handleOpenPanel: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string
+    presentationFileName: string,
+    type: "notes" | "rename"
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
@@ -46,9 +53,10 @@ export const AccordionDocument: React.FC<Props> = ({
   readUnreadData,
   caseDocument,
   showNotesFeature,
+  showDocumentRenameFeature,
   notesData,
   handleOpenPdf,
-  handleOpenNotes,
+  handleOpenPanel,
   handleGetNotes,
 }) => {
   const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -134,6 +142,39 @@ export const AccordionDocument: React.FC<Props> = ({
       : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
   };
 
+  const dropDownItems = useMemo(() => {
+    let items: DropdownButtonItem[] = [];
+    if (showDocumentRenameFeature) {
+      items = [
+        {
+          id: "1",
+          label: "Rename document",
+          ariaLabel: "Rename document",
+          disabled: false,
+        },
+        ...items,
+      ];
+    }
+
+    return items;
+  }, [showDocumentRenameFeature]);
+
+  const handleDocumentAction = (id: string) => {
+    switch (id) {
+      case "1":
+        handleOpenPanel(
+          caseDocument.documentId,
+          caseDocument.cmsDocType.documentCategory,
+          caseDocument.presentationFileName,
+          "rename"
+        );
+
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <li
       className={`${classes["accordion-document-list-item"]} ${
@@ -147,118 +188,135 @@ export const AccordionDocument: React.FC<Props> = ({
     >
       <div className={classes.listItemWrapper}>
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
-          {activeDocumentId === caseDocument.documentId && (
-            <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
-              Active Document
-            </strong>
-          )}
-          {canViewDocument ? (
-            <LinkButton
-              onClick={() => {
-                trackEvent("Open Document From Case Details", {
-                  documentId: caseDocument.documentId,
-                });
-                handleOpenPdf({ documentId: caseDocument.documentId });
-              }}
-              className={`${classes["accordion-document-link-button"]}`}
-              dataTestId={`link-document-${caseDocument.documentId}`}
-              ariaLabel={`Open Document ${caseDocument.presentationFileName}`}
-            >
-              {caseDocument.presentationFileName}
-            </LinkButton>
-          ) : (
-            <span
-              className={`${classes["accordion-document-link-name"]}`}
-              data-testid={`name-text-document-${caseDocument.documentId}`}
-            >
-              {caseDocument.presentationFileName}
-            </span>
-          )}
-          <div className={`${classes["accordion-information-items"]}`}>
-            {caseDocument.cmsFileCreatedDate && (
-              <div className={`${classes["accordion-document-date"]}`}>
-                <span className={`${classes["visuallyHidden"]}`}>
-                  {" "}
-                  Date Added
-                </span>
-                <DateIcon className={classes.dateIcon} />
-                <span>
-                  {formatDate(
-                    caseDocument.cmsFileCreatedDate,
-                    CommonDateTimeFormats.ShortDateTextMonth
+          <div>
+            {activeDocumentId === caseDocument.documentId && (
+              <strong
+                className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}
+              >
+                Active Document
+              </strong>
+            )}
+            {canViewDocument ? (
+              <LinkButton
+                onClick={() => {
+                  trackEvent("Open Document From Case Details", {
+                    documentId: caseDocument.documentId,
+                  });
+                  handleOpenPdf({ documentId: caseDocument.documentId });
+                }}
+                className={`${classes["accordion-document-link-button"]}`}
+                dataTestId={`link-document-${caseDocument.documentId}`}
+                ariaLabel={`Open Document ${caseDocument.presentationFileName}`}
+              >
+                {caseDocument.presentationFileName}
+              </LinkButton>
+            ) : (
+              <span
+                className={`${classes["accordion-document-link-name"]}`}
+                data-testid={`name-text-document-${caseDocument.documentId}`}
+              >
+                {caseDocument.presentationFileName}
+              </span>
+            )}
+            <div className={`${classes["accordion-information-items"]}`}>
+              {caseDocument.cmsFileCreatedDate && (
+                <div className={`${classes["accordion-document-date"]}`}>
+                  <span className={`${classes["visuallyHidden"]}`}>
+                    {" "}
+                    Date Added
+                  </span>
+                  <DateIcon className={classes.dateIcon} />
+                  <span>
+                    {formatDate(
+                      caseDocument.cmsFileCreatedDate,
+                      CommonDateTimeFormats.ShortDateTextMonth
+                    )}
+                  </span>
+                </div>
+              )}
+              {formattedFileCreatedTime && (
+                <>
+                  <span className={`${classes["visuallyHidden"]}`}>
+                    Time added
+                  </span>
+                  <TimeIcon className={classes.timeIcon} />
+                  {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
+                </>
+              )}
+              {showNotesFeature && (
+                <Tooltip
+                  text={getNotesHoverOverText(false)}
+                  className="notesToolTip"
+                  onHoverCallback={notesHoverOverCallback}
+                >
+                  {caseDocument.hasNotes && (
+                    <div
+                      data-testid={`recent-notes-live-text-${caseDocument.documentId}`}
+                      role="status"
+                      aria-live="polite"
+                      className={classes.visuallyHidden}
+                    >
+                      {getNotesHoverOverText(true)}
+                    </div>
                   )}
+                  <LinkButton
+                    {...openNotesRefProps}
+                    className={classes.notesBtn}
+                    id={`btn-notes-${caseDocument.documentId}`}
+                    dataTestId={`btn-notes-${caseDocument.documentId}`}
+                    ariaLabel={openNotesBtnAriaLabel()}
+                    onClick={() => {
+                      trackEvent("Open Notes", {
+                        documentId: caseDocument.documentId,
+                        documentCategory:
+                          caseDocument.cmsDocType.documentCategory,
+                      });
+                      handleOpenPanel(
+                        caseDocument.documentId,
+                        caseDocument.cmsDocType.documentCategory,
+                        caseDocument.presentationFileName,
+                        "notes"
+                      );
+                    }}
+                    onFocus={
+                      caseDocument.hasNotes ? notesHoverOverCallback : undefined
+                    }
+                    disabled={isNotesDisabled()}
+                    aria-disabled={isNotesDisabled() ? "true" : "false"}
+                  >
+                    <NotesIcon />
+                    {caseDocument.hasNotes && (
+                      <div
+                        data-testid={`has-note-indicator-${caseDocument.documentId}`}
+                        className={classes.notesAvailable}
+                      ></div>
+                    )}
+                  </LinkButton>
+                </Tooltip>
+              )}
+            </div>
+
+            {!!caseDocument.attachments.length && (
+              <div className={classes.attachmentWrapper}>
+                <AttachmentIcon className={classes.attachmentIcon} />
+                <span
+                  data-testid={`attachment-text-${caseDocument.documentId}`}
+                >
+                  {getAttachmentText()}
                 </span>
               </div>
             )}
-            {formattedFileCreatedTime && (
-              <>
-                <span className={`${classes["visuallyHidden"]}`}>
-                  Time added
-                </span>
-                <TimeIcon className={classes.timeIcon} />
-                {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
-              </>
-            )}
-            {showNotesFeature && (
-              <Tooltip
-                text={getNotesHoverOverText(false)}
-                className="notesToolTip"
-                onHoverCallback={notesHoverOverCallback}
-              >
-                {caseDocument.hasNotes && (
-                  <div
-                    data-testid={`recent-notes-live-text-${caseDocument.documentId}`}
-                    role="status"
-                    aria-live="polite"
-                    className={classes.visuallyHidden}
-                  >
-                    {getNotesHoverOverText(true)}
-                  </div>
-                )}
-                <LinkButton
-                  {...openNotesRefProps}
-                  className={classes.notesBtn}
-                  id={`btn-notes-${caseDocument.documentId}`}
-                  dataTestId={`btn-notes-${caseDocument.documentId}`}
-                  ariaLabel={openNotesBtnAriaLabel()}
-                  onClick={() => {
-                    trackEvent("Open Notes", {
-                      documentId: caseDocument.documentId,
-                      documentCategory:
-                        caseDocument.cmsDocType.documentCategory,
-                    });
-                    handleOpenNotes(
-                      caseDocument.documentId,
-                      caseDocument.cmsDocType.documentCategory,
-                      caseDocument.presentationFileName
-                    );
-                  }}
-                  onFocus={
-                    caseDocument.hasNotes ? notesHoverOverCallback : undefined
-                  }
-                  disabled={isNotesDisabled()}
-                  aria-disabled={isNotesDisabled() ? "true" : "false"}
-                >
-                  <NotesIcon />
-                  {caseDocument.hasNotes && (
-                    <div
-                      data-testid={`has-note-indicator-${caseDocument.documentId}`}
-                      className={classes.notesAvailable}
-                    ></div>
-                  )}
-                </LinkButton>
-              </Tooltip>
-            )}
           </div>
 
-          {!!caseDocument.attachments.length && (
-            <div className={classes.attachmentWrapper}>
-              <AttachmentIcon className={classes.attachmentIcon} />
-              <span data-testid={`attachment-text-${caseDocument.documentId}`}>
-                {getAttachmentText()}
-              </span>
-            </div>
-          )}
+          <DropdownButton
+            name=""
+            dropDownItems={dropDownItems}
+            callBackFn={handleDocumentAction}
+            ariaLabel="document actions dropdown"
+            dataTestId={`document-actions-dropdown-${caseDocument.documentId}`}
+            showLastItemSeparator={true}
+            icon={<MoreIcon />}
+          />
         </div>
         <div className={classes.witnessIndicators}>
           {caseDocument.witnessIndicators.length > 0 &&

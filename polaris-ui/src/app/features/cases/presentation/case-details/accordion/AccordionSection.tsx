@@ -19,10 +19,11 @@ type Props = {
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
-  handleOpenNotes: (
+  handleOpenPanel: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string
+    presentationFileName: string,
+    type: "notes" | "rename"
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
@@ -47,7 +48,7 @@ export const AccordionSection: React.FC<Props> = ({
   notesData,
   handleToggleOpenSection,
   handleOpenPdf,
-  handleOpenNotes,
+  handleOpenPanel,
   handleGetNotes,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
@@ -100,11 +101,12 @@ export const AccordionSection: React.FC<Props> = ({
                     readUnreadData={readUnreadData}
                     activeDocumentId={activeDocumentId}
                     handleOpenPdf={handleOpenPdf}
-                    handleOpenNotes={handleOpenNotes}
+                    handleOpenPanel={handleOpenPanel}
                     showNotesFeature={showNotesFeature}
                     lastFocusDocumentId={lastFocusDocumentId}
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
+                    showDocumentRenameFeature={true}
                   />
                 ))}
               </ul>

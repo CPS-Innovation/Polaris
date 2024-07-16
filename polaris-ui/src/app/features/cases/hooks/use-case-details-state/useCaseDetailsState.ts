@@ -80,6 +80,7 @@ export const initialState = {
   storedUserData: { status: "loading" },
   notes: [],
   searchPII: [],
+  renameDocuments: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (
