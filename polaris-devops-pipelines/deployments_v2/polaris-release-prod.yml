@@ -83,10 +83,8 @@ stages:
                     
       - job: Send_Start_Message
         displayName: Send Message to Teams
-        condition: and(succeeded(), or(eq(variables.runTerraform, 'true'),eq(variables.runCodebase, 'true')))
-        dependsOn:
-          - Log_Start_Terraform
-          - Wait_For_Running_Builds
+        condition: succeeded()
+        dependsOn: Wait_For_Running_Builds
         continueOnError: false
         steps:
           - template: stages/jobs/tasks/task_send-progress-message-to-teams.yml
