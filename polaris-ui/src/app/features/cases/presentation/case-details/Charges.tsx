@@ -11,15 +11,15 @@ export const Charges: React.FC<{ caseDetails: CaseDetails }> = ({
   return (
     <div className={classes.charges} data-testid="div-charges">
       <h2 className="govuk-heading-s" data-testid="charges-title">
-        {caseDetails.isCaseCharged ? "Charges" : "Proposed Charges"}
+        {caseDetails.isCaseCharged ? "Charges:" : "Proposed Charges:"}
       </h2>
       <ul>
         <li>{caseDetails.headlineCharge.charge}</li>
       </ul>
-      <div className={classes.chargesCustodyTime}>
-        <span>Custody time limit: {custodyExpiryDays}</span>
-        <span>Custody end: {custodyExpiryDate}</span>
-      </div>
+      <h2 className="govuk-heading-s">Custody time limit: </h2>
+      <p>{custodyExpiryDays}</p>
+      <h2 className="govuk-heading-s">Custody end: </h2>
+      <p>{custodyExpiryDate}</p>
     </div>
   );
 };

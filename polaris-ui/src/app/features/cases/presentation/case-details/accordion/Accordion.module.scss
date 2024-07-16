@@ -88,6 +88,9 @@
   color: inherit;
   text-align: left;
 }
+.accordion .accordion-section-header .zeroDocsCategory {
+  color: #505a5f;
+}
 
 .accordion .icon {
   right: 0.9375rem;
@@ -125,7 +128,7 @@
 
 .accordion .accordion-section-no-document {
   border-top: 0.0625rem solid #bfc1c3;
-  padding: 0.625rem 0.5rem;
+  padding: 0.625rem 0.5rem 1.625rem 0.5rem;
 }
 
 .accordion .accordion-document-date-title {
@@ -195,14 +198,15 @@
 
 .accordion .accordion-document-link-button,
 .accordion .accordion-document-link-name {
-  padding: 0.25rem 0.9375rem 0.25rem 0;
-  min-width: 30%;
-  max-width: 80%;
+  padding: 0.25rem 0.25rem 0.25rem 0;
+  min-width: auto;
+  max-width: 85%;
   word-wrap: break-word;
   font-size: 1rem;
   text-align: left;
   font-weight: bold;
   line-height: 1.25rem;
+  margin: 0;
 }
 
 .accordion .accordion-document-date {
@@ -266,17 +270,17 @@
 }
 
 .witnessIndicators {
-  margin: 0.25em 0 0 0;
+  margin-top: 0.25rem;
   font-size: 0.875rem;
 }
 
 .witnessIndicators strong {
   font-size: 0.775rem;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.1875rem;
   padding: 5px 6px 4px;
 
   &.tooltip {
-    margin-right: 0.25em;
+    margin-right: 0.1875rem;
 
     .tooltiptext {
       display: none;
@@ -341,7 +345,7 @@
 
 .notesBtn {
   width: 2rem;
-  height: 2rem;
+  height: 1rem;
   vertical-align: middle;
   margin-left: 0.5rem;
   margin-right: 0.25rem;
