@@ -6,7 +6,6 @@ import {
   LinkButton,
   PageContentWrapper,
   WaitPage,
-  PhaseBanner,
 } from "../../../../common/presentation/components";
 import { Wait as AccordionWait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
@@ -32,10 +31,7 @@ import {
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import {
-  SURVEY_LINK,
-  FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
-} from "../../../../config";
+import { FEATURE_FLAG_REDACTION_LOG_UNDER_OVER } from "../../../../config";
 import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
@@ -349,21 +345,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           />
         )}
       <nav>
-        <PhaseBanner
-          className={classes["phaseBanner"]}
-          data-testid="feedback-banner"
-        >
-          Your{" "}
-          <a
-            className="govuk-link"
-            href={SURVEY_LINK}
-            target="_blank"
-            rel="noreferrer"
-          >
-            feedback (opens in a new tab)
-          </a>{" "}
-          will help us to improve this service.
-        </PhaseBanner>
         <BackLink
           to={backLinkProps.to}
           onClick={() => trackEvent("Back to Case Search Results")}

@@ -12,6 +12,7 @@ pr:
       - polaris-terraform/ui-terraform/*
       - polaris-terraform/ui-events-terraform/*
       - polaris-gateway/*
+      - polaris-maintenance/*
       - polaris-pipeline/*
       - polaris-ui/*
       - polaris-e2e/*

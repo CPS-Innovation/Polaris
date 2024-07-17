@@ -1,0 +1,30 @@
+---
+
+trigger: none
+pr: none
+
+pool:
+  name: $(build-agent)
+  
+stages:
+  - stage: Enable_Shutter_Page
+    displayName: Enable Shutter Page
+    jobs:
+      - job: Enable_Shutter_Page
+        displayName: Enable Shutter Page
+        steps:
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+            parameters:
+              azureSubscription: $(azure-subscription)
+              
+          - bash: |
+              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+              az account set --subscription $subscriptionId
+              az network application-gateway address-pool update --gateway-name  "polaris-app-gateway$targetSuffix" --name "polaris-app-gateway$targetSuffix-pool" --resource-group "rg-polaris$targetSuffix" --remove backendAddresses 0
+            displayName: Run Script
+            env:
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              targetSuffix: $(target-suffix)

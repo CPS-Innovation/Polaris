@@ -20,10 +20,8 @@ export type PresentationFlags = {
     | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
-    | "IsNotOcrProcessed"
     | "IsDispatched"
     | "IsRedactionServiceOffline"
-    | "AttachmentCategoryNotAllowed"
 }
 
 export type PresentationDocumentProperties = {

@@ -61,8 +61,9 @@ private_beta = {
 
 polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
 
-ssl_certificate_name = "polaris-qa-notprod59598f87-3bda-4304-9ed4-e9c143ee793e"
-ssl_policy_name      = "AppGwSslPolicy20220101"
+ssl_certificate_name           = "polaris-qa-notprod59598f87-3bda-4304-9ed4-e9c143ee793e"
+ssl_policy_name                = "AppGwSslPolicy20220101"
+app_gateway_back_end_host_name = "polaris-qa-notprod.cps.gov.uk"
 
 app_gateway_custom_error_pages = {
   HttpStatus502 = "https://cpsqastorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
