@@ -99,5 +99,18 @@ namespace Ddei.Factories
                 Text = text
             };
         }
+
+        public DdeiCmsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string documentName)
+        {
+            return new DdeiCmsRenameDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentId = documentId,
+                DocumentName = documentName
+            };
+        }
     }
 }

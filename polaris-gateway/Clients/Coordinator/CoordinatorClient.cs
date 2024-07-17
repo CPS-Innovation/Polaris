@@ -74,7 +74,6 @@ namespace PolarisGateway.Clients.Coordinator
             return response;
         }
 
-
         public async Task<HttpResponseMessage> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
             return await SendRequestAsync(
@@ -152,6 +151,16 @@ namespace PolarisGateway.Clients.Coordinator
                 HttpMethod.Put,
                 RestApi.GetPiiPath(caseUrn, caseId, polarisDocumentId),
                 correlationId);
+        }
+
+        public async Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Put,
+                RestApi.GetRenameDocumentPath(caseUrn, caseId, documentId),
+                correlationId,
+                cmsAuthValues,
+                new StringContent(JsonConvert.SerializeObject(renameDocumentRequestDto), Encoding.UTF8, ContentType.Json));
         }
 
         public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId)
