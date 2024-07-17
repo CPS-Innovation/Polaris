@@ -167,6 +167,13 @@ namespace Ddei.Services
             return _caseDocumentNoteResultMapper.Map(response);
         }
 
+        public async Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg)
+        {
+            var response = await CallDdei<DdeiCaseDocumentRenamedResponse>(_ddeiClientRequestFactory.CreateRenameDocumentRequest(arg));
+
+            return new DocumentRenamedResult { Id = response.Id, OperationName = response.OperationName };
+        }
+
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
         {
             return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));

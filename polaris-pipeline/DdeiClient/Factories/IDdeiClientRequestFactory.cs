@@ -16,5 +16,6 @@ namespace Ddei.Factories
         HttpRequestMessage CreateStatusRequest();
         HttpRequestMessage CreateGetDocumentNotesRequest(DdeiCmsDocumentNotesArgDto arg);
         HttpRequestMessage CreateAddDocumentNoteRequest(DdeiCmsAddDocumentNoteArgDto arg);
+        HttpRequestMessage CreateRenameDocumentRequest(DdeiCmsRenameDocumentArgDto arg);
     }
 }

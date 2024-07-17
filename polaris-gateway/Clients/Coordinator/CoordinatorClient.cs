@@ -153,6 +153,16 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
+        public async Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Put,
+                RestApi.GetRenameDocumentPath(caseUrn, caseId, documentId),
+                correlationId,
+                cmsAuthValues,
+                new StringContent(JsonConvert.SerializeObject(renameDocumentRequestDto), Encoding.UTF8, "application/json"));
+        }
+
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);

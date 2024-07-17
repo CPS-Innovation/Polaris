@@ -111,6 +111,7 @@ namespace coordinator
             services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddScoped<IValidator<AddDocumentNoteDto>, DocumentNoteValidator>();
+            services.AddScoped<IValidator<RenameDocumentDto>, RenameDocumentValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
