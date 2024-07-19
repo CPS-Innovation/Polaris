@@ -210,8 +210,18 @@ export const reducer = (
     | {
         type: "UPDATE_RENAME_DATA";
         payload: {
-          documentId: string;
-          saveRenameStatus: "saving" | "failure" | "success";
+          properties:
+            | {
+                documentId: string;
+                saveRenameStatus?: "initial" | "failure" | "success";
+                saveRenameRefreshStatus?: "initial" | "updating" | "updated";
+              }
+            | {
+                documentId: string;
+                newName: string;
+                saveRenameStatus: "saving";
+                saveRenameRefreshStatus: "initial";
+              };
         };
       }
     | {
@@ -1076,17 +1086,33 @@ export const reducer = (
     }
 
     case "UPDATE_RENAME_DATA": {
-      const { documentId, saveRenameStatus } = action.payload;
+      const { properties } = action.payload;
       const filteredData = state.renameDocuments.filter(
-        (data) => data.documentId !== documentId
+        (data) => data.documentId !== properties.documentId
       );
+      let currentData = state.renameDocuments.find(
+        (data) => data.documentId === properties.documentId
+      )!;
+
+      if (properties.saveRenameStatus === "saving") {
+        return {
+          ...state,
+          renameDocuments: [
+            ...filteredData,
+            {
+              ...properties,
+            },
+          ],
+        };
+      }
+
       return {
         ...state,
         renameDocuments: [
           ...filteredData,
           {
-            documentId,
-            saveRenameStatus,
+            ...currentData,
+            ...properties,
           },
         ],
       };

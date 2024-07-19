@@ -24,6 +24,7 @@ import {
   readFromLocalStorage,
   ReadUnreadData,
 } from "../../presentation/case-details/utils/localStorageUtils";
+import { handleRenameUpdateConfirmation } from "../utils/refreshCycleDataUpdate";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -166,6 +167,32 @@ export const useCaseDetailsState = (
       payload: pipelineState.pipelineResults,
     });
   }, [pipelineState.pipelineResults, dispatch]);
+
+  useEffect(() => {
+    if (!pipelineState.pipelineResults?.haveData) {
+      return;
+    }
+    const activeRenameDoc = combinedState.renameDocuments.find(
+      (doc) => doc.saveRenameRefreshStatus === "updating"
+    );
+    if (!activeRenameDoc) return;
+    const isUpdated = handleRenameUpdateConfirmation(
+      pipelineState.pipelineResults.data,
+      activeRenameDoc
+    );
+
+    if (isUpdated) {
+      dispatch({
+        type: "UPDATE_RENAME_DATA",
+        payload: {
+          properties: {
+            documentId: activeRenameDoc.documentId,
+            saveRenameRefreshStatus: "updated",
+          },
+        },
+      });
+    }
+  }, [pipelineState.pipelineResults, combinedState.renameDocuments, dispatch]);
 
   useEffect(() => {
     const { startRefresh } = combinedState.pipelineRefreshData;
@@ -534,6 +561,22 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleResetRenameData = useCallback(
+    (documentId: string) => {
+      dispatch({
+        type: "UPDATE_RENAME_DATA",
+        payload: {
+          properties: {
+            documentId: documentId,
+            saveRenameRefreshStatus: "initial",
+            saveRenameStatus: "initial",
+          },
+        },
+      });
+    },
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -562,5 +605,6 @@ export const useCaseDetailsState = (
     handleShowHideRedactionSuggestions,
     handleGetSearchPIIData,
     handleSearchPIIAction,
+    handleResetRenameData,
   };
 };

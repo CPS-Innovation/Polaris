@@ -596,21 +596,27 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, newName },
       } = action;
       const { caseId, urn } = getState();
-
       try {
         dispatch({
           type: "UPDATE_RENAME_DATA",
           payload: {
-            documentId,
-            saveRenameStatus: "saving",
+            properties: {
+              documentId,
+              newName,
+              saveRenameStatus: "saving",
+              saveRenameRefreshStatus: "initial",
+            },
           },
         });
         await saveDocumentRename(urn, caseId, documentId, newName);
         dispatch({
           type: "UPDATE_RENAME_DATA",
           payload: {
-            documentId,
-            saveRenameStatus: "success",
+            properties: {
+              documentId,
+              saveRenameStatus: "success",
+              saveRenameRefreshStatus: "updating",
+            },
           },
         });
         dispatch({
@@ -631,8 +637,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "UPDATE_RENAME_DATA",
           payload: {
-            documentId,
-            saveRenameStatus: "failure",
+            properties: {
+              documentId,
+              saveRenameStatus: "failure",
+            },
           },
         });
       }

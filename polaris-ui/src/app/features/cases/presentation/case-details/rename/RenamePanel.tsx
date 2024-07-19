@@ -3,11 +3,13 @@ import {
   Button,
   LinkButton,
   Input,
+  Spinner,
   ErrorSummary,
 } from "../../../../../common/presentation/components";
 
 import { RenameDocumentData } from "../../../domain/gateway/RenameDocumentData";
 import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
+import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./RenamePanel.module.scss";
 
@@ -16,6 +18,7 @@ type NotesPanelProps = {
   documentId: string;
   renameDocuments: RenameDocumentData[];
   handleSaveRename: (documentId: string, newValue: string) => void;
+  handleResetRenameData: (documentId: string) => void;
   handleClose: () => void;
 };
 
@@ -25,13 +28,36 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   documentId,
   handleClose,
   handleSaveRename,
+  handleResetRenameData,
 }) => {
   const cancelBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [newValue, setNewValue] = useState("");
-  const [oldValue, setOldValue] = useState("");
   const [renameError, setRenameError] = useState(false);
+
+  const [savingState, setSavingState] = useState<
+    "initial" | "saving" | "saved" | "failed"
+  >("initial");
+
+  const renameData = useMemo(() => {
+    return renameDocuments.find((data) => data.documentId === documentId);
+  }, [renameDocuments, documentId]);
+
+  useEffect(() => {
+    handleResetRenameData(documentId);
+  }, []);
+
+  useEffect(() => {
+    if (renameData?.saveRenameStatus === "failure") setSavingState("initial");
+    if (
+      renameData?.saveRenameStatus === "saving" ||
+      renameData?.saveRenameRefreshStatus === "updating"
+    )
+      setSavingState("saving");
+    if (renameData?.saveRenameRefreshStatus === "updated")
+      setSavingState("saved");
+  }, [renameData]);
 
   const handleAddBtnClick = () => {
     if (!newValue.length) {
@@ -56,20 +82,9 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     //   documentId: documentId,
     //   documentCategory: documentCategory,
     // });
-    setOldValue(newValue);
-    setNewValue("");
+
     handleSaveRename(documentId, newValue);
   };
-
-  const renameData = useMemo(() => {
-    return renameDocuments.find((data) => data.documentId === documentId);
-  }, [renameDocuments, documentId]);
-
-  useEffect(() => {
-    if (renameData?.saveRenameStatus === "failure") {
-      setNewValue(oldValue);
-    }
-  }, [renameData?.saveRenameStatus]);
 
   useEffect(() => {
     if (renameError && errorSummaryRef.current) {
@@ -77,19 +92,8 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     }
   }, [renameError]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (renameData?.saveRenameStatus === "success") {
-        handleClose();
-      }
-    }, 500);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [renameData?.saveRenameStatus, handleClose]);
-
   const saveRenameSuccessLiveText = useMemo(() => {
-    if (renameData?.saveRenameStatus === "success") {
+    if (savingState === "saved") {
       return "Document renamed successfully";
     }
     return "";
@@ -99,17 +103,44 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     <div className={classes.renamePanel}>
       <div className={classes.renameHeader}>
         {" "}
-        <h3 className={classes.renameTitle}>
-          {" "}
-          Rename -{" "}
-          <span className={classes.renameDocumentName}>{documentName}</span>
-        </h3>
+        {savingState === "initial" && (
+          <h3 className={classes.renameTitle}>
+            {" "}
+            Rename -{" "}
+            <span className={classes.renameDocumentName}>{documentName}</span>
+          </h3>
+        )}
+        {savingState === "saving" && (
+          <div
+            className={classes.savingBanner}
+            data-testid="rl-saving-redactions"
+          >
+            <div className={classes.spinnerWrapper}>
+              <Spinner diameterPx={5} ariaLabel={"spinner-animation"} />
+            </div>
+            <h3 className={classes.bannerText}>
+              Saving renamed document to CMS
+            </h3>
+          </div>
+        )}
+        {savingState === "saved" && (
+          <div
+            className={classes.savedBanner}
+            data-testid="rl-saved-redactions"
+          >
+            <WhiteTickIcon className={classes.whiteTickIcon} />
+            <h3 className={classes.bannerText}>
+              Document renamed successfully saved to CMS
+            </h3>
+          </div>
+        )}
         <LinkButton
           dataTestId="btn-close-rename-panel"
           type="button"
           className={classes.renamePanelCloseBtn}
           ariaLabel="close rename panel"
-          onClick={() => handleClose()}
+          disabled={savingState === "saving"}
+          onClick={handleClose}
         >
           <CloseIcon height={"2.5rem"} width={"2.5rem"} />
         </LinkButton>
@@ -162,29 +193,45 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
               className: "govuk-label--s",
               htmlFor: "rename-text-input",
             }}
+            disabled={savingState !== "initial"}
           />
 
           <div className={classes.btnWrapper}>
-            <Button
-              disabled={!newValue.length}
-              type="submit"
-              className={classes.saveBtn}
-              data-testid="btn-add-note"
-              onClick={handleAddBtnClick}
-            >
-              Save and close
-            </Button>
+            {savingState === "saved" && (
+              <Button
+                type="button"
+                className={classes.closeBtn}
+                data-testid="btn-close-rename"
+                onClick={handleClose}
+              >
+                close
+              </Button>
+            )}
+            {savingState !== "saved" && (
+              <>
+                <Button
+                  disabled={!newValue.length || savingState === "saving"}
+                  type="submit"
+                  className={classes.saveBtn}
+                  data-testid="btn-save-rename"
+                  onClick={handleAddBtnClick}
+                >
+                  Accept and save
+                </Button>
 
-            <LinkButton
-              ref={cancelBtnRef}
-              className={classes.cancelBtn}
-              onClick={() => handleClose()}
-              dataTestId="btn-cancel-notes"
-              ariaLabel="cancel notes"
-              id="btn-cancel-notes"
-            >
-              Cancel
-            </LinkButton>
+                <LinkButton
+                  ref={cancelBtnRef}
+                  className={classes.cancelBtn}
+                  onClick={() => handleClose()}
+                  dataTestId="btn-cancel-rename"
+                  ariaLabel="cancel rename"
+                  id="btn-cancel-rename"
+                  disabled={savingState === "saving"}
+                >
+                  Cancel
+                </LinkButton>
+              </>
+            )}
           </div>
         </div>
       </div>

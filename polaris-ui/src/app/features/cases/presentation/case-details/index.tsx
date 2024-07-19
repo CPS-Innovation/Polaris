@@ -121,6 +121,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleSaveRename,
     handleShowHideRedactionSuggestions,
     handleSearchPIIAction,
+    handleResetRenameData,
   } = useCaseDetailsState(urn, +caseId, unMountingCallback);
 
   const {
@@ -493,6 +494,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       renameDocuments={renameDocuments}
                       handleClose={handleClosePanel}
                       handleSaveRename={handleSaveRename}
+                      handleResetRenameData={handleResetRenameData}
                     />
                   </div>
                 )}
