@@ -21,6 +21,7 @@ type NotesPanelProps = {
   handleResetRenameData: (documentId: string) => void;
   handleClose: () => void;
 };
+const MAX_LENGTH = 252;
 
 export const RenamePanel: React.FC<NotesPanelProps> = ({
   documentName,
@@ -34,7 +35,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [newValue, setNewValue] = useState("");
-  const [renameError, setRenameError] = useState(false);
+  const [renameErrorText, setRenameErrorText] = useState("");
 
   const [savingState, setSavingState] = useState<
     "initial" | "saving" | "saved" | "failed"
@@ -65,18 +66,20 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
 
   const handleAddBtnClick = () => {
     if (!newValue.length) {
-      setRenameError(true);
-      if (renameError && errorSummaryRef.current) {
-        (errorSummaryRef?.current as HTMLButtonElement).focus();
-      }
+      setRenameErrorText("New name should not be empty");
       return;
     }
-
+    if (newValue.length > MAX_LENGTH) {
+      setRenameErrorText(
+        `New name should be less than ${MAX_LENGTH} characters`
+      );
+      return;
+    }
     if (cancelBtnRef.current) {
       (cancelBtnRef.current as HTMLElement).focus();
     }
-    if (renameError) {
-      setRenameError(false);
+    if (renameErrorText) {
+      setRenameErrorText("");
     }
     saveRename();
   };
@@ -91,17 +94,17 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   };
 
   useEffect(() => {
-    if (renameError && errorSummaryRef.current) {
+    if (renameErrorText && errorSummaryRef.current) {
       (errorSummaryRef?.current as HTMLButtonElement).focus();
     }
-  }, [renameError]);
+  }, [renameErrorText]);
 
   const saveRenameSuccessLiveText = useMemo(() => {
     if (savingState === "saved") {
       return "Document renamed successfully";
     }
     return "";
-  }, [renameData?.saveRenameStatus]);
+  }, [savingState]);
 
   return (
     <div className={classes.renamePanel}>
@@ -157,7 +160,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
         </div>
       </div>
       <div className={classes.renameBody}>
-        {renameError && (
+        {renameErrorText && (
           <div
             ref={errorSummaryRef}
             tabIndex={-1}
@@ -169,7 +172,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
               errorList={[
                 {
                   reactListKey: "1",
-                  children: `New name should not be empty`,
+                  children: renameErrorText,
                   href: "#rename-text-input",
                   "data-testid": "rename-text-input-link",
                 },
@@ -180,9 +183,9 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
         <div>
           <Input
             errorMessage={
-              renameError
+              renameErrorText
                 ? {
-                    children: `New name should not be empty`,
+                    children: renameErrorText,
                   }
                 : undefined
             }
@@ -214,7 +217,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
             {savingState !== "saved" && (
               <>
                 <Button
-                  disabled={!newValue.length || savingState === "saving"}
+                  disabled={savingState === "saving"}
                   type="submit"
                   className={classes.saveBtn}
                   data-testid="btn-save-rename"
