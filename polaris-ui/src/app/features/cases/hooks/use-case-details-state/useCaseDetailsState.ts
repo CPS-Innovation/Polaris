@@ -568,6 +568,7 @@ export const useCaseDetailsState = (
         payload: {
           properties: {
             documentId: documentId,
+            newName: "",
             saveRenameRefreshStatus: "initial",
             saveRenameStatus: "initial",
           },

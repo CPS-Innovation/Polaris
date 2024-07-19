@@ -213,13 +213,13 @@ export const reducer = (
           properties:
             | {
                 documentId: string;
-                saveRenameStatus?: "initial" | "failure" | "success";
-                saveRenameRefreshStatus?: "initial" | "updating" | "updated";
+                saveRenameStatus?: "failure" | "success";
+                saveRenameRefreshStatus?: "updating" | "updated";
               }
             | {
                 documentId: string;
                 newName: string;
-                saveRenameStatus: "saving";
+                saveRenameStatus: "saving" | "initial";
                 saveRenameRefreshStatus: "initial";
               };
         };

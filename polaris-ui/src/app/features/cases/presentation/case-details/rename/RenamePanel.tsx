@@ -49,7 +49,11 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   }, []);
 
   useEffect(() => {
-    if (renameData?.saveRenameStatus === "failure") setSavingState("initial");
+    if (
+      renameData?.saveRenameStatus === "failure" ||
+      renameData?.saveRenameStatus === "initial"
+    )
+      setSavingState("initial");
     if (
       renameData?.saveRenameStatus === "saving" ||
       renameData?.saveRenameRefreshStatus === "updating"
@@ -214,7 +218,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
                   type="submit"
                   className={classes.saveBtn}
                   data-testid="btn-save-rename"
-                  onClick={handleAddBtnClick}
+                  onClick={() => handleAddBtnClick()}
                 >
                   Accept and save
                 </Button>
