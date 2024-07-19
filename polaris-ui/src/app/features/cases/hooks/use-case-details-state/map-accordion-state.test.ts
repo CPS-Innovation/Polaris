@@ -461,6 +461,7 @@ describe("mapAccordionState", () => {
           presentationFlags: {
             read: "Ok",
             write: "Ok",
+            renameStatus: "Ok",
           },
           polarisParentDocumentId: null,
           witnessId: null,
@@ -490,6 +491,7 @@ describe("mapAccordionState", () => {
           presentationFlags: {
             read: "Ok",
             write: "Ok",
+            renameStatus: "Ok",
           },
           polarisParentDocumentId: null,
           witnessId: null,
@@ -531,6 +533,7 @@ describe("mapAccordionState", () => {
               presentationFlags: {
                 read: "Ok",
                 write: "Ok",
+                renameStatus: "Ok",
               },
               polarisParentDocumentId: null,
               witnessId: null,

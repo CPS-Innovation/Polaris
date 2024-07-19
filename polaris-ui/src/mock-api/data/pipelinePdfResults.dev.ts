@@ -30,6 +30,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: "4",
       witnessId: null,
@@ -56,6 +57,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: "4",
       witnessId: null,
@@ -82,6 +84,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: "4",
       witnessId: null,
@@ -108,6 +111,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -134,6 +138,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -160,6 +165,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: "4",
       witnessId: null,
@@ -186,6 +192,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -213,6 +220,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -240,6 +248,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -267,6 +276,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -293,6 +303,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -319,6 +330,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "IsWitnessManagementCommunication",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -345,6 +357,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: 2762766,

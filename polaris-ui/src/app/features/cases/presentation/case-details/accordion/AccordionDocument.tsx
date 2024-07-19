@@ -144,7 +144,10 @@ export const AccordionDocument: React.FC<Props> = ({
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
-    if (showDocumentRenameFeature) {
+    if (
+      showDocumentRenameFeature &&
+      caseDocument.presentationFlags.renameStatus === "Ok"
+    ) {
       items = [
         {
           id: "1",
@@ -157,7 +160,7 @@ export const AccordionDocument: React.FC<Props> = ({
     }
 
     return items;
-  }, [showDocumentRenameFeature]);
+  }, [showDocumentRenameFeature, caseDocument.presentationFlags.renameStatus]);
 
   const handleDocumentAction = (id: string) => {
     switch (id) {
@@ -308,15 +311,17 @@ export const AccordionDocument: React.FC<Props> = ({
             )}
           </div>
 
-          <DropdownButton
-            name=""
-            dropDownItems={dropDownItems}
-            callBackFn={handleDocumentAction}
-            ariaLabel="document actions dropdown"
-            dataTestId={`document-actions-dropdown-${caseDocument.documentId}`}
-            showLastItemSeparator={true}
-            icon={<MoreIcon />}
-          />
+          {!!dropDownItems.length && (
+            <DropdownButton
+              name=""
+              dropDownItems={dropDownItems}
+              callBackFn={handleDocumentAction}
+              ariaLabel="document actions dropdown"
+              dataTestId={`document-actions-dropdown-${caseDocument.documentId}`}
+              showLastItemSeparator={true}
+              icon={<MoreIcon />}
+            />
+          )}
         </div>
         <div className={classes.witnessIndicators}>
           {caseDocument.witnessIndicators.length > 0 &&

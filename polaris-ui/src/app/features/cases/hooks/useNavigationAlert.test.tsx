@@ -34,6 +34,7 @@ describe("useNavigationAlert hook", () => {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       redactionHighlights: [
         {
@@ -80,6 +81,7 @@ describe("useNavigationAlert hook", () => {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       redactionHighlights: [
         {

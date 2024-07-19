@@ -75,6 +75,10 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
       );
       return;
     }
+    if (newValue === documentName) {
+      setRenameErrorText(`New name should be different from current name`);
+      return;
+    }
     if (cancelBtnRef.current) {
       (cancelBtnRef.current as HTMLElement).focus();
     }

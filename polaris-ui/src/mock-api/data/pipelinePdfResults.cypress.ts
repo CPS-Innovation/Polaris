@@ -31,6 +31,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: "4",
       witnessId: null,
@@ -57,6 +58,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "DocTypeNotAllowed",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: "4",
       witnessId: null,
@@ -83,6 +85,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "OnlyAvailableInCms",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -109,6 +112,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -135,6 +139,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "OriginalFileTypeNotAllowed",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -159,7 +164,11 @@ const pipelinePdfResult: PipelineResults = {
         documentCategory: "Review",
       },
       isPdfAvailable: false,
-      presentationFlags: { read: "Ok", write: "DocTypeNotAllowed" },
+      presentationFlags: {
+        read: "Ok",
+        write: "DocTypeNotAllowed",
+        renameStatus: "Ok",
+      },
       polarisParentDocumentId: null,
       witnessId: null,
       hasFailedAttachments: false,
@@ -185,6 +194,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "OnlyAvailableInCms",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -211,6 +221,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "IsDispatched",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -237,6 +248,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -263,6 +275,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -333,6 +346,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -359,6 +373,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -385,6 +400,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -411,6 +427,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -437,6 +454,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -463,6 +481,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -498,6 +517,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -524,6 +544,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -550,6 +571,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -576,6 +598,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -602,6 +625,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
@@ -628,6 +652,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
+        renameStatus: "Ok",
       },
       polarisParentDocumentId: null,
       witnessId: null,
