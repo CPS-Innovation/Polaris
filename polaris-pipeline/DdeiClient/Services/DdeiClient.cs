@@ -11,6 +11,8 @@ using DdeiClient.Services;
 using DdeiClient.Mappers;
 using Microsoft.Extensions.Logging;
 using Ddei.Mappers;
+using Common.Dto.Case.PreCharge;
+using Ddei.Domain.PreCharge;
 
 namespace Ddei.Services
 {
@@ -89,6 +91,24 @@ namespace Ddei.Services
             return _caseDetailsMapper.MapCaseDetails(@case);
         }
 
+        public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequests(DdeiCmsCaseArgDto arg)
+        {
+            var pcdRequests = await CallDdei<IEnumerable<DdeiPcdRequestCoreDto>>(_ddeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
+            return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
+        }
+
+        public async Task<PcdRequestDto> GetPcdRequest(DdeiCmsPcdArgDto arg)
+        {
+            var pcdRequest = await CallDdei<DdeiPcdRequestDto>(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
+            return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
+        }
+
+        public async Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndCharges(DdeiCmsCaseArgDto arg)
+        {
+            var defendantAndCharges = await CallDdei<IEnumerable<DdeiCaseDefendantDto>>(_ddeiClientRequestFactory.CreateGetDefendantAndChargesRequest(arg));
+            return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges);
+        }
+
         public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
         {
             var caseArg = new DdeiCmsCaseArgDto
@@ -165,6 +185,13 @@ namespace Ddei.Services
             var response = await CallDdei<DdeiCaseDocumentNoteAddedResponse>(_ddeiClientRequestFactory.CreateAddDocumentNoteRequest(arg));
 
             return _caseDocumentNoteResultMapper.Map(response);
+        }
+
+        public async Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg)
+        {
+            var response = await CallDdei<DdeiCaseDocumentRenamedResponse>(_ddeiClientRequestFactory.CreateRenameDocumentRequest(arg));
+
+            return new DocumentRenamedResult { Id = response.Id, OperationName = response.OperationName };
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)

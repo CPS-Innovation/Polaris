@@ -3,8 +3,10 @@ import {
   formatDate,
   getAgeFromIsoDate,
 } from "../../../../common/utils/dates";
+import { Tag } from "../../../../common/presentation/components";
 import {
   CaseDetails,
+  Defendant,
   DefendantDetails,
 } from "../../domain/gateway/CaseDetails";
 import { LinkButton } from "../../../../../app/common/presentation/components/LinkButton";
@@ -29,37 +31,100 @@ export const KeyDetails: React.FC<{
     return defendants;
   };
 
-  const getDefendantName = (defendantDetail: DefendantDetails) => {
+  const getDefendantName = (defendantDetail: DefendantDetails | null) => {
+    if (!defendantDetail) return "";
     if (defendantDetail.type === "Organisation") {
       return defendantDetail.organisationName;
     }
     return `${defendantDetail.surname}, ${defendantDetail.firstNames}`;
   };
 
+  const getDefendantNameText = (
+    isMultipleDefendantsOrCharges: boolean,
+    defendantsList: Defendant[] = []
+  ) => {
+    if (!isMultipleDefendantsOrCharges) {
+      return getDefendantName(caseDetails?.leadDefendantDetails);
+    }
+    return defendantsList.reduce((acc, item) => {
+      const { defendantDetails } = item;
+      if (!acc) return `${getDefendantName(defendantDetails)}`;
+      return `${acc}; ${getDefendantName(defendantDetails)}`;
+    }, "");
+  };
+
+  const getDOBText = () => {
+    if (
+      isMultipleDefendantsOrCharges ||
+      !caseDetails?.leadDefendantDetails ||
+      caseDetails?.leadDefendantDetails?.type === "Organisation"
+    ) {
+      return "";
+    }
+    return (
+      <>
+        DOB:{" "}
+        <span className={classes.dobValue}>
+          {formatDate(
+            caseDetails.leadDefendantDetails.dob,
+            CommonDateTimeFormats.ShortDateTextMonth
+          )}
+        </span>
+        , Age:{" "}
+        <span className={classes.ageValue}>
+          {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
+        </span>
+      </>
+    );
+  };
+
+  const isYouthOffender = () => {
+    if (
+      !isMultipleDefendantsOrCharges &&
+      caseDetails?.leadDefendantDetails?.youth
+    )
+      return true;
+    return false;
+  };
+
   const defendantsList = getOrderedDefendantsList(caseDetails);
 
   return (
-    <div>
-      <h1
-        className={`govuk-heading-m ${classes.uniqueReferenceNumber}`}
-        data-testid="txt-case-urn"
-      >
-        {caseDetails.uniqueReferenceNumber}
-      </h1>
-
-      {isMultipleDefendantsOrCharges && (
+    <div className={`${classes.keyDetails}`} data-testid="key-details">
+      {
         <>
-          <ul
-            className={classes.defendantsList}
-            data-testid="list-defendant-names"
+          {getDefendantNameText(
+            isMultipleDefendantsOrCharges,
+            defendantsList
+          ) && (
+            <h1
+              className={`govuk-heading-m ${classes.defendantName}`}
+              data-testid="defendant-name"
+            >
+              {getDefendantNameText(
+                isMultipleDefendantsOrCharges,
+                defendantsList
+              )}
+            </h1>
+          )}
+          <h2
+            className={`govuk-heading-s ${classes.uniqueReferenceNumber}`}
+            data-testid="txt-case-urn"
           >
-            {defendantsList.map(({ defendantDetails }) => (
-              <li key={defendantDetails.id}>
-                {getDefendantName(defendantDetails)}
-              </li>
-            ))}
-          </ul>
-          {dacDocumentId && (
+            {caseDetails.uniqueReferenceNumber}
+          </h2>
+          {getDOBText() && (
+            <h2
+              className={`govuk-heading-s ${classes.defendantDOB}`}
+              data-testid="txt-defendant-DOB"
+            >
+              {getDOBText()}
+            </h2>
+          )}
+          {isYouthOffender() && (
+            <Tag className="govuk-tag--blue"> Youth offender</Tag>
+          )}
+          {isMultipleDefendantsOrCharges && dacDocumentId && (
             <LinkButton
               dataTestId="link-defendant-details"
               className={classes.defendantDetailsLink}
@@ -71,38 +136,7 @@ export const KeyDetails: React.FC<{
             </LinkButton>
           )}
         </>
-      )}
-      {!isMultipleDefendantsOrCharges && caseDetails.leadDefendantDetails && (
-        <div
-          className={classes.defendantDetails}
-          data-testid="defendant-details"
-        >
-          <span
-            className={`govuk-heading-s ${classes.defendantName}`}
-            data-testid="txt-defendant-name"
-          >
-            {getDefendantName(caseDetails.leadDefendantDetails)}
-          </span>
-          {caseDetails.leadDefendantDetails.type !== "Organisation" && (
-            <span
-              className={`${classes.defendantDOB}`}
-              data-testid="txt-defendant-DOB"
-            >
-              DOB:{" "}
-              {formatDate(
-                caseDetails.leadDefendantDetails.dob,
-                CommonDateTimeFormats.ShortDateTextMonth
-              )}
-              . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
-            </span>
-          )}
-          {caseDetails.leadDefendantDetails.youth && (
-            <span>
-              <b>Youth Offender</b>
-            </span>
-          )}
-        </div>
-      )}
+      }
     </div>
   );
 };

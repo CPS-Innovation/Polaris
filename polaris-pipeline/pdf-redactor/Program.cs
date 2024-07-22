@@ -1,19 +1,19 @@
-
-using Common.Dto.Request;
-using Common.Handlers;
-using Common.Telemetry;
-using Common.Wrappers;
-using Common.Services;
-using FluentValidation;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Common.Domain.Validators;
+using Common.Dto.Request;
+using Common.Handlers;
+using Common.Services;
+using Common.Telemetry;
+using Common.Validators;
+using Common.Wrappers;
+using FluentValidation;
 using pdf_redactor;
 using pdf_redactor.Services.Extensions;
-using Common.Domain.Validators;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -55,6 +55,7 @@ var host = new HostBuilder()
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
         services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
+        services.AddScoped<IValidator<ModifyDocumentWithDocumentDto>, ModifyDocumentWithDocumentValidator>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

@@ -37,5 +37,7 @@ namespace Common.Dto.Document
         public bool HasFailedAttachments { get; set; }
 
         public bool HasNotes { get; set; }
+
+        public bool IsUnused { get; set; }
     }
 }

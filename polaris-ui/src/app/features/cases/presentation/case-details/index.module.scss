@@ -1,29 +1,37 @@
-.uniqueReferenceNumber {
-  margin-bottom: 0.625rem !important;
-}
-.defendantsList {
-  display: flex;
-  flex-direction: column;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 1rem;
-}
-.defendantDetailsLink {
-  font-size: 1rem;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-.defendantDetails {
-  display: flex;
-  flex-direction: column;
-  font-size: 1rem;
+.keyDetails {
   .defendantName {
     margin-bottom: 0;
   }
+  .uniqueReferenceNumber {
+    color: #505a5f;
+    margin-bottom: 0;
+    font-weight: 400;
+  }
   .defendantDOB {
     font-size: 1rem;
+    color: #505a5f;
+    margin-bottom: 0;
+    font-weight: 400;
+  }
+  .dobValue,
+  .ageValue {
+    color: #000;
+    font-weight: bold;
+  }
+  .defendantDetailsLink {
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+  }
+
+  :global(.govuk-tag) {
+    font-weight: 400;
+    text-transform: none;
+  }
+  :global(.govuk-tag--blue) {
+    color: #0c2d4a;
+    margin-top: 0.15625rem;
   }
 }
 
@@ -57,31 +65,36 @@
   height: calc(100vh - 3.4375rem);
 }
 
-.chargesCustodyTime {
+.charges {
   display: flex;
   flex-direction: column;
-  font-weight: 700;
-  margin-top: 1.25rem;
-}
-.charges {
-  min-height: 12.5rem;
   margin-top: 1.25rem;
   font-size: 1rem;
   background-color: #1d70b8;
-  color: white;
-  padding: 1.25rem;
+  color: #fff;
+  padding: 1.25rem 1.25rem 1.25rem 1.25rem;
 
   * {
-    color: white !important;
+    color: #fff !important;
   }
   ul {
     margin: 0;
-    list-style-type: disc !important;
-    padding: 0 0.625rem;
+    list-style-type: none;
+    padding: 0;
   }
   li {
     margin: 0;
     padding: 0;
+  }
+  h2:not(:first-child) {
+    margin: 10px 0 0;
+  }
+  h2:first-child {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
   }
 }
 

@@ -77,6 +77,7 @@ export type PresentationDocumentProperties = {
   hasFailedAttachments: boolean;
   hasNotes: boolean;
   conversionStatus: ConversionStatus;
+  isUnused: boolean;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

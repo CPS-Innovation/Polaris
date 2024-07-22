@@ -45,9 +45,23 @@ $border-color: #b1b4b6; //govuk-colour("green");
 
 .result-offence-line {
   display: flex;
-
+  margin-bottom: 0.35rem;
+  :global(.govuk-tag) {
+    font-weight: 400;
+    text-transform: none;
+  }
+  :global(.govuk-tag--blue) {
+    color: #0c2d4a;
+  }
   span:first-of-type {
     min-width: 10rem;
     margin-right: 3rem;
   }
+}
+
+.urnText {
+  font-weight: bold;
+}
+.chargesText {
+  font-weight: bold;
 }

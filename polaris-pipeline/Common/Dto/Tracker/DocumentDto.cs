@@ -101,11 +101,15 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("hasNotes")]
         public bool HasNotes { get; set; }
+
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
         [JsonProperty("piiCmsVersionId")]
         public int? PiiCmsVersionId { get; set; }
+
+        [JsonProperty("isUnused")]
+        public bool IsUnused { get; set; }
     }
 }

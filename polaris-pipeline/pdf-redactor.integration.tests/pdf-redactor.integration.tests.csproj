@@ -22,7 +22,7 @@
     <EmbeddedResource Include="Resources\broken_ocr.pdf" />
     <EmbeddedResource Include="Resources\broken_ocr_page_1.png" />
     <EmbeddedResource Include="Resources\broken_ocr_redactions.json" />
-
+    <EmbeddedResource Include="Resources\page_removal.pdf" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.258" />

@@ -24,7 +24,7 @@ describe("Happy Path", { tags: ["@ci", "@ci-chunk-1"] }, () => {
     cy.findByTestId(`link-${HAPPY_PATH_URN}`).click()
 
     // is our defendant correct
-    cy.findByTestId("txt-defendant-name").contains(
+    cy.findByTestId("defendant-name").contains(
       HAPPY_PATH_TARGET_DEFENDANT_NAME
     )
 

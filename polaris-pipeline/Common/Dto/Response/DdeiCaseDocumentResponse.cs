@@ -57,4 +57,7 @@ public class DdeiCaseDocumentResponse
 
     [JsonProperty("hasNotes")]
     public bool HasNotes { get; set; }
+
+    [JsonProperty("isUnused")]
+    public bool IsUnused { get; set; }
 }
