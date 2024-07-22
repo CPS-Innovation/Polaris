@@ -5,7 +5,9 @@ import {
   FEATURE_FLAG_FULL_SCREEN,
   FEATURE_FLAG_NOTES,
   FEATURE_FLAG_SEARCH_PII,
+  FEATURE_FLAG_RENAME_DOCUMENT,
   PRIVATE_BETA_FEATURE_USER_GROUP,
+  PRIVATE_BETA_FEATURE_USER_GROUP2,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -35,7 +37,7 @@ const showFeature = (
   featureFlag: boolean,
   username: string,
   queryParam: string,
-  groupClaims?: string[]
+  groupClaims?: { groupKey: string; groups: string[] }
 ) => {
   if (!featureFlag) return false;
   const isTestUser =
@@ -46,9 +48,9 @@ const showFeature = (
   //bypassing group claims for cypress test users, if the featureFlag is true
   if (isTestUser && queryParam === "true") return true;
 
-  if (groupClaims) {
-    const isInPrivateBetaGroup = groupClaims?.includes(
-      PRIVATE_BETA_FEATURE_USER_GROUP
+  if (groupClaims?.groups) {
+    const isInPrivateBetaGroup = groupClaims?.groups.includes(
+      groupClaims.groupKey
     );
     if (!isInPrivateBetaGroup) return false;
   }
@@ -79,7 +81,13 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_SEARCH_PII,
         userDetails?.username,
         searchPII,
-        groupClaims
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP }
+      ),
+      renameDocument: showFeature(
+        FEATURE_FLAG_RENAME_DOCUMENT,
+        userDetails?.username,
+        searchPII,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
     []

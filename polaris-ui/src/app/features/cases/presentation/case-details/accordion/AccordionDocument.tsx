@@ -32,7 +32,10 @@ type Props = {
   lastFocusDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
-  showNotesFeature: boolean;
+  featureFlags: {
+    notes: boolean;
+    renameDocument: boolean;
+  };
   showDocumentRenameFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
@@ -52,7 +55,7 @@ export const AccordionDocument: React.FC<Props> = ({
   activeDocumentId,
   readUnreadData,
   caseDocument,
-  showNotesFeature,
+  featureFlags,
   showDocumentRenameFeature,
   notesData,
   handleOpenPdf,
@@ -144,6 +147,7 @@ export const AccordionDocument: React.FC<Props> = ({
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
+    if (!featureFlags.renameDocument) return items;
     if (
       showDocumentRenameFeature &&
       caseDocument.presentationFlags.renameStatus === "Ok"
@@ -160,7 +164,11 @@ export const AccordionDocument: React.FC<Props> = ({
     }
 
     return items;
-  }, [showDocumentRenameFeature, caseDocument.presentationFlags.renameStatus]);
+  }, [
+    showDocumentRenameFeature,
+    caseDocument.presentationFlags.renameStatus,
+    featureFlags.renameDocument,
+  ]);
 
   const handleDocumentAction = (id: string) => {
     switch (id) {
@@ -246,7 +254,7 @@ export const AccordionDocument: React.FC<Props> = ({
                   {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
                 </>
               )}
-              {showNotesFeature && (
+              {featureFlags.notes && (
                 <Tooltip
                   text={getNotesHoverOverText(false)}
                   className="notesToolTip"

@@ -77,6 +77,7 @@ export const initialState = {
     fullScreen: false,
     notes: false,
     searchPII: false,
+    renameDocument: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

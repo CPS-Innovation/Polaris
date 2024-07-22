@@ -14,7 +14,10 @@ type Props = {
   docs: MappedCaseDocument[];
   readUnreadData: string[];
   isOpen: boolean;
-  showNotesFeature: boolean;
+  featureFlags: {
+    notes: boolean;
+    renameDocument: boolean;
+  };
   handleToggleOpenSection: (id: string, sectionLabel: string) => void;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
@@ -44,7 +47,7 @@ export const AccordionSection: React.FC<Props> = ({
   docs,
   isOpen,
   readUnreadData,
-  showNotesFeature,
+  featureFlags,
   notesData,
   handleToggleOpenSection,
   handleOpenPdf,
@@ -102,7 +105,7 @@ export const AccordionSection: React.FC<Props> = ({
                     activeDocumentId={activeDocumentId}
                     handleOpenPdf={handleOpenPdf}
                     handleOpenPanel={handleOpenPanel}
-                    showNotesFeature={showNotesFeature}
+                    featureFlags={featureFlags}
                     lastFocusDocumentId={lastFocusDocumentId}
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}

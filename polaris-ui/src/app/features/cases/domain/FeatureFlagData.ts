@@ -9,6 +9,7 @@ export type FeatureFlagData = {
   fullScreen: boolean;
   notes: boolean;
   searchPII: boolean;
+  renameDocument: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -16,4 +17,5 @@ export type FeatureFlagQueryParams = {
   fullScreen: string;
   notes: string;
   searchPII: string;
+  renameDocument: string;
 };

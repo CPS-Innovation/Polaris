@@ -124,6 +124,11 @@ variable "feature_flag_search_pii" {
   type = string
 }
 
+variable "feature_flag_rename_document" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "local_storage_expiry_days" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
@@ -131,9 +136,10 @@ variable "local_storage_expiry_days" {
 
 variable "private_beta" {
   type = object({
-    sign_up_url        = string
-    user_group         = string
-    feature_user_group = string
+    sign_up_url         = string
+    user_group          = string
+    feature_user_group  = string
+    feature_user_group2 = string
   })
 }
 
