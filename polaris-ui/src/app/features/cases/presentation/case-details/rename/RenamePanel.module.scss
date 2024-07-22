@@ -2,6 +2,9 @@
   width: 100%;
   background: #fff;
   position: relative;
+  :global(.govuk-form-group) {
+    margin-bottom: 1.5625rem;
+  }
 }
 
 .savedBanner,
@@ -12,7 +15,7 @@
   color: #fff;
   font-size: 1.1875rem;
   font-weight: bold;
-  padding-left: 15px;
+  padding-left: 0.9375rem;
 }
 .savingBanner {
   display: flex;
@@ -30,7 +33,7 @@
     width: 3rem;
     fill: #fff;
     float: left;
-    margin-top: -20px;
+    margin-top: -1.25rem;
   }
 }
 
@@ -41,14 +44,14 @@
   justify-content: space-between;
   border-bottom: 1px solid #b1b4b6;
   h3 {
-    font-size: 19px;
-    margin: 10px 45px 10px 5px;
+    font-size: 1.1875rem;
+    margin: 0.625rem 2.8125rem 0.625rem 0.3125rem;
   }
 }
 .renameTitle {
   margin: 1rem 1.1rem;
   font-size: 1.1875rem;
-  padding-left: 15px;
+  padding-left: 0.9375rem;
 }
 .renameDocumentName {
   color: #505a5f;
@@ -134,5 +137,5 @@
 }
 
 .spinnerWrapper {
-  margin-top: -20px;
+  margin-top: -1.25rem;
 }
