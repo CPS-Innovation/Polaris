@@ -629,7 +629,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
-            type: "saverename",
+            type: "saverenamedocument",
             title: "Something went wrong!",
             message: "Failed to rename the document. Please try again.",
           },

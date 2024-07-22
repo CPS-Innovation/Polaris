@@ -16,8 +16,9 @@ import classes from "./RenamePanel.module.scss";
 type NotesPanelProps = {
   documentName: string;
   documentId: string;
+  documentType: string;
   renameDocuments: RenameDocumentData[];
-  handleSaveRename: (documentId: string, newValue: string) => void;
+  handleSaveRename: (documentId: string, newName: string) => void;
   handleResetRenameData: (documentId: string) => void;
   handleClose: () => void;
 };
@@ -27,6 +28,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   documentName,
   renameDocuments,
   documentId,
+  documentType,
   handleClose,
   handleSaveRename,
   handleResetRenameData,
@@ -34,7 +36,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   const cancelBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
-  const [newValue, setNewValue] = useState("");
+  const [newName, setNewName] = useState(documentName);
   const [renameErrorText, setRenameErrorText] = useState("");
 
   const [savingState, setSavingState] = useState<
@@ -65,17 +67,17 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   }, [renameData]);
 
   const handleAddBtnClick = () => {
-    if (!newValue.length) {
+    if (!newName.length) {
       setRenameErrorText("New name should not be empty");
       return;
     }
-    if (newValue.length > MAX_LENGTH) {
+    if (newName.length > MAX_LENGTH) {
       setRenameErrorText(
         `New name should be less than ${MAX_LENGTH} characters`
       );
       return;
     }
-    if (newValue === documentName) {
+    if (newName === documentName) {
       setRenameErrorText(`New name should be different from current name`);
       return;
     }
@@ -89,12 +91,14 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   };
 
   const saveRename = () => {
-    // trackEvent("Add Note", {
-    //   documentId: documentId,
-    //   documentCategory: documentCategory,
-    // });
+    trackEvent("Save Rename Document", {
+      documentId: documentId,
+      documentType: documentType,
+      oldDocumentName: documentName,
+      newDocumentName: newName,
+    });
 
-    handleSaveRename(documentId, newValue);
+    handleSaveRename(documentId, newName);
   };
 
   useEffect(() => {
@@ -195,9 +199,9 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
             }
             id="rename-text-input"
             data-testid={"rename-text-input"}
-            value={newValue}
+            value={newName}
             onChange={(value) => {
-              setNewValue(value);
+              setNewName(value);
             }}
             label={{
               children: "What is the new name of your document?",

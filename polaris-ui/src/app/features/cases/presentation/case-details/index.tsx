@@ -55,6 +55,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     type: "notes" | "rename" | "";
     documentId: string;
     documentCategory: string;
+    documentType: string;
     presentationFileName: string;
     lastFocusDocumentId: string;
   }>({
@@ -62,6 +63,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     type: "",
     documentId: "",
     documentCategory: "",
+    documentType: "",
     presentationFileName: "",
     lastFocusDocumentId: "",
   });
@@ -207,6 +209,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       type: "",
       documentId: "",
       documentCategory: "",
+      documentType: "",
       presentationFileName: "",
     });
   }, [actionsSidePanel]);
@@ -227,13 +230,15 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentId: string,
     documentCategory: string,
     presentationFileName: string,
-    type: "notes" | "rename"
+    type: "notes" | "rename",
+    documentType: string
   ) => {
     setActionsSidePanel({
       open: true,
       type: type,
       documentId: documentId,
       documentCategory: documentCategory,
+      documentType: documentType,
       presentationFileName: presentationFileName,
       lastFocusDocumentId: documentId,
     });
@@ -259,7 +264,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleClose={handleCloseErrorModal}
             contextData={{
               documentId:
-                errorModal.type === "addnote"
+                errorModal.type === "addnote" ||
+                errorModal.type === "saverenamedocument"
                   ? actionsSidePanel.documentId
                   : getActiveTabDocument?.documentId,
             }}
@@ -493,6 +499,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     </span>
                     <RenamePanel
                       documentName={actionsSidePanel.presentationFileName}
+                      documentType={actionsSidePanel.documentType}
                       documentId={actionsSidePanel.documentId}
                       renameDocuments={renameDocuments}
                       handleClose={handleClosePanel}

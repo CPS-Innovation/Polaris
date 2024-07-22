@@ -48,7 +48,9 @@ type AppInsightsTrackEventNames =
   | "Notes Document Mismatch Ok"
   | "Notes Document Mismatch Cancel"
   | "Ignore Redaction Suggestion"
-  | "Cancel Save Redaction Suggestion Warning";
+  | "Cancel Save Redaction Suggestion Warning"
+  | "Save Rename Document"
+  | "Save Rename Document Error";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -138,6 +140,10 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "User has clicked 'Ignore' or 'Ignore all' button, to ignore any search pii redaction suggestions",
   "Cancel Save Redaction Suggestion Warning":
     "User has clicked 'cancel' or close button on the save redaction suggestions warning modal",
+  "Save Rename Document":
+    "User document rename request sent to the server after successful UI validation",
+  "Save Rename Document Error":
+    "The attempt to rename a document failed, prompting the display of an error message to the user",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

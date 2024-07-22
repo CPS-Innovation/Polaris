@@ -44,7 +44,8 @@ type Props = {
     documentId: string,
     documentCategory: string,
     presentationFileName: string,
-    type: "notes" | "rename"
+    type: "notes" | "rename",
+    documentType: string
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
@@ -177,7 +178,8 @@ export const AccordionDocument: React.FC<Props> = ({
           caseDocument.documentId,
           caseDocument.cmsDocType.documentCategory,
           caseDocument.presentationFileName,
-          "rename"
+          "rename",
+          caseDocument.cmsDocType.documentType
         );
 
         break;
@@ -286,7 +288,8 @@ export const AccordionDocument: React.FC<Props> = ({
                         caseDocument.documentId,
                         caseDocument.cmsDocType.documentCategory,
                         caseDocument.presentationFileName,
-                        "notes"
+                        "notes",
+                        caseDocument.cmsDocType.documentType
                       );
                     }}
                     onFocus={

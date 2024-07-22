@@ -26,7 +26,8 @@ type Props = {
     documentId: string,
     documentCategory: string,
     presentationFileName: string,
-    type: "notes" | "rename"
+    type: "notes" | "rename",
+    documentType: string
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
