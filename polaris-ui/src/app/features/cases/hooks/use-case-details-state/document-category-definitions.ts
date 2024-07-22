@@ -56,9 +56,7 @@ const documentCategoryDefinitions: {
     category: "Statements",
     showIfEmpty: true,
     testFn: (doc) =>
-      doc.cmsDocType.documentCategory !== "UnusedStatement" &&
-      doc.cmsDocType.documentCategory !== "Unused" &&
-      docTypeTest(doc, [1016, 1017, 1018, 1031]),
+      !doc.isUnused && docTypeTest(doc, [1016, 1017, 1018, 1031]),
     sortFn: sortAscendingByListOrderAndId,
   },
   {
@@ -89,8 +87,7 @@ const documentCategoryDefinitions: {
         doc.presentationTitle,
         doc.cmsDocType.documentTypeId
       ) ||
-      doc.cmsDocType.documentCategory === "UnusedStatement" ||
-      doc.cmsDocType.documentCategory === "Unused" ||
+      doc.isUnused ||
       docTypeTest(doc, [1001, 1008, 1009, 1010, 1011, 1039, 1202]),
     sortFn: sortAscendingByDocumentTypeAndCreationDate,
   },

@@ -37,6 +37,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: true,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "2",
@@ -63,6 +64,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: true,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "3",
@@ -89,6 +91,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "4",
@@ -115,6 +118,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "5",
@@ -141,6 +145,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "6",
@@ -165,6 +170,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "8",
@@ -191,6 +197,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "9",
@@ -217,6 +224,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "10",
@@ -243,6 +251,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "12",
@@ -269,6 +278,7 @@ const pipelinePdfResult: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
   ],
 };
@@ -339,6 +349,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: true,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "2",
@@ -365,6 +376,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: true,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "3",
@@ -391,6 +403,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "4",
@@ -417,6 +430,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "5",
@@ -443,6 +457,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "12",
@@ -469,6 +484,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
   ],
 };
@@ -504,6 +520,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: true,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "2",
@@ -530,6 +547,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: true,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "3",
@@ -556,6 +574,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "4",
@@ -582,6 +601,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "5",
@@ -608,6 +628,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       documentId: "12",
@@ -634,6 +655,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       hasFailedAttachments: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
   ],
 };

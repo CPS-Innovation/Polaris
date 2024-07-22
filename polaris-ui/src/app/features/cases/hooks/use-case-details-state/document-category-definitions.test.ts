@@ -59,6 +59,7 @@ describe("documentCategoryDefinitions", () => {
   it("can resolve any document with docTypeCategory as 'Unused' into 'Unused material' accordion category", () => {
     const result = getCategory({
       cmsDocType: { documentCategory: "Unused" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result.category).toBe("Unused material");
@@ -67,6 +68,7 @@ describe("documentCategoryDefinitions", () => {
   it("can resolve any document with docTypeCategory as 'UnusedStatement' into 'Unused material' accordion category", () => {
     const result = getCategory({
       cmsDocType: { documentCategory: "UnusedStatement" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result.category).toBe("Unused material");
@@ -87,12 +89,14 @@ describe("documentCategoryDefinitions", () => {
 
     const result3 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result3.category).toBe("Unused material");
 
     const result4 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result4.category).toBe("Unused material");
@@ -155,12 +159,14 @@ describe("documentCategoryDefinitions", () => {
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
       presentationTitle: "CM01",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1059, documentCategory: "UnusedStatement" },
       presentationTitle: " CM01 Typea 4 a",
       cmsOriginalFileExtension: ".hte",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Unused material");
@@ -172,12 +178,14 @@ describe("documentCategoryDefinitions", () => {
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
       presentationTitle: "CM01",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1059, documentCategory: "Unused" },
       presentationTitle: " CM01 Typea 4 a",
       cmsOriginalFileExtension: ".hte",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Unused material");

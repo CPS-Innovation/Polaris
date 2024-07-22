@@ -31,7 +31,8 @@ namespace coordinator.Durable.Payloads.Domain
             int? witnessId,
             PresentationFlagsDto presentationFlags,
             bool hasFailedAttachments,
-            bool hasNotes)
+            bool hasNotes,
+            bool isUnused)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
@@ -48,6 +49,7 @@ namespace coordinator.Durable.Payloads.Domain
             WitnessId = witnessId;
             HasFailedAttachments = hasFailedAttachments;
             HasNotes = hasNotes;
+            IsUnused = isUnused;
         }
 
         [JsonProperty("path")]
@@ -106,5 +108,8 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("hasNotes")]
         public bool HasNotes { get; set; }
+
+        [JsonProperty("isUnused")]
+        public bool IsUnused { get; set; }
     }
 }
