@@ -10,7 +10,7 @@ namespace Common.Dto.Case
         public int CaseId { get; set; }
 
         [JsonProperty("defendants")]
-        public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; }
+        public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; } = new List<DefendantAndChargesDto>();
 
         public PresentationFlagsDto PresentationFlags { get; set; }
     }
