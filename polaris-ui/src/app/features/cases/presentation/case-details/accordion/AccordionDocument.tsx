@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -63,14 +63,7 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPanel,
   handleGetNotes,
 }) => {
-  const openNotesBtnRef = useRef<HTMLButtonElement | null>(null);
   const trackEvent = useAppInsightsTrackEvent();
-
-  useEffect(() => {
-    if (openNotesBtnRef.current) {
-      openNotesBtnRef.current.focus();
-    }
-  }, []);
 
   const canViewDocument =
     caseDocument.presentationFlags?.read === "Ok" &&
@@ -83,11 +76,6 @@ export const AccordionDocument: React.FC<Props> = ({
   };
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
-
-  const openNotesRefProps =
-    caseDocument.documentId === lastFocusDocumentId
-      ? { ref: openNotesBtnRef }
-      : {};
 
   const isNotesDisabled = useCallback(() => {
     if (
@@ -273,7 +261,6 @@ export const AccordionDocument: React.FC<Props> = ({
                     </div>
                   )}
                   <LinkButton
-                    {...openNotesRefProps}
                     className={classes.notesBtn}
                     id={`btn-notes-${caseDocument.documentId}`}
                     dataTestId={`btn-notes-${caseDocument.documentId}`}

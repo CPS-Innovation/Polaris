@@ -6,7 +6,7 @@ import {
   Spinner,
   ErrorSummary,
 } from "../../../../../common/presentation/components";
-
+import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RenameDocumentData } from "../../../domain/gateway/RenameDocumentData";
 import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
@@ -33,6 +33,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   handleSaveRename,
   handleResetRenameData,
 }) => {
+  useLastFocus(`#document-actions-dropdown-${documentId}`);
   const cancelBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();

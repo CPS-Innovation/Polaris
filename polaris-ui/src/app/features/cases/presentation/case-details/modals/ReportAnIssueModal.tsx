@@ -66,9 +66,7 @@ export const ReportAnIssueModal: React.FC<Props> = ({
           className={classes.reportIssueModal}
           ariaLabel="Report an Issue Modal"
           ariaDescription={`Report a problem with the document "${presentationTitle}"`}
-          defaultLastFocus={
-            document.querySelector("#active-tab-panel") as HTMLElement
-          }
+          defaultLastFocusId="#active-tab-panel"
         >
           <div className={classes.modalHeader}>
             <h2>{`Report a problem with: "${presentationTitle}"`}</h2>

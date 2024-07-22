@@ -73,7 +73,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const [accordionOldState, setAccordionOldState] =
     useState<AccordionReducerState | null>(null);
 
-  const notesPanelRef = useRef(null);
+  const actionsSidePanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -179,8 +179,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   }, [tabsState.items.length]);
 
   useEffect(() => {
-    if (notesPanelRef.current) {
-      (notesPanelRef.current as HTMLElement).focus();
+    if (actionsSidePanelRef.current) {
+      (actionsSidePanelRef.current as HTMLElement).focus();
     }
   }, [actionsSidePanel.open]);
 
@@ -358,9 +358,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 : null
             }
             handleHideRedactionLogModal={handleHideRedactionLogModal}
-            defaultLastFocus={
-              document.querySelector("#active-tab-panel") as HTMLElement
-            }
           />
         )}
       <nav>
@@ -466,7 +463,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 aria-labelledby="notes-panel-region-label"
                 // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                 tabIndex={0}
-                ref={notesPanelRef}
+                ref={actionsSidePanelRef}
                 data-testid="notes-panel"
               >
                 {actionsSidePanel.type === "notes" && (

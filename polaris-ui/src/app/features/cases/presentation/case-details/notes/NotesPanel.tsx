@@ -11,6 +11,7 @@ import classes from "./NotesPanel.module.scss";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 
 const NOTES_MAX_CHARACTERS = 500;
 type NotesPanelProps = {
@@ -34,6 +35,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   handleAddNote,
   handleGetNotes,
 }) => {
+  useLastFocus(`#btn-notes-${documentId}`);
   const cancelBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
