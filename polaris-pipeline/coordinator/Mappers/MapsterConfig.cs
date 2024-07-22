@@ -1,15 +1,15 @@
-﻿using Common.Dto.Document;
-using Common.Dto.Tracker;
-using coordinator.Durable.Entity;
-using Mapster;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using coordinator.Durable.Payloads.Domain;
+using Microsoft.Extensions.DependencyInjection;
 using Azure.AI.TextAnalytics;
 using coordinator.Domain;
+using coordinator.Durable.Entity;
+using coordinator.Durable.Payloads.Domain;
+using Common.Dto.Document;
+using Common.Dto.Tracker;
+using Mapster;
 
 namespace coordinator.Mappers
 {
@@ -91,7 +91,7 @@ namespace coordinator.Mappers
             if (caseEntity.CmsDocuments?.Any() == true)
                 documents.AddRange(caseEntity.CmsDocuments);
 
-            if (caseEntity.DefendantsAndCharges != null)
+            if (caseEntity.DefendantsAndCharges != null && caseEntity.DefendantsAndCharges.HasMultipleDefendants)
             {
                 var defendantsAndChargesDocument = ConvertToTrackerCmsDocumentDto(caseEntity.DefendantsAndCharges);
                 documents.AddRange(defendantsAndChargesDocument);
