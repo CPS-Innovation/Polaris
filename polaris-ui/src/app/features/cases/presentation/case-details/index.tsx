@@ -458,18 +458,18 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             <>
               <div
                 className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.notesArea}`}
-                id="notes-panel"
+                id="actions-panel"
                 role="region"
-                aria-labelledby="notes-panel-region-label"
+                aria-labelledby="actions-panel-region-label"
                 // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                 tabIndex={0}
                 ref={actionsSidePanelRef}
-                data-testid="notes-panel"
+                data-testid="actions-panel"
               >
                 {actionsSidePanel.type === "notes" && (
                   <div>
                     <span
-                      id="notes-panel-region-label"
+                      id="actions-panel-region-label"
                       className={classes.sidePanelLabel}
                     >
                       {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationFileName}.`}
@@ -489,7 +489,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 {actionsSidePanel.type === "rename" && (
                   <div>
                     <span
-                      id="notes-panel-region-label"
+                      id="actions-panel-region-label"
                       className={classes.sidePanelLabel}
                     >
                       {`Rename document panel, you can rename document ${actionsSidePanel.presentationFileName}.`}

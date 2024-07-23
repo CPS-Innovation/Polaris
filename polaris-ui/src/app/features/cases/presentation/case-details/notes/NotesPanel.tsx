@@ -146,7 +146,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   }, [notesList.length, noteData?.addNoteStatus]);
 
   return (
-    <div className={classes.notesPanel}>
+    <div className={classes.notesPanel} data-testid="notes-panel">
       <div className={classes.notesHeader}>
         {" "}
         <h3 className={classes.notesTitle}>
