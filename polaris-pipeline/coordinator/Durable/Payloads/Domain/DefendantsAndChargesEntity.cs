@@ -17,6 +17,6 @@ namespace coordinator.Durable.Payloads.Domain
 
         public DefendantsAndChargesListDto DefendantsAndCharges { get; set; }
 
-        public bool HasMultipleDefendants => DefendantsAndCharges != null && DefendantsAndCharges.DefendantsAndCharges.ToList().Count > 1;
+        public bool HasMultipleDefendants => DefendantsAndCharges != null && DefendantsAndCharges.DefendantsAndCharges.Count() > 1;
     }
 }
