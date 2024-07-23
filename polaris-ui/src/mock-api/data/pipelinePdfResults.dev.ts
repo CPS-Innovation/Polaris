@@ -52,7 +52,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsDocType: {
         documentTypeId: 1029,
         documentType: "MG11",
-        documentCategory: "InboxCommunication",
+        documentCategory: "Communication",
       },
       presentationFlags: {
         read: "Ok",
