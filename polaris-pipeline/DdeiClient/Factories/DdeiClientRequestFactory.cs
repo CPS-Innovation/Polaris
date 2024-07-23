@@ -40,6 +40,27 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateGetPcdRequestsRequest(DdeiCmsCaseArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/pcd-requests");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateGetPcdRequest(DdeiCmsPcdArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/pcd-requests/{arg.PcdId}");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateGetDefendantAndChargesRequest(DdeiCmsCaseArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/defendants");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
         public HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCmsCaseArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents");
@@ -99,6 +120,19 @@ namespace Ddei.Factories.Contracts
                 Text = arg.Text
             });
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/notes");
+            AddAuthHeaders(request, arg);
+            request.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            return request;
+        }
+
+        public HttpRequestMessage CreateRenameDocumentRequest(DdeiCmsRenameDocumentArgDto arg)
+        {
+            var content = JsonSerializer.Serialize(new RenameDocumentDto
+            {
+                DocumentId = arg.DocumentId.ToString(),
+                DocumentName = arg.DocumentName
+            });
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/rename");
             AddAuthHeaders(request, arg);
             request.Content = new StringContent(content, Encoding.UTF8, "application/json");
             return request;

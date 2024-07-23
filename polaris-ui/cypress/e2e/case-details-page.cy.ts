@@ -126,25 +126,16 @@ describe("case details page", () => {
   });
 
   describe("case details", () => {
-    it("Should show the feedback from link", () => {
-      cy.visit("/case-search-results?urn=12AB1111111");
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("feedback-banner")
-        .should("exist")
-        .contains(
-          "Your feedback (opens in a new tab) will help us to improve this service."
-        );
-    });
-    it("For Single defendant and single charge, should show defendant details, charge details and custody time limits and Youth Offender if applicable", () => {
+    it("For Single defendant and single charge, should show defendant details, charge details and custody time limits and Youth offender if applicable", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
-      cy.findByTestId("defendant-details").then(($details) => {
+      cy.findByTestId("key-details").then(($details) => {
         cy.wrap($details).contains("Walsh, Steve");
         cy.wrap($details).contains(
-          `DOB: 28 Nov 1977. Age: ${getAgeFromIsoDate("1977-11-28")}`
+          `DOB: 28 Nov 1977, Age: ${getAgeFromIsoDate("1977-11-28")}`
         );
-        cy.wrap($details).contains("Youth Offender");
+        cy.wrap($details).contains("Youth offender");
       });
 
       cy.findByTestId("div-charges").then(($charges) => {
@@ -158,16 +149,17 @@ describe("case details page", () => {
       cy.visit("/case-search-results?urn=12AB2222244");
       cy.visit("/case-details/12AB2222244/13701");
       cy.findByTestId("txt-case-urn").contains("12AB2222244");
-      cy.findByTestId("defendant-details").should("not.exist");
+      cy.findByTestId("defendant-name").should("not.exist");
+      cy.findByTestId("txt-defendant-DOB").should("not.exist");
     });
 
     it("For Single defendant and single charge,should read name from organisationName and shouldn't show date of birth in defendant details, if the defendant is an organisation ", () => {
       cy.visit("/case-search-results?urn=12AB1111122");
       cy.visit("/case-details/12AB1111122/13501");
       cy.findByTestId("txt-case-urn").contains("12AB1111122");
-      cy.findByTestId("defendant-details").then(($details) => {
+      cy.findByTestId("key-details").then(($details) => {
         cy.wrap($details)
-          .findByTestId("txt-defendant-name")
+          .findByTestId("defendant-name")
           .should("have.text", "GUZZLERS BREWERY");
         cy.wrap($details).findByTestId("txt-defendant-DOB").should("not.exist");
       });
@@ -178,14 +170,10 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13301");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
       cy.findByTestId("div-charges").should("not.exist");
-      cy.findByTestId("list-defendant-names")
-        .get("li")
-        .first()
-        .should("have.text", "Walsh, Steve")
-        .next()
-        .should("have.text", "Taylor, Scott")
-        .next()
-        .should("have.text", "Victor, Peter");
+      cy.findByTestId("defendant-name").should(
+        "have.text",
+        "Walsh, Steve; Taylor, Scott; Victor, Peter"
+      );
       cy.findByTestId("link-defendant-details").contains(
         "View 3 defendants and charges"
       );
@@ -195,12 +183,11 @@ describe("case details page", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13601");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
-      cy.findByTestId("list-defendant-names")
-        .get("li")
-        .first()
-        .should("have.text", "GUZZLERS BREWERY")
-        .next()
-        .should("have.text", "Victor, Peter");
+      cy.findByTestId("defendant-name").should(
+        "have.text",
+        "GUZZLERS BREWERY; Victor, Peter"
+      );
+
       cy.findByTestId("link-defendant-details").contains(
         "View 2 defendants and charges"
       );
@@ -211,10 +198,7 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13201");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
       cy.findByTestId("div-charges").should("not.exist");
-      cy.findByTestId("list-defendant-names")
-        .get("li")
-        .first()
-        .should("have.text", "Walsh, Steve");
+      cy.findByTestId("defendant-name").should("have.text", "Walsh, Steve");
       cy.findByTestId("link-defendant-details").contains(
         "View 1 defendant and charges"
       );
@@ -225,10 +209,7 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13201");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
       cy.findByTestId("div-charges").should("not.exist");
-      cy.findByTestId("list-defendant-names")
-        .get("li")
-        .first()
-        .should("have.text", "Walsh, Steve");
+      cy.findByTestId("defendant-name").should("have.text", "Walsh, Steve");
       cy.findByTestId("link-defendant-details").contains(
         "View 1 defendant and charges"
       );

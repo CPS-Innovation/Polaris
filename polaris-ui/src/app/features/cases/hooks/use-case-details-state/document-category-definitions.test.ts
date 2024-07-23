@@ -56,43 +56,59 @@ describe("documentCategoryDefinitions", () => {
     expect(result.category).toBe("Reviews");
   });
 
-  it("can resolve any document with docTypeCategory as 'Unused' into 'Unused material' accordion category", () => {
-    const result = getCategory({
-      cmsDocType: { documentCategory: "Unused" },
+  it("can resolve any document with docTypeCategory as 'Exhibit' or 'MGForm' or 'OtherForm' and isUnused == true into 'Unused material' accordion category", () => {
+    const result1 = getCategory({
+      cmsDocType: { documentCategory: "Exhibit" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
-    expect(result.category).toBe("Unused material");
+    const result2 = getCategory({
+      cmsDocType: { documentCategory: "MGForm" },
+      isUnused: true,
+    } as PresentationDocumentProperties);
+
+    const result3 = getCategory({
+      cmsDocType: { documentCategory: "OtherForm" },
+      isUnused: true,
+    } as PresentationDocumentProperties);
+
+    expect(result1.category).toBe("Unused material");
+    expect(result2.category).toBe("Unused material");
+    expect(result3.category).toBe("Unused material");
   });
 
-  it("can resolve any document with docTypeCategory as 'UnusedStatement' into 'Unused material' accordion category", () => {
+  it("can resolve any document with docTypeCategory as 'Statement' and isUnused == true into 'Unused material' accordion category", () => {
     const result = getCategory({
-      cmsDocType: { documentCategory: "UnusedStatement" },
+      cmsDocType: { documentCategory: "Statement" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result.category).toBe("Unused material");
   });
 
   it("will only resolve documents with correct statement documentTypeId and docTypeCategory not equal to 'UnusedStatement' or 'Unused' into 'Statements' accordion category", () => {
-    const result = getCategory({
-      cmsDocType: { documentTypeId: 1031, documentCategory: "UsedStatement" },
-    } as PresentationDocumentProperties);
-
-    expect(result.category).toBe("Statements");
-
     const result1 = getCategory({
-      cmsDocType: { documentTypeId: 1031, documentCategory: null as any },
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Statement" },
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Statements");
 
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: null as any },
+    } as PresentationDocumentProperties);
+
+    expect(result2.category).toBe("Statements");
+
     const result3 = getCategory({
-      cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Statement" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result3.category).toBe("Unused material");
 
     const result4 = getCategory({
-      cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Exhibit" },
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result4.category).toBe("Unused material");
@@ -131,7 +147,7 @@ describe("documentCategoryDefinitions", () => {
     expect(result2.subCategory).toBe(null);
   });
 
-  it(`can resolve document with documentTypeId 1029  under "Communications" category if isUnusedCommunicationMaterial returns false`, () => {
+  it(`can resolve document with documentTypeId 1029 under "Communications" category if isUnusedCommunicationMaterial returns false`, () => {
     docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
@@ -150,34 +166,38 @@ describe("documentCategoryDefinitions", () => {
     expect(result2.subCategory).toBe("Emails");
   });
 
-  it(`can resolve document  under  "Unused material" category if documentCategory is "UnusedStatement" `, () => {
+  it(`can resolve document  under "Unused material" category if documentCategory is "Statement" and isUnused == true `, () => {
     docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
     const result1 = getCategory({
-      cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Statement" },
       presentationTitle: "CM01",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     const result2 = getCategory({
-      cmsDocType: { documentTypeId: 1059, documentCategory: "UnusedStatement" },
+      cmsDocType: { documentTypeId: 1059, documentCategory: "Statement" },
       presentationTitle: " CM01 Typea 4 a",
       cmsOriginalFileExtension: ".hte",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Unused material");
     expect(result2.category).toBe("Unused material");
   });
 
-  it(`can resolve document  under  "Unused material" category if documentCategory is "Unused" `, () => {
+  it(`can resolve document  under "Unused material" category if documentCategory is "Unused" `, () => {
     docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
     const result1 = getCategory({
-      cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Exhibit" },
       presentationTitle: "CM01",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     const result2 = getCategory({
-      cmsDocType: { documentTypeId: 1059, documentCategory: "Unused" },
+      cmsDocType: { documentTypeId: 1059, documentCategory: "MGForm" },
       presentationTitle: " CM01 Typea 4 a",
       cmsOriginalFileExtension: ".hte",
+      isUnused: true,
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Unused material");

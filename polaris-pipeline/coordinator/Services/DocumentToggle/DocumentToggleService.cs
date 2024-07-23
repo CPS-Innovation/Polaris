@@ -95,7 +95,7 @@ namespace coordinator.Services.DocumentToggle
             };
         }
 
-        public PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestDto pcdRequest)
+        public PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestCoreDto pcdRequest)
         {
             return ReadOnly;
         }

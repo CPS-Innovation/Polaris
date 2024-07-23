@@ -469,6 +469,7 @@ describe("mapAccordionState", () => {
           hasFailedAttachments: false,
           hasNotes: false,
           conversionStatus: "DocumentConverted",
+          isUnused: false,
         },
         {
           documentId: "2",
@@ -499,6 +500,7 @@ describe("mapAccordionState", () => {
           hasFailedAttachments: false,
           hasNotes: false,
           conversionStatus: "DocumentConverted",
+          isUnused: false,
         },
       ],
     };
@@ -541,6 +543,7 @@ describe("mapAccordionState", () => {
               hasFailedAttachments: false,
               hasNotes: false,
               conversionStatus: "DocumentConverted",
+              isUnused: false,
             },
           ],
         },

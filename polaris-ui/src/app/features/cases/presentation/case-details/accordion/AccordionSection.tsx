@@ -135,7 +135,13 @@ export const AccordionSection: React.FC<Props> = ({
         onClick={() => handleToggleOpenSection(sectionId, sectionLabel)}
         aria-expanded={isOpen}
       >
-        <h2 className="govuk-heading-s">{sectionLabel}</h2>
+        <h2
+          className={`govuk-heading-s ${
+            !docs.length ? classes.zeroDocsCategory : ""
+          }`}
+        >
+          {`${sectionLabel} (${docs.length})`}
+        </h2>
         <span className={`${classes["icon"]}`}></span>
       </button>
       <div className={`${classes["accordion-section-body"]}`}>

@@ -1,4 +1,5 @@
-﻿using Common.Dto.Case;
+﻿using System.Linq;
+using Common.Dto.Case;
 using Common.ValueObjects;
 
 namespace coordinator.Durable.Payloads.Domain
@@ -15,5 +16,7 @@ namespace coordinator.Durable.Payloads.Domain
         }
 
         public DefendantsAndChargesListDto DefendantsAndCharges { get; set; }
+
+        public bool HasMultipleDefendants => DefendantsAndCharges != null && DefendantsAndCharges.DefendantsAndCharges.Count() > 1;
     }
 }

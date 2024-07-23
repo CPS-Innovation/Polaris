@@ -10,45 +10,71 @@ using Common.Wrappers;
 
 namespace coordinator.Clients.PdfRedactor
 {
-  public class PdfRedactorClient : IPdfRedactorClient
-  {
-    private readonly IRequestFactory _pipelineClientRequestFactory;
-    private readonly HttpClient _httpClient;
-    private readonly IJsonConvertWrapper _jsonConvertWrapper;
-
-    public PdfRedactorClient(IRequestFactory pipelineClientRequestFactory,
-        HttpClient httpClient,
-        IJsonConvertWrapper jsonConvertWrapper)
+    public class PdfRedactorClient : IPdfRedactorClient
     {
-      _pipelineClientRequestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
-      _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-      _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
-    }
+        private readonly IRequestFactory _pipelineClientRequestFactory;
+        private readonly HttpClient _httpClient;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-    public async Task<Stream> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
-    {
-      try
-      {
-        var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
-
-        var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}", correlationId);
-        request.Content = requestMessage;
-
-        var response = await _httpClient.SendAsync(request);
-
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStreamAsync();
-      }
-      catch (HttpRequestException exception)
-      {
-        if (exception.StatusCode == HttpStatusCode.NotFound)
+        public PdfRedactorClient(IRequestFactory pipelineClientRequestFactory,
+            HttpClient httpClient,
+            IJsonConvertWrapper jsonConvertWrapper)
         {
-          // todo: check if ok to swallow a not found response?
-          return null;
+            _pipelineClientRequestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
-        throw;
-      }
+
+        public async Task<Stream> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+        {
+            try
+            {
+                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
+
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}", correlationId);
+                request.Content = requestMessage;
+
+                var response = await _httpClient.SendAsync(request);
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadAsStreamAsync();
+            }
+            catch (HttpRequestException exception)
+            {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // todo: check if ok to swallow a not found response?
+                    return null;
+                }
+                throw;
+            }
+        }
+
+        public async Task<Stream> ModifyDocument(string caseUrn, string caseId, string documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId)
+        {
+            try
+            {
+                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(modifyDocumentDto), Encoding.UTF8, "application/json");
+
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId)}", correlationId);
+                request.Content = requestMessage;
+
+                var response = await _httpClient.SendAsync(request);
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadAsStreamAsync();
+            }
+            catch (HttpRequestException exception)
+            {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // todo: check if ok to swallow a not found response?
+                    return null;
+                }
+                throw;
+            }
+        }
     }
-  }
 }

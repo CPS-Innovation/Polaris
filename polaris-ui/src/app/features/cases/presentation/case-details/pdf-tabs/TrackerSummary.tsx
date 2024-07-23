@@ -23,12 +23,19 @@ const renderDocResults = (
         doc.status === "New"
     )?.length;
     const docsUploaded = validDocs.length - docFailed;
-    if (isCaseCompleted && docFailed) {
-      return `Documents ready to read: ${docsUploaded} (unable to convert ${docFailed} ${
-        docFailed > 1 ? "documents" : "document"
-      })`;
-    }
-    return `Documents ready to read: ${docsUploaded}`;
+    const documentText = docFailed > 1 ? "documents" : "document";
+    return (
+      <span>
+        Documents ready to read:{" "}
+        <span className={classes.documentsReadyToReadText}>
+          {isCaseCompleted && docFailed ? (
+            `${docsUploaded} (unable to convert ${docFailed} ${documentText})`
+          ) : (
+            <>{docsUploaded}</>
+          )}
+        </span>
+      </span>
+    );
   };
 
   const getDocumentsSearchIndexText = () => {
@@ -36,12 +43,19 @@ const renderDocResults = (
       (doc) => doc.status !== "Indexed"
     ).length;
     const docsIndexed = validDocs.length - docsNotIndexed;
-    if (isCaseCompleted && docsNotIndexed) {
-      return `Documents indexed: ${docsIndexed} (unable to index ${docsNotIndexed} ${
-        docsNotIndexed > 1 ? "documents" : "document"
-      })`;
-    }
-    return `Documents indexed: ${docsIndexed}`;
+    const documentText = docsNotIndexed > 1 ? "documents" : "document";
+    return (
+      <span>
+        Documents indexed:{" "}
+        <span className={classes.documentsSearchIndexText}>
+          {isCaseCompleted && docsNotIndexed ? (
+            `${docsIndexed} (unable to index ${docsNotIndexed} ${documentText})`
+          ) : (
+            <>{docsIndexed}</>
+          )}
+        </span>
+      </span>
+    );
   };
 
   const getCaseSearchReadyText = () => {
@@ -52,7 +66,10 @@ const renderDocResults = (
   return (
     // WARNING: "span-flag-all-indexed" is used by the e2e tests to check the status of the documents
     <div data-testid="tracker-summary" className={classes.trackerSummary}>
-      <span aria-live="polite">{`Total documents: ${validDocs.length}`}</span>
+      <span aria-live="polite">
+        Total documents:{" "}
+        <span className={classes.totalDocuments}>{validDocs.length}</span>
+      </span>
       <span aria-live="polite">{getDocumentsReadyToReadText()}</span>
       <span aria-live="polite">{getDocumentsSearchIndexText()}</span>
       <span
@@ -60,13 +77,13 @@ const renderDocResults = (
         data-testid={
           isCaseCompleted && everyDocIndexed ? "span-flag-all-indexed" : ""
         }
+        className={classes.caseSearchReadyText}
       >
         {getCaseSearchReadyText()}
       </span>
     </div>
   );
 };
-
 export const TrackerSummary: React.FC<Props> = ({
   pipelineState,
   isMultipleDefendantsOrCharges,

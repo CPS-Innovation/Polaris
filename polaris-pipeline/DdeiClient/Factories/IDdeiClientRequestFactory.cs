@@ -8,6 +8,9 @@ namespace Ddei.Factories
         HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg);
         HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg);
         HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg);
+        HttpRequestMessage CreateGetPcdRequestsRequest(DdeiCmsCaseArgDto arg);
+        HttpRequestMessage CreateGetPcdRequest(DdeiCmsPcdArgDto arg);
+        HttpRequestMessage CreateGetDefendantAndChargesRequest(DdeiCmsCaseArgDto arg);
         HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCmsCaseArgDto arg);
         HttpRequestMessage CreateCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg);
         HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg);
@@ -16,5 +19,6 @@ namespace Ddei.Factories
         HttpRequestMessage CreateStatusRequest();
         HttpRequestMessage CreateGetDocumentNotesRequest(DdeiCmsDocumentNotesArgDto arg);
         HttpRequestMessage CreateAddDocumentNoteRequest(DdeiCmsAddDocumentNoteArgDto arg);
+        HttpRequestMessage CreateRenameDocumentRequest(DdeiCmsRenameDocumentArgDto arg);
     }
 }

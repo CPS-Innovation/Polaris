@@ -55,6 +55,7 @@ describe("useNavigationAlert hook", () => {
       areaOnlyRedactionMode: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
     {
       clientLockedState: "unlocked",
@@ -102,6 +103,7 @@ describe("useNavigationAlert hook", () => {
       areaOnlyRedactionMode: false,
       hasNotes: false,
       conversionStatus: "DocumentConverted",
+      isUnused: false,
     },
   ];
 

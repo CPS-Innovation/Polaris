@@ -47,11 +47,15 @@ describe("TrackerSummary", () => {
     );
 
     expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();
-    expect(screen.queryByText("Total documents: 3")).toBeInTheDocument();
-    expect(
-      screen.queryByText("Documents ready to read: 3")
-    ).toBeInTheDocument();
-    expect(screen.queryByText("Documents indexed: 3")).toBeInTheDocument();
+    expect(screen.queryByText("Total documents:")).toHaveTextContent(
+      "Total documents: 3"
+    );
+    expect(screen.queryByText("Documents ready to read:")).toHaveTextContent(
+      "Documents ready to read: 3"
+    );
+    expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
+      "Documents indexed: 3"
+    );
     expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
   });
   it("Should render the tracker summary correctly if some documents are not indexed", () => {
@@ -89,13 +93,15 @@ describe("TrackerSummary", () => {
     );
 
     expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();
-    expect(screen.queryByText("Total documents: 3")).toBeInTheDocument();
-    expect(
-      screen.queryByText("Documents ready to read: 3")
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText("Documents indexed: 2 (unable to index 1 document)")
-    ).toBeInTheDocument();
+    expect(screen.queryByText("Total documents:")).toHaveTextContent(
+      "Total documents: 3"
+    );
+    expect(screen.queryByText("Documents ready to read:")).toHaveTextContent(
+      "Documents ready to read: 3"
+    );
+    expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
+      "Documents indexed: 2 (unable to index 1 document)"
+    );
     expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
   });
   it("Should render the tracker summary correctly if some documents are not ready to read", () => {
@@ -139,15 +145,15 @@ describe("TrackerSummary", () => {
     );
 
     expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();
-    expect(screen.queryByText("Total documents: 4")).toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        "Documents ready to read: 1 (unable to convert 3 documents)"
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText("Documents indexed: 1 (unable to index 3 documents)")
-    ).toBeInTheDocument();
+    expect(screen.queryByText("Total documents:")).toHaveTextContent(
+      "Total documents: 4"
+    );
+    expect(screen.queryByText("Documents ready to read:")).toHaveTextContent(
+      "Documents ready to read: 1 (unable to convert 3 documents)"
+    );
+    expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
+      "Documents indexed: 1 (unable to index 3 documents)"
+    );
     expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
   });
   it("Should ignore the DAC documents from tracker summary if case is not multipleDefendants", () => {
@@ -185,11 +191,15 @@ describe("TrackerSummary", () => {
     );
 
     expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();
-    expect(screen.queryByText("Total documents: 2")).toBeInTheDocument();
-    expect(
-      screen.queryByText("Documents ready to read: 2")
-    ).toBeInTheDocument();
-    expect(screen.queryByText("Documents indexed: 2")).toBeInTheDocument();
+    expect(screen.queryByText("Total documents:")).toHaveTextContent(
+      "Total documents: 2"
+    );
+    expect(screen.queryByText("Documents ready to read:")).toHaveTextContent(
+      "Documents ready to read: 2"
+    );
+    expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
+      "Documents indexed: 2"
+    );
     expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
   });
   it("Should render the tracker summary correctly if pipelineState is not completed", () => {
@@ -226,11 +236,15 @@ describe("TrackerSummary", () => {
       />
     );
     expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();
-    expect(screen.queryByText("Total documents: 2")).toBeInTheDocument();
-    expect(
-      screen.queryByText("Documents ready to read: 1")
-    ).toBeInTheDocument();
-    expect(screen.queryByText("Documents indexed: 1")).toBeInTheDocument();
+    expect(screen.queryByText("Total documents:")).toHaveTextContent(
+      "Total documents: 2"
+    );
+    expect(screen.queryByText("Documents ready to read:")).toHaveTextContent(
+      "Documents ready to read: 1"
+    );
+    expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
+      "Documents indexed: 1"
+    );
     expect(
       screen.queryByText("Case is not ready to search")
     ).toBeInTheDocument();

@@ -33,6 +33,18 @@ namespace Ddei.Factories
             };
         }
 
+        public DdeiCmsPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId)
+        {
+            return new DdeiCmsPcdArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                PcdId = pcdId
+            };
+        }
+
         public DdeiCmsCaseArgDto CreateCaseArgFromUrnArg(DdeiCmsUrnArgDto arg, int caseId)
         {
             return new DdeiCmsCaseArgDto
@@ -85,6 +97,19 @@ namespace Ddei.Factories
                 CaseId = caseId,
                 DocumentId = documentId,
                 Text = text
+            };
+        }
+
+        public DdeiCmsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string documentName)
+        {
+            return new DdeiCmsRenameDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentId = documentId,
+                DocumentName = documentName
             };
         }
     }
