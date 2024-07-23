@@ -275,7 +275,7 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
-        renameStatus: "Ok",
+        renameStatus: "IsStatement",
       },
       polarisParentDocumentId: null,
       witnessId: null,

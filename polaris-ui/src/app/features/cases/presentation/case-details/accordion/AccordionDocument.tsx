@@ -314,8 +314,8 @@ export const AccordionDocument: React.FC<Props> = ({
               name=""
               dropDownItems={dropDownItems}
               callBackFn={handleDocumentAction}
-              ariaLabel="document actions dropdown"
-              dataTestId={`document-actions-dropdown-${caseDocument.documentId}`}
+              ariaLabel="document housekeeping actions dropdown"
+              dataTestId={`document-housekeeping-actions-dropdown-${caseDocument.documentId}`}
               showLastItemSeparator={true}
               icon={<MoreIcon />}
             />

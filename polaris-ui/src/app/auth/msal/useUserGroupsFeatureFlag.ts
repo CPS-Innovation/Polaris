@@ -58,7 +58,7 @@ const showFeature = (
 };
 
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
-  const { redactionLog, fullScreen, notes, searchPII } =
+  const { redactionLog, fullScreen, notes, searchPII, renameDocument } =
     useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -86,7 +86,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       renameDocument: showFeature(
         FEATURE_FLAG_RENAME_DOCUMENT,
         userDetails?.username,
-        searchPII,
+        renameDocument,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),

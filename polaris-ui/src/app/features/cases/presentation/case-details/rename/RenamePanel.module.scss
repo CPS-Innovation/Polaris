@@ -30,10 +30,11 @@
   background-color: #00703c;
   overflow: hidden;
   .whiteTickIcon {
-    width: 3rem;
+    width: 2.7rem;
     fill: #fff;
     float: left;
-    margin-top: -1.25rem;
+    margin-right: 0.25rem;
+    margin-top: -1.5rem;
   }
 }
 
@@ -138,4 +139,9 @@
 
 .spinnerWrapper {
   margin-top: -1.25rem;
+  :global(.spinner) {
+    border: 0.35rem solid #dee0e2;
+    margin: -0.25rem 0.25rem 0.25rem 0.25rem;
+    border-top-color: #1d70b8;
+  }
 }

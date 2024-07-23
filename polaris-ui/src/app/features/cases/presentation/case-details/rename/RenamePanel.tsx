@@ -33,7 +33,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   handleSaveRename,
   handleResetRenameData,
 }) => {
-  useLastFocus(`#document-actions-dropdown-${documentId}`);
+  useLastFocus(`#document-housekeeping-actions-dropdown-${documentId}`);
   const cancelBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
@@ -116,7 +116,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   }, [savingState]);
 
   return (
-    <div className={classes.renamePanel}>
+    <div className={classes.renamePanel} data-testid="rename-panel">
       <div className={classes.renameHeader}>
         {" "}
         {savingState === "initial" && (
@@ -132,7 +132,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
             data-testid="rl-saving-redactions"
           >
             <div className={classes.spinnerWrapper}>
-              <Spinner diameterPx={5} ariaLabel={"spinner-animation"} />
+              <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
             </div>
             <h3 className={classes.bannerText}>
               Saving renamed document to CMS
@@ -176,7 +176,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
             className={classes.errorSummaryWrapper}
           >
             <ErrorSummary
-              data-testid={"notes-error-summary"}
+              data-testid={"rename-error-summary"}
               className={classes.errorSummary}
               errorList={[
                 {
