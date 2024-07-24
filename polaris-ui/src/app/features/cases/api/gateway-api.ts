@@ -324,7 +324,7 @@ export const addNoteData = async (
     throw new ApiError("Add Notes failed", path, response);
   }
 
-  return (await response.json()) as Note[];
+  return true;
 };
 
 export const saveDocumentRename = async (
@@ -348,7 +348,7 @@ export const saveDocumentRename = async (
     throw new ApiError("Rename document failed", path, response);
   }
 
-  return (await response.json()) as Note[];
+  return true;
 };
 
 export const getSearchPIIData = async (

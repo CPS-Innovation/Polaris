@@ -8,7 +8,6 @@ import { NotesData } from "../../../domain/gateway/NotesData";
 
 type Props = {
   activeDocumentId: string;
-  lastFocusDocumentId: string;
   sectionId: string;
   sectionLabel: string;
   docs: MappedCaseDocument[];
@@ -42,7 +41,6 @@ const formatTestIdText = (id: string) => {
 
 export const AccordionSection: React.FC<Props> = ({
   activeDocumentId,
-  lastFocusDocumentId,
   sectionId,
   sectionLabel,
   docs,
@@ -107,10 +105,8 @@ export const AccordionSection: React.FC<Props> = ({
                     handleOpenPdf={handleOpenPdf}
                     handleOpenPanel={handleOpenPanel}
                     featureFlags={featureFlags}
-                    lastFocusDocumentId={lastFocusDocumentId}
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
-                    showDocumentRenameFeature={true}
                   />
                 ))}
               </ul>

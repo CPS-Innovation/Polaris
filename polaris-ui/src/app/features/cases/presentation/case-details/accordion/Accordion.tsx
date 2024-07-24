@@ -10,7 +10,6 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 
 type Props = {
   initialState: AccordionReducerState | null;
-  lastFocusDocumentId: string;
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
@@ -37,7 +36,6 @@ type Props = {
 
 export const Accordion: React.FC<Props> = ({
   initialState,
-  lastFocusDocumentId,
   activeDocumentId,
   accordionState: sections,
   readUnreadData,
@@ -99,7 +97,6 @@ export const Accordion: React.FC<Props> = ({
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
           handleOpenPanel={handleOpenPanel}
-          lastFocusDocumentId={lastFocusDocumentId}
           handleGetNotes={handleGetNotes}
           notesData={notesData}
         />

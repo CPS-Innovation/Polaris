@@ -53,7 +53,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentCategory: string;
     documentType: string;
     presentationFileName: string;
-    lastFocusDocumentId: string;
   }>({
     open: false,
     type: "",
@@ -61,7 +60,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentCategory: "",
     documentType: "",
     presentationFileName: "",
-    lastFocusDocumentId: "",
   });
 
   const unMounting = useRef(false);
@@ -236,7 +234,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       documentCategory: documentCategory,
       documentType: documentType,
       presentationFileName: presentationFileName,
-      lastFocusDocumentId: documentId,
     });
   };
 
@@ -426,7 +423,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       notes: featureFlags.notes,
                       renameDocument: featureFlags.renameDocument,
                     }}
-                    lastFocusDocumentId={actionsSidePanel.lastFocusDocumentId}
                     accordionStateChangeCallback={accordionStateChangeCallback}
                     handleGetNotes={handleGetNotes}
                     notesData={notes}
@@ -510,12 +506,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentId: getActiveTabDocument.documentId,
                       });
                       setInFullScreen(false);
-                      if (!actionsSidePanel.open) {
-                        setActionsSidePanel({
-                          ...actionsSidePanel,
-                          lastFocusDocumentId: "",
-                        });
-                      }
                     } else {
                       trackEvent("View Full Screen", {
                         documentId: getActiveTabDocument.documentId,

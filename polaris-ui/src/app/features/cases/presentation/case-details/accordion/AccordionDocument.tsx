@@ -29,14 +29,12 @@ import {
 
 type Props = {
   activeDocumentId: string;
-  lastFocusDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
   featureFlags: {
     notes: boolean;
     renameDocument: boolean;
   };
-  showDocumentRenameFeature: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
@@ -52,12 +50,10 @@ type Props = {
 };
 
 export const AccordionDocument: React.FC<Props> = ({
-  lastFocusDocumentId,
   activeDocumentId,
   readUnreadData,
   caseDocument,
   featureFlags,
-  showDocumentRenameFeature,
   notesData,
   handleOpenPdf,
   handleOpenPanel,
@@ -138,7 +134,7 @@ export const AccordionDocument: React.FC<Props> = ({
     let items: DropdownButtonItem[] = [];
     if (!featureFlags.renameDocument) return items;
     if (
-      showDocumentRenameFeature &&
+      featureFlags.renameDocument &&
       caseDocument.presentationFlags.renameStatus === "Ok"
     ) {
       items = [
@@ -154,7 +150,6 @@ export const AccordionDocument: React.FC<Props> = ({
 
     return items;
   }, [
-    showDocumentRenameFeature,
     caseDocument.presentationFlags.renameStatus,
     featureFlags.renameDocument,
   ]);
@@ -188,15 +183,13 @@ export const AccordionDocument: React.FC<Props> = ({
       }`}
     >
       <div className={classes.listItemWrapper}>
+        {activeDocumentId === caseDocument.documentId && (
+          <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
+            Active Document
+          </strong>
+        )}
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
-          <div>
-            {activeDocumentId === caseDocument.documentId && (
-              <strong
-                className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}
-              >
-                Active Document
-              </strong>
-            )}
+          <div className={`${classes.mainContentWrapper}`}>
             {canViewDocument ? (
               <LinkButton
                 onClick={() => {
