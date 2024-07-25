@@ -55,6 +55,13 @@ describe("useNavigationAlert hook", () => {
       hasNotes: false,
       conversionStatus: "DocumentConverted",
       isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
     },
     {
       clientLockedState: "unlocked",
@@ -102,6 +109,13 @@ describe("useNavigationAlert hook", () => {
       hasNotes: false,
       conversionStatus: "DocumentConverted",
       isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
     },
   ];
 

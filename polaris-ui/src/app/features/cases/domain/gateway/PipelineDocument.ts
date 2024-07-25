@@ -78,6 +78,13 @@ export type PresentationDocumentProperties = {
   hasNotes: boolean;
   conversionStatus: ConversionStatus;
   isUnused: boolean;
+  isInbox: boolean;
+  classification: string | null;
+  isWitnessManagement: boolean;
+  canReclassify: boolean;
+  canRename: boolean;
+  renameStatus: string;
+  reference: string | null;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &
