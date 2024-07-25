@@ -1,55 +1,68 @@
-.notesPanel {
+.renamePanel {
   width: 100%;
   background: #fff;
   position: relative;
+  :global(.govuk-form-group) {
+    margin-bottom: 1.5625rem;
+  }
 }
 
-.notesHeader {
+.savedBanner,
+.savingBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 1.1875rem;
+  font-weight: bold;
+  padding-left: 0.9375rem;
+}
+.savingBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #1d70b8;
+}
+.savedBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #00703c;
+  overflow: hidden;
+  .whiteTickIcon {
+    width: 2.7rem;
+    fill: #fff;
+    float: left;
+    margin-right: 0.25rem;
+    margin-top: -1.5rem;
+  }
+}
+
+.renameHeader {
   background: #f3f2f1;
   display: flex;
   margin-bottom: 1.5rem;
   justify-content: space-between;
   border-bottom: 1px solid #b1b4b6;
+  h3 {
+    font-size: 1.1875rem;
+    margin: 0.625rem 3.5rem 0.625rem 0.3125rem;
+  }
 }
-.notesTitle {
+.renameTitle {
   margin: 1rem 1.1rem;
   font-size: 1.1875rem;
+  padding-left: 0.9375rem;
 }
-.notesDocumentName {
+.renameDocumentName {
   color: #505a5f;
 }
-.notesTextArea {
+.renameTextInput {
   position: relative;
   padding-left: 1.25rem;
-  & :global(.govuk-textarea) {
-    min-height: 14.375rem;
-  }
-
-  .addNoteHeading {
-    font-size: 1.1875rem;
-    font-weight: 700;
-    margin-bottom: 0;
-    &::before {
-      background-color: #1d70b8;
-      content: "";
-      padding-top: 0.25em;
-      padding-right: 0.9375rem;
-      left: 0;
-      position: absolute;
-      margin-top: 0.5rem;
-      z-index: 1;
-    }
-  }
-  &::before {
-    background-color: #1d70b8;
-    content: "";
-    height: 100%;
-    left: 0;
-    position: absolute;
-    margin-top: 0.75rem;
-    padding-left: 0.25em;
-    z-index: 1;
-  }
+}
+.renameBody {
+  margin: 0 1rem;
 }
 .btnWrapper {
   display: flex;
@@ -66,9 +79,10 @@
     text-decoration-thickness: max(3px, 0.1875rem, 0.12rem);
     background: transparent;
   }
-}
-.textAreaLabel {
-  display: none;
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
 .visuallyHidden {
@@ -91,7 +105,10 @@
   }
 }
 
-.notesPanelCloseBtn {
+.renamePanelCloseBtn {
+  position: absolute;
+  right: 0;
+  top: 0;
   box-sizing: content-box;
   padding: 0;
   border: 0;
@@ -114,19 +131,17 @@
     color: #000;
     outline: none;
   }
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
-.alertContent {
-  max-width: 32.5rem;
-  padding: 1.25rem 1.875rem 1.875rem;
-}
-
-.actionButtonsWrapper {
-  display: flex;
-  justify-content: flex-start;
-  align-items: baseline;
-  margin-top: 1.875rem;
-  :first-child {
-    margin-right: 1.25rem;
+.spinnerWrapper {
+  margin-top: -1.25rem;
+  :global(.spinner) {
+    border: 0.35rem solid #dee0e2;
+    margin: -0.25rem 0.25rem 0.25rem 0.25rem;
+    border-top-color: #1d70b8;
   }
 }

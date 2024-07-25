@@ -10,18 +10,22 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 
 type Props = {
   initialState: AccordionReducerState | null;
-  lastFocusDocumentId: string;
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
-  showNotesFeature: boolean;
+  featureFlags: {
+    notes: boolean;
+    renameDocument: boolean;
+  };
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
-  handleOpenNotes: (
+  handleOpenPanel: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string
+    presentationFileName: string,
+    type: "notes" | "rename",
+    documentType: string
   ) => void;
   accordionStateChangeCallback: (
     accordionCurrentState: AccordionReducerState
@@ -32,14 +36,13 @@ type Props = {
 
 export const Accordion: React.FC<Props> = ({
   initialState,
-  lastFocusDocumentId,
   activeDocumentId,
   accordionState: sections,
   readUnreadData,
-  showNotesFeature,
+  featureFlags,
   notesData,
   handleOpenPdf,
-  handleOpenNotes,
+  handleOpenPanel,
   accordionStateChangeCallback,
   handleGetNotes,
 }) => {
@@ -90,11 +93,10 @@ export const Accordion: React.FC<Props> = ({
           isOpen={state.sections[sectionId]}
           readUnreadData={readUnreadData}
           activeDocumentId={activeDocumentId}
-          showNotesFeature={showNotesFeature}
+          featureFlags={featureFlags}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
-          handleOpenNotes={handleOpenNotes}
-          lastFocusDocumentId={lastFocusDocumentId}
+          handleOpenPanel={handleOpenPanel}
           handleGetNotes={handleGetNotes}
           notesData={notesData}
         />

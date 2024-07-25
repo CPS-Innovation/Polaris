@@ -143,6 +143,8 @@ describe("useCaseDetailsState", () => {
         handleShowHideRedactionSuggestions,
         handleGetSearchPIIData,
         handleSearchPIIAction,
+        handleResetRenameData,
+        handleSaveRename,
         ...stateProperties
       } = result.current;
 

@@ -21,3 +21,6 @@ export const NOTES_ROUTE =
 
 export const SEARCH_PII_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/pii";
+
+export const RENAME_DOCUMENT_ROUTE =
+  "api/urns/:urn/cases/:caseId/documents/:documentId/rename";

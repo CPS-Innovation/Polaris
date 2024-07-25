@@ -8,7 +8,7 @@ export const useSwitchContentArea = () => {
   const lastActiveContentIndex = useRef(0);
   const getContentAreas = () => {
     const contentAreas = [
-      document.querySelector("#notes-panel"),
+      document.querySelector("#actions-panel"),
       document.querySelector("#side-panel"),
       document.querySelector("#document-tabs"),
       document.querySelector("#active-tab-panel"),

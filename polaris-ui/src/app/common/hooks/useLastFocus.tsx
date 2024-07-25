@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-export const useLastFocus = (defaultFocus?: HTMLElement) => {
+export const useLastFocus = (defaultFocusId?: string) => {
   const lastFocusElementRef = useRef<Element>(document.activeElement);
   useEffect(() => {
     const ref = lastFocusElementRef.current;
@@ -16,12 +16,14 @@ export const useLastFocus = (defaultFocus?: HTMLElement) => {
           (ref as HTMLElement).focus();
         }, 0);
       } else {
-        if (defaultFocus) {
+        if (defaultFocusId) {
           setTimeout(() => {
-            defaultFocus.focus();
+            (
+              document.querySelector(`${defaultFocusId}`) as HTMLElement
+            ).focus();
           }, 0);
         }
       }
     };
-  }, [defaultFocus]);
+  }, [defaultFocusId]);
 };

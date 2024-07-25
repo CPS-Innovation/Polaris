@@ -22,6 +22,11 @@ export type PresentationFlags = {
     | "OriginalFileTypeNotAllowed"
     | "IsDispatched"
     | "IsRedactionServiceOffline";
+  renameStatus:
+    | "Ok"
+    | "IsWitnessManagementCommunication"
+    | "IsDispatchedCommunication"
+    | "IsStatement";
 };
 
 export type ConversionStatus =

@@ -208,6 +208,23 @@ export const reducer = (
             };
       }
     | {
+        type: "UPDATE_RENAME_DATA";
+        payload: {
+          properties:
+            | {
+                documentId: string;
+                saveRenameStatus?: "failure" | "success";
+                saveRenameRefreshStatus?: "updating" | "updated";
+              }
+            | {
+                documentId: string;
+                newName: string;
+                saveRenameStatus: "saving" | "initial";
+                saveRenameRefreshStatus: "initial";
+              };
+        };
+      }
+    | {
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
         payload: {
           documentId: string;
@@ -1066,6 +1083,39 @@ export const reducer = (
             ],
           };
       }
+    }
+
+    case "UPDATE_RENAME_DATA": {
+      const { properties } = action.payload;
+      const filteredData = state.renameDocuments.filter(
+        (data) => data.documentId !== properties.documentId
+      );
+      let currentData = state.renameDocuments.find(
+        (data) => data.documentId === properties.documentId
+      )!;
+
+      if (properties.saveRenameStatus === "saving") {
+        return {
+          ...state,
+          renameDocuments: [
+            ...filteredData,
+            {
+              ...properties,
+            },
+          ],
+        };
+      }
+
+      return {
+        ...state,
+        renameDocuments: [
+          ...filteredData,
+          {
+            ...currentData,
+            ...properties,
+          },
+        ],
+      };
     }
 
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {

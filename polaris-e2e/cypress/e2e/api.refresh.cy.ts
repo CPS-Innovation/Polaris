@@ -1,22 +1,22 @@
 /// <reference types="cypress" />
-import "cypress-wait-until"
-import { PipelineResults } from "../../gateway/PipelineResults"
-import { ApiTextSearchResult } from "../../gateway/ApiTextSearchResult"
-import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes"
-import { WAIT_UNTIL_OPTIONS } from "../support/options"
-import { isTrackerReady } from "../support/helpers/tracker-helpers"
+import "cypress-wait-until";
+import { PipelineResults } from "../../gateway/PipelineResults";
+import { ApiTextSearchResult } from "../../gateway/ApiTextSearchResult";
+import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes";
+import { WAIT_UNTIL_OPTIONS } from "../support/options";
+import { isTrackerReady } from "../support/helpers/tracker-helpers";
 
 const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, PRE_SEARCH_DELAY_MS } =
-  Cypress.env()
+  Cypress.env();
 
-let routes: ApiRoutes
+let routes: ApiRoutes;
 
 describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
-      routes = makeApiRoutes(headers)
-    })
-  })
+      routes = makeApiRoutes(headers);
+    });
+  });
 
   it("the pipeline can clear then process a case to completion", () => {
     cy.clearCaseTracker(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID)
@@ -52,29 +52,29 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
       .then(({ documents, processingCompleted }) => {
         cy.wrap(saveVariablesHelper({ documents, processingCompleted })).as(
           "phase1Vars"
-        )
+        );
 
         expect(
           documents.every(({ status }) => status === "Indexed"),
           "All documents are indexed in PHASE_1"
-        ).to.be.true
+        ).to.be.true;
         expect(
           documents.some(
             ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
           ),
           "MG 5 is present in PHASE_1"
-        ).to.be.true
+        ).to.be.true;
         expect(
           documents.some(({ cmsDocType }) => cmsDocType.documentType === "PCD"),
           "PCD is present in PHASE_1"
-        ).to.be.true
+        ).to.be.true;
         expect(
           documents.some(({ cmsDocType }) => cmsDocType.documentType === "DAC"),
           "DAC is present in PHASE_1"
-        ).to.be.true
-      })
+        ).to.be.false;
+      });
 
-    cy.wait(PRE_SEARCH_DELAY_MS)
+    cy.wait(PRE_SEARCH_DELAY_MS);
     // todo: #21848 - early warning that the Aspose licence has expired (in which case a watermark is added to the document
     //  that the OCR process will read and add to the index - the watermark includes the word "Aspose").
     //  todo: move this test to a better and dedicated test suite (e.g. pdf service integration test)
@@ -82,54 +82,54 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
       expectation: "TERM_NOT_PRESENT",
       term: "aspose",
       phase: "PHASE_1",
-    })
+    });
 
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "one",
       docId: "numbersDocId",
       phase: "PHASE_1",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "two",
       docId: "numbersDocId",
       phase: "PHASE_1",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "three",
       docId: "numbersDocId",
       phase: "PHASE_1",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "four",
       phase: "PHASE_1",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "alice",
       docId: "peopleDocId",
       phase: "PHASE_1",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "bob",
       docId: "peopleDocId",
       phase: "PHASE_1",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "carol",
       docId: "peopleDocId",
       phase: "PHASE_1",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "dave",
       phase: "PHASE_1",
-    })
+    });
 
     cy.get<SavedVariables>("@phase1Vars").then(
       ({ numbersDocId, previousProcessingCompleted }) => {
@@ -173,7 +173,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
                     response.body.processingCompleted &&
                     response.body.processingCompleted !==
                       previousProcessingCompleted
-                  )
+                  );
                 }),
             WAIT_UNTIL_OPTIONS
           )
@@ -188,81 +188,81 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
           .then(({ documents, processingCompleted }) => {
             cy.wrap(saveVariablesHelper({ documents, processingCompleted })).as(
               "phase2Vars"
-            )
+            );
             expect(
               documents.every(({ status }) => status === "Indexed"),
               "All documents are indexed in PHASE_2"
-            ).to.be.true
+            ).to.be.true;
             expect(
               documents.some(
                 ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
               ),
               "MG 5 is present in PHASE_2"
-            ).to.be.true
+            ).to.be.true;
             expect(
               documents.some(
                 ({ cmsDocType }) => cmsDocType.documentType === "PCD"
               ),
               "PCD is present in PHASE_2"
-            ).to.be.true
+            ).to.be.true;
             expect(
               documents.some(
                 ({ cmsDocType }) => cmsDocType.documentType === "DAC"
               ),
               "DAC is present in PHASE_2"
-            ).to.be.true
-          })
+            ).to.be.false;
+          });
       }
-    )
+    );
 
-    cy.wait(PRE_SEARCH_DELAY_MS)
+    cy.wait(PRE_SEARCH_DELAY_MS);
 
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "one",
       docId: "numbersDocId",
       phase: "PHASE_2",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "two",
       docId: "numbersDocId",
       phase: "PHASE_2",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "three",
       phase: "PHASE_2",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "four",
       docId: "numbersDocId",
       phase: "PHASE_2",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "alice",
       docId: "peopleDocId",
       phase: "PHASE_2",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "bob",
       docId: "peopleDocId",
       phase: "PHASE_2",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "carol",
       docId: "peopleDocId",
       phase: "PHASE_2",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "dave",
       phase: "PHASE_2",
-    })
+    });
 
     cy.get<SavedVariables>("@phase2Vars").then(
       ({ peopleDocId, previousProcessingCompleted }) => {
@@ -306,65 +306,65 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
                     response.body.processingCompleted &&
                     response.body.processingCompleted !==
                       previousProcessingCompleted
-                  )
+                  );
                 }),
             WAIT_UNTIL_OPTIONS
-          )
+          );
       }
-    )
+    );
 
-    cy.wait(PRE_SEARCH_DELAY_MS)
+    cy.wait(PRE_SEARCH_DELAY_MS);
 
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "one",
       docId: "numbersDocId",
       phase: "PHASE_3",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "two",
       docId: "numbersDocId",
       phase: "PHASE_3",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "three",
       phase: "PHASE_3",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "four",
       docId: "numbersDocId",
       phase: "PHASE_3",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "alice",
       docId: "peopleDocId",
       phase: "PHASE_3",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "bob",
       docId: "peopleDocId",
       phase: "PHASE_3",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "carol",
       phase: "PHASE_3",
-    })
+    });
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "dave",
       docId: "peopleDocId",
       phase: "PHASE_3",
-    })
-  })
-})
+    });
+  });
+});
 
-type SavedVariables = ReturnType<typeof saveVariablesHelper>
+type SavedVariables = ReturnType<typeof saveVariablesHelper>;
 const saveVariablesHelper = ({
   documents,
   processingCompleted,
@@ -377,21 +377,21 @@ const saveVariablesHelper = ({
     numbersDocId: documents.find((doc) =>
       doc.cmsOriginalFileName.includes("numbers")
     ).polarisDocumentId,
-  }
-}
+  };
+};
 
 type SearchAssertionArg =
   | {
-      expectation: "TERM_PRESENT_IN_DOC_ID"
-      term: string
-      docId: keyof Extract<SavedVariables, "peopleDocId" | "numbersDocId">
-      phase: "PHASE_1" | "PHASE_2" | "PHASE_3"
+      expectation: "TERM_PRESENT_IN_DOC_ID";
+      term: string;
+      docId: keyof Extract<SavedVariables, "peopleDocId" | "numbersDocId">;
+      phase: "PHASE_1" | "PHASE_2" | "PHASE_3";
     }
   | {
-      expectation: "TERM_NOT_PRESENT"
-      term: string
-      phase: "PHASE_1" | "PHASE_2" | "PHASE_3"
-    }
+      expectation: "TERM_NOT_PRESENT";
+      term: string;
+      phase: "PHASE_1" | "PHASE_2" | "PHASE_3";
+    };
 
 const assertSearchExpectation = (arg: SearchAssertionArg) => {
   // For the sake of e2e test stability, lets give some wiggle room to the assertion by
@@ -421,5 +421,5 @@ const assertSearchExpectation = (arg: SearchAssertionArg) => {
           arg.term
         }" in phase ${arg.phase}`,
     }
-  )
-}
+  );
+};

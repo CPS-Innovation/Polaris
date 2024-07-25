@@ -6,4 +6,5 @@ export type ErrorModalTypes =
   | "addnote"
   | "getnotes"
   | "getsearchpii"
+  | "saverenamedocument"
   | "";

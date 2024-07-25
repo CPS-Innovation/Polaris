@@ -182,6 +182,10 @@ export const setupHandlers = ({
       return res(delay(ctx), ctx.json({}));
     }),
 
+    rest.post(makeApiPath(routes.RENAME_DOCUMENT_ROUTE), (req, res, ctx) => {
+      return res(delay(ctx), ctx.json({}));
+    }),
+
     rest.post(
       makeRedactionLogApiPath(routes.SAVE_REDACTION_LOG_ROUTE),
       (req, res, ctx) => {

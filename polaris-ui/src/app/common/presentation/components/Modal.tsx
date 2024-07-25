@@ -11,7 +11,7 @@ type Props = {
   ariaDescription: string;
   handleClose?: () => void;
   className?: string;
-  defaultLastFocus?: HTMLElement;
+  defaultLastFocusId?: string;
 };
 
 export const Modal: React.FC<Props> = ({
@@ -22,7 +22,7 @@ export const Modal: React.FC<Props> = ({
   type = "data",
   handleClose,
   className,
-  defaultLastFocus,
+  defaultLastFocusId,
 }) => {
   // govuk styling seems to lead to the html element being the thing
   //  that scrolls rather than body.  We want to prevent the main content
@@ -36,7 +36,7 @@ export const Modal: React.FC<Props> = ({
     //  if we are hiding the modal. But see following comment....
     htmlElement.classList.remove(classes.stopHtmlScroll);
   }
-  useLastFocus(defaultLastFocus);
+  useLastFocus(defaultLastFocusId);
   useFocusTrap();
   useEffect(() => {
     // ... we also need to make sure the window scroll is reenabled if

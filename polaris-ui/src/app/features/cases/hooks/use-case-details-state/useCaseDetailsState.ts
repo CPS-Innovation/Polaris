@@ -24,6 +24,7 @@ import {
   readFromLocalStorage,
   ReadUnreadData,
 } from "../../presentation/case-details/utils/localStorageUtils";
+import { handleRenameUpdateConfirmation } from "../utils/refreshCycleDataUpdate";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -76,10 +77,12 @@ export const initialState = {
     fullScreen: false,
     notes: false,
     searchPII: false,
+    renameDocument: false,
   },
   storedUserData: { status: "loading" },
   notes: [],
   searchPII: [],
+  renameDocuments: [],
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (
@@ -165,6 +168,32 @@ export const useCaseDetailsState = (
       payload: pipelineState.pipelineResults,
     });
   }, [pipelineState.pipelineResults, dispatch]);
+
+  useEffect(() => {
+    if (!pipelineState.pipelineResults?.haveData) {
+      return;
+    }
+    const activeRenameDoc = combinedState.renameDocuments.find(
+      (doc) => doc.saveRenameRefreshStatus === "updating"
+    );
+    if (!activeRenameDoc) return;
+    const isUpdated = handleRenameUpdateConfirmation(
+      pipelineState.pipelineResults.data,
+      activeRenameDoc
+    );
+
+    if (isUpdated) {
+      dispatch({
+        type: "UPDATE_RENAME_DATA",
+        payload: {
+          properties: {
+            documentId: activeRenameDoc.documentId,
+            saveRenameRefreshStatus: "updated",
+          },
+        },
+      });
+    }
+  }, [pipelineState.pipelineResults, combinedState.renameDocuments, dispatch]);
 
   useEffect(() => {
     const { startRefresh } = combinedState.pipelineRefreshData;
@@ -467,6 +496,18 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleSaveRename = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"], newName: string) =>
+      dispatch({
+        type: "SAVE_RENAME_DOCUMENT",
+        payload: {
+          documentId,
+          newName,
+        },
+      }),
+    [dispatch]
+  );
+
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
@@ -521,6 +562,23 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleResetRenameData = useCallback(
+    (documentId: string) => {
+      dispatch({
+        type: "UPDATE_RENAME_DATA",
+        payload: {
+          properties: {
+            documentId: documentId,
+            newName: "",
+            saveRenameRefreshStatus: "initial",
+            saveRenameStatus: "initial",
+          },
+        },
+      });
+    },
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -545,8 +603,10 @@ export const useCaseDetailsState = (
     handleSaveReadUnreadData,
     handleGetNotes,
     handleAddNote,
+    handleSaveRename,
     handleShowHideRedactionSuggestions,
     handleGetSearchPIIData,
     handleSearchPIIAction,
+    handleResetRenameData,
   };
 };

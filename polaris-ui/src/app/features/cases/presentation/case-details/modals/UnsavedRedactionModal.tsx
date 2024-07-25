@@ -75,9 +75,7 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
           className={classes.unsavedRedactionModal}
           ariaLabel="add unsaved redactions modal"
           ariaDescription={`${description.para1}${description.para2}`}
-          defaultLastFocus={
-            document.querySelector("#active-tab-panel") as HTMLElement
-          }
+          defaultLastFocusId="#active-tab-panel"
         >
           <div className={classes.modalHeader}>
             <h2>
