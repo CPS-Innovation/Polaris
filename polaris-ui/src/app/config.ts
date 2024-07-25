@@ -56,6 +56,9 @@ export const FEATURE_FLAG_NOTES =
 export const FEATURE_FLAG_SEARCH_PII =
   `${process.env.REACT_APP_FEATURE_FLAG_SEARCH_PII}` === "true";
 
+export const FEATURE_FLAG_RENAME_DOCUMENT =
+  `${process.env.REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT}` === "true";
+
 export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
   .REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS
   ? parseInt(process.env.REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS)
@@ -63,6 +66,9 @@ export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
 
 export const PRIVATE_BETA_FEATURE_USER_GROUP =
   process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP ?? "";
+
+export const PRIVATE_BETA_FEATURE_USER_GROUP2 =
+  process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2 ?? "";
 
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise

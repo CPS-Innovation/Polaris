@@ -68,9 +68,7 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
         className={classes.redactionWarningModal}
         ariaLabel="Confirm redaction suggestions Modal"
         ariaDescription={`You have chosen to 'accept all' for ${acceptedAllSearchPIIRedactionsCount} redaction suggestions. If you choose to continue, redactions will be applied which you may not have reviewed individually`}
-        defaultLastFocus={
-          document.querySelector("#active-tab-panel") as HTMLElement
-        }
+        defaultLastFocusId="#active-tab-panel"
       >
         <div className={classes.modalHeader}>
           <h2>{`Confirm redaction suggestions`}</h2>

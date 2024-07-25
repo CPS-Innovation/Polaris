@@ -43,6 +43,11 @@ export const ErrorModalContent: React.FC<ErrorModalContentProps> = ({
           documentId: contextData?.documentId,
         });
         break;
+      case "saverenamedocument":
+        trackEvent("Save Rename Document Error", {
+          documentId: contextData?.documentId,
+        });
+        break;
     }
   }, []);
   const messageParagraphs = message

@@ -32,10 +32,7 @@ describe("useLastFocus hook", () => {
       handleClose,
       setShowModalOpenButton,
     }) => {
-      const defaultFocus = document.querySelector(
-        "#default-focus-button"
-      ) as HTMLElement;
-      useLastFocus(defaultFocus);
+      useLastFocus("#default-focus-button");
 
       return (
         <div>

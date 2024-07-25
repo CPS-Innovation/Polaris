@@ -19,6 +19,7 @@ import { StoredUserData } from "./gateway/StoredUserData";
 import { ErrorModalTypes } from "./ErrorModalTypes";
 import { NotesData } from "../domain/gateway/NotesData";
 import { SearchPIIData } from "./gateway/SearchPIIData";
+import { RenameDocumentData } from "./gateway/RenameDocumentData";
 
 export type CombinedState = {
   urn: string;
@@ -79,4 +80,5 @@ export type CombinedState = {
   storedUserData: AsyncResult<StoredUserData>;
   notes: NotesData[];
   searchPII: SearchPIIData[];
+  renameDocuments: RenameDocumentData[];
 };
