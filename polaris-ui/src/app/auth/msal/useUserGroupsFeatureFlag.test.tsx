@@ -23,7 +23,9 @@ const mockConfig = configModule as {
   PRIVATE_BETA_CHECK_IGNORE_USER: string;
   FEATURE_FLAG_NOTES: boolean;
   FEATURE_FLAG_SEARCH_PII: boolean;
+  FEATURE_FLAG_RENAME_DOCUMENT: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
+  PRIVATE_BETA_FEATURE_USER_GROUP2: string;
 };
 
 describe("useUserGroupsFeatureFlag", () => {
@@ -140,7 +142,8 @@ describe("useUserGroupsFeatureFlag", () => {
       window.Cypress = {};
       mockConfig.FEATURE_FLAG_NOTES = true;
       mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
-
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP2 =
+        "private_beta_feature_group2";
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
       expect(result?.current?.notes).toStrictEqual(true);
     });

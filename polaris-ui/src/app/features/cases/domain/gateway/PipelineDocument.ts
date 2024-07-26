@@ -79,11 +79,22 @@ export type PresentationDocumentProperties = {
   conversionStatus: ConversionStatus;
   isUnused: boolean;
   isInbox: boolean;
-  classification: string | null;
+  classification:
+    | string
+    | null
+    | "Statement"
+    | "Exhibit"
+    | "Other"
+    | "DefenceStatement";
   isWitnessManagement: boolean;
   canReclassify: boolean;
   canRename: boolean;
-  renameStatus: string;
+  renameStatus:
+    | "CanRename"
+    | "IsWitnessManagement"
+    | "IsDispatched"
+    | "IsStatement"
+    | "IsDefenceStatement";
   reference: string | null;
 };
 
