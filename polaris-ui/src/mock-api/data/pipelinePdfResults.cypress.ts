@@ -42,7 +42,7 @@ const pipelinePdfResult: PipelineResults = {
       classification: null,
       isWitnessManagement: false,
       canReclassify: false,
-      canRename: false,
+      canRename: true,
       renameStatus: "CanRename",
       reference: null,
     },
