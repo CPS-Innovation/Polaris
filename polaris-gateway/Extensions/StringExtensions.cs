@@ -11,16 +11,21 @@ namespace PolarisGateway.Extensions
         return 0;
       }
 
-      var pattern = new Regex(@$"UID=(\d+)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
-      var match = pattern.Match(cookieString);
-      if (!long.TryParse(match.Groups[1].Value, out var cmsUserId))
+      var viaUidPattern = new Regex(@"UID=(?<uid>-?\d+)");
+      if (int.TryParse(viaUidPattern.Match(cookieString).Groups["uid"].Value, out var userId))
       {
-        // This method is used for telemetry purposes, and we may not always posses a cmsUserId
-        //  in the cookie. Returning default value of 0 is enough to let us know the user id was
-        //  not found.
-        return 0;
+        return userId;
       };
-      return cmsUserId;
+
+      var viaFallbackPattern = new Regex(@"CMSUSER(\d+)");
+      if (int.TryParse(viaFallbackPattern.Match(cookieString).Groups[1].Value, out var userIdViaFallback))
+      {
+        return userIdViaFallback;
+      }
+      // This method is used for telemetry purposes, and we may not always posses a cmsUserId
+      //  in the cookie. Returning default value of 0 is enough to let us know the user id was
+      //  not found.
+      return 0;
     }
 
     public static string ExtractLoadBalancerCookies(this string cookieString)
