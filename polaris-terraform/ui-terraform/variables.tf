@@ -182,7 +182,7 @@ variable "app_gateway_custom_error_pages" {
     HttpStatus502 = string
     HttpStatus403 = string
   })
-  
+
   default = {
     HttpStatus502 = ""
     HttpStatus403 = ""
@@ -190,6 +190,6 @@ variable "app_gateway_custom_error_pages" {
 }
 
 variable "app_gateway_back_end_host_name" {
-  type = string
+  type    = string
   default = ""
 }
