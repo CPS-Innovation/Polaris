@@ -32,7 +32,14 @@ namespace coordinator.Durable.Payloads.Domain
             PresentationFlagsDto presentationFlags,
             bool hasFailedAttachments,
             bool hasNotes,
-            bool isUnused)
+            bool isUnused,
+            bool isInbox,
+            string classification,
+            bool isWitnessManagement,
+            bool canReclassify,
+            bool canRename,
+            string renameStatus,
+            string reference)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
@@ -50,6 +57,13 @@ namespace coordinator.Durable.Payloads.Domain
             HasFailedAttachments = hasFailedAttachments;
             HasNotes = hasNotes;
             IsUnused = isUnused;
+            IsInbox = isInbox;
+            Classification = classification;
+            IsWitnessManagement = isWitnessManagement;
+            CanReclassify = canReclassify;
+            CanRename = canRename;
+            RenameStatus = renameStatus;
+            Reference = reference;
         }
 
         [JsonProperty("path")]
@@ -111,5 +125,26 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("isUnused")]
         public bool IsUnused { get; set; }
+
+        [JsonProperty("isInbox")]
+        public bool IsInbox { get; set; }
+
+        [JsonProperty("classification")]
+        public string Classification { get; set; }
+
+        [JsonProperty("isWitnessManagement")]
+        public bool IsWitnessManagement { get; set; }
+
+        [JsonProperty("canReclassify")]
+        public bool CanReclassify { get; set; }
+
+        [JsonProperty("canRename")]
+        public bool CanRename { get; set; }
+
+        [JsonProperty("renameStatus")]
+        public string RenameStatus { get; set; }
+
+        [JsonProperty("reference")]
+        public string Reference { get; set; }
     }
 }

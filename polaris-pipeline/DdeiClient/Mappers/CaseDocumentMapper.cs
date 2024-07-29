@@ -26,7 +26,14 @@ public class CaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
             WitnessId = ddeiResponse.WitnessId,
             HasFailedAttachments = ddeiResponse.HasFailedAttachments,
             HasNotes = ddeiResponse.HasNotes,
-            IsUnused = ddeiResponse.IsUnused
+            IsUnused = ddeiResponse.IsUnused,
+            IsInbox = ddeiResponse.IsInbox,
+            Classification = ddeiResponse.Classification,
+            IsWitnessManagement = ddeiResponse.IsWitnessManagement,
+            CanReclassify = ddeiResponse.CanReclassify,
+            CanRename = ddeiResponse.CanRename,
+            RenameStatus = ddeiResponse.RenameStatus,
+            Reference = ddeiResponse.Reference
         };
     }
 }
