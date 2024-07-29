@@ -8,7 +8,7 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
   service_plan_id               = azurerm_service_plan.asp_polaris_maintenance[0].id
   storage_account_name          = azurerm_storage_account.sa_gateway.name
   storage_account_access_key    = azurerm_storage_account.sa_gateway.primary_access_key
-  virtual_network_subnet_id     = data.azurerm_subnet.polaris_maintenance_subnet.id
+  virtual_network_subnet_id     = data.azurerm_subnet.polaris_maintenance_subnet[0].id
   functions_extension_version   = "~4"
   public_network_access_enabled = false
   https_only                    = true

@@ -93,34 +93,6 @@ variable "cms_details" {
     classic_default                    = string
     modern_default                     = string
   })
-  
-  default = {
-    upstream_cms_ip_corsham            = ""
-    upstream_cms_modern_ip_corsham     = ""
-    upstream_cms_ip_farnborough        = ""
-    upstream_cms_modern_ip_farnborough = ""
-    upstream_cms_domain_name           = ""
-    upstream_cms_modern_domain_name    = ""
-    upstream_cms_services_domain_name  = ""
-    classic_cors_cin2                  = ""
-    classic_farn_cin2                  = ""
-    modern_cors_cin2                   = ""
-    modern_farn_cin2                   = ""
-    classic_cors_cin3                  = ""
-    classic_farn_cin3                  = ""
-    modern_cors_cin3                   = ""
-    modern_farn_cin3                   = ""
-    classic_cors_cin4                  = ""
-    classic_farn_cin4                  = ""
-    modern_cors_cin4                   = ""
-    modern_farn_cin4                   = ""
-    classic_cors_cin5                  = ""
-    classic_farn_cin5                  = ""
-    modern_cors_cin5                   = ""
-    modern_farn_cin5                   = ""
-    classic_default                    = ""
-    modern_default                     = ""
-  }
 }
 
 variable "wm_task_list_host_name" {
