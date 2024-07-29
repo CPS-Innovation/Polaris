@@ -35,6 +35,16 @@ cms_details = {
   upstream_cms_domain_name           = "cin3.cps.gov.uk"
   upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
   upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  classic_cors_cin2                  = "10.2.177.3;cin2.cps.gov.uk"
+  classic_farn_cin2                  = "10.2.177.3;cin2.cps.gov.uk"
+  modern_cors_cin2                   = "10.2.177.67;cmsmodcin2.cps.gov.uk"
+  modern_farn_cin2                   = "10.2.177.67;cmsmodcin2.cps.gov.uk"
+  classic_cors_cin5                  = "10.2.177.21;cin5.cps.gov.uk"
+  classic_farn_cin5                  = "10.2.177.21;cin5.cps.gov.uk"
+  modern_cors_cin5                   = "10.2.177.67;cmsmodcin5.cps.gov.uk"
+  modern_farn_cin5                   = "10.2.177.67;cmsmodcin5.cps.gov.uk"
+  classic_default                    = "10.2.177.14;cin3.cps.gov.uk"
+  modern_default                     = "10.2.177.67;cmsmodcin3.cps.gov.uk"
 }
 
 wm_task_list_host_name = "https://cps-tst.outsystemsenterprise.com"

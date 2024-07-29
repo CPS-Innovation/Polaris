@@ -35,6 +35,8 @@ cms_details = {
   upstream_cms_domain_name           = "cin3.cps.gov.uk"
   upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
   upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  classic_default                    = "10.2.177.14;cin3.cps.gov.uk"
+  modern_default                     = "10.2.177.67;cmsmodcin3.cps.gov.uk"
 }
 
 wm_task_list_host_name = "https://cps-dev.outsystemsenterprise.com"

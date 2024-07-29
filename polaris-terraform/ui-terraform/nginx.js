@@ -41,7 +41,7 @@ function fetchDestinationIpAddress(r) {
   let destinationIpAddress;
 
   // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
-  if (!!foundEnvSettings){
+  if (typeof(foundEnvSettings) == "object" && foundEnvSettings !== ""){
     // we have a value for this key
     destinationIpAddress = foundEnvSettings.split(";")[0];
   } else {
@@ -60,7 +60,7 @@ function fetchDestinationHostName(r) {
   let destinationHostName;
 
   // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
-  if (!!foundEnvSettings){
+  if (typeof(foundEnvSettings) == "object" && foundEnvSettings !== ""){
     // we have a value for this key
     destinationHostName = foundEnvSettings.split(";")[1];
   } else {

@@ -74,6 +74,24 @@ variable "cms_details" {
     upstream_cms_domain_name           = string
     upstream_cms_modern_domain_name    = string
     upstream_cms_services_domain_name  = string
+    classic_cors_cin2                  = string
+    classic_farn_cin2                  = string
+    modern_cors_cin2                   = string
+    modern_farn_cin2                   = string
+    classic_cors_cin3                  = string
+    classic_farn_cin3                  = string
+    modern_cors_cin3                   = string
+    modern_farn_cin3                   = string
+    classic_cors_cin4                  = string
+    classic_farn_cin4                  = string
+    modern_cors_cin4                   = string
+    modern_farn_cin4                   = string
+    classic_cors_cin5                  = string
+    classic_farn_cin5                  = string
+    modern_cors_cin5                   = string
+    modern_farn_cin5                   = string
+    classic_default                    = string
+    modern_default                     = string
   })
 }
 

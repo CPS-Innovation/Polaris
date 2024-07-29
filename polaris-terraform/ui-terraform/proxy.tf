@@ -58,6 +58,24 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/"
+    "CLASSIC_CORS_CIN2"                               = var.cms_details.classic_cors_cin2
+    "CLASSIC_FARN_CIN2"                               = var.cms_details.classic_farn_cin2
+    "MODERN_CORS_CIN2"                                = var.cms_details.modern_cors_cin2
+    "MODERN_FARN_CIN2"                                = var.cms_details.modern_farn_cin2
+    "CLASSIC_CORS_CIN3"                               = var.cms_details.classic_cors_cin3
+    "CLASSIC_FARN_CIN3"                               = var.cms_details.classic_farn_cin3
+    "MODERN_CORS_CIN3"                                = var.cms_details.modern_cors_cin3
+    "MODERN_FARN_CIN3"                                = var.cms_details.modern_farn_cin3
+    "CLASSIC_CORS_CIN4"                               = var.cms_details.classic_cors_cin4
+    "CLASSIC_FARN_CIN4"                               = var.cms_details.classic_farn_cin4
+    "MODERN_CORS_CIN4"                                = var.cms_details.modern_cors_cin4
+    "MODERN_FARN_CIN4"                                = var.cms_details.modern_farn_cin4
+    "CLASSIC_CORS_CIN5"                               = var.cms_details.classic_cors_cin5
+    "CLASSIC_FARN_CIN5"                               = var.cms_details.classic_farn_cin5
+    "MODERN_CORS_CIN5"                                = var.cms_details.modern_cors_cin5
+    "MODERN_FARN_CIN5"                                = var.cms_details.modern_farn_cin5
+    "CLASSIC_DEFAULT"                                 = var.cms_details.classic_default
+    "MODERN_DEFAULT"                                  = var.cms_details.modern_default
   }
 
   sticky_settings {
@@ -171,7 +189,25 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
-      app_settings["WEBSITE_WARMUP_PATH"]
+      app_settings["WEBSITE_WARMUP_PATH"],
+      app_settings["CLASSIC_CORS_CIN2"],
+      app_settings["CLASSIC_FARN_CIN2"],
+      app_settings["MODERN_CORS_CIN2"],
+      app_settings["MODERN_FARN_CIN2"],
+      app_settings["CLASSIC_CORS_CIN3"],
+      app_settings["CLASSIC_FARN_CIN3"],
+      app_settings["MODERN_CORS_CIN3"],
+      app_settings["MODERN_FARN_CIN3"],
+      app_settings["CLASSIC_CORS_CIN4"],
+      app_settings["CLASSIC_FARN_CIN4"],
+      app_settings["MODERN_CORS_CIN4"],
+      app_settings["MODERN_FARN_CIN4"],
+      app_settings["CLASSIC_CORS_CIN5"],
+      app_settings["CLASSIC_FARN_CIN5"],
+      app_settings["MODERN_CORS_CIN5"],
+      app_settings["MODERN_FARN_CIN5"],
+      app_settings["CLASSIC_DEFAULT"],
+      app_settings["MODERN_DEFAULT"]
     ]
   }
 }
