@@ -40,6 +40,11 @@ namespace Common.Telemetry
             RegisterCustomDimension(TelemetryConstants.LoadBalancingCookie, loadBalancingCookie);
         }
 
+        public void RegisterIsMockUser(bool isMockUser)
+        {
+            RegisterCustomDimension(TelemetryConstants.IsMockUser, isMockUser.ToString());
+        }
+
         private void RegisterCustomDimension(string key, string value)
         {
             Activity activity = Activity.Current;
