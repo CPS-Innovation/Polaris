@@ -93,6 +93,34 @@ variable "cms_details" {
     classic_default                    = string
     modern_default                     = string
   })
+  
+  default = {
+    upstream_cms_ip_corsham            = ""
+    upstream_cms_modern_ip_corsham     = ""
+    upstream_cms_ip_farnborough        = ""
+    upstream_cms_modern_ip_farnborough = ""
+    upstream_cms_domain_name           = ""
+    upstream_cms_modern_domain_name    = ""
+    upstream_cms_services_domain_name  = ""
+    classic_cors_cin2                  = ""
+    classic_farn_cin2                  = ""
+    modern_cors_cin2                   = ""
+    modern_farn_cin2                   = ""
+    classic_cors_cin3                  = ""
+    classic_farn_cin3                  = ""
+    modern_cors_cin3                   = ""
+    modern_farn_cin3                   = ""
+    classic_cors_cin4                  = ""
+    classic_farn_cin4                  = ""
+    modern_cors_cin4                   = ""
+    modern_farn_cin4                   = ""
+    classic_cors_cin5                  = ""
+    classic_farn_cin5                  = ""
+    modern_cors_cin5                   = ""
+    modern_farn_cin5                   = ""
+    classic_default                    = ""
+    modern_default                     = ""
+  }
 }
 
 variable "wm_task_list_host_name" {
@@ -167,11 +195,13 @@ variable "polaris_ui_reauth_redirect_url" {
 
 variable "ssl_certificate_name" {
   type        = string
+  default     = ""
   description = "main app service SSL certificate name, as defined in the cert key vault"
 }
 
 variable "ssl_policy_name" {
   type        = string
+  default     = ""
   description = "name of predefined transport/comms security definitions to use"
 }
 
@@ -180,8 +210,14 @@ variable "app_gateway_custom_error_pages" {
     HttpStatus502 = string
     HttpStatus403 = string
   })
+  
+  default = {
+    HttpStatus502 = ""
+    HttpStatus403 = ""
+  }
 }
 
 variable "app_gateway_back_end_host_name" {
   type = string
+  default = ""
 }

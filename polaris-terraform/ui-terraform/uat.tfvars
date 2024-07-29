@@ -72,12 +72,3 @@ private_beta = {
 }
 
 polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
-
-ssl_certificate_name           = "" //n/a for UAT
-ssl_policy_name                = "" //n/a for UAT
-app_gateway_back_end_host_name = "" //n/a for UAT
-
-app_gateway_custom_error_pages = {
-  HttpStatus502 = "" //n/a for UAT
-  HttpStatus403 = "" //n/a for UAT
-}
