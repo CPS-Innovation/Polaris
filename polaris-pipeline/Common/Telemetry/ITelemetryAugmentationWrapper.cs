@@ -11,5 +11,6 @@ namespace Common.Telemetry
         void RegisterDocumentVersionId(string documentIdVersionId);
         void RegisterClientIp(string clientIp);
         void RegisterLoadBalancingCookie(string loadBalancingCookie);
+        void RegisterIsMockUser(bool isMockUser);
     }
 }

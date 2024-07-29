@@ -10,5 +10,6 @@ namespace Common.Telemetry
         public const string DocumentVersionIdCustomDimensionName = "DocumentVersionId";
         public const string ClientIpUnredacted = "ClientIPUnredacted";
         public const string LoadBalancingCookie = "LoadBalancingCookie";
+        public const string IsMockUser = "IsMockUser";
     }
 }
