@@ -35,10 +35,12 @@ function fetchDestinationKey(r) {
 }
 
 function fetchDestinationIpAddress(r) {
-  // now look for the env setting for the key
-  const foundEnvSettings = process.env[r.variables["lookupKey"]];
+  let lookupKey, foundEnvSettings, destinationIpAddress;
 
-  let destinationIpAddress;
+  lookupKey = fetchDestinationKey(r);
+
+  // now look for the env setting for the key
+  foundEnvSettings = process.env[lookupKey];
 
   // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
   if (typeof(foundEnvSettings) == "object" && foundEnvSettings !== ""){
@@ -57,10 +59,12 @@ function fetchDestinationIpAddress(r) {
 }
 
 function fetchDestinationHostName(r) {
-  // now look for the env setting for the key
-  const foundEnvSettings = process.env[r.variables["lookupKey"]];
+  let lookupKey, foundEnvSettings, destinationHostName;
 
-  let destinationHostName;
+  lookupKey = fetchDestinationKey(r);
+
+  // now look for the env setting for the key
+  foundEnvSettings = process.env[lookupKey];
 
   // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
   if (typeof(foundEnvSettings) == "object" && foundEnvSettings !== ""){
@@ -148,4 +152,4 @@ function isCorshamLeaningIpAddress(userIpAddress) {
   return (typeof(userIpAddress) != 'undefined' && userIpAddress !== "" && userIpAddress.startsWith("10.12."));
 }
 
-export default { polarisAuthRedirect, taskListAuthRedirect, fetchDestinationKey, fetchDestinationIpAddress, fetchDestinationHostName }
+export default { polarisAuthRedirect, taskListAuthRedirect, fetchDestinationIpAddress, fetchDestinationHostName }
