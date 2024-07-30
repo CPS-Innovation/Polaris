@@ -39,5 +39,19 @@ namespace Common.Dto.Document
         public bool HasNotes { get; set; }
 
         public bool IsUnused { get; set; }
+
+        public bool IsInbox { get; set; }
+
+        public string Classification { get; set; }
+
+        public bool IsWitnessManagement { get; set; }
+
+        public bool CanReclassify { get; set; }
+
+        public bool CanRename { get; set; }
+
+        public string RenameStatus { get; set; }
+
+        public string Reference { get; set; }
     }
 }

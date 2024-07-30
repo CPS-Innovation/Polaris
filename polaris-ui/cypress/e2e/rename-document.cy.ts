@@ -1,6 +1,6 @@
 import { RENAME_DOCUMENT_ROUTE } from "../../src/mock-api/routes";
 describe("Feature Rename Document", () => {
-  it("Should show rename document option if the document 'renameStatus' is equal to 'OK' and should not show if it is not ", () => {
+  it("Should show rename document option if the document 'canRename' is true and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
     cy.findByTestId("btn-accordion-open-close-all").click(); //12;
     cy.findByTestId("document-housekeeping-actions-dropdown-1").should("exist");
