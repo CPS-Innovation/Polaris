@@ -56,15 +56,21 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     if (
       renameData?.saveRenameStatus === "failure" ||
       renameData?.saveRenameStatus === "initial"
-    )
+    ) {
       setSavingState("initial");
+      return;
+    }
     if (
       renameData?.saveRenameStatus === "saving" ||
       renameData?.saveRenameRefreshStatus === "updating"
-    )
+    ) {
       setSavingState("saving");
-    if (renameData?.saveRenameRefreshStatus === "updated")
+      return;
+    }
+    if (renameData?.saveRenameRefreshStatus === "updated") {
       setSavingState("saved");
+      return;
+    }
   }, [renameData]);
 
   const handleAddBtnClick = () => {
