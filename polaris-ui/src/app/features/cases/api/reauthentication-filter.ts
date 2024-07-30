@@ -30,13 +30,15 @@ const tryHandleFirstAuthFail = (
   if (isCmsAuthFail(response) && !isAuthPageLoad(window)) {
     const delimiter = window.location.href.includes("?") ? "&" : "?";
 
-    const nextUrl = `${REAUTH_REDIRECT_URL}${encodeURIComponent(
+    let nextUrl = `${REAUTH_REDIRECT_URL}${encodeURIComponent(
       window.location.href +
-        delimiter +
-        REAUTHENTICATION_INDICATOR_QUERY_PARAM +
-        delimiter +
-        `${FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`
+      delimiter +
+      REAUTHENTICATION_INDICATOR_QUERY_PARAM
     )}`;
+
+    if (correlationId) {
+      nextUrl += encodeURIComponent(`${delimiter + FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`)
+    }
 
     window.location.href = nextUrl;
     // stop any follow-on logic occurring
