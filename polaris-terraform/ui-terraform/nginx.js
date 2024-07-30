@@ -46,7 +46,10 @@ function fetchDestinationIpAddress(r) {
     destinationIpAddress = foundEnvSettings.split(";")[0];
   } else {
     //no value has been returned, we need to fall back to a default
-    const defaultEnvSettings = process.env["${classicOrModernFlag}_DEFAULT"];
+    let classicOrModernFlag;
+    classicOrModernFlag = foundEnvSettings.split("_")[0];
+    
+    const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
     destinationIpAddress = defaultEnvSettings.split(";")[0];
   }
 
@@ -65,7 +68,10 @@ function fetchDestinationHostName(r) {
     destinationHostName = foundEnvSettings.split(";")[1];
   } else {
     //no value has been returned, we need to fall back to a default
-    const defaultEnvSettings = process.env["${classicOrModernFlag}_DEFAULT"];
+    let classicOrModernFlag;
+    classicOrModernFlag = foundEnvSettings.split("_")[0];
+    
+    const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
     destinationHostName = defaultEnvSettings.split(";")[1];
   }
 
