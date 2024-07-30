@@ -75,13 +75,11 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
 
   const handleAddBtnClick = () => {
     if (!newName.length) {
-      setRenameErrorText("New name should not be empty");
+      setRenameErrorText("Enter a new name");
       return;
     }
     if (newName.length > MAX_LENGTH) {
-      setRenameErrorText(
-        `New name should be less than ${MAX_LENGTH} characters`
-      );
+      setRenameErrorText(`New name must be ${MAX_LENGTH} characters or less`);
       return;
     }
     if (newName === documentName) {
@@ -114,9 +112,12 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     }
   }, [renameErrorText]);
 
-  const saveRenameSuccessLiveText = useMemo(() => {
+  const saveRenameLiveText = useMemo(() => {
     if (savingState === "saved") {
-      return "Document renamed successfully";
+      return "Document renamed successfully saved to CMS";
+    }
+    if (savingState === "saving") {
+      return "Saving renamed document to CMS";
     }
     return "";
   }, [savingState]);
@@ -171,7 +172,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
           aria-live="polite"
           className={classes.visuallyHidden}
         >
-          {saveRenameSuccessLiveText}
+          {saveRenameLiveText}
         </div>
       </div>
       <div className={classes.renameBody}>

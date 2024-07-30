@@ -174,11 +174,11 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("rename-error-summary").find("li").should("have.length", 1);
     cy.findByTestId("rename-text-input-link").should(
       "have.text",
-      "New name should not be empty"
+      "Enter a new name"
     );
     cy.get("#rename-text-input-error").should(
       "have.text",
-      "Error: New name should not be empty"
+      "Error: Enter a new name"
     );
 
     const maxLengthText =
@@ -189,11 +189,11 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("rename-error-summary").find("li").should("have.length", 1);
     cy.findByTestId("rename-text-input-link").should(
       "have.text",
-      "New name should be less than 252 characters"
+      "New name must be 252 characters or less"
     );
     cy.get("#rename-text-input-error").should(
       "have.text",
-      "Error: New name should be less than 252 characters"
+      "Error: New name must be 252 characters or less"
     );
     cy.findByTestId("rename-text-input-link").click();
     cy.realPress("{backspace}");
