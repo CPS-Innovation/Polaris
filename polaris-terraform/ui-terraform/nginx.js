@@ -21,12 +21,12 @@ function taskListAuthRedirect(r) {
 
 function fetchDestinationIpAddress(r) {
   let lookupKey = retrieveDestinationKey(r);
-  return retrieveDestinationValue(0, lookupKey);
+  return retrieveDestinationValue(r, 0, lookupKey);
 }
 
 function fetchDestinationHostName(r) {
   let lookupKey = retrieveDestinationKey(r);
-  return retrieveDestinationValue(1, lookupKey);
+  return retrieveDestinationValue(r, 1, lookupKey);
 }
 
 function retrieveDestinationKey(r) {
@@ -46,8 +46,9 @@ function retrieveDestinationKey(r) {
   return `${classicOrModernFlag}_${corshamOrFarnboroughFlag}_${hostNameFlag}`; // e.g. "CLASSIC_CORS_CIN3"
 }
 
-function retrieveDestinationValue(idx, key) {
+function retrieveDestinationValue(r, idx, key) {
   let foundEnvSettings, destinationValue;
+  let loadBalancerTarget = r.variables["loadBalancerTarget"];
 
   foundEnvSettings = process.env[key];
 
@@ -58,7 +59,7 @@ function retrieveDestinationValue(idx, key) {
   } else {
     //no value has been returned, we need to fall back to a default
     const classicOrModernFlag = key.split("_")[0];
-    const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
+    const defaultEnvSettings = process.env[`${classicOrModernFlag}_${loadBalancerTarget}_DEFAULT`];
     destinationValue = defaultEnvSettings.split(";")[idx];
   }
 
@@ -135,4 +136,25 @@ function isCorshamLeaningIpAddress(userIpAddress) {
   return (typeof(userIpAddress) != 'undefined' && userIpAddress !== "" && userIpAddress.startsWith("10.12."));
 }
 
-export default { polarisAuthRedirect, taskListAuthRedirect, fetchDestinationIpAddress, fetchDestinationHostName }
+function fetchDefaultClassicCorshamIpAddress() {
+  return retrieveSetting("CLASSIC_CORS_DEFAULT", 0);
+}
+
+function fetchDefaultClassicCorshamHostName() {
+  return retrieveSetting("CLASSIC_CORS_DEFAULT", 1);
+}
+
+function fetchDefaultModernCorshamIpAddress() {
+  return retrieveSetting("MODERN_CORS_DEFAULT", 0);
+}
+
+function fetchDefaultModernCorshamHostName() {
+  return retrieveSetting("MODERN_CORS_DEFAULT", 1);
+}
+
+function retrieveSetting(key, idx) {
+  let settings = process.env[key];
+  return settings.split(";")[idx];
+}
+
+export default { polarisAuthRedirect, taskListAuthRedirect, fetchDestinationIpAddress, fetchDestinationHostName, fetchDefaultClassicCorshamIpAddress, fetchDefaultClassicCorshamHostName, fetchDefaultModernCorshamIpAddress, fetchDefaultModernCorshamHostName }

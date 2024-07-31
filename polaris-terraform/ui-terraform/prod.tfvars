@@ -26,12 +26,6 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip_corsham            = "10.2.177.2"
-  upstream_cms_modern_ip_corsham     = "10.2.177.65"
-  upstream_cms_ip_farnborough        = "10.3.177.2"
-  upstream_cms_modern_ip_farnborough = "10.3.177.65"
-  upstream_cms_domain_name           = "cms.cps.gov.uk"
-  upstream_cms_modern_domain_name    = "cmsmodern.cps.gov.uk"
   upstream_cms_services_domain_name  = "cms-services.cps.gov.uk"
   classic_cors_cin2                  = ""
   classic_farn_cin2                  = ""
@@ -49,8 +43,10 @@ cms_details = {
   classic_farn_cin5                  = ""
   modern_cors_cin5                   = ""
   modern_farn_cin5                   = ""
-  classic_default                    = "10.2.177.2;cms.cps.gov.uk"
-  modern_default                     = "10.2.177.65;cmsmodern.cps.gov.uk"
+  classic_cors_default               = "10.2.177.2;cms.cps.gov.uk"
+  classic_farn_default               = "10.3.177.2;cms.cps.gov.uk"
+  modern_cors_default                = "10.2.177.65;cmsmodern.cps.gov.uk"
+  modern_farn_default                = "10.3.177.65;cmsmodern.cps.gov.uk"
 }
 
 wm_task_list_host_name = "https://cps.outsystemsenterprise.com"

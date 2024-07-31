@@ -67,12 +67,6 @@ variable "ui_logging" {
 
 variable "cms_details" {
   type = object({
-    upstream_cms_ip_corsham            = string
-    upstream_cms_modern_ip_corsham     = string
-    upstream_cms_ip_farnborough        = string
-    upstream_cms_modern_ip_farnborough = string
-    upstream_cms_domain_name           = string
-    upstream_cms_modern_domain_name    = string
     upstream_cms_services_domain_name  = string
     classic_cors_cin2                  = string
     classic_farn_cin2                  = string
@@ -90,8 +84,10 @@ variable "cms_details" {
     classic_farn_cin5                  = string
     modern_cors_cin5                   = string
     modern_farn_cin5                   = string
-    classic_default                    = string
-    modern_default                     = string
+    classic_cors_default               = string
+    classic_farn_default               = string
+    modern_cors_default                = string
+    modern_farn_default                = string
   })
 }
 

@@ -29,13 +29,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_staging1_file_share.name
-    "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
-    "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
-    "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
-    "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"              = var.cms_details.upstream_cms_modern_ip_farnborough
-    "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
     "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"               = var.cms_details.upstream_cms_services_domain_name
-    "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
@@ -74,8 +68,10 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "CLASSIC_FARN_CIN5"                               = var.cms_details.classic_farn_cin5
     "MODERN_CORS_CIN5"                                = var.cms_details.modern_cors_cin5
     "MODERN_FARN_CIN5"                                = var.cms_details.modern_farn_cin5
-    "CLASSIC_DEFAULT"                                 = var.cms_details.classic_default
-    "MODERN_DEFAULT"                                  = var.cms_details.modern_default
+    "CLASSIC_CORS_DEFAULT"                            = var.cms_details.classic_cors_default
+    "MODERN_CORS_DEFAULT"                             = var.cms_details.modern_cors_default
+    "CLASSIC_FARN_DEFAULT"                            = var.cms_details.classic_farn_default
+    "MODERN_FARN_DEFAULT"                             = var.cms_details.modern_farn_default
   }
 
   site_config {
