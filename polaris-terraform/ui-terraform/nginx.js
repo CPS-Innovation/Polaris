@@ -73,7 +73,6 @@ function fetchDestinationHostName(r) {
     // we have a value for this key
     const settings = foundEnvSettings.split(";");
     destinationHostName = settings[1];
-    r.variables["loadBalancerTarget"] = keyElements[1];
   } else {
     //no value has been returned, we need to fall back to a default
     let classicOrModernFlag;
@@ -81,9 +80,9 @@ function fetchDestinationHostName(r) {
 
     const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
     destinationHostName = defaultEnvSettings.split(";")[1];
-    r.variables["loadBalancerTarget"] = "DEFAULT";
   }
 
+  r.variables["loadBalancerTarget"] = keyElements[1];
   return destinationHostName;
 }
 
