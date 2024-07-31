@@ -37,7 +37,7 @@ export const RenamePanel: React.FC<RenamePanelProps> = ({
   handleResetRenameData,
 }) => {
   useLastFocus(`#document-housekeeping-actions-dropdown-${documentId}`);
-  const cancelBtnRef = useRef(null);
+  const closeBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [newName, setNewName] = useState(documentName);
@@ -54,6 +54,12 @@ export const RenamePanel: React.FC<RenamePanelProps> = ({
   useEffect(() => {
     handleResetRenameData(documentId);
   }, []);
+
+  useEffect(() => {
+    if (closeBtnRef.current) {
+      (closeBtnRef.current as HTMLElement).focus();
+    }
+  }, [savingState]);
 
   useEffect(() => {
     if (
@@ -88,9 +94,6 @@ export const RenamePanel: React.FC<RenamePanelProps> = ({
     if (newName === documentName) {
       setRenameErrorText(`New name should be different from current name`);
       return;
-    }
-    if (cancelBtnRef.current) {
-      (cancelBtnRef.current as HTMLElement).focus();
     }
     if (renameErrorText) {
       setRenameErrorText("");
@@ -226,6 +229,7 @@ export const RenamePanel: React.FC<RenamePanelProps> = ({
           <div className={classes.btnWrapper}>
             {savingState === "saved" && (
               <Button
+                ref={closeBtnRef}
                 type="button"
                 className={classes.closeBtn}
                 data-testid="btn-close-rename"
@@ -247,7 +251,6 @@ export const RenamePanel: React.FC<RenamePanelProps> = ({
                 </Button>
 
                 <LinkButton
-                  ref={cancelBtnRef}
                   className={classes.cancelBtn}
                   onClick={() => handleClose()}
                   dataTestId="btn-cancel-rename"

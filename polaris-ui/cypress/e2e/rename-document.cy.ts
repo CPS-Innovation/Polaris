@@ -133,6 +133,7 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("rename-panel").contains(
       "Document renamed successfully saved to CMS"
     );
+    cy.focused().should("have.attr", "data-testid", "btn-close-rename");
     cy.findByTestId("btn-close-rename").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
