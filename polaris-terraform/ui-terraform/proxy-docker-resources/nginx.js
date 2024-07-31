@@ -5,8 +5,8 @@ async function polarisAuthRedirect(r) {
   const polarisUiUrl = encodeURIComponent(r.args["polaris-ui-url"] ?? "")
   const q = r.args["q"] ?? ""
   r.return(
-    302,
-    `${redirectHostAddress}/init?cookie=${cookie}&referer=${referer}&polaris-ui-url=${polarisUiUrl}&q=${q}`
+      302,
+      `${redirectHostAddress}/init?cookie=${cookie}&referer=${referer}&polaris-ui-url=${polarisUiUrl}&q=${q}`
   )
 }
 
@@ -14,12 +14,22 @@ function taskListAuthRedirect(r) {
   const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
   const cookie = encodeURIComponent(r.headersIn.Cookie ?? "")
   r.return(
-    302,
-    `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
+      302,
+      `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
   )
 }
 
-function fetchDestinationKey(r) {
+function fetchDestinationIpAddress(r) {
+  let lookupKey = retrieveDestinationKey(r);
+  return retrieveDestinationValue(0, lookupKey);
+}
+
+function fetchDestinationHostName(r) {
+  let lookupKey = retrieveDestinationKey(r);
+  return retrieveDestinationValue(1, lookupKey);
+}
+
+function retrieveDestinationKey(r) {
   const CORSHAM_FRAGMENT = "CPSAC";
   const FARNBOROUGH_FRAGMENT = "CPSAF";
   const classicOrModernFlag = r.uri.indexOf("/graphql/") > -1 ? "MODERN" : "CLASSIC";
@@ -30,68 +40,29 @@ function fetchDestinationKey(r) {
   const hostNameFlag = retrieveHostNameFlag(cookies); // returns e.g. CIN3
   const corshamOrFarnboroughFlag = determineLoadBalancerTargetChoice(r.headersIn["Cms-Auth-Values"], isCorshamCookiePresent, isFarnboroughCookiePresent, clientIpAddress);
 
+  r.variables["loadBalancerTarget"] = corshamOrFarnboroughFlag;
+
   // construct a env variable key 
   return `${classicOrModernFlag}_${corshamOrFarnboroughFlag}_${hostNameFlag}`; // e.g. "CLASSIC_CORS_CIN3"
 }
 
-function fetchDestinationIpAddress(r) {
-  let lookupKey, foundEnvSettings, destinationIpAddress;
+function retrieveDestinationValue(idx, key) {
+  let foundEnvSettings, destinationValue;
 
-  lookupKey = fetchDestinationKey(r);
-
-  // now look for the env setting for the key
-  foundEnvSettings = process.env[lookupKey];
+  foundEnvSettings = process.env[key];
 
   // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
   if (typeof(foundEnvSettings) == "string" && foundEnvSettings !== ""){
     // we have a value for this key
-    destinationIpAddress = foundEnvSettings.split(";")[0];
+    destinationValue = foundEnvSettings.split(";")[idx];
   } else {
     //no value has been returned, we need to fall back to a default
-    let classicOrModernFlag;
-    classicOrModernFlag = lookupKey.split("_")[0];
-
+    const classicOrModernFlag = key.split("_")[0];
     const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
-    destinationIpAddress = defaultEnvSettings.split(";")[0];
+    destinationValue = defaultEnvSettings.split(";")[idx];
   }
 
-  return destinationIpAddress;
-}
-
-function fetchDestinationHostName(r) {
-  let lookupKey, foundEnvSettings, destinationHostName;
-
-  lookupKey = fetchDestinationKey(r);
-
-  // now look for the env setting for the key
-  foundEnvSettings = process.env[lookupKey];
-  
-  r.log(`Lookup key used: ${lookupKey}`);
-  r.log(`Settings found: ${foundEnvSettings}`);
-  
-  let keyElements = lookupKey.split("_");
-  
-  // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
-  if (typeof(foundEnvSettings) == "string" && foundEnvSettings !== ""){
-    r.log('Setting found!');
-    
-    // we have a value for this key
-    const settings = foundEnvSettings.split(";");
-    destinationHostName = settings[1];
-    r.variables["loadBalancerTarget"] = keyElements[1]; 
-  } else {
-    r.log('Use default!');
-    
-    //no value has been returned, we need to fall back to a default
-    let classicOrModernFlag;
-    classicOrModernFlag = keyElements[0];
-
-    const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
-    destinationHostName = defaultEnvSettings.split(";")[1];
-    r.variables["loadBalancerTarget"] = "DEFAULT";
-  }
-
-  return destinationHostName;
+  return destinationValue;
 }
 
 function retrieveLoadBalancerTarget(cookies, target) {
@@ -111,12 +82,12 @@ function retrieveHostNameFlag(cookies) {
   if (cookieSearch[0] !== undefined) {
     const str = cookieSearch[0];
     const startPos = str.toUpperCase().indexOf(".CPS.GOV.UK");
-    result = getHostName(str, startPos-1);
+    result = retrieveHostName(str, startPos-1);
   }
   return result;
 }
 
-function getHostName(str, startPoint) {
+function retrieveHostName(str, startPoint) {
   let hostName = "";
   for (let i = startPoint; i >= 0; i--) {
     if (str[i] === "-") {
@@ -139,7 +110,7 @@ function determineLoadBalancerTargetChoice(cmsAuthValues, isCorshamCookiePresent
       if (preferredLoadBalancerTarget !== "") {
         return preferredLoadBalancerTarget === "0" ? CORSHAM_FLAG : FARNBOROUGH_FLAG;
       }
-      
+
       const ipAddress = clientIpAddress === "" ? cmsAuthObj.UserIpAddress : clientIpAddress;
       const isCorshamLeaningIpAddress = isCorshamLeaningIpAddress(ipAddress);
 

@@ -3,12 +3,10 @@ ENV CLASSIC_CORS_CIN3="10.2.177.14;cin3.cps.gov.uk"
 ENV MODERN_CORS_CIN3="10.2.177.67;cmsmodcin3.cps.gov.uk"
 ENV CLASSIC_DEFAULT="10.2.177.14;cin3.cps.gov.uk"
 ENV MODERN_DEFAULT="10.2.177.67;cmsmodcin3.cps.gov.uk"
-ENV APP_KEY="Oq-k5n8WYdAEHamX6BUGtDycxRTfRpUx0hJ96774DEYjAzFuDMVOKQ=="
 ADD . CLASSIC_CORS_CIN3
 ADD . MODERN_CORS_CIN3
 ADD . CLASSIC_DEFAULT
 ADD . MODERN_DEFAULT
-ADD . APP_KEY
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx
 COPY nginx.js /etc/nginx
