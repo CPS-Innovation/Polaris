@@ -12,18 +12,26 @@ describe("Reauthentication Filter", () => {
 
   it("can pass through an ok response", () => {
     const response = { ok: true, status: 200 } as Response;
-    const filteredResponse = reauthenticationFilter(response, {
-      location: { href: "bar" },
-    } as Window, uuid);
+    const filteredResponse = reauthenticationFilter(
+      response,
+      {
+        location: { href: "bar" },
+      } as Window,
+      uuid
+    );
 
     expect(filteredResponse).toBe(response);
   });
 
   it("can pass through a non-auth failure response", () => {
     const response = { ok: false, status: 500 } as Response;
-    const filteredResponse = reauthenticationFilter(response, {
-      location: { href: "bar" },
-    } as Window, uuid);
+    const filteredResponse = reauthenticationFilter(
+      response,
+      {
+        location: { href: "bar" },
+      } as Window,
+      uuid
+    );
 
     expect(filteredResponse).toBe(response);
   });
@@ -93,7 +101,11 @@ describe("Reauthentication Filter", () => {
 
       const response = { ok: true, status: 200 } as Response;
 
-      const filteredResponse = reauthenticationFilter(response, mockWindow, uuid);
+      const filteredResponse = reauthenticationFilter(
+        response,
+        mockWindow,
+        uuid
+      );
       expect(filteredResponse).toBe(response);
       expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
     }
