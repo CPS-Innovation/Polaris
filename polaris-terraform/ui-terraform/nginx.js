@@ -43,14 +43,14 @@ function fetchDestinationIpAddress(r) {
   foundEnvSettings = process.env[lookupKey];
 
   // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
-  if (typeof(foundEnvSettings) == "object" && foundEnvSettings !== ""){
+  if (typeof(foundEnvSettings) == "string" && foundEnvSettings !== ""){
     // we have a value for this key
     destinationIpAddress = foundEnvSettings.split(";")[0];
   } else {
     //no value has been returned, we need to fall back to a default
     let classicOrModernFlag;
-    classicOrModernFlag = foundEnvSettings.split("_")[0];
-    
+    classicOrModernFlag = lookupKey.split("_")[0];
+
     const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
     destinationIpAddress = defaultEnvSettings.split(";")[0];
   }
@@ -66,17 +66,22 @@ function fetchDestinationHostName(r) {
   // now look for the env setting for the key
   foundEnvSettings = process.env[lookupKey];
 
+  let keyElements = lookupKey.split("_");
+
   // if the key is present it would be something like "10.2.177.3;cin2.cps.gov.uk"
-  if (typeof(foundEnvSettings) == "object" && foundEnvSettings !== ""){
+  if (typeof(foundEnvSettings) == "string" && foundEnvSettings !== ""){
     // we have a value for this key
-    destinationHostName = foundEnvSettings.split(";")[1];
+    const settings = foundEnvSettings.split(";");
+    destinationHostName = settings[1];
+    r.variables["loadBalancerTarget"] = keyElements[1];
   } else {
     //no value has been returned, we need to fall back to a default
     let classicOrModernFlag;
-    classicOrModernFlag = foundEnvSettings.split("_")[0];
-    
+    classicOrModernFlag = keyElements[0];
+
     const defaultEnvSettings = process.env[`${classicOrModernFlag}_DEFAULT`];
     destinationHostName = defaultEnvSettings.split(";")[1];
+    r.variables["loadBalancerTarget"] = "DEFAULT";
   }
 
   return destinationHostName;
