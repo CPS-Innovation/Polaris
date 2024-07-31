@@ -5,6 +5,7 @@ import { ReactComponent as EmailIcon } from "../../../../../common/presentation/
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
+import { Classification } from "../../../domain/gateway/PipelineDocument";
 
 type Props = {
   activeDocumentId: string;
@@ -26,7 +27,8 @@ type Props = {
     documentCategory: string,
     presentationFileName: string,
     type: "notes" | "rename",
-    documentType: string
+    documentType: string,
+    classification: Classification
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];

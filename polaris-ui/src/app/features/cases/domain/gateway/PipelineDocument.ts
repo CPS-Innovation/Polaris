@@ -60,6 +60,14 @@ export const mapConversionStatusToMessage = (
       return "";
   }
 };
+
+export type Classification =
+  | null
+  | "Statement"
+  | "Exhibit"
+  | "Other"
+  | "DefenceStatement";
+
 export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
@@ -79,13 +87,7 @@ export type PresentationDocumentProperties = {
   conversionStatus: ConversionStatus;
   isUnused: boolean;
   isInbox: boolean;
-  classification:
-    | string
-    | null
-    | "Statement"
-    | "Exhibit"
-    | "Other"
-    | "DefenceStatement";
+  classification: Classification;
   isWitnessManagement: boolean;
   canReclassify: boolean;
   canRename: boolean;

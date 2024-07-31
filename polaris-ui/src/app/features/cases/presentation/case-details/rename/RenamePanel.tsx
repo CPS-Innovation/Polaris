@@ -11,12 +11,14 @@ import { RenameDocumentData } from "../../../domain/gateway/RenameDocumentData";
 import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { Classification } from "../../../domain/gateway/PipelineDocument";
 import classes from "./RenamePanel.module.scss";
 
-type NotesPanelProps = {
+type RenamePanelProps = {
   documentName: string;
   documentId: string;
   documentType: string;
+  classification: Classification;
   renameDocuments: RenameDocumentData[];
   handleSaveRename: (documentId: string, newName: string) => void;
   handleResetRenameData: (documentId: string) => void;
@@ -24,11 +26,12 @@ type NotesPanelProps = {
 };
 const MAX_LENGTH = 252;
 
-export const RenamePanel: React.FC<NotesPanelProps> = ({
+export const RenamePanel: React.FC<RenamePanelProps> = ({
   documentName,
   renameDocuments,
   documentId,
   documentType,
+  classification,
   handleClose,
   handleSaveRename,
   handleResetRenameData,
@@ -99,6 +102,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     trackEvent("Save Rename Document", {
       documentId: documentId,
       documentType: documentType,
+      classification: classification,
       oldDocumentName: documentName,
       newDocumentName: newName,
     });
