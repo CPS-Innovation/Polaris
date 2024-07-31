@@ -21,12 +21,14 @@ import {
 } from "../../../domain/WitnessIndicators";
 import { Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
-import { mapConversionStatusToMessage } from "../../../domain/gateway/PipelineDocument";
+import {
+  mapConversionStatusToMessage,
+  Classification,
+} from "../../../domain/gateway/PipelineDocument";
 import {
   DropdownButton,
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
-import { Classification } from "../../../domain/gateway/PipelineDocument";
 
 type Props = {
   activeDocumentId: string;

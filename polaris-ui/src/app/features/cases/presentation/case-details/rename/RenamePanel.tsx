@@ -78,7 +78,6 @@ export const RenamePanel: React.FC<RenamePanelProps> = ({
     }
     if (renameData?.saveRenameRefreshStatus === "updated") {
       setSavingState("saved");
-      return;
     }
   }, [renameData]);
 
