@@ -25,7 +25,7 @@ const tryCleanRefreshIndicator = (window: Window) => {
 const tryHandleFirstAuthFail = (
   response: Response,
   window: Window,
-  correlationId?: string
+  correlationId: string | null
 ) => {
   if (isCmsAuthFail(response) && !isAuthPageLoad(window)) {
     const delimiter = window.location.href.includes("?") ? "&" : "?";
@@ -36,7 +36,7 @@ const tryHandleFirstAuthFail = (
 
     if (correlationId) {
       nextUrl += encodeURIComponent(
-        `${delimiter + FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`
+        `&${FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`
       );
     }
 
@@ -63,7 +63,7 @@ const handleNonAuthCall = (response: Response, window: Window) => {
 export const reauthenticationFilter = (
   response: Response,
   window: Window,
-  correlationId?: string
+  correlationId: string | null
 ) =>
   tryHandleFirstAuthFail(response, window, correlationId) ||
   tryHandleSecondAuthFail(response, window) ||
