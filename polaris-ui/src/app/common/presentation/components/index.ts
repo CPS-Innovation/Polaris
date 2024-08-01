@@ -26,3 +26,4 @@ export { Tooltip } from "./Tooltip";
 export { CharacterCount } from "./CharacterCount";
 export { Checkboxes } from "./Checkboxes";
 export { Tag } from "./Tag";
+export { DateInput } from "./DateInput";

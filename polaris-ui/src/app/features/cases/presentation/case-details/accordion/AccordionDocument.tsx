@@ -45,6 +45,7 @@ type Props = {
     type: "notes" | "rename",
     documentType: string
   ) => void;
+  handleReclassifyDocument: (documentId: string) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
 };
@@ -58,6 +59,7 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPdf,
   handleOpenPanel,
   handleGetNotes,
+  handleReclassifyDocument,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -141,6 +143,12 @@ export const AccordionDocument: React.FC<Props> = ({
           ariaLabel: "Rename document",
           disabled: false,
         },
+        {
+          id: "2",
+          label: "Reclassify document",
+          ariaLabel: "Reclassify document",
+          disabled: false,
+        },
         ...items,
       ];
     }
@@ -158,8 +166,10 @@ export const AccordionDocument: React.FC<Props> = ({
           "rename",
           caseDocument.cmsDocType.documentType
         );
-
-        break;
+        return;
+      case "2":
+        handleReclassifyDocument(caseDocument.documentId);
+        return;
       default:
         break;
     }

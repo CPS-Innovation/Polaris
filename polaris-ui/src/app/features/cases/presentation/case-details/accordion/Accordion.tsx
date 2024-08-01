@@ -31,6 +31,7 @@ type Props = {
     accordionCurrentState: AccordionReducerState
   ) => void;
   handleGetNotes: (documentId: string) => void;
+  handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
 };
 
@@ -44,6 +45,7 @@ export const Accordion: React.FC<Props> = ({
   handleOpenPdf,
   handleOpenPanel,
   accordionStateChangeCallback,
+  handleReclassifyDocument,
   handleGetNotes,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -98,6 +100,7 @@ export const Accordion: React.FC<Props> = ({
           handleOpenPdf={handleOpenPdf}
           handleOpenPanel={handleOpenPanel}
           handleGetNotes={handleGetNotes}
+          handleReclassifyDocument={handleReclassifyDocument}
           notesData={notesData}
         />
       ))}

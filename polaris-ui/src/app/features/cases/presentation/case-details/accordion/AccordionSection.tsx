@@ -29,6 +29,7 @@ type Props = {
     documentType: string
   ) => void;
   handleGetNotes: (documentId: string) => void;
+  handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
 };
 const formatTestIdText = (id: string) => {
@@ -52,6 +53,7 @@ export const AccordionSection: React.FC<Props> = ({
   handleOpenPdf,
   handleOpenPanel,
   handleGetNotes,
+  handleReclassifyDocument,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -107,6 +109,7 @@ export const AccordionSection: React.FC<Props> = ({
                     featureFlags={featureFlags}
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
+                    handleReclassifyDocument={handleReclassifyDocument}
                   />
                 ))}
               </ul>
