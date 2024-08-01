@@ -43,8 +43,8 @@ cms_details = {
   classic_farn_cin5                  = ""
   modern_cors_cin5                   = ""
   modern_farn_cin5                   = ""
-  classic_cors_default               = "10.2.177.14;cin3.cps.gov.uk"
-  classic_farn_default               = "10.2.177.14;cin3.cps.gov.uk"
+  classic_cors_default               = "10.3.177.14;cin3.cps.gov.uk"
+  classic_farn_default               = "10.3.177.14;cin3.cps.gov.uk"
   modern_cors_default                = "10.2.177.67;cmsmodcin3.cps.gov.uk"
   modern_farn_default                = "10.2.177.67;cmsmodcin3.cps.gov.uk"
 }
