@@ -362,11 +362,19 @@ export const reducer = (
               (tabItem) => tabItem.documentId === item.documentId
             )
         )
-        .map(({ documentId, pdfBlobName, polarisDocumentVersionId }) => ({
-          documentId,
-          pdfBlobName,
-          polarisDocumentVersionId,
-        }));
+        .map(
+          ({
+            documentId,
+            pdfBlobName,
+            polarisDocumentVersionId,
+            presentationTitle,
+          }) => ({
+            documentId,
+            pdfBlobName,
+            polarisDocumentVersionId,
+            presentationTitle,
+          })
+        );
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }
@@ -400,6 +408,7 @@ export const reducer = (
               pdfBlobName: matchingFreshPdfRecord.pdfBlobName,
               polarisDocumentVersionId:
                 matchingFreshPdfRecord.polarisDocumentVersionId,
+              presentationFileName: matchingFreshPdfRecord.presentationTitle,
             },
           ];
         }

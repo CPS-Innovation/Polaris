@@ -44,7 +44,7 @@ describe("Feature Rename Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
-  it("Should successfully rename the document", () => {
+  it("Should successfully rename the document and do the updates correctly after successful rename", () => {
     const trackerResults = refreshPipelineRenamedDocuments(
       "10",
       "PortraitLandscape_1",
@@ -86,11 +86,20 @@ describe("Feature Rename Document", () => {
       expect(trackerCounter.count).to.equal(1);
     });
 
+    cy.findByTestId("link-document-10")
+      .should("be.visible")
+      .and("have.text", "PortraitLandscape");
+    cy.findByTestId("link-document-10").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("Page1 Portrait");
+
     cy.findByTestId("rename-panel").should("not.exist");
     cy.findByTestId("link-document-10").should(
       "have.text",
       "PortraitLandscape"
     );
+    cy.findByTestId("tab-active").should("have.text", "PortraitLandscape");
 
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
     cy.findByTestId("dropdown-panel").contains("Rename document").click();
@@ -141,6 +150,7 @@ describe("Feature Rename Document", () => {
       "have.text",
       "PortraitLandscape_1"
     );
+    cy.findByTestId("tab-active").should("have.text", "PortraitLandscape_1");
   });
 
   it("Should show all the UI validation errors", () => {
