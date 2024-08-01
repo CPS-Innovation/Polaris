@@ -34,7 +34,6 @@ describe("useNavigationAlert hook", () => {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
-        renameStatus: "Ok",
       },
       redactionHighlights: [
         {
@@ -56,6 +55,13 @@ describe("useNavigationAlert hook", () => {
       hasNotes: false,
       conversionStatus: "DocumentConverted",
       isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
     },
     {
       clientLockedState: "unlocked",
@@ -82,7 +88,6 @@ describe("useNavigationAlert hook", () => {
       presentationFlags: {
         read: "Ok",
         write: "Ok",
-        renameStatus: "Ok",
       },
       redactionHighlights: [
         {
@@ -104,6 +109,13 @@ describe("useNavigationAlert hook", () => {
       hasNotes: false,
       conversionStatus: "DocumentConverted",
       isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
     },
   ];
 

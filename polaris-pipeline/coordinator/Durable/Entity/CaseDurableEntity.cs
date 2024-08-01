@@ -244,7 +244,14 @@ namespace coordinator.Durable.Entity
                         presentationFlags: newDocument.PresentationFlags,
                         hasFailedAttachments: newDocument.HasFailedAttachments,
                         hasNotes: newDocument.HasNotes,
-                        isUnused: newDocument.IsUnused
+                        isUnused: newDocument.IsUnused,
+                        isInbox: newDocument.IsInbox,
+                        classification: newDocument.Classification,
+                        isWitnessManagement: newDocument.IsWitnessManagement,
+                        canReclassify: newDocument.CanReclassify,
+                        canRename: newDocument.CanRename,
+                        renameStatus: newDocument.RenameStatus,
+                        reference: newDocument.Reference
                     );
 
                 CmsDocuments.Add(trackerDocument);
@@ -273,6 +280,13 @@ namespace coordinator.Durable.Entity
                 trackerDocument.WitnessId = updatedDocument.WitnessId;
                 trackerDocument.CategoryListOrder = updatedDocument.CategoryListOrder;
                 trackerDocument.HasNotes = updatedDocument.HasNotes;
+                trackerDocument.IsInbox = updatedDocument.IsInbox;
+                trackerDocument.Classification = updatedDocument.Classification;
+                trackerDocument.IsWitnessManagement = updatedDocument.IsWitnessManagement;
+                trackerDocument.CanReclassify = updatedDocument.CanReclassify;
+                trackerDocument.CanRename = updatedDocument.CanRename;
+                trackerDocument.RenameStatus = updatedDocument.RenameStatus;
+                trackerDocument.Reference = updatedDocument.Reference;
 
                 var caseDeltaType = DocumentDeltaType.DoesNotRequireRefresh;
 

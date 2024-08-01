@@ -22,11 +22,6 @@ export type PresentationFlags = {
     | "OriginalFileTypeNotAllowed"
     | "IsDispatched"
     | "IsRedactionServiceOffline";
-  renameStatus:
-    | "Ok"
-    | "IsWitnessManagementCommunication"
-    | "IsDispatchedCommunication"
-    | "IsStatement";
 };
 
 export type ConversionStatus =
@@ -83,6 +78,24 @@ export type PresentationDocumentProperties = {
   hasNotes: boolean;
   conversionStatus: ConversionStatus;
   isUnused: boolean;
+  isInbox: boolean;
+  classification:
+    | string
+    | null
+    | "Statement"
+    | "Exhibit"
+    | "Other"
+    | "DefenceStatement";
+  isWitnessManagement: boolean;
+  canReclassify: boolean;
+  canRename: boolean;
+  renameStatus:
+    | "CanRename"
+    | "IsWitnessManagement"
+    | "IsDispatched"
+    | "IsStatement"
+    | "IsDefenceStatement";
+  reference: string | null;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

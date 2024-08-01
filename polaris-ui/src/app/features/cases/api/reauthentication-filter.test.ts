@@ -1,26 +1,37 @@
 import { CmsAuthError } from "../../../common/errors/CmsAuthError";
 import { CmsAuthRedirectingError } from "../../../common/errors/CmsAuthRedirectingError";
 import { reauthenticationFilter } from "./reauthentication-filter";
+import { generateGuid } from "./generate-guid";
 
 jest.mock("../../../config", () => ({
   REAUTH_REDIRECT_URL: "http://foo?polaris-ui-url=",
 }));
 
 describe("Reauthentication Filter", () => {
+  const uuid = generateGuid();
+
   it("can pass through an ok response", () => {
     const response = { ok: true, status: 200 } as Response;
-    const filteredResponse = reauthenticationFilter(response, {
-      location: { href: "bar" },
-    } as Window);
+    const filteredResponse = reauthenticationFilter(
+      response,
+      {
+        location: { href: "bar" },
+      } as Window,
+      uuid
+    );
 
     expect(filteredResponse).toBe(response);
   });
 
   it("can pass through a non-auth failure response", () => {
     const response = { ok: false, status: 500 } as Response;
-    const filteredResponse = reauthenticationFilter(response, {
-      location: { href: "bar" },
-    } as Window);
+    const filteredResponse = reauthenticationFilter(
+      response,
+      {
+        location: { href: "bar" },
+      } as Window,
+      uuid
+    );
 
     expect(filteredResponse).toBe(response);
   });
@@ -28,11 +39,11 @@ describe("Reauthentication Filter", () => {
   it.each([
     [
       "http://our-ui-domain.com", // there is no existing query string
-      "http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3Fauth-refresh",
+      `http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
-      "http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3FcaseId%3D123%26auth-refresh",
+      `http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3FcaseId%3D123%26auth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
   ])("can redirect on a first auth failure ", (url, expectedRedirectUrl) => {
     const mockWindow = {
@@ -40,7 +51,7 @@ describe("Reauthentication Filter", () => {
     } as Window;
 
     const response = { ok: false, status: 401 } as Response;
-    const act = () => reauthenticationFilter(response, mockWindow);
+    const act = () => reauthenticationFilter(response, mockWindow, uuid);
 
     expect(act).toThrow(CmsAuthRedirectingError);
     expect(mockWindow.location.href).toBe(expectedRedirectUrl);
@@ -64,7 +75,7 @@ describe("Reauthentication Filter", () => {
 
     const response = { ok: false, status: 401 } as Response;
 
-    const act = () => reauthenticationFilter(response, mockWindow);
+    const act = () => reauthenticationFilter(response, mockWindow, uuid);
     expect(act).toThrow(CmsAuthError);
     expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
   });
@@ -90,7 +101,11 @@ describe("Reauthentication Filter", () => {
 
       const response = { ok: true, status: 200 } as Response;
 
-      const filteredResponse = reauthenticationFilter(response, mockWindow);
+      const filteredResponse = reauthenticationFilter(
+        response,
+        mockWindow,
+        uuid
+      );
       expect(filteredResponse).toBe(response);
       expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
     }

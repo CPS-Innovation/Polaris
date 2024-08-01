@@ -111,5 +111,26 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("isUnused")]
         public bool IsUnused { get; set; }
+
+        [JsonProperty("isInbox")]
+        public bool IsInbox { get; set; }
+
+        [JsonProperty("classification")]
+        public string Classification { get; set; }
+
+        [JsonProperty("isWitnessManagement")]
+        public bool IsWitnessManagement { get; set; }
+
+        [JsonProperty("canReclassify")]
+        public bool CanReclassify { get; set; }
+
+        [JsonProperty("canRename")]
+        public bool CanRename { get; set; }
+
+        [JsonProperty("renameStatus")]
+        public string RenameStatus { get; set; }
+
+        [JsonProperty("reference")]
+        public string Reference { get; set; }
     }
 }

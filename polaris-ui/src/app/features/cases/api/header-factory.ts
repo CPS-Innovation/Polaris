@@ -2,7 +2,7 @@ import { getAccessToken } from "../../../auth";
 import { GATEWAY_SCOPE, REDACTION_LOG_SCOPE } from "../../../config";
 import { generateGuid } from "./generate-guid";
 
-const CORRELATION_ID = "Correlation-Id";
+export const CORRELATION_ID = "Correlation-Id";
 
 export const correlationId = (existingCorrelationId?: string) => ({
   [CORRELATION_ID]: existingCorrelationId || generateGuid(),

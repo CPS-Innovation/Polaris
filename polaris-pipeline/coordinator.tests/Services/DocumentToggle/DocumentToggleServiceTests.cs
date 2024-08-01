@@ -94,7 +94,14 @@ namespace coordinator.tests.Services.DocumentToggle
           new PresentationFlagsDto(),
           false,
           false,
-          false);
+          false,
+          false,
+          null,
+          false,
+          false,
+          false,
+          null,
+          null);
       document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
       // Assert
@@ -127,7 +134,14 @@ namespace coordinator.tests.Services.DocumentToggle
           new PresentationFlagsDto(),
           false,
           false,
-          false);
+          false,
+          false,
+          null,
+          false,
+          false,
+          false,
+          null,
+          null);
       document.PresentationFlags.Read = ReadFlag.Ok;
 
       // Assert
@@ -160,7 +174,14 @@ namespace coordinator.tests.Services.DocumentToggle
           new PresentationFlagsDto(),
           false,
           false,
-          false);
+          false,
+          false,
+          null,
+          false,
+          false,
+          false,
+          null,
+          null);
       document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
 
@@ -194,7 +215,14 @@ namespace coordinator.tests.Services.DocumentToggle
           new PresentationFlagsDto(),
           false,
           false,
-          false);
+          false,
+          false,
+          null,
+          false,
+          false,
+          false,
+          null,
+          null);
       document.PresentationFlags.Write = WriteFlag.Ok;
 
       // Assert

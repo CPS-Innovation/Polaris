@@ -12,6 +12,7 @@ public class InitializationHandler : IInitializationHandler
 {
     private readonly IAuthorizationValidator _tokenValidator;
     private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
+    private const int MockUserUserId = int.MinValue;
 
     public InitializationHandler(
             IAuthorizationValidator tokenValidator,
@@ -34,7 +35,14 @@ public class InitializationHandler : IInitializationHandler
         _telemetryAugmentationWrapper.RegisterUserName(username);
 
         var cmsAuthValues = EstablishCmsAuthValues(req);
-        _telemetryAugmentationWrapper.RegisterCmsUserId(cmsAuthValues.ExtractCmsUserId());
+        var cmsUserId = cmsAuthValues.ExtractCmsUserId();
+        var isMockUser = cmsUserId == MockUserUserId;
+
+        _telemetryAugmentationWrapper.RegisterCmsUserId(cmsUserId);
+
+        if (isMockUser)
+            _telemetryAugmentationWrapper.RegisterIsMockUser(true);
+
         return (correlationId, cmsAuthValues);
     }
 

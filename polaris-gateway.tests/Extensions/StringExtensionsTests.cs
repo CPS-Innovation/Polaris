@@ -20,6 +20,12 @@ public class StringExtensionsTests
     [InlineData("foo=bar;UID=123; foo=bar", 123)]
     [InlineData("foo=bar; UID=123; foo=bar", 123)]
 
+    [InlineData("CMSUSER123;", 123)]
+    [InlineData("CMSUSER123;foo=bar", 123)]
+    [InlineData("CMSUSER123; foo=bar", 123)]
+
+
+    [InlineData("CMSUSER", 0)]
     [InlineData("UID=", 0)]
     [InlineData("UID=;", 0)]
     [InlineData("UID=;foo=bar", 0)]

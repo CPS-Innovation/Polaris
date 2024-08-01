@@ -385,7 +385,10 @@ const internalReauthenticatingFetch = async (
 ) => {
   const response = await internalFetch(...args);
 
-  return reauthenticationFilter(response, window);
+  const headers = args[1]?.headers as Record<string, string> | undefined;
+  const correlationId = headers?.[HEADERS.CORRELATION_ID];
+
+  return reauthenticationFilter(response, window, correlationId || null);
 };
 
 const handleGetCaseApiResponse = async (

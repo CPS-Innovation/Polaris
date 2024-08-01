@@ -3,6 +3,7 @@ import { CmsAuthRedirectingError } from "../../../common/errors/CmsAuthRedirecti
 import { REAUTH_REDIRECT_URL } from "../../../config";
 
 const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
+const FAIL_CORRELATION_ID_QUERY_PARAM = "fail-correlation-id";
 
 const isCmsAuthFail = (response: Response) => response.status === 401;
 
@@ -21,13 +22,23 @@ const tryCleanRefreshIndicator = (window: Window) => {
   }
 };
 
-const tryHandleFirstAuthFail = (response: Response, window: Window) => {
+const tryHandleFirstAuthFail = (
+  response: Response,
+  window: Window,
+  correlationId: string | null
+) => {
   if (isCmsAuthFail(response) && !isAuthPageLoad(window)) {
     const delimiter = window.location.href.includes("?") ? "&" : "?";
 
-    const nextUrl = `${REAUTH_REDIRECT_URL}${encodeURIComponent(
+    let nextUrl = `${REAUTH_REDIRECT_URL}${encodeURIComponent(
       window.location.href + delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
     )}`;
+
+    if (correlationId) {
+      nextUrl += encodeURIComponent(
+        `&${FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`
+      );
+    }
 
     window.location.href = nextUrl;
     // stop any follow-on logic occurring
@@ -49,7 +60,11 @@ const handleNonAuthCall = (response: Response, window: Window) => {
   return response;
 };
 
-export const reauthenticationFilter = (response: Response, window: Window) =>
-  tryHandleFirstAuthFail(response, window) ||
+export const reauthenticationFilter = (
+  response: Response,
+  window: Window,
+  correlationId: string | null
+) =>
+  tryHandleFirstAuthFail(response, window, correlationId) ||
   tryHandleSecondAuthFail(response, window) ||
   handleNonAuthCall(response, window);
