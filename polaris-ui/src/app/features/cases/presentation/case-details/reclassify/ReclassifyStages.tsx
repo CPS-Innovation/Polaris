@@ -5,6 +5,7 @@ import {
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
 import { ReclassifyStage2 } from "./ReclassifyStage2";
+import { ReclassifyStage3 } from "./ReclassifyStage3";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
@@ -63,6 +64,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
   };
 
+  const handleAcceptAndSave = () => {
+    handleCancelReclassify();
+  };
+
   return (
     <div>
       <LinkButton onClick={handleBackBtnClick}>Back</LinkButton>
@@ -73,9 +78,19 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         <ReclassifyStage2 presentationTitle={presentationTitle} />
       )}
 
+      {state.reClassifyStage === "stage3" && <ReclassifyStage3 />}
+
       <div className={classes.btnWrapper}>
-        <Button onClick={handleContinueBtnClick}>Continue</Button>
-        <LinkButton onClick={handleCancelReclassify}>Cancel</LinkButton>
+        {state.reClassifyStage !== "stage3" ? (
+          <>
+            <Button onClick={handleContinueBtnClick}>Continue</Button>
+            <LinkButton onClick={handleCancelReclassify}>Cancel</LinkButton>
+          </>
+        ) : (
+          <>
+            <Button onClick={handleAcceptAndSave}>Accept and save</Button>
+          </>
+        )}
       </div>
     </div>
   );
