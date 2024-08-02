@@ -37,7 +37,8 @@ function retrieveDestinationKey(r) {
   const isCorshamCookiePresent = retrieveLoadBalancerTarget(cookies, CORSHAM_FRAGMENT);
   const isFarnboroughCookiePresent = retrieveLoadBalancerTarget(cookies, FARNBOROUGH_FRAGMENT);
   const clientIpAddress = r.headersIn["x-forwarded-for"];
-  const hostNameFlag = retrieveHostNameFlag(cookies); // returns e.g. CIN3
+  const selectedEnvironment = r.headersIn["cms-selected-environment"];
+  const hostNameFlag = retrieveHostNameFlag(cookies, selectedEnvironment); // returns e.g. CIN3
   const corshamOrFarnboroughFlag = determineLoadBalancerTargetChoice(r.headersIn["Cms-Auth-Values"], isCorshamCookiePresent, isFarnboroughCookiePresent, clientIpAddress);
 
   r.variables["loadBalancerTarget"] = corshamOrFarnboroughFlag;
@@ -76,16 +77,21 @@ function retrieveLoadBalancerTarget(cookies, target) {
   return result;
 }
 
-function retrieveHostNameFlag(cookies) {
-  const cookieSearch = cookies.filter(c => c.toUpperCase().indexOf("BIGIPSERVER") > -1);
-
-  let result = "DEFAULT";
-  if (cookieSearch[0] !== undefined) {
-    const str = cookieSearch[0];
-    const startPos = str.toUpperCase().indexOf(".CPS.GOV.UK");
-    result = retrieveHostName(str, startPos-1);
+function retrieveHostNameFlag(cookies, selectedEnvironment) {
+  if (selectedEnvironment !== "") {
+    return selectedEnvironment;
   }
-  return result;
+  else {
+    const cookieSearch = cookies.filter(c => c.toUpperCase().indexOf("BIGIPSERVER") > -1);
+
+    let result = "DEFAULT";
+    if (cookieSearch[0] !== undefined) {
+      const str = cookieSearch[0];
+      const startPos = str.toUpperCase().indexOf(".CPS.GOV.UK");
+      result = retrieveHostName(str, startPos - 1);
+    }
+    return result;
+  }
 }
 
 function retrieveHostName(str, startPoint) {
