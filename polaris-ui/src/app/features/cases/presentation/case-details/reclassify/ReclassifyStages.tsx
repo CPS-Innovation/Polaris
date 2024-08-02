@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   LinkButton,
   Button,
@@ -6,23 +7,49 @@ import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
 import { ReclassifyStage2 } from "./ReclassifyStage2";
 import { ReclassifyStage3 } from "./ReclassifyStage3";
+import { MaterialType } from "./data/MaterialType";
+import { ExhibitProducer } from "./data/ExhibitProducer";
+import { StatementWitness } from "./data/StatementWitness";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
   presentationTitle: string;
   handleCancelReclassify: () => void;
+  getMaterialTypeList: () => Promise<MaterialType[]>;
+  getExhibitProducers: () => Promise<ExhibitProducer[]>;
+  getStatementWitnessDetails: () => Promise<StatementWitness[]>;
 };
 
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleCancelReclassify,
   presentationTitle,
+  getMaterialTypeList,
+  getExhibitProducers,
+  getStatementWitnessDetails,
 }) => {
-  const reclassifyContext = useReClassifyContext();
+  const [loading, setLoading] = useState(false);
+  const reclassifyContext = useReClassifyContext()!;
 
-  if (!reclassifyContext) {
-    return <div>Context is now available</div>;
-  }
   const { state, dispatch } = reclassifyContext;
+  useEffect(() => {
+    const fetchDataOnMount = async () => {
+      if (state.materialTypeList.length) return;
+      setLoading(true);
+      try {
+        const result = await getMaterialTypeList();
+        dispatch({
+          type: "ADD_MATERIAL_TYPE_LIST",
+          payload: { materialList: result },
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDataOnMount();
+  }, [getMaterialTypeList, dispatch, state.materialTypeList.length]);
 
   const handleContinueBtnClick = () => {
     if (state.reClassifyStage === "stage1") {
@@ -67,7 +94,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const handleAcceptAndSave = () => {
     handleCancelReclassify();
   };
-
+  if (loading) {
+    return <div>loading data</div>;
+  }
   return (
     <div>
       <LinkButton onClick={handleBackBtnClick}>Back</LinkButton>
@@ -75,7 +104,11 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         <ReclassifyStage1 presentationTitle={presentationTitle} />
       )}
       {state.reClassifyStage === "stage2" && (
-        <ReclassifyStage2 presentationTitle={presentationTitle} />
+        <ReclassifyStage2
+          presentationTitle={presentationTitle}
+          getExhibitProducers={getExhibitProducers}
+          getStatementWitnessDetails={getStatementWitnessDetails}
+        />
       )}
 
       {state.reClassifyStage === "stage3" && <ReclassifyStage3 />}

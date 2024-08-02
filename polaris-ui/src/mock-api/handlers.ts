@@ -10,6 +10,8 @@ import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
 import redactionLogDataSource from "./data/redactionLogData.dev";
 import cypressRedactionLogDataSource from "./data/redactionLogData.cypress";
+import reclassifyDataSource from "./data/reclassifyData.dev";
+import cypressReclassifyDataSource from "./data/resclassifyData.cypress";
 import { RedactionLogDataSource } from "./data/types/RedactionLogDataSource";
 import { SearchDataSource } from "./data/types/SearchDataSource";
 import {
@@ -44,6 +46,11 @@ const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
 const redactionLogDataSources: { [key: string]: RedactionLogDataSource } = {
   dev: redactionLogDataSource,
   cypress: cypressRedactionLogDataSource,
+};
+
+const reclassifyDataSources: { [key: string]: any } = {
+  dev: reclassifyDataSource,
+  cypress: cypressReclassifyDataSource,
 };
 
 const pipelinePdfResultsDataSources: {
@@ -206,6 +213,21 @@ export const setupHandlers = ({
       const results = searchPIIDataSources[sourceName];
       return res(delay(ctx), ctx.json(results));
       // return res(ctx.status(500), ctx.body("test_user_name"));
+    }),
+
+    rest.get(makeApiPath(routes.MATERIAL_TYPE_LIST), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].materialTypeList;
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.get(makeApiPath(routes.EXHIBIT_PRODUCERS), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].exhibitProducers;
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.get(makeApiPath(routes.STATEMENT_WITNESS), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].statementWitness;
+      return res(delay(ctx), ctx.json(results));
     }),
   ];
 };

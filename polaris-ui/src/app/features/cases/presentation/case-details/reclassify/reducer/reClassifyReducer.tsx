@@ -1,11 +1,31 @@
+import { MaterialType, ReclassifyVariant } from "../data/MaterialType";
+import { ExhibitProducer } from "../data/ExhibitProducer";
+import { StatementWitness } from "../data/StatementWitness";
+
 export type ReclassifyState = {
+  materialTypeList: MaterialType[];
+  exhibitProducers: ExhibitProducer[];
+  statementWitness: StatementWitness[];
   currentDocTypeId: string;
   newDocTypeId: string;
-  reclassifyType: "type1" | "type2" | "type3" | "type4" | "initial";
+  reclassifyVariant: ReclassifyVariant;
+
   reClassifyStage: "stage1" | "stage2" | "stage3";
 };
 
 export type ReclassifyActions =
+  | {
+      type: "ADD_MATERIAL_TYPE_LIST";
+      payload: { materialList: MaterialType[] };
+    }
+  | {
+      type: "ADD_EXHIBIT_PRODUCERS";
+      payload: { exhibitProducers: ExhibitProducer[] };
+    }
+  | {
+      type: "ADD_STATEMENT_WITNESSS";
+      payload: { statementWitness: StatementWitness[] };
+    }
   | {
       type: "UPDATE_DOCUMENT_TYPE";
       payload: { id: string };
@@ -15,22 +35,28 @@ export type ReclassifyActions =
       payload: { newStage: "stage1" | "stage2" | "stage3" };
     };
 export const reclassifyInitialState: ReclassifyState = {
-  currentDocTypeId: "MG2",
+  materialTypeList: [],
+  exhibitProducers: [],
+  statementWitness: [],
+  currentDocTypeId: "",
   newDocTypeId: "",
-  reclassifyType: "initial",
+  reclassifyVariant: "IMMEDIATE",
   reClassifyStage: "stage1",
 };
 
-const getReclassifyType = (id: string) => {
-  switch (id) {
-    case "MG1":
-      return "type1" as const;
-    case "MG2":
-      return "type2" as const;
-    case "MG3":
-      return "type3" as const;
-    default:
-      return "type4" as const;
+const getReclassifyVariant = (
+  materialTypeList: MaterialType[],
+  code: string
+) => {
+  const selectedType = materialTypeList.find((type) => type.code === code)!;
+  if (selectedType.classification === "STATEMENT") {
+    return "STATEMENT";
+  } else if (selectedType.classification === "EXHIBIT") {
+    return "EXHIBIT";
+  } else if (selectedType.addAsUsedOrUnused === "Y") {
+    return "OTHER";
+  } else {
+    return "IMMEDIATE";
   }
 };
 
@@ -39,11 +65,32 @@ export const reClassifyReducer = (
   action: ReclassifyActions
 ): ReclassifyState => {
   switch (action.type) {
+    case "ADD_MATERIAL_TYPE_LIST": {
+      return {
+        ...state,
+        materialTypeList: action.payload.materialList,
+      };
+    }
+    case "ADD_EXHIBIT_PRODUCERS": {
+      return {
+        ...state,
+        exhibitProducers: action.payload.exhibitProducers,
+      };
+    }
+    case "ADD_STATEMENT_WITNESSS": {
+      return {
+        ...state,
+        statementWitness: action.payload.statementWitness,
+      };
+    }
     case "UPDATE_DOCUMENT_TYPE": {
       return {
         ...state,
         newDocTypeId: action.payload.id,
-        reclassifyType: getReclassifyType(action.payload.id),
+        reclassifyVariant: getReclassifyVariant(
+          state.materialTypeList,
+          action.payload.id
+        ),
       };
     }
     case "UPDATE_CLASSIFY_STAGE": {

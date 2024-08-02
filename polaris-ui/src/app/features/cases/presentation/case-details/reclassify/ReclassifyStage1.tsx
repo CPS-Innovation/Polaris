@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { Select } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 
@@ -5,38 +7,26 @@ type ReclassifyStage1Props = {
   presentationTitle: string;
 };
 
-const docTypes = [
-  {
-    value: "",
-    children: "Choose document type",
-    disabled: true,
-  },
-  {
-    value: "MG1",
-    children: "MG1",
-  },
-  {
-    value: "MG2",
-    children: "MG2",
-  },
-  {
-    value: "MG3",
-    children: "MG3",
-  },
-  {
-    value: "MG4",
-    children: "MG4",
-  },
-];
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   presentationTitle,
 }) => {
-  const reclassifyContext = useReClassifyContext();
+  const reclassifyContext = useReClassifyContext()!;
 
-  if (!reclassifyContext) {
-    return <div>Context is now available</div>;
-  }
   const { state, dispatch } = reclassifyContext;
+  const docTypes = useMemo(() => {
+    const defaultValue = {
+      value: "",
+      children: "Choose document type",
+      disabled: true,
+    };
+    const mappedValues = state.materialTypeList.map(
+      ({ code, description }) => ({
+        value: code,
+        children: description,
+      })
+    );
+    return [defaultValue, ...mappedValues];
+  }, [state.materialTypeList]);
 
   const handleDocTypeChange = (value: string) => {
     console.log("value>>>", value);
@@ -58,7 +48,6 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
               Select the document type for <b>{presentationTitle}</b>
             </span>
           ),
-          // className: classes.selectLabel,
         }}
         id="select-reclassify-document-type"
         data-testid="select-reclassify-document-type"

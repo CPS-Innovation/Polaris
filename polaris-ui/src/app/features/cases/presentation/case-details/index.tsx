@@ -41,6 +41,11 @@ import { NotesPanel } from "./notes/NotesPanel";
 import { RenamePanel } from "./rename/RenamePanel";
 import { Reclassify } from "./reclassify/Reclassify";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
+import {
+  getMaterialTypeList,
+  getExhibitProducers,
+  getStatementWitnessDetails,
+} from "../../api/gateway-api";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -245,6 +250,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   const hideReclassifyDocument = () => {
     setInReclassify(false);
+  };
+
+  const handleGetMaterialTypeList = () => {
+    return getMaterialTypeList(urn, +caseId);
+  };
+  const handleGetExhibitProducers = () => {
+    return getExhibitProducers(urn, +caseId);
+  };
+  const handleGetStatementWitnessDetails = () => {
+    return getStatementWitnessDetails(urn, +caseId);
   };
 
   return (
@@ -602,7 +617,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
       {inReclassify && (
         <div>
-          <Reclassify handleCancelReclassify={hideReclassifyDocument} />
+          <Reclassify
+            handleCancelReclassify={hideReclassifyDocument}
+            getMaterialTypeList={handleGetMaterialTypeList}
+            getExhibitProducers={handleGetExhibitProducers}
+            getStatementWitnessDetails={handleGetStatementWitnessDetails}
+          />
         </div>
       )}
     </div>
