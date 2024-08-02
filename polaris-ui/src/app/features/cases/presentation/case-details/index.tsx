@@ -602,15 +602,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
       {inReclassify && (
         <div>
-          <nav>
-            <BackLink
-              to={"/case-details/45GD4103823/13401"}
-              onClick={hideReclassifyDocument}
-            >
-              Back
-            </BackLink>
-          </nav>
-          <Reclassify />
+          <Reclassify handleCancelReclassify={hideReclassifyDocument} />
         </div>
       )}
     </div>

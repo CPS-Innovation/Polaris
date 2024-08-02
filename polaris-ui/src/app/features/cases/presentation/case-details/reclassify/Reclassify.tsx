@@ -1,15 +1,22 @@
 import { ReClassifyProvider } from "./context/ReClassifyProvider";
-import { ReclassifyPage1 } from "./ReclassifyPage1";
-import { ReclassifyPage2 } from "./ReclassifyPage2";
+import { ReclassifyStages } from "./ReclassifyStages";
 
-type ReclassifyProps = {};
+type ReclassifyProps = {
+  presentationTitle?: string;
+  handleCancelReclassify: () => void;
+};
 
-export const Reclassify = () => {
+export const Reclassify: React.FC<ReclassifyProps> = ({
+  handleCancelReclassify,
+  presentationTitle = "Asset Rec 1",
+}) => {
   return (
     <div>
       <ReClassifyProvider>
-        <ReclassifyPage1 />
-        <ReclassifyPage2 />
+        <ReclassifyStages
+          handleCancelReclassify={handleCancelReclassify}
+          presentationTitle={presentationTitle}
+        />
       </ReClassifyProvider>
     </div>
   );

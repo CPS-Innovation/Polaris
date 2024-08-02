@@ -1,17 +1,16 @@
-import {
-  BackLink,
-  Tooltip,
-  LinkButton,
-  PageContentWrapper,
-  WaitPage,
-  Select,
-  Button,
-} from "../../../../../common/presentation/components";
+import { Select } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 
-type ReclassifyPage1Props = {};
+type ReclassifyStage1Props = {
+  presentationTitle: string;
+};
 
 const docTypes = [
+  {
+    value: "",
+    children: "Choose document type",
+    disabled: true,
+  },
   {
     value: "MG1",
     children: "MG1",
@@ -20,8 +19,18 @@ const docTypes = [
     value: "MG2",
     children: "MG2",
   },
+  {
+    value: "MG3",
+    children: "MG3",
+  },
+  {
+    value: "MG4",
+    children: "MG4",
+  },
 ];
-export const ReclassifyPage1 = () => {
+export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
+  presentationTitle,
+}) => {
   const reclassifyContext = useReClassifyContext();
 
   if (!reclassifyContext) {
@@ -35,6 +44,7 @@ export const ReclassifyPage1 = () => {
   };
   return (
     <div>
+      <h1>Select the document type</h1>
       <Select
         // errorMessage={
         //   {
@@ -43,7 +53,11 @@ export const ReclassifyPage1 = () => {
         // }
         label={{
           htmlFor: "select-reclassify-document-type",
-          children: "Select the document type",
+          children: (
+            <span>
+              Select the document type for <b>{presentationTitle}</b>
+            </span>
+          ),
           // className: classes.selectLabel,
         }}
         id="select-reclassify-document-type"
@@ -52,10 +66,6 @@ export const ReclassifyPage1 = () => {
         value={state.newDocTypeId}
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
       />
-      <div>
-        <Button>Continue</Button>
-        <LinkButton onClick={() => {}}>Cancel</LinkButton>
-      </div>
     </div>
   );
 };
