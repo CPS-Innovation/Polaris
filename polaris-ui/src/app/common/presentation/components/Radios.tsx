@@ -1,12 +1,24 @@
 import * as GDS from "govuk-react-jsx";
 
 export type RadiosProps = {
+  fieldset?: {
+    legend: {
+      children: string;
+      className?: string;
+      isPageHeading?: boolean;
+    };
+  };
+  hint?: {
+    children: any;
+  };
+
   value: string | undefined;
   name: string;
   items: {
     reactListKey?: string;
     value: string | undefined;
     children: React.ReactNode;
+    conditional?: any;
   }[];
   onChange?: (value: string | undefined) => void;
 };

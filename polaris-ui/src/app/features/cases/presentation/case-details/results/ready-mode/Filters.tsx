@@ -28,6 +28,8 @@ export const Filters: React.FC<Props> = ({
   const docTypeItems = toItemArray(docType);
   const categoryItems = toItemArray(category);
   const areResultsPresent = !!docTypeItems.length;
+  console.log("docType>>", docType);
+  console.log("docTypeItems>>", docTypeItems);
 
   return (
     <>

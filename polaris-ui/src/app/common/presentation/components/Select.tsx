@@ -21,8 +21,9 @@ type SelectProps = React.DetailedHTMLProps<
   id?: string;
   items: {
     reactListKey?: string;
-    value: string;
+    value: string | number;
     children: React.ReactNode;
+    disabled?: boolean;
     optionAttributes?: React.DetailedHTMLProps<
       React.OptionHTMLAttributes<HTMLOptionElement>,
       HTMLOptionElement

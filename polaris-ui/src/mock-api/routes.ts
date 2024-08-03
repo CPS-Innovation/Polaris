@@ -24,3 +24,14 @@ export const SEARCH_PII_ROUTE =
 
 export const RENAME_DOCUMENT_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/rename";
+
+export const MATERIAL_TYPE_LIST =
+  "api/urns/:urn/cases/:caseId/materialTypeList";
+
+export const EXHIBIT_PRODUCERS =
+  "api/urns/:urn/cases/:caseId/exhibit-producers";
+
+export const STATEMENT_WITNESS = "api/urns/:urn/cases/:caseId/witnesses";
+
+export const SAVE_RECLASSIFY =
+  "/api/urns/:urn/cases/:caseId/documents/:docId/reclassify";
