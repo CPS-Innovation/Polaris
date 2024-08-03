@@ -13,19 +13,19 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   const reclassifyContext = useReClassifyContext()!;
 
   const { state, dispatch } = reclassifyContext;
-  const docTypes = useMemo(() => {
+  const docTypesValues = useMemo(() => {
     const defaultValue = {
       value: "",
       children: "Choose document type",
       disabled: true,
     };
-    const mappedValues = state.materialTypeList.map(
+    const mappedDocTypeValues = state.materialTypeList.map(
       ({ code, description }) => ({
         value: code,
         children: description,
       })
     );
-    return [defaultValue, ...mappedValues];
+    return [defaultValue, ...mappedDocTypeValues];
   }, [state.materialTypeList]);
 
   const handleDocTypeChange = (value: string) => {
@@ -51,7 +51,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         }}
         id="select-reclassify-document-type"
         data-testid="select-reclassify-document-type"
-        items={docTypes}
+        items={docTypesValues}
         value={state.newDocTypeId}
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
       />

@@ -49,9 +49,9 @@ const exhibitProducers = [
 ];
 
 const statementWitness = [
-  { witness: { id: 1, fullName: "PC Blaynee" }, statementNumbers: [1, 2, 3] },
-  { witness: { id: 2, fullName: "PC Jones" }, statementNumbers: [2, 3] },
-  { witness: { id: 3, fullName: "PC Lucy" }, statementNumbers: [2, 3, 4] },
+  { witness: { id: 1, name: "PC Blaynee_S" }, statementNumbers: [1, 2, 3] },
+  { witness: { id: 2, name: "PC Jones_S" }, statementNumbers: [2, 3] },
+  { witness: { id: 3, name: "PC Lucy_S" }, statementNumbers: [2, 3, 4] },
 ];
 const dataSource = {
   materialTypeList,

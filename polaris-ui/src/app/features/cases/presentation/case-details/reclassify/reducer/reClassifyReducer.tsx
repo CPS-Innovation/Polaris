@@ -9,8 +9,45 @@ export type ReclassifyState = {
   currentDocTypeId: string;
   newDocTypeId: string;
   reclassifyVariant: ReclassifyVariant;
-
   reClassifyStage: "stage1" | "stage2" | "stage3";
+  formData: {
+    documentRenameStatus: "YES" | "NO";
+    documentNewName: string;
+    documentUsedStatus: "YES" | "NO";
+    exhibitItem: string;
+    exhibitReference: string;
+    exhibitItemName: string;
+    exhibitProducerId: string;
+    statementWitnessId: string;
+    statementDay: string;
+    statementMonth: string;
+    statementYear: string;
+    statementNumber: string;
+  };
+};
+
+export const reclassifyInitialState: ReclassifyState = {
+  materialTypeList: [],
+  exhibitProducers: [],
+  statementWitness: [],
+  currentDocTypeId: "",
+  newDocTypeId: "",
+  reclassifyVariant: "IMMEDIATE",
+  reClassifyStage: "stage1",
+  formData: {
+    documentRenameStatus: "NO",
+    documentNewName: "",
+    documentUsedStatus: "NO",
+    exhibitItem: "",
+    exhibitReference: "",
+    exhibitItemName: "",
+    exhibitProducerId: "",
+    statementWitnessId: "",
+    statementDay: "",
+    statementMonth: "",
+    statementYear: "",
+    statementNumber: "",
+  },
 };
 
 export type ReclassifyActions =
@@ -33,16 +70,47 @@ export type ReclassifyActions =
   | {
       type: "UPDATE_CLASSIFY_STAGE";
       payload: { newStage: "stage1" | "stage2" | "stage3" };
+    }
+  | {
+      type: "UPDATE_DOCUMENT_RENAME_STATUS";
+      payload: { value: "YES" | "NO" };
+    }
+  | {
+      type: "UPDATE_DOCUMENT_NEW_NAME";
+      payload: { newName: string };
+    }
+  | {
+      type: "UPDATE_DOCUMENT_USED_STATUS";
+      payload: { value: "YES" | "NO" };
+    }
+  | {
+      type: "UPDATE_EXHIBIT_ITEM";
+      payload: { value: string };
+    }
+  | {
+      type: "UPDATE_EXHIBIT_ITEM_REFERENCE";
+      payload: { value: string };
+    }
+  | {
+      type: "UPDATE_EXHIBIT_ITEM_NAME";
+      payload: { value: string };
+    }
+  | {
+      type: "UPDATE_EXHIBIT_PRODUCER_ID";
+      payload: { value: string };
+    }
+  | {
+      type: "UPDATE_STATEMENT_WITNESS_ID";
+      payload: { value: string };
+    }
+  | {
+      type: "UPDATE_STATEMENT_DATE";
+      payload: { type: "day" | "month" | "year"; value: string };
+    }
+  | {
+      type: "UPDATE_STATEMENT_NUMBER";
+      payload: { value: string };
     };
-export const reclassifyInitialState: ReclassifyState = {
-  materialTypeList: [],
-  exhibitProducers: [],
-  statementWitness: [],
-  currentDocTypeId: "",
-  newDocTypeId: "",
-  reclassifyVariant: "IMMEDIATE",
-  reClassifyStage: "stage1",
-};
 
 const getReclassifyVariant = (
   materialTypeList: MaterialType[],
@@ -97,6 +165,103 @@ export const reClassifyReducer = (
       return {
         ...state,
         reClassifyStage: action.payload.newStage,
+      };
+    }
+    case "UPDATE_DOCUMENT_RENAME_STATUS": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          documentRenameStatus: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_DOCUMENT_NEW_NAME": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          documentNewName: action.payload.newName,
+        },
+      };
+    }
+    case "UPDATE_DOCUMENT_USED_STATUS": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          documentUsedStatus: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_EXHIBIT_ITEM": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          exhibitItem: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_EXHIBIT_ITEM_REFERENCE": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          exhibitReference: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_EXHIBIT_ITEM_NAME": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          exhibitItemName: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_EXHIBIT_PRODUCER_ID": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          exhibitProducerId: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_STATEMENT_WITNESS_ID": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          statementWitnessId: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_STATEMENT_DATE": {
+      let newFormData = state.formData;
+      if (action.payload.type === "day") {
+        newFormData = { ...newFormData, statementDay: action.payload.value };
+      }
+      if (action.payload.type === "month") {
+        newFormData = { ...newFormData, statementMonth: action.payload.value };
+      }
+      if (action.payload.type === "year") {
+        newFormData = { ...newFormData, statementYear: action.payload.value };
+      }
+      return {
+        ...state,
+        formData: newFormData,
+      };
+    }
+    case "UPDATE_STATEMENT_NUMBER": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          statementNumber: action.payload.value,
+        },
       };
     }
     default:

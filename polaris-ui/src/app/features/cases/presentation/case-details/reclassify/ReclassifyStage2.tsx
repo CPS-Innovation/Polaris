@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Select,
   Input,
@@ -71,11 +71,33 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     state.statementWitness.length,
   ]);
 
-  const handleDocumentNameChange = (value: string | undefined) => {
-    console.log("value>>>", value);
-  };
+  const statementWitnessValues = useMemo(() => {
+    const defaultValue = {
+      value: "",
+      children: "Select a Witness",
+      disabled: true,
+    };
+    const mappedValues = state.statementWitness.map(
+      ({ witness: { id, name } }) => ({
+        value: id,
+        children: name,
+      })
+    );
+    return [defaultValue, ...mappedValues];
+  }, [state.statementWitness]);
 
-  const handleDocumentUsedStatusChange = (value: string | undefined) => {};
+  const exhibitProducersValues = useMemo(() => {
+    const defaultValue = {
+      value: "",
+      children: "Select a Producer",
+      disabled: true,
+    };
+    const mappedValues = state.exhibitProducers.map(({ id, fullName }) => ({
+      value: id,
+      children: fullName,
+    }));
+    return [defaultValue, ...mappedValues];
+  }, [state.exhibitProducers]);
 
   const getHeaderText = (varaint: ReclassifyVariant) => {
     switch (varaint) {
@@ -110,7 +132,87 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     }
   };
 
-  const handleStatementDateChange = (value: any) => {};
+  const handleDocumentRenameStatusChange = (value: string | undefined) => {
+    if (value)
+      dispatch({
+        type: "UPDATE_DOCUMENT_RENAME_STATUS",
+        payload: { value: value as "YES" | "NO" },
+      });
+  };
+
+  const handleDocumentNewName = (value: string) => {
+    dispatch({
+      type: "UPDATE_DOCUMENT_NEW_NAME",
+      payload: { newName: value },
+    });
+  };
+
+  const handleDocumentUsedStatusChange = (value: string | undefined) => {
+    if (value)
+      dispatch({
+        type: "UPDATE_DOCUMENT_USED_STATUS",
+        payload: { value: value as "YES" | "NO" },
+      });
+  };
+
+  const handleUpdateExhibitItem = (value: string) => {
+    dispatch({
+      type: "UPDATE_EXHIBIT_ITEM",
+      payload: { value: value },
+    });
+  };
+
+  const handleUpdateExhibitReference = (value: string) => {
+    dispatch({
+      type: "UPDATE_EXHIBIT_ITEM_REFERENCE",
+      payload: { value: value },
+    });
+  };
+
+  const handleUpdateExhibitItemName = (value: string) => {
+    dispatch({
+      type: "UPDATE_EXHIBIT_ITEM_NAME",
+      payload: { value: value },
+    });
+  };
+  const handleUpdateExhibitProducerId = (value: string) => {
+    dispatch({
+      type: "UPDATE_EXHIBIT_PRODUCER_ID",
+      payload: { value: value },
+    });
+  };
+
+  const handleUpdateStatementWitnessId = (value: string) => {
+    dispatch({
+      type: "UPDATE_STATEMENT_WITNESS_ID",
+      payload: { value: value },
+    });
+  };
+
+  const handleStatementDateChange = (event: any) => {
+    let type: "day" | "month" | "year" = "day";
+    if (event.target.name === "statement-date-day") {
+      type = "day";
+    }
+    if (event.target.name === "statement-date-month") {
+      type = "month";
+    }
+    if (event.target.name === "statement-date-year") {
+      type = "year";
+    }
+    if (type)
+      dispatch({
+        type: "UPDATE_STATEMENT_DATE",
+        payload: { type: type, value: event.target.value },
+      });
+  };
+
+  const handleUpdateStatementNumber = (value: string) => {
+    dispatch({
+      type: "UPDATE_STATEMENT_NUMBER",
+      payload: { value: value },
+    });
+  };
   if (loading) {
     return <div>loading data</div>;
   }
@@ -129,35 +231,32 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             ),
           }}
           key={"change-document-name"}
-          onChange={handleDocumentNameChange}
-          value={"Yes"}
+          onChange={handleDocumentRenameStatusChange}
+          value={state.formData.documentRenameStatus}
           name="radio-change-document-name"
           items={[
             {
               children: "Yes",
               conditional: {
                 children: [
-                  <label
-                    key="0"
-                    className="govuk-label"
-                    htmlFor="document-new-name"
-                  >
-                    Enter new document name
-                  </label>,
-                  <input
-                    key="1"
-                    className="govuk-input  govuk-input--width-10"
+                  <Input
                     id="document-new-name"
+                    className="govuk-input--width-10"
+                    label={{
+                      children: "Enter new document name",
+                    }}
                     name="document-new-name"
                     type="text"
+                    value={state.formData.documentNewName}
+                    onChange={handleDocumentNewName}
                   />,
                 ],
               },
-              value: "Yes",
+              value: "YES",
             },
             {
               children: "No",
-              value: "No",
+              value: "NO",
             },
           ]}
         />
@@ -173,6 +272,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             }}
             name="exhibit-item"
             type="text"
+            value={state.formData.exhibitItem}
+            onChange={handleUpdateExhibitItem}
           />
           <Input
             id="exhibit-reference"
@@ -182,6 +283,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             }}
             name="exhibit-reference"
             type="text"
+            value={state.formData.exhibitReference}
+            onChange={handleUpdateExhibitReference}
           />
           <Input
             id="exhibit-item-name"
@@ -191,30 +294,19 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             }}
             name="exhibit-item-name"
             type="text"
+            value={state.formData.exhibitItemName}
+            onChange={handleUpdateExhibitItemName}
           />
 
           <Select
             id="exhibit-select-witness"
-            items={[
-              {
-                children: "Witness 1",
-                value: 1,
-              },
-              {
-                children: "Witness 2",
-                value: 2,
-              },
-              {
-                children: "Select a Witness",
-                disabled: true,
-                value: 3,
-              },
-            ]}
+            items={exhibitProducersValues}
             label={{
               children: "Select witness",
             }}
             name="exhibit-select-witness"
-            value={3}
+            value={state.formData.exhibitProducerId}
+            onChange={(ev) => handleUpdateExhibitProducerId(ev.target.value)}
           />
         </div>
       )}
@@ -223,26 +315,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         <div>
           <Select
             id="statement-select-witness"
-            items={[
-              {
-                children: "Witness 1",
-                value: 1,
-              },
-              {
-                children: "Witness 2",
-                value: 2,
-              },
-              {
-                children: "Select a Witness",
-                disabled: true,
-                value: 3,
-              },
-            ]}
+            items={statementWitnessValues}
             label={{
               children: "Select witness",
             }}
             name="statement-select-witness"
-            value={3}
+            value={state.formData.statementWitnessId}
+            onChange={(ev) => handleUpdateStatementWitnessId(ev.target.value)}
           />
           <DateInput
             fieldset={{
@@ -263,17 +342,20 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               {
                 className: "govuk-input--width-2",
                 name: "day",
+                value: state.formData.statementDay,
               },
               {
                 className: "govuk-input--width-2",
                 name: "month",
+                value: state.formData.statementMonth,
               },
               {
                 className: "govuk-input--width-4",
                 name: "year",
+                value: state.formData.statementYear,
               },
             ]}
-            namePrefix="dob"
+            namePrefix="statement-date"
             onChange={handleStatementDateChange}
           />
 
@@ -287,7 +369,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               children: "Already in use #6, #5, #4, #3, #2 and #1",
             }}
             name="statement-number"
-            type="text"
+            type="number"
+            value={state.formData.statementNumber}
+            onChange={handleUpdateStatementNumber}
           />
         </div>
       )}
@@ -298,17 +382,17 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           }}
           key={"document-used-status"}
           onChange={handleDocumentUsedStatusChange}
-          value={"Unused"}
+          value={state.formData.documentUsedStatus}
           name="radio-document-used-status"
           items={[
             {
               children: "Used",
 
-              value: "Used",
+              value: "YES",
             },
             {
               children: "Unused",
-              value: "Unused",
+              value: "NO",
             },
           ]}
         />
