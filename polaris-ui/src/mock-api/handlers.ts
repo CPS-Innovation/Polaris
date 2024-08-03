@@ -229,6 +229,10 @@ export const setupHandlers = ({
       const results = reclassifyDataSources[sourceName].statementWitness;
       return res(delay(ctx), ctx.json(results));
     }),
+
+    rest.post(makeApiPath(routes.SAVE_RECLASSIFY), (req, res, ctx) => {
+      return res(delay(ctx), ctx.json({}));
+    }),
   ];
 };
 

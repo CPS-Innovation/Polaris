@@ -45,13 +45,19 @@ import {
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
+  saveDocumentReclassify,
 } from "../../api/gateway-api";
+import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
-  const [inReclassify, setInReclassify] = useState(false);
+  const [reclassifyDetails, setInReclassifyDetails] = useState<{
+    open: boolean;
+    documentId: string;
+    presentationFileName: string;
+  }>({ open: false, documentId: "", presentationFileName: "" });
   const [inFullScreen, setInFullScreen] = useState(false);
   const [actionsSidePanel, setActionsSidePanel] = useState<{
     open: boolean;
@@ -244,12 +250,19 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     });
   };
 
-  const handleReclassifyDocument = (documentId: string) => {
-    setInReclassify(true);
+  const handleReclassifyDocument = (
+    documentId: string,
+    presentationFileName: string
+  ) => {
+    setInReclassifyDetails({ open: true, documentId, presentationFileName });
   };
 
   const hideReclassifyDocument = () => {
-    setInReclassify(false);
+    setInReclassifyDetails({
+      open: false,
+      documentId: "",
+      presentationFileName: "",
+    });
   };
 
   const handleGetMaterialTypeList = () => {
@@ -262,9 +275,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     return getStatementWitnessDetails(urn, +caseId);
   };
 
+  const handleSubmitReclassify = (
+    documentId: string,
+    data: ReclassifySaveData
+  ) => {
+    return saveDocumentReclassify(urn, +caseId, documentId, data);
+  };
+
   return (
     <div>
-      <div className={inReclassify ? classes.reclassifyMode : ""}>
+      <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
           <Modal
             isVisible
@@ -615,13 +635,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         </PageContentWrapper>
       </div>
 
-      {inReclassify && (
+      {reclassifyDetails.open && (
         <div>
           <Reclassify
+            documentId={reclassifyDetails.documentId}
+            presentationTitle={reclassifyDetails.presentationFileName}
             handleCancelReclassify={hideReclassifyDocument}
             getMaterialTypeList={handleGetMaterialTypeList}
             getExhibitProducers={handleGetExhibitProducers}
             getStatementWitnessDetails={handleGetStatementWitnessDetails}
+            handleSubmitReclassify={handleSubmitReclassify}
           />
         </div>
       )}

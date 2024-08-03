@@ -45,7 +45,10 @@ type Props = {
     type: "notes" | "rename",
     documentType: string
   ) => void;
-  handleReclassifyDocument: (documentId: string) => void;
+  handleReclassifyDocument: (
+    documentId: string,
+    presentationFileName: string
+  ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
 };
@@ -168,7 +171,10 @@ export const AccordionDocument: React.FC<Props> = ({
         );
         return;
       case "2":
-        handleReclassifyDocument(caseDocument.documentId);
+        handleReclassifyDocument(
+          caseDocument.documentId,
+          caseDocument.presentationFileName
+        );
         return;
       default:
         break;

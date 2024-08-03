@@ -19,6 +19,7 @@ import { removeNonDigits } from "../presentation/case-details/utils/redactionLog
 import { MaterialType } from "../presentation/case-details/reclassify/data/MaterialType";
 import { ExhibitProducer } from "../presentation/case-details/reclassify/data/ExhibitProducer";
 import { StatementWitness } from "../presentation/case-details/reclassify/data/StatementWitness";
+import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 
 const FORBIDDEN_STATUS_CODE = 403;
 const GONE_STATUS_CODE = 410;
@@ -417,6 +418,30 @@ export const getStatementWitnessDetails = async (
   }
 
   return (await response.json()) as StatementWitness[];
+};
+
+export const saveDocumentReclassify = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  data: ReclassifySaveData
+) => {
+  const docId = parseInt(removeNonDigits(documentId));
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/reclassify`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    return false;
+  }
+
+  return true;
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

@@ -62,7 +62,11 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
           ({ witness }) => witness.id === +state.formData.statementWitnessId
         )?.witness.name;
       case "Statement Date":
-        return `${state.formData.statementDay}/${state.formData.statementMonth}/${state.formData.statementYear}`;
+        return state.formData.statementDay &&
+          state.formData.statementMonth &&
+          state.formData.statementYear
+          ? `${state.formData.statementDay}/${state.formData.statementMonth}/${state.formData.statementYear}`
+          : "";
       case "Statement Number":
         return state.formData.statementNumber;
       case "Exhibit Item":
@@ -85,7 +89,12 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
         { children: <span>{getFieldValue(fieldName)}</span> },
         {
           children: (
-            <LinkButton onClick={handleChangeBtnClick}>Change</LinkButton>
+            <LinkButton
+              onClick={handleChangeBtnClick}
+              disabled={state.reClassifySaveStatus === "saving"}
+            >
+              Change
+            </LinkButton>
           ),
         },
       ],

@@ -10,22 +10,30 @@ import { ReclassifyStage3 } from "./ReclassifyStage3";
 import { MaterialType } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
+import { ReclassifySaveData } from "./data/ReclassifySaveData";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
+  documentId: string;
   presentationTitle: string;
   handleCancelReclassify: () => void;
   getMaterialTypeList: () => Promise<MaterialType[]>;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
   getStatementWitnessDetails: () => Promise<StatementWitness[]>;
+  handleSubmitReclassify: (
+    documentId: string,
+    data: ReclassifySaveData
+  ) => Promise<boolean>;
 };
 
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
-  handleCancelReclassify,
+  documentId,
   presentationTitle,
+  handleCancelReclassify,
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
+  handleSubmitReclassify,
 }) => {
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext()!;
@@ -91,8 +99,31 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
   };
 
-  const handleAcceptAndSave = () => {
-    handleCancelReclassify();
+  const handleAcceptAndSave = async () => {
+    //get values from state.formData based on the data contract
+    const saveData: ReclassifySaveData = {
+      documentNewName: state.formData.documentNewName,
+      documentUsedStatus: state.formData.documentUsedStatus,
+    };
+    dispatch({
+      type: "UPDATE_RECLASSIFY_SAVE_STATUS",
+      payload: { value: "saving" },
+    });
+    const result = await handleSubmitReclassify(documentId, saveData);
+    if (result) {
+      dispatch({
+        type: "UPDATE_RECLASSIFY_SAVE_STATUS",
+        payload: { value: "success" },
+      });
+      handleCancelReclassify();
+      return;
+    }
+
+    dispatch({
+      type: "UPDATE_RECLASSIFY_SAVE_STATUS",
+      payload: { value: "failure" },
+    });
+    // handle the failure of saveReclassify by showing an error modal
   };
   if (loading) {
     return <div>loading data</div>;
@@ -123,7 +154,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           </>
         ) : (
           <>
-            <Button onClick={handleAcceptAndSave}>Accept and save</Button>
+            <Button
+              onClick={handleAcceptAndSave}
+              disabled={state.reClassifySaveStatus === "saving"}
+            >
+              Accept and save
+            </Button>
           </>
         )}
       </div>

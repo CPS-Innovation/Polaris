@@ -10,6 +10,7 @@ export type ReclassifyState = {
   newDocTypeId: string;
   reclassifyVariant: ReclassifyVariant;
   reClassifyStage: "stage1" | "stage2" | "stage3";
+  reClassifySaveStatus: "initial" | "saving" | "success" | "failure";
   formData: {
     documentRenameStatus: "YES" | "NO";
     documentNewName: string;
@@ -34,6 +35,7 @@ export const reclassifyInitialState: ReclassifyState = {
   newDocTypeId: "",
   reclassifyVariant: "IMMEDIATE",
   reClassifyStage: "stage1",
+  reClassifySaveStatus: "initial",
   formData: {
     documentRenameStatus: "NO",
     documentNewName: "",
@@ -110,6 +112,10 @@ export type ReclassifyActions =
   | {
       type: "UPDATE_STATEMENT_NUMBER";
       payload: { value: string };
+    }
+  | {
+      type: "UPDATE_RECLASSIFY_SAVE_STATUS";
+      payload: { value: "initial" | "saving" | "success" | "failure" };
     };
 
 const getReclassifyVariant = (
@@ -262,6 +268,12 @@ export const reClassifyReducer = (
           ...state.formData,
           statementNumber: action.payload.value,
         },
+      };
+    }
+    case "UPDATE_RECLASSIFY_SAVE_STATUS": {
+      return {
+        ...state,
+        reClassifySaveStatus: action.payload.value,
       };
     }
     default:

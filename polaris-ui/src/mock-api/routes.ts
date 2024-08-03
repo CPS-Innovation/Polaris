@@ -32,3 +32,6 @@ export const EXHIBIT_PRODUCERS =
   "api/urns/:urn/cases/:caseId/exhibit-producers";
 
 export const STATEMENT_WITNESS = "api/urns/:urn/cases/:caseId/witnesses";
+
+export const SAVE_RECLASSIFY =
+  "/api/urns/:urn/cases/:caseId/documents/:docId/reclassify";
