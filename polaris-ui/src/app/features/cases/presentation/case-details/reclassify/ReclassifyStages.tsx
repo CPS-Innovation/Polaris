@@ -111,7 +111,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         />
       )}
 
-      {state.reClassifyStage === "stage3" && <ReclassifyStage3 />}
+      {state.reClassifyStage === "stage3" && (
+        <ReclassifyStage3 presentationTitle={presentationTitle} />
+      )}
 
       <div className={classes.btnWrapper}>
         {state.reClassifyStage !== "stage3" ? (
