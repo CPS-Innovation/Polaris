@@ -1,4 +1,8 @@
-import { RENAME_DOCUMENT_ROUTE } from "../../src/mock-api/routes";
+import {
+  RENAME_DOCUMENT_ROUTE,
+  TRACKER_ROUTE,
+} from "../../src/mock-api/routes";
+import { refreshPipelineRenamedDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 describe("Feature Rename Document", () => {
   it("Should show rename document option if the document 'canRename' is true and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
@@ -40,12 +44,23 @@ describe("Feature Rename Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
-  it("Should successfully rename the document", () => {
-    const expectedSaveRenamePayload = { name: "PortraitLandscape_1" };
+  it("Should successfully rename the document and do the updates correctly after successful rename", () => {
+    const trackerResults = refreshPipelineRenamedDocuments(
+      "10",
+      "PortraitLandscape_1",
+      3
+    );
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[0],
+    });
+    const expectedSaveRenamePayload = {
+      documentId: 10,
+      documentName: "PortraitLandscape_1",
+    };
     const saveRenameRequestObject = { body: "" };
     cy.trackRequestBody(
       saveRenameRequestObject,
-      "POST",
+      "PUT",
       "/api/urns/12AB1111111/cases/13401/documents/10/rename"
     );
     const refreshPipelineCounter = { count: 0 };
@@ -70,10 +85,26 @@ describe("Feature Rename Document", () => {
       expect(refreshPipelineCounter.count).to.equal(1);
       expect(trackerCounter.count).to.equal(1);
     });
+
+    cy.findByTestId("link-document-10")
+      .should("be.visible")
+      .and("have.text", "PortraitLandscape");
+    cy.findByTestId("link-document-10").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("Page1 Portrait");
+
     cy.findByTestId("rename-panel").should("not.exist");
+    cy.findByTestId("link-document-10").should(
+      "have.text",
+      "PortraitLandscape"
+    );
+    cy.findByTestId("tab-active").should("have.text", "PortraitLandscape");
+
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
     cy.findByTestId("dropdown-panel").contains("Rename document").click();
     cy.findByTestId("rename-panel").should("exist");
+
     cy.findByTestId("rename-panel").contains("Rename - PortraitLandscape");
     cy.waitUntil(() => cy.findByTestId("rename-text-input")).then(() =>
       cy.findByTestId("rename-text-input").type("_1")
@@ -87,20 +118,39 @@ describe("Feature Rename Document", () => {
       expect(saveRenameRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveRenamePayload)
       );
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[1],
+      });
     });
+    cy.findByTestId("rename-panel").contains("Saving renamed document to CMS");
 
     cy.waitUntil(() => {
-      return trackerCounter.count > 1;
+      return trackerCounter.count === 2;
+    }).then(() => {
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[2],
+      });
+      expect(trackerCounter.count).to.equal(2);
+      expect(refreshPipelineCounter.count).to.equal(2);
+    });
+    cy.waitUntil(() => {
+      return trackerCounter.count > 2;
     }).then(() => {
       expect(refreshPipelineCounter.count).to.equal(2);
-      expect(trackerCounter.count).to.equal(2);
+      expect(trackerCounter.count).to.equal(3);
     });
     cy.findByTestId("rename-panel").contains(
       "Document renamed successfully saved to CMS"
     );
+    cy.focused().should("have.attr", "data-testid", "btn-close-rename");
     cy.findByTestId("btn-close-rename").click();
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
+    cy.findByTestId("link-document-10").should(
+      "have.text",
+      "PortraitLandscape_1"
+    );
+    cy.findByTestId("tab-active").should("have.text", "PortraitLandscape_1");
   });
 
   it("Should show all the UI validation errors", () => {
@@ -135,11 +185,11 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("rename-error-summary").find("li").should("have.length", 1);
     cy.findByTestId("rename-text-input-link").should(
       "have.text",
-      "New name should not be empty"
+      "Enter a new name"
     );
     cy.get("#rename-text-input-error").should(
       "have.text",
-      "Error: New name should not be empty"
+      "Error: Enter a new name"
     );
 
     const maxLengthText =
@@ -150,11 +200,11 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("rename-error-summary").find("li").should("have.length", 1);
     cy.findByTestId("rename-text-input-link").should(
       "have.text",
-      "New name should be less than 252 characters"
+      "New name must be 252 characters or less"
     );
     cy.get("#rename-text-input-error").should(
       "have.text",
-      "Error: New name should be less than 252 characters"
+      "Error: New name must be 252 characters or less"
     );
     cy.findByTestId("rename-text-input-link").click();
     cy.realPress("{backspace}");
@@ -171,7 +221,7 @@ describe("Feature Rename Document", () => {
         httpStatusCode: 500,
         timeMs: 500,
       },
-      "post"
+      "put"
     );
 
     const refreshPipelineCounter = { count: 0 };
@@ -203,6 +253,7 @@ describe("Feature Rename Document", () => {
       cy.findByTestId("rename-text-input").type("_1")
     );
     cy.findByTestId("btn-save-rename").click();
+    cy.findByTestId("rename-panel").contains("Saving renamed document to CMS");
     cy.findByTestId("div-modal")
       .should("exist")
       .contains("Failed to rename the document. Please try again.");

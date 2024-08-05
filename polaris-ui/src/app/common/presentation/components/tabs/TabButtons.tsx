@@ -150,7 +150,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
                 tabIndex={index === activeTabIndex ? 0 : -1}
                 ref={index === activeTabIndex ? activeTabRef : undefined}
               >
-                <span className={classes.tabLabel}> {label}</span>
+                <span className={classes.tabLabel}>{label}</span>
               </button>
 
               {activeTabIndex === index && (

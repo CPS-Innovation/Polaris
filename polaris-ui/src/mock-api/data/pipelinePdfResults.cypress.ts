@@ -1,4 +1,3 @@
-import { ConversionStatus } from "../../app/features/cases/domain/gateway/PipelineDocument";
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 //the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
@@ -389,6 +388,41 @@ const getRefreshDeletedDocuments = () => {
       ),
     },
   ];
+};
+
+const getRefreshRenamedDocuments = (
+  id: string,
+  newName: string,
+  trackerCalls: number
+) => {
+  const resultsArray = getPipelinePdfResults(trackerCalls);
+  return resultsArray.map((result, index) => {
+    if (index === 0)
+      return {
+        ...result,
+        status: "Completed" as const,
+      };
+    if (index === trackerCalls - 1) {
+      return {
+        ...result,
+        documents: [
+          ...resultsArray[trackerCalls - 1].documents.filter(
+            ({ documentId }) => documentId !== id
+          ),
+          {
+            ...resultsArray[trackerCalls - 1].documents.find(
+              ({ documentId }) => documentId === id
+            )!,
+            presentationTitle: newName,
+          },
+        ],
+      };
+    }
+    return {
+      ...result,
+      status: "DocumentsRetrieved" as const,
+    };
+  });
 };
 
 export const missingDocsPipelinePdfResults: PipelineResults = {
@@ -819,3 +853,10 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
 
 export const refreshPipelineDeletedDocuments: PipelinePdfResultsDataSource =
   () => getRefreshDeletedDocuments();
+
+export const refreshPipelineRenamedDocuments: (
+  documentId: string,
+  newName: string,
+  trackerCalls: number
+) => PipelineResults[] = (documentId, newName, trackerCalls) =>
+  getRefreshRenamedDocuments(documentId, newName, trackerCalls);

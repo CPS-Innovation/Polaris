@@ -21,7 +21,10 @@ import {
 } from "../../../domain/WitnessIndicators";
 import { Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
-import { mapConversionStatusToMessage } from "../../../domain/gateway/PipelineDocument";
+import {
+  mapConversionStatusToMessage,
+  Classification,
+} from "../../../domain/gateway/PipelineDocument";
 import {
   DropdownButton,
   DropdownButtonItem,
@@ -43,7 +46,8 @@ type Props = {
     documentCategory: string,
     presentationFileName: string,
     type: "notes" | "rename",
-    documentType: string
+    documentType: string,
+    classification: Classification
   ) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
@@ -156,7 +160,8 @@ export const AccordionDocument: React.FC<Props> = ({
           caseDocument.cmsDocType.documentCategory,
           caseDocument.presentationFileName,
           "rename",
-          caseDocument.cmsDocType.documentType
+          caseDocument.cmsDocType.documentType,
+          caseDocument.classification
         );
 
         break;
@@ -263,7 +268,8 @@ export const AccordionDocument: React.FC<Props> = ({
                         caseDocument.cmsDocType.documentCategory,
                         caseDocument.presentationFileName,
                         "notes",
-                        caseDocument.cmsDocType.documentType
+                        caseDocument.cmsDocType.documentType,
+                        caseDocument.classification
                       );
                     }}
                     onFocus={
