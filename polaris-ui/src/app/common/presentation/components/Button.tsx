@@ -1,5 +1,5 @@
 import * as GDS from "govuk-react-jsx";
-import React from "react";
+import React, { forwardRef } from "react";
 type ButtonProps = React.DetailedHTMLProps<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   HTMLButtonElement
@@ -15,6 +15,8 @@ type ButtonProps = React.DetailedHTMLProps<
   type?: string;
 };
 
-export const Button: React.FC<ButtonProps> = (props) => {
-  return <GDS.Button {...props} />;
-};
+export const Button = forwardRef<HTMLButtonElement | null, ButtonProps>(
+  (props, ref) => {
+    return <GDS.Button {...props} ref={ref} />;
+  }
+);
