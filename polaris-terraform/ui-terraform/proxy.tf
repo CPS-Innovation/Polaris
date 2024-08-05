@@ -46,12 +46,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
-    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
-    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/"
-    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
-    "WEBSITE_WARMUP_PATH"                             = "/"
     "CLASSIC_CORS_CIN2"                               = var.cms_details.classic_cors_cin2
     "CLASSIC_FARN_CIN2"                               = var.cms_details.classic_farn_cin2
     "MODERN_CORS_CIN2"                                = var.cms_details.modern_cors_cin2
@@ -72,6 +66,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "MODERN_CORS_DEFAULT"                             = var.cms_details.modern_cors_default
     "CLASSIC_FARN_DEFAULT"                            = var.cms_details.classic_farn_default
     "MODERN_FARN_DEFAULT"                             = var.cms_details.modern_farn_default
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/"
+
   }
 
   sticky_settings {
@@ -174,12 +176,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["CMS_RATE_LIMIT_QUEUE"],
       app_settings["CMS_RATE_LIMIT"],
       app_settings["WM_TASK_LIST_HOST_NAME"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
-      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
-      app_settings["WEBSITE_WARMUP_PATH"],
       app_settings["CLASSIC_CORS_CIN2"],
       app_settings["CLASSIC_FARN_CIN2"],
       app_settings["MODERN_CORS_CIN2"],
@@ -199,7 +195,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["CLASSIC_CORS_DEFAULT"],
       app_settings["MODERN_CORS_DEFAULT"],
       app_settings["CLASSIC_FARN_DEFAULT"],
-      app_settings["MODERN_FARN_DEFAULT"]
+      app_settings["MODERN_FARN_DEFAULT"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
+      app_settings["WEBSITE_WARMUP_PATH"]
     ]
   }
 }
