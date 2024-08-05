@@ -76,12 +76,16 @@ data "azurerm_subnet" "polaris_ci_subnet" {
 }
 
 data "azurerm_subnet" "polaris_app_gateway_subnet" {
+  count = var.env == "dev" ? 1 : 0
+
   name                 = "${var.resource_name_prefix}-app-gateway-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
 data "azurerm_subnet" "polaris_maintenance_subnet" {
+  count = var.env == "dev" ? 1 : 0
+
   name                 = "${var.resource_name_prefix}-maintenance-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
@@ -146,11 +150,15 @@ data "azuread_application" "fa_redaction_log_reporting" {
 }
 
 data "azurerm_key_vault" "kv_polaris_cert" {
+  count = var.env == "dev" ? 1 : 0
+
   name                = local.app_service_certificate_store
   resource_group_name = "rg-${local.resource_name}"
 }
 
 data "azurerm_key_vault_secret" "kv_polaris_cert_ssl" {
+  count = var.env == "dev" ? 1 : 0
+
   name         = var.ssl_certificate_name
-  key_vault_id = data.azurerm_key_vault.kv_polaris_cert.id
+  key_vault_id = data.azurerm_key_vault.kv_polaris_cert[0].id
 }
