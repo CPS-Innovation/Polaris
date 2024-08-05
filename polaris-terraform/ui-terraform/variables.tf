@@ -172,5 +172,6 @@ variable "app_gateway_custom_error_pages" {
 }
 
 variable "app_gateway_back_end_host_name" {
-  type = string
+  type    = string
+  default = ""
 }
