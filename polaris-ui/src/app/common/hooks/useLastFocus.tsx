@@ -17,11 +17,12 @@ export const useLastFocus = (defaultFocusId?: string) => {
         }, 0);
       } else {
         if (defaultFocusId) {
-          setTimeout(() => {
-            (
-              document.querySelector(`${defaultFocusId}`) as HTMLElement
-            ).focus();
-          }, 0);
+          const defaultElement = document.querySelector(`${defaultFocusId}`) as HTMLElement;
+          if (defaultElement) {
+            setTimeout(() => {
+              defaultElement.focus();
+            }, 0);
+          }
         }
       }
     };
