@@ -7,7 +7,7 @@ resources:
     - pipeline: PolarisBuild
       source: Polaris Build - UAT
       trigger: true
-            
+
 pool:
   name: $(uat-build-agent)
 
@@ -65,22 +65,10 @@ stages:
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
 
-  - template: stages/stage_create-commit-report.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "UAT"
-      targetLabelLower: "uat"
-      appInsightsKey: $(innovation-uat-app-insights-instrumentation-key)
-
-  - template: stages/stage_update-git-hub-tag.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "UAT"
-      appInsightsKey: $(innovation-uat-app-insights-instrumentation-key)
-
   - template: stages/stage_run-e2e-tests.yml
     parameters:
       targetBuild: PolarisBuild
       targetLabel: "UAT"
       appInsightsKey: $(innovation-uat-app-insights-instrumentation-key)
       buildDefinitionId: 421
+      stageDependsOn: Check_Status
