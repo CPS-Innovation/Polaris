@@ -36,11 +36,14 @@ function retrieveDestinationKey(r) {
   const cookies = decodeURIComponent(r.headersIn.Cookie).split(/;\s*/);
   const isCorshamCookiePresent = retrieveLoadBalancerTarget(cookies, CORSHAM_FRAGMENT);
   const isFarnboroughCookiePresent = retrieveLoadBalancerTarget(cookies, FARNBOROUGH_FRAGMENT);
-  const clientIpAddress = r.headersIn["x-forwarded-for"];
-  const hostNameFlag = retrieveHostNameFlag(cookies); // returns e.g. CIN3
+  const clientIpAddress = r.variables["remoteUserIp"];
+  const selectedEnvironment = r.headersIn["cms-selected-environment"];
+  const hostNameFlag = retrieveHostNameFlag(r, cookies, selectedEnvironment); // returns e.g. CIN3
   const corshamOrFarnboroughFlag = determineLoadBalancerTargetChoice(r.headersIn["Cms-Auth-Values"], isCorshamCookiePresent, isFarnboroughCookiePresent, clientIpAddress);
 
   r.variables["loadBalancerTarget"] = corshamOrFarnboroughFlag;
+  r.log(`Remote IP assessed ${clientIpAddress}`);
+  r.log(`Constructed lookup key: ${classicOrModernFlag}_${corshamOrFarnboroughFlag}_${hostNameFlag}`)
 
   // construct a env variable key 
   return `${classicOrModernFlag}_${corshamOrFarnboroughFlag}_${hostNameFlag}`; // e.g. "CLASSIC_CORS_CIN3"
@@ -76,16 +79,22 @@ function retrieveLoadBalancerTarget(cookies, target) {
   return result;
 }
 
-function retrieveHostNameFlag(cookies) {
-  const cookieSearch = cookies.filter(c => c.toUpperCase().indexOf("BIGIPSERVER") > -1);
-
-  let result = "DEFAULT";
-  if (cookieSearch[0] !== undefined) {
-    const str = cookieSearch[0];
-    const startPos = str.toUpperCase().indexOf(".CPS.GOV.UK");
-    result = retrieveHostName(str, startPos-1);
+function retrieveHostNameFlag(r, cookies, selectedEnvironment) {
+  if (selectedEnvironment != null && selectedEnvironment !== "") {
+    r.log(`Selected Environment: [${selectedEnvironment}]`)    
+    return selectedEnvironment.toUpperCase();
   }
-  return result;
+  else {
+    const cookieSearch = cookies.filter(c => c.toUpperCase().indexOf("BIGIPSERVER") > -1);
+
+    let result = "DEFAULT";
+    if (cookieSearch[0] !== undefined) {
+      const str = cookieSearch[0];
+      const startPos = str.toUpperCase().indexOf(".CPS.GOV.UK");
+      result = retrieveHostName(str, startPos - 1);
+    }
+    return result;
+  }
 }
 
 function retrieveHostName(str, startPoint) {

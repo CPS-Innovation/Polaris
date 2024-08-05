@@ -36,7 +36,7 @@ function retrieveDestinationKey(r) {
   const cookies = decodeURIComponent(r.headersIn.Cookie).split(/;\s*/);
   const isCorshamCookiePresent = retrieveLoadBalancerTarget(cookies, CORSHAM_FRAGMENT);
   const isFarnboroughCookiePresent = retrieveLoadBalancerTarget(cookies, FARNBOROUGH_FRAGMENT);
-  const clientIpAddress = r.headersIn["x-forwarded-for"];
+  const clientIpAddress = r.variables["remoteUserIp"];
   const selectedEnvironment = r.headersIn["cms-selected-environment"];
   const hostNameFlag = retrieveHostNameFlag(cookies, selectedEnvironment); // returns e.g. CIN3
   const corshamOrFarnboroughFlag = determineLoadBalancerTargetChoice(r.headersIn["Cms-Auth-Values"], isCorshamCookiePresent, isFarnboroughCookiePresent, clientIpAddress);
@@ -78,8 +78,8 @@ function retrieveLoadBalancerTarget(cookies, target) {
 }
 
 function retrieveHostNameFlag(cookies, selectedEnvironment) {
-  if (selectedEnvironment !== "") {
-    return selectedEnvironment;
+  if (selectedEnvironment != null && selectedEnvironment !== "") {
+    return selectedEnvironment.toUpperCase();
   }
   else {
     const cookieSearch = cookies.filter(c => c.toUpperCase().indexOf("BIGIPSERVER") > -1);
