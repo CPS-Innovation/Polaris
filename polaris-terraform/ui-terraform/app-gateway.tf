@@ -79,7 +79,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
     name                            = "polaris-app-gateway-prip${local.resource_suffix}"
     private_ip_address_allocation   = "Static"
     private_link_configuration_name = "polaris-app-gateway${local.resource_suffix}-plink"
-    subnet_id                       = data.azurerm_subnet.polaris_app_gateway_subnet.id
+    subnet_id                       = data.azurerm_subnet.polaris_app_gateway_subnet[0].id
   }
   frontend_port {
     name = "port_443"
@@ -91,7 +91,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   }
   gateway_ip_configuration {
     name      = "appGatewayIpConfig"
-    subnet_id = data.azurerm_subnet.polaris_app_gateway_subnet.id
+    subnet_id = data.azurerm_subnet.polaris_app_gateway_subnet[0].id
   }
   http_listener {
     frontend_ip_configuration_name = "polaris-app-gateway-prip${local.resource_suffix}"
@@ -163,7 +163,7 @@ resource "azurerm_application_gateway" "polaris_app_gateway" {
   }
   ssl_certificate {
     name                = var.ssl_certificate_name
-    key_vault_secret_id = data.azurerm_key_vault_secret.kv_polaris_cert_ssl.id
+    key_vault_secret_id = data.azurerm_key_vault_secret.kv_polaris_cert_ssl[0].id
   }
   ssl_profile {
     name = "polaris-app-gateway${local.resource_suffix}-ssl-policy"
