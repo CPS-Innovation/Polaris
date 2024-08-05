@@ -17,7 +17,9 @@ export const useLastFocus = (defaultFocusId?: string) => {
         }, 0);
       } else {
         if (defaultFocusId) {
-          const defaultElement = document.querySelector(`${defaultFocusId}`) as HTMLElement;
+          const defaultElement = document.querySelector(
+            `${defaultFocusId}`
+          ) as HTMLElement;
           if (defaultElement) {
             setTimeout(() => {
               defaultElement.focus();
