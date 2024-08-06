@@ -19,20 +19,29 @@ function taskListAuthRedirect(r) {
   )
 }
 
-function fetchDestinationIpAddress(r) {
-  let lookupKey = retrieveDestinationKey(r);
+function fetchClassicIpAddress(r) {
+  let lookupKey = retrieveDestinationKey(r, "CLASSIC");
   return retrieveDestinationValue(r, 0, lookupKey);
 }
 
-function fetchDestinationHostName(r) {
-  let lookupKey = retrieveDestinationKey(r);
+function fetchClassicHostName(r) {
+  let lookupKey = retrieveDestinationKey(r, "CLASSIC");
   return retrieveDestinationValue(r, 1, lookupKey);
 }
 
-function retrieveDestinationKey(r) {
+function fetchModernIpAddress(r) {
+  let lookupKey = retrieveDestinationKey(r, "MODERN");
+  return retrieveDestinationValue(r, 0, lookupKey);
+}
+
+function fetchModernHostName(r) {
+  let lookupKey = retrieveDestinationKey(r, "MODERN");
+  return retrieveDestinationValue(r, 1, lookupKey);
+}
+
+function retrieveDestinationKey(r, classicOrModernFlag) {
   const CORSHAM_FRAGMENT = "CPSAC";
   const FARNBOROUGH_FRAGMENT = "CPSAF";
-  const classicOrModernFlag = r.uri.indexOf("/graphql/") > -1 ? "MODERN" : "CLASSIC";
   const cookies = decodeURIComponent(r.headersIn.Cookie).split(/;\s*/);
   const isCorshamCookiePresent = retrieveLoadBalancerTarget(cookies, CORSHAM_FRAGMENT);
   const isFarnboroughCookiePresent = retrieveLoadBalancerTarget(cookies, FARNBOROUGH_FRAGMENT);
@@ -163,4 +172,4 @@ function retrieveSetting(key, idx) {
   return settings.split(";")[idx];
 }
 
-export default { polarisAuthRedirect, taskListAuthRedirect, fetchDestinationIpAddress, fetchDestinationHostName, fetchDefaultClassicCorshamIpAddress, fetchDefaultClassicCorshamHostName, fetchDefaultModernCorshamIpAddress, fetchDefaultModernCorshamHostName }
+export default { polarisAuthRedirect, taskListAuthRedirect, fetchClassicIpAddress, fetchClassicHostName, fetchModernIpAddress, fetchModernHostName, fetchDefaultClassicCorshamIpAddress, fetchDefaultClassicCorshamHostName, fetchDefaultModernCorshamIpAddress, fetchDefaultModernCorshamHostName }
