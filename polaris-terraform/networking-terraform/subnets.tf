@@ -405,7 +405,7 @@ resource "azurerm_subnet" "sn_polaris_app_gateway_subnet" {
   resource_group_name  = data.azurerm_resource_group.rg_networking.name
   virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisAppGatewaySubnet]
-  
+
   depends_on = [data.azurerm_virtual_network.vnet_networking]
 }
 
@@ -447,7 +447,7 @@ resource "azurerm_subnet" "sn_polaris_dns_resolver_inbound_subnet" {
   resource_group_name  = data.azurerm_resource_group.rg_networking.name
   virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisDnsResolverInboundSubnet]
-  
+
   delegation {
     name = "Microsoft.Network/dnsResolvers Polaris Dns Resolve Delegation"
 
