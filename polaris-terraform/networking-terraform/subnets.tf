@@ -405,7 +405,7 @@ resource "azurerm_subnet" "sn_polaris_app_gateway_subnet" {
   resource_group_name  = data.azurerm_resource_group.rg_networking.name
   virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisAppGatewaySubnet]
-  
+
   depends_on = [data.azurerm_virtual_network.vnet_networking]
 }
 
@@ -439,4 +439,42 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_maintenance_subnet
   route_table_id = data.azurerm_route_table.env_route_table.id
   subnet_id      = azurerm_subnet.sn_polaris_maintenance_subnet.id
   depends_on     = [azurerm_subnet.sn_polaris_maintenance_subnet]
+}
+
+resource "azurerm_subnet" "sn_polaris_dns_resolver_inbound_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
+  name                 = "polaris-dns-resolve-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg_networking.name
+  virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisDnsResolverInboundSubnet]
+
+  delegation {
+    name = "Microsoft.Network/dnsResolvers Polaris Dns Resolve Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Network/dnsResolvers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  depends_on = [data.azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet" "sn_polaris_dns_resolver_outbound_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
+  name                 = "polaris-outbound-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg_networking.name
+  virtual_network_name = data.azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisDnsResolverOutboundSubnet]
+
+  delegation {
+    name = "Microsoft.Network/dnsResolvers Polaris Dns Resolve Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Network/dnsResolvers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  depends_on = [data.azurerm_virtual_network.vnet_networking]
 }
