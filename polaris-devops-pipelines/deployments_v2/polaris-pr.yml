@@ -250,7 +250,7 @@ stages:
         dependsOn: Validate_Pipeline_Events_Terraform
         displayName: Check Pipeline Events Terraform
         steps:
-          - template: stages/jobs/tasks/task_get-credentials.yml
+          - template: ../stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               
