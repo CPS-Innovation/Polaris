@@ -22,6 +22,8 @@ polarisScaleSetSubnet               = "10.7.199.160/27"
 polarisApps2Subnet                  = "10.7.199.192/27"
 polarisAppGatewaySubnet             = "10.7.199.16/28"
 polarisMaintenanceSubnet            = "10.7.199.240/29"
+polarisDnsResolverInboundSubnet     = "10.7.198.160/28"
+polarisDnsResolverOutboundSubnet    = "10.7.198.64/28"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
 

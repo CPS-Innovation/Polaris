@@ -77,6 +77,12 @@ variable "polarisAppGatewaySubnet" {
 variable "polarisMaintenanceSubnet" {
 }
 
+variable "polarisDnsResolverInboundSubnet" {
+}
+
+variable "polarisDnsResolverOutboundSubnet" {
+}
+
 variable "terraform_service_principal_display_name" {
   type = string
 }
