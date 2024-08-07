@@ -26,10 +26,6 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip_corsham            = "10.2.177.2"
-  upstream_cms_modern_ip_corsham     = "10.2.177.65"
-  upstream_cms_ip_farnborough        = "10.3.177.2"
-  upstream_cms_modern_ip_farnborough = "10.3.177.65"
   upstream_cms_domain_name           = "cms.cps.gov.uk"
   upstream_cms_modern_domain_name    = "cmsmodern.cps.gov.uk"
   upstream_cms_services_domain_name  = "cms-services.cps.gov.uk"

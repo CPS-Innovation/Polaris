@@ -29,10 +29,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
-    "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
-    "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
-    "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"              = var.cms_details.upstream_cms_modern_ip_farnborough
     "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
     "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"               = var.cms_details.upstream_cms_services_domain_name
     "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name
@@ -143,10 +139,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["XDT_MicrosoftApplicationInsights_PreemptSdk"],
       app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
       app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["UPSTREAM_CMS_IP_CORSHAM"],
-      app_settings["UPSTREAM_CMS_MODERN_IP_CORSHAM"],
-      app_settings["UPSTREAM_CMS_IP_FARNBOROUGH"],
-      app_settings["UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
       app_settings["UPSTREAM_CMS_DOMAIN_NAME"],
       app_settings["UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
       app_settings["UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
