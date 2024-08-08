@@ -89,3 +89,4 @@ stages:
       targetLabel: "QA"
       appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
       buildDefinitionId: 210
+      stageDependsOn: Update_GitHub_Tag

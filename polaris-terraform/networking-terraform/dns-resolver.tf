@@ -68,11 +68,10 @@ resource "azurerm_private_dns_resolver_forwarding_rule" "polaris_dns_resolver_fo
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.polaris_dns_resolver_forwarding_ruleset.id
   domain_name               = "cps.gov.uk."
   enabled                   = true
-  //not currently working - Jamie raising it with Michael
-  //target_dns_servers {
-  //  ip_address = "10.8.0.6"
-  //  port       = 53
-  //}
+  target_dns_servers {
+    ip_address = "10.8.0.6"
+    port       = 53
+  }
   target_dns_servers {
     ip_address = "10.8.0.7"
     port       = 53
