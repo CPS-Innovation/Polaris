@@ -7,11 +7,13 @@
     type: string
   - name: buildDefinitionId
     type: string
+  - name: stageDependsOn
+    type: object
   
 stages:
   - stage: Run_e2e_Tests
     displayName: e2e tests
-    dependsOn: Update_GitHub_Tag
+    dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
     jobs:
       - job: Log_Start
