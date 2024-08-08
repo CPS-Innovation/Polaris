@@ -89,6 +89,7 @@ stages:
       targetLabel: "DEV"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       buildDefinitionId: 129
+      stageDependsOn: Update_GitHub_Tag
 
   - template: stages/stage_schedule-releases.yml
     parameters:
