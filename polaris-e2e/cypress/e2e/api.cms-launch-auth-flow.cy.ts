@@ -7,7 +7,7 @@ const appendQParams = (url: string, qParamObject: {}) =>
   url + "&q=" + encodeURIComponent(JSON.stringify(qParamObject))
 
 const EXPECTED_HOME_PAGE_URL_ROUTE = "/polaris-ui/"
-const EXPECTED_COOKIE_NAME = "Cms-Auth-Values"
+const EXPECTED_COOKIE_NAME = "Cms_Auth_Values"
 
 describe("CMS launch auth flow", { tags: ["@ci", "@ci-chunk-4"] }, () => {
   it("can open Polaris UI from the CMS button when no q param is passed", () => {

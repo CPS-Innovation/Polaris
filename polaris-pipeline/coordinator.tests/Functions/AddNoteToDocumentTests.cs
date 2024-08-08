@@ -59,7 +59,7 @@ namespace coordinator.tests.Functions
                 Content = new StringContent(JsonSerializer.Serialize(testNote))
             };
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestMessage.Headers.Add("Cms-Auth-Values", _cmsAuthValues);
+            _httpRequestMessage.Headers.Add("Cms_Auth_Values", _cmsAuthValues);
 
             _mockJsonConvertWrapper.Setup(x => x.DeserializeObject<AddDocumentNoteDto>(It.IsAny<string>())).Returns(testNote);
 
