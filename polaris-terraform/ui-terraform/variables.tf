@@ -67,9 +67,9 @@ variable "ui_logging" {
 
 variable "cms_details" {
   type = object({
-    upstream_cms_domain_name           = string
-    upstream_cms_modern_domain_name    = string
-    upstream_cms_services_domain_name  = string
+    upstream_cms_domain_name          = string
+    upstream_cms_modern_domain_name   = string
+    upstream_cms_services_domain_name = string
   })
 }
 

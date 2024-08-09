@@ -26,9 +26,9 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_domain_name           = "cin3.cps.gov.uk"
-  upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
-  upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  upstream_cms_domain_name          = "cin3.cps.gov.uk"
+  upstream_cms_modern_domain_name   = "cmsmodcin3.cps.gov.uk"
+  upstream_cms_services_domain_name = "not-used-in-cin3.cps.gov.uk"
 }
 
 wm_task_list_host_name = "https://cps-dev.outsystemsenterprise.com"
