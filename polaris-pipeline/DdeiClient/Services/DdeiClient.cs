@@ -24,6 +24,7 @@ namespace Ddei.Services
         private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
         private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
         private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
+        private readonly ICaseWitnessMapper _caseWitnessMapper;
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
         private readonly ICmsAuthValuesMapper _cmsAuthValuesMapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
@@ -40,6 +41,7 @@ namespace Ddei.Services
             ICaseDocumentNoteMapper caseDocumentNoteMapper,
             ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
             ICaseExhibitProducerMapper caseExhibitProducerMapper,
+            ICaseWitnessMapper caseWitnessMapper,
             ICaseIdentifiersMapper caseIdentifiersMapper,
             ICmsAuthValuesMapper cmsAuthValuesMapper,
             IJsonConvertWrapper jsonConvertWrapper,
@@ -52,6 +54,7 @@ namespace Ddei.Services
             _caseDocumentNoteMapper = caseDocumentNoteMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteMapper));
             _caseDocumentNoteResultMapper = caseDocumentNoteResultMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteResultMapper));
             _caseExhibitProducerMapper = caseExhibitProducerMapper ?? throw new ArgumentNullException(nameof(caseExhibitProducerMapper));
+            _caseWitnessMapper = caseWitnessMapper ?? throw new ArgumentNullException(nameof(caseWitnessMapper));
             _caseIdentifiersMapper = caseIdentifiersMapper ?? throw new ArgumentNullException(nameof(caseIdentifiersMapper));
             _cmsAuthValuesMapper = cmsAuthValuesMapper ?? throw new ArgumentNullException(nameof(cmsAuthValuesMapper));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
@@ -197,13 +200,19 @@ namespace Ddei.Services
             return new DocumentRenamedResult { Id = response.Id, OperationName = response.OperationName };
         }
 
-        public async Task<IEnumerable<DocumentExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg)
+        public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg)
         {
             var ddeiResults = await CallDdei<List<DdeiCaseDocumentExhibitProducerResponse>>(_ddeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseExhibitProducerMapper.Map(ddeiResult)).ToArray();
         }
 
+        public async Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCmsCaseArgDto arg)
+        {
+            var ddeiResults = await CallDdei<List<DdeiCaseWitnessResponse>>(_ddeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
+
+            return ddeiResults.Select(ddeiResult => _caseWitnessMapper.Map(ddeiResult)).ToArray();
+        }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
         {

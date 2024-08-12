@@ -41,6 +41,7 @@ namespace Ddei.Services.Extensions
             services.AddTransient<ICaseDocumentNoteMapper, CaseDocumentNoteMapper>();
             services.AddTransient<ICaseDocumentNoteResultMapper, CaseDocumentNoteResultMapper>();
             services.AddTransient<ICaseExhibitProducerMapper, CaseExhibitProducerMapper>();
+            services.AddTransient<ICaseWitnessMapper, CaseWitnessMapper>();
             services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             services.AddTransient<ICaseIdentifiersMapper, CaseIdentifiersMapper>();
             services.AddTransient<ICmsAuthValuesMapper, CmsAuthValuesMapper>();

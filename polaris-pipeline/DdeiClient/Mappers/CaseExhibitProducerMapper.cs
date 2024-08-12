@@ -1,13 +1,13 @@
-using Common.Dto.Document;
+using Common.Dto.Case;
 using Common.Dto.Response;
 
 namespace Ddei.Mappers
 {
     public class CaseExhibitProducerMapper : ICaseExhibitProducerMapper
     {
-        public DocumentExhibitProducerDto Map(DdeiCaseDocumentExhibitProducerResponse ddeiResponse)
+        public ExhibitProducerDto Map(DdeiCaseDocumentExhibitProducerResponse ddeiResponse)
         {
-            return new DocumentExhibitProducerDto
+            return new ExhibitProducerDto
             {
                 Id = ddeiResponse.Id,
                 ExhibitProducer = ddeiResponse.Producer

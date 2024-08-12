@@ -9,14 +9,14 @@ using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineExhibitProducers
+    public class PolarisPipelineCaseWitnesses
     {
-        private readonly ILogger<PolarisPipelineExhibitProducers> _logger;
+        private readonly ILogger<PolarisPipelineCaseWitnesses> _logger;
         private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        public PolarisPipelineExhibitProducers(ILogger<PolarisPipelineExhibitProducers> logger,
+        public PolarisPipelineCaseWitnesses(ILogger<PolarisPipelineCaseWitnesses> logger,
             ICoordinatorClient coordinatorClient,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
@@ -27,22 +27,22 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
 
-        [FunctionName(nameof(PolarisPipelineExhibitProducers))]
+        [FunctionName(nameof(PolarisPipelineCaseWitnesses))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseExhibitProducers)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnesses)] HttpRequest req, string caseUrn, int caseId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
 
             try
             {
                 context = await _initializationHandler.Initialize(req);
-                return await _coordinatorClient.GetCaseExhibitProducers(caseUrn, caseId, context.CmsAuthValues, context.CorrelationId);
+                return await _coordinatorClient.GetCaseWitnesses(caseUrn, caseId, context.CmsAuthValues, context.CorrelationId);
             }
             catch (Exception ex)
             {
                 return _unhandledExceptionHandler.HandleUnhandledException(
                       _logger,
-                      nameof(PolarisPipelineExhibitProducers),
+                      nameof(PolarisPipelineCaseWitnesses),
                       context.CorrelationId,
                       ex
                     );

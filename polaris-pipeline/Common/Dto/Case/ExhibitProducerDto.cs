@@ -1,6 +1,6 @@
-namespace Common.Dto.Document
+namespace Common.Dto.Case
 {
-    public class DocumentExhibitProducerDto
+    public class ExhibitProducerDto
     {
         public int Id { get; set; }
         public string ExhibitProducer { get; set; }
