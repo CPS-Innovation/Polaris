@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
@@ -23,5 +24,6 @@ namespace DdeiClient.Services
 		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg);
 		Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg);
 		Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg);
+		Task<IEnumerable<DocumentExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg);
 	}
 }
