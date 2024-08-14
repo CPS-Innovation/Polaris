@@ -16,7 +16,9 @@ export const ErrorPage = ({ error }: Props) => (
       </a>
       .
     </p>
-    {error instanceof ApiError || error instanceof CmsAuthError ? <p>{error.customMessage}</p> : null}
+    {error instanceof ApiError || error instanceof CmsAuthError ? (
+      <p>{error.customMessage}</p>
+    ) : null}
     <div className="govuk-inset-text">{error?.toString()}</div>
   </PageContentWrapper>
 );

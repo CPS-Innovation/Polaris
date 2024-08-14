@@ -78,11 +78,17 @@ const renderAuthFailReason = (authFailReason: AuthFailReason | null) => {
 
 const handleSecondAuthFail = (response: Response, window: Window) => {
   if (isCmsAuthFail(response) && isAuthPageLoad(window)) {
-    const authFailReasonParam = getQueryParam(window, AUTH_FAIL_REASON_QUERY_PARAM) as AuthFailReason | null;
+    const authFailReasonParam = getQueryParam(
+      window,
+      AUTH_FAIL_REASON_QUERY_PARAM
+    ) as AuthFailReason | null;
 
     const customMessage = renderAuthFailReason(authFailReasonParam);
 
-    throw new CmsAuthError("We think you are not logged in to CMS", customMessage || undefined);
+    throw new CmsAuthError(
+      "We think you are not logged in to CMS",
+      customMessage || undefined
+    );
   }
   return null;
 };
