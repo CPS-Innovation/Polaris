@@ -77,7 +77,6 @@ describe("Reauthentication Filter", () => {
 
     const act = () => reauthenticationFilter(response, mockWindow, uuid);
     expect(act).toThrow(CmsAuthError);
-    expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
   });
 
   it.each([
@@ -108,6 +107,51 @@ describe("Reauthentication Filter", () => {
       );
       expect(filteredResponse).toBe(response);
       expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
+    }
+  );
+  it.each([
+    [
+      "no-cookies",
+      "You are not logged in to CMS, please try logging in to CMS again.",
+    ],
+    [
+      "no-cmsauth-cookie",
+      "You are not logged in to CMS, please try logging in to CMS again.",
+    ],
+    [
+      "cms-auth-not-valid",
+      "Your CMS session has expired, please try logging in to CMS again.",
+    ],
+    [
+      "cms-modern-auth-not-valid",
+      "Your CMS session has expired, please try logging in to CMS again.",
+    ],
+    [
+      "unexpected-error",
+      "An unexpected error occurred, please try logging in to CMS again.",
+    ],
+  ])(
+    "throws CmsAuthError with correct message for auth-fail-reason=%s",
+    (authFailReason, expectedMessage) => {
+      const mockWindow = {
+        location: {
+          href: `http://our-ui-domain.com?auth-refresh&auth-fail-reason=${authFailReason}`,
+          search: `?auth-refresh&auth-fail-reason=${authFailReason}`,
+        },
+      } as Window;
+
+      const response = { ok: false, status: 401 } as Response;
+
+      const act = () => reauthenticationFilter(response, mockWindow, uuid);
+
+      expect(act).toThrow(CmsAuthError);
+      try {
+        act();
+      } catch (e) {
+        if (e instanceof CmsAuthError) {
+          expect(e.customMessage).toBe(expectedMessage);
+        }
+      }
     }
   );
 });

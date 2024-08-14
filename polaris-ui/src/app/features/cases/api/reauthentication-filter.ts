@@ -72,7 +72,7 @@ const renderAuthFailReason = (authFailReason: AuthFailReason | null) => {
     case AuthFailReason.UnexpectedError:
       return "An unexpected error occurred, please try logging in to CMS again.";
     default:
-      return null;
+      return "hello";
   }
 };
 
