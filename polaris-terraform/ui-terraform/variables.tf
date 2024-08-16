@@ -102,6 +102,13 @@ variable "cms_details" {
     cin5_upstream_cms_domain_name              = string
     cin5_upstream_cms_modern_domain_name       = string
     cin5_upstream_cms_services_domain_name     = string
+    cmo_upstream_cms_ip_corsham                = string
+    cmo_upstream_cms_modern_ip_corsham         = string
+    cmo_upstream_cms_ip_farnborough            = string
+    cmo_upstream_cms_modern_ip_farnborough     = string
+    cmo_upstream_cms_domain_name               = string
+    cmo_upstream_cms_modern_domain_name        = string
+    cmo_upstream_cms_services_domain_name      = string
   })
 }
 
