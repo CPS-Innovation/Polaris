@@ -36,6 +36,41 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"                = var.cms_details.default_upstream_cms_domain_name
     "DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"       = var.cms_details.default_upstream_cms_services_domain_name
     "DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"         = var.cms_details.default_upstream_cms_modern_domain_name
+    "CIN2_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin2_upstream_cms_ip_corsham
+    "CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin2_upstream_cms_modern_ip_corsham
+    "CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin2_upstream_cms_ip_farnborough
+    "CIN2_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"         = var.cms_details.cin2_upstream_cms_modern_ip_farnborough
+    "CIN2_UPSTREAM_CMS_DOMAIN_NAME"                   = var.cms_details.cin2_upstream_cms_domain_name
+    "CIN2_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin2_upstream_cms_services_domain_name
+    "CIN2_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin2_upstream_cms_modern_domain_name
+    "CIN3_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin3_upstream_cms_ip_corsham
+    "CIN3_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin3_upstream_cms_modern_ip_corsham
+    "CIN3_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin3_upstream_cms_ip_farnborough
+    "CIN3_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"         = var.cms_details.cin3_upstream_cms_modern_ip_farnborough
+    "CIN3_UPSTREAM_CMS_DOMAIN_NAME"                   = var.cms_details.cin3_upstream_cms_domain_name
+    "CIN3_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin3_upstream_cms_services_domain_name
+    "CIN3_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin3_upstream_cms_modern_domain_name
+    "CIN4_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin4_upstream_cms_ip_corsham
+    "CIN4_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin4_upstream_cms_modern_ip_corsham
+    "CIN4_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin4_upstream_cms_ip_farnborough
+    "CIN4_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"         = var.cms_details.cin4_upstream_cms_modern_ip_farnborough
+    "CIN4_UPSTREAM_CMS_DOMAIN_NAME"                   = var.cms_details.cin4_upstream_cms_domain_name
+    "CIN4_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin4_upstream_cms_services_domain_name
+    "CIN4_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin4_upstream_cms_modern_domain_name
+    "CIN5_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin5_upstream_cms_ip_corsham
+    "CIN5_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin5_upstream_cms_modern_ip_corsham
+    "CIN5_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin5_upstream_cms_ip_farnborough
+    "CIN5_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"         = var.cms_details.cin5_upstream_cms_modern_ip_farnborough
+    "CIN5_UPSTREAM_CMS_DOMAIN_NAME"                   = var.cms_details.cin5_upstream_cms_domain_name
+    "CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin5_upstream_cms_services_domain_name
+    "CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin5_upstream_cms_modern_domain_name
+    "CMO_UPSTREAM_CMS_IP_CORSHAM"                     = var.cms_details.cmo_upstream_cms_ip_corsham
+    "CMO_UPSTREAM_CMS_MODERN_IP_CORSHAM"              = var.cms_details.cmo_upstream_cms_modern_ip_corsham
+    "CMO_UPSTREAM_CMS_IP_FARNBOROUGH"                 = var.cms_details.cmo_upstream_cms_ip_farnborough
+    "CMO_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"          = var.cms_details.cmo_upstream_cms_modern_ip_farnborough
+    "CMO_UPSTREAM_CMS_DOMAIN_NAME"                    = var.cms_details.cmo_upstream_cms_domain_name
+    "CMO_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"           = var.cms_details.cmo_upstream_cms_services_domain_name
+    "CMO_UPSTREAM_CMS_MODERN_DOMAIN_NAME"             = var.cms_details.cmo_upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
@@ -149,6 +184,41 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"],
       app_settings["DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
       app_settings["DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CIN2_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CIN2_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CIN2_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CIN2_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CIN2_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CIN3_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CIN3_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CIN3_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CIN3_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CIN3_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CIN3_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CIN3_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CIN4_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CIN4_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CIN4_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CIN4_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CIN4_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CIN4_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CIN4_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CIN5_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CIN5_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CIN5_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CIN5_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CIN5_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CMO_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CMO_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CMO_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CMO_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CMO_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CMO_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CMO_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
       app_settings["APP_ENDPOINT_DOMAIN_NAME"],
       app_settings["APP_SUBFOLDER_PATH"],
       app_settings["API_ENDPOINT_DOMAIN_NAME"],
