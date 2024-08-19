@@ -112,5 +112,14 @@ namespace Ddei.Factories
                 DocumentName = documentName
             };
         }
+
+        public DdeiCmsCaseDataArgDto CreateMaterialTypeListArgDto(string cmsAuthValues, Guid correlationId)
+        {
+            return new DdeiCmsCaseDataArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId
+            };
+        }
     }
 }
