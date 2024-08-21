@@ -272,7 +272,6 @@ internal static class Program
           var base64Document = Convert.ToBase64String(documentBytes);
           var fileName = Path.GetFileName(filePath);
 
-          // Create the GenerateThumbnailWithDocumentDto object
           var thumbnailDetails = new GenerateThumbnailWithDocumentDto
           {
             ThumbnailParams = new GenerateThumbnailParamsDto
