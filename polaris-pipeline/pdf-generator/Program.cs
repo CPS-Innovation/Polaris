@@ -11,6 +11,9 @@ using Microsoft.Extensions.Logging;
 using pdf_generator;
 using pdf_generator.Services.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using FluentValidation;
+using Common.Dto.Request;
+using Common.Domain.Validators;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -52,6 +55,8 @@ var host = new HostBuilder()
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
+        services.AddScoped<IValidator<GenerateThumbnailWithDocumentDto>, GenerateThumbnailWithDocumentValidator>();
+
     })
     .ConfigureLogging(logging =>
     {

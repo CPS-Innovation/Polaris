@@ -16,6 +16,7 @@ using Common.Configuration;
 using Common.Streaming;
 using System.IO;
 using coordinator.Clients.PdfGenerator;
+using Common.Wrappers;
 
 namespace coordinator.Tests.Clients.PdfGenerator
 {
@@ -30,6 +31,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
     private readonly string _versionId;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
     private readonly Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
+    private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
     private readonly HttpRequestMessage _httpRequestMessage;
     private readonly HttpResponseMessage _httpResponseMessage;
 
@@ -39,6 +41,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
 
       _fixture.Create<RedactPdfRequestDto>();
       _mockRequestFactory = new Mock<IRequestFactory>();
+      _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
       _correlationId = _fixture.Create<Guid>();
       _caseUrn = _fixture.Create<string>();
       _caseId = _fixture.Create<string>();
@@ -70,7 +73,8 @@ namespace coordinator.Tests.Clients.PdfGenerator
       _pdfGeneratorClient = new PdfGeneratorClient(
           _mockRequestFactory.Object,
           redactPdfHttpClient,
-          _mockHttpResponseMessageStreamFactory.Object);
+          _mockHttpResponseMessageStreamFactory.Object,
+          _mockJsonConvertWrapper.Object);
     }
 
     [Fact]
@@ -132,6 +136,55 @@ namespace coordinator.Tests.Clients.PdfGenerator
       var act = async () => await _pdfGeneratorClient.ConvertToPdfAsync(_correlationId, _caseUrn, _caseId, _documentId, _versionId, new MemoryStream(), Common.Domain.Document.FileType.MSG);
 
 
+      await act.Should().ThrowAsync<HttpRequestException>();
+    }
+
+    [Fact]
+    public async Task GenerateThumbnail_ReturnsStream()
+    {
+      // Arrange
+      var expectedStreamContent = _fixture.Create<string>();
+      _httpResponseMessage.Content = new StringContent(expectedStreamContent);
+      _httpResponseMessage.StatusCode = HttpStatusCode.OK;
+
+      _mockRequestFactory
+          .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetGenerateThumbnailPath(_caseUrn, _caseId, _documentId)}", It.Is<Guid>(g => g == _correlationId), null))
+          .Returns(_httpRequestMessage);
+
+      var thumbnailRequest = _fixture.Create<GenerateThumbnailWithDocumentDto>();
+      _mockJsonConvertWrapper
+          .Setup(wrapper => wrapper.SerializeObject(thumbnailRequest))
+          .Returns(JsonConvert.SerializeObject(thumbnailRequest));
+
+      // Act
+      var resultStream = await _pdfGeneratorClient.GenerateThumbnail(_caseUrn, _caseId, _documentId, thumbnailRequest, _correlationId);
+
+      // Assert
+      var resultText = await new StreamReader(resultStream).ReadToEndAsync();
+      resultText.Should().Be(expectedStreamContent);
+    }
+
+    [Fact]
+    public async Task GenerateThumbnail_ThrowsHttpRequestException_WhenResponseIsUnsuccessful()
+    {
+      // Arrange
+      var expectedStreamContent = _fixture.Create<string>();
+      _httpResponseMessage.Content = new StringContent(expectedStreamContent);
+      _httpResponseMessage.StatusCode = HttpStatusCode.InternalServerError;
+
+      _mockRequestFactory
+          .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetGenerateThumbnailPath(_caseUrn, _caseId, _documentId)}", It.Is<Guid>(g => g == _correlationId), null))
+          .Returns(_httpRequestMessage);
+
+      var thumbnailRequest = _fixture.Create<GenerateThumbnailWithDocumentDto>();
+      _mockJsonConvertWrapper
+          .Setup(wrapper => wrapper.SerializeObject(thumbnailRequest))
+          .Returns(JsonConvert.SerializeObject(thumbnailRequest));
+
+      // Act
+      Func<Task> act = async () => await _pdfGeneratorClient.GenerateThumbnail(_caseUrn, _caseId, _documentId, thumbnailRequest, _correlationId);
+
+      // Assert
       await act.Should().ThrowAsync<HttpRequestException>();
     }
   }

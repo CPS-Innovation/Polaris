@@ -15,6 +15,9 @@ using AppInsights = Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using coordinator.Clients.PdfGenerator;
 using Common.Constants;
+using Common.Wrappers;
+using Common.Dto.Request.DocumentManipulation;
+using System.Text;
 
 namespace pdf_generator.test_harness;
 
@@ -60,6 +63,9 @@ internal static class Program
         break;
       case Mode.FunctionCallConvertToPdf:
         await ConvertFileToPdfUsingFunctionCall(serviceScope.ServiceProvider);
+        break;
+      case Mode.FunctionCallGenerateThumbnail:
+        await GenerateThumbnailUsingFunctionCall(serviceScope.ServiceProvider);
         break;
       default:
         throw new Exception("Unknown mode");
@@ -246,6 +252,76 @@ internal static class Program
         throw new Exception("File does not exist, check path");
       }
     }
+
+    static async Task GenerateThumbnailUsingFunctionCall(IServiceProvider serviceProvider)
+    {
+      var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IRequestFactory>();
+      var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+      var jsonConvertWrapper = serviceProvider.GetRequiredService<IJsonConvertWrapper>();
+
+      Console.WriteLine("Enter the input file path:");
+      var filePath = Console.ReadLine();
+      Console.WriteLine("Enter the output file path:");
+      var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
+
+      if (File.Exists(filePath))
+      {
+        try
+        {
+          var documentBytes = await File.ReadAllBytesAsync(filePath);
+          var base64Document = Convert.ToBase64String(documentBytes);
+          var fileName = Path.GetFileName(filePath);
+
+          // Create the GenerateThumbnailWithDocumentDto object
+          var thumbnailDetails = new GenerateThumbnailWithDocumentDto
+          {
+            ThumbnailParams = new GenerateThumbnailParamsDto
+            {
+            },
+            Document = base64Document,
+            FileName = fileName,
+            VersionId = 1
+          };
+
+          Guid currentCorrelationId = Guid.NewGuid();
+
+          var request = pipelineClientRequestFactory.Create(HttpMethod.Post, "urns/test-case-urn/cases/123/documents/test-document-id/thumbnail", currentCorrelationId);
+
+          var jsonContent = jsonConvertWrapper.SerializeObject(thumbnailDetails);
+          request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+          using var client = httpClientFactory.CreateClient("testClient");
+          using var pdfStream = new MemoryStream();
+          using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+          {
+            response.EnsureSuccessStatusCode();
+            await response.Content.CopyToAsync(pdfStream);
+            pdfStream.Seek(0, SeekOrigin.Begin);
+          }
+
+          // Write the PDF stream to the file system
+          byte[] pdfBytes;
+          using (var ms = new MemoryStream())
+          {
+            await pdfStream.CopyToAsync(ms);
+            pdfBytes = ms.ToArray();
+          }
+
+          await File.WriteAllBytesAsync(outputFilePath, pdfBytes);
+
+          Console.WriteLine("Thumbnail generation successful.");
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine($"Thumbnail generation failed: {e.Message}");
+        }
+      }
+      else
+      {
+        throw new Exception("File does not exist, check path");
+      }
+    }
+
   }
 }
 

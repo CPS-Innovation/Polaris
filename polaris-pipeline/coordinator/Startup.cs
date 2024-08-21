@@ -113,6 +113,7 @@ namespace coordinator
             services.AddScoped<IValidator<AddDocumentNoteDto>, DocumentNoteValidator>();
             services.AddScoped<IValidator<RenameDocumentDto>, RenameDocumentValidator>();
             services.AddScoped<IValidator<ModifyDocumentWithDocumentDto>, ModifyDocumentWithDocumentValidator>();
+            services.AddScoped<IValidator<GenerateThumbnailWithDocumentDto>, GenerateThumbnailWithDocumentValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();

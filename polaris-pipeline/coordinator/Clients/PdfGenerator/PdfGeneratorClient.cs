@@ -2,11 +2,14 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
+using Common.Dto.Request;
 using Common.Streaming;
+using Common.Wrappers;
 using coordinator.Domain;
 
 namespace coordinator.Clients.PdfGenerator
@@ -17,14 +20,17 @@ namespace coordinator.Clients.PdfGenerator
         private readonly IRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
         private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         public PdfGeneratorClient(IRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
-            IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory)
+            IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory,
+            IJsonConvertWrapper jsonConvertWrapper)
         {
             _requestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory ?? throw new ArgumentNullException(nameof(httpResponseMessageStreamFactory));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
         public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
@@ -56,6 +62,20 @@ namespace coordinator.Clients.PdfGenerator
                 PdfStream = streamResult,
                 Status = PdfConversionStatus.DocumentConverted
             };
+        }
+
+        public async Task<Stream> GenerateThumbnail(string caseUrn, string caseId, string documentId, GenerateThumbnailWithDocumentDto thumbnailRequest, Guid correlationId)
+        {
+            var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(thumbnailRequest), Encoding.UTF8, "application/json");
+
+            var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetGenerateThumbnailPath(caseUrn, caseId, documentId)}", correlationId);
+            request.Content = requestMessage;
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStreamAsync();
         }
     }
 }

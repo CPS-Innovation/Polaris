@@ -3,6 +3,7 @@ using System.Text;
 using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Request;
+using Common.Dto.Request.DocumentManipulation;
 using Common.ValueObjects;
 using Newtonsoft.Json;
 
@@ -180,6 +181,16 @@ namespace PolarisGateway.Clients.Coordinator
                 RestApi.MaterialTypeList,
                 correlationId,
                 cmsAuthValues);
+        }
+
+        public async Task<HttpResponseMessage> GenerateThumbnail(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, GenerateThumbnailRequestDto generateThumbnailRequest, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Post,
+                RestApi.GetGenerateThumbnailPath(caseUrn, caseId.ToString(), polarisDocumentId.Value),
+                correlationId,
+                cmsAuthValues,
+                new StringContent(JsonConvert.SerializeObject(generateThumbnailRequest), Encoding.UTF8, ContentType.Json));
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)

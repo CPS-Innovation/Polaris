@@ -1,10 +1,10 @@
 ﻿using Common.Wrappers;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories;
 using pdf_generator.Factories.Contracts;
 using pdf_generator.Services.PdfService;
+using pdf_generator.Services.ThumbnailGeneration;
 using System.Linq;
 
 namespace pdf_generator.Services.Extensions
@@ -38,6 +38,7 @@ namespace pdf_generator.Services.Extensions
                 return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
                     diagramPdfService, emailPdfService, pdfRendererService, xpsPdfRendererService, loggingService);
             });
+            services.AddSingleton<IThumbnailGenerationService, ThumbnailGenerationService>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
         }

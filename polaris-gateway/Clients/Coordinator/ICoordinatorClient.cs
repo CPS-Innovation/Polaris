@@ -1,4 +1,5 @@
 using Common.Dto.Request;
+using Common.Dto.Request.DocumentManipulation;
 using Common.ValueObjects;
 
 namespace PolarisGateway.Clients.Coordinator;
@@ -22,4 +23,5 @@ public interface ICoordinatorClient
     Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentDto, string cmsAuthValues, Guid correlationId);
     Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId);
     Task<HttpResponseMessage> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId);
+    Task<HttpResponseMessage> GenerateThumbnail(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, GenerateThumbnailRequestDto generateThumbnailRequest, string cmsAuthValues, Guid correlationId);
 }

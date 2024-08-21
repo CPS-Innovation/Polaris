@@ -20,6 +20,7 @@ namespace Common.Configuration
         public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/redact";
         public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/modify";
         public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/rename";
+        public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/thumbnail";
 
         // Documents (plural)
         public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
@@ -135,6 +136,11 @@ namespace Common.Configuration
         public static string GetModifyDocumentPath(string caseUrn, string caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/modify";
+        }
+
+        public static string GetGenerateThumbnailPath(string caseUrn, string caseId, string documentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/thumbnail";
         }
 
         public static string CaseSearchCountPath(string caseUrn, long caseId)
