@@ -3,7 +3,6 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Domain.PreCharge;
 
 namespace DdeiClient.Services
 {
@@ -24,6 +23,8 @@ namespace DdeiClient.Services
 		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg);
 		Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg);
 		Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg);
+		Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg);
+		Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCmsCaseArgDto arg);
 		Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiCmsCaseDataArgDto arg);
 	}
 }
