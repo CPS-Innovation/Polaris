@@ -138,6 +138,22 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiCmsReclassifyDocumentArgDto arg)
+        {
+            var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
+            {
+                DocumentId = arg.DocumentId,
+                DocumentTypeId = arg.DocumentTypeId,
+                Exhibit = arg.Exhibit,
+                Statement = arg.Statement,
+                Other = arg.Other
+            });
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/reclassify");
+            AddAuthHeaders(request, arg);
+            request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
+            return request;
+        }
+
         private void AddAuthHeaders(HttpRequestMessage request, DdeiCmsCaseDataArgDto arg)
         {
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);

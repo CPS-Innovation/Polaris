@@ -194,6 +194,13 @@ namespace Ddei.Services
             return new DocumentRenamedResult { Id = response.Id, OperationName = response.OperationName };
         }
 
+        public async Task<DocumentReclassifiedResult> ReclassifyDocumentAsync(DdeiCmsReclassifyDocumentArgDto arg)
+        {
+            var response = await CallDdei<DdeiCaseDocumentReclassifiedResponse>(_ddeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
+
+            return new DocumentReclassifiedResult { DocumentId = response.DocumentId, DocumentType = response.DocumentTypeId, ReclassificationType = response.ReclassificationType };
+        }
+
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
         {
             return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
