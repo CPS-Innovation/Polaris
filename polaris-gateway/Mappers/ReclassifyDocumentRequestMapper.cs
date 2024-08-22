@@ -10,9 +10,12 @@ namespace PolarisGateway.Mappers
             {
                 DocumentId = documentReclassificationRequest.DocumentId,
                 DocumentTypeId = documentReclassificationRequest.DocumentTypeId,
+                ReclassificationType = documentReclassificationRequest.ReclassificationType,
                 Exhibit = documentReclassificationRequest.Exhibit,
                 Statement = documentReclassificationRequest.Statement,
-                Other = documentReclassificationRequest.Other
+                Other = documentReclassificationRequest.Other,
+                IsRenamed = documentReclassificationRequest.IsRenamed,
+                DocumentName = documentReclassificationRequest.DocumentName
             };
         }
     }
