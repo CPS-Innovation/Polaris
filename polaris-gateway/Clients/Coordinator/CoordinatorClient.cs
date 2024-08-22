@@ -191,6 +191,15 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
+        public async Task<HttpResponseMessage> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.MaterialTypeList,
+                correlationId,
+                cmsAuthValues);
+        }
+
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);

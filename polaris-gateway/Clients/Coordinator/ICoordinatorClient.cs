@@ -23,4 +23,5 @@ public interface ICoordinatorClient
     Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId);
     Task<HttpResponseMessage> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
     Task<HttpResponseMessage> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
+    Task<HttpResponseMessage> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId);
 }

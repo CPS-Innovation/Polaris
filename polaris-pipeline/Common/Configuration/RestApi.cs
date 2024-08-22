@@ -26,6 +26,9 @@ namespace Common.Configuration
         // Documents (plural)
         public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
 
+        // Reference
+        public const string MaterialTypeList = "reference/reclassification";
+
         // Other
         public const string AuthInitialisation = "init";
         public const string Status = "status";

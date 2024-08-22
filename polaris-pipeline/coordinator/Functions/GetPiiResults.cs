@@ -10,8 +10,6 @@ using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
 using Common.Configuration;
 using Common.Extensions;
-using Common.Services.BlobStorageService;
-using Common.Wrappers;
 
 namespace coordinator.Functions
 {

@@ -1,9 +1,8 @@
-using System.Reflection.Metadata;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
+using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Domain.PreCharge;
 
 namespace DdeiClient.Services
 {
@@ -26,5 +25,6 @@ namespace DdeiClient.Services
 		Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg);
 		Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg);
 		Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCmsCaseArgDto arg);
+		Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiCmsCaseDataArgDto arg);
 	}
 }

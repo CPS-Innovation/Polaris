@@ -1,18 +1,19 @@
 using System.Net;
+using Microsoft.Extensions.Logging;
 using Common.Dto.Case;
+using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
+using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Wrappers;
 using Ddei.Domain;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Factories;
-using DdeiClient.Exceptions;
-using DdeiClient.Services;
-using DdeiClient.Mappers;
-using Microsoft.Extensions.Logging;
-using Ddei.Mappers;
-using Common.Dto.Case.PreCharge;
 using Ddei.Domain.PreCharge;
+using Ddei.Factories;
+using Ddei.Mappers;
+using DdeiClient.Exceptions;
+using DdeiClient.Mappers;
+using DdeiClient.Services;
 
 namespace Ddei.Services
 {
@@ -27,6 +28,7 @@ namespace Ddei.Services
         private readonly ICaseWitnessMapper _caseWitnessMapper;
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
         private readonly ICmsAuthValuesMapper _cmsAuthValuesMapper;
+        private readonly ICmsMaterialTypeMapper _cmsMaterialTypeMapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDdeiClientRequestFactory _ddeiClientRequestFactory;
         private readonly ILogger<DdeiClient> _logger;
@@ -44,6 +46,7 @@ namespace Ddei.Services
             ICaseWitnessMapper caseWitnessMapper,
             ICaseIdentifiersMapper caseIdentifiersMapper,
             ICmsAuthValuesMapper cmsAuthValuesMapper,
+            ICmsMaterialTypeMapper cmsMaterialTypeMapper,
             IJsonConvertWrapper jsonConvertWrapper,
             ILogger<DdeiClient> logger
             )
@@ -57,6 +60,7 @@ namespace Ddei.Services
             _caseWitnessMapper = caseWitnessMapper ?? throw new ArgumentNullException(nameof(caseWitnessMapper));
             _caseIdentifiersMapper = caseIdentifiersMapper ?? throw new ArgumentNullException(nameof(caseIdentifiersMapper));
             _cmsAuthValuesMapper = cmsAuthValuesMapper ?? throw new ArgumentNullException(nameof(cmsAuthValuesMapper));
+            _cmsMaterialTypeMapper = cmsMaterialTypeMapper ?? throw new ArgumentNullException(nameof(cmsMaterialTypeMapper));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _ddeiClientRequestFactory = ddeiClientRequestFactory ?? throw new ArgumentNullException(nameof(ddeiClientRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -212,6 +216,13 @@ namespace Ddei.Services
             var ddeiResults = await CallDdei<List<DdeiCaseWitnessResponse>>(_ddeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseWitnessMapper.Map(ddeiResult)).ToArray();
+        }
+
+        public async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiCmsCaseDataArgDto arg)
+        {
+            var ddeiResults = await CallDdei<List<DdeiMaterialTypeListResponse>>(_ddeiClientRequestFactory.CreateGetMaterialTypeListRequest(arg));
+
+            return ddeiResults.Select(ddeiResult => _cmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)

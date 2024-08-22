@@ -152,6 +152,13 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiCmsCaseDataArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
         private void AddAuthHeaders(HttpRequestMessage request, DdeiCmsCaseDataArgDto arg)
         {
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);

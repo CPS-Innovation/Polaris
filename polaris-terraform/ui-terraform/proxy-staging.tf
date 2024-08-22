@@ -43,9 +43,6 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
     "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
-    "DOCKER_REGISTRY_SERVER_URL"                      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
-    "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
-    "DOCKER_REGISTRY_SERVER_PASSWORD"                 = data.azurerm_container_registry.polaris_container_registry.admin_password
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
@@ -64,8 +61,10 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     ftps_state    = "FtpsOnly"
     http2_enabled = true
     application_stack {
-      docker_image     = "nginx"
-      docker_image_tag = "latest"
+      docker_image_name        = "nginx:latest"
+      docker_registry_url      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
+      docker_registry_username = data.azurerm_container_registry.polaris_container_registry.admin_username
+      docker_registry_password = data.azurerm_container_registry.polaris_container_registry.admin_username
     }
     always_on                               = true
     vnet_route_all_enabled                  = true
