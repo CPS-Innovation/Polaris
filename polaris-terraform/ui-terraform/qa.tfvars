@@ -38,6 +38,7 @@ cms_details = {
 }
 
 wm_task_list_host_name = "https://cps-tst.outsystemsenterprise.com"
+auth_handover_whitelist = "https://cps-tst.outsystemsenterprise.com/WorkManagementApp/Redirect"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
