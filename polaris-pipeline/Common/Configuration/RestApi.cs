@@ -12,6 +12,8 @@ namespace Common.Configuration
         public const string CaseTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/tracker";
         public const string CaseSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
         public const string CaseSearchCount = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
+        public const string CaseExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
+        public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
 
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
@@ -24,6 +26,9 @@ namespace Common.Configuration
 
         // Documents (plural)
         public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
+
+        // Reference
+        public const string MaterialTypeList = "reference/reclassification";
 
         // Other
         public const string AuthInitialisation = "init";
@@ -143,6 +148,16 @@ namespace Common.Configuration
         public static string GetReclassifyDocumentPath(string caseUrn, string caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/reclassify";
+        }
+
+        public static string GetCaseExhibitProducersPath(string caseUrn, int caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/exhibit-producers";
+        }
+
+        public static string GetCaseWitnessesPath(string caseUrn, int caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/witnesses";
         }
     }
 }

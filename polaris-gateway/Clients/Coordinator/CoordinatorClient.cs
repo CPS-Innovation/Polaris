@@ -183,6 +183,33 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(reclassifyDocumentDto), Encoding.UTF8, ContentType.Json));
         }
 
+        public async Task<HttpResponseMessage> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.GetCaseExhibitProducersPath(caseUrn, caseId),
+                correlationId,
+                cmsAuthValues);
+        }
+
+        public async Task<HttpResponseMessage> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.GetCaseWitnessesPath(caseUrn, caseId),
+                correlationId,
+                cmsAuthValues);
+        }
+
+        public async Task<HttpResponseMessage> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.MaterialTypeList,
+                correlationId,
+                cmsAuthValues);
+        }
+
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);

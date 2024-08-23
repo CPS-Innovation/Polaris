@@ -135,5 +135,14 @@ namespace Ddei.Factories
                 ReclassificationType = dto.ReclassificationType
             };
         }
+
+        public DdeiCmsCaseDataArgDto CreateMaterialTypeListArgDto(string cmsAuthValues, Guid correlationId)
+        {
+            return new DdeiCmsCaseDataArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId
+            };
+        }
     }
 }
