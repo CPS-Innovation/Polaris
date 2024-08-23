@@ -3,6 +3,7 @@ using System.Text;
 using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -174,7 +175,7 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
         }
         
-        public async Task<HttpResponseMessage> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -183,7 +184,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<HttpResponseMessage> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
