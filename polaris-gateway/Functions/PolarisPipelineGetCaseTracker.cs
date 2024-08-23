@@ -30,7 +30,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineGetCaseTracker))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try

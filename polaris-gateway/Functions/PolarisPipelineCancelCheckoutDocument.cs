@@ -32,7 +32,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineCancelCheckoutDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;

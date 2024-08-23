@@ -1,6 +1,7 @@
 using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Telemetry;
 using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +17,7 @@ using PolarisGateway.Validators;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineRenameDocument
+    public class PolarisPipelineRenameDocument : BaseFunction
     {
         private readonly ILogger<PolarisPipelineRenameDocument> _logger;
         private readonly ICoordinatorClient _coordinatorClient;
@@ -29,6 +30,7 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,
             ITelemetryClient telemetryClient)
+        : base(telemetryClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
@@ -39,15 +41,9 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineRenameDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, int documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, int documentId)
         {
             var telemetryEvent = new RenameDocumentRequestEvent(caseId, documentId.ToString());
-
-            HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
-            {
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return result;
-            }
 
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try
@@ -64,10 +60,7 @@ namespace PolarisGateway.Functions
                 if (!isRequestJsonValid)
                 {
                     // todo: log these errors to telemetry event
-                    return SendTelemetryAndReturn(new HttpResponseMessage()
-                    {
-                        StatusCode = HttpStatusCode.BadRequest
-                    });
+                    return SendTelemetryAndReturnBadRequest(telemetryEvent);
                 }
 
                 var response = await _coordinatorClient.RenameDocumentAsync(
@@ -78,9 +71,9 @@ namespace PolarisGateway.Functions
                     nameChange.Value,
                     context.CorrelationId);
 
-                telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
+                telemetryEvent.IsSuccess = response.IsSuccessStatusCode();
 
-                return SendTelemetryAndReturn(response);
+                return SendTelemetryAndReturn(telemetryEvent, response);
             }
             catch (Exception ex)
             {

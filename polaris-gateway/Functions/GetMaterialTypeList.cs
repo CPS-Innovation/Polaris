@@ -29,7 +29,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(GetMaterialTypeList))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.MaterialTypeList)] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.MaterialTypeList)] HttpRequest req)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try

@@ -1,6 +1,7 @@
 using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Telemetry;
 using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +17,7 @@ using PolarisGateway.Validators;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineModifyDocument
+    public class PolarisPipelineModifyDocument : BaseFunction
     {
         private readonly ILogger<PolarisPipelineModifyDocument> _logger;
         private readonly ICoordinatorClient _coordinatorClient;
@@ -32,6 +33,7 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,
             ITelemetryClient telemetryClient)
+        : base(telemetryClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
@@ -43,15 +45,9 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineModifyDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             var telemetryEvent = new DocumentModifiedEvent(caseId, documentId);
-
-            HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
-            {
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return result;
-            }
 
             (Guid CorrelationId, string CmsAuthValues) context = default;
 
@@ -67,13 +63,8 @@ namespace PolarisGateway.Functions
                 telemetryEvent.RequestJson = documentChanges.RequestJson;
 
                 if (!isRequestJsonValid)
-                {
-                    return SendTelemetryAndReturn(new HttpResponseMessage()
-                    {
-                        StatusCode = HttpStatusCode.BadRequest
-                    });
-                }
-
+                    return SendTelemetryAndReturnBadRequest(telemetryEvent);
+                
                 var modifyDocumentDto = _modifyDocumentRequestMapper.Map(documentChanges.Value);
                 var response = await _coordinatorClient.ModifyDocument(
                     caseUrn,
@@ -83,9 +74,9 @@ namespace PolarisGateway.Functions
                     context.CmsAuthValues,
                     context.CorrelationId);
 
-                telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
+                telemetryEvent.IsSuccess = response.IsSuccessStatusCode();
 
-                return SendTelemetryAndReturn(response);
+                return SendTelemetryAndReturn(telemetryEvent, response);
             }
             catch (Exception ex)
             {

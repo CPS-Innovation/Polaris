@@ -30,7 +30,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineGetPii))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PiiResults)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;

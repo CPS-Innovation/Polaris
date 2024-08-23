@@ -1,6 +1,8 @@
 using System.Net;
 using Common.Exceptions;
+using Common.Extensions;
 using Common.Logging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Exceptions;
 
@@ -8,7 +10,7 @@ namespace PolarisGateway.Handlers;
 
 public class UnhandledExceptionHandler : IUnhandledExceptionHandler
 {
-    public HttpResponseMessage HandleUnhandledException(
+    public IActionResult HandleUnhandledException(
         ILogger logger,
         string logName,
         Guid correlationId,
@@ -23,10 +25,10 @@ public class UnhandledExceptionHandler : IUnhandledExceptionHandler
             CpsAuthenticationException _ => HttpStatusCode.ProxyAuthenticationRequired,
             _ => HttpStatusCode.InternalServerError,
         };
-
-        return new HttpResponseMessage()
+        
+        return new ObjectResult(ex.ToStringFullResponse())
         {
-            StatusCode = statusCode
+            StatusCode = (int)statusCode
         };
     }
 }

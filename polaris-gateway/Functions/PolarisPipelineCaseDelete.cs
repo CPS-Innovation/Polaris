@@ -30,7 +30,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineCaseDelete))]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
 

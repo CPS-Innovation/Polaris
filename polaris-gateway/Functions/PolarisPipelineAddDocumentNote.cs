@@ -1,14 +1,12 @@
-using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Telemetry;
-using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 using PolarisGateway.Mappers;
@@ -17,7 +15,7 @@ using PolarisGateway.Validators;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineAddDocumentNote
+    public class PolarisPipelineAddDocumentNote : BaseFunction
     {
         private readonly ILogger<PolarisPipelineAddDocumentNote> _logger;
         private readonly IDocumentNoteRequestMapper _documentNoteRequestMapper;
@@ -32,6 +30,7 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,
             ITelemetryClient telemetryClient)
+        : base(telemetryClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _documentNoteRequestMapper = documentNoteRequestMapper;
@@ -43,7 +42,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineAddDocumentNote))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequest req,
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequest req,
             string caseUrn,
             int caseId,
             int documentId)
@@ -51,12 +50,6 @@ namespace PolarisGateway.Functions
             (Guid CorrelationId, string CmsAuthValues) context = default;
 
             var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId.ToString());
-
-            HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
-            {
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return result;
-            }
 
             try
             {
@@ -72,10 +65,7 @@ namespace PolarisGateway.Functions
                 if (!isRequestJsonValid)
                 {
                     // todo: log these errors to telemetry event
-                    return SendTelemetryAndReturn(new HttpResponseMessage()
-                    {
-                        StatusCode = HttpStatusCode.BadRequest
-                    });
+                    return SendTelemetryAndReturnBadRequest(telemetryEvent);
                 }
 
                 var documentNote = _documentNoteRequestMapper.Map(documentNoteRequest.Value);
@@ -86,10 +76,12 @@ namespace PolarisGateway.Functions
                     documentId,
                     documentNote,
                     context.CorrelationId);
+                
+                
 
-                telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
+                telemetryEvent.IsSuccess = response.IsSuccessStatusCode();
 
-                return SendTelemetryAndReturn(response);
+                return SendTelemetryAndReturn(telemetryEvent, response);
             }
             catch (Exception ex)
             {
@@ -101,22 +93,6 @@ namespace PolarisGateway.Functions
                       ex
                     );
             }
-        }
-
-        public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(HttpRequest request) where V : AbstractValidator<T>, new()
-        {
-            var requestJson = await request.ReadAsStringAsync();
-            var requestObject = JsonConvert.DeserializeObject<T>(requestJson);
-
-            var validator = new V();
-            var validationResult = await validator.ValidateAsync(requestObject);
-
-            return new ValidatableRequest<T>
-            {
-                Value = requestObject,
-                IsValid = validationResult.IsValid,
-                RequestJson = requestJson
-            };
         }
     }
 }

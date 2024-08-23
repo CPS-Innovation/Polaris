@@ -9,7 +9,6 @@ using Common.Dto.Request;
 using Common.Handlers;
 using Common.Services;
 using Common.Telemetry;
-using Common.Validators;
 using Common.Wrappers;
 using FluentValidation;
 using pdf_redactor;
