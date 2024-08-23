@@ -3,10 +3,8 @@ using Common.ValueObjects;
 using PolarisGateway.Clients.Coordinator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -30,10 +28,9 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
-        [FunctionName(nameof(PolarisPipelineCancelCheckoutDocument))]
+        [Function(nameof(PolarisPipelineCancelCheckoutDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
 

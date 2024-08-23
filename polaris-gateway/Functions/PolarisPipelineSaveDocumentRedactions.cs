@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Validators;
@@ -11,11 +9,10 @@ using Common.Dto.Request;
 using Common.ValueObjects;
 using Common.Telemetry;
 using PolarisGateway.TelemetryEvents;
-using System.Net;
 using Common.Extensions;
+using Microsoft.Azure.Functions.Worker;
 using PolarisGateway.Handlers;
-using FluentValidation;
-using Newtonsoft.Json;
+using PolarisGateway.Helpers;
 
 namespace PolarisGateway.Functions
 {
@@ -47,7 +44,7 @@ namespace PolarisGateway.Functions
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient)); ;
         }
 
-        [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
+        [Function(nameof(PolarisPipelineSaveDocumentRedactions))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
@@ -60,7 +57,7 @@ namespace PolarisGateway.Functions
                 telemetryEvent.IsRequestValid = true;
                 telemetryEvent.CorrelationId = context.CorrelationId;
 
-                var redactions = await GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>(req);
+                var redactions = await RequestHelper.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>(req);
                 var isRequestJsonValid = redactions.IsValid;
                 telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
                 telemetryEvent.RequestJson = redactions.RequestJson;

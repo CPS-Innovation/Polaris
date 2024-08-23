@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using Common.ValueObjects;
+using Microsoft.Azure.Functions.Worker;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
@@ -30,7 +29,7 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
-        [FunctionName(nameof(PolarisPipelineGetDocument))]
+        [Function(nameof(PolarisPipelineGetDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)

@@ -1,13 +1,10 @@
-using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
-using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
@@ -39,7 +36,7 @@ namespace PolarisGateway.Functions
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        [FunctionName(nameof(PolarisPipelineRenameDocument))]
+        [Function(nameof(PolarisPipelineRenameDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, int documentId)
         {

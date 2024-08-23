@@ -1,8 +1,7 @@
 ﻿using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
@@ -30,7 +29,7 @@ namespace PolarisGateway.Functions
         }
 
 
-        [FunctionName(nameof(PolarisPipelineCaseSearch))]
+        [Function(nameof(PolarisPipelineCaseSearch))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req, string caseUrn, int caseId)

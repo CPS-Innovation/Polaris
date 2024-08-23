@@ -4,11 +4,11 @@ using Common.Extensions;
 using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
+using PolarisGateway.Helpers;
 using PolarisGateway.Mappers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
@@ -40,7 +40,7 @@ namespace PolarisGateway.Functions
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        [FunctionName(nameof(PolarisPipelineAddDocumentNote))]
+        [Function(nameof(PolarisPipelineAddDocumentNote))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequest req,
             string caseUrn,
@@ -57,7 +57,7 @@ namespace PolarisGateway.Functions
                 telemetryEvent.IsRequestValid = true;
                 telemetryEvent.CorrelationId = context.CorrelationId;
 
-                var documentNoteRequest = await GetJsonBody<AddDocumentNoteRequestDto, AddDocumentNoteValidator>(req);
+                var documentNoteRequest = await RequestHelper.GetJsonBody<AddDocumentNoteRequestDto, AddDocumentNoteValidator>(req);
                 var isRequestJsonValid = documentNoteRequest.IsValid;
                 telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
                 telemetryEvent.RequestJson = documentNoteRequest.RequestJson;
