@@ -2,3 +2,14 @@
   display: flex;
   align-items: baseline;
 }
+
+.otherProducerWrapper {
+  margin-left: 15px;
+  padding-left: 30px;
+  border-left: 4px solid #b1b4b6;
+}
+.producerSelectWrapper {
+  > :global(.govuk-form-group) {
+    margin-bottom: 10px;
+  }
+}

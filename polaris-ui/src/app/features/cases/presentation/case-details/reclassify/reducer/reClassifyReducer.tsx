@@ -19,6 +19,7 @@ export type ReclassifyState = {
     exhibitReference: string;
     exhibitItemName: string;
     exhibitProducerId: string;
+    exhibitOtherProducerValue: string;
     statementWitnessId: string;
     statementDay: string;
     statementMonth: string;
@@ -44,6 +45,7 @@ export const reclassifyInitialState: ReclassifyState = {
     exhibitReference: "",
     exhibitItemName: "",
     exhibitProducerId: "",
+    exhibitOtherProducerValue: "",
     statementWitnessId: "",
     statementDay: "",
     statementMonth: "",
@@ -99,6 +101,10 @@ export type ReclassifyActions =
     }
   | {
       type: "UPDATE_EXHIBIT_PRODUCER_ID";
+      payload: { value: string };
+    }
+  | {
+      type: "UPDATE_EXHIBIT_OTHER_PRODUCER_VALUE";
       payload: { value: string };
     }
   | {
@@ -233,6 +239,15 @@ export const reClassifyReducer = (
         formData: {
           ...state.formData,
           exhibitProducerId: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_EXHIBIT_OTHER_PRODUCER_VALUE": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          exhibitOtherProducerValue: action.payload.value,
         },
       };
     }

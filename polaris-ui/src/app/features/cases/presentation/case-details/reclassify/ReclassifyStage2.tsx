@@ -9,6 +9,7 @@ import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyVariant } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
+import classes from "./Reclassify.module.scss";
 
 type ReclassifyStage2Props = {
   presentationTitle: string;
@@ -96,7 +97,12 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       value: id,
       children: fullName,
     }));
-    return [defaultValue, ...mappedValues];
+    const otherOption = {
+      value: "other",
+      children: "Other producer or witness",
+      disabled: false,
+    };
+    return [defaultValue, ...mappedValues, otherOption];
   }, [state.exhibitProducers]);
 
   const getHeaderText = (varaint: ReclassifyVariant) => {
@@ -178,6 +184,17 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   const handleUpdateExhibitProducerId = (value: string) => {
     dispatch({
       type: "UPDATE_EXHIBIT_PRODUCER_ID",
+      payload: { value: value },
+    });
+    dispatch({
+      type: "UPDATE_EXHIBIT_OTHER_PRODUCER_VALUE",
+      payload: { value: "" },
+    });
+  };
+
+  const handleUpdateOtherProducerName = (value: string) => {
+    dispatch({
+      type: "UPDATE_EXHIBIT_OTHER_PRODUCER_VALUE",
       payload: { value: value },
     });
   };
@@ -298,16 +315,34 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             onChange={handleUpdateExhibitItemName}
           />
 
-          <Select
-            id="exhibit-select-witness"
-            items={exhibitProducersValues}
-            label={{
-              children: "Select witness",
-            }}
-            name="exhibit-select-witness"
-            value={state.formData.exhibitProducerId}
-            onChange={(ev) => handleUpdateExhibitProducerId(ev.target.value)}
-          />
+          <div className={classes.producerSelectWrapper}>
+            <Select
+              id="exhibit-select-producer"
+              items={exhibitProducersValues}
+              label={{
+                children: "Select existing producer or witness",
+              }}
+              name="exhibit-select-producer"
+              value={state.formData.exhibitProducerId}
+              onChange={(ev) => handleUpdateExhibitProducerId(ev.target.value)}
+            />
+
+            {state.formData.exhibitProducerId === "other" && (
+              <div className={classes.otherProducerWrapper}>
+                <Input
+                  id="exhibit-other-producer-name"
+                  className={`govuk-input--width-10 ${classes.otherProducerName}`}
+                  label={{
+                    children: "Enter name",
+                  }}
+                  name="exhibit-other-producer-name"
+                  type="text"
+                  value={state.formData.exhibitOtherProducerValue}
+                  onChange={handleUpdateOtherProducerName}
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 

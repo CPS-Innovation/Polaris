@@ -76,6 +76,8 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
       case "Exhibit Item Name":
         return state.formData.exhibitItemName;
       case "Exhibit Producer":
+        if (state.formData.exhibitProducerId === "other")
+          return state.formData.exhibitOtherProducerValue;
         return state.exhibitProducers.find(
           (producer) => producer.id === +state.formData.exhibitProducerId
         )?.fullName;
