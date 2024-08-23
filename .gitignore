@@ -9,7 +9,6 @@ azurite
 /ddei-mock/urns
 /ddei-mock/bin/Debug/net6.0
 /ddei-mock/obj
-.cache_ggshield
 /polaris-pipeline/coordinator/Properties
 /polaris-ddei-mock/Properties/PublishProfiles
 /polaris-ddei-mock/Properties/ServiceDependencies/polaris-ddei-mock - Zip Deploy
