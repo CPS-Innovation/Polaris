@@ -73,6 +73,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     use_32_bit_worker                 = false
     application_stack {
       dotnet_version = "8.0"
+      use_dotnet_isolated_runtime       = true
     }
   }
 
