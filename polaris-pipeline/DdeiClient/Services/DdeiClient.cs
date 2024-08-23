@@ -24,6 +24,8 @@ namespace Ddei.Services
         private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _caseDocumentMapper;
         private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
         private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
+        private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
+        private readonly ICaseWitnessMapper _caseWitnessMapper;
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
         private readonly ICmsAuthValuesMapper _cmsAuthValuesMapper;
         private readonly ICmsMaterialTypeMapper _cmsMaterialTypeMapper;
@@ -40,6 +42,8 @@ namespace Ddei.Services
             ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper,
             ICaseDocumentNoteMapper caseDocumentNoteMapper,
             ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
+            ICaseExhibitProducerMapper caseExhibitProducerMapper,
+            ICaseWitnessMapper caseWitnessMapper,
             ICaseIdentifiersMapper caseIdentifiersMapper,
             ICmsAuthValuesMapper cmsAuthValuesMapper,
             ICmsMaterialTypeMapper cmsMaterialTypeMapper,
@@ -52,6 +56,8 @@ namespace Ddei.Services
             _caseDocumentMapper = caseDocumentMapper ?? throw new ArgumentNullException(nameof(caseDocumentMapper));
             _caseDocumentNoteMapper = caseDocumentNoteMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteMapper));
             _caseDocumentNoteResultMapper = caseDocumentNoteResultMapper ?? throw new ArgumentNullException(nameof(caseDocumentNoteResultMapper));
+            _caseExhibitProducerMapper = caseExhibitProducerMapper ?? throw new ArgumentNullException(nameof(caseExhibitProducerMapper));
+            _caseWitnessMapper = caseWitnessMapper ?? throw new ArgumentNullException(nameof(caseWitnessMapper));
             _caseIdentifiersMapper = caseIdentifiersMapper ?? throw new ArgumentNullException(nameof(caseIdentifiersMapper));
             _cmsAuthValuesMapper = cmsAuthValuesMapper ?? throw new ArgumentNullException(nameof(cmsAuthValuesMapper));
             _cmsMaterialTypeMapper = cmsMaterialTypeMapper ?? throw new ArgumentNullException(nameof(cmsMaterialTypeMapper));
@@ -196,6 +202,20 @@ namespace Ddei.Services
             var response = await CallDdei<DdeiCaseDocumentRenamedResponse>(_ddeiClientRequestFactory.CreateRenameDocumentRequest(arg));
 
             return new DocumentRenamedResult { Id = response.Id, OperationName = response.OperationName };
+        }
+
+        public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg)
+        {
+            var ddeiResults = await CallDdei<List<DdeiCaseDocumentExhibitProducerResponse>>(_ddeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
+
+            return ddeiResults.Select(ddeiResult => _caseExhibitProducerMapper.Map(ddeiResult)).ToArray();
+        }
+
+        public async Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCmsCaseArgDto arg)
+        {
+            var ddeiResults = await CallDdei<List<DdeiCaseWitnessResponse>>(_ddeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
+
+            return ddeiResults.Select(ddeiResult => _caseWitnessMapper.Map(ddeiResult)).ToArray();
         }
 
         public async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiCmsCaseDataArgDto arg)

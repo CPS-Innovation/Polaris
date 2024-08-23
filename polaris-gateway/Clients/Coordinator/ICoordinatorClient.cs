@@ -1,6 +1,5 @@
 using Common.Dto.Request;
 using Common.ValueObjects;
-using Microsoft.AspNetCore.Mvc;
 
 namespace PolarisGateway.Clients.Coordinator;
 
@@ -22,5 +21,7 @@ public interface ICoordinatorClient
     Task<ContentResult> GetPii(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId);
     Task<ContentResult> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentDto, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId);
+    Task<HttpResponseMessage> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
+    Task<HttpResponseMessage> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId);
 }

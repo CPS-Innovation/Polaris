@@ -138,6 +138,20 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCmsCaseArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/exhibit-producers");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateCaseWitnessesRequest(DdeiCmsCaseArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/witnesses");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
         public HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiCmsCaseDataArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
