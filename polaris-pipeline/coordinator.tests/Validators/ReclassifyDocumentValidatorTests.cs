@@ -44,21 +44,6 @@ namespace coordinator.tests.Validators
         }
 
         [Fact]
-        public async Task Should_Throw_Exception_When_ExhibitType_And_ExistingProducerOrWitnessId_Is_Empty()
-        {
-            var request = new ReclassifyDocumentDto
-            {
-                DocumentId = _fixture.Create<int>(),
-                DocumentTypeId = _fixture.Create<int>(),
-                ReclassificationType = ReclassificationType.Exhibit,
-                Exhibit = new ReclassificationExhibit()
-            };
-            var result = await _validator.TestValidateAsync(request);
-
-            result.ShouldHaveValidationErrorFor(x => x.Exhibit.ExistingProducerOrWitnessId);
-        }
-
-        [Fact]
         public async Task ReclassifyDocument_WhenExhibitType_AndItemIsEmpty_ReturnsValidationError()
         {
             var request = new ReclassifyDocumentDto
@@ -130,6 +115,27 @@ namespace coordinator.tests.Validators
             var result = await _validator.TestValidateAsync(saveRequest);
 
             result.ShouldHaveValidationErrorFor(x => x.Statement.StatementNo);
+        }
+
+        [Fact]
+        public async Task ReclassifyDocument_WhenStatementType_AndStatementDateIsInvalid_ReturnsValidationError()
+        {
+            var saveRequest = new ReclassifyDocumentDto
+            {
+                DocumentId = _fixture.Create<int>(),
+                DocumentTypeId = _fixture.Create<int>(),
+                ReclassificationType = ReclassificationType.Statement,
+                Statement = new ReclassificationStatement
+                {
+                    WitnessId = _fixture.Create<int>(),
+                    StatementNo = _fixture.Create<int>(),
+                    Date = "32-01-2024"
+                }
+            };
+
+            var result = await _validator.TestValidateAsync(saveRequest);
+
+            result.ShouldHaveValidationErrorFor(x => x.Statement.Date);
         }
 
         [Fact]

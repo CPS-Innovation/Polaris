@@ -147,7 +147,7 @@ namespace Ddei.Factories.Contracts
                 ReclassificationType = arg.ReclassificationType,
                 Exhibit = arg.Exhibit,
                 Statement = arg.Statement,
-                Other = arg.Other,
+                Used = arg.Used,
                 IsRenamed = arg.IsRenamed,
                 DocumentName = arg.DocumentName
             });

@@ -13,7 +13,7 @@ namespace PolarisGateway.Mappers
                 ReclassificationType = documentReclassificationRequest.ReclassificationType,
                 Exhibit = documentReclassificationRequest.Exhibit,
                 Statement = documentReclassificationRequest.Statement,
-                Other = documentReclassificationRequest.Other,
+                Used = documentReclassificationRequest.Used,
                 IsRenamed = documentReclassificationRequest.IsRenamed,
                 DocumentName = documentReclassificationRequest.DocumentName
             };

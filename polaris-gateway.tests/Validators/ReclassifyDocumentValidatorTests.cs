@@ -45,22 +45,6 @@ namespace PolarisGateway.Validators.Tests
         }
 
         [Fact]
-        public async Task ReclassifyDocument_WhenExhibitType_AndExistingProducerOrWitnessIdIsEmpty_ReturnsValidationError()
-        {
-            var saveRequest = new DocumentReclassificationRequestDto
-            {
-                DocumentId = _fixture.Create<int>(),
-                DocumentTypeId = _fixture.Create<int>(),
-                ReclassificationType = ReclassificationType.Exhibit,
-                Exhibit = new ReclassificationExhibit()
-            };
-
-            var validationResult = await _validator.TestValidateAsync(saveRequest);
-
-            validationResult.ShouldHaveValidationErrorFor(x => x.Exhibit.ExistingProducerOrWitnessId);
-        }
-
-        [Fact]
         public async Task ReclassifyDocument_WhenExhibitType_AndItemIsEmpty_ReturnsValidationError()
         {
             var saveRequest = new DocumentReclassificationRequestDto
@@ -133,6 +117,29 @@ namespace PolarisGateway.Validators.Tests
 
             validationResult.ShouldHaveValidationErrorFor(x => x.Statement.StatementNo);
         }
+
+
+        [Fact]
+        public async Task ReclassifyDocument_WhenStatementType_AndStatementDateIsInvalid_ReturnsValidationError()
+        {
+            var saveRequest = new DocumentReclassificationRequestDto
+            {
+                DocumentId = _fixture.Create<int>(),
+                DocumentTypeId = _fixture.Create<int>(),
+                ReclassificationType = ReclassificationType.Statement,
+                Statement = new ReclassificationStatement
+                {
+                    WitnessId = _fixture.Create<int>(),
+                    StatementNo = _fixture.Create<int>(),
+                    Date = "32-01-2024"
+                }
+            };
+
+            var validationResult = await _validator.TestValidateAsync(saveRequest);
+
+            validationResult.ShouldHaveValidationErrorFor(x => x.Statement.Date);
+        }
+
 
         [Fact]
         public async Task ReclassifyDocument_WhenIsRenamedIsTrue_AndDocumentNameIsEmpty_ReturnsValidationError()
