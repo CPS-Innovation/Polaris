@@ -13,3 +13,9 @@
     margin-bottom: 10px;
   }
 }
+
+.reClassifyStages {
+  & :global(.govuk-hint) {
+    color: #0b0c0c;
+  }
+}

@@ -139,11 +139,24 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   };
 
   const handleDocumentRenameStatusChange = (value: string | undefined) => {
-    if (value)
+    if (!value) {
+      return;
+    }
+    dispatch({
+      type: "UPDATE_DOCUMENT_RENAME_STATUS",
+      payload: { value: value as "YES" | "NO" },
+    });
+    if (value === "YES") {
       dispatch({
-        type: "UPDATE_DOCUMENT_RENAME_STATUS",
-        payload: { value: value as "YES" | "NO" },
+        type: "UPDATE_DOCUMENT_NEW_NAME",
+        payload: { newName: presentationTitle },
       });
+      return;
+    }
+    dispatch({
+      type: "UPDATE_DOCUMENT_NEW_NAME",
+      payload: { newName: "" },
+    });
   };
 
   const handleDocumentNewName = (value: string) => {
@@ -159,13 +172,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         type: "UPDATE_DOCUMENT_USED_STATUS",
         payload: { value: value as "YES" | "NO" },
       });
-  };
-
-  const handleUpdateExhibitItem = (value: string) => {
-    dispatch({
-      type: "UPDATE_EXHIBIT_ITEM",
-      payload: { value: value },
-    });
   };
 
   const handleUpdateExhibitReference = (value: string) => {
@@ -237,60 +243,61 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     <div>
       <h1>{getHeaderText(state.reclassifyVariant)}</h1>
       {getSubHeading(state.reclassifyVariant)}
-      {state.reclassifyVariant !== "STATEMENT" && (
-        <Radios
-          hint={{
-            children: (
-              <span>
-                Do you want to change the document name of{" "}
-                <strong className="docType">{presentationTitle}</strong>?
-              </span>
-            ),
-          }}
-          key={"change-document-name"}
-          onChange={handleDocumentRenameStatusChange}
-          value={state.formData.documentRenameStatus}
-          name="radio-change-document-name"
-          items={[
-            {
-              children: "Yes",
-              conditional: {
-                children: [
-                  <Input
-                    id="document-new-name"
-                    className="govuk-input--width-10"
-                    label={{
-                      children: "Enter new document name",
-                    }}
-                    name="document-new-name"
-                    type="text"
-                    value={state.formData.documentNewName}
-                    onChange={handleDocumentNewName}
-                  />,
-                ],
+      {state.reclassifyVariant !== "STATEMENT" &&
+        state.reclassifyVariant !== "EXHIBIT" && (
+          <Radios
+            hint={{
+              children: (
+                <span>
+                  Do you want to change the document name of{" "}
+                  <strong className="docType">{presentationTitle}</strong>?
+                </span>
+              ),
+            }}
+            key={"change-document-name"}
+            onChange={handleDocumentRenameStatusChange}
+            value={state.formData.documentRenameStatus}
+            name="radio-change-document-name"
+            items={[
+              {
+                children: "Yes",
+                conditional: {
+                  children: [
+                    <Input
+                      id="document-new-name"
+                      className="govuk-input--width-10"
+                      label={{
+                        children: "Enter new document name",
+                      }}
+                      name="document-new-name"
+                      type="text"
+                      value={state.formData.documentNewName}
+                      onChange={handleDocumentNewName}
+                    />,
+                  ],
+                },
+                value: "YES",
               },
-              value: "YES",
-            },
-            {
-              children: "No",
-              value: "NO",
-            },
-          ]}
-        />
-      )}
+              {
+                children: "No",
+                value: "NO",
+              },
+            ]}
+          />
+        )}
 
       {state.reclassifyVariant === "EXHIBIT" && (
         <div>
           <Input
-            id="exhibit-item"
+            id="exhibit-item-name"
             className="govuk-input--width-10"
             label={{
-              children: "Exhibit Item",
+              children: "Item Name",
             }}
-            name="exhibit-item"
+            name="exhibit-item-name"
             type="text"
-            value={state.formData.exhibitItem}
-            onChange={handleUpdateExhibitItem}
+            value={state.formData.exhibitItemName}
+            onChange={handleUpdateExhibitItemName}
           />
           <Input
             id="exhibit-reference"
@@ -302,17 +309,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             type="text"
             value={state.formData.exhibitReference}
             onChange={handleUpdateExhibitReference}
-          />
-          <Input
-            id="exhibit-item-name"
-            className="govuk-input--width-10"
-            label={{
-              children: "Item Name",
-            }}
-            name="exhibit-item-name"
-            type="text"
-            value={state.formData.exhibitItemName}
-            onChange={handleUpdateExhibitItemName}
           />
 
           <div className={classes.producerSelectWrapper}>

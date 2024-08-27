@@ -15,7 +15,6 @@ export type ReclassifyState = {
     documentRenameStatus: "YES" | "NO";
     documentNewName: string;
     documentUsedStatus: "YES" | "NO";
-    exhibitItem: string;
     exhibitReference: string;
     exhibitItemName: string;
     exhibitProducerId: string;
@@ -41,7 +40,6 @@ export const reclassifyInitialState: ReclassifyState = {
     documentRenameStatus: "NO",
     documentNewName: "",
     documentUsedStatus: "NO",
-    exhibitItem: "",
     exhibitReference: "",
     exhibitItemName: "",
     exhibitProducerId: "",
@@ -55,6 +53,10 @@ export const reclassifyInitialState: ReclassifyState = {
 };
 
 export type ReclassifyActions =
+  | {
+      type: "RESET_FORM_DATA";
+      payload: { presentationTitle: string };
+    }
   | {
       type: "ADD_MATERIAL_TYPE_LIST";
       payload: { materialList: MaterialType[] };
@@ -86,10 +88,6 @@ export type ReclassifyActions =
   | {
       type: "UPDATE_DOCUMENT_USED_STATUS";
       payload: { value: "YES" | "NO" };
-    }
-  | {
-      type: "UPDATE_EXHIBIT_ITEM";
-      payload: { value: string };
     }
   | {
       type: "UPDATE_EXHIBIT_ITEM_REFERENCE";
@@ -145,6 +143,15 @@ export const reClassifyReducer = (
   action: ReclassifyActions
 ): ReclassifyState => {
   switch (action.type) {
+    case "RESET_FORM_DATA": {
+      return {
+        ...state,
+        formData: {
+          ...reclassifyInitialState.formData,
+          exhibitItemName: action.payload.presentationTitle,
+        },
+      };
+    }
     case "ADD_MATERIAL_TYPE_LIST": {
       return {
         ...state,
@@ -203,15 +210,6 @@ export const reClassifyReducer = (
         formData: {
           ...state.formData,
           documentUsedStatus: action.payload.value,
-        },
-      };
-    }
-    case "UPDATE_EXHIBIT_ITEM": {
-      return {
-        ...state,
-        formData: {
-          ...state.formData,
-          exhibitItem: action.payload.value,
         },
       };
     }

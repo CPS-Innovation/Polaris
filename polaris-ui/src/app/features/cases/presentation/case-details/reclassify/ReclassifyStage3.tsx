@@ -69,8 +69,6 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
           : "";
       case "Statement Number":
         return state.formData.statementNumber;
-      case "Exhibit Item":
-        return state.formData.exhibitItem;
       case "Exhibit Reference":
         return state.formData.exhibitReference;
       case "Exhibit Item Name":

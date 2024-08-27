@@ -65,6 +65,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         type: "UPDATE_CLASSIFY_STAGE",
         payload: { newStage: "stage2" },
       });
+      dispatch({
+        type: "RESET_FORM_DATA",
+        payload: { presentationTitle: presentationTitle },
+      });
       return;
     }
 
@@ -129,7 +133,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     return <div>loading data</div>;
   }
   return (
-    <div>
+    <div className={classes.reClassifyStages}>
       <LinkButton onClick={handleBackBtnClick}>Back</LinkButton>
       {state.reClassifyStage === "stage1" && (
         <ReclassifyStage1 presentationTitle={presentationTitle} />
