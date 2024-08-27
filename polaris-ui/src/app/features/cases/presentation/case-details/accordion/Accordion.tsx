@@ -7,6 +7,7 @@ import { AccordionSection } from "./AccordionSection";
 import { buildInitialState, reducer, AccordionReducerState } from "./reducer";
 import { AccordionDocumentSection } from "./types";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { Classification } from "../../../domain/gateway/PipelineDocument";
 
 type Props = {
   initialState: AccordionReducerState | null;
@@ -25,7 +26,8 @@ type Props = {
     documentCategory: string,
     presentationFileName: string,
     type: "notes" | "rename",
-    documentType: string
+    documentType: string,
+    classification: Classification
   ) => void;
   accordionStateChangeCallback: (
     accordionCurrentState: AccordionReducerState

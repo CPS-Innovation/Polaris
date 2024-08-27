@@ -53,7 +53,7 @@ stages:
         condition: succeeded()
         displayName: Check Alerting Terraform
         steps:
-          - template: ../tasks/task_get-credentials.yml
+          - template: ../stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
               

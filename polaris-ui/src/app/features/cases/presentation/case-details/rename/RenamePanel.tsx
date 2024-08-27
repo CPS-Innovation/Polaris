@@ -11,12 +11,14 @@ import { RenameDocumentData } from "../../../domain/gateway/RenameDocumentData";
 import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { Classification } from "../../../domain/gateway/PipelineDocument";
 import classes from "./RenamePanel.module.scss";
 
-type NotesPanelProps = {
+type RenamePanelProps = {
   documentName: string;
   documentId: string;
   documentType: string;
+  classification: Classification;
   renameDocuments: RenameDocumentData[];
   handleSaveRename: (documentId: string, newName: string) => void;
   handleResetRenameData: (documentId: string) => void;
@@ -24,17 +26,18 @@ type NotesPanelProps = {
 };
 const MAX_LENGTH = 252;
 
-export const RenamePanel: React.FC<NotesPanelProps> = ({
+export const RenamePanel: React.FC<RenamePanelProps> = ({
   documentName,
   renameDocuments,
   documentId,
   documentType,
+  classification,
   handleClose,
   handleSaveRename,
   handleResetRenameData,
 }) => {
   useLastFocus(`#document-housekeeping-actions-dropdown-${documentId}`);
-  const cancelBtnRef = useRef(null);
+  const closeBtnRef = useRef(null);
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [newName, setNewName] = useState(documentName);
@@ -53,37 +56,43 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
   }, []);
 
   useEffect(() => {
+    if (closeBtnRef.current) {
+      (closeBtnRef.current as HTMLElement).focus();
+    }
+  }, [savingState]);
+
+  useEffect(() => {
     if (
       renameData?.saveRenameStatus === "failure" ||
       renameData?.saveRenameStatus === "initial"
-    )
+    ) {
       setSavingState("initial");
+      return;
+    }
     if (
       renameData?.saveRenameStatus === "saving" ||
       renameData?.saveRenameRefreshStatus === "updating"
-    )
+    ) {
       setSavingState("saving");
-    if (renameData?.saveRenameRefreshStatus === "updated")
+      return;
+    }
+    if (renameData?.saveRenameRefreshStatus === "updated") {
       setSavingState("saved");
+    }
   }, [renameData]);
 
   const handleAddBtnClick = () => {
     if (!newName.length) {
-      setRenameErrorText("New name should not be empty");
+      setRenameErrorText("Enter a new name");
       return;
     }
     if (newName.length > MAX_LENGTH) {
-      setRenameErrorText(
-        `New name should be less than ${MAX_LENGTH} characters`
-      );
+      setRenameErrorText(`New name must be ${MAX_LENGTH} characters or less`);
       return;
     }
     if (newName === documentName) {
       setRenameErrorText(`New name should be different from current name`);
       return;
-    }
-    if (cancelBtnRef.current) {
-      (cancelBtnRef.current as HTMLElement).focus();
     }
     if (renameErrorText) {
       setRenameErrorText("");
@@ -95,6 +104,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     trackEvent("Save Rename Document", {
       documentId: documentId,
       documentType: documentType,
+      classification: classification,
       oldDocumentName: documentName,
       newDocumentName: newName,
     });
@@ -108,9 +118,12 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
     }
   }, [renameErrorText]);
 
-  const saveRenameSuccessLiveText = useMemo(() => {
+  const saveRenameLiveText = useMemo(() => {
     if (savingState === "saved") {
-      return "Document renamed successfully";
+      return "Document renamed successfully saved to CMS";
+    }
+    if (savingState === "saving") {
+      return "Saving renamed document to CMS";
     }
     return "";
   }, [savingState]);
@@ -165,7 +178,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
           aria-live="polite"
           className={classes.visuallyHidden}
         >
-          {saveRenameSuccessLiveText}
+          {saveRenameLiveText}
         </div>
       </div>
       <div className={classes.renameBody}>
@@ -215,6 +228,7 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
           <div className={classes.btnWrapper}>
             {savingState === "saved" && (
               <Button
+                ref={closeBtnRef}
                 type="button"
                 className={classes.closeBtn}
                 data-testid="btn-close-rename"
@@ -236,7 +250,6 @@ export const RenamePanel: React.FC<NotesPanelProps> = ({
                 </Button>
 
                 <LinkButton
-                  ref={cancelBtnRef}
                   className={classes.cancelBtn}
                   onClick={() => handleClose()}
                   dataTestId="btn-cancel-rename"

@@ -344,8 +344,8 @@ export const saveDocumentRename = async (
 
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-    method: "POST",
-    body: JSON.stringify({ name: name }),
+    method: "PUT",
+    body: JSON.stringify({ documentId: docId, documentName: name }),
   });
 
   if (!response.ok) {

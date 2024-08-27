@@ -189,7 +189,7 @@ export const setupHandlers = ({
       return res(delay(ctx), ctx.json({}));
     }),
 
-    rest.post(makeApiPath(routes.RENAME_DOCUMENT_ROUTE), (req, res, ctx) => {
+    rest.put(makeApiPath(routes.RENAME_DOCUMENT_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
     }),
 

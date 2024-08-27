@@ -39,6 +39,7 @@ import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
 import { RenamePanel } from "./rename/RenamePanel";
+import { Classification } from "../../domain/gateway/PipelineDocument";
 import { Reclassify } from "./reclassify/Reclassify";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 import {
@@ -66,6 +67,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentCategory: string;
     documentType: string;
     presentationFileName: string;
+    classification: Classification;
   }>({
     open: false,
     type: "",
@@ -73,6 +75,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentCategory: "",
     documentType: "",
     presentationFileName: "",
+    classification: null,
   });
 
   const unMounting = useRef(false);
@@ -238,7 +241,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentCategory: string,
     presentationFileName: string,
     type: "notes" | "rename",
-    documentType: string
+    documentType: string,
+    classification: Classification
   ) => {
     setActionsSidePanel({
       open: true,
@@ -247,6 +251,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       documentCategory: documentCategory,
       documentType: documentType,
       presentationFileName: presentationFileName,
+      classification: classification,
     });
   };
 
@@ -530,6 +535,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                         documentName={actionsSidePanel.presentationFileName}
                         documentType={actionsSidePanel.documentType}
                         documentId={actionsSidePanel.documentId}
+                        classification={actionsSidePanel.classification}
                         renameDocuments={renameDocuments}
                         handleClose={handleClosePanel}
                         handleSaveRename={handleSaveRename}
