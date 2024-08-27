@@ -10,7 +10,5 @@ namespace Ddei.Domain.CaseData.Args
         public ReclassificationExhibit Exhibit { get; set; }
         public ReclassificationType ReclassificationType { get; set; }
         public bool Used { get; set; }
-        public bool IsRenamed { get; set; }
-        public string DocumentName { get; set; }
     }
 }

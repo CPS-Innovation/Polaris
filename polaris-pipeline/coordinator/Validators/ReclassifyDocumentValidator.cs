@@ -24,10 +24,6 @@ namespace coordinator.Validators
                     RuleFor(x => x.Statement.Date).Must(BeAValidDate);
                 });
             });
-            When(x => x.IsRenamed, () =>
-            {
-                RuleFor(x => x.DocumentName).NotEmpty();
-            });
         }
 
         private static bool BeAValidDate(string value)

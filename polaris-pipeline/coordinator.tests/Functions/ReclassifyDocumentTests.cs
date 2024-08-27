@@ -100,7 +100,6 @@ namespace coordinator.tests.Functions
             Assert.Throws<ArgumentNullException>(() => new ReclassifyDocument(_mockLogger.Object, _mockDdeiClient.Object, _mockDdeiArgFactory.Object, _mockJsonConvertWrapper.Object, null));
         }
 
-
         [Fact]
         public async Task RenameDocument_ReturnsBadRequestWhenCorrelationIdIsMissing()
         {

@@ -130,8 +130,6 @@ namespace Ddei.Factories
                 DocumentTypeId = dto.DocumentTypeId,
                 Exhibit = dto.Exhibit,
                 Statement = dto.Statement,
-                IsRenamed = dto.IsRenamed,
-                DocumentName = dto.DocumentName,
                 ReclassificationType = dto.ReclassificationType
             };
         }

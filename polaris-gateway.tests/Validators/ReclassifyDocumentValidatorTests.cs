@@ -139,22 +139,5 @@ namespace PolarisGateway.Validators.Tests
 
             validationResult.ShouldHaveValidationErrorFor(x => x.Statement.Date);
         }
-
-
-        [Fact]
-        public async Task ReclassifyDocument_WhenIsRenamedIsTrue_AndDocumentNameIsEmpty_ReturnsValidationError()
-        {
-            var saveRequest = new DocumentReclassificationRequestDto
-            {
-                DocumentId = _fixture.Create<int>(),
-                DocumentTypeId = _fixture.Create<int>(),
-                ReclassificationType = ReclassificationType.Other,
-                IsRenamed = true
-            };
-
-            var validationResult = await _validator.TestValidateAsync(saveRequest);
-
-            validationResult.ShouldHaveValidationErrorFor(x => x.DocumentName);
-        }
     }
 }

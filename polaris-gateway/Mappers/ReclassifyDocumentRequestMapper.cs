@@ -13,9 +13,7 @@ namespace PolarisGateway.Mappers
                 ReclassificationType = documentReclassificationRequest.ReclassificationType,
                 Exhibit = documentReclassificationRequest.Exhibit,
                 Statement = documentReclassificationRequest.Statement,
-                Used = documentReclassificationRequest.Used,
-                IsRenamed = documentReclassificationRequest.IsRenamed,
-                DocumentName = documentReclassificationRequest.DocumentName
+                Used = documentReclassificationRequest.Used
             };
         }
     }
