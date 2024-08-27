@@ -16,4 +16,10 @@ public static class HttpResponseMessageExtensions
         };
         return contentResult;
     }
+
+    public static async Task<FileStreamResult> ToFileStreamResultAsync(this HttpResponseMessage responseMessage)
+    {
+        var fileStreamResult = new FileStreamResult(await responseMessage.Content.ReadAsStreamAsync(), responseMessage.Content.Headers.ContentType?.MediaType);
+        return fileStreamResult;
+    }
 }

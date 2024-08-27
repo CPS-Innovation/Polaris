@@ -76,9 +76,9 @@ namespace PolarisGateway.Clients.Coordinator
             return response;
         }
 
-        public async Task<ContentResult> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
+        public async Task<FileStreamResult> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
-            return await SendRequestAsync(
+            return await SendDocumentRequestAsync(
                 HttpMethod.Get,
                 RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId),
                 correlationId);
@@ -211,6 +211,17 @@ namespace PolarisGateway.Clients.Coordinator
             }
             var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             return await response.ToContentResultAsync();
+        }
+        
+        private async Task<FileStreamResult> SendDocumentRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
+        {
+            var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
+            if (skipRetry)
+            {
+                request.Headers.Add("X-Skip-Retry", "true");
+            }
+            var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            return await response.ToFileStreamResultAsync();
         }
     }
 }
