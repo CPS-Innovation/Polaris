@@ -20,6 +20,8 @@ namespace Ddei.Factories
         HttpRequestMessage CreateGetDocumentNotesRequest(DdeiCmsDocumentNotesArgDto arg);
         HttpRequestMessage CreateAddDocumentNoteRequest(DdeiCmsAddDocumentNoteArgDto arg);
         HttpRequestMessage CreateRenameDocumentRequest(DdeiCmsRenameDocumentArgDto arg);
+        HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCmsCaseArgDto arg);
+        HttpRequestMessage CreateCaseWitnessesRequest(DdeiCmsCaseArgDto arg);
         HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiCmsCaseDataArgDto arg);
     }
 }
