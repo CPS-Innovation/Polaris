@@ -42,6 +42,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     exhibitItemNameErrorText: "",
     otherExhibitProducerErrorText: "",
     exhibitReferenceErrorText: "",
+    exhibitSubjectErrorText: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -76,6 +77,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         documentNewName,
         exhibitItemName,
         exhibitReference,
+        exhibitSubject,
         exhibitProducerId,
         exhibitOtherProducerValue,
       },
@@ -86,6 +88,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       exhibitItemNameErrorText: "",
       otherExhibitProducerErrorText: "",
       exhibitReferenceErrorText: "",
+      exhibitSubjectErrorText: "",
     };
     if (state.reClassifyStage !== "stage2") {
       setFormDataErrors(errorTexts);
@@ -112,6 +115,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       if (!exhibitReference) {
         errorTexts.exhibitReferenceErrorText =
           "Exhibit reference should not be empty";
+      }
+      if (!exhibitSubject) {
+        errorTexts.exhibitSubjectErrorText =
+          "Exhibit subject should not be empty";
       }
 
       if (exhibitItemName.length > MAX_LENGTH) {

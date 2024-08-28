@@ -38,7 +38,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
         "Status",
         "Exhibit Item",
         "Exhibit Reference",
-        "Exhibit Item Name",
+        "Exhibit Subject",
         "Exhibit Producer",
       ],
     }),
@@ -71,7 +71,9 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
         return state.formData.statementNumber;
       case "Exhibit Reference":
         return state.formData.exhibitReference;
-      case "Exhibit Item Name":
+      case "Exhibit Subject":
+        return state.formData.exhibitSubject;
+      case "Exhibit Item":
         return state.formData.exhibitItemName;
       case "Exhibit Producer":
         if (state.formData.exhibitProducerId === "other")

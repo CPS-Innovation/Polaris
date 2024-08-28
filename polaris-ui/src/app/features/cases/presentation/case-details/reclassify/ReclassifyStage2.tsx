@@ -193,6 +193,12 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       payload: { value: value },
     });
   };
+  const handleUpdateExhibitSubject = (value: string) => {
+    dispatch({
+      type: "UPDATE_EXHIBIT_SUBJECT",
+      payload: { value: value },
+    });
+  };
   const handleUpdateExhibitProducerId = (value: string) => {
     dispatch({
       type: "UPDATE_EXHIBIT_PRODUCER_ID",
@@ -265,6 +271,11 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           return {
             children: formDataErrors[inputName],
             href: "#exhibit-reference",
+          };
+        case "exhibitSubjectErrorText":
+          return {
+            children: formDataErrors[inputName],
+            href: "#exhibit-subject",
           };
       }
     },
@@ -404,6 +415,24 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             type="text"
             value={state.formData.exhibitReference}
             onChange={handleUpdateExhibitReference}
+          />
+          <Input
+            id="exhibit-subject"
+            className="govuk-input--width-10"
+            errorMessage={
+              formDataErrors.exhibitSubjectErrorText
+                ? {
+                    children: formDataErrors.exhibitSubjectErrorText,
+                  }
+                : undefined
+            }
+            label={{
+              children: "Exhibit Subject",
+            }}
+            name="exhibit-subject"
+            type="text"
+            value={state.formData.exhibitSubject}
+            onChange={handleUpdateExhibitSubject}
           />
 
           <div className={classes.producerSelectWrapper}>
