@@ -30,13 +30,11 @@
 }
 
 .errorSummaryWrapper {
-  display: inline-flex;
-  margin-top: 1.5rem;
   &:focus {
     outline: 0.2rem solid #ffdd00;
   }
   :global(.govuk-error-summary) {
-    margin-bottom: 0;
+    margin-bottom: 20px;
     padding: 0.625rem;
   }
 }

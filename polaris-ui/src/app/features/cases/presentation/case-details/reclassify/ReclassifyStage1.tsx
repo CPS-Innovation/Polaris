@@ -1,18 +1,33 @@
-import { useMemo } from "react";
-
-import { Select } from "../../../../../common/presentation/components";
+import { useMemo, useRef, useEffect } from "react";
+import {
+  Select,
+  ErrorSummary,
+} from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
+import { FormDataErrors } from "./data/FormDataErrors";
+import classes from "./Reclassify.module.scss";
 
 type ReclassifyStage1Props = {
+  formDataErrors: FormDataErrors;
   presentationTitle: string;
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   presentationTitle,
+  formDataErrors,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
+  const errorSummaryRef = useRef(null);
 
   const { state, dispatch } = reclassifyContext;
+
+  useEffect(() => {
+    if (formDataErrors.documentTypeErrorText && errorSummaryRef.current) {
+      console.log("hiiii");
+      (errorSummaryRef?.current as HTMLButtonElement).focus();
+    }
+  }, [formDataErrors]);
+
   const docTypesValues = useMemo(() => {
     const defaultValue = {
       value: "",
@@ -35,22 +50,43 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   return (
     <div>
       <h1>Select the document type</h1>
+      {formDataErrors.documentTypeErrorText && (
+        <div
+          ref={errorSummaryRef}
+          tabIndex={-1}
+          className={classes.errorSummaryWrapper}
+        >
+          <ErrorSummary
+            data-testid={"doctypeId-error-summary"}
+            className={classes.errorSummary}
+            errorList={[
+              {
+                reactListKey: "1",
+                children: formDataErrors.documentTypeErrorText,
+                href: "#reclassify-document-type",
+              },
+            ]}
+          />
+        </div>
+      )}
       <Select
-        // errorMessage={
-        //   {
-        //     children: "Select a different document",
-        //   }
-        // }
+        errorMessage={
+          formDataErrors.documentTypeErrorText
+            ? {
+                children: formDataErrors.documentTypeErrorText,
+              }
+            : undefined
+        }
         label={{
-          htmlFor: "select-reclassify-document-type",
+          htmlFor: "reclassify-document-type",
           children: (
             <span>
               Select the document type for <b>{presentationTitle}</b>
             </span>
           ),
         }}
-        id="select-reclassify-document-type"
-        data-testid="select-reclassify-document-type"
+        id="reclassify-document-type"
+        data-testid="reclassify-document-type"
         items={docTypesValues}
         value={state.newDocTypeId}
         onChange={(ev) => handleDocTypeChange(ev.target.value)}

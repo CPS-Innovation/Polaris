@@ -38,6 +38,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleSubmitReclassify,
 }) => {
   const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>({
+    documentTypeErrorText: "",
     documentNewNameErrorText: "",
     exhibitItemNameErrorText: "",
     otherExhibitProducerErrorText: "",
@@ -70,6 +71,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   }, [getMaterialTypeList, dispatch, state.materialTypeList.length]);
 
   const validateData = () => {
+    if (state.reClassifyStage === "stage3") {
+      return true;
+    }
     const {
       reclassifyVariant,
       formData: {
@@ -84,48 +88,58 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     } = reclassifyContext.state;
 
     const errorTexts: FormDataErrors = {
+      documentTypeErrorText: "",
       documentNewNameErrorText: "",
       exhibitItemNameErrorText: "",
       otherExhibitProducerErrorText: "",
       exhibitReferenceErrorText: "",
       exhibitSubjectErrorText: "",
     };
-    if (state.reClassifyStage !== "stage2") {
-      setFormDataErrors(errorTexts);
-      return true;
+
+    if (state.reClassifyStage === "stage1") {
+      if (!state.newDocTypeId) {
+        errorTexts.documentTypeErrorText =
+          "New document type should not be empty";
+      }
+      // if (state.newDocTypeId === documentId) {
+      //   errorTexts.documentTypeErrorText =
+      //     "New document type should be different from current one";
+      // }
     }
 
-    if (documentRenameStatus === "YES") {
-      if (!documentNewName) {
-        errorTexts.documentNewNameErrorText = "New name should not be empty";
+    if (state.reClassifyStage === "stage2") {
+      if (documentRenameStatus === "YES") {
+        if (!documentNewName) {
+          errorTexts.documentNewNameErrorText = "New name should not be empty";
+        }
+        if (documentNewName === presentationTitle) {
+          errorTexts.documentNewNameErrorText =
+            "New name should be different from current name";
+        }
+        if (documentNewName.length > MAX_LENGTH) {
+          errorTexts.documentNewNameErrorText = `New name must be ${MAX_LENGTH} characters or less`;
+        }
       }
-      if (documentNewName === presentationTitle) {
-        errorTexts.documentNewNameErrorText =
-          "New name should be different from current name";
-      }
-      if (documentNewName.length > MAX_LENGTH) {
-        errorTexts.documentNewNameErrorText = `New name must be ${MAX_LENGTH} characters or less`;
-      }
-    }
-    if (reclassifyVariant === "EXHIBIT") {
-      if (!exhibitItemName) {
-        errorTexts.exhibitItemNameErrorText =
-          "Exhibit item name should not be empty";
-      }
-      if (!exhibitReference) {
-        errorTexts.exhibitReferenceErrorText =
-          "Exhibit reference should not be empty";
-      }
-      if (!exhibitSubject) {
-        errorTexts.exhibitSubjectErrorText =
-          "Exhibit subject should not be empty";
-      }
+      if (reclassifyVariant === "EXHIBIT") {
+        if (!exhibitItemName) {
+          errorTexts.exhibitItemNameErrorText =
+            "Exhibit item name should not be empty";
+        }
+        if (!exhibitReference) {
+          errorTexts.exhibitReferenceErrorText =
+            "Exhibit reference should not be empty";
+        }
+        if (!exhibitSubject) {
+          errorTexts.exhibitSubjectErrorText =
+            "Exhibit subject should not be empty";
+        }
 
-      if (exhibitItemName.length > MAX_LENGTH) {
-        errorTexts.exhibitItemNameErrorText = `Exhibit item name must be ${MAX_LENGTH} characters or less`;
-      }
-      if (exhibitProducerId === "other" && !exhibitOtherProducerValue) {
-        errorTexts.otherExhibitProducerErrorText = `Exhibit existing producer or witness should not be empty`;
+        if (exhibitItemName.length > MAX_LENGTH) {
+          errorTexts.exhibitItemNameErrorText = `Exhibit item name must be ${MAX_LENGTH} characters or less`;
+        }
+        if (exhibitProducerId === "other" && !exhibitOtherProducerValue) {
+          errorTexts.otherExhibitProducerErrorText = `Exhibit existing producer or witness should not be empty`;
+        }
       }
     }
     setFormDataErrors(errorTexts);
@@ -218,7 +232,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
           {state.reClassifyStage === "stage1" && (
-            <ReclassifyStage1 presentationTitle={presentationTitle} />
+            <ReclassifyStage1
+              presentationTitle={presentationTitle}
+              formDataErrors={formDataErrors}
+            />
           )}
           {state.reClassifyStage === "stage2" && (
             <ReclassifyStage2
