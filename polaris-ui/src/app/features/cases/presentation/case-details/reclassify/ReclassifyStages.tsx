@@ -7,6 +7,7 @@ import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
 import { ReclassifyStage2 } from "./ReclassifyStage2";
 import { ReclassifyStage3 } from "./ReclassifyStage3";
+import { FormDataErrors } from "./data/FormDataErrors";
 import { MaterialType } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
@@ -26,6 +27,7 @@ type ReclassifyStagesProps = {
   ) => Promise<boolean>;
 };
 
+const MAX_LENGTH = 252;
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   documentId,
   presentationTitle,
@@ -35,6 +37,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getStatementWitnessDetails,
   handleSubmitReclassify,
 }) => {
+  const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>({
+    documentNewNameErrorText: "",
+    exhibitItemNameErrorText: "",
+    otherExhibitProducerErrorText: "",
+    exhibitReferenceErrorText: "",
+  });
+
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext()!;
 
@@ -59,7 +68,71 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     fetchDataOnMount();
   }, [getMaterialTypeList, dispatch, state.materialTypeList.length]);
 
+  const validateData = () => {
+    const {
+      reclassifyVariant,
+      formData: {
+        documentRenameStatus,
+        documentNewName,
+        exhibitItemName,
+        exhibitReference,
+        exhibitProducerId,
+        exhibitOtherProducerValue,
+      },
+    } = reclassifyContext.state;
+
+    const errorTexts: FormDataErrors = {
+      documentNewNameErrorText: "",
+      exhibitItemNameErrorText: "",
+      otherExhibitProducerErrorText: "",
+      exhibitReferenceErrorText: "",
+    };
+    if (state.reClassifyStage !== "stage2") {
+      setFormDataErrors(errorTexts);
+      return true;
+    }
+
+    if (documentRenameStatus === "YES") {
+      if (!documentNewName) {
+        errorTexts.documentNewNameErrorText = "New name should not be empty";
+      }
+      if (documentNewName === presentationTitle) {
+        errorTexts.documentNewNameErrorText =
+          "New name should be different from current name";
+      }
+      if (documentNewName.length > MAX_LENGTH) {
+        errorTexts.documentNewNameErrorText = `New name must be ${MAX_LENGTH} characters or less`;
+      }
+    }
+    if (reclassifyVariant === "EXHIBIT") {
+      if (!exhibitItemName) {
+        errorTexts.exhibitItemNameErrorText =
+          "Exhibit item name should not be empty";
+      }
+      if (!exhibitReference) {
+        errorTexts.exhibitReferenceErrorText =
+          "Exhibit reference should not be empty";
+      }
+
+      if (exhibitItemName.length > MAX_LENGTH) {
+        errorTexts.exhibitItemNameErrorText = `Exhibit item name must be ${MAX_LENGTH} characters or less`;
+      }
+      if (exhibitProducerId === "other" && !exhibitOtherProducerValue) {
+        errorTexts.otherExhibitProducerErrorText = `Exhibit existing producer or witness should not be empty`;
+      }
+    }
+    setFormDataErrors(errorTexts);
+    const validErrors = Object.keys(errorTexts).filter(
+      (key) => errorTexts[key as keyof FormDataErrors]
+    );
+
+    console.log("validErrors>>", validErrors.length);
+    return !validErrors.length;
+  };
+
   const handleContinueBtnClick = () => {
+    const validData = validateData();
+    if (!validData) return;
     if (state.reClassifyStage === "stage1") {
       dispatch({
         type: "UPDATE_CLASSIFY_STAGE",
@@ -141,6 +214,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       {state.reClassifyStage === "stage2" && (
         <ReclassifyStage2
           presentationTitle={presentationTitle}
+          formDataErrors={formDataErrors}
           getExhibitProducers={getExhibitProducers}
           getStatementWitnessDetails={getStatementWitnessDetails}
         />

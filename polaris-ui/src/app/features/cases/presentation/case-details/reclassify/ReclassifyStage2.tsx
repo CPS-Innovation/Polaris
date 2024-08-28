@@ -1,31 +1,37 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   Select,
   Input,
   Radios,
   DateInput,
+  ErrorSummary,
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyVariant } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
+import { FormDataErrors } from "./data/FormDataErrors";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStage2Props = {
   presentationTitle: string;
+  formDataErrors: FormDataErrors;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
   getStatementWitnessDetails: () => Promise<StatementWitness[]>;
 };
 
 export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   presentationTitle,
+  formDataErrors,
   getExhibitProducers,
   getStatementWitnessDetails,
 }) => {
+  console.log("formDataErrors>>0000", formDataErrors);
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext();
 
   const { state, dispatch } = reclassifyContext!;
+  const errorSummaryRef = useRef(null);
 
   useEffect(() => {
     const fetchDataOnMount = async () => {
@@ -236,13 +242,75 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       payload: { value: value },
     });
   };
+
+  const errorSummaryProperties = useCallback(
+    (inputName: keyof FormDataErrors) => {
+      switch (inputName) {
+        case "documentNewNameErrorText":
+          return {
+            children: formDataErrors[inputName],
+            href: "#document-new-name",
+          };
+        case "exhibitItemNameErrorText":
+          return {
+            children: formDataErrors[inputName],
+            href: "#exhibit-item-name",
+          };
+        case "otherExhibitProducerErrorText":
+          return {
+            children: formDataErrors[inputName],
+            href: "#exhibit-other-producer-name",
+          };
+        case "exhibitReferenceErrorText":
+          return {
+            children: formDataErrors[inputName],
+            href: "#exhibit-reference",
+          };
+      }
+    },
+    [formDataErrors]
+  );
+
+  const errorSummaryList = useMemo(() => {
+    console.log("formDataErrors>>", formDataErrors);
+    const validErrors = Object.fromEntries(
+      Object.entries(formDataErrors).filter(([key, value]) => value !== "")
+    );
+    const errorSummary = Object.keys(validErrors).map((error, index) => ({
+      reactListKey: `${index}`,
+      ...errorSummaryProperties(error as keyof FormDataErrors)!,
+    }));
+    return errorSummary;
+  }, [formDataErrors, errorSummaryProperties]);
+
+  useEffect(() => {
+    if (errorSummaryList.length && errorSummaryRef.current) {
+      console.log("hiiii");
+      (errorSummaryRef?.current as HTMLButtonElement).focus();
+    }
+  }, [errorSummaryList]);
+
   if (loading) {
     return <div>loading data</div>;
   }
   return (
     <div>
       <h1>{getHeaderText(state.reclassifyVariant)}</h1>
+      {!!errorSummaryList.length && (
+        <div
+          ref={errorSummaryRef}
+          tabIndex={-1}
+          className={classes.errorSummaryWrapper}
+        >
+          <ErrorSummary
+            data-testid={"reclassify-error-summary"}
+            className={classes.errorSummary}
+            errorList={errorSummaryList}
+          />
+        </div>
+      )}
       {getSubHeading(state.reclassifyVariant)}
+
       {state.reclassifyVariant !== "STATEMENT" &&
         state.reclassifyVariant !== "EXHIBIT" && (
           <Radios
@@ -254,6 +322,11 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 </span>
               ),
             }}
+            className={
+              formDataErrors.documentNewNameErrorText
+                ? "govuk-form-group--error"
+                : ""
+            }
             key={"change-document-name"}
             onChange={handleDocumentRenameStatusChange}
             value={state.formData.documentRenameStatus}
@@ -265,10 +338,18 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                   children: [
                     <Input
                       id="document-new-name"
+                      data-testid={"document-new-name"}
                       className="govuk-input--width-10"
                       label={{
                         children: "Enter new document name",
                       }}
+                      errorMessage={
+                        formDataErrors.documentNewNameErrorText
+                          ? {
+                              children: formDataErrors.documentNewNameErrorText,
+                            }
+                          : undefined
+                      }
                       name="document-new-name"
                       type="text"
                       value={state.formData.documentNewName}
@@ -291,6 +372,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           <Input
             id="exhibit-item-name"
             className="govuk-input--width-10"
+            errorMessage={
+              formDataErrors.exhibitItemNameErrorText
+                ? {
+                    children: formDataErrors.exhibitItemNameErrorText,
+                  }
+                : undefined
+            }
             label={{
               children: "Item Name",
             }}
@@ -301,6 +389,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           />
           <Input
             id="exhibit-reference"
+            errorMessage={
+              formDataErrors.exhibitReferenceErrorText
+                ? {
+                    children: formDataErrors.exhibitReferenceErrorText,
+                  }
+                : undefined
+            }
             className="govuk-input--width-10"
             label={{
               children: "Exhibit Reference",
@@ -324,13 +419,27 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             />
 
             {state.formData.exhibitProducerId === "other" && (
-              <div className={classes.otherProducerWrapper}>
+              <div
+                className={`${
+                  formDataErrors.otherExhibitProducerErrorText
+                    ? classes.otherProducerNameError
+                    : classes.otherProducerWrapper
+                }`}
+              >
                 <Input
                   id="exhibit-other-producer-name"
-                  className={`govuk-input--width-10 ${classes.otherProducerName}`}
+                  className={`govuk-input--width-10  `}
                   label={{
                     children: "Enter name",
                   }}
+                  errorMessage={
+                    formDataErrors.otherExhibitProducerErrorText
+                      ? {
+                          children:
+                            formDataErrors.otherExhibitProducerErrorText,
+                        }
+                      : undefined
+                  }
                   name="exhibit-other-producer-name"
                   type="text"
                   value={state.formData.exhibitOtherProducerValue}

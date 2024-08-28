@@ -5,8 +5,17 @@
 
 .otherProducerWrapper {
   margin-left: 15px;
-  padding-left: 30px;
-  border-left: 4px solid #b1b4b6;
+  & :global(.govuk-form-group) {
+    padding-left: 15px;
+    border-left: 4px solid #b1b4b6;
+  }
+}
+.otherProducerNameError {
+  margin-left: 15px;
+  & :global(.govuk-form-group) {
+    padding-left: 15px;
+    border-left: 4px solid #d4351c;
+  }
 }
 .producerSelectWrapper {
   > :global(.govuk-form-group) {
@@ -17,5 +26,17 @@
 .reClassifyStages {
   & :global(.govuk-hint) {
     color: #0b0c0c;
+  }
+}
+
+.errorSummaryWrapper {
+  display: inline-flex;
+  margin-top: 1.5rem;
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+  :global(.govuk-error-summary) {
+    margin-bottom: 0;
+    padding: 0.625rem;
   }
 }

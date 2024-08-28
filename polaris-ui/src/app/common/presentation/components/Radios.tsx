@@ -11,7 +11,7 @@ export type RadiosProps = {
   hint?: {
     children: any;
   };
-
+  className?: string;
   value: string | undefined;
   name: string;
   items: {
