@@ -215,22 +215,25 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   return (
     <div className={classes.reClassifyStages}>
       <LinkButton onClick={handleBackBtnClick}>Back</LinkButton>
-      {state.reClassifyStage === "stage1" && (
-        <ReclassifyStage1 presentationTitle={presentationTitle} />
-      )}
-      {state.reClassifyStage === "stage2" && (
-        <ReclassifyStage2
-          presentationTitle={presentationTitle}
-          formDataErrors={formDataErrors}
-          getExhibitProducers={getExhibitProducers}
-          getStatementWitnessDetails={getStatementWitnessDetails}
-        />
-      )}
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-one-half">
+          {state.reClassifyStage === "stage1" && (
+            <ReclassifyStage1 presentationTitle={presentationTitle} />
+          )}
+          {state.reClassifyStage === "stage2" && (
+            <ReclassifyStage2
+              presentationTitle={presentationTitle}
+              formDataErrors={formDataErrors}
+              getExhibitProducers={getExhibitProducers}
+              getStatementWitnessDetails={getStatementWitnessDetails}
+            />
+          )}
 
-      {state.reClassifyStage === "stage3" && (
-        <ReclassifyStage3 presentationTitle={presentationTitle} />
-      )}
-
+          {state.reClassifyStage === "stage3" && (
+            <ReclassifyStage3 presentationTitle={presentationTitle} />
+          )}
+        </div>
+      </div>
       <div className={classes.btnWrapper}>
         {state.reClassifyStage !== "stage3" ? (
           <>

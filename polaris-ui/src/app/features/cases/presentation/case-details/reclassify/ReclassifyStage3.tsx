@@ -16,6 +16,11 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
 
   const { state, dispatch } = reclassifyContext;
 
+  const getMaterialType = (id: string) => {
+    return (
+      state.materialTypeList.find((type) => type.code === id)?.description ?? ""
+    );
+  };
   const handleChangeBtnClick = () => {
     dispatch({
       type: "UPDATE_CLASSIFY_STAGE",
@@ -25,21 +30,22 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
 
   const documentFieldNames = useMemo(
     () => ({
-      IMMEDIATE: ["Name"],
-      OTHER: ["Name", "Status"],
+      IMMEDIATE: ["Type", "Name"],
+      OTHER: ["Type", "Name", "Status"],
       STATEMENT: [
+        "Type",
         "Statement Witness",
         "Statement Date",
         "Statement Number",
         "Status",
       ],
       EXHIBIT: [
-        "Name",
-        "Status",
-        "Exhibit Item",
+        "Type",
+        "Item Name",
         "Exhibit Reference",
         "Exhibit Subject",
         "Exhibit Producer",
+        "Status",
       ],
     }),
     []
@@ -51,6 +57,8 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
 
   const getFieldValue = (fieldName: string) => {
     switch (fieldName) {
+      case "Type":
+        return getMaterialType(state.newDocTypeId);
       case "Name":
         return state.formData.documentRenameStatus === "YES"
           ? state.formData.documentNewName
@@ -69,12 +77,12 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
           : "";
       case "Statement Number":
         return state.formData.statementNumber;
+      case "Item Name":
+        return state.formData.exhibitItemName;
       case "Exhibit Reference":
         return state.formData.exhibitReference;
       case "Exhibit Subject":
         return state.formData.exhibitSubject;
-      case "Exhibit Item":
-        return state.formData.exhibitItemName;
       case "Exhibit Producer":
         if (state.formData.exhibitProducerId === "other")
           return state.formData.exhibitOtherProducerValue;
