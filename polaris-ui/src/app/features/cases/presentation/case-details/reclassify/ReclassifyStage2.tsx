@@ -249,6 +249,20 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     });
   };
 
+  const getDateInputLink = useCallback(() => {
+    if (formDataErrors.statementDayErrorText) {
+      return "#statement-day";
+    }
+    if (formDataErrors.statementMonthErrorText) {
+      return "#statement-month";
+    }
+
+    return "#statement-year";
+  }, [
+    formDataErrors.statementDayErrorText,
+    formDataErrors.statementMonthErrorText,
+  ]);
+
   const errorSummaryProperties = useCallback(
     (inputName: keyof FormDataErrors) => {
       switch (inputName) {
@@ -277,9 +291,24 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             children: formDataErrors[inputName],
             href: "#exhibit-subject",
           };
+        case "statementWitnessErrorText":
+          return {
+            children: formDataErrors[inputName],
+            href: "#statement-witness",
+          };
+        case "statementNumberErrorText":
+          return {
+            children: formDataErrors[inputName],
+            href: "#statement-number",
+          };
+        case "statementDateErrorText":
+          return {
+            children: formDataErrors.statementDateErrorText,
+            href: getDateInputLink(),
+          };
       }
     },
-    [formDataErrors]
+    [formDataErrors, getDateInputLink]
   );
 
   const errorSummaryList = useMemo(() => {
@@ -483,16 +512,30 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       {state.reclassifyVariant === "STATEMENT" && (
         <div>
           <Select
-            id="statement-select-witness"
+            id="statement-witness"
+            errorMessage={
+              formDataErrors.statementWitnessErrorText
+                ? {
+                    children: formDataErrors.statementWitnessErrorText,
+                  }
+                : undefined
+            }
             items={statementWitnessValues}
             label={{
               children: "Select witness",
             }}
-            name="statement-select-witness"
+            name="statement-witness"
             value={state.formData.statementWitnessId}
             onChange={(ev) => handleUpdateStatementWitnessId(ev.target.value)}
           />
           <DateInput
+            errorMessage={
+              formDataErrors.statementDateErrorText
+                ? {
+                    children: formDataErrors.statementDateErrorText,
+                  }
+                : undefined
+            }
             fieldset={{
               legend: {
                 children: <span>Statement date</span>,
@@ -509,17 +552,32 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             id="statement-date"
             items={[
               {
-                className: "govuk-input--width-2",
+                id: "statement-day",
+                className: `govuk-input--width-2 ${
+                  formDataErrors.statementDayErrorText
+                    ? "govuk-input--error"
+                    : ""
+                }`,
                 name: "day",
                 value: state.formData.statementDay,
               },
               {
-                className: "govuk-input--width-2",
+                id: "statement-month",
+                className: `govuk-input--width-2 ${
+                  formDataErrors.statementMonthErrorText
+                    ? "govuk-input--error"
+                    : ""
+                }`,
                 name: "month",
                 value: state.formData.statementMonth,
               },
               {
-                className: "govuk-input--width-4",
+                id: "statement-year",
+                className: `govuk-input--width-4 ${
+                  formDataErrors.statementYearErrorText
+                    ? "govuk-input--error"
+                    : ""
+                }`,
                 name: "year",
                 value: state.formData.statementYear,
               },
@@ -530,6 +588,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
           <Input
             id="statement-number"
+            errorMessage={
+              formDataErrors.statementNumberErrorText
+                ? {
+                    children: formDataErrors.statementNumberErrorText,
+                  }
+                : undefined
+            }
             className="govuk-input--width-10"
             label={{
               children: "Statement Number",

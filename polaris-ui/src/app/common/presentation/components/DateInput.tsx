@@ -6,7 +6,7 @@ type DateInputProps = {
   hint?: {
     children: React.ReactNode;
   };
-  items: { className: string; name: string; value?: string }[];
+  items: { id: string; className: string; name: string; value?: string }[];
   errorMessage?: {
     children: React.ReactNode;
   };

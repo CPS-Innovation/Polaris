@@ -12,6 +12,7 @@ import { MaterialType } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
 import { ReclassifySaveData } from "./data/ReclassifySaveData";
+import { validateDate } from "./utils/dateValidation";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
@@ -37,14 +38,23 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getStatementWitnessDetails,
   handleSubmitReclassify,
 }) => {
-  const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>({
+  const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
     documentNewNameErrorText: "",
     exhibitItemNameErrorText: "",
     otherExhibitProducerErrorText: "",
     exhibitReferenceErrorText: "",
     exhibitSubjectErrorText: "",
-  });
+    statementWitnessErrorText: "",
+    statementNumberErrorText: "",
+    statementDayErrorText: "",
+    statementMonthErrorText: "",
+    statementYearErrorText: "",
+    statementDateErrorText: "",
+  };
+  const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>(
+    errorTextsInitialValue
+  );
 
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext()!;
@@ -84,17 +94,15 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         exhibitSubject,
         exhibitProducerId,
         exhibitOtherProducerValue,
+        statementWitnessId,
+        statementDay,
+        statementMonth,
+        statementYear,
+        statementNumber,
       },
     } = reclassifyContext.state;
 
-    const errorTexts: FormDataErrors = {
-      documentTypeErrorText: "",
-      documentNewNameErrorText: "",
-      exhibitItemNameErrorText: "",
-      otherExhibitProducerErrorText: "",
-      exhibitReferenceErrorText: "",
-      exhibitSubjectErrorText: "",
-    };
+    const errorTexts: FormDataErrors = { ...errorTextsInitialValue };
 
     if (state.reClassifyStage === "stage1") {
       if (!state.newDocTypeId) {
@@ -139,6 +147,38 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         }
         if (exhibitProducerId === "other" && !exhibitOtherProducerValue) {
           errorTexts.otherExhibitProducerErrorText = `Exhibit existing producer or witness should not be empty`;
+        }
+      }
+
+      if (reclassifyVariant === "STATEMENT") {
+        const result = validateDate(
+          +statementDay,
+          +statementMonth - 1,
+          +statementYear
+        );
+
+        if (!statementWitnessId) {
+          errorTexts.statementWitnessErrorText =
+            "Statement witness should not be empty";
+        }
+        if (!statementNumber) {
+          errorTexts.statementNumberErrorText =
+            "Statement number should not be empty";
+        }
+        if (result.errors.includes("invalid day")) {
+          errorTexts.statementDayErrorText = "invalid day";
+          errorTexts.statementDateErrorText =
+            "Statement date must be a real date";
+        }
+        if (result.errors.includes("invalid month")) {
+          errorTexts.statementMonthErrorText = "invalid month";
+          errorTexts.statementDateErrorText =
+            "Statement date must be a real date";
+        }
+        if (result.errors.includes("invalid year")) {
+          errorTexts.statementYearErrorText = "invalid year";
+          errorTexts.statementDateErrorText =
+            "Statement date must be a real date";
         }
       }
     }
