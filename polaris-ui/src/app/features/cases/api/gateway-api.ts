@@ -376,7 +376,7 @@ export const getSearchPIIData = async (
 };
 
 export const getMaterialTypeList = async (urn: string, caseId: number) => {
-  const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/materialTypeList`);
+  const path = fullUrl(`/api/reference/reclassification`);
 
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),

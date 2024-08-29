@@ -1,9 +1,7 @@
 export type MaterialType = {
-  code: string;
+  typeId: number;
   description: string;
-  longDescription: string;
-  classification: Omit<ReclassifyVariant, "IMMEDIATE">;
-  addAsUsedOrUnused?: "Y";
+  newClassificationVariant: ReclassifyVariant;
 };
 
-export type ReclassifyVariant = "OTHER" | "EXHIBIT" | "STATEMENT" | "IMMEDIATE";
+export type ReclassifyVariant = "Other" | "Exhibit" | "Statement" | "Immediate";

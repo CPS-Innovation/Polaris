@@ -128,7 +128,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           errorTexts.documentNewNameErrorText = `New name must be ${MAX_LENGTH} characters or less`;
         }
       }
-      if (reclassifyVariant === "EXHIBIT") {
+      if (reclassifyVariant === "Exhibit") {
         if (!exhibitItemName) {
           errorTexts.exhibitItemNameErrorText =
             "Exhibit item name should not be empty";
@@ -150,10 +150,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         }
       }
 
-      if (reclassifyVariant === "STATEMENT") {
+      if (reclassifyVariant === "Statement") {
         const result = validateDate(
           +statementDay,
-          +statementMonth - 1,
+          +statementMonth,
           +statementYear
         );
 
@@ -189,6 +189,37 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
     console.log("validErrors>>", validErrors.length);
     return !validErrors.length;
+  };
+
+  const getMappedSaveData = () => {
+    const { newDocTypeId, materialTypeList, formData } = state;
+    const reclassificationType = materialTypeList.find(
+      (type) => type.typeId === +newDocTypeId
+    )?.newClassificationVariant!;
+    const saveData = {
+      documentId,
+      documentTypeId: +newDocTypeId!,
+      reclassificationType,
+      statement: {
+        witnessId: +formData.statementWitnessId!,
+        statementNo: +formData.statementNumber!,
+        date:
+          reclassificationType === "Statement"
+            ? `${formData.statementDay}-${formData.statementMonth}-${formData.statementYear}`
+            : "",
+      },
+      exhibit: {
+        existingProducerOrWitnessId:
+          formData.exhibitProducerId !== "other"
+            ? +formData.exhibitProducerId ?? null
+            : null,
+        newProducer: formData.exhibitOtherProducerValue,
+        item: formData.exhibitItemName,
+        reference: formData.exhibitReference,
+      },
+      used: formData.documentUsedStatus === "YES" ? true : false,
+    };
+    return saveData;
   };
 
   const handleContinueBtnClick = () => {
@@ -238,11 +269,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   };
 
   const handleAcceptAndSave = async () => {
-    //get values from state.formData based on the data contract
-    const saveData: ReclassifySaveData = {
-      documentNewName: state.formData.documentNewName,
-      documentUsedStatus: state.formData.documentUsedStatus,
-    };
+    const saveData: ReclassifySaveData = getMappedSaveData();
     dispatch({
       type: "UPDATE_RECLASSIFY_SAVE_STATUS",
       payload: { value: "saving" },

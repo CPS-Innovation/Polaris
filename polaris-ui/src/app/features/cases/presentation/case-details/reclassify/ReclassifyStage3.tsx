@@ -17,8 +17,12 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   const { state, dispatch } = reclassifyContext;
 
   const getMaterialType = (id: string) => {
+    if (!state.newDocTypeId) {
+      return "";
+    }
     return (
-      state.materialTypeList.find((type) => type.code === id)?.description ?? ""
+      state.materialTypeList.find((type) => type.typeId === +id)?.description ??
+      ""
     );
   };
   const handleChangeBtnClick = () => {
@@ -30,16 +34,16 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
 
   const documentFieldNames = useMemo(
     () => ({
-      IMMEDIATE: ["Type", "Name"],
-      OTHER: ["Type", "Name", "Status"],
-      STATEMENT: [
+      Immediate: ["Type", "Name"],
+      Other: ["Type", "Name", "Status"],
+      Statement: [
         "Type",
         "Statement Witness",
         "Statement Date",
         "Statement Number",
         "Status",
       ],
-      EXHIBIT: [
+      Exhibit: [
         "Type",
         "Item Name",
         "Exhibit Reference",
@@ -65,10 +69,12 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
           : presentationTitle;
       case "Status":
         return state.formData.documentUsedStatus === "YES" ? "Used" : "Unused";
-      case "Statement Witness":
+      case "Statement Witness": {
+        if (!state.formData.statementWitnessId) return "";
         return state.statementWitness.find(
           ({ witness }) => witness.id === +state.formData.statementWitnessId
         )?.witness.name;
+      }
       case "Statement Date":
         return state.formData.statementDay &&
           state.formData.statementMonth &&
@@ -88,7 +94,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
           return state.formData.exhibitOtherProducerValue;
         return state.exhibitProducers.find(
           (producer) => producer.id === +state.formData.exhibitProducerId
-        )?.fullName;
+        )?.exhibitProducer;
     }
   };
 

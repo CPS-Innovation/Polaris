@@ -1,1 +1,1 @@
-export type ExhibitProducer = { id: number; fullName: string };
+export type ExhibitProducer = { id: number; exhibitProducer: string };

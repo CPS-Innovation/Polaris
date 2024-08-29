@@ -36,25 +36,25 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   useEffect(() => {
     const fetchDataOnMount = async () => {
       if (
-        state.reclassifyVariant === "EXHIBIT" &&
+        state.reclassifyVariant === "Exhibit" &&
         state.exhibitProducers.length
       )
         return;
       if (
-        state.reclassifyVariant === "STATEMENT" &&
+        state.reclassifyVariant === "Statement" &&
         state.statementWitness.length
       )
         return;
       setLoading(true);
       try {
-        if (state.reclassifyVariant === "EXHIBIT") {
+        if (state.reclassifyVariant === "Exhibit") {
           const result = await getExhibitProducers();
           dispatch({
             type: "ADD_EXHIBIT_PRODUCERS",
             payload: { exhibitProducers: result },
           });
         }
-        if (state.reclassifyVariant === "STATEMENT") {
+        if (state.reclassifyVariant === "Statement") {
           const result = await getStatementWitnessDetails();
           dispatch({
             type: "ADD_STATEMENT_WITNESSS",
@@ -99,10 +99,12 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       children: "Select a Producer",
       disabled: true,
     };
-    const mappedValues = state.exhibitProducers.map(({ id, fullName }) => ({
-      value: id,
-      children: fullName,
-    }));
+    const mappedValues = state.exhibitProducers.map(
+      ({ id, exhibitProducer }) => ({
+        value: id,
+        children: exhibitProducer,
+      })
+    );
     const otherOption = {
       value: "other",
       children: "Other producer or witness",
@@ -113,9 +115,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
   const getHeaderText = (varaint: ReclassifyVariant) => {
     switch (varaint) {
-      case "STATEMENT":
+      case "Statement":
         return "Enter the statement details";
-      case "EXHIBIT":
+      case "Exhibit":
         return "Enter the exhibit details";
       default:
         return "Enter the document details";
@@ -124,14 +126,14 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
   const getSubHeading = (type: ReclassifyVariant) => {
     switch (type) {
-      case "STATEMENT":
+      case "Statement":
         return (
           <p>
             You're entering statement details for{" "}
             <strong>{presentationTitle}</strong>
           </p>
         );
-      case "EXHIBIT":
+      case "Exhibit":
         return (
           <p>
             You're entering exhibit details for{" "}
@@ -351,8 +353,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       )}
       {getSubHeading(state.reclassifyVariant)}
 
-      {state.reclassifyVariant !== "STATEMENT" &&
-        state.reclassifyVariant !== "EXHIBIT" && (
+      {state.reclassifyVariant !== "Statement" &&
+        state.reclassifyVariant !== "Exhibit" && (
           <Radios
             hint={{
               children: (
@@ -407,7 +409,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           />
         )}
 
-      {state.reclassifyVariant === "EXHIBIT" && (
+      {state.reclassifyVariant === "Exhibit" && (
         <div>
           <Input
             id="exhibit-item-name"
@@ -509,7 +511,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         </div>
       )}
 
-      {state.reclassifyVariant === "STATEMENT" && (
+      {state.reclassifyVariant === "Statement" && (
         <div>
           <Select
             id="statement-witness"
@@ -609,7 +611,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           />
         </div>
       )}
-      {state.reclassifyVariant !== "IMMEDIATE" && (
+      {state.reclassifyVariant !== "Immediate" && (
         <Radios
           hint={{
             children: <span>What is the document status?</span>,

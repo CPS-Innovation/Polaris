@@ -35,8 +35,8 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
       disabled: true,
     };
     const mappedDocTypeValues = state.materialTypeList.map(
-      ({ code, description }) => ({
-        value: code,
+      ({ typeId, description }) => ({
+        value: typeId,
         children: description,
       })
     );

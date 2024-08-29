@@ -1,6 +1,4 @@
-import { Witness } from "../../../../domain/gateway/CaseDetails";
-
 export type StatementWitness = {
-  witness: Witness;
+  witness: { id: number; name: string };
   statementNumbers: number[];
 };

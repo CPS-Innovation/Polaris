@@ -18,7 +18,7 @@ export type ReclassifyState = {
     exhibitReference: string;
     exhibitItemName: string;
     exhibitSubject: string;
-    exhibitProducerId: string;
+    exhibitProducerId: string | "other";
     exhibitOtherProducerValue: string;
     statementWitnessId: string;
     statementDay: string;
@@ -34,7 +34,7 @@ export const reclassifyInitialState: ReclassifyState = {
   statementWitness: [],
   currentDocTypeId: "",
   newDocTypeId: "",
-  reclassifyVariant: "IMMEDIATE",
+  reclassifyVariant: "Immediate",
   reClassifyStage: "stage1",
   reClassifySaveStatus: "initial",
   formData: {
@@ -132,15 +132,19 @@ const getReclassifyVariant = (
   materialTypeList: MaterialType[],
   code: string
 ) => {
-  const selectedType = materialTypeList.find((type) => type.code === code)!;
-  if (selectedType.classification === "STATEMENT") {
-    return "STATEMENT";
-  } else if (selectedType.classification === "EXHIBIT") {
-    return "EXHIBIT";
-  } else if (selectedType.addAsUsedOrUnused === "Y") {
-    return "OTHER";
+  console.log("code>>>>", code);
+  console.log("materialTypeList>>>>", materialTypeList);
+  const selectedType = materialTypeList.find((type) => type.typeId === +code)!;
+  console.log("selectedType>>", selectedType);
+
+  if (selectedType.newClassificationVariant === "Statement") {
+    return "Statement";
+  } else if (selectedType.newClassificationVariant === "Exhibit") {
+    return "Exhibit";
+  } else if (selectedType.newClassificationVariant === "Other") {
+    return "Other";
   } else {
-    return "IMMEDIATE";
+    return "Immediate";
   }
 };
 
