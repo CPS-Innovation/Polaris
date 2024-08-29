@@ -52,6 +52,7 @@ feature_flag_full_screen              = "true"
 feature_flag_notes                    = "true"
 feature_flag_search_pii               = "true"
 feature_flag_rename_document          = "true"
+feature_flag_external_redirect        = "true"
 local_storage_expiry_days             = "30"
 
 private_beta = {
@@ -59,6 +60,9 @@ private_beta = {
   user_group          = "" // allow any user to see qa for e.g. demo purposes 
   feature_user_group  = "8fc75d71-3479-4a77-b33b-41fd26ec4960"
   feature_user_group2 = "1663cea9-062e-4f6e-a7ac-26f0942724f3"
+  feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
 }
 
 polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
+case_review_app_redirect_url   = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
+bulk_um_redirect_url           = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"

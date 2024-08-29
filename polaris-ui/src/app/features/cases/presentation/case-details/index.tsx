@@ -273,7 +273,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             contextData={{
               documentId:
                 errorModal.type === "addnote" ||
-                errorModal.type === "saverenamedocument"
+                  errorModal.type === "saverenamedocument"
                   ? actionsSidePanel.documentId
                   : getActiveTabDocument?.documentId,
             }}
@@ -414,7 +414,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       disabled={false}
                       onClick={() => {
                         openInNewTab(
-                          `${CASE_REVIEW_APP_REDIRECT_URL}?Urn=${urn}&CMSCaseId=${caseId}`
+                          `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
                         );
                       }}
                       data-testid="btn-case-review-app"
@@ -429,7 +429,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       disabled={false}
                       onClick={() => {
                         openInNewTab(
-                          `${BULK_UM_REDIRECT_URL}?Urn=${urn}&CMSCaseId=${caseId}`
+                          `${BULK_UM_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
                         );
                       }}
                       data-testid="btn-bulk-um-classification"
@@ -547,9 +547,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   ariaLabel={
                     inFullScreen ? "Exit full screen" : "View full screen"
                   }
-                  className={`${classes.resizeBtn} ${
-                    inFullScreen && classes.inFullScreen
-                  }`}
+                  className={`${classes.resizeBtn} ${inFullScreen && classes.inFullScreen
+                    }`}
                   onClick={() => {
                     if (inFullScreen) {
                       trackEvent("Exit Full Screen", {
@@ -570,11 +569,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             </div>
           )}
           <div
-            className={`${classes.rightColumn} ${
-              inFullScreen
+            className={`${classes.rightColumn} ${inFullScreen
                 ? "govuk-grid-column-full"
                 : "govuk-grid-column-three-quarters"
-            }`}
+              }`}
           >
             {!tabsState.items.length ? (
               <PdfTabsEmpty
