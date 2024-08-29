@@ -6,7 +6,7 @@
 
 function proxyDestinationCorshamInternal(r)
 {
-    return proxyDestinationCorsham(r) + '/';
+    return proxyDestinationCorsham(r);
 }
 
 function proxyDestinationModernCorsham(r)
@@ -17,7 +17,7 @@ function proxyDestinationModernCorsham(r)
 
 function proxyDestinationModernCorshamInternal(r)
 {
-    return proxyDestinationModernCorsham(r) + '/';
+    return proxyDestinationModernCorsham(r);
 }
 
 function proxyDestinationFarnborough(r)
@@ -28,7 +28,7 @@ function proxyDestinationFarnborough(r)
 
 function proxyDestinationFarnboroughInternal(r)
 {
-    return proxyDestinationFarnborough(r) + '/';
+    return proxyDestinationFarnborough(r);
 }
 
 function proxyDestinationModernFarnborough(r)
@@ -39,7 +39,7 @@ function proxyDestinationModernFarnborough(r)
 
 function proxyDestinationModernFarnboroughInternal(r)
 {
-    return proxyDestinationModernFarnborough(r) + '/';
+    return proxyDestinationModernFarnborough(r);
 }
 
 function upstreamCmsDomainName(r)
@@ -111,7 +111,7 @@ function __getCmsEnv(r)
         if(cookie.includes("cin5")) return "cin5";
         return "default";
     }
-    
+
     return cmsEnv;
 }
 
@@ -121,8 +121,8 @@ function __getCookie(cookieHeader, name)
     return match ? match[1] : null;
 }
 
-export default { 
-    proxyDestinationCorsham, proxyDestinationCorshamInternal, proxyDestinationModernCorsham, proxyDestinationModernCorshamInternal, 
-    proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal, 
-    upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer 
+export default {
+    proxyDestinationCorsham, proxyDestinationCorshamInternal, proxyDestinationModernCorsham, proxyDestinationModernCorshamInternal,
+    proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal,
+    upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer
 }
