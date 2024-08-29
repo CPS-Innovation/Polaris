@@ -22,6 +22,8 @@ public interface ICoordinatorClient
     Task<HttpResponseMessage> GetPii(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId);
     Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentDto, string cmsAuthValues, Guid correlationId);
     Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId);
+    Task<HttpResponseMessage> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
+    Task<HttpResponseMessage> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
     Task<HttpResponseMessage> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId);
     Task<HttpResponseMessage> GenerateThumbnail(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, GenerateThumbnailRequestDto generateThumbnailRequest, string cmsAuthValues, Guid correlationId);
 }
