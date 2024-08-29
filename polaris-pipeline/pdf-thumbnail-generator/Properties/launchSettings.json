@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "pdf_thumbnail_generator": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7003",
+      "launchBrowser": false
+    }
+  }
+}
