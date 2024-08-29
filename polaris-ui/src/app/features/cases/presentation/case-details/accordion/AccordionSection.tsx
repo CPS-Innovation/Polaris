@@ -6,6 +6,7 @@ import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { Classification } from "../../../domain/gateway/PipelineDocument";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 
 type Props = {
   activeDocumentId: string;
@@ -14,10 +15,7 @@ type Props = {
   docs: MappedCaseDocument[];
   readUnreadData: string[];
   isOpen: boolean;
-  featureFlags: {
-    notes: boolean;
-    renameDocument: boolean;
-  };
+  featureFlags: FeatureFlagData;
   handleToggleOpenSection: (id: string, sectionLabel: string) => void;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];

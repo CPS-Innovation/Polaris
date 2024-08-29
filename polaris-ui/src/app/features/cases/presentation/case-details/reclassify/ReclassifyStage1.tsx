@@ -49,7 +49,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   };
   return (
     <div>
-      <h1>Select the document type</h1>
+      <h1>What type of document is this?</h1>
       {formDataErrors.documentTypeErrorText && (
         <div
           ref={errorSummaryRef}

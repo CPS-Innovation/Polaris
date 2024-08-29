@@ -59,6 +59,9 @@ export const FEATURE_FLAG_SEARCH_PII =
 export const FEATURE_FLAG_RENAME_DOCUMENT =
   `${process.env.REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT}` === "true";
 
+export const FEATURE_FLAG_RECLASSIFY =
+  `${process.env.REACT_APP_FEATURE_FLAG_RECLASSIFY}` === "true";
+
 export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
   .REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS
   ? parseInt(process.env.REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS)

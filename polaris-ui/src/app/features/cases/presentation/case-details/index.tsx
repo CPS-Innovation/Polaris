@@ -476,10 +476,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       }}
                       activeDocumentId={getActiveTabDocument?.documentId ?? ""}
                       handleOpenPanel={handleOpenPanel}
-                      featureFlags={{
-                        notes: featureFlags.notes,
-                        renameDocument: featureFlags.renameDocument,
-                      }}
+                      featureFlags={featureFlags}
                       accordionStateChangeCallback={
                         accordionStateChangeCallback
                       }

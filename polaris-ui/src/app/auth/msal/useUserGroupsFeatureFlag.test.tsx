@@ -24,6 +24,7 @@ const mockConfig = configModule as {
   FEATURE_FLAG_NOTES: boolean;
   FEATURE_FLAG_SEARCH_PII: boolean;
   FEATURE_FLAG_RENAME_DOCUMENT: boolean;
+  FEATURE_FLAG_RECLASSIFY: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
 };

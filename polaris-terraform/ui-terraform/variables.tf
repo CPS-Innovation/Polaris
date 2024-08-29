@@ -129,6 +129,11 @@ variable "feature_flag_rename_document" {
   type = string
 }
 
+variable "feature_flag_reclassify" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "local_storage_expiry_days" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string

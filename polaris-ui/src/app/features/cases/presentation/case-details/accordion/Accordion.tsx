@@ -8,16 +8,14 @@ import { buildInitialState, reducer, AccordionReducerState } from "./reducer";
 import { AccordionDocumentSection } from "./types";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { Classification } from "../../../domain/gateway/PipelineDocument";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 
 type Props = {
   initialState: AccordionReducerState | null;
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
-  featureFlags: {
-    notes: boolean;
-    renameDocument: boolean;
-  };
+  featureFlags: FeatureFlagData;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;

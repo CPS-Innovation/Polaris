@@ -29,15 +29,13 @@ import {
   DropdownButton,
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 
 type Props = {
   activeDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
-  featureFlags: {
-    notes: boolean;
-    renameDocument: boolean;
-  };
+  featureFlags: FeatureFlagData;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
@@ -141,27 +139,35 @@ export const AccordionDocument: React.FC<Props> = ({
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
-    if (!featureFlags.renameDocument) return items;
     if (featureFlags.renameDocument && caseDocument.canRename) {
       items = [
+        ...items,
         {
           id: "1",
           label: "Rename document",
           ariaLabel: "Rename document",
           disabled: false,
         },
+      ];
+    }
+    if (featureFlags.reclassify) {
+      items = [
+        ...items,
         {
           id: "2",
           label: "Reclassify document",
           ariaLabel: "Reclassify document",
           disabled: false,
         },
-        ...items,
       ];
     }
 
     return items;
-  }, [caseDocument.canRename, featureFlags.renameDocument]);
+  }, [
+    caseDocument.canRename,
+    featureFlags.renameDocument,
+    featureFlags.reclassify,
+  ]);
 
   const handleDocumentAction = (id: string) => {
     switch (id) {

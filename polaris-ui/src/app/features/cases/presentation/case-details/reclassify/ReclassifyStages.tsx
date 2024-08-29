@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   LinkButton,
   Button,
@@ -38,6 +38,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getStatementWitnessDetails,
   handleSubmitReclassify,
 }) => {
+  const continueButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
     documentNewNameErrorText: "",
@@ -223,6 +224,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   };
 
   const handleContinueBtnClick = () => {
+    if (continueButtonRef.current)
+      (continueButtonRef.current as HTMLButtonElement).blur();
     const validData = validateData();
     if (!validData) return;
     if (state.reClassifyStage === "stage1") {
@@ -321,8 +324,15 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       <div className={classes.btnWrapper}>
         {state.reClassifyStage !== "stage3" ? (
           <>
-            <Button onClick={handleContinueBtnClick}>Continue</Button>
-            <LinkButton onClick={handleCancelReclassify}>Cancel</LinkButton>
+            <Button ref={continueButtonRef} onClick={handleContinueBtnClick}>
+              Continue
+            </Button>
+            <LinkButton
+              className={classes.btnCancel}
+              onClick={handleCancelReclassify}
+            >
+              Cancel
+            </LinkButton>
           </>
         ) : (
           <>

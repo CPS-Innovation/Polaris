@@ -6,6 +6,7 @@ import {
   FEATURE_FLAG_NOTES,
   FEATURE_FLAG_SEARCH_PII,
   FEATURE_FLAG_RENAME_DOCUMENT,
+  FEATURE_FLAG_RECLASSIFY,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
 } from "../../config";
@@ -58,8 +59,14 @@ const showFeature = (
 };
 
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
-  const { redactionLog, fullScreen, notes, searchPII, renameDocument } =
-    useQueryParamsState<FeatureFlagQueryParams>();
+  const {
+    redactionLog,
+    fullScreen,
+    notes,
+    searchPII,
+    renameDocument,
+    reclassify,
+  } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
   const groupClaims = (account?.idTokenClaims?.groups as string[]) ?? [];
@@ -87,6 +94,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_RENAME_DOCUMENT,
         userDetails?.username,
         renameDocument,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      reclassify: showFeature(
+        FEATURE_FLAG_RECLASSIFY,
+        userDetails?.username,
+        reclassify,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
