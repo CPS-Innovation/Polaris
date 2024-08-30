@@ -44,7 +44,7 @@ namespace Common.Configuration
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
-
+        public const string RepresentativeThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/representative-thumbnail";
         public static string GetCasesPath(string caseUrn)
         {
             return $"urns/{caseUrn}/cases";

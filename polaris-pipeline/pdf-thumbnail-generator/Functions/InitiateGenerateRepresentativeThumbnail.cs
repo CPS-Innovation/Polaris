@@ -1,6 +1,6 @@
+using Common.Configuration;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using pdf_thumbnail_generator.Durable.Orchestration;
@@ -22,13 +22,16 @@ namespace pdf_thumbnail_generator.Functions
 
     [Function(nameof(InitiateGenerateRepresentativeThumbnail))]
     public async Task<HttpResponseData> Run(
-      [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
+      [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RepresentativeThumbnail)] HttpRequestData req,
+      string caseUrn,
+      int caseId,
+      string documentId,
       FunctionContext executionContext)
     {
       ILogger logger = executionContext.GetLogger("InitiateGenerateRepresentativeThumbnail");
 
       string instanceId = await _durableOrchestrationClient.ScheduleNewOrchestrationInstanceAsync(
-          nameof(GenerateRepresentativeThumbnailOrchestrator));
+          nameof(RepresentativeThumbnailOrchestrator));
 
       logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 
