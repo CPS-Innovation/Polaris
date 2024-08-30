@@ -46,7 +46,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     exhibitItemNameErrorText: "",
     otherExhibitProducerErrorText: "",
     exhibitReferenceErrorText: "",
-    exhibitSubjectErrorText: "",
     statementWitnessErrorText: "",
     statementNumberErrorText: "",
     statementDayErrorText: "",
@@ -93,7 +92,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         documentNewName,
         exhibitItemName,
         exhibitReference,
-        exhibitSubject,
         exhibitProducerId,
         exhibitOtherProducerValue,
         statementWitnessId,
@@ -139,11 +137,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           errorTexts.exhibitReferenceErrorText =
             "Exhibit reference should not be empty";
         }
-        if (!exhibitSubject) {
-          errorTexts.exhibitSubjectErrorText =
-            "Exhibit subject should not be empty";
-        }
-
         if (exhibitItemName.length > MAX_LENGTH) {
           errorTexts.exhibitItemNameErrorText = `Exhibit item name must be ${MAX_LENGTH} characters or less`;
         }

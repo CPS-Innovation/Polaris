@@ -5,7 +5,7 @@ export const materialTypeList: MaterialType[] = [
   {
     typeId: 1015,
     description: "MG10",
-    newClassificationVariant: "Other",
+    newClassificationVariant: "Immediate",
   },
   {
     typeId: 1031,

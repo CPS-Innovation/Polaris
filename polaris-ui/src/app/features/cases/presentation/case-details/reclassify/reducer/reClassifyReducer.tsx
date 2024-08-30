@@ -17,7 +17,6 @@ export type ReclassifyState = {
     documentUsedStatus: "YES" | "NO";
     exhibitReference: string;
     exhibitItemName: string;
-    exhibitSubject: string;
     exhibitProducerId: string | "other";
     exhibitOtherProducerValue: string;
     statementWitnessId: string;
@@ -43,7 +42,6 @@ export const reclassifyInitialState: ReclassifyState = {
     documentUsedStatus: "NO",
     exhibitReference: "",
     exhibitItemName: "",
-    exhibitSubject: "",
     exhibitProducerId: "",
     exhibitOtherProducerValue: "",
     statementWitnessId: "",
@@ -97,10 +95,6 @@ export type ReclassifyActions =
     }
   | {
       type: "UPDATE_EXHIBIT_ITEM_NAME";
-      payload: { value: string };
-    }
-  | {
-      type: "UPDATE_EXHIBIT_SUBJECT";
       payload: { value: string };
     }
   | {
@@ -238,15 +232,6 @@ export const reClassifyReducer = (
         formData: {
           ...state.formData,
           exhibitItemName: action.payload.value,
-        },
-      };
-    }
-    case "UPDATE_EXHIBIT_SUBJECT": {
-      return {
-        ...state,
-        formData: {
-          ...state.formData,
-          exhibitSubject: action.payload.value,
         },
       };
     }
