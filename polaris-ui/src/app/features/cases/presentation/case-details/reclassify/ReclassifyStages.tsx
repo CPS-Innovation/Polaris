@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   LinkButton,
   Button,
+  Modal,
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
@@ -293,6 +294,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     });
     // handle the failure of saveReclassify by showing an error modal
   };
+
+  const handleCloseErrorModal = () => {
+    dispatch({
+      type: "UPDATE_RECLASSIFY_SAVE_STATUS",
+      payload: { value: "initial" },
+    });
+  };
   if (loading) {
     return <div>loading data</div>;
   }
@@ -345,6 +353,32 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           </>
         )}
       </div>
+      {state.reClassifySaveStatus === "failure" && (
+        <Modal
+          isVisible
+          handleClose={() => {
+            handleCloseErrorModal();
+          }}
+          type="alert"
+          ariaLabel="Save reclassification error modal"
+          ariaDescription="Failed to save the reclassification. Please try again later"
+        >
+          <div className={classes.alertContent}>
+            <h1 className="govuk-heading-l">Something went wrong</h1>
+            <p>Failed to save the reclassification. Please try again later</p>
+            <div className={classes.actionButtonsWrapper}>
+              <Button
+                onClick={() => {
+                  handleCloseErrorModal();
+                }}
+                data-testid="btn-reclassify-error-ok"
+              >
+                Ok
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

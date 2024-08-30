@@ -41,3 +41,15 @@
     padding: 0.625rem;
   }
 }
+
+.alertContent {
+  max-width: 32.5rem;
+  padding: 1.25rem 1.875rem 1.875rem;
+}
+
+.actionButtonsWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  margin-top: 1.875rem;
+}
