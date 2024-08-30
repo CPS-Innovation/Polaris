@@ -54,6 +54,12 @@ function upstreamCmsModernDomainName(r)
     return r.variables[cmsEnv + 'UpstreamCmsModernDomainName'];
 }
 
+function upstreamCmsServicesDomainName(r)
+{
+    let cmsEnv = __getCmsEnv(r);
+    return r.variables[cmsEnv + 'UpstreamCmsServicesDomainName'];
+}
+
 function replaceCmsDomains(r, data, flags)
 {
     __replaceCmsDomainsGeneric(r, data, flags, r.variables.host);
@@ -81,7 +87,7 @@ function __replaceCmsDomainsGeneric(r, data, flags, host)
         {old: r.variables[cmsEnv + 'UpstreamCmsIpCorsham'], new: host},
         {old: r.variables[cmsEnv + 'UpstreamCmsModernIpCorsham'], new: host},
         {old: r.variables[cmsEnv + 'UpstreamCmsIpFarnborough'], new: host},
-        {old: r.variables[cmsEnv + 'UpstreamCmsModernIpFarnborough'], new: host},
+        {old: r.variables[cmsEnv + 'UpstreamCmsModernIpFarnborough'], new: host}
     ];
 
     r.sendBuffer(__replaceContent(data, replacements), flags);
@@ -97,32 +103,22 @@ function __replaceContent(content, replacements)
 }
 
 /*
- * Detect the CMS environment from the specific entry cookie, or by looking for an existing BIG-IP cookie
- * from an environment.
+ * Detect the CMS environment from the cookies
  */
 function __getCmsEnv(r)
 {
     let cookie = r.headersIn.Cookie || '';
-    let cmsEnv = __getCookie(cookie, '__CMSENV') || '';
 
-    if(!['default','cin4','cin5'].includes(cmsEnv)) {
-        if(cookie.includes("cin3")) return "default";
-        if(cookie.includes("cin4")) return "cin4";
-        if(cookie.includes("cin5")) return "cin5";
-        return "default";
-    }
+    if(cookie.includes("cin3")) return "default";
+    if(cookie.includes("cin4")) return "cin4";
+    if(cookie.includes("cin5")) return "cin5";
+    return "default";
 
     return cmsEnv;
-}
-
-function __getCookie(cookieHeader, name)
-{
-    let match = cookieHeader.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-    return match ? match[1] : null;
 }
 
 export default {
     proxyDestinationCorsham, proxyDestinationCorshamInternal, proxyDestinationModernCorsham, proxyDestinationModernCorshamInternal,
     proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal,
-    upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer
+    upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer, upstreamCmsServicesDomainName
 }
