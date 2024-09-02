@@ -126,8 +126,6 @@ function __getCmsEnv(r)
     if(cookie.includes("cin4")) return "cin4";
     if(cookie.includes("cin5")) return "cin5";
     return "default";
-
-    return cmsEnv;
 }
 
 export default {
