@@ -76,44 +76,6 @@ function cmsMenuBarFilters(r, data, flags)
     replaceCmsDomains(r, data, flags);
 }
 
-function environmentCookies(r)
-{
-    let cookieEnv = r.variables.cookieEnv;
-    let cookies = [];
-
-    cookies.push('__CMSENV=' + cookieEnv);
-
-    if(cookieEnv !== 'default') {
-        cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-        cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    }
-    if(cookieEnv !== 'cin4') {
-        cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-        cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    }
-    if(cookieEnv !== 'cin5') {
-        cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-        cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    }
-    
-    r.headersOut['Set-Cookie'] = cookies;
-}
-
-function resetEnvironmentCookies(r)
-{
-    let cookies = [];
-    
-    cookies.push('__CMSENV=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-
-    r.headersOut['Set-Cookie'] = cookies;
-}
-
 function __addAppLaunchButtonsToMenuBar(r, data, flags)
 {
     data = data.replace(new RegExp('objMainWindow\.top\.frameData\.objMasterWindow\.top\.frameServerJS\.POLARIS_URL', 'g'), '"/polaris"');
@@ -170,5 +132,5 @@ export default {
     proxyDestinationCorsham, proxyDestinationCorshamInternal, proxyDestinationModernCorsham, proxyDestinationModernCorshamInternal,
     proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal,
     upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer, upstreamCmsServicesDomainName,
-    cmsMenuBarFilters, environmentCookies, resetEnvironmentCookies
+    cmsMenuBarFilters
 }
