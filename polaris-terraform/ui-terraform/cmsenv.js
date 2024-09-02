@@ -81,15 +81,15 @@ function environmentCookies(r)
     let cookieEnv = r.variables.cookieEnv;
     r.headersOut['Set-Cookie'] = '__CMSENV=' + cookieEnv;
     
-    if(cookieEnv != 'default') {
+    if(cookieEnv !== 'default') {
         r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
-    if(cookieEnv != 'cin4') {
+    if(cookieEnv !== 'cin4') {
         r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
-    if(cookieEnv != 'cin5') {
+    if(cookieEnv !== 'cin5') {
         r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
