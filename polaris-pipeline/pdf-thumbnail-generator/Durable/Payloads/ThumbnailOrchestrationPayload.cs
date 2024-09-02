@@ -3,14 +3,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace pdf_thumbnail_generator.Durable.Payloads
 {
-    public class RepresentativeThumbnailOrchestrationPayload
+    public class ThumbnailOrchestrationPayload
     {
-        public RepresentativeThumbnailOrchestrationPayload(string cmsCaseUrn, int cmsCaseId, string documentId, Guid correlationId)
+        public ThumbnailOrchestrationPayload(string cmsCaseUrn, int cmsCaseId, string documentId, int versionId, Guid correlationId, int? pageIndex)
         {
             CmsCaseUrn = cmsCaseUrn;
             CmsCaseId = cmsCaseId;
             CorrelationId = correlationId;
             DocumentId = documentId;
+            VersionId = versionId;
+            PageIndex = pageIndex;
         }
 
         [Required]
@@ -23,5 +25,8 @@ namespace pdf_thumbnail_generator.Durable.Payloads
         public Guid CorrelationId { get; set; }
         [Required]
         public string DocumentId { get; set; }
+        [Required]
+        public int VersionId { get; set; }
+        public int? PageIndex { get; set; }
     }
 }

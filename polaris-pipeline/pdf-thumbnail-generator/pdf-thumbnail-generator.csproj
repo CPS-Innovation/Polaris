@@ -17,7 +17,8 @@
   <ItemGroup>
     <!-- See for reason why we need version 2.41.0 explicitly https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
     <PackageReference Include="Contrib.Grpc.Core.M1" Version="2.41.0"/>
-    
+  
+    <PackageReference Include="Aspose.PDF.Drawing" Version="24.4.0" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.1" />
@@ -38,8 +39,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+    <None Update="Aspose.Total.NET.lic">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
+  <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
+    <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
+  </Target>
 </Project>

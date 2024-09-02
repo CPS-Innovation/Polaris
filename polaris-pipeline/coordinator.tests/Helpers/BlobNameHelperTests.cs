@@ -1,3 +1,4 @@
+using Common.Services.BlobStorageService;
 using coordinator.Helpers;
 using FluentAssertions;
 using Xunit;
