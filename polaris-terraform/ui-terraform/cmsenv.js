@@ -60,6 +60,29 @@ function upstreamCmsServicesDomainName(r)
     return r.variables[cmsEnv + 'UpstreamCmsServicesDomainName'];
 }
 
+function upstreamCmsIpCorsham(r)
+{
+    let cmsEnv = __getCmsEnv(r);
+    return r.variables[cmsEnv + 'UpstreamCmsIpCorsham'];
+}
+
+function upstreamCmsModernIpCorsham(r)
+{
+    let cmsEnv = __getCmsEnv(r);
+    return r.variables[cmsEnv + 'UpstreamCmsModernIpCorsham'];
+}
+
+function upstreamCmsIpFarnborough(r) 
+{
+    let cmsEnv = __getCmsEnv(r);
+    return r.variables[cmsEnv + 'UpstreamCmsIpFarnborough'];
+}
+
+function upstreamCmsModernIpFarnborough(r) {
+    let cmsEnv = __getCmsEnv(r);
+    return r.variables[cmsEnv + 'UpstreamCmsModernIpFarnborough'];
+}
+
 function replaceCmsDomains(r, data, flags)
 {
     __replaceCmsDomainsGeneric(r, data, flags, r.variables.host);
@@ -132,5 +155,5 @@ export default {
     proxyDestinationCorsham, proxyDestinationCorshamInternal, proxyDestinationModernCorsham, proxyDestinationModernCorshamInternal,
     proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal,
     upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer, upstreamCmsServicesDomainName,
-    cmsMenuBarFilters
+    cmsMenuBarFilters, upstreamCmsIpCorsham, upstreamCmsIpFarnborough, upstreamCmsModernIpFarnborough, upstreamCmsModernIpCorsham
 }
