@@ -20,6 +20,7 @@ import { ErrorModalTypes } from "./ErrorModalTypes";
 import { NotesData } from "../domain/gateway/NotesData";
 import { SearchPIIData } from "./gateway/SearchPIIData";
 import { RenameDocumentData } from "./gateway/RenameDocumentData";
+import { ReclassifyDocumentData } from "./gateway/ReclassifyDocumentData";
 
 export type CombinedState = {
   urn: string;
@@ -81,4 +82,5 @@ export type CombinedState = {
   notes: NotesData[];
   searchPII: SearchPIIData[];
   renameDocuments: RenameDocumentData[];
+  reclassifyDocuments: ReclassifyDocumentData[];
 };

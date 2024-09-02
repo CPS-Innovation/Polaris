@@ -19,6 +19,7 @@ import classes from "./Reclassify.module.scss";
 type ReclassifyStagesProps = {
   documentId: string;
   presentationTitle: string;
+  reclassifiedDocumentUpdate?: boolean;
   handleCancelReclassify: () => void;
   getMaterialTypeList: () => Promise<MaterialType[]>;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
@@ -33,12 +34,14 @@ const MAX_LENGTH = 252;
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   documentId,
   presentationTitle,
+  reclassifiedDocumentUpdate,
   handleCancelReclassify,
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
   handleSubmitReclassify,
 }) => {
+  console.log("reclassifiedDocumentUpdate>>>", reclassifiedDocumentUpdate);
   const continueButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
@@ -277,15 +280,18 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         type: "UPDATE_RECLASSIFY_SAVE_STATUS",
         payload: { value: "success" },
       });
-      handleCancelReclassify();
-      return;
+      if (reclassifiedDocumentUpdate === undefined) {
+        handleCancelReclassify();
+        return;
+      }
     }
 
-    dispatch({
-      type: "UPDATE_RECLASSIFY_SAVE_STATUS",
-      payload: { value: "failure" },
-    });
-    // handle the failure of saveReclassify by showing an error modal
+    if (!result) {
+      dispatch({
+        type: "UPDATE_RECLASSIFY_SAVE_STATUS",
+        payload: { value: "failure" },
+      });
+    }
   };
 
   const handleCloseErrorModal = () => {
@@ -318,7 +324,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           )}
 
           {state.reClassifyStage === "stage3" && (
-            <ReclassifyStage3 presentationTitle={presentationTitle} />
+            <ReclassifyStage3
+              presentationTitle={presentationTitle}
+              reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
+            />
           )}
         </div>
       </div>
@@ -337,12 +346,22 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           </>
         ) : (
           <>
-            <Button
-              onClick={handleAcceptAndSave}
-              disabled={state.reClassifySaveStatus === "saving"}
-            >
-              Accept and save
-            </Button>
+            {!reclassifiedDocumentUpdate && (
+              <Button
+                onClick={handleAcceptAndSave}
+                disabled={state.reClassifySaveStatus === "saving"}
+              >
+                Accept and save
+              </Button>
+            )}
+            {reclassifiedDocumentUpdate && (
+              <Button
+                onClick={handleCancelReclassify}
+                disabled={state.reClassifySaveStatus === "saving"}
+              >
+                close
+              </Button>
+            )}
           </>
         )}
       </div>

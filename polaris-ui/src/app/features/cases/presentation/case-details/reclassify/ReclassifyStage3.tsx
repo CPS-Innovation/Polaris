@@ -7,10 +7,12 @@ import { useReClassifyContext } from "./context/ReClassifyProvider";
 
 type ReclassifyStage3Props = {
   presentationTitle: string;
+  reclassifiedDocumentUpdate?: boolean;
 };
 
 export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   presentationTitle,
+  reclassifiedDocumentUpdate,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
 
@@ -118,6 +120,9 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
     <div>
       <h1>Check your answers</h1>
       <h2>Document details</h2>
+      {reclassifiedDocumentUpdate && (
+        <h2>Document successfully reclassified</h2>
+      )}
       <Table rows={getTableRows()} />
     </div>
   );

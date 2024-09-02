@@ -109,6 +109,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     notes,
     searchPII,
     renameDocuments,
+    reclassifyDocuments,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -134,6 +135,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowHideRedactionSuggestions,
     handleSearchPIIAction,
     handleResetRenameData,
+    handleReclassifySuccess,
+    handleResetReclassifyData,
   } = useCaseDetailsState(urn, +caseId, unMountingCallback);
 
   const {
@@ -146,6 +149,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   useSwitchContentArea();
   useDocumentFocus(tabsState.activeTabId);
+
+  console.log("reclassifyDocuments>>>", reclassifyDocuments);
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {
@@ -206,6 +211,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     )!;
   }, [tabsState.activeTabId, tabsState.items]);
 
+  const activeReclassifyDocumentUpdated = useCallback(
+    (documentId: string) => {
+      const activeReclassifyDoc = reclassifyDocuments.find(
+        (item) => item.documentId === documentId
+      );
+      return activeReclassifyDoc?.saveReclassifyRefreshStatus === "updated";
+    },
+    [reclassifyDocuments]
+  );
+
   const accordionStateChangeCallback = useCallback(
     (state: AccordionReducerState) => {
       setAccordionOldState(state);
@@ -259,6 +274,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentId: string,
     presentationFileName: string
   ) => {
+    handleResetReclassifyData(documentId);
     setInReclassifyDetails({ open: true, documentId, presentationFileName });
   };
 
@@ -280,11 +296,21 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     return getStatementWitnessDetails(urn, +caseId);
   };
 
-  const handleSubmitReclassify = (
+  const handleSubmitReclassify = async (
     documentId: string,
     data: ReclassifySaveData
   ) => {
-    return saveDocumentReclassify(urn, +caseId, documentId, data);
+    const response = await saveDocumentReclassify(
+      urn,
+      +caseId,
+      documentId,
+      data
+    );
+    if (response) {
+      console.log("handleSubmitReclassify>>>>", response);
+      handleReclassifySuccess(documentId, data.documentTypeId);
+    }
+    return response;
   };
 
   return (
@@ -643,6 +669,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           <Reclassify
             documentId={reclassifyDetails.documentId}
             presentationTitle={reclassifyDetails.presentationFileName}
+            reclassifiedDocumentUpdate={activeReclassifyDocumentUpdated(
+              reclassifyDetails.documentId
+            )}
             handleCancelReclassify={hideReclassifyDocument}
             getMaterialTypeList={handleGetMaterialTypeList}
             getExhibitProducers={handleGetExhibitProducers}
