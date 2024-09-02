@@ -86,8 +86,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       renameDocument: showFeature(
         FEATURE_FLAG_RENAME_DOCUMENT,
         userDetails?.username,
-        renameDocument,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        renameDocument
       ),
     }),
     []
