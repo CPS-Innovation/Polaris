@@ -79,20 +79,24 @@ function cmsMenuBarFilters(r, data, flags)
 function environmentCookies(r)
 {
     let cookieEnv = r.variables.cookieEnv;
-    r.headersOut['Set-Cookie'] = '__CMSENV=' + cookieEnv;
-    
+    let cookies = [];
+
+    cookies.push('__CMSENV=' + cookieEnv);
+
     if(cookieEnv !== 'default') {
-        r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
+        cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
     }
     if(cookieEnv !== 'cin4') {
-        r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
+        cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN4-cin4.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
     }
     if(cookieEnv !== 'cin5') {
-        r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        r.headersOut['Set-Cookie'] = 'BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        cookies.push('BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
+        cookies.push('BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-CIN5-cin5.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
     }
+    
+    r.headersOut['Set-Cookie'] = cookies;
 }
 
 function __addAppLaunchButtonsToMenuBar(r, data, flags)
