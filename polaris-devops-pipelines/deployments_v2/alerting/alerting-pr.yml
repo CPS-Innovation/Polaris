@@ -27,6 +27,11 @@ stages:
     jobs:
       - job: Validate_Alerting_Terraform
         steps:
+          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: latest
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -56,6 +61,11 @@ stages:
           - template: ../stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
+              
+          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: latest
               
           # Terraform Init
           - bash: |

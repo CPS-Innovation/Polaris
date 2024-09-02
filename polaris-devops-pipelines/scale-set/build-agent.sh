@@ -90,14 +90,6 @@ sudo chmod +x /usr/local/bin/nuget.exe
 sudo mono /usr/local/bin/nuget.exe install Microsoft.ApplicationInsights 
 sudo apt-get clean
 
-echo '==== Install Terraform ===='
-sudo apt-get update -yq
-sudo apt-get upgrade -y
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt-get update -yq && sudo apt-get install -y terraform 
-sudo apt-get clean
-
 echo "==== Giving AzDevOps user access to the '/home', '/usr/share', '/usr/bin', and '/opt' directories ===="
 sudo chmod -R 777 /home
 sudo chmod -R 777 /usr/share
