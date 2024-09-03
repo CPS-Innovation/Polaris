@@ -44,6 +44,41 @@ namespace Common.Services.BlobStorageService
             return result.Value.Content;
         }
 
+        public async Task<Stream> GetDocumentVersionAsync(string blobName, string versionId)
+        {
+            var decodedBlobName = UrlDecodeString(blobName);
+
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
+            if (!await blobContainerClient.ExistsAsync())
+                throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
+
+            var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
+            if (!await blobClient.ExistsAsync())
+            {
+                throw new StorageException($"Blob '{decodedBlobName}' does not exist.");
+            }
+
+            // Retrieve the metadata of the blob.
+            var properties = await blobClient.GetPropertiesAsync();
+
+            if (properties.Value.Metadata.TryGetValue(DocumentTags.VersionId, out var storedVersionId))
+            {
+                if (storedVersionId == versionId)
+                {
+                    var result = await blobClient.DownloadStreamingAsync();
+                    return result.Value.Content;
+                }
+                else
+                {
+                    throw new StorageException($"Blob '{decodedBlobName}' exists, but the versionId '{versionId}' does not match the stored versionId '{storedVersionId}'.");
+                }
+            }
+            else
+            {
+                throw new StorageException($"Blob '{decodedBlobName}' does not have a versionId metadata.");
+            }
+        }
+
         public async Task UploadDocumentAsync(Stream stream, string blobName)
         {
             await UploadDocumentInternal(stream, blobName);

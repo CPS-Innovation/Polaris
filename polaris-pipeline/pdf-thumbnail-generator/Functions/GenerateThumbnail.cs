@@ -38,7 +38,8 @@ namespace pdf_thumbnail_generator.Functions
       int caseId,
       string documentId,
       int versionId,
-      int? pageNumber = null
+      int maxDimensionPixel,
+      int? pageIndex = null
       )
     {
       Guid currentCorrelationId = default;
@@ -46,7 +47,7 @@ namespace pdf_thumbnail_generator.Functions
       {
         currentCorrelationId = req.Headers.GetCorrelationId();
 
-        var payload = new ThumbnailOrchestrationPayload(caseUrn, caseId, documentId, versionId, currentCorrelationId, pageNumber);
+        var payload = new ThumbnailOrchestrationPayload(caseUrn, caseId, documentId, versionId, maxDimensionPixel, currentCorrelationId, pageIndex);
         var result = await _orchestrationProvider.GenerateThumbnailAsync(_durableOrchestrationClient, payload);
 
         return result switch

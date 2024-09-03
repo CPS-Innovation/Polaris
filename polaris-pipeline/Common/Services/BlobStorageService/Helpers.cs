@@ -1,7 +1,7 @@
 namespace Common.Services.BlobStorageService;
 public static class BlobNameHelper
 {
-  public static string GetBlobName(int caseId, string cmsOrPolarisDocumentId, BlobType blobType, int? versionId = null, int? pageIndex = null)
+  public static string GetBlobName(int caseId, string cmsOrPolarisDocumentId, BlobType blobType, int? versionId = null, int? pageIndex = null, int? maxDimensionPixel = null)
   {
     // Each case has only one defendants and charges (DAC) document.
     //  If the caseId is then the PolarisDocumentId for a DAC is DAC-12345
@@ -25,7 +25,7 @@ public static class BlobNameHelper
       BlobType.Pdf => $"{caseId}/pdfs/CMS-{cmsOrPolarisDocumentId}.pdf",
       BlobType.Ocr => $"{caseId}/ocrs/CMS-{cmsOrPolarisDocumentId}.json",
       BlobType.Pii => $"{caseId}/pii/CMS-{cmsOrPolarisDocumentId}.json",
-      BlobType.Thumbnails => $"{caseId}/thumbnails/{versionId}/{pageIndex}.jpg",
+      BlobType.Thumbnails => $"{caseId}/thumbnails/{versionId}/{maxDimensionPixel}px{pageIndex}.jpg",
       _ => throw new System.NotImplementedException()
     };
   }

@@ -28,7 +28,7 @@ namespace pdf_thumbnail_generator.Durable.Activity
     public async Task Run([ActivityTrigger] ThumbnailOrchestrationPayload payload)
     {
       var pdfBlobName = BlobNameHelper.GetBlobName(payload.CmsCaseId, payload.DocumentId, BlobNameHelper.BlobType.Pdf);
-      var blobStream = await _blobStorageService.GetDocumentAsync(pdfBlobName, payload.CorrelationId);
+      var blobStream = await _blobStorageService.GetDocumentVersionAsync(pdfBlobName, payload.VersionId.ToString());
       var stream = await blobStream.EnsureSeekableAsync();
       var document = new Document(stream);
 
@@ -49,7 +49,9 @@ namespace pdf_thumbnail_generator.Durable.Activity
 
     private async Task GenerateAndUploadThumbnailAsync(Document document, ThumbnailOrchestrationPayload payload, int pageIndex)
     {
-      using var stream = _thumbnailGenerationService.GenerateThumbnail(document.Pages[pageIndex], payload.CorrelationId);
+      // aspose is 1 based page index
+      var asposePageIndex = pageIndex + 1;
+      using var stream = _thumbnailGenerationService.GenerateThumbnail(document.Pages[asposePageIndex], payload.MaxDimensionPixel, payload.CorrelationId);
       stream.Position = 0;
 
       var thumbnailBlobName = BlobNameHelper.GetBlobName(
@@ -57,7 +59,8 @@ namespace pdf_thumbnail_generator.Durable.Activity
           payload.DocumentId,
           BlobNameHelper.BlobType.Thumbnails,
           payload.VersionId,
-          pageIndex);
+          pageIndex,
+          payload.MaxDimensionPixel);
 
       await _blobStorageService.UploadDocumentAsync(stream, thumbnailBlobName);
     }

@@ -10,9 +10,9 @@ namespace pdf_thumbnail_generator.Durable.Orchestration
   public class ThumbnailOrchestrator
   {
     private readonly ILogger<ThumbnailOrchestrator> _logger;
-    public static string GetKey(long caseId, string documentId, int versionId)
+    public static string GetKey(long caseId, string documentId, int versionId, int maxDimensionPixel)
     {
-      return $"[{caseId}]-{documentId}-{versionId}-thumbnail";
+      return $"[{caseId}]-{documentId}-{versionId}-{maxDimensionPixel}-thumbnail";
     }
 
     public ThumbnailOrchestrator(ILogger<ThumbnailOrchestrator> logger)

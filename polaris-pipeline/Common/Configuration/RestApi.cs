@@ -44,8 +44,8 @@ namespace Common.Configuration
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
-        public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{pageNumber?}";
-        public const string Thumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{pageNumber}";
+        public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
+        public const string Thumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
         public static string GetCasesPath(string caseUrn)
         {
             return $"urns/{caseUrn}/cases";
@@ -153,6 +153,11 @@ namespace Common.Configuration
         public static string GetCaseWitnessesPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/witnesses";
+        }
+
+        public static string GetThumbnailPath(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
         }
     }
 }

@@ -23,36 +23,28 @@ namespace pdf_thumbnail_generator.Durable.Providers
 
     public async Task<OrchestrationStatus> GenerateThumbnailAsync(DurableTaskClient client, ThumbnailOrchestrationPayload payload)
     {
-      try
+      var instanceId = ThumbnailOrchestrator.GetKey(payload.CmsCaseId, payload.DocumentId, payload.VersionId, payload.MaxDimensionPixel);
+      var existingInstance = await client.GetInstanceAsync(instanceId);
+
+      if (existingInstance != null)
       {
-        var instanceId = ThumbnailOrchestrator.GetKey(payload.CmsCaseId, payload.DocumentId, payload.VersionId);
-        var existingInstance = await client.GetInstanceAsync(instanceId);
-
-        if (existingInstance != null)
+        if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
         {
-          if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
-          {
-            return OrchestrationStatus.InProgress;
-          }
-
-          if (_completedStatuses.Contains(existingInstance.RuntimeStatus))
-          {
-            return OrchestrationStatus.Completed;
-          }
+          return OrchestrationStatus.InProgress;
         }
 
-        await client.ScheduleNewOrchestrationInstanceAsync(nameof(ThumbnailOrchestrator), payload, options: new StartOrchestrationOptions
+        if (_completedStatuses.Contains(existingInstance.RuntimeStatus))
         {
-          InstanceId = instanceId
-        });
+          return OrchestrationStatus.Completed;
+        }
+      }
 
-        return OrchestrationStatus.Accepted;
-      }
-      catch (Exception ex)
+      await client.ScheduleNewOrchestrationInstanceAsync(nameof(ThumbnailOrchestrator), payload, options: new StartOrchestrationOptions
       {
-        Console.WriteLine(ex);
-        return OrchestrationStatus.Failed;
-      }
+        InstanceId = instanceId
+      });
+
+      return OrchestrationStatus.Accepted;
     }
   }
 }

@@ -21,6 +21,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"

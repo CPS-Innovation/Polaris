@@ -15,6 +15,8 @@ using PolarisGateway.Handlers;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using System.Net;
+using PolarisGateway.Clients;
+using PolarisGateway.Clients.PdfThumbnailGenerator;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -67,6 +69,12 @@ namespace PolarisGateway
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             }).AddPolicyHandler(GetRetryPolicy());
+
+            services.AddHttpClient<IPdfThumbnailGeneratorClient, PdfThumbnailGeneratorClient>(client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PdfThumbnailGeneratorBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
 
             services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

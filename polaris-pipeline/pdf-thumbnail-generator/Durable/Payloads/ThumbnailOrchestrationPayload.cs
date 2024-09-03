@@ -5,7 +5,7 @@ namespace pdf_thumbnail_generator.Durable.Payloads
 {
     public class ThumbnailOrchestrationPayload
     {
-        public ThumbnailOrchestrationPayload(string cmsCaseUrn, int cmsCaseId, string documentId, int versionId, Guid correlationId, int? pageIndex)
+        public ThumbnailOrchestrationPayload(string cmsCaseUrn, int cmsCaseId, string documentId, int versionId, int maxDimensionPixel, Guid correlationId, int? pageIndex)
         {
             CmsCaseUrn = cmsCaseUrn;
             CmsCaseId = cmsCaseId;
@@ -13,6 +13,7 @@ namespace pdf_thumbnail_generator.Durable.Payloads
             DocumentId = documentId;
             VersionId = versionId;
             PageIndex = pageIndex;
+            MaxDimensionPixel = maxDimensionPixel;
         }
 
         [Required]
@@ -27,6 +28,8 @@ namespace pdf_thumbnail_generator.Durable.Payloads
         public string DocumentId { get; set; }
         [Required]
         public int VersionId { get; set; }
+        [Required]
+        public int MaxDimensionPixel { get; set; }
         public int? PageIndex { get; set; }
     }
 }

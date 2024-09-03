@@ -3,6 +3,7 @@
 public static class ConfigurationKeys
 {
     public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
+    public const string PdfThumbnailGeneratorBaseUrl = "PolarisPdfThumbnailGeneratorBaseUrl";
 }
 
 public static class ValidRoles

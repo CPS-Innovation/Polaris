@@ -8,6 +8,7 @@ using Common.Services;
 using Microsoft.Extensions.Configuration;
 using Common.Handlers;
 using Microsoft.Extensions.Logging;
+using pdf_thumbnail_generator;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -21,6 +22,8 @@ var host = new HostBuilder()
     })
     .ConfigureServices((context, services) =>
     {
+        StartupHelpers.SetAsposeLicence();
+
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
 

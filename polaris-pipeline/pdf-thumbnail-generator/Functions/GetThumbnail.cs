@@ -36,14 +36,15 @@ namespace pdf_thumbnail_generator.Functions
       int caseId,
       string documentId,
       int versionId,
-      int pageNumber)
+      int maxDimensionPixel,
+      int pageIndex)
     {
       Guid currentCorrelationId = default;
       try
       {
         currentCorrelationId = req.Headers.GetCorrelationId();
 
-        var blobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Thumbnails, versionId, pageNumber);
+        var blobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Thumbnails, versionId, pageIndex, maxDimensionPixel);
 
         var imageStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
 
