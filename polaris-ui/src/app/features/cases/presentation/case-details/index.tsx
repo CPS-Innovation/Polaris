@@ -285,6 +285,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       documentId: "",
       presentationFileName: "",
     });
+    setTimeout(() => {
+      (
+        document.querySelector(
+          `#document-housekeeping-actions-dropdown-${reclassifyDetails.documentId}`
+        ) as HTMLElement
+      ).focus();
+    }, 100);
   };
 
   const handleGetMaterialTypeList = () => {
