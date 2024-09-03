@@ -46,6 +46,7 @@ import {
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
+  getWitnessStatementNumbers,
   saveDocumentReclassify,
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
@@ -287,13 +288,17 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   };
 
   const handleGetMaterialTypeList = () => {
-    return getMaterialTypeList(urn, +caseId);
+    return getMaterialTypeList();
   };
   const handleGetExhibitProducers = () => {
     return getExhibitProducers(urn, +caseId);
   };
   const handleGetStatementWitnessDetails = () => {
     return getStatementWitnessDetails(urn, +caseId);
+  };
+
+  const handleGetWitnessStatementNumbers = (witnessId: number) => {
+    return getWitnessStatementNumbers(urn, +caseId, witnessId);
   };
 
   const handleSubmitReclassify = async (
@@ -676,6 +681,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             getMaterialTypeList={handleGetMaterialTypeList}
             getExhibitProducers={handleGetExhibitProducers}
             getStatementWitnessDetails={handleGetStatementWitnessDetails}
+            getWitnessStatementNumbers={handleGetWitnessStatementNumbers}
             handleSubmitReclassify={handleSubmitReclassify}
           />
         </div>

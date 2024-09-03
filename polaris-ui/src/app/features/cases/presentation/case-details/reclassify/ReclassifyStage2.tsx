@@ -10,6 +10,8 @@ import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyVariant } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
+import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
+import { statementNumberText } from "./utils/statementNumberText";
 import { FormDataErrors } from "./data/FormDataErrors";
 import classes from "./Reclassify.module.scss";
 
@@ -18,6 +20,9 @@ type ReclassifyStage2Props = {
   formDataErrors: FormDataErrors;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
   getStatementWitnessDetails: () => Promise<StatementWitness[]>;
+  getWitnessStatementNumbers: (
+    witnessId: number
+  ) => Promise<StatementWitnessNumber[]>;
 };
 
 export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
@@ -25,8 +30,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   formDataErrors,
   getExhibitProducers,
   getStatementWitnessDetails,
+  getWitnessStatementNumbers,
 }) => {
   console.log("formDataErrors>>0000", formDataErrors);
+
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext();
 
@@ -214,10 +221,20 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     });
   };
 
-  const handleUpdateStatementWitnessId = (value: string) => {
+  const handleUpdateStatementWitnessId = async (value: string) => {
     dispatch({
       type: "UPDATE_STATEMENT_WITNESS_ID",
       payload: { value: value },
+    });
+    dispatch({
+      type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
+      payload: { witnessId: +value, statementNumbers: [] },
+    });
+    const data = await getWitnessStatementNumbers(+value);
+    const numbers = data.map((item) => item.statementNumber);
+    dispatch({
+      type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
+      payload: { witnessId: +value, statementNumbers: numbers },
     });
   };
 
@@ -574,7 +591,11 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               children: "Statement Number",
             }}
             hint={{
-              children: "Already in use #6, #5, #4, #3, #2 and #1",
+              children: statementNumberText(
+                state.statementWitnessNumbers[
+                  state.formData.statementWitnessId
+                ] ?? []
+              ),
             }}
             name="statement-number"
             type="number"

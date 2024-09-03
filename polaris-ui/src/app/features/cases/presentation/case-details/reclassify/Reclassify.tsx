@@ -3,6 +3,7 @@ import { ReclassifyStages } from "./ReclassifyStages";
 import { MaterialType } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
+import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
 import { ReclassifySaveData } from "./data/ReclassifySaveData";
 
 type ReclassifyProps = {
@@ -13,6 +14,9 @@ type ReclassifyProps = {
   getMaterialTypeList: () => Promise<MaterialType[]>;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
   getStatementWitnessDetails: () => Promise<StatementWitness[]>;
+  getWitnessStatementNumbers: (
+    witnessId: number
+  ) => Promise<StatementWitnessNumber[]>;
   handleSubmitReclassify: (
     documentId: string,
     data: ReclassifySaveData
@@ -27,6 +31,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
+  getWitnessStatementNumbers,
   handleSubmitReclassify,
 }) => {
   return (
@@ -40,6 +45,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
           getMaterialTypeList={getMaterialTypeList}
           getExhibitProducers={getExhibitProducers}
           getStatementWitnessDetails={getStatementWitnessDetails}
+          getWitnessStatementNumbers={getWitnessStatementNumbers}
           handleSubmitReclassify={handleSubmitReclassify}
         />
       </ReClassifyProvider>

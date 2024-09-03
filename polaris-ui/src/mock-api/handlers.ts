@@ -230,6 +230,11 @@ export const setupHandlers = ({
       return res(delay(ctx), ctx.json(results));
     }),
 
+    rest.get(makeApiPath(routes.STATEMENT_WITNESS_NUMBERS), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].statementWitnessNumbers;
+      return res(delay(ctx), ctx.json(results));
+    }),
+
     rest.post(makeApiPath(routes.SAVE_RECLASSIFY), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
     }),

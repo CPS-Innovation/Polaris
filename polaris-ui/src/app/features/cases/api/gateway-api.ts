@@ -19,6 +19,7 @@ import { removeNonDigits } from "../presentation/case-details/utils/redactionLog
 import { MaterialType } from "../presentation/case-details/reclassify/data/MaterialType";
 import { ExhibitProducer } from "../presentation/case-details/reclassify/data/ExhibitProducer";
 import { StatementWitness } from "../presentation/case-details/reclassify/data/StatementWitness";
+import { StatementWitnessNumber } from "../presentation/case-details/reclassify/data/StatementWitnessNumber";
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 
 const FORBIDDEN_STATUS_CODE = 403;
@@ -375,7 +376,7 @@ export const getSearchPIIData = async (
   return (await response.json()) as SearchPIIResultItem[];
 };
 
-export const getMaterialTypeList = async (urn: string, caseId: number) => {
+export const getMaterialTypeList = async () => {
   const path = fullUrl(`/api/reference/reclassification`);
 
   const response = await internalFetch(path, {
@@ -418,6 +419,26 @@ export const getStatementWitnessDetails = async (
   }
 
   return (await response.json()) as StatementWitness[];
+};
+
+export const getWitnessStatementNumbers = async (
+  urn: string,
+  caseId: number,
+  witnessId: number
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/witnesses/${witnessId}/statements`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get witness statement numbers failed", path, response);
+  }
+
+  return (await response.json()) as StatementWitnessNumber[];
 };
 
 export const saveDocumentReclassify = async (

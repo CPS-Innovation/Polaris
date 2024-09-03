@@ -6,6 +6,7 @@ export type ReclassifyState = {
   materialTypeList: MaterialType[];
   exhibitProducers: ExhibitProducer[];
   statementWitness: StatementWitness[];
+  statementWitnessNumbers: Record<string, number[]>;
   currentDocTypeId: string;
   newDocTypeId: string;
   reclassifyVariant: ReclassifyVariant;
@@ -31,6 +32,7 @@ export const reclassifyInitialState: ReclassifyState = {
   materialTypeList: [],
   exhibitProducers: [],
   statementWitness: [],
+  statementWitnessNumbers: {},
   currentDocTypeId: "",
   newDocTypeId: "",
   reclassifyVariant: "Immediate",
@@ -120,6 +122,10 @@ export type ReclassifyActions =
   | {
       type: "UPDATE_RECLASSIFY_SAVE_STATUS";
       payload: { value: "initial" | "saving" | "success" | "failure" };
+    }
+  | {
+      type: "UPDATE_STATEMENT_WITNESS_NUMBERS";
+      payload: { witnessId: number; statementNumbers: number[] };
     };
 
 const getReclassifyVariant = (
@@ -260,6 +266,15 @@ export const reClassifyReducer = (
         formData: {
           ...state.formData,
           statementWitnessId: action.payload.value,
+        },
+      };
+    }
+    case "UPDATE_STATEMENT_WITNESS_NUMBERS": {
+      return {
+        ...state,
+        statementWitnessNumbers: {
+          ...state.statementWitnessNumbers,
+          [action.payload.witnessId]: action.payload.statementNumbers,
         },
       };
     }

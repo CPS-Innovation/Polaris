@@ -12,6 +12,7 @@ import { FormDataErrors } from "./data/FormDataErrors";
 import { MaterialType } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
+import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
 import { ReclassifySaveData } from "./data/ReclassifySaveData";
 import { validateDate } from "./utils/dateValidation";
 import classes from "./Reclassify.module.scss";
@@ -24,6 +25,9 @@ type ReclassifyStagesProps = {
   getMaterialTypeList: () => Promise<MaterialType[]>;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
   getStatementWitnessDetails: () => Promise<StatementWitness[]>;
+  getWitnessStatementNumbers: (
+    witnessId: number
+  ) => Promise<StatementWitnessNumber[]>;
   handleSubmitReclassify: (
     documentId: string,
     data: ReclassifySaveData
@@ -39,6 +43,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
+  getWitnessStatementNumbers,
   handleSubmitReclassify,
 }) => {
   console.log("reclassifiedDocumentUpdate>>>", reclassifiedDocumentUpdate);
@@ -90,6 +95,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
     const {
       reclassifyVariant,
+      statementWitnessNumbers,
       formData: {
         documentRenameStatus,
         documentNewName,
@@ -162,6 +168,11 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         if (!statementNumber) {
           errorTexts.statementNumberErrorText =
             "Statement number should not be empty";
+        }
+        if (
+          statementWitnessNumbers[statementWitnessId].includes(+statementNumber)
+        ) {
+          errorTexts.statementNumberErrorText = `Statement number ${statementNumber} already exist`;
         }
         if (result.errors.includes("invalid day")) {
           errorTexts.statementDayErrorText = "invalid day";
@@ -320,6 +331,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               formDataErrors={formDataErrors}
               getExhibitProducers={getExhibitProducers}
               getStatementWitnessDetails={getStatementWitnessDetails}
+              getWitnessStatementNumbers={getWitnessStatementNumbers}
             />
           )}
 
