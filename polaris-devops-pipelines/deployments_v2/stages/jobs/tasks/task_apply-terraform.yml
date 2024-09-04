@@ -47,6 +47,11 @@ steps:
   - download: ${{ parameters.targetBuild }}
     displayName: Terraform > Download Terraform build
     artifact: ${{ parameters.targetTerraformArtifact }}
+    
+  - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+    displayName: Terraform > Install
+    inputs:
+      terraformVersion: latest
 
   # Terraform Init
   - bash: |

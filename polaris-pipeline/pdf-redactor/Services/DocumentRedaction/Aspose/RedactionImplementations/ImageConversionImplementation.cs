@@ -67,6 +67,9 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 var pageHeight = page.PageInfo.Height;
                 var pageWidth = page.PageInfo.Width;
 
+                // Note: Aspose page.Rect.ToRect() behaves differently to Aspose page.GetPageRect(true)
+                // it switches the height and width for certain pdfs so we need to use GetPageRect(true) instead
+                var pageRect = page.GetPageRect(true);
 
                 // do not dispose `memoryStream` here, cannot be disposed until the document is saved
                 var memoryStream = new MemoryStream();
@@ -88,7 +91,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                     pageToSwapIn.PageInfo.Margin.Left = 0;
 
 
-                if (pageToSwapOutRect.Width > pageToSwapOutRect.Height)
+                if (pageRect.Width > pageRect.Height)
                 {
                     // if width of the original page is greater than the height, then the page is in landscape
                     pageToSwapIn.PageInfo.IsLandscape = true;
@@ -98,8 +101,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                 {
                     ImageStream = memoryStream,
                     IsApplyResolution = true,
-                    FixHeight = pageToSwapOutRect.Height,
-                    FixWidth = pageToSwapOutRect.Width,
+                    FixHeight = pageRect.Height,
+                    FixWidth = pageRect.Width,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
