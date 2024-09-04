@@ -77,7 +77,6 @@ public class DdeiClientTests
         var mockCaseExhibitProducerMapper = new Mock<ICaseExhibitProducerMapper>();
         var mockCaseWitnessMapper = new Mock<ICaseWitnessMapper>();
         var mockCaseIdentifiersMapper = new Mock<ICaseIdentifiersMapper>();
-        var mockCmsAuthValuesMapper = new Mock<ICmsAuthValuesMapper>();
         var mockCmsMaterialTypeMapper = new Mock<ICmsMaterialTypeMapper>();
 
         _ddeiClient = new Ddei.Services.DdeiClient
@@ -92,7 +91,6 @@ public class DdeiClientTests
                 mockCaseExhibitProducerMapper.Object,
                 mockCaseWitnessMapper.Object,
                 mockCaseIdentifiersMapper.Object,
-                mockCmsAuthValuesMapper.Object,
                 mockCmsMaterialTypeMapper.Object,
                 _jsonConvertWrapperMock.Object,
                 loggerMock.Object
