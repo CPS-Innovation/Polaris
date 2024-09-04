@@ -22,16 +22,10 @@ namespace pdf_thumbnail_generator.Durable.Providers
         OrchestrationRuntimeStatus.Terminated
     };
 
-    private static readonly OrchestrationRuntimeStatus[] _entityStatuses = {
-        // entities are eternally running orchestrations
-        OrchestrationRuntimeStatus.Running,
-    };
-
     public async Task<List<string>> FindInstancesByDateAsync(DurableTaskClient client, DateTime createdTimeTo, int batchSize)
     {
       var query = new OrchestrationQuery
       {
-        InstanceIdPrefix = "@",
         CreatedTo = createdTimeTo,
         PageSize = batchSize
       };
@@ -92,7 +86,7 @@ namespace pdf_thumbnail_generator.Durable.Providers
         result.DidOrchestrationsTerminate = didComplete;
         result.TerminatedInstancesSettledDateTime = DateTime.UtcNow;
 
-        var purgeResult = await client.PurgeInstancesAsync(earliestDateToKeep, DateTime.UtcNow);
+        var purgeResult = await client.PurgeInstancesAsync(DateTime.MinValue, earliestDateToKeep);
         result.PurgedInstancesCount = purgeResult.PurgedInstanceCount;
 
         result.OrchestrationEndDateTime = DateTime.UtcNow;

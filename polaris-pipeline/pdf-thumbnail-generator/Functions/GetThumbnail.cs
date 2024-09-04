@@ -17,16 +17,16 @@ namespace pdf_thumbnail_generator.Functions
   {
     private readonly ILogger<GetThumbnail> _logger;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IPolarisBlobStorageService _blobStorageService;
+    private readonly IPolarisBlobStorageService _blobStorageServiceContainerThumbnails;
 
     public GetThumbnail(
       ILogger<GetThumbnail> logger,
       IExceptionHandler exceptionHandler,
-      IPolarisBlobStorageService blobStorageService)
+      Func<string, IPolarisBlobStorageService> blobStorageServiceFactory)
     {
       _logger = logger;
       _exceptionHandler = exceptionHandler;
-      _blobStorageService = blobStorageService;
+      _blobStorageServiceContainerThumbnails = blobStorageServiceFactory("Thumbnails");
     }
 
     [Function(nameof(GetThumbnail))]
@@ -46,7 +46,7 @@ namespace pdf_thumbnail_generator.Functions
 
         var blobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Thumbnails, versionId, pageIndex, maxDimensionPixel);
 
-        var imageStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
+        var imageStream = await _blobStorageServiceContainerThumbnails.GetDocumentAsync(blobName, currentCorrelationId);
 
         if (imageStream == null)
         {

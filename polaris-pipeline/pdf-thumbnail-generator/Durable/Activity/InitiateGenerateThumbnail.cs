@@ -11,24 +11,27 @@ namespace pdf_thumbnail_generator.Durable.Activity
   public class InitiateGenerateThumbnail
   {
     private readonly ILogger<InitiateGenerateThumbnail> _logger;
-    private readonly IPolarisBlobStorageService _blobStorageService;
+    private readonly IPolarisBlobStorageService _blobStorageServiceContainerDocuments;
+    private readonly IPolarisBlobStorageService _blobStorageServiceContainerThumbnails;
     private readonly IThumbnailGenerationService _thumbnailGenerationService;
 
     public InitiateGenerateThumbnail(
         ILogger<InitiateGenerateThumbnail> logger,
-        IPolarisBlobStorageService blobStorageService,
+        Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IThumbnailGenerationService thumbnailGenerationService)
     {
       _logger = logger;
-      _blobStorageService = blobStorageService;
+      _blobStorageServiceContainerDocuments = blobStorageServiceFactory("Documents");
+      _blobStorageServiceContainerThumbnails = blobStorageServiceFactory("Thumbnails");
       _thumbnailGenerationService = thumbnailGenerationService;
     }
+
 
     [Function(nameof(InitiateGenerateThumbnail))]
     public async Task Run([ActivityTrigger] ThumbnailOrchestrationPayload payload)
     {
       var pdfBlobName = BlobNameHelper.GetBlobName(payload.CmsCaseId, payload.DocumentId, BlobNameHelper.BlobType.Pdf);
-      var blobStream = await _blobStorageService.GetDocumentVersionAsync(pdfBlobName, payload.VersionId.ToString());
+      var blobStream = await _blobStorageServiceContainerDocuments.GetDocumentVersionAsync(pdfBlobName, payload.VersionId.ToString());
       var stream = await blobStream.EnsureSeekableAsync();
       var document = new Document(stream);
 
@@ -62,7 +65,7 @@ namespace pdf_thumbnail_generator.Durable.Activity
           pageIndex,
           payload.MaxDimensionPixel);
 
-      await _blobStorageService.UploadDocumentAsync(stream, thumbnailBlobName);
+      await _blobStorageServiceContainerThumbnails.UploadDocumentAsync(stream, thumbnailBlobName);
     }
   }
 }

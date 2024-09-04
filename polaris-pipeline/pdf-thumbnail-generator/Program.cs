@@ -4,11 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.DurableTask.Client;
 using pdf_thumbnail_generator.Durable.Providers;
 using pdf_thumbnail_generator.Services.ThumbnailGeneration;
-using Common.Services;
 using Microsoft.Extensions.Configuration;
 using Common.Handlers;
 using Microsoft.Extensions.Logging;
 using pdf_thumbnail_generator;
+using Common.Telemetry;
+using pdf_thumbnail_generator.Services;
+using pdf_thumbnail_generator.Services.CleardownService;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -28,11 +30,14 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
 
         services.AddDurableTaskClient(b => b.UseGrpc());
+        
         services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
         services.AddSingleton<IThumbnailGenerationService, ThumbnailGenerationService>();
+        services.AddSingleton<ICleardownService, CleardownService>();
 
+        services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
-        services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
+        services.AddBlobStorageWithDefaultAzureCredentials(context.Configuration);
 
     })
     .ConfigureLogging(logging =>
