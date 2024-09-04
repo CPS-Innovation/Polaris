@@ -1,4 +1,4 @@
 export type StatementWitnessNumber = {
   documentId: number;
-  statementNumber: number;
+  statementNumber: number | null;
 };

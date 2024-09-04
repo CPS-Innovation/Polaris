@@ -231,7 +231,12 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       payload: { witnessId: +value, statementNumbers: [] },
     });
     const data = await getWitnessStatementNumbers(+value);
-    const numbers = data.map((item) => item.statementNumber);
+    const numbers = (
+      data.filter((item) => item.statementNumber !== null) as unknown as {
+        witnessId: number;
+        statementNumber: number;
+      }[]
+    ).map((item) => item.statementNumber);
     dispatch({
       type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
       payload: { witnessId: +value, statementNumbers: numbers },

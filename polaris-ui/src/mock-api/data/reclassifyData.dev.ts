@@ -40,15 +40,19 @@ const statementWitness: StatementWitness[] = [
 const statementWitnessNumbers: StatementWitnessNumber[] = [
   {
     documentId: 1,
-    statementNumber: 1,
-  },
-  {
-    documentId: 2,
     statementNumber: 2,
   },
   {
+    documentId: 2,
+    statementNumber: 3,
+  },
+  {
     documentId: 3,
-    statementNumber: 5,
+    statementNumber: 4,
+  },
+  {
+    documentId: 4,
+    statementNumber: 7,
   },
 ];
 const dataSource = {
