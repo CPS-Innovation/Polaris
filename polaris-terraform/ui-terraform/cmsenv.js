@@ -99,6 +99,14 @@ function cmsMenuBarFilters(r, data, flags)
     replaceCmsDomains(r, data, flags);
 }
 
+function devLoginEnvCookie(r)
+{
+    let cmsEnv = __getCmsEnvCookieOut(r);
+    let cookies = r.headersOut['Set-Cookie'];
+    cookies.push('__CMSENV=' + cmsEnv + '; path=/');
+    r.headersOut['Set-Cookie'] = cookies;
+}
+
 function __addAppLaunchButtonsToMenuBar(r, data, flags)
 {
     data = data.replace(new RegExp('objMainWindow\.top\.frameData\.objMasterWindow\.top\.frameServerJS\.POLARIS_URL', 'g'), '"/polaris"');
@@ -144,7 +152,17 @@ function __replaceContent(content, replacements)
 function __getCmsEnv(r)
 {
     let cookie = r.headersIn.Cookie || '';
+    return __getCmsEnvInternal(cookie);
+}
 
+function __getCmsEnvCookieOut(r)
+{
+    let cookies = r.headersOut['Set-Cookie'] || [''];
+    return __getCmsEnvInternal(cookies[0]);
+}
+
+function __getCmsEnvInternal(cookie)
+{
     if(cookie.includes("cin3")) return "default";
     if(cookie.includes("cin4")) return "cin4";
     if(cookie.includes("cin5")) return "cin5";
@@ -155,5 +173,6 @@ export default {
     proxyDestinationCorsham, proxyDestinationCorshamInternal, proxyDestinationModernCorsham, proxyDestinationModernCorshamInternal,
     proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal,
     upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer, upstreamCmsServicesDomainName,
-    cmsMenuBarFilters, upstreamCmsIpCorsham, upstreamCmsIpFarnborough, upstreamCmsModernIpFarnborough, upstreamCmsModernIpCorsham
+    cmsMenuBarFilters, upstreamCmsIpCorsham, upstreamCmsIpFarnborough, upstreamCmsModernIpFarnborough, upstreamCmsModernIpCorsham,
+    devLoginEnvCookie
 }
