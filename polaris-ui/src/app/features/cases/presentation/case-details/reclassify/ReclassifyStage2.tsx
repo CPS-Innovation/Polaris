@@ -35,6 +35,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   console.log("formDataErrors>>0000", formDataErrors);
 
   const [loading, setLoading] = useState(false);
+  const [lookupError, setLookupDataError] = useState("");
   const reclassifyContext = useReClassifyContext();
 
   const { state, dispatch } = reclassifyContext!;
@@ -70,6 +71,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (state.reclassifyVariant === "Exhibit")
+          setLookupDataError("Failed to retrieve exhibit producer data");
+        if (state.reclassifyVariant === "Statement")
+          setLookupDataError("Failed to retrieve statement witness details");
       } finally {
         setLoading(false);
       }
@@ -230,17 +235,21 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
       payload: { witnessId: +value, statementNumbers: [] },
     });
-    const data = await getWitnessStatementNumbers(+value);
-    const numbers = (
-      data.filter((item) => item.statementNumber !== null) as unknown as {
-        witnessId: number;
-        statementNumber: number;
-      }[]
-    ).map((item) => item.statementNumber);
-    dispatch({
-      type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
-      payload: { witnessId: +value, statementNumbers: numbers },
-    });
+    try {
+      const data = await getWitnessStatementNumbers(+value);
+      const numbers = (
+        data.filter((item) => item.statementNumber !== null) as unknown as {
+          witnessId: number;
+          statementNumber: number;
+        }[]
+      ).map((item) => item.statementNumber);
+      dispatch({
+        type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
+        payload: { witnessId: +value, statementNumbers: numbers },
+      });
+    } catch (e) {
+      setLookupDataError("Failed to retrieve statement witness numbers");
+    }
   };
 
   const handleStatementDateChange = (event: any) => {
@@ -344,6 +353,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     }
   }, [errorSummaryList]);
 
+  if (lookupError) {
+    throw Error(lookupError);
+  }
   if (loading) {
     return <div>loading data</div>;
   }
