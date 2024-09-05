@@ -39,11 +39,11 @@ describe("Reauthentication Filter", () => {
   it.each([
     [
       "http://our-ui-domain.com", // there is no existing query string
-      `http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?polaris-ui-url=http%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
-      `http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3FcaseId%3D123%26auth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?polaris-ui-url=http%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
   ])("can redirect on a first auth failure ", (url, expectedRedirectUrl) => {
     const mockWindow = {

@@ -82,6 +82,8 @@ variable "wm_task_list_host_name" {
 }
 
 variable "auth_handover_whitelist" {
+  # Coma-delimited string of URL roots that the proxy will forward cookies on to
+  #  as part of auth refresh/handover e.g. "https://foo.bar/,https://baz/buz"
   type = string
 }
 
