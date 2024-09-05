@@ -4,7 +4,6 @@ using Common.Configuration;
 using Common.Extensions;
 using Common.Handlers;
 using Common.Telemetry;
-using Common.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -17,17 +16,15 @@ namespace text_extractor.Functions
     {
         private readonly ILogger<CaseIndexCount> _log;
         private readonly ISearchIndexService _searchIndexService;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IExceptionHandler _exceptionHandler;
         private const string LoggingName = nameof(CaseIndexCount);
 
-        public CaseIndexCount(ILogger<CaseIndexCount> log, ISearchIndexService searchIndexService, IJsonConvertWrapper jsonConvertWrapper,
+        public CaseIndexCount(ILogger<CaseIndexCount> log, ISearchIndexService searchIndexService,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper, IExceptionHandler exceptionHandler)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _searchIndexService = searchIndexService ?? throw new ArgumentNullException(nameof(searchIndexService));
-            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
         }

@@ -14,12 +14,14 @@ namespace Common.Handlers
 {
     public class ExceptionHandler : IExceptionHandler
     {
+        private const string MessageTemplate = "A {Source} exception has occurred";
+        
         public HttpResponseMessage HandleException(Exception exception, Guid correlationId, string source, ILogger logger)
         {
             BuildErrorMessage(exception, out var errorMessage, out var errorCode);
 
             logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A {Source} exception has occurred", source);
+            logger.LogError(exception, MessageTemplate, source);
 
             return ErrorResponse(errorMessage, exception, errorCode);
         }
@@ -29,7 +31,7 @@ namespace Common.Handlers
             BuildErrorMessage(exception, out var errorMessage, out var errorCode);
 
             logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A {Source} exception has occurred", source);
+            logger.LogError(exception, MessageTemplate, source);
 
             return ErrorResponse(errorMessage, exception, errorCode, obj);
         }
@@ -39,7 +41,7 @@ namespace Common.Handlers
             BuildErrorMessage(exception, out var errorMessage, out var errorCode);
 
             logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A {Source} exception has occurred", source);
+            logger.LogError(exception, MessageTemplate, source);
 
             return ErrorResponseNew(errorMessage, exception, errorCode);
         }
@@ -49,7 +51,7 @@ namespace Common.Handlers
             BuildErrorMessage(exception, out var errorMessage, out var errorCode);
 
             logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A {Source} exception has occurred", source);
+            logger.LogError(exception, MessageTemplate, source);
 
             return ErrorResponseNew(errorMessage, exception, errorCode, obj);
         }
