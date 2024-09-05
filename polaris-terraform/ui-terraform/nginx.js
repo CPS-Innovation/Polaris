@@ -50,7 +50,7 @@ function appAuthRedirect(r) {
 //  Primarily useful when users are using CMS delivered through this proxy. In this use case, users are on this proxy
 //  domain when using CMS.  We inject a P button and simulated the prod /polaris handover endpoint using this function.
 function polarisAuthRedirect(r) {
-  const serializedArgs = qs.stringify(args)
+  const serializedArgs = qs.stringify(r.args)
   const clonedArgs = qs.parse(serializedArgs)
   clonedArgs.cookie = r.headersIn.Cookie
   clonedArgs.referer = r.headersIn.Referer
