@@ -4,7 +4,7 @@ import { reauthenticationFilter } from "./reauthentication-filter";
 import { generateGuid } from "./generate-guid";
 
 jest.mock("../../../config", () => ({
-  REAUTH_REDIRECT_URL: "http://foo?polaris-ui-url=",
+  REAUTH_REDIRECT_URL: "http://foo?r=polaris-ui-url%3D",
 }));
 
 describe("Reauthentication Filter", () => {
@@ -39,11 +39,11 @@ describe("Reauthentication Filter", () => {
   it.each([
     [
       "http://our-ui-domain.com", // there is no existing query string
-      `http://foo?polaris-ui-url=http%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?r=polaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
-      `http://foo?polaris-ui-url=http%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?r=polaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
   ])("can redirect on a first auth failure ", (url, expectedRedirectUrl) => {
     const mockWindow = {

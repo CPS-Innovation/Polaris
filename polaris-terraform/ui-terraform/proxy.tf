@@ -48,7 +48,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
-    "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name,
+    "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
