@@ -144,10 +144,10 @@ namespace Ddei.Factories.Contracts
             {
                 DocumentId = arg.DocumentId,
                 DocumentTypeId = arg.DocumentTypeId,
-                ReclassificationType = arg.ReclassificationType,
                 Exhibit = arg.Exhibit,
                 Statement = arg.Statement,
-                Used = arg.Used
+                Other = arg.Other,
+                Immediate = arg.Immediate
             });
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/reclassify");
             AddAuthHeaders(request, arg);

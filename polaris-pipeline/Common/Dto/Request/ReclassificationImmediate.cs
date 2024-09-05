@@ -1,8 +1,7 @@
 namespace Common.Dto.Request
 {
-    public class ReclassificationOther
+    public class ReclassificationImmediate
     {
-        public bool Used { get; set; }
         public string DocumentName { get; set; }
     }
 }

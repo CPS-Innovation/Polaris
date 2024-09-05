@@ -130,7 +130,8 @@ namespace Ddei.Factories
                 DocumentTypeId = dto.DocumentTypeId,
                 Exhibit = dto.Exhibit,
                 Statement = dto.Statement,
-                ReclassificationType = dto.ReclassificationType
+                Other = dto.Other,
+                Immediate = dto.Immediate
             };
         }
 
