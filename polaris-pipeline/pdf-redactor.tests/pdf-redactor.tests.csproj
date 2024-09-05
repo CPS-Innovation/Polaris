@@ -33,10 +33,6 @@
     <EmbeddedResource Include="TestResources\TestPdf.pdf" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Factories\" />
-    <Folder Include="Wrappers\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>

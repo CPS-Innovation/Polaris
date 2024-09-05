@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
@@ -9,12 +7,12 @@ using Common.Extensions;
 using text_extractor.Services.CaseSearchService;
 using Common.Telemetry;
 using Common.Wrappers;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 
 namespace text_extractor.Functions
 {
-    public class SearchText
+    public class SearchText : BaseFunction
     {
         private readonly ISearchIndexService _searchIndexService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
@@ -30,8 +28,8 @@ namespace text_extractor.Functions
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
-        [FunctionName(nameof(SearchText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Search)] HttpRequestMessage request, string caseUrn, long caseId)
+        [Function(nameof(SearchText))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Search)] HttpRequestMessage request, string caseUrn, long caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
@@ -47,11 +45,7 @@ namespace text_extractor.Functions
                 caseId,
                 searchDto.SearchTerm);
 
-            return new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(_jsonConvertWrapper.SerializeObject(searchResults))
-            };
+            return CreateJsonResult(searchResults);
         }
     }
 }

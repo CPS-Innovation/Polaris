@@ -10,6 +10,7 @@ using Common.Handlers;
 using Common.Telemetry;
 using Common.Wrappers;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Functions;
@@ -22,7 +23,7 @@ namespace text_extractor.tests.Functions
     {
         private readonly Fixture _fixture;
         private readonly HttpRequestMessage _httpRequestMessage;
-        private HttpResponseMessage _errorHttpResponseMessage;
+        private JsonResult _errorResult;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<ILogger<CaseIndexCount>> _mockLogger;
@@ -91,40 +92,40 @@ namespace text_extractor.tests.Functions
         [Fact]
         public async Task Run_ReturnsExceptionWhenCorrelationIdIsMissing()
         {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<CaseIndexCount>>()))
-                .Returns(_errorHttpResponseMessage);
+            _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.Unauthorized };
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<CaseIndexCount>>()))
+                .Returns(_errorResult);
             _httpRequestMessage.Content = new StringContent(" ");
 
             var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
 
-            response.Should().Be(_errorHttpResponseMessage);
+            response.Should().Be(_errorResult);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
         {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
+            _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.BadRequest };
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+                .Returns(_errorResult);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
             var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
 
-            response.Should().Be(_errorHttpResponseMessage);
+            response.Should().Be(_errorResult);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
         {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
+            _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.BadRequest };
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+                .Returns(_errorResult);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
             var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
 
-            response.Should().Be(_errorHttpResponseMessage);
+            response.Should().Be(_errorResult);
         }
 
         [Fact]
@@ -137,20 +138,21 @@ namespace text_extractor.tests.Functions
 
             var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = response as JsonResult;
+            result.Should().NotBeNull();
+            result?.StatusCode.Should().Be((int)HttpStatusCode.OK);
         }
 
         [Fact]
         public async Task Run_ReturnsResponseWhenExceptionOccurs()
         {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-            var exception = new Exception();
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
+            _errorResult = new JsonResult(_fixture.Create<string>());
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+                .Returns(_errorResult);
 
             var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
 
-            response.Should().Be(_errorHttpResponseMessage);
+            response.Should().Be(_errorResult);
         }
     }
 }
