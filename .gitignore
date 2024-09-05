@@ -22,4 +22,6 @@ azurite
 /polaris-integration.tests/.vs
 /polaris-pipeline/pdf-generator.test-rig/
 /polaris-common/polaris-common/bin
-*.DotSettings
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
