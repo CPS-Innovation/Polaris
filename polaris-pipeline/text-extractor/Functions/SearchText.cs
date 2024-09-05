@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Exceptions;
@@ -7,6 +6,7 @@ using Common.Extensions;
 using text_extractor.Services.CaseSearchService;
 using Common.Telemetry;
 using Common.Wrappers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 
@@ -29,16 +29,16 @@ namespace text_extractor.Functions
         }
 
         [Function(nameof(SearchText))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Search)] HttpRequestMessage request, string caseUrn, long caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Search)] HttpRequest request, string caseUrn, long caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-            if (request.Content == null)
+            if (request.Body == null)
             {
                 throw new BadRequestException("Request body has no content", nameof(request));
             }
-            var content = await request.Content.ReadAsStringAsync();
+            var content = await request.GetRawBodyStringAsync();
             var searchDto = _jsonConvertWrapper.DeserializeObject<SearchRequestDto>(content);
 
             var searchResults = await _searchIndexService.QueryAsync(

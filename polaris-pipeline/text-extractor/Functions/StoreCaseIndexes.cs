@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
@@ -15,6 +12,7 @@ using Common.Extensions;
 using Common.Handlers;
 using Common.Telemetry;
 using Common.Wrappers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using text_extractor.Mappers.Contracts;
@@ -51,7 +49,7 @@ namespace text_extractor.Functions
         }
 
         [Function(nameof(StoreCaseIndexes))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequestMessage request,
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequest request,
             string caseUrn, long caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
@@ -60,7 +58,7 @@ namespace text_extractor.Functions
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
-                if (request.Content == null)
+                if (request.Body == null)
                 {
                     throw new BadRequestException("Request body has no content", nameof(request));
                 }
@@ -68,13 +66,12 @@ namespace text_extractor.Functions
                 // map our request headers to our dto so that we can make use of the validator rules against the dto.
                 var extractTextRequest = _dtoHttpRequestHeadersMapper.Map<StoreCaseIndexesRequestDto>(request.Headers);
                 var results = _validatorWrapper.Validate(extractTextRequest);
-                if (results.Any())
+                if (results.Count != 0)
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
-                var inputStream = await request.Content.ReadAsStreamAsync();
-                var streamReader = new StreamReader(inputStream);
+                var streamReader = new StreamReader(request.Body);
                 var content = await streamReader.ReadToEndAsync();
                 var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(content);
 

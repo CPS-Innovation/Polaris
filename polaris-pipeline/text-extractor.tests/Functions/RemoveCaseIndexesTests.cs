@@ -1,7 +1,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Exceptions;
@@ -20,10 +19,9 @@ using Xunit;
 
 namespace text_extractor.tests.Functions
 {
-    public class RemoveCaseIndexesTests
+    public class RemoveCaseIndexesTests : BaseTestClass
     {
         private readonly Fixture _fixture;
-        private readonly HttpRequestMessage _httpRequestMessage;
         private JsonResult _errorResult;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<ILogger<RemoveCaseIndexes>> _mockLogger;
@@ -37,11 +35,6 @@ namespace text_extractor.tests.Functions
         public RemoveCaseIndexesTests()
         {
             _fixture = new Fixture();
-            var serializedExtractTextRequest = _fixture.Create<string>();
-            _httpRequestMessage = new HttpRequestMessage()
-            {
-                Content = new StringContent(serializedExtractTextRequest)
-            };
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
@@ -100,12 +93,12 @@ namespace text_extractor.tests.Functions
         [Fact]
         public async Task Run_ReturnsExceptionWhenCorrelationIdIsMissing()
         {
+            var mockRequest = CreateMockRequest(new StringContent("{}"), null);
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.Unauthorized };
             _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<RemoveCaseIndexes>>()))
                 .Returns(_errorResult);
-            _httpRequestMessage.Content = new StringContent(" ");
-
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
+            
+            var response = await _removeCaseIndexes.Run(mockRequest.Object, _caseId);
 
             response.Should().Be(_errorResult);
         }
@@ -113,25 +106,12 @@ namespace text_extractor.tests.Functions
         [Fact]
         public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
         {
+            var mockRequest = CreateMockRequest(new StringContent("{}"), Guid.Empty);
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorResult);
-            _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
-
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
-
-            response.Should().Be(_errorResult);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
-        {
-            _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.BadRequest };
-            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorResult);
-            _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
-
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
+            
+            var response = await _removeCaseIndexes.Run(mockRequest.Object, _caseId);
 
             response.Should().Be(_errorResult);
         }
@@ -139,14 +119,13 @@ namespace text_extractor.tests.Functions
         [Fact]
         public async Task Run_ReturnsOk()
         {
-            _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestMessage.Content = new StringContent("", Encoding.UTF8, "application/json");
+            var mockRequest = CreateMockRequest(new StringContent("{}"), _correlationId);
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RemoveCaseIndexesRequestDto>(It.IsAny<string>()))
                 .Returns(new RemoveCaseIndexesRequestDto());
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<IndexDocumentsDeletedResult>()))
                 .Returns(string.Empty);
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
+            var response = await _removeCaseIndexes.Run(mockRequest.Object, _caseId);
 
             var result = response as JsonResult;
             result.Should().NotBeNull();
@@ -156,11 +135,14 @@ namespace text_extractor.tests.Functions
         [Fact]
         public async Task Run_ReturnsResponseWhenExceptionOccurs()
         {
+            var mockRequest = CreateMockRequest(new StringContent("{}"), _correlationId);
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.InternalServerError };
             _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorResult);
+            _mockSearchIndexService.Setup(s => s.RemoveCaseIndexEntriesAsync(It.IsAny<long>(), It.IsAny<Guid>()))
+                .ThrowsAsync(new Exception("Test exception"));
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
+            var response = await _removeCaseIndexes.Run(mockRequest.Object, _caseId);
 
             response.Should().Be(_errorResult);
         }

@@ -20,7 +20,7 @@ namespace text_extractor.Mappers
             };
         }
 
-        private SearchTermResult SearchTermIncluded(string wordText, string searchTerm)
+        private static SearchTermResult SearchTermIncluded(string wordText, string searchTerm)
         {
 
             var tidiedText = wordText.Replace(" ", "");

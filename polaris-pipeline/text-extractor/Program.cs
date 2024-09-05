@@ -2,7 +2,6 @@
 using System.Linq;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Mappers;
 using Common.Telemetry;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using text_extractor;
+using text_extractor.Mappers;
 using text_extractor.Mappers.Contracts;
 
 

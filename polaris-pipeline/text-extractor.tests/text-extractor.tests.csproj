@@ -45,6 +45,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Handlers\" />
-    <Folder Include="Functions\" />
   </ItemGroup>
 </Project>
