@@ -23,6 +23,11 @@ export const materialTypeList: MaterialType[] = [
     description: "Other Communication",
     newClassificationVariant: "Other",
   },
+  {
+    typeId: 6,
+    description: "MG6",
+    newClassificationVariant: "Immediate",
+  },
 ];
 
 const exhibitProducers: ExhibitProducer[] = [

@@ -8,6 +8,7 @@ import { ReclassifySaveData } from "./data/ReclassifySaveData";
 
 type ReclassifyProps = {
   documentId: string;
+  currentDocTypeId: number | null;
   presentationTitle: string;
   reclassifiedDocumentUpdate?: boolean;
   handleCancelReclassify: () => void;
@@ -25,6 +26,7 @@ type ReclassifyProps = {
 
 export const Reclassify: React.FC<ReclassifyProps> = ({
   documentId,
+  currentDocTypeId,
   presentationTitle,
   reclassifiedDocumentUpdate,
   handleCancelReclassify,
@@ -39,6 +41,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
       <ReClassifyProvider>
         <ReclassifyStages
           documentId={documentId}
+          currentDocTypeId={currentDocTypeId}
           presentationTitle={presentationTitle}
           reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
           handleCancelReclassify={handleCancelReclassify}

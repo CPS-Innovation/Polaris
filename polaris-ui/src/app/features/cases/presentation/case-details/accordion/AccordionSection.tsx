@@ -29,10 +29,7 @@ type Props = {
     classification: Classification
   ) => void;
   handleGetNotes: (documentId: string) => void;
-  handleReclassifyDocument: (
-    documentId: string,
-    presentationFileName: string
-  ) => void;
+  handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
 };
 const formatTestIdText = (id: string) => {

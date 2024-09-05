@@ -30,6 +30,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
+import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { FEATURE_FLAG_REDACTION_LOG_UNDER_OVER } from "../../../../config";
 import { AccordionReducerState } from "./accordion/reducer";
@@ -59,7 +60,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     open: boolean;
     documentId: string;
     presentationFileName: string;
-  }>({ open: false, documentId: "", presentationFileName: "" });
+    docTypeId: number | null;
+  }>({
+    open: false,
+    documentId: "",
+    presentationFileName: "",
+    docTypeId: null,
+  });
   const [inFullScreen, setInFullScreen] = useState(false);
   const [actionsSidePanel, setActionsSidePanel] = useState<{
     open: boolean;
@@ -271,12 +278,22 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     });
   };
 
-  const handleReclassifyDocument = (
-    documentId: string,
-    presentationFileName: string
-  ) => {
-    handleResetReclassifyData(documentId);
-    setInReclassifyDetails({ open: true, documentId, presentationFileName });
+  const handleReclassifyDocument = (documentId: string) => {
+    const selectedDocument =
+      pipelineState.haveData &&
+      (pipelineState.data.documents.find(
+        (doc) => doc.documentId === documentId
+      ) as PipelineDocument);
+    if (selectedDocument) {
+      handleResetReclassifyData(documentId);
+
+      setInReclassifyDetails({
+        open: true,
+        documentId,
+        presentationFileName: selectedDocument.presentationTitle,
+        docTypeId: selectedDocument.cmsDocType.documentTypeId,
+      });
+    }
   };
 
   const hideReclassifyDocument = () => {
@@ -284,6 +301,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       open: false,
       documentId: "",
       presentationFileName: "",
+      docTypeId: null,
     });
     setTimeout(() => {
       (
@@ -680,6 +698,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         <div>
           <Reclassify
             documentId={reclassifyDetails.documentId}
+            currentDocTypeId={reclassifyDetails.docTypeId}
             presentationTitle={reclassifyDetails.presentationFileName}
             reclassifiedDocumentUpdate={activeReclassifyDocumentUpdated(
               reclassifyDetails.documentId

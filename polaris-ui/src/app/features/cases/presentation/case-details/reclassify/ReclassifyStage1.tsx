@@ -10,11 +10,13 @@ import classes from "./Reclassify.module.scss";
 type ReclassifyStage1Props = {
   formDataErrors: FormDataErrors;
   presentationTitle: string;
+  currentDocTypeId: number | null;
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   presentationTitle,
   formDataErrors,
+  currentDocTypeId,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
   const errorSummaryRef = useRef(null);
@@ -38,10 +40,11 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
       ({ typeId, description }) => ({
         value: typeId,
         children: description,
+        disabled: typeId === currentDocTypeId,
       })
     );
     return [defaultValue, ...mappedDocTypeValues];
-  }, [state.materialTypeList]);
+  }, [state.materialTypeList, currentDocTypeId]);
 
   const handleDocTypeChange = (value: string) => {
     console.log("value>>>", value);

@@ -7,7 +7,6 @@ export type ReclassifyState = {
   exhibitProducers: ExhibitProducer[] | null;
   statementWitness: StatementWitness[] | null;
   statementWitnessNumbers: Record<string, number[]>;
-  currentDocTypeId: string;
   newDocTypeId: string;
   reclassifyVariant: ReclassifyVariant;
   reClassifyStage: "stage1" | "stage2" | "stage3";
@@ -33,7 +32,6 @@ export const reclassifyInitialState: ReclassifyState = {
   exhibitProducers: null,
   statementWitness: null,
   statementWitnessNumbers: {},
-  currentDocTypeId: "",
   newDocTypeId: "",
   reclassifyVariant: "Immediate",
   reClassifyStage: "stage1",

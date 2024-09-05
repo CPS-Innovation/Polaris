@@ -31,10 +31,7 @@ type Props = {
     accordionCurrentState: AccordionReducerState
   ) => void;
   handleGetNotes: (documentId: string) => void;
-  handleReclassifyDocument: (
-    documentId: string,
-    presentationFileName: string
-  ) => void;
+  handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
 };
 

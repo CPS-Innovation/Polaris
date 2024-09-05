@@ -19,6 +19,7 @@ import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
   documentId: string;
+  currentDocTypeId: number | null;
   presentationTitle: string;
   reclassifiedDocumentUpdate?: boolean;
   handleCancelReclassify: () => void;
@@ -37,6 +38,7 @@ type ReclassifyStagesProps = {
 const MAX_LENGTH = 252;
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   documentId,
+  currentDocTypeId,
   presentationTitle,
   reclassifiedDocumentUpdate,
   handleCancelReclassify,
@@ -360,6 +362,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         <div className="govuk-grid-column-one-half">
           {state.reClassifyStage === "stage1" && (
             <ReclassifyStage1
+              currentDocTypeId={currentDocTypeId}
               presentationTitle={presentationTitle}
               formDataErrors={formDataErrors}
             />
