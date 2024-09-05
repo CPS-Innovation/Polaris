@@ -87,7 +87,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     };
 
     fetchDataOnMount();
-  }, [getMaterialTypeList, dispatch, state.materialTypeList.length]);
+  }, []);
 
   const validateData = () => {
     if (state.reClassifyStage === "stage3") {
@@ -170,7 +170,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             "Statement number should not be empty";
         }
         if (
-          statementWitnessNumbers[statementWitnessId].includes(+statementNumber)
+          statementWitnessNumbers[statementWitnessId]?.includes(
+            +statementNumber
+          )
         ) {
           errorTexts.statementNumberErrorText = `Statement number ${statementNumber} already exist`;
         }
