@@ -60,7 +60,6 @@ private_beta = {
   feature_user_group2 = "1663cea9-062e-4f6e-a7ac-26f0942724f3"
 }
 
-#polaris_ui_reauth_redirect_url = "/auth-refresh-outbound?polaris-ui-url="
 polaris_ui_reauth_redirect_url = "/auth-refresh-outbound?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3D"
 
 ssl_certificate_name           = "polaris-prod58a2bb2c-0fbb-416c-9d39-44423b2f42ac"
