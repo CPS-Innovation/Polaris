@@ -18,7 +18,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
     "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Staging1"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
@@ -38,6 +38,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
   }
 
   site_config {
@@ -62,8 +63,10 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     pre_warmed_instance_count         = var.ui_component_service_plans.gateway_always_ready_instances
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
+    use_32_bit_worker                 = false
     application_stack {
-      dotnet_version = "6.0"
+      dotnet_version = "8.0"
+      use_dotnet_isolated_runtime       = true
     }
   }
 

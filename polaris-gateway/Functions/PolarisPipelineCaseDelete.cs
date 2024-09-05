@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
+using Microsoft.Azure.Functions.Worker;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
@@ -28,9 +27,9 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
-        [FunctionName(nameof(PolarisPipelineCaseDelete))]
+        [Function(nameof(PolarisPipelineCaseDelete))]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
 

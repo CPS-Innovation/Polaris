@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace PolarisGateway.Handlers;
 
 public interface IUnhandledExceptionHandler
 {
-    public HttpResponseMessage HandleUnhandledException(
+    public IActionResult HandleUnhandledException(
         ILogger logger,
         string logName,
         Guid correlationId,

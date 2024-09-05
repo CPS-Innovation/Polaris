@@ -1,8 +1,7 @@
 ﻿using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
@@ -28,9 +27,9 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
-        [FunctionName(nameof(Cases))]
+        [Function(nameof(Cases))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try

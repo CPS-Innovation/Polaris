@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Validators;
@@ -11,14 +9,14 @@ using Common.Dto.Request;
 using Common.ValueObjects;
 using Common.Telemetry;
 using PolarisGateway.TelemetryEvents;
-using System.Net;
+using Common.Extensions;
+using Microsoft.Azure.Functions.Worker;
 using PolarisGateway.Handlers;
-using FluentValidation;
-using Newtonsoft.Json;
+using PolarisGateway.Helpers;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineSaveDocumentRedactions
+    public class PolarisPipelineSaveDocumentRedactions : BaseFunction
     {
         private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
         private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
@@ -35,6 +33,7 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,
             ITelemetryClient telemetryClient)
+        : base(telemetryClient)
 
         {
             _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
@@ -45,17 +44,11 @@ namespace PolarisGateway.Functions
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient)); ;
         }
 
-        [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
+        [Function(nameof(PolarisPipelineSaveDocumentRedactions))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);
-
-            HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
-            {
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return result;
-            }
 
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try
@@ -64,7 +57,7 @@ namespace PolarisGateway.Functions
                 telemetryEvent.IsRequestValid = true;
                 telemetryEvent.CorrelationId = context.CorrelationId;
 
-                var redactions = await GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>(req);
+                var redactions = await RequestHelper.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>(req);
                 var isRequestJsonValid = redactions.IsValid;
                 telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
                 telemetryEvent.RequestJson = redactions.RequestJson;
@@ -72,10 +65,7 @@ namespace PolarisGateway.Functions
                 if (!isRequestJsonValid)
                 {
                     // todo: log these errors to telemetry event
-                    return SendTelemetryAndReturn(new HttpResponseMessage()
-                    {
-                        StatusCode = HttpStatusCode.BadRequest
-                    });
+                    return SendTelemetryAndReturnBadRequest(telemetryEvent);
                 }
 
                 var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value);
@@ -87,9 +77,9 @@ namespace PolarisGateway.Functions
                     context.CmsAuthValues,
                     context.CorrelationId);
 
-                telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
+                telemetryEvent.IsSuccess = response.IsSuccessStatusCode();
 
-                return SendTelemetryAndReturn(response);
+                return SendTelemetryAndReturn(telemetryEvent, response);
             }
             catch (Exception ex)
             {
@@ -101,23 +91,6 @@ namespace PolarisGateway.Functions
                   ex
                 );
             }
-        }
-
-        public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(HttpRequest request)
-    where V : AbstractValidator<T>, new()
-        {
-            var requestJson = await request.ReadAsStringAsync();
-            var requestObject = JsonConvert.DeserializeObject<T>(requestJson);
-
-            var validator = new V();
-            var validationResult = await validator.ValidateAsync(requestObject);
-
-            return new ValidatableRequest<T>
-            {
-                Value = requestObject,
-                IsValid = validationResult.IsValid,
-                RequestJson = requestJson
-            };
         }
     }
 }
