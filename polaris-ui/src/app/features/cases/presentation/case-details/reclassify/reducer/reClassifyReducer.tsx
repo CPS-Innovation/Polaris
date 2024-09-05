@@ -4,8 +4,8 @@ import { StatementWitness } from "../data/StatementWitness";
 
 export type ReclassifyState = {
   materialTypeList: MaterialType[];
-  exhibitProducers: ExhibitProducer[];
-  statementWitness: StatementWitness[];
+  exhibitProducers: ExhibitProducer[] | null;
+  statementWitness: StatementWitness[] | null;
   statementWitnessNumbers: Record<string, number[]>;
   currentDocTypeId: string;
   newDocTypeId: string;
@@ -30,8 +30,8 @@ export type ReclassifyState = {
 
 export const reclassifyInitialState: ReclassifyState = {
   materialTypeList: [],
-  exhibitProducers: [],
-  statementWitness: [],
+  exhibitProducers: null,
+  statementWitness: null,
   statementWitnessNumbers: {},
   currentDocTypeId: "",
   newDocTypeId: "",

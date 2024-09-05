@@ -311,6 +311,43 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       payload: { value: "initial" },
     });
   };
+
+  const renderActionButtons = () => {
+    if (state.reClassifyStage !== "stage3") {
+      return (
+        <>
+          <Button
+            ref={continueButtonRef}
+            onClick={handleContinueBtnClick}
+            disabled={
+              state.reClassifyStage === "stage2" &&
+              state.reclassifyVariant === "Statement" &&
+              !state.statementWitness?.length
+            }
+          >
+            Continue
+          </Button>
+          <LinkButton
+            className={classes.btnCancel}
+            onClick={handleCancelReclassify}
+          >
+            Cancel
+          </LinkButton>
+        </>
+      );
+    }
+    return !reclassifiedDocumentUpdate ? (
+      <Button
+        onClick={handleAcceptAndSave}
+        disabled={state.reClassifySaveStatus === "saving"}
+      >
+        Accept and save
+      </Button>
+    ) : (
+      <Button onClick={handleCancelReclassify}>close</Button>
+    );
+  };
+
   if (loading) {
     return <div>loading data</div>;
   }
@@ -343,40 +380,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           )}
         </div>
       </div>
-      <div className={classes.btnWrapper}>
-        {state.reClassifyStage !== "stage3" ? (
-          <>
-            <Button ref={continueButtonRef} onClick={handleContinueBtnClick}>
-              Continue
-            </Button>
-            <LinkButton
-              className={classes.btnCancel}
-              onClick={handleCancelReclassify}
-            >
-              Cancel
-            </LinkButton>
-          </>
-        ) : (
-          <>
-            {!reclassifiedDocumentUpdate && (
-              <Button
-                onClick={handleAcceptAndSave}
-                disabled={state.reClassifySaveStatus === "saving"}
-              >
-                Accept and save
-              </Button>
-            )}
-            {reclassifiedDocumentUpdate && (
-              <Button
-                onClick={handleCancelReclassify}
-                disabled={state.reClassifySaveStatus === "saving"}
-              >
-                close
-              </Button>
-            )}
-          </>
-        )}
-      </div>
+      <div className={classes.btnWrapper}>{renderActionButtons()}</div>
       {state.reClassifySaveStatus === "failure" && (
         <Modal
           isVisible

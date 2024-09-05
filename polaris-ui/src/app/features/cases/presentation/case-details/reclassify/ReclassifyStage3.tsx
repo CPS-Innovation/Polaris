@@ -73,7 +73,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
         return state.formData.documentUsedStatus === "YES" ? "Used" : "Unused";
       case "Statement Witness": {
         if (!state.formData.statementWitnessId) return "";
-        return state.statementWitness.find(
+        return state.statementWitness!.find(
           ({ witness }) => witness.id === +state.formData.statementWitnessId
         )?.witness.name;
       }
@@ -92,7 +92,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
       case "Exhibit Producer":
         if (state.formData.exhibitProducerId === "other")
           return state.formData.exhibitOtherProducerValue;
-        return state.exhibitProducers.find(
+        return state.exhibitProducers!.find(
           (producer) => producer.id === +state.formData.exhibitProducerId
         )?.exhibitProducer;
     }

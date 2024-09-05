@@ -34,7 +34,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 }) => {
   console.log("formDataErrors>>0000", formDataErrors);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [lookupError, setLookupDataError] = useState("");
   const reclassifyContext = useReClassifyContext();
 
@@ -45,15 +45,18 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     const fetchDataOnMount = async () => {
       if (
         state.reclassifyVariant === "Exhibit" &&
-        state.exhibitProducers.length
-      )
+        state.exhibitProducers !== null
+      ) {
+        setLoading(false);
         return;
+      }
       if (
         state.reclassifyVariant === "Statement" &&
-        state.statementWitness.length
-      )
+        state.statementWitness !== null
+      ) {
+        setLoading(false);
         return;
-      setLoading(true);
+      }
       try {
         if (state.reclassifyVariant === "Exhibit") {
           const result = await getExhibitProducers();
@@ -81,14 +84,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     };
 
     fetchDataOnMount();
-  }, [
-    getExhibitProducers,
-    getStatementWitnessDetails,
-    state.reclassifyVariant,
-    dispatch,
-    state.exhibitProducers.length,
-    state.statementWitness.length,
-  ]);
+  }, []);
 
   const statementWitnessValues = useMemo(() => {
     const defaultValue = {
@@ -96,6 +92,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       children: "Select a Witness",
       disabled: true,
     };
+    if (!state.statementWitness) {
+      return [defaultValue];
+    }
     const mappedValues = state.statementWitness.map(
       ({ witness: { id, name } }) => ({
         value: id,
@@ -111,17 +110,21 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       children: "Select a Producer",
       disabled: true,
     };
+    const otherOption = {
+      value: "other",
+      children: "Other producer or witness",
+      disabled: false,
+    };
+    if (!state.exhibitProducers) {
+      return [defaultValue, otherOption];
+    }
     const mappedValues = state.exhibitProducers.map(
       ({ id, exhibitProducer }) => ({
         value: id,
         children: exhibitProducer,
       })
     );
-    const otherOption = {
-      value: "other",
-      children: "Other producer or witness",
-      disabled: false,
-    };
+
     return [defaultValue, ...mappedValues, otherOption];
   }, [state.exhibitProducers]);
 
@@ -358,6 +361,20 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   }
   if (loading) {
     return <div>loading data</div>;
+  }
+  if (
+    state.reclassifyVariant === "Statement" &&
+    !state.statementWitness?.length
+  ) {
+    return (
+      <>
+        <h1> There is a problem</h1>
+        <p>
+          Cannot continue with reclassification as the statement does not have
+          any witness
+        </p>
+      </>
+    );
   }
   return (
     <div>
