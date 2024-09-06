@@ -22,6 +22,23 @@ function _argsShim(args) {
   return clonedArgs
 }
 
+function _redirectToAbsoluteUrl(r, redirectUrl) {
+  // It appears that when we redirect with an absolute url, njs will create the location header starting with http://
+  //  even if we are handling an https request. If we are running on https://foo then
+  //  r.return(302, "https://foo/bar") will redirect to https://foo/bar
+  //  r.return(302, "/bar") will redirect to http://foo/bar
+  // So lets convert relative redirect to absolute.
+  // Note: this almost is not a problem.  When the client comes back with the http://... request nginx will do another
+  //  redirect to https as part of the "upgrade http to https" thing.  However the CWA cypress e2e test framework fails
+  //  because tests running on https are redirected to an http address
+  r.return(
+    302,
+    redirectUrl.lastIndexOf("http", 0) === 0
+      ? redirectUrl
+      : `${r.headersIn["X-Forwarded-Proto"]}://${r.headersIn["Host"]}${redirectUrl}`
+  )
+}
+
 function appAuthRedirect(r) {
   const args = _argsShim(r.args)
 
@@ -32,8 +49,8 @@ function appAuthRedirect(r) {
     .some((url) => redirectUrl.startsWith(url))
 
   if (isWhitelisted) {
-    r.return(
-      302,
+    _redirectToAbsoluteUrl(
+      r,
       `${redirectUrl}${
         redirectUrl.includes("?") ? "&" : "?"
       }__cc=${encodeURIComponent(args["cookie"] ?? "")}`
@@ -41,7 +58,10 @@ function appAuthRedirect(r) {
   } else {
     r.return(
       403,
-      `HTTP Status 403: this deployment of the /init endpoint will only accept requests with r query parameters that start with one of the following strings: ${whitelistedUrls}`
+      `HTTP Status 403: this deployment of the /init endpoint will only accept requests with r query parameters that start with one of the following strings: 
+${whitelistedUrls}
+
+This request has an r query parameter of ${args["r"]}`
     )
   }
 }
@@ -56,15 +76,14 @@ function polarisAuthRedirect(r) {
   clonedArgs.referer = r.headersIn.Referer
 
   const querystring = qs.stringify(clonedArgs)
-
-  r.return(302, `/init?${querystring}`)
+  _redirectToAbsoluteUrl(r, `/init?${querystring}`)
 }
 
 function taskListAuthRedirect(r) {
   const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
   const cookie = encodeURIComponent(r.headersIn.Cookie ?? "")
-  r.return(
-    302,
+  _redirectToAbsoluteUrl(
+    r,
     `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
   )
 }
