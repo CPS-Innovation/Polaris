@@ -144,14 +144,14 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       case "Statement":
         return (
           <p>
-            You're entering statement details for
+            You're entering statement details for{" "}
             <strong className={classes.highlight}>{presentationTitle}</strong>
           </p>
         );
       case "Exhibit":
         return (
           <p>
-            You're entering exhibit details for
+            You're entering exhibit details for{" "}
             <strong className={classes.highlight}>{presentationTitle}</strong>
           </p>
         );
@@ -400,7 +400,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             hint={{
               children: (
                 <span>
-                  Do you want to change the document name of
+                  Do you want to change the document name of{" "}
                   <strong className={classes.highlight}>
                     {presentationTitle}
                   </strong>
