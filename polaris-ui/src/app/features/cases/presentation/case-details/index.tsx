@@ -409,7 +409,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 )}
 
                 {featureFlags.externalRedirect && (
-                  <>
+                  <div className={classes.externalRedirectBtnWrapper}>
                     <Button
                       disabled={false}
                       onClick={() => {
@@ -439,7 +439,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     >
                       Bulk UM Classification <NewWindow />
                     </Button>
-                  </>
+                  </div>
                 )}
 
                 <SearchBox
