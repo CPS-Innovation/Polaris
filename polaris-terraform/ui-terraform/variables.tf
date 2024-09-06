@@ -81,6 +81,13 @@ variable "wm_task_list_host_name" {
   type = string
 }
 
+variable "auth_handover_whitelist" {
+  # Coma-delimited string of URL roots that the proxy will allow auth refresh/handover 
+  #  redirects to be forwarded on to.
+  #  e.g. "https://foo.bar/,https://baz/buz"
+  type = string
+}
+
 variable "app_service_log_retention" {
   type = number
 }

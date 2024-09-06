@@ -29,18 +29,17 @@ const tryHandleFirstAuthFail = (
 ) => {
   if (isCmsAuthFail(response) && !isAuthPageLoad(window)) {
     const delimiter = window.location.href.includes("?") ? "&" : "?";
-
-    let nextUrl = `${REAUTH_REDIRECT_URL}${encodeURIComponent(
+    let nextUrl = `${encodeURIComponent(
       window.location.href + delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
     )}`;
 
     if (correlationId) {
-      nextUrl += encodeURIComponent(
-        `&${FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`
-      );
+      nextUrl += `&${FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`;
     }
 
-    window.location.href = nextUrl;
+    window.location.href = `${REAUTH_REDIRECT_URL}${encodeURIComponent(
+      nextUrl
+    )}`;
     // stop any follow-on logic occurring
     throw new CmsAuthRedirectingError();
   }

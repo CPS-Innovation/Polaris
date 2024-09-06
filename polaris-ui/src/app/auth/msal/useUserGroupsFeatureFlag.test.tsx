@@ -104,6 +104,27 @@ describe("useUserGroupsFeatureFlag", () => {
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
       expect(result?.current?.redactionLog).toStrictEqual(true);
     });
+    test("Should return redactionLog feature true, if user is not in private beta feature groups and FEATURE_FLAG_REDACTION_LOG is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group1"],
+          },
+        },
+      ]);
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP2 =
+        "private_beta_feature_group2";
+      mockConfig.FEATURE_FLAG_REDACTION_LOG = true;
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.redactionLog).toStrictEqual(true);
+    });
   });
 
   describe("notes feature flag", () => {
@@ -194,7 +215,7 @@ describe("useUserGroupsFeatureFlag", () => {
       expect(result?.current?.notes).toStrictEqual(false);
     });
 
-    test("Should return notes feature true, if user is not in private beta feature group and FEATURE_FLAG_NOTES is true", () => {
+    test("Should return notes feature true, if user is not in private beta feature groups and FEATURE_FLAG_NOTES is true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "test",
       });
@@ -208,6 +229,8 @@ describe("useUserGroupsFeatureFlag", () => {
         },
       ]);
       mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP2 =
+        "private_beta_feature_group2";
       mockConfig.FEATURE_FLAG_NOTES = true;
 
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
@@ -320,6 +343,117 @@ describe("useUserGroupsFeatureFlag", () => {
 
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
       expect(result?.current?.searchPII).toStrictEqual(false);
+    });
+  });
+
+  describe("renameDocument feature flag", () => {
+    test("Should return renameDocument feature false, if  FEATURE_FLAG_RENAME_DOCUMENT is false", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+
+      mockConfig.FEATURE_FLAG_RENAME_DOCUMENT = false;
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.renameDocument).toStrictEqual(false);
+    });
+
+    test("Should return renameDocument feature true, if it is a cypress integration test user and does not have renameDocument=false in query param and FEATURE_FLAG_RENAME_DOCUMENT is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "dev_user@example.org",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group1"],
+          },
+        },
+      ]);
+      window.Cypress = {};
+      mockConfig.FEATURE_FLAG_RENAME_DOCUMENT = true;
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP2 =
+        "private_beta_feature_group2";
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.renameDocument).toStrictEqual(true);
+    });
+
+    test("Should return renameDocument feature true, if it is a cypress automation test(e2e) user, and does not have renameDocument=false in query param and FEATURE_FLAG_RENAME_DOCUMENT is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "private_beta_ignore_user",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+      window.Cypress = {};
+      mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
+      mockConfig.FEATURE_FLAG_NOTES = true;
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.renameDocument).toStrictEqual(true);
+    });
+
+    test("Should return renameDocument feature false, if it is a cypress automation test(e2e) user, and have renameDocument=false in query param and FEATURE_FLAG_RENAME_DOCUMENT is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "private_beta_ignore_user",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+      window.Cypress = {};
+      (
+        useQueryParamsStateModule.useQueryParamsState as jest.Mock
+      ).mockReturnValue({ renameDocument: "false" });
+      mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "private_beta_ignore_user";
+      mockConfig.FEATURE_FLAG_RENAME_DOCUMENT = true;
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.renameDocument).toStrictEqual(false);
+    });
+
+    test("Should return renameDocument feature true, if user is not in private beta feature groups and FEATURE_FLAG_RENAME_DOCUMENT is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group1"],
+          },
+        },
+      ]);
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP = "private_beta_feature_group";
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP2 =
+        "private_beta_feature_group2";
+      mockConfig.FEATURE_FLAG_RENAME_DOCUMENT = true;
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.renameDocument).toStrictEqual(true);
     });
   });
 });

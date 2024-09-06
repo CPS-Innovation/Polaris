@@ -38,6 +38,7 @@ cms_details = {
 }
 
 wm_task_list_host_name = "https://cps-tst.outsystemsenterprise.com"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/WorkManagementApp/,https://cps-tst.outsystemsenterprise.com/CaseReview/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -63,9 +64,9 @@ private_beta = {
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
 }
 
-polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
 case_review_app_redirect_url   = "https://cps-tst.outsystemsenterprise.com/CaseReview/Redirect"
 bulk_um_redirect_url           = "https://cps-tst.outsystemsenterprise.com/CaseReview/Redirect"
+polaris_ui_reauth_redirect_url = "/polaris?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3D"
 
 ssl_certificate_name           = "polaris-qa-notprod59598f87-3bda-4304-9ed4-e9c143ee793e"
 ssl_policy_name                = "AppGwSslPolicy20220101"
