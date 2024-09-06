@@ -64,14 +64,13 @@ const renderAuthFailReason = (authFailReason: AuthFailReason | null) => {
   switch (authFailReason) {
     case AuthFailReason.NoCookies:
     case AuthFailReason.NoCmsAuthCookie:
-      return "You are not logged in to CMS, please try logging in to CMS again.";
+      return "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out. Please try logging in to CMS again.";
     case AuthFailReason.CmsAuthNotValid:
     case AuthFailReason.CmsModernAuthNotValid:
-      return "Your CMS session has expired, please try logging in to CMS again.";
+      return "It may be the case that your CMS session has expired. Please try logging in to CMS again.";
     case AuthFailReason.UnexpectedError:
-      return "An unexpected error occurred, please try logging in to CMS again.";
     default:
-      return "An unexpected error occurred, please try logging in to CMS again.";
+      return "An unexpected error occurred related to your current CMS log in session. Please try logging in to CMS again.";
   }
 };
 
@@ -85,7 +84,7 @@ const handleSecondAuthFail = (response: Response, window: Window) => {
     const customMessage = renderAuthFailReason(authFailReasonParam);
 
     throw new CmsAuthError(
-      "We think you are not logged in to CMS",
+      "Unable to connect to CMS.",
       customMessage || undefined
     );
   }
