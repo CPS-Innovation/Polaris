@@ -136,6 +136,11 @@ variable "feature_flag_rename_document" {
   type = string
 }
 
+variable "feature_flag_external_redirect" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "local_storage_expiry_days" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
@@ -147,12 +152,22 @@ variable "private_beta" {
     user_group          = string
     feature_user_group  = string
     feature_user_group2 = string
+    feature_user_group3 = string
   })
 }
 
 variable "polaris_ui_reauth_redirect_url" {
   type = string
 }
+
+variable "case_review_app_redirect_url" {
+  type = string
+}
+
+variable "bulk_um_redirect_url" {
+  type = string
+}
+
 
 variable "ssl_certificate_name" {
   type        = string

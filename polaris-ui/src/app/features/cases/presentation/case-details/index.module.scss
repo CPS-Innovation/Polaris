@@ -2,22 +2,26 @@
   .defendantName {
     margin-bottom: 0;
   }
+
   .uniqueReferenceNumber {
     color: #505a5f;
     margin-bottom: 0;
     font-weight: 400;
   }
+
   .defendantDOB {
     font-size: 1rem;
     color: #505a5f;
     margin-bottom: 0;
     font-weight: 400;
   }
+
   .dobValue,
   .ageValue {
     color: #000;
     font-weight: bold;
   }
+
   .defendantDetailsLink {
     font-size: 1rem;
     margin: 0;
@@ -29,6 +33,7 @@
     font-weight: 400;
     text-transform: none;
   }
+
   :global(.govuk-tag--blue) {
     color: #0c2d4a;
     margin-top: 0.15625rem;
@@ -43,16 +48,20 @@
 
 .mainContent {
   margin-top: -1.5625rem;
+
   .rightColumn {
     margin-top: -3.4375rem;
     height: 100vh;
   }
+
   .notesArea {
     padding: 0;
+
     &:focus {
       outline: 0.2rem solid #ffdd00;
     }
   }
+
   .sidePanelArea {
     &:focus {
       outline: 0.2rem solid #ffdd00;
@@ -73,22 +82,27 @@
   background-color: #1d70b8;
   color: #fff;
   padding: 1.25rem 1.25rem 1.25rem 1.25rem;
+  margin-bottom: 1.25rem;
 
   * {
     color: #fff !important;
   }
+
   ul {
     margin: 0;
     list-style-type: none;
     padding: 0;
   }
+
   li {
     margin: 0;
     padding: 0;
   }
+
   h2:not(:first-child) {
     margin: 10px 0 0;
   }
+
   h2:first-child {
     margin: 0;
   }
@@ -103,6 +117,7 @@
   position: absolute;
   pointer-events: none;
 }
+
 .resizeBtnWrapper {
   display: inline-block;
   position: sticky;
@@ -110,6 +125,7 @@
   z-index: 4;
   margin-left: -0.3rem;
 }
+
 .resizeBtn {
   width: 2.4rem;
   height: 2.4rem;
@@ -120,22 +136,39 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
   svg {
     transform: rotate(90deg);
     fill: #fff;
     scale: 0.8;
     margin-left: -0.3125rem;
   }
+
   &:hover:not(:disabled):not(:focus) {
     background-color: #003078;
   }
+
   &:focus {
     color: #0b0c0c;
     background-color: #ffdd00;
     box-shadow: 0 0 2px #0b0c0c;
     outline: 0.1875rem solid transparent;
+
     svg {
       fill: #000;
+    }
+  }
+}
+
+.externalRedirectBtnWrapper {
+  margin-top: 0.5rem;
+  .newWindowBtn {
+    margin-top: 1rem;
+    margin-bottom: 0rem;
+    svg {
+      width: 0.85em;
+      height: 0.85em;
+      margin: 0 0 -0.1rem 0.15rem;
     }
   }
 }
