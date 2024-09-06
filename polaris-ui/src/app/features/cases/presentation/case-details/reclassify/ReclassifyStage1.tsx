@@ -84,7 +84,8 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
           htmlFor: "reclassify-document-type",
           children: (
             <span>
-              Select the document type for <b>{presentationTitle}</b>
+              Select the document type for
+              <strong className={classes.highlight}>{presentationTitle}</strong>
             </span>
           ),
         }}
