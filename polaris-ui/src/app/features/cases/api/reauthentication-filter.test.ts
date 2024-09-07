@@ -112,23 +112,23 @@ describe("Reauthentication Filter", () => {
   it.each([
     [
       "no-cookies",
-      "You are not logged in to CMS, please try logging in to CMS again.",
+      "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out. Please try logging in to CMS again.",
     ],
     [
       "no-cmsauth-cookie",
-      "You are not logged in to CMS, please try logging in to CMS again.",
+      "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out. Please try logging in to CMS again.",
     ],
     [
       "cms-auth-not-valid",
-      "Your CMS session has expired, please try logging in to CMS again.",
+      "It may be the case that your CMS session has expired. Please try logging in to CMS again.",
     ],
     [
       "cms-modern-auth-not-valid",
-      "Your CMS session has expired, please try logging in to CMS again.",
+      "It may be the case that your CMS session has expired. Please try logging in to CMS again.",
     ],
     [
       "unexpected-error",
-      "An unexpected error occurred, please try logging in to CMS again.",
+      "An unexpected error occurred related to your current CMS log in session. Please try logging in to CMS again.",
     ],
   ])(
     "throws CmsAuthError with correct message for auth-fail-reason=%s",
