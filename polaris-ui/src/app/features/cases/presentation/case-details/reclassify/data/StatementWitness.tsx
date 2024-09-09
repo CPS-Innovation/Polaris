@@ -1,3 +1,1 @@
-export type StatementWitness = {
-  witness: { id: number; name: string };
-};
+export type StatementWitness = { id: number; name: string };

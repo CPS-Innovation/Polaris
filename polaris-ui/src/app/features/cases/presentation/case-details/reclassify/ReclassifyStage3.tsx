@@ -4,15 +4,14 @@ import {
   LinkButton,
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
+import classes from "./Reclassify.module.scss";
 
 type ReclassifyStage3Props = {
   presentationTitle: string;
-  reclassifiedDocumentUpdate?: boolean;
 };
 
 export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   presentationTitle,
-  reclassifiedDocumentUpdate,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
 
@@ -74,8 +73,8 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
       case "Statement Witness": {
         if (!state.formData.statementWitnessId) return "";
         return state.statementWitness!.find(
-          ({ witness }) => witness.id === +state.formData.statementWitnessId
-        )?.witness.name;
+          (witness) => witness.id === +state.formData.statementWitnessId
+        )?.name;
       }
       case "Statement Date":
         return state.formData.statementDay &&
@@ -106,8 +105,12 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
         {
           children: (
             <LinkButton
+              className={classes.btnChange}
               onClick={handleChangeBtnClick}
-              disabled={state.reClassifySaveStatus === "saving"}
+              disabled={
+                state.reClassifySaveStatus === "saving" ||
+                state.reClassifySaveStatus === "success"
+              }
             >
               Change
             </LinkButton>
@@ -120,9 +123,6 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
     <div>
       <h1>Check your answers</h1>
       <h2>Document details</h2>
-      {reclassifiedDocumentUpdate && (
-        <h2>Document successfully reclassified</h2>
-      )}
       <Table rows={getTableRows()} />
     </div>
   );

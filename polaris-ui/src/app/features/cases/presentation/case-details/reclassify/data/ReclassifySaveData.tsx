@@ -1,12 +1,12 @@
 //update save data type based on the data contract
 export type ReclassifySaveData = {
-  documentId: string;
+  documentId: number;
   documentTypeId: number;
   immediate: {
-    newTitle: string | null;
+    documentName: string | null;
   } | null;
   other: {
-    newTitle: string | null;
+    documentName: string | null;
     used: boolean;
   } | null;
   statement: {

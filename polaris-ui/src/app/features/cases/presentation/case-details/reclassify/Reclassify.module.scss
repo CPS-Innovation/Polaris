@@ -58,3 +58,36 @@
   border-bottom: 2px solid #ffb266;
   padding: 0 0.375rem;
 }
+
+.btnCancel,
+.btnChange,
+.backBtn {
+  margin-left: 1rem;
+  padding: 0.625rem;
+  &:hover:not(:disabled):not(:focus) {
+    color: #003078;
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12rem);
+    background: transparent;
+  }
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.savingBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  .notificationBannerText {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-left: 1rem;
+  }
+  .spinnerWrapper {
+    :global(.spinner) {
+      border: 0.65rem solid #dee0e2;
+      border-top-color: #1d70b8;
+    }
+  }
+}

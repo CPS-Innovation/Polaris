@@ -3,6 +3,8 @@ import {
   LinkButton,
   Button,
   Modal,
+  NotificationBanner,
+  Spinner,
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
@@ -90,6 +92,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
     fetchDataOnMount();
   }, []);
+
+  useEffect(() => {
+    if (reclassifiedDocumentUpdate) {
+      handleCancelReclassify();
+    }
+  }, [reclassifiedDocumentUpdate, handleCancelReclassify]);
 
   const validateData = () => {
     if (state.reClassifyStage === "stage3") {
@@ -212,12 +220,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const used = formData.documentUsedStatus === "YES" ? true : false;
 
     const saveData = {
-      documentId,
+      documentId: parseInt(documentId.replace(/\D/g, "")),
       documentTypeId: +newDocTypeId!,
       immediate:
         state.reclassifyVariant === "Immediate"
           ? {
-              newTitle:
+              documentName:
                 formData.documentRenameStatus === "YES"
                   ? formData.documentNewName
                   : null,
@@ -226,7 +234,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       other:
         state.reclassifyVariant === "Other"
           ? {
-              newTitle:
+              documentName:
                 formData.documentRenameStatus === "YES"
                   ? formData.documentNewName
                   : null,
@@ -367,15 +375,16 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         </>
       );
     }
-    return !reclassifiedDocumentUpdate ? (
+    return (
       <Button
         onClick={handleAcceptAndSave}
-        disabled={state.reClassifySaveStatus === "saving"}
+        disabled={
+          state.reClassifySaveStatus === "saving" ||
+          state.reClassifySaveStatus === "success"
+        }
       >
         Accept and save
       </Button>
-    ) : (
-      <Button onClick={handleCancelReclassify}>close</Button>
     );
   };
 
@@ -384,9 +393,32 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   }
   return (
     <div className={classes.reClassifyStages}>
-      <LinkButton onClick={handleBackBtnClick}>Back</LinkButton>
+      <LinkButton
+        className={classes.backBtn}
+        onClick={handleBackBtnClick}
+        disabled={
+          state.reClassifySaveStatus === "saving" ||
+          state.reClassifySaveStatus === "success"
+        }
+      >
+        Back
+      </LinkButton>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
+          {(state.reClassifySaveStatus === "saving" ||
+            state.reClassifySaveStatus === "success") && (
+            <NotificationBanner>
+              <div className={classes.savingBanner}>
+                <div className={classes.spinnerWrapper}>
+                  <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+                </div>
+                <p className={classes.notificationBannerText}>
+                  Saving to CMS. Please wait.
+                </p>
+              </div>
+            </NotificationBanner>
+          )}
+
           {state.reClassifyStage === "stage1" && (
             <ReclassifyStage1
               currentDocTypeId={currentDocTypeId}
@@ -405,14 +437,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           )}
 
           {state.reClassifyStage === "stage3" && (
-            <ReclassifyStage3
-              presentationTitle={presentationTitle}
-              reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
-            />
+            <ReclassifyStage3 presentationTitle={presentationTitle} />
           )}
+
+          <div className={classes.btnWrapper}>{renderActionButtons()}</div>
         </div>
       </div>
-      <div className={classes.btnWrapper}>{renderActionButtons()}</div>
       {state.reClassifySaveStatus === "failure" && (
         <Modal
           isVisible

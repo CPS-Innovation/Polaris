@@ -26,5 +26,5 @@ export const handleReclassifyUpdateConfirmation = (
   )
     return true;
 
-  return true;
+  return false;
 };

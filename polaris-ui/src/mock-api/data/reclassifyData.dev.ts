@@ -37,9 +37,9 @@ const exhibitProducers: ExhibitProducer[] = [
 ];
 
 const statementWitness: StatementWitness[] = [
-  { witness: { id: 1, name: "PC Blaynee_S" } },
-  { witness: { id: 2, name: "PC Jones_S" } },
-  { witness: { id: 3, name: "PC Lucy_S" } },
+  { id: 1, name: "PC Blaynee_S" },
+  { id: 2, name: "PC Jones_S" },
+  { id: 3, name: "PC Lucy_S" },
 ];
 
 const statementWitnessNumbers: StatementWitnessNumber[] = [

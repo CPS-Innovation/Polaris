@@ -95,12 +95,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     if (!state.statementWitness) {
       return [defaultValue];
     }
-    const mappedValues = state.statementWitness.map(
-      ({ witness: { id, name } }) => ({
-        value: id,
-        children: name,
-      })
-    );
+    const mappedValues = state.statementWitness.map(({ id, name }) => ({
+      value: id,
+      children: name,
+    }));
     return [defaultValue, ...mappedValues];
   }, [state.statementWitness]);
 

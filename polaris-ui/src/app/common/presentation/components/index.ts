@@ -28,3 +28,4 @@ export { Checkboxes } from "./Checkboxes";
 export { Tag } from "./Tag";
 export { DateInput } from "./DateInput";
 export { Table } from "./Table";
+export { NotificationBanner } from "./NotificationBanner";
