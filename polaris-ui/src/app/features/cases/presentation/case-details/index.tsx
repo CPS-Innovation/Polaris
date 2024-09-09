@@ -6,6 +6,7 @@ import {
   LinkButton,
   PageContentWrapper,
   WaitPage,
+  Button,
 } from "../../../../common/presentation/components";
 import { Wait as AccordionWait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
@@ -31,7 +32,11 @@ import {
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { FEATURE_FLAG_REDACTION_LOG_UNDER_OVER } from "../../../../config";
+import {
+  BULK_UM_REDIRECT_URL,
+  CASE_REVIEW_APP_REDIRECT_URL,
+  FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
+} from "../../../../config";
 import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
@@ -41,6 +46,7 @@ import { NotesPanel } from "./notes/NotesPanel";
 import { RenamePanel } from "./rename/RenamePanel";
 import { Classification } from "../../domain/gateway/PipelineDocument";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
+import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -242,6 +248,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     });
   };
 
+  const openInNewTab = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <>
       {errorModal.show && (
@@ -396,6 +406,40 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
                 {!isMultipleDefendantsOrCharges && (
                   <Charges caseDetails={caseState.data} />
+                )}
+
+                {featureFlags.externalRedirect && (
+                  <div className={classes.externalRedirectBtnWrapper}>
+                    <Button
+                      disabled={false}
+                      onClick={() => {
+                        openInNewTab(
+                          `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
+                        );
+                      }}
+                      data-testid="btn-case-review-app"
+                      id="btn-case-review-app"
+                      className={`${classes.newWindowBtn} govuk-button--secondary`}
+                      name="secondary"
+                    >
+                      Case Review App <NewWindow />
+                    </Button>
+
+                    <Button
+                      disabled={false}
+                      onClick={() => {
+                        openInNewTab(
+                          `${BULK_UM_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
+                        );
+                      }}
+                      data-testid="btn-bulk-um-classification"
+                      id="btn-bulk-um-classification"
+                      className={`${classes.newWindowBtn} govuk-button--secondary`}
+                      name="secondary"
+                    >
+                      Bulk UM Classification <NewWindow />
+                    </Button>
+                  </div>
                 )}
 
                 <SearchBox
