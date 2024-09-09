@@ -4,6 +4,6 @@ namespace PolarisGateway.Mappers
 {
     public interface IModifyDocumentRequestMapper
     {
-        ModifyDocumentDto Map(DocumentModificationRequestDto documentPageRemovalRequest);
+        ModifyDocumentDto Map(DocumentModificationRequestDto documentModificationRequest);
     }
 }

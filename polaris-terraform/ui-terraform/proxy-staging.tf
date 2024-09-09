@@ -49,6 +49,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
+    "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
