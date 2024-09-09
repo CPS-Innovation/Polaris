@@ -27,7 +27,6 @@ namespace Ddei.Services
         private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
         private readonly ICaseWitnessMapper _caseWitnessMapper;
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
-        private readonly ICmsAuthValuesMapper _cmsAuthValuesMapper;
         private readonly ICmsMaterialTypeMapper _cmsMaterialTypeMapper;
         private readonly ICaseWitnessStatementMapper _caseWitnessStatementMapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
@@ -46,7 +45,6 @@ namespace Ddei.Services
             ICaseExhibitProducerMapper caseExhibitProducerMapper,
             ICaseWitnessMapper caseWitnessMapper,
             ICaseIdentifiersMapper caseIdentifiersMapper,
-            ICmsAuthValuesMapper cmsAuthValuesMapper,
             ICmsMaterialTypeMapper cmsMaterialTypeMapper,
             ICaseWitnessStatementMapper caseWitnessStatementMapper,
             IJsonConvertWrapper jsonConvertWrapper,
@@ -61,19 +59,12 @@ namespace Ddei.Services
             _caseExhibitProducerMapper = caseExhibitProducerMapper ?? throw new ArgumentNullException(nameof(caseExhibitProducerMapper));
             _caseWitnessMapper = caseWitnessMapper ?? throw new ArgumentNullException(nameof(caseWitnessMapper));
             _caseIdentifiersMapper = caseIdentifiersMapper ?? throw new ArgumentNullException(nameof(caseIdentifiersMapper));
-            _cmsAuthValuesMapper = cmsAuthValuesMapper ?? throw new ArgumentNullException(nameof(cmsAuthValuesMapper));
             _cmsMaterialTypeMapper = cmsMaterialTypeMapper ?? throw new ArgumentNullException(nameof(cmsMaterialTypeMapper));
             _caseWitnessStatementMapper = caseWitnessStatementMapper ?? throw new ArgumentNullException(nameof(caseWitnessStatementMapper));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _ddeiClientRequestFactory = ddeiClientRequestFactory ?? throw new ArgumentNullException(nameof(ddeiClientRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        }
-
-        public async Task<CmsAuthValuesDto> GetFullCmsAuthValuesAsync(DdeiCmsCaseDataArgDto arg)
-        {
-            var result = await CallDdei<DdeiCmsAuthValuesDto>(_ddeiClientRequestFactory.CreateCmsAuthValuesRequest(arg));
-            return _cmsAuthValuesMapper.MapCmsAuthValues(result);
         }
 
         public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCmsCaseIdArgDto arg)

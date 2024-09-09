@@ -12,13 +12,6 @@ namespace Ddei.Factories.Contracts
     {
         private const string CorrelationId = "Correlation-Id";
 
-        public HttpRequestMessage CreateCmsAuthValuesRequest(DdeiCmsCaseDataArgDto arg)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/cms-auth-values");
-            AddAuthHeaders(request, arg);
-            return request;
-        }
-
         public HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urn-lookup/{arg.CaseId}");
