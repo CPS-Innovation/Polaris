@@ -72,7 +72,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Domain\Messaging\" />
-  </ItemGroup>
 </Project>

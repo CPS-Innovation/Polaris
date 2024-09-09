@@ -173,6 +173,16 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
         }
 
+        public async Task<HttpResponseMessage> ReclassifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ReclassifyDocumentDto reclassifyDocumentDto, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Post,
+                RestApi.GetReclassifyDocumentPath(caseUrn, caseId.ToString(), polarisDocumentId.Value),
+                correlationId,
+                cmsAuthValues,
+                new StringContent(JsonConvert.SerializeObject(reclassifyDocumentDto), Encoding.UTF8, ContentType.Json));
+        }
+
         public async Task<HttpResponseMessage> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
@@ -196,6 +206,15 @@ namespace PolarisGateway.Clients.Coordinator
             return await SendRequestAsync(
                 HttpMethod.Get,
                 RestApi.MaterialTypeList,
+                correlationId,
+                cmsAuthValues);
+        }
+
+        public async Task<HttpResponseMessage> GetWitnessStatementsAsync(string caseUrn, int caseId, int witnessId, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.GetWitnessStatementsPath(caseUrn, caseId, witnessId),
                 correlationId,
                 cmsAuthValues);
         }
