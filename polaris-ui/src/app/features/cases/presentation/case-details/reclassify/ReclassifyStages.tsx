@@ -209,28 +209,55 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const reclassificationType = materialTypeList.find(
       (type) => type.typeId === +newDocTypeId
     )?.newClassificationVariant!;
+    const used = formData.documentUsedStatus === "YES" ? true : false;
+
     const saveData = {
       documentId,
       documentTypeId: +newDocTypeId!,
-      reclassificationType,
-      statement: {
-        witnessId: +formData.statementWitnessId!,
-        statementNo: +formData.statementNumber!,
-        date:
-          reclassificationType === "Statement"
-            ? `${formData.statementDay}-${formData.statementMonth}-${formData.statementYear}`
-            : "",
-      },
-      exhibit: {
-        existingProducerOrWitnessId:
-          formData.exhibitProducerId !== "other"
-            ? +formData.exhibitProducerId ?? null
-            : null,
-        newProducer: formData.exhibitOtherProducerValue,
-        item: formData.exhibitItemName,
-        reference: formData.exhibitReference,
-      },
-      used: formData.documentUsedStatus === "YES" ? true : false,
+      immediate:
+        state.reclassifyVariant === "Immediate"
+          ? {
+              newTitle:
+                formData.documentRenameStatus === "YES"
+                  ? formData.documentNewName
+                  : null,
+            }
+          : null,
+      other:
+        state.reclassifyVariant === "Other"
+          ? {
+              newTitle:
+                formData.documentRenameStatus === "YES"
+                  ? formData.documentNewName
+                  : null,
+              used,
+            }
+          : null,
+      statement:
+        state.reclassifyVariant === "Statement"
+          ? {
+              used,
+              witnessId: +formData.statementWitnessId!,
+              statementNo: +formData.statementNumber!,
+              date:
+                reclassificationType === "Statement"
+                  ? `${formData.statementDay}-${formData.statementMonth}-${formData.statementYear}`
+                  : "",
+            }
+          : null,
+      exhibit:
+        state.reclassifyVariant === "Exhibit"
+          ? {
+              used,
+              existingProducerOrWitnessId:
+                formData.exhibitProducerId !== "other"
+                  ? +formData.exhibitProducerId ?? null
+                  : null,
+              newProducer: formData.exhibitOtherProducerValue,
+              item: formData.exhibitItemName,
+              reference: formData.exhibitReference,
+            }
+          : null,
     };
     return saveData;
   };

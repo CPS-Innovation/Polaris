@@ -145,6 +145,8 @@ describe("useCaseDetailsState", () => {
         handleSearchPIIAction,
         handleResetRenameData,
         handleSaveRename,
+        handleReclassifySuccess,
+        handleResetReclassifyData,
         ...stateProperties
       } = result.current;
 
