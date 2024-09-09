@@ -200,6 +200,15 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
+        public async Task<HttpResponseMessage> GetWitnessStatementsAsync(string caseUrn, int caseId, int witnessId, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.GetWitnessStatementsPath(caseUrn, caseId, witnessId),
+                correlationId,
+                cmsAuthValues);
+        }
+
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);

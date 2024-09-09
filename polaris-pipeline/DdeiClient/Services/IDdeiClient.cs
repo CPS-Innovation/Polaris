@@ -2,6 +2,7 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Request;
+using Common.Dto.Response;
 using Ddei.Domain.CaseData.Args;
 
 namespace DdeiClient.Services
@@ -26,5 +27,6 @@ namespace DdeiClient.Services
 		Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg);
 		Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCmsCaseArgDto arg);
 		Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiCmsCaseDataArgDto arg);
+		Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiCmsWitnessStatementsArgDto arg);
 	}
 }

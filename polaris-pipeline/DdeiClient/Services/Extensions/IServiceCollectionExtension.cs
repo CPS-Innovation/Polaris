@@ -46,6 +46,7 @@ namespace Ddei.Services.Extensions
             services.AddTransient<ICaseIdentifiersMapper, CaseIdentifiersMapper>();
             services.AddTransient<ICmsAuthValuesMapper, CmsAuthValuesMapper>();
             services.AddTransient<ICmsMaterialTypeMapper, CmsMaterialTypeMapper>();
+            services.AddTransient<ICaseWitnessStatementMapper, CaseWitnessStatementMapper>();
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()

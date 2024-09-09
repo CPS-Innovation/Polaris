@@ -121,5 +121,17 @@ namespace Ddei.Factories
                 CorrelationId = correlationId
             };
         }
+
+        public DdeiCmsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
+        {
+            return new DdeiCmsWitnessStatementsArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                WitnessId = witnessId
+            };
+        }
     }
 }
