@@ -59,9 +59,6 @@ export const FEATURE_FLAG_SEARCH_PII =
 export const FEATURE_FLAG_RENAME_DOCUMENT =
   `${process.env.REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT}` === "true";
 
-export const FEATURE_FLAG_EXTERNAL_REDIRECT =
-  `${process.env.REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT}` === "true";
-
 export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
   .REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS
   ? parseInt(process.env.REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS)
@@ -72,13 +69,6 @@ export const PRIVATE_BETA_FEATURE_USER_GROUP =
 
 export const PRIVATE_BETA_FEATURE_USER_GROUP2 =
   process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2 ?? "";
-
-export const PRIVATE_BETA_FEATURE_USER_GROUP3 =
-  process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3 ?? "";
-
-export const CASE_REVIEW_APP_REDIRECT_URL =
-  process.env.REACT_APP_CASE_REVIEW_APP_REDIRECT_URL!;
-export const BULK_UM_REDIRECT_URL = process.env.REACT_APP_BULK_UM_REDIRECT_URL!;
 
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
