@@ -29,6 +29,7 @@ namespace Ddei.Services
         private readonly ICaseIdentifiersMapper _caseIdentifiersMapper;
         private readonly ICmsAuthValuesMapper _cmsAuthValuesMapper;
         private readonly ICmsMaterialTypeMapper _cmsMaterialTypeMapper;
+        private readonly ICaseWitnessStatementMapper _caseWitnessStatementMapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDdeiClientRequestFactory _ddeiClientRequestFactory;
         private readonly ILogger<DdeiClient> _logger;
@@ -47,6 +48,7 @@ namespace Ddei.Services
             ICaseIdentifiersMapper caseIdentifiersMapper,
             ICmsAuthValuesMapper cmsAuthValuesMapper,
             ICmsMaterialTypeMapper cmsMaterialTypeMapper,
+            ICaseWitnessStatementMapper caseWitnessStatementMapper,
             IJsonConvertWrapper jsonConvertWrapper,
             ILogger<DdeiClient> logger
             )
@@ -61,6 +63,7 @@ namespace Ddei.Services
             _caseIdentifiersMapper = caseIdentifiersMapper ?? throw new ArgumentNullException(nameof(caseIdentifiersMapper));
             _cmsAuthValuesMapper = cmsAuthValuesMapper ?? throw new ArgumentNullException(nameof(cmsAuthValuesMapper));
             _cmsMaterialTypeMapper = cmsMaterialTypeMapper ?? throw new ArgumentNullException(nameof(cmsMaterialTypeMapper));
+            _caseWitnessStatementMapper = caseWitnessStatementMapper ?? throw new ArgumentNullException(nameof(caseWitnessStatementMapper));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _ddeiClientRequestFactory = ddeiClientRequestFactory ?? throw new ArgumentNullException(nameof(ddeiClientRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -238,6 +241,13 @@ namespace Ddei.Services
             var ddeiResults = await CallDdei<List<DdeiMaterialTypeListResponse>>(_ddeiClientRequestFactory.CreateGetMaterialTypeListRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _cmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
+        }
+
+        public async Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiCmsWitnessStatementsArgDto arg)
+        {
+            var ddeiResults = await CallDdei<List<DdeiCaseWitnessStatementsResponse>>(_ddeiClientRequestFactory.CreateGetWitnessStatementsRequest(arg));
+
+            return ddeiResults.Select(ddeiResult => _caseWitnessStatementMapper.Map(ddeiResult)).ToArray();
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)

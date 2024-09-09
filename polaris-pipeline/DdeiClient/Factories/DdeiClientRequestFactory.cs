@@ -176,6 +176,13 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiCmsWitnessStatementsArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/witnesses/{arg.WitnessId}/statements");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
         private void AddAuthHeaders(HttpRequestMessage request, DdeiCmsCaseDataArgDto arg)
         {
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);
