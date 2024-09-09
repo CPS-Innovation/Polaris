@@ -214,7 +214,11 @@ Cypress.Commands.add("fullLogin", () => {
   cy.loginToAD().loginToCms()
   cy.visit(
     COOKIE_REDIRECT_URL +
-      encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
+      encodeURIComponent(
+        encodeURIComponent(
+          Cypress.config().baseUrl + "/polaris-ui?auth-refresh"
+        )
+      )
   )
 })
 
