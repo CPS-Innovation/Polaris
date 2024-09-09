@@ -1,6 +1,7 @@
 import { useReducer, useEffect } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
+import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
@@ -33,6 +34,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
+  reclassifyData: ReclassifyDocumentData[];
 };
 
 export const Accordion: React.FC<Props> = ({
@@ -47,6 +49,7 @@ export const Accordion: React.FC<Props> = ({
   accordionStateChangeCallback,
   handleReclassifyDocument,
   handleGetNotes,
+  reclassifyData,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
@@ -102,6 +105,7 @@ export const Accordion: React.FC<Props> = ({
           handleGetNotes={handleGetNotes}
           handleReclassifyDocument={handleReclassifyDocument}
           notesData={notesData}
+          reclassifyData={reclassifyData}
         />
       ))}
     </div>

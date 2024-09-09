@@ -539,6 +539,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
+                      reclassifyData={reclassifyDocuments}
                     />
                   )}
                 </div>

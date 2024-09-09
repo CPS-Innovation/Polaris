@@ -30,6 +30,7 @@ import {
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
 
 type Props = {
   activeDocumentId: string;
@@ -50,6 +51,7 @@ type Props = {
   handleReclassifyDocument: (documentId: string) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
+  reclassifyData: ReclassifyDocumentData[];
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -58,6 +60,7 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   featureFlags,
   notesData,
+  reclassifyData,
   handleOpenPdf,
   handleOpenPanel,
   handleGetNotes,
@@ -201,6 +204,13 @@ export const AccordionDocument: React.FC<Props> = ({
         {activeDocumentId === caseDocument.documentId && (
           <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
             Active Document
+          </strong>
+        )}
+        {reclassifyData.find(
+          (doc) => doc.documentId === caseDocument.documentId
+        )?.reclassified && (
+          <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
+            Reclassified
           </strong>
         )}
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
