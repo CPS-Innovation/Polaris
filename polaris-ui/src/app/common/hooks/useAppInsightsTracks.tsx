@@ -50,7 +50,9 @@ type AppInsightsTrackEventNames =
   | "Ignore Redaction Suggestion"
   | "Cancel Save Redaction Suggestion Warning"
   | "Save Rename Document"
-  | "Save Rename Document Error";
+  | "Save Rename Document Error"
+  | "Save Reclassify"
+  | "Save Reclassify Error";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -143,7 +145,11 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Save Rename Document":
     "User document rename request sent to the server after successful UI validation",
   "Save Rename Document Error":
-    "The attempt to rename a document failed, prompting the display of an error message to the user",
+    "Attempt to rename a document failed and displayed error message to the user",
+  "Save Reclassify":
+    "User document reclassify request sent to the server after successful UI validation",
+  "Save Reclassify Error":
+    "Attempt to reclassify a document failed and displayed error message to the user",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

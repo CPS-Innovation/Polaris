@@ -61,11 +61,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     documentId: string;
     presentationFileName: string;
     docTypeId: number | null;
+    isUnused: boolean;
   }>({
     open: false,
     documentId: "",
     presentationFileName: "",
     docTypeId: null,
+    isUnused: false,
   });
   const [inFullScreen, setInFullScreen] = useState(false);
   const [actionsSidePanel, setActionsSidePanel] = useState<{
@@ -293,6 +295,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         documentId,
         presentationFileName: selectedDocument.presentationTitle,
         docTypeId: selectedDocument.cmsDocType.documentTypeId,
+        isUnused: selectedDocument.isUnused,
       });
     }
   };
@@ -309,6 +312,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       documentId: "",
       presentationFileName: "",
       docTypeId: null,
+      isUnused: false,
     });
 
     setTimeout(() => {
@@ -350,6 +354,54 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       handleReclassifySuccess(documentId, data.documentTypeId);
     }
     return response;
+  };
+
+  const handleReclassifyTracking = (
+    name: string,
+    properties: Record<string, any>
+  ) => {
+    if (name !== "Save Reclassify" && name !== "Save Reclassify Error") {
+      return;
+    }
+
+    const getNameChanged = () => {
+      if (properties.immediate && properties.immediate.documentName) {
+        return true;
+      }
+      if (properties.other && properties.other.documentName) {
+        return true;
+      }
+      if (
+        properties.exhibit &&
+        properties.exhibit.item !== reclassifyDetails.presentationFileName
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    const getNewIsUnused = () => {
+      if (properties.other) {
+        return !properties.other.used;
+      }
+      if (properties.exhibit) {
+        return !properties.exhibit.used;
+      }
+      if (properties.statement) {
+        return !properties.statement.used;
+      }
+      return null;
+    };
+    const trackingProperties = {
+      documentId: properties.documentId,
+      oldDocumentType: reclassifyDetails.docTypeId,
+      newDocumentType: properties.documentTypeId,
+      nameChanged: getNameChanged(),
+      oldIsUnused: reclassifyDetails.isUnused,
+      newIsUnused: getNewIsUnused(),
+    };
+
+    trackEvent(name, trackingProperties);
   };
 
   return (
@@ -720,6 +772,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             getStatementWitnessDetails={handleGetStatementWitnessDetails}
             getWitnessStatementNumbers={handleGetWitnessStatementNumbers}
             handleSubmitReclassify={handleSubmitReclassify}
+            handleReclassifyTracking={handleReclassifyTracking}
           />
         </div>
       )}

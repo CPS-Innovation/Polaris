@@ -22,6 +22,10 @@ type ReclassifyProps = {
     documentId: string,
     data: ReclassifySaveData
   ) => Promise<boolean>;
+  handleReclassifyTracking: (
+    name: string,
+    properties: Record<string, any>
+  ) => void;
 };
 
 export const Reclassify: React.FC<ReclassifyProps> = ({
@@ -35,6 +39,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
   handleSubmitReclassify,
+  handleReclassifyTracking,
 }) => {
   return (
     <div>
@@ -50,6 +55,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
           getStatementWitnessDetails={getStatementWitnessDetails}
           getWitnessStatementNumbers={getWitnessStatementNumbers}
           handleSubmitReclassify={handleSubmitReclassify}
+          handleReclassifyTracking={handleReclassifyTracking}
         />
       </ReClassifyProvider>
     </div>

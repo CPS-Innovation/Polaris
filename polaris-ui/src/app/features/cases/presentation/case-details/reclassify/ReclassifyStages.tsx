@@ -35,6 +35,10 @@ type ReclassifyStagesProps = {
     documentId: string,
     data: ReclassifySaveData
   ) => Promise<boolean>;
+  handleReclassifyTracking: (
+    name: string,
+    properties: Record<string, any>
+  ) => void;
 };
 
 const MAX_LENGTH = 252;
@@ -49,6 +53,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
   handleSubmitReclassify,
+  handleReclassifyTracking,
 }) => {
   console.log("reclassifiedDocumentUpdate>>>", reclassifiedDocumentUpdate);
   const continueButtonRef = useRef(null);
@@ -299,6 +304,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       type: "UPDATE_RECLASSIFY_SAVE_STATUS",
       payload: { value: "saving" },
     });
+    handleReclassifyTracking("Save Reclassify", saveData);
     const result = await handleSubmitReclassify(documentId, saveData);
     if (result) {
       dispatch({
@@ -316,6 +322,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         type: "UPDATE_RECLASSIFY_SAVE_STATUS",
         payload: { value: "failure" },
       });
+      handleReclassifyTracking("Save Reclassify Error", saveData);
     }
   };
 
