@@ -11,7 +11,7 @@ type ReclassifyProps = {
   currentDocTypeId: number | null;
   presentationTitle: string;
   reclassifiedDocumentUpdate?: boolean;
-  handleCancelReclassify: () => void;
+  handleCloseReclassify: (documentId: string) => void;
   getMaterialTypeList: () => Promise<MaterialType[]>;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
   getStatementWitnessDetails: () => Promise<StatementWitness[]>;
@@ -29,7 +29,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
   currentDocTypeId,
   presentationTitle,
   reclassifiedDocumentUpdate,
-  handleCancelReclassify,
+  handleCloseReclassify,
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
@@ -44,7 +44,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
           currentDocTypeId={currentDocTypeId}
           presentationTitle={presentationTitle}
           reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
-          handleCancelReclassify={handleCancelReclassify}
+          handleCloseReclassify={handleCloseReclassify}
           getMaterialTypeList={getMaterialTypeList}
           getExhibitProducers={getExhibitProducers}
           getStatementWitnessDetails={getStatementWitnessDetails}

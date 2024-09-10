@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   LinkButton,
   Button,
@@ -24,7 +24,7 @@ type ReclassifyStagesProps = {
   currentDocTypeId: number | null;
   presentationTitle: string;
   reclassifiedDocumentUpdate?: boolean;
-  handleCancelReclassify: () => void;
+  handleCloseReclassify: (documentId: string) => void;
   getMaterialTypeList: () => Promise<MaterialType[]>;
   getExhibitProducers: () => Promise<ExhibitProducer[]>;
   getStatementWitnessDetails: () => Promise<StatementWitness[]>;
@@ -43,7 +43,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   currentDocTypeId,
   presentationTitle,
   reclassifiedDocumentUpdate,
-  handleCancelReclassify,
+  handleCloseReclassify,
   getMaterialTypeList,
   getExhibitProducers,
   getStatementWitnessDetails,
@@ -73,31 +73,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const reclassifyContext = useReClassifyContext()!;
 
   const { state, dispatch } = reclassifyContext;
-  useEffect(() => {
-    const fetchDataOnMount = async () => {
-      if (state.materialTypeList.length) return;
-      setLoading(true);
-      try {
-        const result = await getMaterialTypeList();
-        dispatch({
-          type: "ADD_MATERIAL_TYPE_LIST",
-          payload: { materialList: result },
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDataOnMount();
-  }, []);
-
-  useEffect(() => {
-    if (reclassifiedDocumentUpdate) {
-      handleCancelReclassify();
-    }
-  }, [reclassifiedDocumentUpdate, handleCancelReclassify]);
 
   const validateData = () => {
     if (state.reClassifyStage === "stage3") {
@@ -298,7 +273,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
   const handleBackBtnClick = () => {
     if (state.reClassifyStage === "stage1") {
-      handleCancelReclassify();
+      closeReclassify();
       return;
     }
 
@@ -331,7 +306,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         payload: { value: "success" },
       });
       if (reclassifiedDocumentUpdate === undefined) {
-        handleCancelReclassify();
+        closeReclassify();
         return;
       }
     }
@@ -351,6 +326,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     });
   };
 
+  const closeReclassify = useCallback(() => {
+    handleCloseReclassify(documentId);
+  }, [handleCloseReclassify, documentId]);
+
   const renderActionButtons = () => {
     if (state.reClassifyStage !== "stage3") {
       return (
@@ -366,10 +345,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           >
             Continue
           </Button>
-          <LinkButton
-            className={classes.btnCancel}
-            onClick={handleCancelReclassify}
-          >
+          <LinkButton className={classes.btnCancel} onClick={closeReclassify}>
             Cancel
           </LinkButton>
         </>
@@ -387,6 +363,32 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       </Button>
     );
   };
+
+  useEffect(() => {
+    const fetchDataOnMount = async () => {
+      if (state.materialTypeList.length) return;
+      setLoading(true);
+      try {
+        const result = await getMaterialTypeList();
+        dispatch({
+          type: "ADD_MATERIAL_TYPE_LIST",
+          payload: { materialList: result },
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDataOnMount();
+  }, []);
+
+  useEffect(() => {
+    if (reclassifiedDocumentUpdate) {
+      closeReclassify();
+    }
+  }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
 
   if (loading) {
     return <div>loading data</div>;

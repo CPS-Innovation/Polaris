@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, forwardRef, useImperativeHandle } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
@@ -36,78 +36,101 @@ type Props = {
   notesData: NotesData[];
   reclassifyData: ReclassifyDocumentData[];
 };
-
-export const Accordion: React.FC<Props> = ({
-  initialState,
-  activeDocumentId,
-  accordionState: sections,
-  readUnreadData,
-  featureFlags,
-  notesData,
-  handleOpenPdf,
-  handleOpenPanel,
-  accordionStateChangeCallback,
-  handleReclassifyDocument,
-  handleGetNotes,
-  reclassifyData,
-}) => {
-  const trackEvent = useAppInsightsTrackEvent();
-  const [state, dispatch] = useReducer(
-    reducer,
-    initialState !== null
-      ? initialState
-      : buildInitialState(sections.map((section) => section.sectionLabel))
-  );
-
-  useEffect(() => {
-    accordionStateChangeCallback(state);
-  }, [state, accordionStateChangeCallback]);
-
-  const handleToggleOpenAll = () => {
-    if (state.isAllOpen) {
-      trackEvent("Close All Folders");
-    } else {
-      trackEvent("Open All Folders");
-    }
-    dispatch({ type: "OPEN_CLOSE_ALL", payload: !state.isAllOpen });
-  };
-  const handleToggleOpenSection = (id: string, sectionLabel: string) => {
-    if (state.sections[id]) {
-      trackEvent("Collapse Doc Category", { categoryName: sectionLabel });
-    } else {
-      trackEvent("Expand Doc Category", { categoryName: sectionLabel });
-    }
-    dispatch({
-      type: "OPEN_CLOSE",
-      payload: { id, open: !state.sections[id] },
-    });
-  };
-
-  return (
-    <div className={`${classes.accordion}`}>
-      <AccordionHeader
-        isAllOpen={state.isAllOpen}
-        handleToggleOpenAll={handleToggleOpenAll}
-      />
-      {sections.map(({ sectionId, sectionLabel, docs }) => (
-        <AccordionSection
-          key={sectionId}
-          sectionId={sectionId}
-          sectionLabel={sectionLabel}
-          docs={docs}
-          isOpen={state.sections[sectionId]}
-          readUnreadData={readUnreadData}
-          activeDocumentId={activeDocumentId}
-          featureFlags={featureFlags}
-          handleToggleOpenSection={handleToggleOpenSection}
-          handleOpenPdf={handleOpenPdf}
-          handleOpenPanel={handleOpenPanel}
-          handleGetNotes={handleGetNotes}
-          handleReclassifyDocument={handleReclassifyDocument}
-          notesData={notesData}
-          reclassifyData={reclassifyData}
-        />
-      ))}
-    </div>
-  );
+export type AccordionRef = {
+  handleOpenAccordion: (documentId: string) => void;
 };
+
+export const Accordion = forwardRef<AccordionRef, Props>(
+  (
+    {
+      initialState,
+      activeDocumentId,
+      accordionState: sections,
+      readUnreadData,
+      featureFlags,
+      notesData,
+      handleOpenPdf,
+      handleOpenPanel,
+      accordionStateChangeCallback,
+      handleReclassifyDocument,
+      handleGetNotes,
+      reclassifyData,
+    },
+    ref
+  ) => {
+    const trackEvent = useAppInsightsTrackEvent();
+    const [state, dispatch] = useReducer(
+      reducer,
+      initialState !== null
+        ? initialState
+        : buildInitialState(sections.map((section) => section.sectionLabel))
+    );
+
+    useEffect(() => {
+      accordionStateChangeCallback(state);
+    }, [state, accordionStateChangeCallback]);
+
+    const handleToggleOpenAll = () => {
+      if (state.isAllOpen) {
+        trackEvent("Close All Folders");
+      } else {
+        trackEvent("Open All Folders");
+      }
+      dispatch({ type: "OPEN_CLOSE_ALL", payload: !state.isAllOpen });
+    };
+    const handleToggleOpenSection = (id: string, sectionLabel: string) => {
+      if (state.sections[id]) {
+        trackEvent("Collapse Doc Category", { categoryName: sectionLabel });
+      } else {
+        trackEvent("Expand Doc Category", { categoryName: sectionLabel });
+      }
+      dispatch({
+        type: "OPEN_CLOSE",
+        payload: { id, open: !state.sections[id] },
+      });
+    };
+    const handleOpenAccordion = (documentId: string) => {
+      const section = sections.find((section) =>
+        section.docs.find((doc) => doc.documentId === documentId)
+      );
+      if (section && !state.sections[`${section.sectionId}`]) {
+        dispatch({
+          type: "OPEN_CLOSE",
+          payload: { id: section.sectionId, open: true },
+        });
+      }
+    };
+
+    useImperativeHandle(ref, () => ({
+      handleOpenAccordion,
+    }));
+
+    return (
+      <div className={`${classes.accordion}`}>
+        <AccordionHeader
+          isAllOpen={state.isAllOpen}
+          handleToggleOpenAll={handleToggleOpenAll}
+        />
+        {sections.map(({ sectionId, sectionLabel, docs }) => (
+          <AccordionSection
+            key={sectionId}
+            sectionId={sectionId}
+            sectionLabel={sectionLabel}
+            docs={docs}
+            isOpen={state.sections[sectionId]}
+            readUnreadData={readUnreadData}
+            activeDocumentId={activeDocumentId}
+            featureFlags={featureFlags}
+            handleToggleOpenSection={handleToggleOpenSection}
+            handleOpenPdf={handleOpenPdf}
+            handleOpenPanel={handleOpenPanel}
+            handleGetNotes={handleGetNotes}
+            handleReclassifyDocument={handleReclassifyDocument}
+            notesData={notesData}
+            reclassifyData={reclassifyData}
+          />
+        ))}
+      </div>
+    );
+  }
+);

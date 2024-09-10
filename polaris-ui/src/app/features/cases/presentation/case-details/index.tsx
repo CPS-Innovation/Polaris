@@ -9,7 +9,7 @@ import {
 } from "../../../../common/presentation/components";
 import { Wait as AccordionWait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
-import { Accordion } from "./accordion/Accordion";
+import { Accordion, AccordionRef } from "./accordion/Accordion";
 import { KeyDetails } from "./KeyDetails";
 import classes from "./index.module.scss";
 import { PdfTabs } from "./pdf-tabs/PdfTabs";
@@ -87,6 +87,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   });
 
   const unMounting = useRef(false);
+  const accordionRef = useRef<AccordionRef>(null);
 
   const [accordionOldState, setAccordionOldState] =
     useState<AccordionReducerState | null>(null);
@@ -296,14 +297,22 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     }
   };
 
-  const hideReclassifyDocument = () => {
+  const handleOpenAccordion = (documentId: string) => {
+    if (accordionRef.current) {
+      accordionRef.current.handleOpenAccordion(documentId);
+    }
+  };
+
+  const handleCloseReclassify = (documentId: string) => {
     setInReclassifyDetails({
       open: false,
       documentId: "",
       presentationFileName: "",
       docTypeId: null,
     });
+
     setTimeout(() => {
+      handleOpenAccordion(documentId);
       (
         document.querySelector(
           `#document-housekeeping-actions-dropdown-${reclassifyDetails.documentId}`
@@ -520,6 +529,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                     <AccordionWait />
                   ) : (
                     <Accordion
+                      ref={accordionRef}
                       initialState={accordionOldState}
                       readUnreadData={
                         storedUserData.status === "succeeded"
@@ -704,7 +714,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             reclassifiedDocumentUpdate={activeReclassifyDocumentUpdated(
               reclassifyDetails.documentId
             )}
-            handleCancelReclassify={hideReclassifyDocument}
+            handleCloseReclassify={handleCloseReclassify}
             getMaterialTypeList={handleGetMaterialTypeList}
             getExhibitProducers={handleGetExhibitProducers}
             getStatementWitnessDetails={handleGetStatementWitnessDetails}
