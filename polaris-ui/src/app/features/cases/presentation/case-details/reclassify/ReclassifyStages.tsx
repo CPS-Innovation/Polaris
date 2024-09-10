@@ -407,8 +407,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         <div className="govuk-grid-column-one-half">
           {(state.reClassifySaveStatus === "saving" ||
             state.reClassifySaveStatus === "success") && (
-            <NotificationBanner>
-              <div className={classes.savingBanner}>
+            <NotificationBanner className={classes.notificationBanner}>
+              <div className={classes.bannerContent}>
                 <div className={classes.spinnerWrapper}>
                   <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
                 </div>

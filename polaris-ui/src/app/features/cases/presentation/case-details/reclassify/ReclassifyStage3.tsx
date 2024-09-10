@@ -48,7 +48,6 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
         "Type",
         "Item Name",
         "Exhibit Reference",
-        "Exhibit Subject",
         "Exhibit Producer",
         "Status",
       ],
