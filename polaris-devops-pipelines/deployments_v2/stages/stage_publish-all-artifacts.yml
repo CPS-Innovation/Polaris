@@ -74,6 +74,8 @@ stages:
             displayName: "Publish Coordinator artifact"
 
       - job: Build_Pdf_Generator_Artifact
+        pool:
+          vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadSecureFile@1
             name: licence
@@ -88,28 +90,15 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-            
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: restore
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              feedsToUse: "select"
-            
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: build
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-            displayName: "Build PDF-Generator artifact"
 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
               publishWebProjects: false
               projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion) --verbosity detailed"
               zipAfterPublish: false
-            displayName: "Create PDF-Generator package"
+            displayName: "Build PDF-Generator artifact"
           
           # Add build version
           - task: PowerShell@2
@@ -126,9 +115,11 @@ stages:
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
-            displayName: "Publish PDF-Generator package"
+            displayName: "Publish PDF-Generator codebase artifact"
 
       - job: Build_Pdf_Redactor_Artifact
+        pool:
+          vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadSecureFile@1
             name: licence
