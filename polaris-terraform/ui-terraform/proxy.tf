@@ -29,13 +29,27 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
-    "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
-    "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
-    "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"              = var.cms_details.upstream_cms_modern_ip_farnborough
-    "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
-    "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"               = var.cms_details.upstream_cms_services_domain_name
-    "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name
+    "DEFAULT_UPSTREAM_CMS_IP_CORSHAM"                 = var.cms_details.default_upstream_cms_ip_corsham
+    "DEFAULT_UPSTREAM_CMS_MODERN_IP_CORSHAM"          = var.cms_details.default_upstream_cms_modern_ip_corsham
+    "DEFAULT_UPSTREAM_CMS_IP_FARNBOROUGH"             = var.cms_details.default_upstream_cms_ip_farnborough
+    "DEFAULT_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"      = var.cms_details.default_upstream_cms_modern_ip_farnborough
+    "DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"                = var.cms_details.default_upstream_cms_domain_name
+    "DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"       = var.cms_details.default_upstream_cms_services_domain_name
+    "DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"         = var.cms_details.default_upstream_cms_modern_domain_name
+    "CIN4_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin4_upstream_cms_ip_corsham
+    "CIN4_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin4_upstream_cms_modern_ip_corsham
+    "CIN4_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin4_upstream_cms_ip_farnborough
+    "CIN4_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"         = var.cms_details.cin4_upstream_cms_modern_ip_farnborough
+    "CIN4_UPSTREAM_CMS_DOMAIN_NAME"                   = var.cms_details.cin4_upstream_cms_domain_name
+    "CIN4_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin4_upstream_cms_services_domain_name
+    "CIN4_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin4_upstream_cms_modern_domain_name
+    "CIN5_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin5_upstream_cms_ip_corsham
+    "CIN5_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin5_upstream_cms_modern_ip_corsham
+    "CIN5_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin5_upstream_cms_ip_farnborough
+    "CIN5_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"         = var.cms_details.cin5_upstream_cms_modern_ip_farnborough
+    "CIN5_UPSTREAM_CMS_DOMAIN_NAME"                   = var.cms_details.cin5_upstream_cms_domain_name
+    "CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin5_upstream_cms_services_domain_name
+    "CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin5_upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
@@ -45,7 +59,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
-    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
+    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
@@ -143,13 +157,34 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["XDT_MicrosoftApplicationInsights_PreemptSdk"],
       app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
       app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["UPSTREAM_CMS_IP_CORSHAM"],
-      app_settings["UPSTREAM_CMS_MODERN_IP_CORSHAM"],
-      app_settings["UPSTREAM_CMS_IP_FARNBOROUGH"],
-      app_settings["UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
-      app_settings["UPSTREAM_CMS_DOMAIN_NAME"],
-      app_settings["UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
-      app_settings["UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["DEFAULT_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["DEFAULT_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["DEFAULT_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["DEFAULT_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CIN2_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CIN2_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CIN2_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CIN2_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CIN2_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CIN4_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CIN4_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CIN4_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CIN4_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CIN4_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CIN4_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CIN4_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CIN5_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CIN5_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CIN5_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CIN5_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CIN5_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
       app_settings["APP_ENDPOINT_DOMAIN_NAME"],
       app_settings["APP_SUBFOLDER_PATH"],
       app_settings["API_ENDPOINT_DOMAIN_NAME"],
@@ -236,6 +271,16 @@ resource "azurerm_storage_blob" "nginx_js" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "nginx.js"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
+}
+
+resource "azurerm_storage_blob" "cmsenv_js" {
+  name                   = "cmsenv.js"
+  content_md5            = md5(file("cmsenv.js"))
+  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
+  type                   = "Block"
+  source                 = "cmsenv.js"
   depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 

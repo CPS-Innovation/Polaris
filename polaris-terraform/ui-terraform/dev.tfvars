@@ -26,15 +26,29 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip_corsham        = "10.3.177.14"
-  upstream_cms_modern_ip_corsham = "10.2.177.67"
   // for non-prod environments, current thinking is to try to go to Corsham's IP
   //  even if we detect a farnborough cookie
-  upstream_cms_ip_farnborough        = "10.3.177.14"
-  upstream_cms_modern_ip_farnborough = "10.2.177.67"
-  upstream_cms_domain_name           = "cin3.cps.gov.uk"
-  upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
-  upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  default_upstream_cms_ip_corsham            = "10.2.177.14"
+  default_upstream_cms_modern_ip_corsham     = "10.2.177.67"
+  default_upstream_cms_ip_farnborough        = "10.3.177.14"
+  default_upstream_cms_modern_ip_farnborough = "10.3.177.67"
+  default_upstream_cms_domain_name           = "cin3.cps.gov.uk"
+  default_upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
+  default_upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  cin4_upstream_cms_ip_corsham               = "10.2.177.35"
+  cin4_upstream_cms_modern_ip_corsham        = "10.2.177.67"
+  cin4_upstream_cms_ip_farnborough           = "10.3.177.35"
+  cin4_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
+  cin4_upstream_cms_domain_name              = "cin4.cps.gov.uk"
+  cin4_upstream_cms_modern_domain_name       = "cmsmodstage.cps.gov.uk"
+  cin4_upstream_cms_services_domain_name     = "not-used-in-cin4.cps.gov.uk"
+  cin5_upstream_cms_ip_corsham               = "10.2.177.21"
+  cin5_upstream_cms_modern_ip_corsham        = "10.2.177.67"
+  cin5_upstream_cms_ip_farnborough           = "10.3.177.21"
+  cin5_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
+  cin5_upstream_cms_domain_name              = "cin5.cps.gov.uk"
+  cin5_upstream_cms_modern_domain_name       = "cmsmodcin5.cps.gov.uk"
+  cin5_upstream_cms_services_domain_name     = "not-used-in-cin5.cps.gov.uk"
 }
 
 wm_task_list_host_name = "https://cps-dev.outsystemsenterprise.com"

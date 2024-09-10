@@ -67,13 +67,27 @@ variable "ui_logging" {
 
 variable "cms_details" {
   type = object({
-    upstream_cms_ip_corsham            = string
-    upstream_cms_modern_ip_corsham     = string
-    upstream_cms_ip_farnborough        = string
-    upstream_cms_modern_ip_farnborough = string
-    upstream_cms_domain_name           = string
-    upstream_cms_modern_domain_name    = string
-    upstream_cms_services_domain_name  = string
+    default_upstream_cms_ip_corsham            = string
+    default_upstream_cms_modern_ip_corsham     = string
+    default_upstream_cms_ip_farnborough        = string
+    default_upstream_cms_modern_ip_farnborough = string
+    default_upstream_cms_domain_name           = string
+    default_upstream_cms_modern_domain_name    = string
+    default_upstream_cms_services_domain_name  = string
+    cin4_upstream_cms_ip_corsham               = string
+    cin4_upstream_cms_modern_ip_corsham        = string
+    cin4_upstream_cms_ip_farnborough           = string
+    cin4_upstream_cms_modern_ip_farnborough    = string
+    cin4_upstream_cms_domain_name              = string
+    cin4_upstream_cms_modern_domain_name       = string
+    cin4_upstream_cms_services_domain_name     = string
+    cin5_upstream_cms_ip_corsham               = string
+    cin5_upstream_cms_modern_ip_corsham        = string
+    cin5_upstream_cms_ip_farnborough           = string
+    cin5_upstream_cms_modern_ip_farnborough    = string
+    cin5_upstream_cms_domain_name              = string
+    cin5_upstream_cms_modern_domain_name       = string
+    cin5_upstream_cms_services_domain_name     = string
   })
 }
 
