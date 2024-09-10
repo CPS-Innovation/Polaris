@@ -74,8 +74,6 @@ stages:
             displayName: "Publish Coordinator artifact"
 
       - job: Build_Pdf_Generator_Artifact
-        pool:
-          vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadSecureFile@1
             name: licence
@@ -118,8 +116,6 @@ stages:
             displayName: "Publish PDF-Generator codebase artifact"
 
       - job: Build_Pdf_Redactor_Artifact
-        pool:
-          vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadSecureFile@1
             name: licence
