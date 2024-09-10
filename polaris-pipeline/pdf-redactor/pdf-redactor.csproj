@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     <RootNamespace>pdf_redactor</RootNamespace>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'false'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
