@@ -6,7 +6,6 @@
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enabled</ImplicitUsings>
-    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'false'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

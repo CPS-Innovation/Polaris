@@ -96,7 +96,7 @@ stages:
               command: publish
               publishWebProjects: false
               projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion) --verbosity detailed"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build PDF-Generator artifact"
           
