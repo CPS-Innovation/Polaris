@@ -39,7 +39,7 @@ export const reclassifyInitialState: ReclassifyState = {
   formData: {
     documentRenameStatus: "NO",
     documentNewName: "",
-    documentUsedStatus: "NO",
+    documentUsedStatus: "YES",
     exhibitReference: "",
     exhibitItemName: "",
     exhibitProducerId: "",
