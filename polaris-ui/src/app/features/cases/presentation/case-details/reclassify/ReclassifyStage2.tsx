@@ -32,8 +32,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
 }) => {
-  console.log("formDataErrors>>0000", formDataErrors);
-
   const [loading, setLoading] = useState(true);
   const [lookupError, setLookupDataError] = useState("");
   const reclassifyContext = useReClassifyContext();
@@ -336,7 +334,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   );
 
   const errorSummaryList = useMemo(() => {
-    console.log("formDataErrors>>", formDataErrors);
     const validErrors = Object.fromEntries(
       Object.entries(formDataErrors).filter(([key, value]) => value !== "")
     );
@@ -349,7 +346,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
   useEffect(() => {
     if (errorSummaryList.length && errorSummaryRef.current) {
-      console.log("hiiii");
       (errorSummaryRef?.current as HTMLButtonElement).focus();
     }
   }, [errorSummaryList]);

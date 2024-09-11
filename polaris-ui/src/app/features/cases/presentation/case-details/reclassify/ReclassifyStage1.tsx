@@ -25,7 +25,6 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
 
   useEffect(() => {
     if (formDataErrors.documentTypeErrorText && errorSummaryRef.current) {
-      console.log("hiiii");
       (errorSummaryRef?.current as HTMLButtonElement).focus();
     }
   }, [formDataErrors]);
@@ -47,7 +46,6 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   }, [state.materialTypeList, currentDocTypeId]);
 
   const handleDocTypeChange = (value: string) => {
-    console.log("value>>>", value);
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
   return (

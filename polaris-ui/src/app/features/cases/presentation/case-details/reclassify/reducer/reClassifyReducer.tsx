@@ -130,10 +130,7 @@ const getReclassifyVariant = (
   materialTypeList: MaterialType[],
   code: string
 ) => {
-  console.log("code>>>>", code);
-  console.log("materialTypeList>>>>", materialTypeList);
   const selectedType = materialTypeList.find((type) => type.typeId === +code)!;
-  console.log("selectedType>>", selectedType);
 
   if (selectedType.newClassificationVariant === "Statement") {
     return "Statement";

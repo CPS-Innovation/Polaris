@@ -176,7 +176,6 @@ export const useCaseDetailsState = (
   }, [pipelineState.pipelineResults, dispatch]);
 
   useEffect(() => {
-    console.log("abc>>>>>>>>>>>>>>>>>>>>>>", combinedState.reclassifyDocuments);
     if (!pipelineState.pipelineResults?.haveData) {
       return;
     }
@@ -630,7 +629,6 @@ export const useCaseDetailsState = (
 
   const handleReclassifySuccess = useCallback(
     (documentId: string, newDocTypeId: number) => {
-      console.log("handleReclassifySuccess>>>00000>>>>>");
       dispatch({
         type: "UPDATE_RECLASSIFY_DATA",
         payload: {

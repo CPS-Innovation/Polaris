@@ -55,7 +55,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleSubmitReclassify,
   handleReclassifyTracking,
 }) => {
-  console.log("reclassifiedDocumentUpdate>>>", reclassifiedDocumentUpdate);
   const continueButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
@@ -188,7 +187,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       (key) => errorTexts[key as keyof FormDataErrors]
     );
 
-    console.log("validErrors>>", validErrors.length);
     return !validErrors.length;
   };
 

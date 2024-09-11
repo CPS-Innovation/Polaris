@@ -167,8 +167,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   useSwitchContentArea();
   useDocumentFocus(tabsState.activeTabId);
 
-  console.log("reclassifyDocuments>>>", reclassifyDocuments);
-
   useEffect(() => {
     if (accordionState.status === "succeeded") {
       const categorisedData = accordionState.data.reduce(
@@ -356,7 +354,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       data
     );
     if (response) {
-      console.log("handleSubmitReclassify>>>>", response);
       handleReclassifySuccess(documentId, data.documentTypeId);
     }
     return response;

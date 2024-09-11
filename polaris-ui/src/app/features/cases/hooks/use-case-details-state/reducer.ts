@@ -1141,8 +1141,6 @@ export const reducer = (
     case "UPDATE_RECLASSIFY_DATA": {
       const { properties } = action.payload;
 
-      console.log("UPDATE_RECLASSIFY_DATA>>>000", properties);
-
       const filteredData = state.reclassifyDocuments.filter(
         (data) => data.documentId !== properties.documentId
       );
