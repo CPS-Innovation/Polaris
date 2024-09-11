@@ -17,7 +17,7 @@ export type ReclassifySaveData = {
   } | null;
   exhibit: {
     existingProducerOrWitnessId: number | null;
-    newProducer: string;
+    newProducer: string | null;
     item: string;
     reference: string;
     used: boolean;

@@ -236,10 +236,11 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           ? {
               used,
               existingProducerOrWitnessId:
+                formData.exhibitProducerId &&
                 formData.exhibitProducerId !== "other"
-                  ? +formData.exhibitProducerId ?? null
+                  ? +formData.exhibitProducerId
                   : null,
-              newProducer: formData.exhibitOtherProducerValue,
+              newProducer: formData.exhibitOtherProducerValue ?? null,
               item: formData.exhibitItemName,
               reference: formData.exhibitReference,
             }
