@@ -1,9 +1,14 @@
+using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 
 namespace Ddei.Factories
 {
     public class DdeiArgFactory : IDdeiArgFactory
     {
+        public DdeiArgFactory()
+        {
+        }
+
         public DdeiCmsCaseDataArgDto CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId)
         {
             return new DdeiCmsCaseDataArgDto
@@ -113,12 +118,41 @@ namespace Ddei.Factories
             };
         }
 
+        public DdeiCmsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, ReclassifyDocumentDto dto)
+        {
+            return new DdeiCmsReclassifyDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentId = documentId,
+                DocumentTypeId = dto.DocumentTypeId,
+                Exhibit = dto.Exhibit,
+                Statement = dto.Statement,
+                Other = dto.Other,
+                Immediate = dto.Immediate
+            };
+        }
+
         public DdeiCmsCaseDataArgDto CreateMaterialTypeListArgDto(string cmsAuthValues, Guid correlationId)
         {
             return new DdeiCmsCaseDataArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId
+            };
+        }
+
+        public DdeiCmsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
+        {
+            return new DdeiCmsWitnessStatementsArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                WitnessId = witnessId
             };
         }
     }

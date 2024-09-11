@@ -9,6 +9,8 @@ import {
   FEATURE_FLAG_RECLASSIFY,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
+  FEATURE_FLAG_EXTERNAL_REDIRECT,
+  PRIVATE_BETA_FEATURE_USER_GROUP3,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -66,6 +68,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     searchPII,
     renameDocument,
     reclassify,
+    externalRedirect,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -93,8 +96,13 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       renameDocument: showFeature(
         FEATURE_FLAG_RENAME_DOCUMENT,
         userDetails?.username,
-        renameDocument,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        renameDocument
+      ),
+      externalRedirect: showFeature(
+        FEATURE_FLAG_EXTERNAL_REDIRECT,
+        userDetails?.username,
+        externalRedirect,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP3 }
       ),
       reclassify: showFeature(
         FEATURE_FLAG_RECLASSIFY,

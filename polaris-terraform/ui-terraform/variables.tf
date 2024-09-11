@@ -67,17 +67,38 @@ variable "ui_logging" {
 
 variable "cms_details" {
   type = object({
-    upstream_cms_ip_corsham            = string
-    upstream_cms_modern_ip_corsham     = string
-    upstream_cms_ip_farnborough        = string
-    upstream_cms_modern_ip_farnborough = string
-    upstream_cms_domain_name           = string
-    upstream_cms_modern_domain_name    = string
-    upstream_cms_services_domain_name  = string
+    default_upstream_cms_ip_corsham            = string
+    default_upstream_cms_modern_ip_corsham     = string
+    default_upstream_cms_ip_farnborough        = string
+    default_upstream_cms_modern_ip_farnborough = string
+    default_upstream_cms_domain_name           = string
+    default_upstream_cms_modern_domain_name    = string
+    default_upstream_cms_services_domain_name  = string
+    cin4_upstream_cms_ip_corsham               = string
+    cin4_upstream_cms_modern_ip_corsham        = string
+    cin4_upstream_cms_ip_farnborough           = string
+    cin4_upstream_cms_modern_ip_farnborough    = string
+    cin4_upstream_cms_domain_name              = string
+    cin4_upstream_cms_modern_domain_name       = string
+    cin4_upstream_cms_services_domain_name     = string
+    cin5_upstream_cms_ip_corsham               = string
+    cin5_upstream_cms_modern_ip_corsham        = string
+    cin5_upstream_cms_ip_farnborough           = string
+    cin5_upstream_cms_modern_ip_farnborough    = string
+    cin5_upstream_cms_domain_name              = string
+    cin5_upstream_cms_modern_domain_name       = string
+    cin5_upstream_cms_services_domain_name     = string
   })
 }
 
 variable "wm_task_list_host_name" {
+  type = string
+}
+
+variable "auth_handover_whitelist" {
+  # Coma-delimited string of URL roots that the proxy will allow auth refresh/handover 
+  #  redirects to be forwarded on to.
+  #  e.g. "https://foo.bar/,https://baz/buz"
   type = string
 }
 
@@ -134,6 +155,11 @@ variable "feature_flag_reclassify" {
   type = string
 }
 
+variable "feature_flag_external_redirect" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "local_storage_expiry_days" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
@@ -145,12 +171,22 @@ variable "private_beta" {
     user_group          = string
     feature_user_group  = string
     feature_user_group2 = string
+    feature_user_group3 = string
   })
 }
 
 variable "polaris_ui_reauth_redirect_url" {
   type = string
 }
+
+variable "case_review_app_redirect_url" {
+  type = string
+}
+
+variable "bulk_um_redirect_url" {
+  type = string
+}
+
 
 variable "ssl_certificate_name" {
   type        = string

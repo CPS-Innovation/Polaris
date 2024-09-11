@@ -26,18 +26,33 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip_corsham        = "10.3.177.14"
-  upstream_cms_modern_ip_corsham = "10.2.177.67"
   // for non-prod environments, current thinking is to try to go to Corsham's IP
   //  even if we detect a farnborough cookie
-  upstream_cms_ip_farnborough        = "10.3.177.14"
-  upstream_cms_modern_ip_farnborough = "10.2.177.67"
-  upstream_cms_domain_name           = "cin3.cps.gov.uk"
-  upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
-  upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  default_upstream_cms_ip_corsham            = "10.2.177.14"
+  default_upstream_cms_modern_ip_corsham     = "10.2.177.67"
+  default_upstream_cms_ip_farnborough        = "10.3.177.14"
+  default_upstream_cms_modern_ip_farnborough = "10.3.177.67"
+  default_upstream_cms_domain_name           = "cin3.cps.gov.uk"
+  default_upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
+  default_upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  cin4_upstream_cms_ip_corsham               = "10.2.177.35"
+  cin4_upstream_cms_modern_ip_corsham        = "10.2.177.67"
+  cin4_upstream_cms_ip_farnborough           = "10.3.177.35"
+  cin4_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
+  cin4_upstream_cms_domain_name              = "cin4.cps.gov.uk"
+  cin4_upstream_cms_modern_domain_name       = "cmsmodstage.cps.gov.uk"
+  cin4_upstream_cms_services_domain_name     = "not-used-in-cin4.cps.gov.uk"
+  cin5_upstream_cms_ip_corsham               = "10.2.177.21"
+  cin5_upstream_cms_modern_ip_corsham        = "10.2.177.67"
+  cin5_upstream_cms_ip_farnborough           = "10.3.177.21"
+  cin5_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
+  cin5_upstream_cms_domain_name              = "cin5.cps.gov.uk"
+  cin5_upstream_cms_modern_domain_name       = "cmsmodcin5.cps.gov.uk"
+  cin5_upstream_cms_services_domain_name     = "not-used-in-cin5.cps.gov.uk"
 }
 
 wm_task_list_host_name = "https://cps-dev.outsystemsenterprise.com"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/WorkManagementApp/,https://cps-dev.outsystemsenterprise.com/CaseReview/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -53,6 +68,7 @@ feature_flag_notes                    = "true"
 feature_flag_search_pii               = "true"
 feature_flag_rename_document          = "true"
 feature_flag_reclassify               = "true"
+feature_flag_external_redirect        = "true"
 local_storage_expiry_days             = "30"
 
 private_beta = {
@@ -60,9 +76,12 @@ private_beta = {
   user_group          = ""
   feature_user_group  = "8fc75d71-3479-4a77-b33b-41fd26ec4960"
   feature_user_group2 = "1663cea9-062e-4f6e-a7ac-26f0942724f3"
+  feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
 }
 
-polaris_ui_reauth_redirect_url = "/polaris?polaris-ui-url="
+case_review_app_redirect_url   = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
+bulk_um_redirect_url           = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
+polaris_ui_reauth_redirect_url = "/polaris?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3D"
 
 ssl_certificate_name           = "polaris-dev-notprod3536a9f3-a9a0-48b4-9b40-8c76083cad2e"
 ssl_policy_name                = "AppGwSslPolicy20220101"

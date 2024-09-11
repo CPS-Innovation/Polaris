@@ -4,7 +4,6 @@ namespace Ddei.Factories
 {
     public interface IDdeiClientRequestFactory
     {
-        HttpRequestMessage CreateCmsAuthValuesRequest(DdeiCmsCaseDataArgDto arg);
         HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg);
         HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg);
         HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg);
@@ -20,8 +19,10 @@ namespace Ddei.Factories
         HttpRequestMessage CreateGetDocumentNotesRequest(DdeiCmsDocumentNotesArgDto arg);
         HttpRequestMessage CreateAddDocumentNoteRequest(DdeiCmsAddDocumentNoteArgDto arg);
         HttpRequestMessage CreateRenameDocumentRequest(DdeiCmsRenameDocumentArgDto arg);
+        HttpRequestMessage CreateReclassifyDocumentRequest(DdeiCmsReclassifyDocumentArgDto arg);
         HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCmsCaseArgDto arg);
         HttpRequestMessage CreateCaseWitnessesRequest(DdeiCmsCaseArgDto arg);
         HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiCmsCaseDataArgDto arg);
+        HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiCmsWitnessStatementsArgDto arg);
     }
 }

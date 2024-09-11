@@ -82,6 +82,7 @@ export const initialState = {
     searchPII: false,
     renameDocument: false,
     reclassify: false,
+    externalRedirect: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

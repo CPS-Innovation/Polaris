@@ -4,7 +4,7 @@ import { reauthenticationFilter } from "./reauthentication-filter";
 import { generateGuid } from "./generate-guid";
 
 jest.mock("../../../config", () => ({
-  REAUTH_REDIRECT_URL: "http://foo?polaris-ui-url=",
+  REAUTH_REDIRECT_URL: "http://foo?r=polaris-ui-url%3D",
 }));
 
 describe("Reauthentication Filter", () => {
@@ -39,11 +39,11 @@ describe("Reauthentication Filter", () => {
   it.each([
     [
       "http://our-ui-domain.com", // there is no existing query string
-      `http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?r=polaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
-      `http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3FcaseId%3D123%26auth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?r=polaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
   ])("can redirect on a first auth failure ", (url, expectedRedirectUrl) => {
     const mockWindow = {
@@ -77,7 +77,6 @@ describe("Reauthentication Filter", () => {
 
     const act = () => reauthenticationFilter(response, mockWindow, uuid);
     expect(act).toThrow(CmsAuthError);
-    expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
   });
 
   it.each([
@@ -108,6 +107,51 @@ describe("Reauthentication Filter", () => {
       );
       expect(filteredResponse).toBe(response);
       expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
+    }
+  );
+  it.each([
+    [
+      "no-cookies",
+      "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out. Please try logging in to CMS again.",
+    ],
+    [
+      "no-cmsauth-cookie",
+      "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out. Please try logging in to CMS again.",
+    ],
+    [
+      "cms-auth-not-valid",
+      "It may be the case that your CMS session has expired. Please try logging in to CMS again.",
+    ],
+    [
+      "cms-modern-auth-not-valid",
+      "It may be the case that your CMS session has expired. Please try logging in to CMS again.",
+    ],
+    [
+      "unexpected-error",
+      "An unexpected error occurred related to your current CMS log in session. Please try logging in to CMS again.",
+    ],
+  ])(
+    "throws CmsAuthError with correct message for auth-fail-reason=%s",
+    (authFailReason, expectedMessage) => {
+      const mockWindow = {
+        location: {
+          href: `http://our-ui-domain.com?auth-refresh&auth-fail-reason=${authFailReason}`,
+          search: `?auth-refresh&auth-fail-reason=${authFailReason}`,
+        },
+      } as Window;
+
+      const response = { ok: false, status: 401 } as Response;
+
+      const act = () => reauthenticationFilter(response, mockWindow, uuid);
+
+      expect(act).toThrow(CmsAuthError);
+      try {
+        act();
+      } catch (e) {
+        if (e instanceof CmsAuthError) {
+          expect(e.customMessage).toBe(expectedMessage);
+        }
+      }
     }
   );
 });
