@@ -1,4 +1,3 @@
-//update save data type based on the data contract
 export type ReclassifySaveData = {
   documentId: number;
   documentTypeId: number;

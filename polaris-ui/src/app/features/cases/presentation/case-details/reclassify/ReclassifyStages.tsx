@@ -107,10 +107,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         errorTexts.documentTypeErrorText =
           "New document type should not be empty";
       }
-      // if (state.newDocTypeId === documentId) {
-      //   errorTexts.documentTypeErrorText =
-      //     "New document type should be different from current one";
-      // }
     }
 
     if (state.reClassifyStage === "stage2") {
@@ -240,7 +236,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
                 formData.exhibitProducerId !== "other"
                   ? +formData.exhibitProducerId
                   : null,
-              newProducer: formData.exhibitOtherProducerValue ?? null,
+              newProducer:
+                formData.exhibitProducerId === "other"
+                  ? formData.exhibitOtherProducerValue
+                  : null,
               item: formData.exhibitItemName,
               reference: formData.exhibitReference,
             }
