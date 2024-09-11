@@ -20,10 +20,12 @@ import { ErrorModalTypes } from "./ErrorModalTypes";
 import { NotesData } from "../domain/gateway/NotesData";
 import { SearchPIIData } from "./gateway/SearchPIIData";
 import { RenameDocumentData } from "./gateway/RenameDocumentData";
+import { TaggedContext } from "../../../inbound-handover/context";
 
 export type CombinedState = {
   urn: string;
   caseId: number;
+  context: TaggedContext | undefined;
   caseState: AsyncResult<CaseDetails>;
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
