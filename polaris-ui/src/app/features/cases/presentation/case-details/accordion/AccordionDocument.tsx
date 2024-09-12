@@ -150,7 +150,7 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
-    if (featureFlags.reclassify) {
+    if (featureFlags.reclassify && caseDocument.canReclassify) {
       items = [
         ...items,
         {
@@ -164,6 +164,7 @@ export const AccordionDocument: React.FC<Props> = ({
 
     return items;
   }, [
+    caseDocument.canReclassify,
     caseDocument.canRename,
     featureFlags.renameDocument,
     featureFlags.reclassify,
