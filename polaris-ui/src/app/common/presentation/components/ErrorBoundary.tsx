@@ -29,7 +29,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public render() {
-    console.log("Error boundary rendering", this.state.hasError);
     if (this.state.hasError) {
       return (
         <Layout>
