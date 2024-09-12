@@ -163,7 +163,8 @@ namespace coordinator.Durable.Entity
                          cmsDocument.WitnessId != incomingDocument.WitnessId ||
                          cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
                          cmsDocument.IsDispatched != incomingDocument.IsDispatched ||
-                         cmsDocument.HasNotes != incomingDocument.HasNotes
+                         cmsDocument.HasNotes != incomingDocument.HasNotes ||
+                         cmsDocument.IsUnused != incomingDocument.IsUnused
                      )
                  )
                  select incomingDocument).ToList();
@@ -281,6 +282,7 @@ namespace coordinator.Durable.Entity
                 trackerDocument.CategoryListOrder = updatedDocument.CategoryListOrder;
                 trackerDocument.HasNotes = updatedDocument.HasNotes;
                 trackerDocument.IsInbox = updatedDocument.IsInbox;
+                trackerDocument.IsUnused = updatedDocument.IsUnused;
                 trackerDocument.Classification = updatedDocument.Classification;
                 trackerDocument.IsWitnessManagement = updatedDocument.IsWitnessManagement;
                 trackerDocument.CanReclassify = updatedDocument.CanReclassify;
