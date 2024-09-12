@@ -64,13 +64,13 @@ const renderAuthFailReason = (authFailReason: AuthFailReason | null) => {
   switch (authFailReason) {
     case AuthFailReason.NoCookies:
     case AuthFailReason.NoCmsAuthCookie:
-      return "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out. Please try logging in to CMS again.";
+      return "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out.";
     case AuthFailReason.CmsAuthNotValid:
     case AuthFailReason.CmsModernAuthNotValid:
-      return "It may be the case that your CMS session has expired. Please try logging in to CMS again.";
+      return "It may be the case that your CMS session has expired.";
     case AuthFailReason.UnexpectedError:
     default:
-      return "An unexpected error occurred related to your current CMS log in session. Please try logging in to CMS again.";
+      return "An unexpected error occurred related to your current CMS log in session.";
   }
 };
 

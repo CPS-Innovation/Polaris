@@ -21,6 +21,7 @@ import { ExhibitProducer } from "../presentation/case-details/reclassify/data/Ex
 import { StatementWitness } from "../presentation/case-details/reclassify/data/StatementWitness";
 import { StatementWitnessNumber } from "../presentation/case-details/reclassify/data/StatementWitnessNumber";
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
+import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
 
 const FORBIDDEN_STATUS_CODE = 403;
 const GONE_STATUS_CODE = 410;
@@ -70,6 +71,18 @@ export const resolvePdfUrl = (
   return fullUrl(
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
   );
+};
+
+export const lookupUrn = async (caseId: number) => {
+  const url = fullUrl(`/api/urn-lookup/${caseId}`);
+  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
+  const response = await internalReauthenticatingFetch(url, {
+    headers,
+  });
+
+  await handleGetCaseApiResponse(response, url, "Lookup URN failed");
+
+  return (await response.json()) as UrnLookupResult;
 };
 
 export const searchUrn = async (urn: string) => {

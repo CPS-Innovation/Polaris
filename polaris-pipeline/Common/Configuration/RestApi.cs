@@ -4,6 +4,8 @@ namespace Common.Configuration
 {
     public static class RestApi
     {
+        public const string LookupUrn = "urn-lookup/{caseId:min(1)}";
+
         // Cases (plural)
         public const string Cases = "urns/{caseUrn}/cases";
 
@@ -46,6 +48,11 @@ namespace Common.Configuration
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
+
+        public static string GetUrnLookupPath(int caseId)
+        {
+            return $"urn-lookup/{caseId}";
+        }
 
         public static string GetCasesPath(string caseUrn)
         {

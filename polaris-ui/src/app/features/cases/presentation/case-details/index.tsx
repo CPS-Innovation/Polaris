@@ -59,11 +59,14 @@ import {
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
+import { TaggedContext } from "../../../../inbound-handover/context";
 export const path = "/case-details/:urn/:id";
 
-type Props = BackLinkingPageProps & {};
+type Props = BackLinkingPageProps & {
+  context: TaggedContext | undefined;
+};
 
-export const Page: React.FC<Props> = ({ backLinkProps }) => {
+export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const [reclassifyDetails, setInReclassifyDetails] = useState<{
     open: boolean;
     documentId: string;
@@ -156,7 +159,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
-  } = useCaseDetailsState(urn, +caseId, unMountingCallback);
+  } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
     showAlert,
@@ -748,6 +751,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 <PdfTabsEmpty
                   pipelineState={pipelineState}
                   isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+                  context={context}
                 />
               ) : (
                 <PdfTabs

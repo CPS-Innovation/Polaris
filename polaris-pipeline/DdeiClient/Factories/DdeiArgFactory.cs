@@ -9,14 +9,16 @@ namespace Ddei.Factories
         {
         }
 
-        public DdeiCmsCaseDataArgDto CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId)
+        public DdeiCmsCaseIdArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId)
         {
-            return new DdeiCmsCaseDataArgDto
+            return new DdeiCmsCaseIdArgDto
             {
+                CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
-                CmsAuthValues = partialCmsAuthValues
+                CaseId = caseId
             };
         }
+
         public DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
         {
             return new DdeiCmsUrnArgDto
