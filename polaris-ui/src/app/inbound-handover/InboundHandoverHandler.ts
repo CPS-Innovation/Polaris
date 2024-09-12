@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { lookupUrn } from "../features/cases/api/gateway-api";
-import { buildContextFromQueryString } from "./context";
+import { buildContextFromQueryString, TaggedContext } from "./context";
 import { RouteComponentProps } from "react-router-dom";
 import { HandoverError } from "../common/errors/HandoverError";
 
@@ -11,29 +11,36 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
   location: { search },
   history,
 }) => {
-  const { caseId, urn, contextObject } = buildContextFromQueryString(search);
-
+  const [error, setError] = useState<Error>();
+  if (error) {
+    throw error;
+  }
   useEffect(() => {
-    const getUrn = async () => {
-      let urnToUse = urn;
-      let caseIdToUse = caseId;
-      if (!urnToUse) {
-        // we have not been passed a urn in the context and so we need ot go and look up one
-        try {
-          const { urnRoot, id } = await lookupUrn(caseId);
-          urnToUse = urnRoot;
-          caseIdToUse = id;
-        } catch (ex) {
-          throw new HandoverError(
-            "Could not look-up urn as part of context handover:",
-            (ex as Error).message
-          );
-        }
+    const getUrn = async (
+      caseId: number,
+      contextObject: TaggedContext | undefined
+    ) => {
+      try {
+        const { urnRoot, id } = await lookupUrn(caseId);
+        history.push(`/case-details/${urnRoot}/${id}`, contextObject);
+      } catch (ex) {
+        setError(ex as Error);
       }
-      history.push(`/case-details/${urnToUse}/${caseIdToUse}`, contextObject);
     };
 
-    getUrn();
-  }, [caseId, urn, contextObject, history]);
+    try {
+      const { caseId, urn, contextObject } =
+        buildContextFromQueryString(search);
+      if (urn) {
+        // we have not been passed a urn so no need to look up
+        history.push(`/case-details/${urn}/${caseId}`, contextObject);
+        return;
+      } else {
+        getUrn(caseId, contextObject);
+      }
+    } catch (ex) {
+      setError(ex as Error);
+    }
+  }, [search, history]);
   return null;
 };
