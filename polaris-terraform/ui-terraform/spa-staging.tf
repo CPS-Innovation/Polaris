@@ -25,6 +25,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_FEATURE_FLAG_NOTES"                    = var.feature_flag_notes
     "REACT_APP_FEATURE_FLAG_SEARCH_PII"               = var.feature_flag_search_pii
     "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"          = var.feature_flag_rename_document
+    "REACT_APP_FEATURE_FLAG_RECLASSIFY"               = var.feature_flag_reclassify
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"        = var.feature_flag_external_redirect
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
     "REACT_APP_GATEWAY_BASE_URL"                      = ""

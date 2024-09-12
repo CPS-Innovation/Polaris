@@ -10,6 +10,7 @@ export type FeatureFlagData = {
   notes: boolean;
   searchPII: boolean;
   renameDocument: boolean;
+  reclassify: boolean;
   externalRedirect: boolean;
 };
 
@@ -19,5 +20,6 @@ export type FeatureFlagQueryParams = {
   notes: string;
   searchPII: string;
   renameDocument: string;
+  reclassify: string;
   externalRedirect: string;
 };

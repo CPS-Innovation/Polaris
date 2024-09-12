@@ -225,6 +225,17 @@ export const reducer = (
         };
       }
     | {
+        type: "UPDATE_RECLASSIFY_DATA";
+        payload: {
+          properties: {
+            documentId: string;
+            newDocTypeId?: number;
+            reclassified?: boolean;
+            saveReclassifyRefreshStatus: "initial" | "updating" | "updated";
+          };
+        };
+      }
+    | {
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
         payload: {
           documentId: string;
@@ -1118,6 +1129,28 @@ export const reducer = (
       return {
         ...state,
         renameDocuments: [
+          ...filteredData,
+          {
+            ...currentData,
+            ...properties,
+          },
+        ],
+      };
+    }
+
+    case "UPDATE_RECLASSIFY_DATA": {
+      const { properties } = action.payload;
+
+      const filteredData = state.reclassifyDocuments.filter(
+        (data) => data.documentId !== properties.documentId
+      );
+      let currentData = state.reclassifyDocuments.find(
+        (data) => data.documentId === properties.documentId
+      )!;
+
+      return {
+        ...state,
+        reclassifyDocuments: [
           ...filteredData,
           {
             ...currentData,

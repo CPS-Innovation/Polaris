@@ -6,6 +6,7 @@ import {
   FEATURE_FLAG_NOTES,
   FEATURE_FLAG_SEARCH_PII,
   FEATURE_FLAG_RENAME_DOCUMENT,
+  FEATURE_FLAG_RECLASSIFY,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
   FEATURE_FLAG_EXTERNAL_REDIRECT,
@@ -66,6 +67,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     notes,
     searchPII,
     renameDocument,
+    reclassify,
     externalRedirect,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
@@ -101,6 +103,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         externalRedirect,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP3 }
+      ),
+      reclassify: showFeature(
+        FEATURE_FLAG_RECLASSIFY,
+        userDetails?.username,
+        reclassify,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
     []

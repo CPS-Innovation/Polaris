@@ -28,6 +28,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_NOTES"                    = var.feature_flag_notes
     "REACT_APP_FEATURE_FLAG_SEARCH_PII"               = var.feature_flag_search_pii
     "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"          = var.feature_flag_rename_document
+    "REACT_APP_FEATURE_FLAG_RECLASSIFY"               = var.feature_flag_reclassify
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"        = var.feature_flag_external_redirect
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
@@ -123,6 +124,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_NOTES"],
       app_settings["REACT_APP_FEATURE_FLAG_SEARCH_PII"],
       app_settings["REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"],
+      app_settings["REACT_APP_FEATURE_FLAG_RECLASSIFY"],
       app_settings["REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"],
       app_settings["REACT_APP_GATEWAY_BASE_URL"],
       app_settings["REACT_APP_GATEWAY_SCOPE"],
