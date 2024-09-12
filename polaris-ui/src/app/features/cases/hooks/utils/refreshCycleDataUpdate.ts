@@ -21,10 +21,8 @@ export const handleReclassifyUpdateConfirmation = (
   const newDocData = pipelineResults.documents.find(
     (doc) => doc.documentId === activeReclassifyDoc.documentId
   );
-  if (
-    newDocData?.cmsDocType.documentTypeId === activeReclassifyDoc.newDocTypeId
-  )
-    return true;
 
-  return false;
+  return (
+    newDocData?.cmsDocType.documentTypeId === activeReclassifyDoc.newDocTypeId
+  );
 };
