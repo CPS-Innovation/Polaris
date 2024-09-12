@@ -66,7 +66,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await searchUrn("urn_abc");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_abc/cases: Search URN failed; status - OK (500)"
+        "An error occurred contacting the server at https://gateway-url/api/urns/urn_abc/cases: Search URN failed; status - OK (500)"
       );
     });
   });
@@ -112,7 +112,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await getCaseDetails("abc", 122);
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/122: Get Case Details failed; status - OK (500)"
+        "An error occurred contacting the server at https://gateway-url/api/urns/abc/cases/122: Get Case Details failed; status - OK (500)"
       );
     });
   });
@@ -151,7 +151,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await getPipelinePdfResults("tracker_url", "123");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at tracker_url: Get Pipeline pdf results failed; status - Internal Server Error (500)"
+        "An error occurred contacting the server at tracker_url: Get Pipeline pdf results failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -182,7 +182,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await searchCase("urn_123", 123, "test");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/search/?query=test: Search Case Text failed; status - Internal Server Error (500)"
+        "An error occurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/search/?query=test: Search Case Text failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -213,7 +213,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await checkoutDocument("urn_123", 123, "documentID_1");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkout document failed; status - Internal Server Error (500)"
+        "An error occurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkout document failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -248,7 +248,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await cancelCheckoutDocument("urn_123", 123, "documentID_1");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkin document failed; status - Internal Server Error (500)"
+        "An error occurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkin document failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -285,7 +285,7 @@ describe("gateway-apis", () => {
           redactions: [],
         });
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1: Save redactions failed; status - Internal Server Error (500)"
+        "An error occurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1: Save redactions failed; status - Internal Server Error (500)"
       );
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
     });
@@ -358,7 +358,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await initiatePipeline("abc", 123, "correlationId_1");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123: Initiate pipeline failed; status - Internal Server Error (500)"
+        "An error occurred contacting the server at https://gateway-url/api/urns/abc/cases/123: Initiate pipeline failed; status - Internal Server Error (500)"
       );
     });
   });

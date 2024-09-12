@@ -21,6 +21,15 @@ namespace PolarisGateway.Clients.Coordinator
             _httpClient = httpClient;
         }
 
+        public async Task<HttpResponseMessage> GetUrnFromCaseIdAsync(int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.GetUrnLookupPath(caseId),
+                correlationId,
+                cmsAuthValues);
+        }
+
         public async Task<HttpResponseMessage> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(

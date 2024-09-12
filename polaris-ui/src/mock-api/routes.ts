@@ -1,3 +1,4 @@
+export const URN_LOOKUP_ROUTE = "api/urn-lookup/:caseId";
 export const CASE_SEARCH_ROUTE = "api/urns/:urn/cases";
 export const CASE_ROUTE = "api/urns/:urn/cases/:caseId";
 export const INITIATE_PIPELINE_ROUTE = "api/urns/:urn/cases/:caseId";

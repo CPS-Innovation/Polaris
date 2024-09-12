@@ -1,5 +1,6 @@
 import { rest, RestContext } from "msw";
-
+import devUrnLookupDataSource from "./data/urnLookupResults.dev";
+import cypressUrnLookupDataSource from "./data/urnLookupResults.cypress";
 import devSearchDataSource from "./data/searchResults.dev";
 import cypressSearchDataSource from "./data/searchResults.cypress";
 import devCaseDetailsDataSource from "./data/caseDetails.dev";
@@ -30,6 +31,12 @@ import { MockApiConfig } from "./MockApiConfig";
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import pdfStrings from "./data/pdfs/pdf-strings.json";
+import { UrnLookupDataSource } from "./data/types/UrnLookupDataSource";
+
+const urnLookupDataSources: { [key: string]: UrnLookupDataSource } = {
+  dev: devUrnLookupDataSource,
+  cypress: cypressUrnLookupDataSource,
+};
 
 const searchDataSources: { [key: string]: SearchDataSource } = {
   dev: devSearchDataSource,
@@ -87,6 +94,12 @@ export const setupHandlers = ({
     ctx.delay(Math.random() * sanitisedMaxDelay);
 
   return [
+    rest.get(makeApiPath(routes.URN_LOOKUP_ROUTE), (req, res, ctx) => {
+      const { caseId } = req.params;
+      const results = urnLookupDataSources[sourceName](caseId);
+      return res(delay(ctx), ctx.json(results));
+    }),
+
     rest.get(makeApiPath(routes.CASE_SEARCH_ROUTE), (req, res, ctx) => {
       const { urn } = req.params;
       lastRequestedUrnCache.urn = urn;

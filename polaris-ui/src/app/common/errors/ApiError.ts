@@ -12,7 +12,7 @@ export class ApiError extends Error {
     customMessage?: string
   ) {
     super(
-      `An error ocurred contacting the server at ${path}: ${message}; status - ${statusText} (${status})`
+      `An error occurred contacting the server at ${path}: ${message}; status - ${statusText} (${status})`
     );
     this.path = path;
     this.code = status;

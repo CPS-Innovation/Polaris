@@ -25,6 +25,7 @@ import {
   ReadUnreadData,
 } from "../../presentation/case-details/utils/localStorageUtils";
 import { handleRenameUpdateConfirmation } from "../utils/refreshCycleDataUpdate";
+import { TaggedContext } from "../../../../inbound-handover/context";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -84,11 +85,13 @@ export const initialState = {
   notes: [],
   searchPII: [],
   renameDocuments: [],
+  context: undefined,
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (
   urn: string,
   caseId: number,
+  context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
   const featureFlagData = useUserGroupsFeatureFlag();
@@ -97,7 +100,7 @@ export const useCaseDetailsState = (
 
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
-    { ...initialState, caseId, urn },
+    { ...initialState, caseId, urn, context },
     reducerAsyncActionHandlers
   );
 
