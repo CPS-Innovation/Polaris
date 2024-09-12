@@ -191,7 +191,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const reclassificationType = materialTypeList.find(
       (type) => type.typeId === +newDocTypeId
     )?.newClassificationVariant!;
-    const used = formData.documentUsedStatus === "YES" ? true : false;
+    const used = formData.documentUsedStatus === "YES";
 
     const saveData = {
       documentId: parseInt(documentId.replace(/\D/g, "")),
@@ -270,7 +270,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         type: "UPDATE_CLASSIFY_STAGE",
         payload: { newStage: "stage3" },
       });
-      return;
     }
   };
 
@@ -292,7 +291,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         type: "UPDATE_CLASSIFY_STAGE",
         payload: { newStage: "stage2" },
       });
-      return;
     }
   };
 

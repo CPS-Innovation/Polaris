@@ -17,7 +17,7 @@ export type ReclassifyState = {
     documentUsedStatus: "YES" | "NO";
     exhibitReference: string;
     exhibitItemName: string;
-    exhibitProducerId: string | "other";
+    exhibitProducerId: string;
     exhibitOtherProducerValue: string;
     statementWitnessId: string;
     statementDay: string;

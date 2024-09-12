@@ -31,7 +31,10 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
-import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
+import {
+  PipelineDocument,
+  Classification,
+} from "../../domain/gateway/PipelineDocument";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   BULK_UM_REDIRECT_URL,
@@ -45,7 +48,6 @@ import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
 import { RenamePanel } from "./rename/RenamePanel";
-import { Classification } from "../../domain/gateway/PipelineDocument";
 import { Reclassify } from "./reclassify/Reclassify";
 import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 import {
@@ -368,10 +370,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     }
 
     const getNameChanged = () => {
-      if (properties.immediate && properties.immediate.documentName) {
+      if (properties?.immediate?.documentName) {
         return true;
       }
-      if (properties.other && properties.other.documentName) {
+      if (properties?.other?.documentName) {
         return true;
       }
       if (

@@ -253,9 +253,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
   const handleStatementDateChange = (event: any) => {
     let type: "day" | "month" | "year" = "day";
-    if (event.target.name === "statement-date-day") {
-      type = "day";
-    }
+
     if (event.target.name === "statement-date-month") {
       type = "month";
     }
@@ -417,6 +415,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 conditional: {
                   children: [
                     <Input
+                      key="document-new-name"
                       id="document-new-name"
                       data-testid={"document-new-name"}
                       className="govuk-input--width-10"
