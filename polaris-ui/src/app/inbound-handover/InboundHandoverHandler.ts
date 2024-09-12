@@ -11,36 +11,47 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
   location: { search },
   history,
 }) => {
+  // this allows us to usefully bubble-up an error from within
+  //  the useEffect to an ErrorBoundary.
   const [error, setError] = useState<Error>();
   if (error) {
     throw error;
   }
-  useEffect(() => {
-    const getUrn = async (
-      caseId: number,
-      contextObject: TaggedContext | undefined
-    ) => {
-      try {
-        const { urnRoot, id } = await lookupUrn(caseId);
-        history.push(`/case-details/${urnRoot}/${id}`, contextObject);
-      } catch (ex) {
-        setError(ex as Error);
-      }
-    };
 
+  const getCaseIdentifiers = async (caseId: number) => {
     try {
-      const { caseId, urn, contextObject } =
-        buildContextFromQueryString(search);
-      if (urn) {
-        // we have not been passed a urn so no need to look up
-        history.push(`/case-details/${urn}/${caseId}`, contextObject);
-        return;
-      } else {
-        getUrn(caseId, contextObject);
-      }
+      const { urnRoot, id } = await lookupUrn(caseId);
+      return { caseId: id, urn: urnRoot };
     } catch (ex) {
       setError(ex as Error);
     }
+  };
+
+  const navigate = (
+    caseId: number,
+    urn: string,
+    contextObject: TaggedContext | undefined
+  ) => history.push(`/case-details/${urn}/${caseId}`, contextObject);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { caseId, urn, contextObject } =
+          buildContextFromQueryString(search);
+
+        if (urn) {
+          // we have not been passed a urn so no need to look up
+          navigate(caseId, urn, contextObject);
+        } else {
+          const response = await getCaseIdentifiers(caseId);
+          if (response) {
+            navigate(response.caseId, response.urn, contextObject);
+          }
+        }
+      } catch (ex) {
+        setError(ex as Error);
+      }
+    })();
   }, [search, history]);
   return null;
 };

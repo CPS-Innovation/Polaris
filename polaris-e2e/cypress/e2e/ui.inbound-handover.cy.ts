@@ -22,7 +22,7 @@ describe("Inbound handover", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     cy.contains('{"contextType":"triage","taskId":1,"taskTypeId":2}')
   })
 
-  it("can receive a well formed triage handover when the user is not logged in to CMS and inform the uswer", () => {
+  it("can receive a well formed triage handover when the user is not logged in to CMS and inform the user", () => {
     cy.on("uncaught:exception", () => false)
 
     const contextObject = {
@@ -38,7 +38,7 @@ describe("Inbound handover", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     cy.loginToAD().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
 
     // temporary logic to assert that context is handed-down to the page
-    cy.contains("Sorry, there is a problem")
+    cy.contains("CMS_AUTH_ERROR")
   })
 
   it("can receive a well formed triage handover and not continue if the call to the lookup urn api is not successful", () => {
@@ -57,7 +57,7 @@ describe("Inbound handover", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     cy.fullLogin().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
 
     // temporary logic to assert that context is handed-down to the page
-    cy.contains("Sorry, there is a problem")
+    cy.contains("API_ERROR")
   })
 })
 
