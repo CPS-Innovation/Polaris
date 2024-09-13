@@ -259,7 +259,9 @@ export const AccordionDocument: React.FC<Props> = ({
                     Time added
                   </span>
                   <TimeIcon className={classes.timeIcon} />
-                  {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
+                  <span className={classes.timeValue}>
+                    {formattedFileCreatedTime}
+                  </span>
                 </>
               )}
               {featureFlags.notes && (
@@ -316,6 +318,17 @@ export const AccordionDocument: React.FC<Props> = ({
               )}
             </div>
 
+            {caseDocument.reference && (
+              <div>
+                <span className={classes.reference}>
+                  Ref:{" "}
+                  <strong className={classes.referenceValue}>
+                    {caseDocument.reference}
+                  </strong>{" "}
+                </span>
+              </div>
+            )}
+
             {!!caseDocument.attachments.length && (
               <div className={classes.attachmentWrapper}>
                 <AttachmentIcon className={classes.attachmentIcon} />
@@ -340,9 +353,9 @@ export const AccordionDocument: React.FC<Props> = ({
             />
           )}
         </div>
-        <div className={classes.witnessIndicators}>
-          {caseDocument.witnessIndicators.length > 0 &&
-            caseDocument.witnessIndicators
+        {caseDocument.witnessIndicators.length > 0 && (
+          <div className={classes.witnessIndicators}>
+            {caseDocument.witnessIndicators
               .sort(
                 (a, b) =>
                   witnessIndicatorPrecedenceOrder.indexOf(a) -
@@ -360,7 +373,8 @@ export const AccordionDocument: React.FC<Props> = ({
                   </span>
                 </strong>
               ))}
-        </div>
+          </div>
+        )}
 
         {!canViewDocument && (
           <span
