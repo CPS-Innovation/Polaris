@@ -1,12 +1,14 @@
 /// <reference types="cypress" />
 
 const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
-describe(
-  "Reauth and handover flows",
-  { tags: ["@ci", "@notrunprodci", "@ci-chunk-2"] },
-  () => {
-    
-    describe("Reauth flow", () => {
+describe("Reauth and handover flows", () => {
+  describe(
+    "Reauth flow",
+    // Note: this is not run in prod because the e2e test agent cannot see the cms.cps.gov.uk/polaris
+    //  handover endpoint.  It will be possible to rejig the config/logic of the reauth flow to
+    //  allow the e2e tests to run in prod by e.g. overriding the reauth url config value.
+    { tags: ["@ci", "@notrunprodci", "@ci-chunk-2"] },
+    () => {
       it("can send the user around the reauth flow", () => {
         cy.on("uncaught:exception", () => false)
 
@@ -23,65 +25,65 @@ describe(
         // if we find the target URN we have made a successful round trip to DDEI
         cy.findByTestId(`link-${TARGET_URN}`)
       })
+    }
+  )
+
+  describe("Inbound handover", { tags: ["@ci", "@ci-chunk-2"] }, () => {
+    it("can receive a well formed triage handover and redirect the user to the requested case", () => {
+      cy.on("uncaught:exception", () => false)
+
+      const contextObject = {
+        caseId: +TARGET_CASE_ID,
+        taskId: 1,
+        taskTypeId: 2,
+      }
+
+      const contextQueryParam = `${encodeURIComponent(
+        JSON.stringify(contextObject)
+      )}`
+
+      cy.fullLogin().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
+
+      // temporary logic to assert that context is handed-down to the page
+      cy.contains('{"contextType":"triage","taskId":1,"taskTypeId":2}')
     })
 
-    describe("Inbound handover", () => {
-      it("can receive a well formed triage handover and redirect the user to the requested case", () => {
-        cy.on("uncaught:exception", () => false)
+    it("can receive a well formed triage handover when the user is not logged in to CMS and inform the user", () => {
+      cy.on("uncaught:exception", () => false)
 
-        const contextObject = {
-          caseId: +TARGET_CASE_ID,
-          taskId: 1,
-          taskTypeId: 2,
-        }
+      const contextObject = {
+        caseId: +TARGET_CASE_ID,
+        taskId: 1,
+        taskTypeId: 2,
+      }
 
-        const contextQueryParam = `${encodeURIComponent(
-          JSON.stringify(contextObject)
-        )}`
+      const contextQueryParam = `${encodeURIComponent(
+        JSON.stringify(contextObject)
+      )}`
 
-        cy.fullLogin().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
+      cy.loginToAD().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
 
-        // temporary logic to assert that context is handed-down to the page
-        cy.contains('{"contextType":"triage","taskId":1,"taskTypeId":2}')
-      })
-
-      it("can receive a well formed triage handover when the user is not logged in to CMS and inform the user", () => {
-        cy.on("uncaught:exception", () => false)
-
-        const contextObject = {
-          caseId: +TARGET_CASE_ID,
-          taskId: 1,
-          taskTypeId: 2,
-        }
-
-        const contextQueryParam = `${encodeURIComponent(
-          JSON.stringify(contextObject)
-        )}`
-
-        cy.loginToAD().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
-
-        // temporary logic to assert that context is handed-down to the page
-        cy.contains("CMS_AUTH_ERROR")
-      })
-
-      it("can receive a well formed triage handover and not continue if the call to the lookup urn api is not successful", () => {
-        cy.on("uncaught:exception", () => false)
-
-        const contextObject = {
-          caseId: -999,
-          taskId: 1,
-          taskTypeId: 2,
-        }
-
-        const contextQueryParam = `${encodeURIComponent(
-          JSON.stringify(contextObject)
-        )}`
-
-        cy.fullLogin().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
-
-        // temporary logic to assert that context is handed-down to the page
-        cy.contains("API_ERROR")
-      })
+      // temporary logic to assert that context is handed-down to the page
+      cy.contains("CMS_AUTH_ERROR")
     })
-  }
-)
+
+    it("can receive a well formed triage handover and not continue if the call to the lookup urn api is not successful", () => {
+      cy.on("uncaught:exception", () => false)
+
+      const contextObject = {
+        caseId: -999,
+        taskId: 1,
+        taskTypeId: 2,
+      }
+
+      const contextQueryParam = `${encodeURIComponent(
+        JSON.stringify(contextObject)
+      )}`
+
+      cy.fullLogin().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
+
+      // temporary logic to assert that context is handed-down to the page
+      cy.contains("API_ERROR")
+    })
+  })
+})
