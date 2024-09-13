@@ -1,0 +1,25 @@
+AppExceptions
+| where AppRoleName == "fa-polaris-ddei"
+| where ExceptionType !in (
+    "polaris_ddei.Domain.Exceptions.Cms.CmsModernAuthorizationException" // secure cases
+    , "System.Net.Sockets.SocketException"
+    , "polaris_ddei.Domain.Exceptions.MappingException"
+) and OuterType != "polaris_ddei.Domain.Exceptions.MappingException"
+and OuterType != "polaris_ddei.Domain.Exceptions.Cms.CmsModernUnauthorizedException"
+| project 
+    TimeGenerated, 
+    OperationId, 
+    PolarisCorrelationId = tostring(Properties.prop__CorrelationId),
+    OperationName,
+    OuterType,
+    ErrorType = case(
+        OperationName in ("InitiateCookies", "InitiateCookiesNew") , "1 - InitiateCookies CMS",
+        OuterType == "polaris_ddei.Domain.Exceptions.Cms.CmsAuthException" and OperationName == "GetCase", "2a - Case load CMS",
+        OuterType == "polaris_ddei.Domain.Exceptions.Cms.CmsModernAuthException" and OperationName == "GetCase", "2b - Case load CMS Modern",
+        OuterType == "polaris_ddei.Domain.Exceptions.Cms.CmsModernAuthException", "3 - CMS Modern",
+        OuterType == "polaris_ddei.Domain.Exceptions.CmsAuthValuesMissingException" and OperationName == "GetCase", "4a - Missing auth Get Case",
+        OuterType == "polaris_ddei.Domain.Exceptions.CmsAuthValuesMissingException" and OperationName == "ListCases", "4b - Missing auth Search URN",
+        "Other"),
+     ModernMessage = extract("\"Message\":\"([^\"]+)", 1, OuterMessage),
+     ErrorMessage = tostring(Properties.prop__ErrorMessage)
+| summarize arg_max(TimeGenerated, *), Count = count() by OperationId

@@ -4,13 +4,13 @@ let Regex1 = 'HTTP/1.1" ([0-9]{3}) ([0-9]+) ([0-9]+)';
 let Regex2 = 'HTTP/1.1" [0-9]{3} [0-9]+ [0-9]+ (\\d*\\.?\\d*|-) (\\d*\\.?\\d*|-) (\\d*\\.?\\d*|-) (\\d*\\.?\\d*|-)';
 
 AppServiceConsoleLogs
-| where ResultDescription startswith " CMS"
+| where ResultDescription startswith " CMS" or ResultDescription startswith "CMS"
 | extend PolarisOrCmsProxy =  iif(ResultDescription contains "internal-implementation/", 'Polaris', 'CmsProxy')
 | extend DestinationIp = extract('"(\\d+.\\d+.\\d+.\\d+):443"', 1, ResultDescription)
 | extend ClassicModernUiOrGraphQL = 
     iif(DestinationIp endswith ".177.2", 
         "Classic", 
-    iif(DestinationIp endswith ".177.50", 
+    iif(DestinationIp endswith ".177.50" or DestinationIp endswith ".177.65", 
         iif(ResultDescription contains "/graphql/", "GraphQL", "ModernUI"), 
     iif(ResultDescription contains "/CMS.", 
         "Classic",
@@ -33,7 +33,7 @@ AppServiceConsoleLogs
 
     PolarisCorrelationId = extract('POLARIS-CORRELATION-ID:([0-9a-f-]*)', 1, ResultDescription),
     PolarisOperationName = extract('POLARIS-OPERATION-NAME:([[:alpha:]]+)', 1, ResultDescription),
-    CmsUserId = tolong(extract('CMS-USER-ID:([0-9]*)', 1, ResultDescription)),
+    CmsUserId = tolong(extract('CMS-USER-ID:(-?[0-9]*)', 1, ResultDescription)),
     Verb = extract('"(.*)\\s/', 1, ResultDescription),
     Url=extract('\\s/(.*)\\sHTTP', 1, ResultDescription),
     ResultDescription,
