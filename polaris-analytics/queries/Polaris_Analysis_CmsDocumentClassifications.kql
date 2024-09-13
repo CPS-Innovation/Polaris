@@ -1,0 +1,7 @@
+AppEvents
+| where Name == "DocumentsFetched"
+| project Documents = tostring(Properties.documents)
+| where strlen(Documents) < 8192
+| project Documents = parse_json(Documents)
+| mv-expand Documents
+| evaluate bag_unpack(Documents)

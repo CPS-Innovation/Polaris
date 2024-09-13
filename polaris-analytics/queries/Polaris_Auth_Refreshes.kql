@@ -1,0 +1,47 @@
+
+AppTraces
+| where OperationName in ("InitiateCookies", "InitiateCookiesNew")
+| where Message contains "Query"
+| where Message !contains "polaris-cmsproxy.azurewebsites.net"
+| where Message contains "refresh"
+| extend Message = url_decode(Message)
+| extend 
+    CmsUserId = toint(coalesce(extract("CMSUSER(\\d+)", 1, Message), extract("UID=(\\d+)", 1, Message))), 
+    PolarisUrl = extract("polaris-ui-url=(.*)", 1, Message)
+| extend
+    Type = iif(PolarisUrl contains "case-search-results", "Cases", "Case")
+| extend 
+    Urn = iif(Type == "Cases", extract("urn?=([^&]+)", 1, PolarisUrl), extract("case-details/([^/]+)", 1, PolarisUrl)),
+    CaseId = coalesce(toint(extract("case-details/[^/]+/(\\d+)", 1, PolarisUrl)), 0)
+| project 
+    RefreshTimeGenerated = TimeGenerated,
+    OperationId,
+    CmsUserId,
+    Type,
+    Urn,
+    CaseId,
+    HasCmsAuth = Message contains ".CMSAUTH=",
+    Message
+| join kind=leftouter  (
+    AppRequests
+    | where AppRoleName == "fa-polaris-gateway"
+    | where OperationName in ("Case", "Cases")
+    | project 
+        TimeGenerated,
+        SubsequentRequestOperationId = OperationId,
+        User = tostring(Properties.User),
+        Type = Name,
+        Urn = extract("urns/([^/]+)", 1, Url),
+        CaseId = coalesce(toint(extract("cases/(\\d+)", 1, Url)),0),
+        ResultCode
+) on Type, Urn, CaseId
+| project-away Type1, Urn1, CaseId1
+| where TimeGenerated > ago(_ts)
+| where RefreshTimeGenerated > ago(_ts) // need to specify both of these date restrictions otherwise log analytics gets confused
+| where TimeGenerated > RefreshTimeGenerated
+| summarize arg_min(TimeGenerated, *) by RefreshTimeGenerated
+| extend DeltaSeconds = datetime_diff('second', TimeGenerated, RefreshTimeGenerated)
+| extend Succeeded = ResultCode != "401"
+| project-away ResultCode
+
+
