@@ -1,0 +1,19 @@
+Polaris_ProxyCmsLogs
+| where Url endswith "uainGeneratedScript.aspx"
+| extend CorF = iif(Url contains "Corsham", "C", "F")
+| extend CmsVersion = extract("CMS.(\\d+)", 1, Url)
+| order by TimeGenerated asc
+| extend Index = row_number(1, prev(PolarisCorrelationId) != PolarisCorrelationId)
+| extend Attempt = strcat(Index, ":", CorF, ":", CmsVersion, ":", StatusCode)
+| summarize min(TimeGenerated), make_set(Attempt) by PolarisCorrelationId
+| join (
+AppTraces
+| where AppRoleName == "fa-polaris-ddei"
+| where OperationName in ("InitiateCookies", "InitiateCookiesNew")
+| where Message !startswith "Exec"
+| where Message contains "?cookie"
+| extend PolarisCorrelationId = extract("'([^']+)", 1, Message)
+| extend Cookie = url_decode(extract("?cookie=([^&]+)", 1, Message))
+| extend BigIpCookies = extract_all("(BIGip[^;]+)", Cookie)
+| project PolarisCorrelationId, BigIpCookies
+) on PolarisCorrelationId | project-away PolarisCorrelationId1

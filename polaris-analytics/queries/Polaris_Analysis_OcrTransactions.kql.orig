@@ -1,0 +1,48 @@
+let Base = AppTraces
+<<<<<<< HEAD
+| where AppRoleName == "fa-polaris-text-extractor"
+| where OperationName == "ExtractText"
+| where Message contains "GetOcrResultsAsync"
+=======
+| where AppRoleName in ("fa-polaris-text-extractor", "fa-polaris-coordinator")
+| where OperationName in ("ExtractText", "CompleteOcr", "InitiateOcr")
+| where Message contains "GetOcrResultsAsync" or Message contains "InitiateOperationAsync" or Message contains "GetOperationResultsAsync"
+>>>>>>> main
+| where Message contains "OCR read" or Message contains "OCR completed"
+| project 
+    TimeGenerated, 
+    OperationId,
+    Message    
+;
+
+let Starts = Base
+| where Message contains "OCR completed"
+| extend EventualDurationMs = toint(extract("in (\\d+)ms", 1, Message))
+| project 
+    TransactionTimeGenerated = datetime_add('millisecond',-1 * EventualDurationMs, TimeGenerated),
+    TransactionCount = toint(extract("pages: (\\d+)", 1, Message)),
+    EventualDurationMs,
+    StartCount = 1,
+    EndCount = 0;
+
+let Polls = Base
+| where Message contains "OCR read"
+| project 
+    TransactionTimeGenerated = TimeGenerated,
+    TransactionCount = int(1),
+    EventualDurationMs = int(null),
+    StartCount = 0,
+    EndCount = iif(Message contains "Succeeded", 1, 0);
+
+union 
+    Starts,
+    Polls
+| summarize 
+    TransactionCount = sum(TransactionCount), 
+    EventualDurationMs = make_set_if(EventualDurationMs, not(isempty(EventualDurationMs))), 
+    StartCount=sum(StartCount),
+    EndCount = sum(EndCount)
+by bin(TransactionTimeGenerated, 1s)
+| order by TransactionTimeGenerated asc 
+| extend InFlightDocuments = row_cumsum( StartCount - EndCount)
+

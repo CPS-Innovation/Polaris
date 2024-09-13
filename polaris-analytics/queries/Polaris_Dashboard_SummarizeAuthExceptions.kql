@@ -1,0 +1,9 @@
+Polaris_Exceptions_List
+| where 
+IsKnownBug == "23616 - Auth fail CmsModern post-InitiateCookies" 
+or IsKnownBug == "23613 - Auth fail CMS post-InitiateCookies" 
+or IsKnownBug == "Auth fail - missing Cms-Auth-Values"
+| where EarliestExceptionTimeGenerated > now() - 7d
+| extend IsKnownBug = coalesce(IsKnownBug, "Unknown")
+| summarize count() by IsKnownBug, bin(EarliestExceptionTimeGenerated, 1d)
+| render columnchart
