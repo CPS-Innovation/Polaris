@@ -43,7 +43,7 @@ const pipelinePdfResult: PipelineResults = {
       canReclassify: false,
       canRename: true,
       renameStatus: "CanRename",
-      reference: null,
+      reference: "Reference 1",
     },
     {
       documentId: "2",
@@ -77,7 +77,7 @@ const pipelinePdfResult: PipelineResults = {
       canReclassify: false,
       canRename: true,
       renameStatus: "CanRename",
-      reference: null,
+      reference: "Reference 2",
     },
     {
       documentId: "3",
