@@ -1,0 +1,49 @@
+// let EndTime = endofday(
+//     now()
+//     //datetime(2024-05-12)
+// );
+// let StartTime = startofday(
+//     EndTime
+//     //datetime(2024-06-06)
+// );
+//let Granularity = 5m;
+
+let Base = AppTraces
+//| where TimeGenerated between (StartTime .. EndTime)
+| where AppRoleName == "fa-polaris-coordinator"
+| where Properties.Category == "Host.Triggers.DurableTask"
+| project 
+    TimeGenerated,
+    FunctionType = tostring(Properties.prop__functionType),
+    State = tostring(Properties.prop__state),
+    InstanceId = tostring(Properties.prop__instanceId)
+| where FunctionType in ("Orchestrator", "Activity")
+| where State in ("Started", "Completed", "Terminated", "Failed")
+| extend 
+    DeltaOrchestrator = iif(FunctionType == "Orchestrator", iif(State == "Started", 1, -1), 0),
+    DeltaActivity = iif(FunctionType == "Activity", iif(State == "Started", 1, -1), 0)
+| order by TimeGenerated asc
+| extend 
+    CountRunningOrchestrator = row_cumsum(DeltaOrchestrator),
+    CountRunningActivity = row_cumsum(DeltaActivity)
+| summarize 
+    DeltaOrchestrator = sum(DeltaOrchestrator),
+    DeltaActivity = sum(DeltaActivity),
+    MaxRunningOrchestrator = max(CountRunningOrchestrator),
+    MinRunningOrchestrator = min(CountRunningOrchestrator),
+    MaxRunningActivity = max(CountRunningActivity),
+    MinRunningActivity = min(CountRunningActivity)
+by bin(TimeGenerated, Granularity)
+| order by TimeGenerated asc;
+
+let MinMinRunningOrchestrator = toscalar(Base | summarize min(MinRunningOrchestrator));
+let MinMinRunningActivity = toscalar(Base | summarize min(MinRunningActivity));
+
+Base
+| extend
+    MaxRunningOrchestrator = MaxRunningOrchestrator - MinMinRunningOrchestrator,
+    MaxRunningActivity = MaxRunningActivity - MinMinRunningActivity
+| extend 
+    DeltaOrchestratorsActivities = MaxRunningOrchestrator - MaxRunningActivity
+
+
