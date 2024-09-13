@@ -223,7 +223,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               statementNo: +formData.statementNumber!,
               date:
                 reclassificationType === "Statement"
-                  ? `${formData.statementDay}-${formData.statementMonth}-${formData.statementYear}`
+                  ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
                   : "",
             }
           : null,
