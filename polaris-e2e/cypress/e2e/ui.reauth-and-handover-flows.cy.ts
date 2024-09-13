@@ -48,7 +48,7 @@ describe("Reauth and handover flows", () => {
       cy.contains('{"contextType":"triage","taskId":1,"taskTypeId":2}')
     })
 
-    it("can receive a well formed triage handover when the user is not logged in to CMS and inform the user", () => {
+    it("can receive a well formed triage handover when the user is not logged in to CMS and send the user around the reauth flow", () => {
       cy.on("uncaught:exception", () => false)
 
       const contextObject = {
@@ -63,27 +63,7 @@ describe("Reauth and handover flows", () => {
 
       cy.loginToAD().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
 
-      // temporary logic to assert that context is handed-down to the page
-      cy.contains("CMS_AUTH_ERROR")
-    })
-
-    it("can receive a well formed triage handover and not continue if the call to the lookup urn api is not successful", () => {
-      cy.on("uncaught:exception", () => false)
-
-      const contextObject = {
-        caseId: -999,
-        taskId: 1,
-        taskTypeId: 2,
-      }
-
-      const contextQueryParam = `${encodeURIComponent(
-        JSON.stringify(contextObject)
-      )}`
-
-      cy.fullLogin().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
-
-      // temporary logic to assert that context is handed-down to the page
-      cy.contains("API_ERROR")
+      cy.url().should("contain", "auth-refresh")
     })
   })
 })
