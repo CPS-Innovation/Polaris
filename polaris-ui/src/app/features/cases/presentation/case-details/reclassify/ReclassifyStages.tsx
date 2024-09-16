@@ -42,6 +42,10 @@ type ReclassifyStagesProps = {
 };
 
 const MAX_LENGTH = 252;
+const EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX = /[^ .'`|a-z|A-Z-]/g;
+//Note: We got the EXHIBIT_TEXT_VALIDATION_REGEX validation rule from Modern code base, but this validation is not operational in Modern but we are applying it.
+const EXHIBIT_TEXT_VALIDATION_REGEX =
+  /[^$"\*/0-9 !£_+(),?@#~;:%&.'`\r\n|a-z|A-Z-]/g;
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   documentId,
   currentDocTypeId,
@@ -125,17 +129,46 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       if (reclassifyVariant === "Exhibit") {
         if (!exhibitItemName) {
           errorTexts.exhibitItemNameErrorText =
-            "Exhibit item name should not be empty";
+            "Exhibit item should not be empty";
+        } else {
+          const invalidChars = exhibitItemName.match(
+            EXHIBIT_TEXT_VALIDATION_REGEX
+          );
+          if (invalidChars) {
+            errorTexts.exhibitItemNameErrorText = `Exhibit Item should not contain ${invalidChars.join(
+              ""
+            )}`;
+          }
+          if (exhibitItemName.length > MAX_LENGTH) {
+            errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
+          }
         }
         if (!exhibitReference) {
           errorTexts.exhibitReferenceErrorText =
             "Exhibit reference should not be empty";
+        } else {
+          const invalidChars = exhibitReference.match(
+            EXHIBIT_TEXT_VALIDATION_REGEX
+          );
+          if (invalidChars) {
+            errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain ${invalidChars.join(
+              ""
+            )}`;
+          }
         }
-        if (exhibitItemName.length > MAX_LENGTH) {
-          errorTexts.exhibitItemNameErrorText = `Exhibit item name must be ${MAX_LENGTH} characters or less`;
-        }
-        if (exhibitProducerId === "other" && !exhibitOtherProducerValue) {
-          errorTexts.otherExhibitProducerErrorText = `Exhibit existing producer or witness should not be empty`;
+        if (exhibitProducerId === "other") {
+          if (!exhibitOtherProducerValue) {
+            errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness should not be empty`;
+          } else {
+            const invalidChars = exhibitOtherProducerValue.match(
+              EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
+            );
+            if (invalidChars) {
+              errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain ${invalidChars.join(
+                ""
+              )}`;
+            }
+          }
         }
       }
 
