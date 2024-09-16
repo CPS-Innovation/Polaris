@@ -17,6 +17,11 @@ import { StatementWitness } from "./data/StatementWitness";
 import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
 import { ReclassifySaveData } from "./data/ReclassifySaveData";
 import { validateDate } from "./utils/dateValidation";
+import {
+  handleTextValidation,
+  EXHIBIT_TEXT_VALIDATION_REGEX,
+  EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX,
+} from "./utils/textValidation";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
@@ -42,10 +47,7 @@ type ReclassifyStagesProps = {
 };
 
 const MAX_LENGTH = 252;
-const EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX = /[^ .'`|a-z|A-Z-]/g;
-//Note: We got the EXHIBIT_TEXT_VALIDATION_REGEX validation rule from Modern code base, but this validation is not operational in Modern but we are applying it.
-const EXHIBIT_TEXT_VALIDATION_REGEX =
-  /[^$"\*/0-9 !£_+(),?@#~;:%&.'`\r\n|a-z|A-Z-]/g;
+
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   documentId,
   currentDocTypeId,
@@ -106,14 +108,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
     const errorTexts: FormDataErrors = { ...errorTextsInitialValue };
 
-    if (state.reClassifyStage === "stage1") {
-      if (!state.newDocTypeId) {
-        errorTexts.documentTypeErrorText =
-          "New document type should not be empty";
-      }
-    }
-
-    if (state.reClassifyStage === "stage2") {
+    const handleRenameValidation = () => {
       if (documentRenameStatus === "YES") {
         if (!documentNewName) {
           errorTexts.documentNewNameErrorText = "New name should not be empty";
@@ -126,91 +121,118 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           errorTexts.documentNewNameErrorText = `New name must be ${MAX_LENGTH} characters or less`;
         }
       }
-      if (reclassifyVariant === "Exhibit") {
-        if (!exhibitItemName) {
-          errorTexts.exhibitItemNameErrorText =
-            "Exhibit item should not be empty";
-        } else {
-          const invalidChars = exhibitItemName.match(
-            EXHIBIT_TEXT_VALIDATION_REGEX
-          );
-          if (invalidChars) {
-            errorTexts.exhibitItemNameErrorText = `Exhibit Item should not contain ${invalidChars.join(
-              ""
-            )}`;
-          }
-          if (exhibitItemName.length > MAX_LENGTH) {
-            errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
-          }
+    };
+
+    const exhibitItemNameValidation = () => {
+      if (!exhibitItemName) {
+        errorTexts.exhibitItemNameErrorText =
+          "Exhibit item should not be empty";
+        return;
+      }
+      const characterErrorText = handleTextValidation(
+        exhibitItemName,
+        EXHIBIT_TEXT_VALIDATION_REGEX
+      );
+      if (characterErrorText) {
+        errorTexts.exhibitItemNameErrorText = `Exhibit item should not contain ${characterErrorText}`;
+      }
+      if (exhibitItemName.length > MAX_LENGTH) {
+        errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
+      }
+    };
+
+    const exhibitReferenceValidation = () => {
+      if (!exhibitReference) {
+        errorTexts.exhibitReferenceErrorText =
+          "Exhibit reference should not be empty";
+        return;
+      }
+      const characterErrorText = handleTextValidation(
+        exhibitReference,
+        EXHIBIT_TEXT_VALIDATION_REGEX
+      );
+
+      if (characterErrorText) {
+        errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain ${characterErrorText}`;
+      }
+    };
+
+    const exhibitNewProducerIdValidation = () => {
+      if (exhibitProducerId === "other") {
+        if (!exhibitOtherProducerValue) {
+          errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness should not be empty`;
+          return;
         }
-        if (!exhibitReference) {
-          errorTexts.exhibitReferenceErrorText =
-            "Exhibit reference should not be empty";
-        } else {
-          const invalidChars = exhibitReference.match(
-            EXHIBIT_TEXT_VALIDATION_REGEX
-          );
-          if (invalidChars) {
-            errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain ${invalidChars.join(
-              ""
-            )}`;
-          }
-        }
-        if (exhibitProducerId === "other") {
-          if (!exhibitOtherProducerValue) {
-            errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness should not be empty`;
-          } else {
-            const invalidChars = exhibitOtherProducerValue.match(
-              EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
-            );
-            if (invalidChars) {
-              errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain ${invalidChars.join(
-                ""
-              )}`;
-            }
-          }
+        const characterErrorText = handleTextValidation(
+          exhibitOtherProducerValue,
+          EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
+        );
+        if (characterErrorText) {
+          errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain ${characterErrorText}`;
         }
       }
+    };
 
-      if (reclassifyVariant === "Statement") {
-        const result = validateDate(
-          +statementDay,
-          +statementMonth,
-          +statementYear
-        );
+    const handleExhibitValidation = () => {
+      exhibitItemNameValidation();
+      exhibitReferenceValidation();
+      exhibitNewProducerIdValidation();
+    };
 
-        if (!statementWitnessId) {
-          errorTexts.statementWitnessErrorText =
-            "Statement witness should not be empty";
-        }
-        if (!statementNumber) {
-          errorTexts.statementNumberErrorText =
-            "Statement number should not be empty";
-        }
-        if (
-          statementWitnessNumbers[statementWitnessId]?.includes(
-            +statementNumber
-          )
-        ) {
-          errorTexts.statementNumberErrorText = `Statement number ${statementNumber} already exist`;
-        }
-        if (result.errors.includes("invalid day")) {
-          errorTexts.statementDayErrorText = "invalid day";
-          errorTexts.statementDateErrorText =
-            "Statement date must be a real date";
-        }
-        if (result.errors.includes("invalid month")) {
-          errorTexts.statementMonthErrorText = "invalid month";
-          errorTexts.statementDateErrorText =
-            "Statement date must be a real date";
-        }
-        if (result.errors.includes("invalid year")) {
-          errorTexts.statementYearErrorText = "invalid year";
-          errorTexts.statementDateErrorText =
-            "Statement date must be a real date";
-        }
+    const handleStatementValidation = () => {
+      const result = validateDate(
+        +statementDay,
+        +statementMonth,
+        +statementYear
+      );
+
+      if (!statementWitnessId) {
+        errorTexts.statementWitnessErrorText =
+          "Statement witness should not be empty";
+      }
+      if (!statementNumber) {
+        errorTexts.statementNumberErrorText =
+          "Statement number should not be empty";
+      }
+      if (
+        statementWitnessNumbers[statementWitnessId]?.includes(+statementNumber)
+      ) {
+        errorTexts.statementNumberErrorText = `Statement number ${statementNumber} already exist`;
+      }
+      if (result.errors.includes("invalid day")) {
+        errorTexts.statementDayErrorText = "invalid day";
+        errorTexts.statementDateErrorText =
+          "Statement date must be a real date";
+      }
+      if (result.errors.includes("invalid month")) {
+        errorTexts.statementMonthErrorText = "invalid month";
+        errorTexts.statementDateErrorText =
+          "Statement date must be a real date";
+      }
+      if (result.errors.includes("invalid year")) {
+        errorTexts.statementYearErrorText = "invalid year";
+        errorTexts.statementDateErrorText =
+          "Statement date must be a real date";
+      }
+    };
+
+    if (state.reClassifyStage === "stage1") {
+      if (!state.newDocTypeId) {
+        errorTexts.documentTypeErrorText =
+          "New document type should not be empty";
       }
     }
+
+    if (state.reClassifyStage === "stage2") {
+      handleRenameValidation();
+      if (reclassifyVariant === "Exhibit") {
+        handleExhibitValidation();
+      }
+      if (reclassifyVariant === "Statement") {
+        handleStatementValidation();
+      }
+    }
+
     setFormDataErrors(errorTexts);
     const validErrors = Object.keys(errorTexts).filter(
       (key) => errorTexts[key as keyof FormDataErrors]
