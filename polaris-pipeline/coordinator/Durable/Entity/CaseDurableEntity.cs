@@ -167,7 +167,7 @@ namespace coordinator.Durable.Entity
                          cmsDocument.IsUnused != incomingDocument.IsUnused ||
                          cmsDocument.IsInbox != incomingDocument.IsInbox ||
                          cmsDocument.CanReclassify != incomingDocument.CanReclassify ||
-                         cmsDocument.Reference != cmsDocument.Reference
+                         cmsDocument.Reference != incomingDocument.Reference
                      )
                  )
                  select incomingDocument).ToList();
