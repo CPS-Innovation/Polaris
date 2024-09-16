@@ -123,48 +123,60 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       }
     };
 
-    const handleExhibitValidation = () => {
+    const exhibitItemNameValidation = () => {
       if (!exhibitItemName) {
         errorTexts.exhibitItemNameErrorText =
           "Exhibit item should not be empty";
-      } else {
-        const characterErrorText = handleTextValidation(
-          exhibitItemName,
-          EXHIBIT_TEXT_VALIDATION_REGEX
-        );
-        if (characterErrorText) {
-          errorTexts.exhibitItemNameErrorText = `Exhibit item should not contain ${characterErrorText}`;
-        }
-        if (exhibitItemName.length > MAX_LENGTH) {
-          errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
-        }
+        return;
       }
+      const characterErrorText = handleTextValidation(
+        exhibitItemName,
+        EXHIBIT_TEXT_VALIDATION_REGEX
+      );
+      if (characterErrorText) {
+        errorTexts.exhibitItemNameErrorText = `Exhibit item should not contain ${characterErrorText}`;
+      }
+      if (exhibitItemName.length > MAX_LENGTH) {
+        errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
+      }
+    };
+
+    const exhibitReferenceValidation = () => {
       if (!exhibitReference) {
         errorTexts.exhibitReferenceErrorText =
           "Exhibit reference should not be empty";
-      } else {
-        const characterErrorText = handleTextValidation(
-          exhibitReference,
-          EXHIBIT_TEXT_VALIDATION_REGEX
-        );
-
-        if (characterErrorText) {
-          errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain ${characterErrorText}`;
-        }
+        return;
       }
+      const characterErrorText = handleTextValidation(
+        exhibitReference,
+        EXHIBIT_TEXT_VALIDATION_REGEX
+      );
+
+      if (characterErrorText) {
+        errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain ${characterErrorText}`;
+      }
+    };
+
+    const exhibitNewProducerIdValidation = () => {
       if (exhibitProducerId === "other") {
         if (!exhibitOtherProducerValue) {
           errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness should not be empty`;
-        } else {
-          const characterErrorText = handleTextValidation(
-            exhibitOtherProducerValue,
-            EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
-          );
-          if (characterErrorText) {
-            errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain ${characterErrorText}`;
-          }
+          return;
+        }
+        const characterErrorText = handleTextValidation(
+          exhibitOtherProducerValue,
+          EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
+        );
+        if (characterErrorText) {
+          errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain ${characterErrorText}`;
         }
       }
+    };
+
+    const handleExhibitValidation = () => {
+      exhibitItemNameValidation();
+      exhibitReferenceValidation();
+      exhibitNewProducerIdValidation();
     };
 
     const handleStatementValidation = () => {

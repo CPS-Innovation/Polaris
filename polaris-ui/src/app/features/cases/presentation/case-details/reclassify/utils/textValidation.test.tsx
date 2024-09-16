@@ -7,7 +7,7 @@ import {
 describe("textValidation", () => {
   describe("EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX", () => {
     test("should validate correctly the `EXHIBIT_TEXT_VALIDATION_REGEX`", () => {
-      const inputString = `abc1!@£$%^&*()_+={}[]:;"\<,>?/~.-|21A`;
+      const inputString = `abc1!@£$%^&*()_+={}[]:;"<,>?/~.-|21A`;
       const result = handleTextValidation(
         inputString,
         EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
@@ -45,7 +45,7 @@ describe("textValidation", () => {
 
   describe("EXHIBIT_TEXT_VALIDATION_REGEX ", () => {
     test("should validate correctly the `EXHIBIT_TEXT_VALIDATION_REGEX`", () => {
-      const inputString = `abc1!@£$%^&*()_+={}[]:;"\<,>?/~.-|21A`;
+      const inputString = `abc1!@£$%^&*()_+={}[]:;"<,>?/~.-|21A`;
       const result = handleTextValidation(
         inputString,
         EXHIBIT_TEXT_VALIDATION_REGEX
