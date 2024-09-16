@@ -17,6 +17,11 @@ import { StatementWitness } from "./data/StatementWitness";
 import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
 import { ReclassifySaveData } from "./data/ReclassifySaveData";
 import { validateDate } from "./utils/dateValidation";
+import {
+  handleTextValidation,
+  EXHIBIT_TEXT_VALIDATION_REGEX,
+  EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX,
+} from "./utils/textValidation";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
@@ -42,10 +47,7 @@ type ReclassifyStagesProps = {
 };
 
 const MAX_LENGTH = 252;
-const EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX = /[^ .'`|a-z|A-Z-]/g;
-//Note: We got the EXHIBIT_TEXT_VALIDATION_REGEX validation rule from Modern code base, but this validation is not operational in Modern but we are applying it.
-const EXHIBIT_TEXT_VALIDATION_REGEX =
-  /[^$"\*/0-9 !£_+(),?@#~;:%&.'`\r\n|a-z|A-Z-]/g;
+
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   documentId,
   currentDocTypeId,
@@ -127,14 +129,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           errorTexts.exhibitItemNameErrorText =
             "Exhibit item should not be empty";
         } else {
-          const invalidChars = exhibitItemName.match(
+          const characterErrorText = handleTextValidation(
+            exhibitItemName,
             EXHIBIT_TEXT_VALIDATION_REGEX
           );
-          if (invalidChars) {
-            const uniqueInvalidChars = Array.from(new Set(invalidChars));
-            errorTexts.exhibitItemNameErrorText = `Exhibit Item should not contain invalid ${
-              uniqueInvalidChars.length > 1 ? "characters" : "character"
-            } ${uniqueInvalidChars.join("")}`;
+          if (characterErrorText) {
+            errorTexts.exhibitItemNameErrorText = `Exhibit item should not contain ${characterErrorText}`;
           }
           if (exhibitItemName.length > MAX_LENGTH) {
             errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
@@ -144,28 +144,25 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           errorTexts.exhibitReferenceErrorText =
             "Exhibit reference should not be empty";
         } else {
-          const invalidChars = exhibitReference.match(
+          const characterErrorText = handleTextValidation(
+            exhibitReference,
             EXHIBIT_TEXT_VALIDATION_REGEX
           );
-          if (invalidChars) {
-            const uniqueInvalidChars = Array.from(new Set(invalidChars));
-            errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain invalid ${
-              uniqueInvalidChars.length > 1 ? "characters" : "character"
-            } ${uniqueInvalidChars.join("")}`;
+
+          if (characterErrorText) {
+            errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain ${characterErrorText}`;
           }
         }
         if (exhibitProducerId === "other") {
           if (!exhibitOtherProducerValue) {
             errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness should not be empty`;
           } else {
-            const invalidChars = exhibitOtherProducerValue.match(
+            const characterErrorText = handleTextValidation(
+              exhibitOtherProducerValue,
               EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
             );
-            if (invalidChars) {
-              const uniqueInvalidChars = Array.from(new Set(invalidChars));
-              errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain invalid ${
-                uniqueInvalidChars.length > 1 ? "characters" : "character"
-              } ${uniqueInvalidChars.join("")}`;
+            if (characterErrorText) {
+              errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain ${characterErrorText}`;
             }
           }
         }
