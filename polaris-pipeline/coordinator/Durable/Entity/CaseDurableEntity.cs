@@ -164,7 +164,10 @@ namespace coordinator.Durable.Entity
                          cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
                          cmsDocument.IsDispatched != incomingDocument.IsDispatched ||
                          cmsDocument.HasNotes != incomingDocument.HasNotes ||
-                         cmsDocument.IsUnused != incomingDocument.IsUnused
+                         cmsDocument.IsUnused != incomingDocument.IsUnused ||
+                         cmsDocument.IsInbox != incomingDocument.IsInbox ||
+                         cmsDocument.CanReclassify != incomingDocument.CanReclassify ||
+                         cmsDocument.Reference != incomingDocument.Reference
                      )
                  )
                  select incomingDocument).ToList();
