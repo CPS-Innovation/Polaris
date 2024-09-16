@@ -82,3 +82,4 @@ private_beta = {
 case_review_app_redirect_url   = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
 bulk_um_redirect_url           = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
 polaris_ui_reauth_redirect_url = "/polaris?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3D"
+polaris_ui_reauth_use_in_situ_refresh = "false"

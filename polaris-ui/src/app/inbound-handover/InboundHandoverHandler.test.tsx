@@ -13,7 +13,10 @@ describe("InboundHandoverHandler", () => {
       history: { push: mockPush as RouteComponentProps["history"]["push"] },
     } as RouteComponentProps);
 
-  beforeEach(jest.resetAllMocks);
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(jest.fn());
+    jest.resetAllMocks();
+  });
   afterAll(jest.resetAllMocks);
 
   it("will navigate a handover object containing only a only a case id", async () => {

@@ -179,6 +179,10 @@ variable "polaris_ui_reauth_redirect_url" {
   type = string
 }
 
+variable "polaris_ui_reauth_use_in_situ_refresh" {
+  type = string
+}
+
 variable "case_review_app_redirect_url" {
   type = string
 }

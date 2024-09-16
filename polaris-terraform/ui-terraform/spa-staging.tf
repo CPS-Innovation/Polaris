@@ -39,6 +39,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_CASE_REVIEW_APP_REDIRECT_URL"          = var.case_review_app_redirect_url
     "REACT_APP_BULK_UM_REDIRECT_URL"                  = var.bulk_um_redirect_url
     "REACT_APP_REAUTH_REDIRECT_URL"                   = var.polaris_ui_reauth_redirect_url
+    "REACT_APP_REAUTH_USE_IN_SITU_REFRESH"            = var.polaris_ui_reauth_use_in_situ_refresh
     "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
     "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
