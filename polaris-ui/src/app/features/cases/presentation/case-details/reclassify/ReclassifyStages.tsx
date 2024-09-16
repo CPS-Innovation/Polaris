@@ -106,14 +106,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
     const errorTexts: FormDataErrors = { ...errorTextsInitialValue };
 
-    if (state.reClassifyStage === "stage1") {
-      if (!state.newDocTypeId) {
-        errorTexts.documentTypeErrorText =
-          "New document type should not be empty";
-      }
-    }
-
-    if (state.reClassifyStage === "stage2") {
+    const handleRenameValidation = () => {
       if (documentRenameStatus === "YES") {
         if (!documentNewName) {
           errorTexts.documentNewNameErrorText = "New name should not be empty";
@@ -126,6 +119,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           errorTexts.documentNewNameErrorText = `New name must be ${MAX_LENGTH} characters or less`;
         }
       }
+    };
+
+    const handleExhibitValidation = () => {
       if (reclassifyVariant === "Exhibit") {
         if (!exhibitItemName) {
           errorTexts.exhibitItemNameErrorText =
@@ -135,9 +131,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             EXHIBIT_TEXT_VALIDATION_REGEX
           );
           if (invalidChars) {
-            errorTexts.exhibitItemNameErrorText = `Exhibit Item should not contain ${invalidChars.join(
-              ""
-            )}`;
+            const uniqueInvalidChars = Array.from(new Set(invalidChars));
+            errorTexts.exhibitItemNameErrorText = `Exhibit Item should not contain invalid ${
+              uniqueInvalidChars.length > 1 ? "characters" : "character"
+            } ${uniqueInvalidChars.join("")}`;
           }
           if (exhibitItemName.length > MAX_LENGTH) {
             errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
@@ -151,9 +148,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             EXHIBIT_TEXT_VALIDATION_REGEX
           );
           if (invalidChars) {
-            errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain ${invalidChars.join(
-              ""
-            )}`;
+            const uniqueInvalidChars = Array.from(new Set(invalidChars));
+            errorTexts.exhibitReferenceErrorText = `Exhibit reference should not contain invalid ${
+              uniqueInvalidChars.length > 1 ? "characters" : "character"
+            } ${uniqueInvalidChars.join("")}`;
           }
         }
         if (exhibitProducerId === "other") {
@@ -164,14 +162,17 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               EXHIBIT_PRODUCER_TEXT_VALIDATION_REGEX
             );
             if (invalidChars) {
-              errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain ${invalidChars.join(
-                ""
-              )}`;
+              const uniqueInvalidChars = Array.from(new Set(invalidChars));
+              errorTexts.otherExhibitProducerErrorText = `Exhibit new producer or witness text should not contain invalid ${
+                uniqueInvalidChars.length > 1 ? "characters" : "character"
+              } ${uniqueInvalidChars.join("")}`;
             }
           }
         }
       }
+    };
 
+    const handleStatementValidation = () => {
       if (reclassifyVariant === "Statement") {
         const result = validateDate(
           +statementDay,
@@ -210,7 +211,21 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             "Statement date must be a real date";
         }
       }
+    };
+
+    if (state.reClassifyStage === "stage1") {
+      if (!state.newDocTypeId) {
+        errorTexts.documentTypeErrorText =
+          "New document type should not be empty";
+      }
     }
+
+    if (state.reClassifyStage === "stage2") {
+      handleRenameValidation();
+      handleExhibitValidation();
+      handleStatementValidation();
+    }
+
     setFormDataErrors(errorTexts);
     const validErrors = Object.keys(errorTexts).filter(
       (key) => errorTexts[key as keyof FormDataErrors]
