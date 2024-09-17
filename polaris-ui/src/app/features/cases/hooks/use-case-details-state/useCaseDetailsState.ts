@@ -43,6 +43,10 @@ export const initialState = {
   },
   accordionState: { status: "loading" },
   tabsState: { items: [], headers: {}, activeTabId: undefined },
+  notificationState: {
+    ignoreNextEvents: [],
+    events: [],
+  },
   searchTerm: "",
   searchState: {
     isResultsVisible: false,

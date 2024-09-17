@@ -1,68 +1,55 @@
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 import { CommunicationSubCategory } from "./document-category-definitions";
 
-export const sortDocumentsByCreatedDate = (
-  cmsDocuments: PresentationDocumentProperties[],
+export const sortDocumentsByCreatedDate = <
+  T extends PresentationDocumentProperties
+>(
+  cmsDocuments: T[],
   sortOrder: "ascending" | "descending" = "ascending"
 ) => {
-  const compareFunction =
+  const compareFunction = (a: T, b: T) =>
     sortOrder === "ascending"
-      ? (
-          a: PresentationDocumentProperties,
-          b: PresentationDocumentProperties
-        ) =>
-          new Date(a.cmsFileCreatedDate).getTime() -
-          new Date(b.cmsFileCreatedDate).getTime()
-      : (
-          a: PresentationDocumentProperties,
-          b: PresentationDocumentProperties
-        ) =>
-          new Date(b.cmsFileCreatedDate).getTime() -
-          new Date(a.cmsFileCreatedDate).getTime();
-
-  return cmsDocuments.sort(compareFunction);
-};
-
-export const sortAscendingByDocumentTypeAndCreationDate = (
-  cmsDocuments: PresentationDocumentProperties[]
-) => {
-  const compareFunction = (
-    a: PresentationDocumentProperties,
-    b: PresentationDocumentProperties
-  ) => {
-    if (a.cmsDocType.documentType !== b.cmsDocType.documentType) {
-      return customSortByDocumentType(
-        a.cmsDocType.documentType,
-        b.cmsDocType.documentType
-      );
-    } else {
-      return (
-        new Date(a.cmsFileCreatedDate).getTime() -
+      ? new Date(a.cmsFileCreatedDate).getTime() -
         new Date(b.cmsFileCreatedDate).getTime()
-      );
-    }
-  };
+      : new Date(b.cmsFileCreatedDate).getTime() -
+        new Date(a.cmsFileCreatedDate).getTime();
 
   return cmsDocuments.sort(compareFunction);
 };
 
-export const sortAscendingByListOrderAndId = (
-  cmsDocuments: PresentationDocumentProperties[]
+export const sortAscendingByDocumentTypeAndCreationDate = <
+  T extends PresentationDocumentProperties
+>(
+  cmsDocuments: T[]
 ) => {
-  const compareFunction = (
-    a: PresentationDocumentProperties,
-    b: PresentationDocumentProperties
-  ) => {
-    if (
-      a.categoryListOrder !== b.categoryListOrder &&
-      a.categoryListOrder &&
-      b.categoryListOrder
-    ) {
-      return a.categoryListOrder < b.categoryListOrder ? -1 : 1;
-    } else {
-      return a.documentId < b.documentId ? -1 : 1;
-    }
-  };
+  const compareFunction = (a: T, b: T) =>
+    a.cmsDocType.documentType === b.cmsDocType.documentType
+      ? new Date(a.cmsFileCreatedDate).getTime() -
+        new Date(b.cmsFileCreatedDate).getTime()
+      : customSortByDocumentType(
+          a.cmsDocType.documentType,
+          b.cmsDocType.documentType
+        );
+
+  return cmsDocuments.sort(compareFunction);
+};
+
+export const sortAscendingByListOrderAndId = <
+  T extends PresentationDocumentProperties
+>(
+  cmsDocuments: T[]
+) => {
+  const compareFunction = (a: T, b: T) =>
+    a.categoryListOrder &&
+    b.categoryListOrder &&
+    a.categoryListOrder !== b.categoryListOrder
+      ? a.categoryListOrder < b.categoryListOrder
+        ? -1
+        : 1
+      : a.documentId < b.documentId
+      ? -1
+      : 1;
+
   return cmsDocuments.sort(compareFunction);
 };
 
@@ -95,98 +82,66 @@ export const customSortByDocumentType = (a: string, b: string): number => {
   }
 };
 
+const unusedCommRegexes = [
+  //UM, must be standalone word
+  /(?<=^|\s)UM(?=\s|$)/gi,
+  //UM+digit, must be standalone word,
+  /(?<=^|\s)UM\d+(?=\s|$)/gi,
+  //UNUSED, standalone word,
+  /(?<=^|\s)UNUSED(?=\s|$)/gi,
+  //UNUSED+digit, standalone word,
+  /(?<=^|\s)UNUSED\d+(?=\s|$)/gi,
+  //-UM, as an ending/suffix to a word
+  /(?<=^|\s)\S+-UM(?=\s|$)/gi,
+  //-UM+digits, as an ending/suffix to a word
+  /(?<=^|\s)\S+-UM\d+(?=\s|$)/gi,
+  //MG6C, standalone word
+  /(?<=^|\s)MG6C(?=\s|$)/gi,
+  //MG6D, standalone word
+  /(?<=^|\s)MG6D(?=\s|$)/gi,
+  //MG6E, standalone word
+  /(?<=^|\s)MG6E(?=\s|$)/gi,
+  //MG06C, standalone word
+  /(?<=^|\s)MG06C(?=\s|$)/gi,
+  //MG06D, standalone word
+  /(?<=^|\s)MG06D(?=\s|$)/gi,
+  //MG06E, standalone word
+  /(?<=^|\s)MG06E(?=\s|$)/gi,
+  //SDC, standalone word
+  /(?<=^|\s)SDC(?=\s|$)/gi,
+];
+
 export const isUnusedCommunicationMaterial = (
   filename: string,
   documentTypeId: number
-) => {
-  if (!filename) {
-    return false;
-  }
+) =>
+  !!filename &&
+  documentTypeId === 1029 &&
+  !filename.includes("UM/") &&
+  unusedCommRegexes.some((regex) => filename.match(regex));
 
-  if (documentTypeId !== 1029) {
-    return false;
-  }
-  if (filename.includes("UM/")) {
-    return false;
-  }
+export const getCommunicationsSubCategory = <
+  T extends PresentationDocumentProperties
+>(
+  doc: T
+): CommunicationSubCategory =>
+  doc.cmsOriginalFileExtension === ".hte"
+    ? CommunicationSubCategory.emails
+    : CommunicationSubCategory.communicationFiles;
 
-  //UM, must be standalone word
-  if (filename.match(/(?<=^|\s)UM(?=\s|$)/gi)) {
-    return true;
-  }
-  //UM+digit, must be standalone word,
-  if (filename.match(/(?<=^|\s)UM\d+(?=\s|$)/gi)) {
-    return true;
-  }
-  //UNUSED, standalone word,
-  if (filename.match(/(?<=^|\s)UNUSED(?=\s|$)/gi)) {
-    return true;
-  }
-  //UNUSED+digit, standalone word,
-  if (filename.match(/(?<=^|\s)UNUSED\d+(?=\s|$)/gi)) {
-    return true;
-  }
-  //-UM, as an ending/suffix to a word
-  if (filename.match(/(?<=^|\s)\S+-UM(?=\s|$)/gi)) {
-    return true;
-  }
-  //-UM+digits, as an ending/suffix to a word
-  if (filename.match(/(?<=^|\s)\S+-UM\d+(?=\s|$)/gi)) {
-    return true;
-  }
-  //MG6C, standalone word
-  if (filename.match(/(?<=^|\s)MG6C(?=\s|$)/gi)) {
-    return true;
-  }
-  //MG6D, standalone word
-  if (filename.match(/(?<=^|\s)MG6D(?=\s|$)/gi)) {
-    return true;
-  }
-  //MG6E, standalone word
-  if (filename.match(/(?<=^|\s)MG6E(?=\s|$)/gi)) {
-    return true;
-  }
-  //MG06C, standalone word
-  if (filename.match(/(?<=^|\s)MG06C(?=\s|$)/gi)) {
-    return true;
-  }
-  //MG06D, standalone word
-  if (filename.match(/(?<=^|\s)MG06D(?=\s|$)/gi)) {
-    return true;
-  }
-  //MG06E, standalone word
-  if (filename.match(/(?<=^|\s)MG06E(?=\s|$)/gi)) {
-    return true;
-  }
-  //SDC, standalone word
-  if (filename.match(/(?<=^|\s)SDC(?=\s|$)/gi)) {
-    return true;
-  }
-
-  return false;
-};
-
-export const getCommunicationsSubCategory = (
-  doc: PresentationDocumentProperties
-): CommunicationSubCategory => {
-  if (doc.cmsOriginalFileExtension === ".hte")
-    return CommunicationSubCategory.emails;
-  return CommunicationSubCategory.communicationFiles;
-};
-
-export const getDocumentAttachments = (
-  item: PresentationDocumentProperties,
-  docs: PresentationDocumentProperties[]
-) => {
-  if (item.cmsOriginalFileExtension !== ".hte") return [];
-
-  const attachments = docs
-    .filter((doc) => doc.polarisParentDocumentId === item.documentId)
-    .map(({ documentId, presentationTitle }) => {
-      return {
-        documentId: documentId,
-        name: presentationTitle,
-      };
-    });
-  return attachments;
-};
+export const getDocumentAttachments = <
+  T extends PresentationDocumentProperties
+>(
+  item: T,
+  docs: T[]
+) =>
+  item.cmsOriginalFileExtension === ".hte"
+    ? docs
+        .filter((doc) => doc.polarisParentDocumentId === item.documentId)
+        .map(({ documentId, presentationTitle }) => {
+          return {
+            documentId: documentId,
+            name: presentationTitle,
+          };
+        })
+    : [];
