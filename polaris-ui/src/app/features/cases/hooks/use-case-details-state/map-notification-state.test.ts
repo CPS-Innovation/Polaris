@@ -60,6 +60,24 @@ const scenarios: Scenario[] = [
     },
   ],
   [
+    "will not throw on undefined cmsDocType nested objects on documents",
+    {
+      existing: [
+        state({
+          lastUpdatedDateTime: existingDateTime,
+        }),
+        [doc({ documentId: "1", cmsDocType: undefined })],
+      ],
+      incoming: [
+        [doc({ documentId: "1", cmsDocType: undefined })],
+        incomingDateTime,
+      ],
+      expected: state({
+        lastUpdatedDateTime: incomingDateTime,
+      }),
+    },
+  ],
+  [
     "will add New notifications for new documents to the top of the notification list",
     {
       existing: [

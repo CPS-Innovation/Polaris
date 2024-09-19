@@ -77,7 +77,7 @@ export const mapNotificationState = (
       documentId,
       cmsVersionId,
       presentationTitle,
-      cmsDocType: { documentTypeId },
+      cmsDocType,
     }: MappedCaseDocument,
     oldDoc?: MappedCaseDocument
   ): NotificationEvent => ({
