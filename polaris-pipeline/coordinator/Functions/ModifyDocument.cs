@@ -92,7 +92,7 @@ namespace coordinator.Functions
                 {
                     Document = base64Document,
                     FileName = document.PdfBlobName,
-                    DocumentChanges = modifyDocumentRequest.DocumentChanges,
+                    DocumentModifications = modifyDocumentRequest.DocumentModifications,
                     VersionId = modifyDocumentRequest.VersionId
                 };
 

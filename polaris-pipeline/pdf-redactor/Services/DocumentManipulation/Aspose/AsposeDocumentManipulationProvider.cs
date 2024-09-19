@@ -22,8 +22,8 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
             {
                 var inputStream = await stream.EnsureSeekableAsync();
 
-                var pagesRemoved = modifications.DocumentChanges.Where(x => x.Operation == DocumentManipulationOperation.RemovePage).SelectMany(x => new[] { x.PageIndex }).ToArray();
-                var pagesRotated = modifications.DocumentChanges.Where(x => x.Operation == DocumentManipulationOperation.RotatePage).SelectMany(x => new[] { x.PageIndex }).ToArray();
+                var pagesRemoved = modifications.DocumentModifications.Where(x => x.Operation == DocumentManipulationOperation.RemovePage).SelectMany(x => new[] { x.PageIndex }).ToArray();
+                var pagesRotated = modifications.DocumentModifications.Where(x => x.Operation == DocumentManipulationOperation.RotatePage).SelectMany(x => new[] { x.PageIndex }).ToArray();
 
                 telemetryEvent = new DocumentModifiedEvent(
                     correlationId: correlationId,
@@ -40,7 +40,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
                 telemetryEvent.PdfFormat = document.PdfFormat.ToString();
                 telemetryEvent.PageCount = document.Pages.Count;
 
-                foreach (var change in modifications.DocumentChanges.OrderByDescending(x => x.PageIndex))
+                foreach (var change in modifications.DocumentModifications.OrderByDescending(x => x.PageIndex))
                 {
                     switch (change.Operation)
                     {

@@ -1,4 +1,5 @@
 ﻿using Common.Dto.Request;
+using Common.Dto.Request.DocumentManipulation;
 using Common.Dto.Request.Redaction;
 
 namespace PolarisGateway.Mappers
@@ -15,7 +16,8 @@ namespace PolarisGateway.Mappers
             {
                 // FileName - not known yet, picked up later in the durable world
                 // VersionId - not passed in previous code, possibly get set as 0->1 in Blob metadata, but as not used this isn't a problem
-                RedactionDefinitions = new List<RedactionDefinitionDto>()
+                RedactionDefinitions = new List<RedactionDefinitionDto>(),
+                DocumentModifications = new List<DocumentModificationDto>()
             };
 
             foreach (var item in saveRequest.Redactions)
@@ -39,6 +41,18 @@ namespace PolarisGateway.Mappers
                 }
 
                 result.RedactionDefinitions.Add(redactionDefinition);
+            }
+
+            foreach (var item in saveRequest.DocumentModifications)
+            {
+                var documentModification = new DocumentModificationDto
+                {
+                    PageIndex = item.PageIndex,
+                    Operation = item.Operation,
+                    Arg = item.Arg
+                };
+
+                result.DocumentModifications.Add(documentModification);
             }
 
             return result;
