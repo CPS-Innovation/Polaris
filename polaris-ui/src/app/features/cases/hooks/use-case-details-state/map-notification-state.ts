@@ -43,7 +43,9 @@ const inLeftAndRight = <T extends { documentId: string }>(
 const match =
   <T extends U, U, Key extends keyof U>(key: Key, sense: Sense) =>
   (left: T, right: U) =>
-    sense === "same" ? left[key] === right[key] : left[key] !== right[key];
+    sense === "same"
+      ? (left && left[key]) === (right && right[key])
+      : (left && left[key]) !== (right && right[key]);
 
 const matchNested =
   <T extends U, U, Key extends keyof U, ChildKey extends keyof U[Key]>(
@@ -53,8 +55,10 @@ const matchNested =
   ) =>
   (left: T, right: U) =>
     sense === "same"
-      ? left[key][childKey] === right[key][childKey]
-      : left[key][childKey] !== right[key][childKey];
+      ? (left && left[key] && left[key][childKey]) ===
+        (right && right[key] && right[key][childKey])
+      : (left && left[key] && left[key][childKey]) !==
+        (right && right[key] && right[key][childKey]);
 
 export const mapNotificationState = (
   notificationState: NotificationState,
