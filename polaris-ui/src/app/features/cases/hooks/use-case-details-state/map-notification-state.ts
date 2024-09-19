@@ -69,7 +69,12 @@ export const mapNotificationState = (
 
   const buildEvent = (
     notificationType: NotificationType,
-    { documentId, cmsVersionId, presentationTitle }: MappedCaseDocument,
+    {
+      documentId,
+      cmsVersionId,
+      presentationTitle,
+      cmsDocType: { documentTypeId },
+    }: MappedCaseDocument,
     oldDoc?: MappedCaseDocument
   ): NotificationEvent => ({
     documentId,
@@ -108,7 +113,7 @@ export const mapNotificationState = (
     incomingDocuments,
     existingDocuments,
     match("documentId", "same"),
-    match("cmsVersionId", "same"),
+    //match("cmsVersionId", "same"),
     matchNested("cmsDocType", "documentTypeId", "different")
   ).map(([doc, oldDoc]) => buildEvent("Reclassified", doc, oldDoc));
 
@@ -116,8 +121,8 @@ export const mapNotificationState = (
     incomingDocuments,
     existingDocuments,
     match("documentId", "same"),
-    match("cmsVersionId", "same"),
-    matchNested("cmsDocType", "documentTypeId", "same"),
+    //match("cmsVersionId", "same"),
+    //matchNested("cmsDocType", "documentTypeId", "same"),
     match("presentationTitle", "different")
   ).map(([doc, oldDoc]) => buildEvent("Updated", doc, oldDoc));
 
@@ -138,7 +143,7 @@ export const mapNotificationState = (
 
   const ignoredStillUnmatched = inLeftNotRight(
     <NotificationEvent[]>notificationState.ignoreNextEvents,
-    eventsWithoutIgnored,
+    incomingEvents,
     match("documentId", "same"),
     match("notificationType", "same")
   );
