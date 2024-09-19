@@ -13,6 +13,7 @@ export type NotificationEventCore = {
 };
 
 export type NotificationEvent = NotificationEventCore & {
+  id: number;
   cmsVersionId: number;
   presentationTitle: string;
   dateTime: string;

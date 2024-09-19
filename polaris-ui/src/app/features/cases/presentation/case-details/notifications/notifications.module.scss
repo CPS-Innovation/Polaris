@@ -1,0 +1,75 @@
+.root {
+  // cancel native button styling
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+
+  // todo: could these be mixins and only defined in one place
+  &:hover:not(:disabled):not(:focus) {
+    color: #fff;
+    background-color: #1d70b8;
+  }
+
+  // todo: could these be mixins and only defined in one place
+  &:focus {
+    color: #0b0c0c;
+    background-color: #ffdd00;
+    box-shadow: 0 0.125rem 0 #0b0c0c;
+    outline: 0.1875rem solid transparent;
+  }
+
+  margin-top: 0.5em;
+  padding: 0.25em;
+  width: 7.75em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .alert {
+    position: relative;
+    display: inline-block;
+    width: 1.75em;
+    height: 1.75em;
+
+    .count {
+      bottom: -0.8em;
+      right: -0.6em;
+      width: 1.6em;
+      height: 1.6em;
+      color: white;
+      background-color: #d4351c;
+      position: absolute;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+  }
+
+  &:not(:hover) .alert {
+    background: url(./alert-alert.svg) no-repeat;
+  }
+
+  &:hover .alert {
+    background: url(./alert-alert-white.svg) no-repeat;
+  }
+  &:hover .alertEmpty,
+  &:not(:hover) .alertEmpty {
+    background: url(./alert-empty.svg) no-repeat;
+    .count {
+      background-color: black;
+      color: white;
+    }
+  }
+
+  .label {
+    display: inline-block;
+    font-size: 0.9em;
+  }
+}

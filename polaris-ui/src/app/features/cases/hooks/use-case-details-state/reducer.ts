@@ -43,7 +43,10 @@ import { Note } from "../../domain/gateway/NotesData";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
-import { mapNotificationState } from "./map-notification-state";
+import {
+  mapNotificationState,
+  registerNotifiableEvent,
+} from "./map-notification-state";
 import { NotificationType } from "../../domain/NotificationState";
 export const reducer = (
   state: CombinedState,
@@ -1338,13 +1341,10 @@ export const reducer = (
     case "REGISTER_NOTIFIABLE_EVENT": {
       return {
         ...state,
-        notificationState: {
-          ...state.notificationState,
-          ignoreNextEvents: [
-            ...state.notificationState.ignoreNextEvents,
-            action.payload,
-          ],
-        },
+        notificationState: registerNotifiableEvent(
+          state.notificationState,
+          action.payload
+        ),
       };
     }
     default:

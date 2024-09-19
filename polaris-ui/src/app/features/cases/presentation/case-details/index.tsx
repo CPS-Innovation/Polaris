@@ -60,6 +60,7 @@ import {
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
 import { TaggedContext } from "../../../../inbound-handover/context";
+import { Notifications } from "./notifications/Notifications";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
@@ -132,6 +133,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     searchPII,
     renameDocuments,
     reclassifyDocuments,
+    notificationState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -540,6 +542,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
+          <Notifications state={notificationState}></Notifications>
         </nav>
         <PageContentWrapper>
           <div className={`govuk-grid-row ${classes.mainContent}`}>

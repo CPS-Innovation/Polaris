@@ -83,7 +83,7 @@ const scenarios: Scenario[] = [
       existing: [
         state({
           lastUpdatedDateTime: existingDateTime,
-          events: [evt({ documentId: "0" })],
+          events: [evt({ documentId: "0", id: 0 })],
         }),
         [doc({ documentId: "0" })],
       ],
@@ -113,6 +113,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-1",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
@@ -121,8 +122,9 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-2",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
-          evt({ documentId: "0" }),
+          evt({ documentId: "0", id: 0 }),
         ],
       }),
     },
@@ -133,7 +135,7 @@ const scenarios: Scenario[] = [
       existing: [
         state({
           lastUpdatedDateTime: existingDateTime,
-          events: [evt({ documentId: "0" })],
+          events: [evt({ documentId: "0", id: 0 })],
         }),
         [
           doc({
@@ -160,6 +162,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-1",
             dateTime: incomingDateTime,
             status: "Read",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
@@ -168,8 +171,9 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-2",
             dateTime: incomingDateTime,
             status: "Read",
+            id: expect.any(Number),
           }),
-          evt({ documentId: "0" }),
+          evt({ documentId: "0", id: 0 }),
         ],
       }),
     },
@@ -180,7 +184,7 @@ const scenarios: Scenario[] = [
       existing: [
         state({
           lastUpdatedDateTime: existingDateTime,
-          events: [evt({ documentId: "0" })],
+          events: [evt({ documentId: "0", id: 0 })],
         }),
         [
           doc({
@@ -222,6 +226,7 @@ const scenarios: Scenario[] = [
             notificationType: "NewVersion",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
@@ -230,8 +235,9 @@ const scenarios: Scenario[] = [
             notificationType: "NewVersion",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
-          evt({ documentId: "0" }),
+          evt({ documentId: "0", id: 0 }),
         ],
       }),
     },
@@ -242,7 +248,7 @@ const scenarios: Scenario[] = [
       existing: [
         state({
           lastUpdatedDateTime: existingDateTime,
-          events: [evt({ documentId: "0" })],
+          events: [evt({ documentId: "0", id: 0 })],
         }),
         [
           doc({
@@ -286,14 +292,16 @@ const scenarios: Scenario[] = [
             notificationType: "Reclassified",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
             notificationType: "Reclassified",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
-          evt({ documentId: "0" }),
+          evt({ documentId: "0", id: 0 }),
         ],
       }),
     },
@@ -304,7 +312,7 @@ const scenarios: Scenario[] = [
       existing: [
         state({
           lastUpdatedDateTime: existingDateTime,
-          events: [evt({ documentId: "0" })],
+          events: [evt({ documentId: "0", id: 0 })],
         }),
         [
           doc({
@@ -341,6 +349,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-1111",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
@@ -348,8 +357,9 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-2222",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
-          evt({ documentId: "0" }),
+          evt({ documentId: "0", id: 0 }),
         ],
       }),
     },
@@ -360,7 +370,7 @@ const scenarios: Scenario[] = [
       existing: [
         state({
           lastUpdatedDateTime: existingDateTime,
-          events: [evt({ documentId: "0" })],
+          events: [evt({ documentId: "0", id: 0 })],
         }),
         [
           doc({
@@ -414,6 +424,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-1111",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "1",
@@ -422,6 +433,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-1111",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "1",
@@ -430,6 +442,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-1111",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
@@ -438,6 +451,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-2222",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
@@ -446,6 +460,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-2222",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "2",
@@ -454,8 +469,9 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-2222",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
-          evt({ documentId: "0" }),
+          evt({ documentId: "0", id: 0 }),
         ],
       }),
     },
@@ -470,6 +486,7 @@ const scenarios: Scenario[] = [
             evt({
               documentId: "0",
               status: "Live",
+              id: 0,
             }),
           ],
           ignoreNextEvents: [
@@ -518,6 +535,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-4",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "5",
@@ -526,6 +544,7 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-555",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "5",
@@ -534,10 +553,12 @@ const scenarios: Scenario[] = [
             presentationTitle: "doc-555",
             dateTime: incomingDateTime,
             status: "Live",
+            id: expect.any(Number),
           }),
           evt({
             documentId: "0",
             status: "Live",
+            id: 0,
           }),
         ],
         ignoreNextEvents: [evt({ documentId: "3", notificationType: "New" })],
@@ -555,16 +576,19 @@ const scenarios: Scenario[] = [
               documentId: "1",
               notificationType: "Reclassified",
               status: "Live",
+              id: 1,
             }),
             evt({
               documentId: "1",
               notificationType: "Updated",
               status: "Live",
+              id: 2,
             }),
             evt({
               documentId: "0",
               notificationType: "Reclassified",
               status: "Live",
+              id: 0,
             }),
           ],
         }),
@@ -583,21 +607,25 @@ const scenarios: Scenario[] = [
             status: "Read",
             presentationTitle: "doc-1-11",
             dateTime: incomingDateTime,
+            id: expect.any(Number),
           }),
           evt({
             documentId: "1",
             notificationType: "Reclassified",
             status: "Superseded",
+            id: 1,
           }),
           evt({
             documentId: "1",
             notificationType: "Updated",
             status: "Superseded",
+            id: 2,
           }),
           evt({
             documentId: "0",
             notificationType: "Reclassified",
             status: "Live",
+            id: 0,
           }),
         ],
       }),
@@ -640,6 +668,13 @@ describe("mapNotificationState", () => {
 
       // Assert
       expect(result).toEqual(expectedNotificationState);
+
+      // We expect whatever id generation mechanism is being used to generate unique ids
+      const eventualNotificationIds = result.events.map(({ id }) => id);
+      const uniqueNotificationIds = [...new Set(eventualNotificationIds)];
+      expect(eventualNotificationIds.length).toEqual(
+        uniqueNotificationIds.length
+      );
     }
   );
 });
