@@ -7,22 +7,18 @@ export type NotificationType =
 
 type NotificationStatus = "Live" | "Read" | "Superseded";
 
-type NotificationEventCore = {
+export type NotificationEventCore = {
   documentId: string;
-
   notificationType: NotificationType;
 };
 
-type NotificationEventMetaData = {
+export type NotificationEvent = NotificationEventCore & {
   cmsVersionId: number;
   presentationTitle: string;
   dateTime: string;
   narrative: undefined;
   status: NotificationStatus;
 };
-
-export type NotificationEvent = NotificationEventCore &
-  NotificationEventMetaData;
 
 export type NotificationState = {
   lastUpdatedDateTime?: string;
