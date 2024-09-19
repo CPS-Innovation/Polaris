@@ -63,7 +63,7 @@ export const mapNotificationState = (
   incomingDateTime: string
 ): NotificationState => {
   if (!existingDocuments.length) {
-    // if this is first load then
+    // If this is first load then nothing to notify about - it is all new!
     return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
   }
 

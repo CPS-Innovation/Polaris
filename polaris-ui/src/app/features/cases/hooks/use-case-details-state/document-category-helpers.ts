@@ -138,10 +138,8 @@ export const getDocumentAttachments = <
   item.cmsOriginalFileExtension === ".hte"
     ? docs
         .filter((doc) => doc.polarisParentDocumentId === item.documentId)
-        .map(({ documentId, presentationTitle }) => {
-          return {
-            documentId: documentId,
-            name: presentationTitle,
-          };
-        })
+        .map(({ documentId, presentationTitle }) => ({
+          documentId: documentId,
+          name: presentationTitle,
+        }))
     : [];
