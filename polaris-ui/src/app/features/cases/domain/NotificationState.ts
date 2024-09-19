@@ -9,11 +9,12 @@ type NotificationStatus = "Live" | "Read" | "Superseded";
 
 type NotificationEventCore = {
   documentId: string;
-  cmsVersionId: number;
+
   notificationType: NotificationType;
 };
 
 type NotificationEventMetaData = {
+  cmsVersionId: number;
   presentationTitle: string;
   dateTime: string;
   narrative: undefined;

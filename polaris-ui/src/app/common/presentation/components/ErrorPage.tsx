@@ -1,4 +1,3 @@
-import { ApiError } from "../../errors/ApiError";
 import { CmsAuthError } from "../../errors/CmsAuthError";
 import { PageContentWrapper } from "./PageContentWrapper";
 

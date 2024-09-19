@@ -43,7 +43,7 @@ const inLeftAndRight = <T extends { documentId: string }>(
 const match =
   <T extends U, U, Key extends keyof U>(key: Key, sense: Sense) =>
   (left: T, right: U) =>
-    sense === "same" ? left[key] == right[key] : left[key] != right[key];
+    sense === "same" ? left[key] === right[key] : left[key] !== right[key];
 
 const matchNested =
   <T extends U, U, Key extends keyof U, ChildKey extends keyof U[Key]>(
@@ -53,8 +53,8 @@ const matchNested =
   ) =>
   (left: T, right: U) =>
     sense === "same"
-      ? left[key][childKey] == right[key][childKey]
-      : left[key][childKey] != right[key][childKey];
+      ? left[key][childKey] === right[key][childKey]
+      : left[key][childKey] !== right[key][childKey];
 
 export const mapNotificationState = (
   notificationState: NotificationState,
@@ -84,7 +84,7 @@ export const mapNotificationState = (
     dateTime: incomingDateTime,
     narrative: undefined,
     status:
-      notificationType == "Discarded"
+      notificationType === "Discarded"
         ? // if it is Discarded then we do not need the Notification to be clickable
           "Read"
         : "Live",
@@ -113,7 +113,6 @@ export const mapNotificationState = (
     incomingDocuments,
     existingDocuments,
     match("documentId", "same"),
-    //match("cmsVersionId", "same"),
     matchNested("cmsDocType", "documentTypeId", "different")
   ).map(([doc, oldDoc]) => buildEvent("Reclassified", doc, oldDoc));
 
@@ -121,8 +120,6 @@ export const mapNotificationState = (
     incomingDocuments,
     existingDocuments,
     match("documentId", "same"),
-    //match("cmsVersionId", "same"),
-    //matchNested("cmsDocType", "documentTypeId", "same"),
     match("presentationTitle", "different")
   ).map(([doc, oldDoc]) => buildEvent("Updated", doc, oldDoc));
 
@@ -141,26 +138,30 @@ export const mapNotificationState = (
     match("notificationType", "same")
   );
 
-  const ignoredStillUnmatched = inLeftNotRight(
-    <NotificationEvent[]>notificationState.ignoreNextEvents,
+  const ignoreNextEventsStillUnmatched = inLeftNotRight(
+    notificationState.ignoreNextEvents as NotificationEvent[],
     incomingEvents,
     match("documentId", "same"),
     match("notificationType", "same")
   );
 
   const existingEvents = notificationState.events.map((existingEvent) =>
-    existingEvent.status != "Superseded" &&
+    existingEvent.status !== "Superseded" &&
     discardedNotifications.some(
-      (discardedDoc) => discardedDoc.documentId == existingEvent.documentId
+      (discardedDoc) => discardedDoc.documentId === existingEvent.documentId
     )
       ? ({ ...existingEvent, status: "Superseded" } as NotificationEvent)
       : existingEvent
   );
 
-  return {
+  const nextState = {
     ...notificationState,
     lastUpdatedDateTime: incomingDateTime,
     events: [...eventsWithoutIgnored, ...existingEvents],
-    ignoreNextEvents: ignoredStillUnmatched,
+    ignoreNextEvents: ignoreNextEventsStillUnmatched,
   };
+
+  console.debug(notificationState, nextState);
+
+  return nextState;
 };

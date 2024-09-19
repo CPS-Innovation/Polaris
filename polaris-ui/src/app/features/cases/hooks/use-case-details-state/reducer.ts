@@ -44,6 +44,7 @@ import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
 import { mapNotificationState } from "./map-notification-state";
+import { NotificationType } from "../../domain/NotificationState";
 export const reducer = (
   state: CombinedState,
   action:
@@ -260,6 +261,10 @@ export const reducer = (
           highlightGroupIds: string[];
           type: PIIRedactionStatus;
         };
+      }
+    | {
+        type: "REGISTER_NOTIFIABLE_EVENT";
+        payload: { documentId: string; notificationType: NotificationType };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -1330,6 +1335,18 @@ export const reducer = (
       return newState;
     }
 
+    case "REGISTER_NOTIFIABLE_EVENT": {
+      return {
+        ...state,
+        notificationState: {
+          ...state.notificationState,
+          ignoreNextEvents: [
+            ...state.notificationState.ignoreNextEvents,
+            action.payload,
+          ],
+        },
+      };
+    }
     default:
       throw new Error("Unknown action passed to case details reducer");
   }

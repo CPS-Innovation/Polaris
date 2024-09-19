@@ -647,6 +647,12 @@ export const useCaseDetailsState = (
           },
         },
       });
+
+      dispatch({
+        type: "REGISTER_NOTIFIABLE_EVENT",
+        payload: { documentId, notificationType: "Reclassified" },
+      });
+
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {

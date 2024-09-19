@@ -598,6 +598,10 @@ const toFlatScenario = (s: Scenario) =>
   ] as const;
 
 describe("mapNotificationState", () => {
+  beforeEach(() => {
+    jest.spyOn(console, "debug").mockImplementation(jest.fn());
+  });
+
   it.each<ReturnType<typeof toFlatScenario>>(scenarios.map(toFlatScenario))(
     "%s",
     (
