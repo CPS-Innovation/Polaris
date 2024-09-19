@@ -1,10 +1,11 @@
-type NotificationType =
+export type NotificationType =
   | "New"
   | "Discarded"
   | "NewVersion"
   | "Reclassified"
-  | "Updated"
-  | "Superseded";
+  | "Updated";
+
+type NotificationStatus = "Live" | "Read" | "Superseded";
 
 type NotificationEventCore = {
   documentId: string;
@@ -14,12 +15,13 @@ type NotificationEventCore = {
 
 type NotificationEventMetaData = {
   presentationTitle: string;
-  actioned: boolean;
   dateTime: string;
-  narrative: string;
+  narrative: undefined;
+  status: NotificationStatus;
 };
 
-type NotificationEvent = NotificationEventCore & NotificationEventMetaData;
+export type NotificationEvent = NotificationEventCore &
+  NotificationEventMetaData;
 
 export type NotificationState = {
   lastUpdatedDateTime?: string;

@@ -9,6 +9,9 @@ namespace Common.Dto.Request
         public string FileName { get; set; }
 
         public List<RedactionDefinitionDto> RedactionDefinitions { get; set; }
+
+        public List<int> DeleteChanges { get; set}
+
         public string Document { get; set; }
     }
 }

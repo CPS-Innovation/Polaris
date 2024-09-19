@@ -352,9 +352,10 @@ export const reducer = (
           state.documentsState.status === "succeeded"
         ) {
           const notificationState = mapNotificationState(
-            documentsState.data,
+            state.notificationState,
             state.documentsState.data,
-            state.notificationState
+            documentsState.data,
+            action.payload.data.documentsRetrieved
           );
           nextState = {
             ...nextState,
