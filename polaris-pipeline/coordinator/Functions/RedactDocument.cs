@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -106,31 +107,36 @@ namespace coordinator.Functions
                     throw new Exception(error);
                 }
 
-                using var redactedMemoryStream = new MemoryStream();
-                await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
-                var redactedBytes = memoryStream.ToArray();
+                Stream modifiedDocumentStream = null;
 
-                var base64RedactedDocument = Convert.ToBase64String(redactedBytes);
-
-                var modificationRequest = new ModifyDocumentWithDocumentDto
+                if (redactPdfRequest.DocumentModifications.Any())
                 {
-                    Document = base64RedactedDocument,
-                    FileName = document.PdfBlobName,
-                    DocumentModifications = redactPdfRequest.DocumentModifications,
-                    VersionId = redactPdfRequest.VersionId
-                };
+                    using var redactedMemoryStream = new MemoryStream();
+                    await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
+                    var redactedBytes = redactedMemoryStream.ToArray();
 
-                using var modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modificationRequest, currentCorrelationId);
-                if (modifiedDocumentStream == null)
-                {
-                    string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
-                    throw new Exception(error);
+                    var base64RedactedDocument = Convert.ToBase64String(redactedBytes);
+
+                    var modificationRequest = new ModifyDocumentWithDocumentDto
+                    {
+                        Document = base64RedactedDocument,
+                        FileName = document.PdfBlobName,
+                        DocumentModifications = redactPdfRequest.DocumentModifications,
+                        VersionId = redactPdfRequest.VersionId
+                    };
+
+                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modificationRequest, currentCorrelationId);
+                    if (modifiedDocumentStream == null)
+                    {
+                        string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                        throw new Exception(error);
+                    }
                 }
 
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactionRequest.FileName);
 
                 await _blobStorageService.UploadDocumentAsync(
-                    modifiedDocumentStream,
+                    modifiedDocumentStream ?? redactedDocumentStream,
                     uploadFileName,
                     caseId,
                     polarisDocumentId,
