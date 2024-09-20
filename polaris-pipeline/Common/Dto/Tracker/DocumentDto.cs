@@ -41,6 +41,9 @@ namespace Common.Dto.Tracker
         [AdaptIgnore]
         public string CmsDocumentId { get; set; }
 
+        [JsonProperty("cmsVersionId")]
+        public long CmsVersionId { get; set; }
+
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
 

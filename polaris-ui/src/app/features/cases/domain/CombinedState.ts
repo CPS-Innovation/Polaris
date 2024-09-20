@@ -22,6 +22,7 @@ import { SearchPIIData } from "./gateway/SearchPIIData";
 import { RenameDocumentData } from "./gateway/RenameDocumentData";
 import { ReclassifyDocumentData } from "./gateway/ReclassifyDocumentData";
 import { TaggedContext } from "../../../inbound-handover/context";
+import { NotificationState } from "./NotificationState";
 
 export type CombinedState = {
   urn: string;
@@ -39,6 +40,7 @@ export type CombinedState = {
     lastProcessingCompleted: string;
   };
   accordionState: AsyncResult<AccordionDocumentSection[]>;
+  notificationState: NotificationState;
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;

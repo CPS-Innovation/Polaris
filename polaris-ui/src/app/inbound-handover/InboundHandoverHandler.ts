@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { lookupUrn } from "../features/cases/api/gateway-api";
 import { buildContextFromQueryString, TaggedContext } from "./context";
 import { RouteComponentProps } from "react-router-dom";
-import { HandoverError } from "../common/errors/HandoverError";
 
 export const inboundHandoverPath = "/go";
 
@@ -27,11 +26,11 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
     }
   };
 
-  const navigate = (
-    caseId: number,
-    urn: string,
-    contextObject: TaggedContext | undefined
-  ) => history.push(`/case-details/${urn}/${caseId}`, contextObject);
+  const navigate = useCallback(
+    (caseId: number, urn: string, contextObject: TaggedContext | undefined) =>
+      history.push(`/case-details/${urn}/${caseId}`, contextObject),
+    [history]
+  );
 
   useEffect(() => {
     (async () => {
@@ -52,6 +51,6 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
         setError(ex as Error);
       }
     })();
-  }, [search, history]);
+  }, [search, history, navigate]);
   return null;
 };
