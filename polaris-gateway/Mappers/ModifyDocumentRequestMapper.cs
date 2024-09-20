@@ -8,7 +8,7 @@ namespace PolarisGateway.Mappers
         {
             return new ModifyDocumentDto
             {
-                DocumentChanges = documentModificationRequest.DocumentChanges
+                DocumentModifications = documentModificationRequest.DocumentModifications
             };
         }
     }

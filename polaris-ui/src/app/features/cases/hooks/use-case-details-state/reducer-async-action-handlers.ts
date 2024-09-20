@@ -11,11 +11,7 @@ import {
   getSearchPIIData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
-import {
-  NewPdfHighlight,
-  ISearchPIIHighlight,
-} from "../../domain/NewPdfHighlight";
-import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import {
   mapRedactionSaveRequest,
   mapSearchPIISaveRedactionObject,
@@ -368,6 +364,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
 
         dispatch({
+          type: "REGISTER_NOTIFIABLE_EVENT",
+          payload: { documentId, notificationType: "NewVersion" },
+        });
+
+        dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {
             startRefresh: true,
@@ -619,6 +620,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             },
           },
         });
+
+        dispatch({
+          type: "REGISTER_NOTIFIABLE_EVENT",
+          payload: { documentId, notificationType: "Updated" },
+        });
+
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {

@@ -1,28 +1,28 @@
 using System;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Common.Extensions;
-using Common.Wrappers;
-using Common.Exceptions;
-using FluentValidation;
-using Common.Dto.Request;
-using DdeiClient.Services;
-using Common.ValueObjects;
-using Common.Services.BlobStorageService;
-using Ddei.Factories;
-using Microsoft.AspNetCore.Http;
-using coordinator.Helpers;
 using coordinator.Clients.PdfRedactor;
 using coordinator.Factories.UploadFileNameFactory;
-using System.IO;
-using Common.Streaming;
-using System.Net;
+using coordinator.Helpers;
+using Common.Configuration;
+using Common.Dto.Request;
+using Common.Exceptions;
+using Common.Extensions;
+using Common.Services.BlobStorageService;
+using Common.ValueObjects;
+using Common.Wrappers;
+using Ddei.Factories;
+using DdeiClient.Services;
+using FluentValidation;
 
 namespace coordinator.Functions
 {
@@ -107,16 +107,41 @@ namespace coordinator.Functions
                     throw new Exception(error);
                 }
 
+                Stream modifiedDocumentStream = null;
+
+                if (redactPdfRequest.DocumentModifications.Any())
+                {
+                    using var redactedMemoryStream = new MemoryStream();
+                    await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
+                    var redactedBytes = redactedMemoryStream.ToArray();
+
+                    var base64RedactedDocument = Convert.ToBase64String(redactedBytes);
+
+                    var modificationRequest = new ModifyDocumentWithDocumentDto
+                    {
+                        Document = base64RedactedDocument,
+                        FileName = document.PdfBlobName,
+                        DocumentModifications = redactPdfRequest.DocumentModifications,
+                        VersionId = redactPdfRequest.VersionId
+                    };
+
+                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modificationRequest, currentCorrelationId);
+                    if (modifiedDocumentStream == null)
+                    {
+                        string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                        throw new Exception(error);
+                    }
+                }
+
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactionRequest.FileName);
 
                 await _blobStorageService.UploadDocumentAsync(
-                    redactedDocumentStream,
+                    modifiedDocumentStream ?? redactedDocumentStream,
                     uploadFileName,
                     caseId,
                     polarisDocumentId,
                     redactPdfRequest.VersionId.ToString(),
                     currentCorrelationId);
-
 
                 using var pdfStream = await _blobStorageService.GetDocumentAsync(uploadFileName, currentCorrelationId);
 
@@ -124,11 +149,11 @@ namespace coordinator.Functions
                 var arg = _ddeiArgFactory.CreateDocumentArgDto
                 (
                     cmsAuthValues: cmsAuthValues,
-                     correlationId: currentCorrelationId,
-                     urn: caseUrn,
-                     caseId: int.Parse(caseId),
-                     documentId: int.Parse(document.CmsDocumentId),
-                     versionId: document.CmsVersionId
+                    correlationId: currentCorrelationId,
+                    urn: caseUrn,
+                    caseId: int.Parse(caseId),
+                    documentId: int.Parse(document.CmsDocumentId),
+                    versionId: document.CmsVersionId
                 );
 
                 var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);

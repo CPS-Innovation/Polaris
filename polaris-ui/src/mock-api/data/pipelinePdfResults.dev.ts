@@ -14,6 +14,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "1",
       cmsDocumentId: "1",
+      cmsVersionId: 1,
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
       cmsOriginalFileName: "MCLOVEMG3 very long.docx",
@@ -48,6 +49,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "2",
       cmsDocumentId: "2",
+      cmsVersionId: 2,
       pdfBlobName: "CM01",
       status: "Indexed",
       cmsOriginalFileName: "CM01 Item 4 very long.docx",
@@ -82,6 +84,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "3",
       cmsDocumentId: "3",
+      cmsVersionId: 3,
       pdfBlobName: "MG05MCLOVE",
       status: "UnexpectedFailure",
       cmsOriginalFileName: "MG05MCLOVE very long.docx",
@@ -116,6 +119,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "4",
       cmsDocumentId: "4",
+      cmsVersionId: 4,
       pdfBlobName: "MG06_3June",
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June very long.docx",
@@ -150,6 +154,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "5",
       cmsDocumentId: "5",
+      cmsVersionId: 5,
       pdfBlobName: "MG06_10june",
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june very long.docx",
@@ -184,6 +189,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "6",
       cmsDocumentId: "6",
+      cmsVersionId: 6,
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
       cmsOriginalFileName: "MCLOVEMG3 very long.docx",
@@ -218,6 +224,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "7",
       cmsDocumentId: "7",
+      cmsVersionId: 7,
       pdfBlobName: "CM01",
       status: "Indexed",
       cmsOriginalFileName: "CM01 very long.docx",
@@ -252,6 +259,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "8",
       cmsDocumentId: "8",
+      cmsVersionId: 8,
       pdfBlobName: "MG05MCLOVE",
       status: "Indexed",
       cmsOriginalFileName: "MG05MCLOVE very long.docx",
@@ -287,6 +295,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "9",
       cmsDocumentId: "9",
+      cmsVersionId: 9,
       pdfBlobName: "MG06_3June",
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June very long.docx",
@@ -322,6 +331,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "10",
       cmsDocumentId: "10",
+      cmsVersionId: 10,
       pdfBlobName: "MG06_10june",
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june very long.docx",
@@ -357,6 +367,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "10",
       cmsDocumentId: "10",
+      cmsVersionId: 10,
       pdfBlobName: "MG06_10june",
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june  very long .docx",
@@ -391,6 +402,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "11",
       cmsDocumentId: "11",
+      cmsVersionId: 11,
       pdfBlobName: "PortraitLandscape",
       status: "Indexed",
       cmsOriginalFileName: "PortraitLandscape",
@@ -425,6 +437,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "12",
       cmsDocumentId: "12",
+      cmsVersionId: 12,
       pdfBlobName: "SearchPII",
       status: "Indexed",
       cmsOriginalFileName: "SearchPII",
@@ -459,6 +472,7 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "13",
       cmsDocumentId: "13",
+      cmsVersionId: 13,
       pdfBlobName: "MG06_13june",
       status: "Indexed",
       cmsOriginalFileName: "MG06_13june very long.docx",

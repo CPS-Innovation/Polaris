@@ -15,8 +15,13 @@ describe("InboundHandoverHandler", () => {
 
   beforeEach(() => {
     jest.spyOn(console, "error").mockImplementation(jest.fn());
+<<<<<<< HEAD
+    jest.resetAllMocks();
+  });
+=======
   });
   beforeEach(jest.resetAllMocks);
+>>>>>>> main
   afterAll(jest.resetAllMocks);
 
   it("will navigate a handover object containing only a only a case id", async () => {
