@@ -9,13 +9,14 @@ import {
   getLocallySavedRedactionHighlights,
   handleRemoveLocallySavedRedactions,
 } from "../../../hooks/utils/redactionUtils";
-import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
+
+import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import classes from "./UnsavedRedactionModal.module.scss";
 
 type Props = {
   documentId: string;
   caseId: number;
-  handleAddRedaction: (newRedaction: NewPdfHighlight[]) => void;
+  handleAddRedaction: CaseDetailsState["handleAddRedaction"];
 };
 
 export const UnsavedRedactionModal: React.FC<Props> = ({
@@ -35,7 +36,7 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
   }, []);
 
   const handleApplyRedaction = () => {
-    handleAddRedaction(locallySavedRedactionHighlights);
+    handleAddRedaction(documentId, locallySavedRedactionHighlights);
     trackEvent("Add Unsaved Redactions", {
       documentId: documentId,
       redactionsCount: locallySavedRedactionHighlights.length,

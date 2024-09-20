@@ -720,6 +720,9 @@ export const missedRedactionsStub: ListItem[] = [
   { id: "13", name: "Email address", children: [] },
   { id: "14", name: "Previous convictions", children: [] },
   { id: "15", name: "Other", children: [] },
+  { id: "16", name: "MG11 Backsheet", children: [] },
+  { id: "17", name: "Contains personal data", children: [] },
+  { id: "18", name: "Blank page", children: [] },
 ];
 
 export const ouCodeMappingStub: OuCodeMapping[] = [

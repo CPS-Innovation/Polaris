@@ -43,6 +43,7 @@ import { Note } from "../../domain/gateway/NotesData";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 export const reducer = (
   state: CombinedState,
   action:
@@ -116,6 +117,13 @@ export const reducer = (
         };
       }
     | {
+        type: "ADD_PAGE_DELETE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          pageDeleteRedactions: PageDeleteRedaction[];
+        };
+      }
+    | {
         type: "SAVING_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
@@ -124,6 +132,13 @@ export const reducer = (
       }
     | {
         type: "REMOVE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          redactionId: string;
+        };
+      }
+    | {
+        type: "REMOVE_PAGE_DELETE_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           redactionId: string;
@@ -538,6 +553,7 @@ export const reducer = (
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
+        pageDeleteRedactions: [],
         isDeleted: false,
         saveStatus: "initial" as const,
       };
@@ -884,6 +900,41 @@ export const reducer = (
       }
       return newState;
     }
+    case "ADD_PAGE_DELETE_REDACTION": {
+      const { documentId, pageDeleteRedactions } = action.payload;
+      const newRedactions = pageDeleteRedactions.map((redaction, index) => ({
+        ...redaction,
+        id: String(`${+new Date()}-${index}`),
+      }));
+
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageDeleteRedactions: [
+                    ...item.pageDeleteRedactions,
+                    ...newRedactions,
+                  ],
+                }
+              : item
+          ),
+        },
+      };
+      // //adding redaction highlight to local storage
+      // const redactionHighlights = getRedactionsToSaveLocally(
+      //   newState.tabsState.items,
+      //   documentId,
+      //   state.caseId
+      // );
+      // if (redactionHighlights.length) {
+      //   addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      // }
+      return newState;
+    }
     case "SAVING_REDACTION": {
       const { documentId, saveStatus } = action.payload;
 
@@ -934,6 +985,38 @@ export const reducer = (
       return newState;
     }
 
+    case "REMOVE_PAGE_DELETE_REDACTION": {
+      const { redactionId, documentId } = action.payload;
+
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageDeleteRedactions: item.pageDeleteRedactions.filter(
+                    (redaction) => redaction.id !== redactionId
+                  ),
+                }
+              : item
+          ),
+        },
+      };
+      // //adding redaction highlight to local storage
+      // const redactionHighlights = getRedactionsToSaveLocally(
+      //   newState.tabsState.items,
+      //   documentId,
+      //   state.caseId
+      // );
+      // redactionHighlights.length
+      //   ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+      //   : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
+    }
+
     case "REMOVE_ALL_REDACTIONS": {
       const { documentId } = action.payload;
       const newState = {
@@ -945,6 +1028,7 @@ export const reducer = (
               ? {
                   ...item,
                   redactionHighlights: [],
+                  pageDeleteRedactions: [],
                 }
               : item
           ),

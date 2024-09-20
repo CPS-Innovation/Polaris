@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   PdfLoader,
@@ -28,6 +34,9 @@ import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+import { IPageDeleteRedaction } from "../../../domain/IPageDeleteRedaction";
+import { createPortal } from "react-dom";
+import { DocumentButtons } from "../pdf-viewer/DocumentButtons";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -50,10 +59,11 @@ type Props = {
   isSearchPIIDefaultOptionOn: boolean;
   activeSearchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
+  pageDeleteRedactions: IPageDeleteRedaction[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
-  handleAddRedaction: (newRedaction: NewPdfHighlight[]) => void;
+  handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -78,6 +88,7 @@ export const PdfViewer: React.FC<Props> = ({
   isSearchPIIDefaultOptionOn,
   activeSearchPIIHighlights,
   redactionHighlights,
+  pageDeleteRedactions,
   isOkToSave,
   areaOnlyRedactionMode,
   handleAddRedaction,
@@ -145,10 +156,10 @@ export const PdfViewer: React.FC<Props> = ({
         redactionType: redactionType,
       };
 
-      handleAddRedaction([newRedaction]);
+      handleAddRedaction(contextData.documentId, [newRedaction]);
       window.getSelection()?.removeAllRanges();
     },
-    [handleAddRedaction]
+    [handleAddRedaction, contextData.documentId]
   );
 
   const addSearchPIIRedaction = useCallback(
@@ -181,9 +192,14 @@ export const PdfViewer: React.FC<Props> = ({
         }));
       }
 
-      handleAddRedaction(newRedactions);
+      handleAddRedaction(contextData.documentId, newRedactions);
     },
-    [handleAddRedaction, getPIISuggestionsWithSameText, getSelectedPIIHighlight]
+    [
+      handleAddRedaction,
+      contextData.documentId,
+      getPIISuggestionsWithSameText,
+      getSelectedPIIHighlight,
+    ]
   );
 
   const removeRedaction = (id: string) => {
@@ -219,6 +235,41 @@ export const PdfViewer: React.FC<Props> = ({
       className = `${className} ${classes.areaOnlyRedaction}`;
     if (isSearchPIIOn) className = `${className} ${classes.searchPiiOn}`;
     return className;
+  };
+  const [addPortal, setAddPortal] = useState(false);
+  useEffect(() => {
+    setTimeout(() => {
+      // Find all elements with the class "page" after the component has mounted
+      const pageElements = document.querySelectorAll(".pdfViewer");
+      console.log("adding document buttons>>>>>00000", pageElements);
+
+      // Inject the MyButton component into each of the .page elements
+
+      setAddPortal(true);
+    }, 3000);
+  }, []);
+  const renderPortal = () => {
+    if (addPortal) {
+      const pageElements = document.querySelectorAll(".page");
+      return Array.from(pageElements).map((pageElement) => {
+        console.log("pageElement>>", pageElement);
+        const pageNumber = pageElement.getAttribute("data-page-number") ?? "";
+        if (!pageNumber) return null;
+
+        return createPortal(
+          <DocumentButtons
+            documentId={contextData.documentId}
+            pageNumber={+pageNumber}
+            redactionTypesData={redactionTypesData}
+            handleAddRedaction={handleAddRedaction}
+            handleRemoveRedaction={handleRemoveRedaction}
+            pageDeleteRedactions={pageDeleteRedactions}
+          />,
+          pageElement
+        );
+      });
+    }
+    return <div></div>;
   };
 
   return (
@@ -396,11 +447,13 @@ export const PdfViewer: React.FC<Props> = ({
             </>
           )}
         </PdfLoader>
-        {redactionHighlights.length && (
+        {(redactionHighlights.length || pageDeleteRedactions.length) && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
-            totalRedactionsCount={redactionHighlights.length}
+            totalRedactionsCount={
+              redactionHighlights.length + pageDeleteRedactions.length
+            }
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
@@ -412,6 +465,7 @@ export const PdfViewer: React.FC<Props> = ({
           handleAddRedaction={handleAddRedaction}
         />
       </div>
+      {renderPortal()}
     </>
   );
 };

@@ -88,6 +88,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     url,
     mode,
     redactionHighlights,
+    pageDeleteRedactions,
     documentId,
     areaOnlyRedactionMode,
     isDeleted,
@@ -110,12 +111,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       ) ?? []
     );
   }, [searchPIIDataItem]);
-
-  const localHandleAddRedaction = useCallback(
-    (redactions: NewPdfHighlight[]) =>
-      handleAddRedaction(documentId, redactions),
-    [documentId, handleAddRedaction]
-  );
 
   const localHandleRemoveRedaction = useCallback(
     (redactionId: string) => handleRemoveRedaction(documentId, redactionId),
@@ -289,9 +284,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
+          pageDeleteRedactions={pageDeleteRedactions}
           focussedHighlightIndex={focussedHighlightIndex}
           areaOnlyRedactionMode={areaOnlyRedactionMode}
-          handleAddRedaction={localHandleAddRedaction}
+          handleAddRedaction={handleAddRedaction}
           handleRemoveRedaction={localHandleRemoveRedaction}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
