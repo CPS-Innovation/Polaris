@@ -16,6 +16,7 @@ import {
   ISearchPIIHighlight,
 } from "../../domain/NewPdfHighlight";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import {
   mapRedactionSaveRequest,
   mapSearchPIISaveRedactionObject,
@@ -42,7 +43,7 @@ type AsyncActions =
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
         redactions?: NewPdfHighlight[];
-        pageDeleteRedactions?: { pageNumber: number }[];
+        pageDeleteRedactions?: PageDeleteRedaction[];
       };
     }
   | {
@@ -362,7 +363,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const { redactionHighlights, polarisDocumentVersionId } = document;
+      const {
+        redactionHighlights,
+        polarisDocumentVersionId,
+        pageDeleteRedactions,
+      } = document;
       let piiData: any = {};
       if (searchPIIOn) {
         const suggestedHighlights =
@@ -376,16 +381,19 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const redactionRequestData = mapRedactionSaveRequest(
         documentId,
-        redactionHighlights
+        redactionHighlights,
+        pageDeleteRedactions
       );
 
-      const redactionSaveRequest = piiData?.categories
+      //piiData is for analytics only
+      const redactionSaveRequest = searchPIIOn
         ? { ...redactionRequestData, pii: piiData }
         : redactionRequestData;
 
-      const savedRedactionTypes = redactionHighlights.map(
-        (highlight) => highlight.redactionType!
-      );
+      const savedRedactionTypes = [
+        ...redactionHighlights,
+        ...pageDeleteRedactions,
+      ].map((item) => item.redactionType!);
       try {
         dispatch({
           type: "SAVING_REDACTION",

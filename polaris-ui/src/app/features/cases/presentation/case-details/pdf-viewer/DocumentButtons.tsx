@@ -49,7 +49,7 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
     );
   }, [pageDeleteRedactions, pageNumber]);
   const [showModal, setShowModal] = useState(false);
-  const [deleteRedactionType, setDeleteRedactionType] = useState("");
+  const [deleteRedactionType, setDeleteRedactionType] = useState<string>("");
   const handleRotate = (e: any) => {
     console.log("handleRotate>>", pageNumber);
   };
@@ -59,10 +59,11 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
   };
 
   const handleConfirmBtnClick = () => {
-    console.log("handleConfirmBtnClick>>", pageNumber);
-    console.log("deletedPages>>>", isPageDeleted);
-    // setDeletedPages([...deletedPages, pageNumber]);
-    handleAddRedaction(documentId, undefined, [{ pageNumber }]);
+    const redactionType = redactionTypesData.find(
+      (type) => type.id === deleteRedactionType
+    )!;
+    handleAddRedaction(documentId, undefined, [{ pageNumber, redactionType }]);
+
     setShowModal(false);
   };
   const handleRestoreBtnClick = () => {

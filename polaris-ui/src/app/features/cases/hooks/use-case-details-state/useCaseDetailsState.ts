@@ -29,6 +29,7 @@ import {
   handleReclassifyUpdateConfirmation,
 } from "../utils/refreshCycleDataUpdate";
 import { TaggedContext } from "../../../../inbound-handover/context";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -394,7 +395,7 @@ export const useCaseDetailsState = (
     (
       documentId: CaseDocumentViewModel["documentId"],
       redactions?: NewPdfHighlight[],
-      pageDeleteRedactions?: { pageNumber: number }[]
+      pageDeleteRedactions?: PageDeleteRedaction[]
     ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",

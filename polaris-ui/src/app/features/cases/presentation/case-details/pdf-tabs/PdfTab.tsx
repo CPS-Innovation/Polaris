@@ -173,7 +173,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       setShowRedactionWarning(true);
       return;
     }
-    handleSavedRedactions(documentId);
+    handleSavedRedactions(documentId, isSearchPIIOn);
     saveAllRedactionsCustomEvent();
   };
 
@@ -196,7 +196,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const handleContinue = () => {
     setShowRedactionWarning(false);
-    handleSavedRedactions(documentId, true);
+    handleSavedRedactions(documentId, isSearchPIIOn);
     saveAllRedactionsCustomEvent();
   };
 
