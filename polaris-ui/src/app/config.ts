@@ -26,6 +26,9 @@ export const PIPELINE_POLLING_DELAY = Number(
 );
 export const REAUTH_REDIRECT_URL = process.env.REACT_APP_REAUTH_REDIRECT_URL!;
 
+export const REAUTH_REDIRECT_URL_E2E =
+  process.env.REACT_APP_REAUTH_REDIRECT_URL_E2E!;
+
 export const PRIVATE_BETA_USER_GROUP =
   process.env.REACT_APP_PRIVATE_BETA_USER_GROUP!;
 

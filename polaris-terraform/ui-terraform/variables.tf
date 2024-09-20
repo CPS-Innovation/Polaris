@@ -176,7 +176,10 @@ variable "private_beta" {
 }
 
 variable "polaris_ui_reauth_redirect_url" {
-  type = string
+  type = object({
+    live = string
+    e2e = string
+  })
 }
 
 variable "case_review_app_redirect_url" {
