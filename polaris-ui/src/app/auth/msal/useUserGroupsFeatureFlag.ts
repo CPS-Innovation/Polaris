@@ -1,6 +1,7 @@
 import { msalInstance } from "./msalInstance";
 import {
   FEATURE_FLAG_REDACTION_LOG,
+  PRIVATE_BETA_CHECK_IGNORE_USER,
   FEATURE_FLAG_FULL_SCREEN,
   FEATURE_FLAG_NOTES,
   FEATURE_FLAG_SEARCH_PII,
@@ -10,14 +11,13 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP2,
   FEATURE_FLAG_EXTERNAL_REDIRECT,
   PRIVATE_BETA_FEATURE_USER_GROUP3,
-  PRIVATE_BETA_CHECK_IGNORE_USER,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
-import { useUserDetails as getMockUserDetails } from "../mock/useUserDetails";
 import {
   FeatureFlagQueryParams,
   FeatureFlagData,
 } from "../../features/cases/domain/FeatureFlagData";
+import { useUserDetails as getMockUserDetails } from "../mock/useUserDetails";
 import { useUserDetails } from "../../auth";
 import { useCallback, useMemo } from "react";
 
@@ -36,10 +36,6 @@ const isUIIntegrationTestUser = (username: string) => {
   );
 };
 
-export const isThisATestUser = (username: string) =>
-  !!window.Cypress &&
-  (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-
 const showFeature = (
   featureFlag: boolean,
   username: string,
@@ -47,8 +43,9 @@ const showFeature = (
   groupClaims?: { groupKey: string; groups: string[] }
 ) => {
   if (!featureFlag) return false;
-
-  const isTestUser = isThisATestUser(username);
+  const isTestUser =
+    window.Cypress &&
+    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
   if (isTestUser && queryParam === "false") return false;
   //bypassing group claims for cypress test users, if the featureFlag is true
