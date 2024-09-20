@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Common.Dto.Request.DocumentManipulation
 {
-    public class DocumentChangesDto
+    public class DocumentModificationDto
     {
         [JsonProperty("pageIndex")]
         public int PageIndex { get; set; }
