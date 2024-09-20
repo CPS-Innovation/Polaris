@@ -137,6 +137,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"],
+      app_settings["REACT_APP_REAUTH_REDIRECT_URL_INBOUND"],
       app_settings["REACT_APP_REDACTION_LOG_BASE_URL"],
       app_settings["REACT_APP_REDACTION_LOG_SCOPE"],
       app_settings["REACT_APP_SURVEY_LINK"],
