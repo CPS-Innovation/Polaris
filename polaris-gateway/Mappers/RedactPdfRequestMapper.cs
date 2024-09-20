@@ -43,16 +43,19 @@ namespace PolarisGateway.Mappers
                 result.RedactionDefinitions.Add(redactionDefinition);
             }
 
-            foreach (var item in saveRequest.DocumentModifications)
+            if (saveRequest.DocumentModifications != null)
             {
-                var documentModification = new DocumentModificationDto
+                foreach (var item in saveRequest.DocumentModifications)
                 {
-                    PageIndex = item.PageIndex,
-                    Operation = item.Operation,
-                    Arg = item.Arg
-                };
+                    var documentModification = new DocumentModificationDto
+                    {
+                        PageIndex = item.PageIndex,
+                        Operation = item.Operation,
+                        Arg = item.Arg
+                    };
 
-                result.DocumentModifications.Add(documentModification);
+                    result.DocumentModifications.Add(documentModification);
+                }
             }
 
             return result;
