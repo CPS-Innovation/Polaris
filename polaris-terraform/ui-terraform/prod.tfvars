@@ -79,7 +79,12 @@ private_beta = {
 
 case_review_app_redirect_url   = "https://cps.outsystemsenterprise.com/CaseReview/Redirect"
 bulk_um_redirect_url           = "https://cps.outsystemsenterprise.com/CaseReview/Redirect"
-polaris_ui_reauth_redirect_url = "/auth-refresh-outbound?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3D"
+
+polaris_ui_reauth_redirect_url = {
+  outbound_live = "/auth-refresh-outbound"
+  outbound_e2e  = "/polaris"
+  inbound       = "/auth-refresh-inbound"
+}
 
 ssl_certificate_name           = "polaris-prod58a2bb2c-0fbb-416c-9d39-44423b2f42ac"
 ssl_policy_name                = "AppGwSslPolicy20220101"
