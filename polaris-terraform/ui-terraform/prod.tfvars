@@ -81,8 +81,9 @@ case_review_app_redirect_url   = "https://cps.outsystemsenterprise.com/CaseRevie
 bulk_um_redirect_url           = "https://cps.outsystemsenterprise.com/CaseReview/Redirect"
 
 polaris_ui_reauth_redirect_url = {
-  live = "/auth-refresh-outbound"
-  e2e = "/polaris"
+  outbound_live = "/auth-refresh-outbound"
+  outbound_e2e  = "/polaris"
+  inbound       = "/auth-refresh-inbound"
 }
 
 ssl_certificate_name           = "polaris-prod58a2bb2c-0fbb-416c-9d39-44423b2f42ac"

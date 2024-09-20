@@ -4,8 +4,9 @@ import { reauthenticationFilter } from "./reauthentication-filter";
 import { generateGuid } from "./generate-guid";
 
 jest.mock("../../../config", () => ({
-  REAUTH_REDIRECT_URL: "http://foo",
-  REAUTH_REDIRECT_URL_E2E: "http://bar",
+  REAUTH_REDIRECT_URL_OUTBOUND: "http://foo",
+  REAUTH_REDIRECT_URL_OUTBOUND_E2E: "http://bar",
+  REAUTH_REDIRECT_URL_INBOUND: "/baz",
 }));
 
 describe("Reauthentication Filter", () => {
@@ -41,22 +42,22 @@ describe("Reauthentication Filter", () => {
     [
       "http://our-ui-domain.com", // there is no existing query string
       undefined,
-      `http://foo?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com", // there is no existing query string
       {},
-      `http://bar?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://bar?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
       undefined,
-      `http://foo?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
       {},
-      `http://bar?r=%2Fauth-refresh-inbound%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://bar?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
   ])(
     "can redirect on a first auth failure ",

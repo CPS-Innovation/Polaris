@@ -37,6 +37,7 @@ describe("Reauth and handover flows", { tags: ["@ci", "@ci-chunk-2"] }, () => {
 
       cy.fullLogin().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
 
+      cy.findByTestId("txt-case-urn").contains(TARGET_URN)
       // temporary logic to assert that context is handed-down to the page
       cy.contains('{"contextType":"triage","taskId":1,"taskTypeId":2}')
     })
@@ -54,9 +55,14 @@ describe("Reauth and handover flows", { tags: ["@ci", "@ci-chunk-2"] }, () => {
         JSON.stringify(contextObject)
       )}`
 
-      cy.loginToAD().visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
+      cy.loginToAD()
+        .visit(`/polaris-ui/go?ctx=${contextQueryParam}`) // we expect to not be logged-in to CMS...
+        .contains("CMS_AUTH_ERROR")
+        // ... and now we do log in
+        .loginToCms()
 
-      cy.url().should("contain", "auth-refresh")
+      cy.visit(`/polaris-ui/go?ctx=${contextQueryParam}`)
+      cy.findByTestId("txt-case-urn").contains(TARGET_URN)
     })
   })
 })

@@ -83,6 +83,7 @@ case_review_app_redirect_url   = "https://cps-dev.outsystemsenterprise.com/CaseR
 bulk_um_redirect_url           = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
 
 polaris_ui_reauth_redirect_url = {
-  live = "/polaris"
-  e2e = "/polaris"
+  outbound_live = "/polaris"
+  outbound_e2e  = "/polaris"
+  inbound       = "/auth-refresh-inbound"
 }

@@ -1,6 +1,10 @@
 import { CmsAuthError } from "../../../common/errors/CmsAuthError";
 import { CmsAuthRedirectingError } from "../../../common/errors/CmsAuthRedirectingError";
-import { REAUTH_REDIRECT_URL, REAUTH_REDIRECT_URL_E2E } from "../../../config";
+import {
+  REAUTH_REDIRECT_URL_OUTBOUND,
+  REAUTH_REDIRECT_URL_OUTBOUND_E2E,
+  REAUTH_REDIRECT_URL_INBOUND,
+} from "../../../config";
 
 const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
 
@@ -32,10 +36,10 @@ const buildRedirectUrl = (window: Window, correlationId: string | null) => {
     //  build agents - neither of these environments are able to see the live
     //  handover URLS (which run on e.g. cin3.cps.gov.uk or cms.cps.gov.uk).  So if we
     //  know we are in a cypress test let's redirect via our own controlled endpoint.
-    ((window.Cypress && REAUTH_REDIRECT_URL_E2E) ||
-      // If there is an empty REAUTH_REDIRECT_URL_E2E setting or we are not in an e2e test then
+    ((window.Cypress && REAUTH_REDIRECT_URL_OUTBOUND_E2E) ||
+      // If there is an empty REAUTH_REDIRECT_URL_OUTBOUND_E2E setting or we are not in an e2e test then
       //  obviously we fall back to the live handover endpoint for the environment.
-      REAUTH_REDIRECT_URL) +
+      REAUTH_REDIRECT_URL_OUTBOUND) +
     // The reauth logic running on the destination URL will be expecting a ?r= query
     //  param containing a further URL to redirect on to.
     "?r=" +
@@ -44,7 +48,7 @@ const buildRedirectUrl = (window: Window, correlationId: string | null) => {
       // In the CWA reauth flow this URL is typically also a relative URL.  This next endpoint
       //  is responsible for setting the auth cookies on our domain. It will send a response
       //  with Set-Cookie headers and will do so in a redirect response.
-      "/auth-refresh-inbound" +
+      REAUTH_REDIRECT_URL_INBOUND +
         //This location will want to redirect onwards to a URL it expects to find in a polaris-ui-url param.
         "?polaris-ui-url=" +
         // Another URL so more encoding required
