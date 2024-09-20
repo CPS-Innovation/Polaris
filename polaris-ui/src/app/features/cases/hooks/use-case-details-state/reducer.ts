@@ -40,6 +40,7 @@ import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
+import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
@@ -907,6 +908,18 @@ export const reducer = (
         id: String(`${+new Date()}-${index}`),
       }));
 
+      //This is applicable only when the user deletes a page with unsaved redactions
+      const clearPageUnsavedRedactions = (
+        redactionHighlights: IPdfHighlight[]
+      ) => {
+        if (pageDeleteRedactions.length > 1) return [];
+        return redactionHighlights.filter(
+          (redaction) =>
+            redaction?.position?.pageNumber !==
+            pageDeleteRedactions[0].pageNumber
+        );
+      };
+
       let newState = {
         ...state,
         tabsState: {
@@ -918,6 +931,9 @@ export const reducer = (
                   pageDeleteRedactions: [
                     ...item.pageDeleteRedactions,
                     ...newRedactions,
+                  ],
+                  redactionHighlights: [
+                    ...clearPageUnsavedRedactions(item.redactionHighlights),
                   ],
                 }
               : item
