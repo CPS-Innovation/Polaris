@@ -1,5 +1,5 @@
 import fetchMock from "jest-fetch-mock";
-import { fetchFullWindowReauth } from "./auth/fetch-full-window-reauth";
+import { fetchWithFullWindowReauth } from "./auth/fetch-with-full-window-reauth";
 import * as HEADERS from "./auth/header-factory";
 import {
   searchUrn,
@@ -39,11 +39,11 @@ describe("gateway-apis", () => {
         }
       );
 
-      (fetchFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
+      (fetchWithFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
 
       const response = await searchUrn("urn_abc");
 
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(1);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(1);
       expect(response).toEqual({ data: "mocked response" });
     });
 
@@ -57,7 +57,7 @@ describe("gateway-apis", () => {
         }
       );
       fetchMock.mockResponseOnce(JSON.stringify(mockResponse));
-      (fetchFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
+      (fetchWithFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
 
       expect(async () => {
         await searchUrn("urn_abc");
@@ -81,9 +81,9 @@ describe("gateway-apis", () => {
         }
       );
 
-      (fetchFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
+      (fetchWithFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
       const response = await getCaseDetails("abc", 123);
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(1);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(1);
       expect(response).toEqual({ data: "mocked response" });
     });
 
@@ -96,7 +96,7 @@ describe("gateway-apis", () => {
         }
       );
       fetchMock.mockResponseOnce(JSON.stringify(mockResponse));
-      (fetchFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
+      (fetchWithFullWindowReauth as jest.Mock).mockReturnValue(mockResponse);
 
       expect(async () => {
         await getCaseDetails("abc", 122);
@@ -116,7 +116,7 @@ describe("gateway-apis", () => {
         status: 200,
       });
       const response = await getPipelinePdfResults("tracker_url", "123");
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith("tracker_url", expect.anything());
       expect(response).toEqual({ documents: [] });
@@ -127,7 +127,7 @@ describe("gateway-apis", () => {
         status: 404,
       });
       const response = await getPipelinePdfResults("tracker_url", "123");
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith("tracker_url", expect.anything());
       expect(response).toEqual(false);
@@ -155,7 +155,7 @@ describe("gateway-apis", () => {
         status: 200,
       });
       const response = await searchCase("urn_123", 123, "test");
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
         "https://gateway-url/api/urns/urn_123/cases/123/search/?query=test",
@@ -186,7 +186,7 @@ describe("gateway-apis", () => {
         status: 200,
       });
       const response = await checkoutDocument("urn_123", 123, "documentID_1");
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
         "https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout",
@@ -221,7 +221,7 @@ describe("gateway-apis", () => {
         123,
         "documentID_1"
       );
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
         "https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout",
@@ -260,7 +260,7 @@ describe("gateway-apis", () => {
         "https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1",
         expect.anything()
       );
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
     });
 
     it("saveRedactions should throw error if for failed response status ", async () => {
@@ -276,7 +276,7 @@ describe("gateway-apis", () => {
       }).rejects.toThrow(
         "An error occurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1: Save redactions failed; status - Internal Server Error (500)"
       );
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -293,7 +293,7 @@ describe("gateway-apis", () => {
         }
       );
       const response = await initiatePipeline("abc", 123, "correlationId_1");
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledWith(
         "https://gateway-url/api/urns/abc/cases/123",
         expect.anything()
@@ -313,7 +313,7 @@ describe("gateway-apis", () => {
         }
       );
       const response = await initiatePipeline("abc", 123, "correlationId_1");
-      expect(fetchFullWindowReauth).toHaveBeenCalledTimes(0);
+      expect(fetchWithFullWindowReauth).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
         "https://gateway-url/api/urns/abc/cases/123",

@@ -12,6 +12,7 @@ type LinkButtonProps = {
   type?: "button" | "submit" | "reset";
   onClick: () => void;
   onFocus?: () => void;
+  isLarge?: boolean;
 };
 
 export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
@@ -27,10 +28,13 @@ export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
       ariaExpanded,
       disabled = false,
       type,
+      isLarge,
     },
     ref
   ) => {
-    const resolvedClassName = `${classes.linkButton} ${className}`;
+    const resolvedClassName = `${classes.linkButton} ${
+      isLarge ? classes.linkButtonLarge : ""
+    }`;
     return (
       <button
         ref={ref}

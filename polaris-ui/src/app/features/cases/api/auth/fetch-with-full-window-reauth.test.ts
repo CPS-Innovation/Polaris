@@ -1,6 +1,6 @@
 import { CmsAuthError } from "../../../../common/errors/CmsAuthError";
 import { CmsAuthRedirectingError } from "../../../../common/errors/CmsAuthRedirectingError";
-import { fullWindowReauthenticationFilter } from "./fetch-full-window-reauth";
+import { fullWindowReauthenticationFilter } from "./fetch-with-full-window-reauth";
 import { generateGuid } from "../generate-guid";
 
 jest.mock("../../../../config", () => ({

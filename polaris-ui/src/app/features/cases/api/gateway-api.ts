@@ -5,11 +5,7 @@ import { ApiTextSearchResult } from "../domain/gateway/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
 import * as HEADERS from "./auth/header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
-import {
-  GATEWAY_BASE_URL,
-  REAUTH_USE_IN_SITU_REFRESH,
-  REDACTION_LOG_BASE_URL,
-} from "../../../config";
+import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 import {
   RedactionLogLookUpsData,
@@ -25,10 +21,10 @@ import { StatementWitness } from "../presentation/case-details/reclassify/data/S
 import { StatementWitnessNumber } from "../presentation/case-details/reclassify/data/StatementWitnessNumber";
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
-import { fetchFullWindowReauth } from "./auth/fetch-full-window-reauth";
-import { fetchInSituReauth } from "./auth/fetch-in-situ-reauth";
+import { fetchWithFullWindowReauth } from "./auth/fetch-with-full-window-reauth";
+import { fetchWithInSituReauth } from "./auth/fetch-with-in-situ-reauth";
 import { fetchWithCookies } from "./auth/fetch-with-cookies";
-import { STATUS_CODES } from "./auth/core";
+import { PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
 
 const buildHeaders = async (
   ...args: (
@@ -474,23 +470,17 @@ export const saveDocumentReclassify = async (
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    return false;
-  }
-
-  return true;
+  return response.ok;
 };
 
 const nonReauthenticatingFetch = async (...args: Parameters<typeof fetch>) => {
   return fetchWithCookies(...args);
 };
 
-const reauthenticatingFetch = async (...args: Parameters<typeof fetch>) => {
-  console.log({ REAUTH_USE_IN_SITU_REFRESH });
-  return REAUTH_USE_IN_SITU_REFRESH
-    ? fetchInSituReauth(...args)
-    : fetchFullWindowReauth(...args);
-};
+const reauthenticatingFetch = async (...args: Parameters<typeof fetch>) =>
+  PREFERRED_AUTH_MODE === "in-situ"
+    ? fetchWithInSituReauth(...args)
+    : fetchWithFullWindowReauth(...args);
 
 const handleGetCaseApiResponse = (
   response: Response,

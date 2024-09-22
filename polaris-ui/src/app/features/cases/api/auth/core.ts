@@ -1,10 +1,17 @@
 import { CmsAuthError } from "../../../../common/errors/CmsAuthError";
-import { REAUTH_REDIRECT_URL } from "../../../../config";
+import {
+  REAUTH_REDIRECT_URL,
+  REAUTH_USE_IN_SITU_REFRESH,
+} from "../../../../config";
 
 export const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
 export const FAIL_CORRELATION_ID_QUERY_PARAM = "fail-correlation-id";
 export const AUTH_FAIL_REASON_QUERY_PARAM = "auth-fail-reason";
 export const CORRELATION_ID = "Correlation-Id";
+
+export const PREFERRED_AUTH_MODE = REAUTH_USE_IN_SITU_REFRESH
+  ? "in-situ"
+  : ("full-window" as const);
 
 export const STATUS_CODES = {
   UNAUTHORIZED: 401 as const,
@@ -18,6 +25,7 @@ export enum AuthFailReason {
   NoCmsAuthCookie = "no-cmsauth-cookie",
   CmsAuthNotValid = "cms-auth-not-valid",
   CmsModernAuthNotValid = "cms-modern-auth-not-valid",
+  InSituAttemptFailed = "in-situ-attempt-failed",
   UnexpectedError = "unexpected-error",
 }
 
@@ -29,12 +37,16 @@ export const buildCmsAuthError = (
     case AuthFailReason.NoCookies:
     case AuthFailReason.NoCmsAuthCookie:
       customMessage =
-        "It may be the case that you are not yet logged in to CMS, or that CMS has recently logged you out.";
+        "It may be the case that you are not yet logged in to CMS, or that the CMS tab that you have been using has recently logged you out.";
       break;
     case AuthFailReason.CmsAuthNotValid:
     case AuthFailReason.CmsModernAuthNotValid:
       customMessage =
-        "It may be the case that your CMS session has expired, or you may have logged in to CMS on another computer since ";
+        "It may be the case that your CMS session has expired, or you may have logged in to CMS on another computer since logging in to this one.";
+      break;
+    case AuthFailReason.InSituAttemptFailed:
+      customMessage =
+        "The attempt made by Casework App to reconnect to your CMS session did not succeed.";
       break;
     case AuthFailReason.UnexpectedError:
     default:
@@ -54,7 +66,7 @@ export const buildRedirectUrl = (
 ) => {
   const delimiter = window.location.href.includes("?") ? "&" : "?";
   let nextUrl = `${encodeURIComponent(
-    terminationUrl + delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
+    terminationUrl //+ delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
   )}`;
 
   if (correlationId) {

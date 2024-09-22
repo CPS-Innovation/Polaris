@@ -28,7 +28,7 @@ const cleanRefreshIndicator = (window: Window) => {
   }
 };
 
-const tryHandleFirstAuthFail = (
+const tryHandleAsFirstAuthFail = (
   response: Response,
   window: Window,
   correlationId: string | null
@@ -49,7 +49,7 @@ const tryHandleFirstAuthFail = (
   return null;
 };
 
-const handleSecondAuthFail = (response: Response, window: Window) => {
+const tryHandleAsSecondAuthFail = (response: Response, window: Window) => {
   if (isCmsAuthFail(response) && isAuthPageLoad(window)) {
     // We are here as a fetch has failed due to auth, but we know that this is a retry
     //  after the browser has gone around the reauth loop by looking at url for the
@@ -83,11 +83,11 @@ export const fullWindowReauthenticationFilter = (
   window: Window,
   correlationId: string | null
 ) =>
-  tryHandleFirstAuthFail(response, window, correlationId) ||
-  handleSecondAuthFail(response, window) ||
+  tryHandleAsFirstAuthFail(response, window, correlationId) ||
+  tryHandleAsSecondAuthFail(response, window) ||
   handleNonAuthCall(response, window);
 
-export const fetchFullWindowReauth = async (
+export const fetchWithFullWindowReauth = async (
   ...args: Parameters<typeof fetch>
 ) => {
   const response = await fetchWithCookies(...args);
