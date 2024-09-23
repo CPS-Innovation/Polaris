@@ -12,20 +12,20 @@ namespace pdf_redactor.integration.tests.Helpers
             var documentBytes = documentReader.ReadBytes((int)pdfStream.Length);
             var base64Document = Convert.ToBase64String(documentBytes);
 
-            var documentChanges = new List<DocumentChangesDto>();
+            var documentModifications = new List<DocumentModificationDto>();
 
             if (pagesToRemove != null)
                 foreach (var pageIndex in pagesToRemove)
-                    documentChanges.Add(new DocumentChangesDto { PageIndex = pageIndex, Operation = DocumentManipulationOperation.RemovePage });
+                    documentModifications.Add(new DocumentModificationDto { PageIndex = pageIndex, Operation = DocumentManipulationOperation.RemovePage });
 
             if (pagesToRotate != null)
                 foreach (var page in pagesToRotate)
-                    documentChanges.Add(new DocumentChangesDto { PageIndex = page.Key, Arg = page.Value, Operation = DocumentManipulationOperation.RotatePage });
+                    documentModifications.Add(new DocumentModificationDto { PageIndex = page.Key, Arg = page.Value, Operation = DocumentManipulationOperation.RotatePage });
 
             return new ModifyDocumentWithDocumentDto
             {
                 FileName = fileName,
-                DocumentChanges = documentChanges,
+                DocumentModifications = documentModifications,
                 Document = base64Document,
                 VersionId = 1
             };

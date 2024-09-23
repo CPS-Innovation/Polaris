@@ -1,7 +1,10 @@
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   NotificationEvent,
+<<<<<<< HEAD
   NotificationEventCore,
+=======
+>>>>>>> main
   NotificationState,
   NotificationType,
 } from "../../domain/NotificationState";
