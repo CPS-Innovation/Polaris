@@ -86,4 +86,5 @@ polaris_ui_reauth_redirect_url = {
   outbound_live = "/polaris"
   outbound_e2e  = "/polaris"
   inbound       = "/auth-refresh-inbound"
+  use_in_situ_refresh = "true"
 }

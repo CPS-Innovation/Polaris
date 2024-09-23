@@ -6,7 +6,7 @@ import {
   CHECKOUT_BLOCKED_STATUS_CODE,
 } from "./reducer-async-action-handlers";
 import * as api from "../../api/gateway-api";
-import * as headerFactory from "../../api/header-factory";
+import * as headerFactory from "../../api/auth/header-factory";
 import * as mapRedactionSaveRequest from "./map-redaction-save-request";
 import { RedactionSaveRequest } from "../../domain/gateway/RedactionSaveRequest";
 

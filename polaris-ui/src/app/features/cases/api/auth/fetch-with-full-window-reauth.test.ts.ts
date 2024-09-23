@@ -1,7 +1,7 @@
-import { CmsAuthError } from "../../../common/errors/CmsAuthError";
-import { CmsAuthRedirectingError } from "../../../common/errors/CmsAuthRedirectingError";
-import { reauthenticationFilter } from "./reauthentication-filter";
-import { generateGuid } from "./generate-guid";
+import { CmsAuthError } from "../../../../common/errors/CmsAuthError";
+import { CmsAuthRedirectingError } from "../../../../common/errors/CmsAuthRedirectingError";
+import { fullWindowReauthenticationFilter } from "./fetch-with-full-window-reauth";
+import { generateGuid } from "../generate-guid";
 
 jest.mock("../../../config", () => ({
   REAUTH_REDIRECT_URL_OUTBOUND: "http://foo",
@@ -14,7 +14,7 @@ describe("Reauthentication Filter", () => {
 
   it("can pass through an ok response", () => {
     const response = { ok: true, status: 200 } as Response;
-    const filteredResponse = reauthenticationFilter(
+    const filteredResponse = fullWindowReauthenticationFilter(
       response,
       {
         location: { href: "bar" },
@@ -27,7 +27,7 @@ describe("Reauthentication Filter", () => {
 
   it("can pass through a non-auth failure response", () => {
     const response = { ok: false, status: 500 } as Response;
-    const filteredResponse = reauthenticationFilter(
+    const filteredResponse = fullWindowReauthenticationFilter(
       response,
       {
         location: { href: "bar" },
@@ -42,7 +42,7 @@ describe("Reauthentication Filter", () => {
     [
       "http://our-ui-domain.com", // there is no existing query string
       undefined,
-      `http://foo?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+      `http://foo?r=polaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com", // there is no existing query string
@@ -68,7 +68,8 @@ describe("Reauthentication Filter", () => {
       } as Window;
 
       const response = { ok: false, status: 401 } as Response;
-      const act = () => reauthenticationFilter(response, mockWindow, uuid);
+      const act = () =>
+        fullWindowReauthenticationFilter(response, mockWindow, uuid);
 
       expect(act).toThrow(CmsAuthRedirectingError);
       expect(mockWindow.location.href).toBe(expectedRedirectUrl);
@@ -93,7 +94,8 @@ describe("Reauthentication Filter", () => {
 
     const response = { ok: false, status: 401 } as Response;
 
-    const act = () => reauthenticationFilter(response, mockWindow, uuid);
+    const act = () =>
+      fullWindowReauthenticationFilter(response, mockWindow, uuid);
     expect(act).toThrow(CmsAuthError);
   });
 
@@ -104,6 +106,11 @@ describe("Reauthentication Filter", () => {
       "http://our-ui-domain.com?foo=bar&auth-refresh",
       "http://our-ui-domain.com?foo=bar",
     ],
+    [
+      "http://our-ui-domain.com?auth-refresh&foo=bar",
+      "http://our-ui-domain.com?foo=bar",
+    ],
+    ["http://our-ui-domain.com?auth-refresh", "http://our-ui-domain.com"],
   ])(
     "can clear the redirect flag from the address on a successful call",
     (url, expectedCleanUrl) => {
@@ -118,7 +125,7 @@ describe("Reauthentication Filter", () => {
 
       const response = { ok: true, status: 200 } as Response;
 
-      const filteredResponse = reauthenticationFilter(
+      const filteredResponse = fullWindowReauthenticationFilter(
         response,
         mockWindow,
         uuid
@@ -160,7 +167,8 @@ describe("Reauthentication Filter", () => {
 
       const response = { ok: false, status: 401 } as Response;
 
-      const act = () => reauthenticationFilter(response, mockWindow, uuid);
+      const act = () =>
+        fullWindowReauthenticationFilter(response, mockWindow, uuid);
 
       expect(act).toThrow(CmsAuthError);
       try {

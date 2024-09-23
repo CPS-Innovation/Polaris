@@ -17,7 +17,7 @@ import {
   mapSearchPIISaveRedactionObject,
 } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
-import * as HEADERS from "../../api/header-factory";
+import * as HEADERS from "../../api/auth/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
