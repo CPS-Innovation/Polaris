@@ -175,11 +175,11 @@ variable "private_beta" {
   })
 }
 
-variable "polaris_ui_reauth_redirect_url" {
+variable "polaris_ui_reauth" {
   type = object({
-    outbound_live = string
-    outbound_e2e = string
-    inbound = string
+    outbound_live_url = string
+    outbound_e2e_url = string
+    inbound_url = string
     use_in_situ_refresh = string
   })
 }
