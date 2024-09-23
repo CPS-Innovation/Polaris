@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import {
   Button,
   LinkButton,
-  Modal,
   Select,
 } from "../../../../../common/presentation/components";
 import { ReactComponent as DeleteIcon } from "../../../../../common/presentation/svgs/deleteIcon.svg";
@@ -13,6 +12,7 @@ import classes from "./DocumentButton.module.scss";
 type DocumentButtonsProps = {
   documentId: string;
   pageNumber: number;
+  totalPages: number;
   redactionTypesData: RedactionTypeData[];
   pageDeleteRedactions: IPageDeleteRedaction[];
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
@@ -22,6 +22,7 @@ type DocumentButtonsProps = {
 export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
   documentId,
   pageNumber,
+  totalPages,
   redactionTypesData,
   pageDeleteRedactions,
   handleAddRedaction,
@@ -86,7 +87,9 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
             <div className={classes.pageNumberWrapper}>
               <p className={classes.pageNumber}>
                 <span>Page:</span>
-                <span>1/2</span>
+                <span>
+                  {pageNumber}/{totalPages}
+                </span>
               </p>
             </div>
             {isPageDeleted ? (

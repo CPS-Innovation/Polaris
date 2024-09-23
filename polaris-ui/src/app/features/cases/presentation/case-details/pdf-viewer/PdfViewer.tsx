@@ -37,6 +37,7 @@ import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseD
 import { IPageDeleteRedaction } from "../../../domain/IPageDeleteRedaction";
 import { createPortal } from "react-dom";
 import { DocumentButtons } from "../pdf-viewer/DocumentButtons";
+import { useWindowResize } from "../../../../../common/hooks/useWindowResize";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -102,6 +103,10 @@ export const PdfViewer: React.FC<Props> = ({
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
+  const { innerWidth, innerHeight } = useWindowResize();
+  const portalNodeRefs = useRef<HTMLDivElement[]>([]);
+  const [pageElements, setPageElements] = useState<Element[]>([]);
+  const [triggerRender, setTriggerRender] = useState(0);
 
   const highlights = useMemo(
     () => [
@@ -236,44 +241,82 @@ export const PdfViewer: React.FC<Props> = ({
     if (isSearchPIIOn) className = `${className} ${classes.searchPiiOn}`;
     return className;
   };
-  const [addPortal, setAddPortal] = useState(false);
+
   useEffect(() => {
-    setTimeout(() => {
-      // Find all elements with the class "page" after the component has mounted
-      const pageElements = document.querySelectorAll(".pdfViewer");
-      console.log("adding document buttons>>>>>00000", pageElements);
+    console.log("pageElements>>>", pageElements);
+    if (pageElements.length === 0) return;
 
-      // Inject the MyButton component into each of the .page elements
+    portalNodeRefs.current = [];
+    console.log("useEffect>>>>>");
 
-      setAddPortal(true);
-    }, 3000);
-  }, []);
-  const renderPortal = () => {
-    if (addPortal) {
-      const pageElements = document.querySelectorAll(".page");
-      return Array.from(pageElements).map((pageElement) => {
-        console.log("pageElement>>", pageElement);
-        const pageNumber = pageElement.getAttribute("data-page-number") ?? "";
-        if (!pageNumber) return null;
+    pageElements.forEach((pageDiv, index) => {
+      const portalDiv = document.createElement("div");
+      pageDiv.appendChild(portalDiv);
+      portalNodeRefs.current.push(portalDiv);
+    });
+    setTriggerRender(triggerRender + 1);
 
-        return createPortal(
-          <DocumentButtons
-            documentId={contextData.documentId}
-            pageNumber={+pageNumber}
-            redactionTypesData={redactionTypesData}
-            handleAddRedaction={handleAddRedaction}
-            handleRemoveRedaction={handleRemoveRedaction}
-            pageDeleteRedactions={pageDeleteRedactions}
-          />,
-          pageElement
-        );
+    return () => {
+      console.log("clean up>>>>>");
+      portalNodeRefs.current.forEach((portalDiv: any) => {
+        if (portalDiv && portalDiv.parentNode) {
+          portalDiv.parentNode.removeChild(portalDiv);
+        }
       });
+      portalNodeRefs.current = [];
+    };
+  }, [pageElements]);
+
+  useEffect(() => {
+    if (activeTabId !== tabId) {
+      return;
     }
-    return <div></div>;
+    setTimeout(
+      () => {
+        const pdfViewer =
+          document?.querySelectorAll(".pdfViewer")?.[`${tabIndex}`];
+        const pageDivs = pdfViewer?.querySelectorAll(".page");
+        if (!pageDivs) {
+          return;
+        }
+        console.log("hellooooo useLayoutEffect adding", pageDivs);
+        setPageElements(Array.from(pageDivs));
+      },
+      pageElements.length ? 1000 : 2000
+    );
+
+    return () => {
+      console.log("hellooooo useLayoutEffect cleanup");
+      portalNodeRefs.current.forEach((portalNode) => {
+        if (portalNode && portalNode.parentNode) {
+          portalNode.parentNode.removeChild(portalNode);
+        }
+      });
+      portalNodeRefs.current = [];
+      console.log("hellooooo useLayoutEffect cleanup11111");
+    };
+  }, [activeTabId, innerWidth, innerHeight]);
+
+  const renderPortal = () => {
+    console.log("addPortal>>>", portalNodeRefs);
+    return portalNodeRefs.current.map((portalNode, index) => {
+      return createPortal(
+        <DocumentButtons
+          documentId={contextData.documentId}
+          pageNumber={index + 1}
+          redactionTypesData={redactionTypesData}
+          handleAddRedaction={handleAddRedaction}
+          handleRemoveRedaction={handleRemoveRedaction}
+          pageDeleteRedactions={pageDeleteRedactions}
+          totalPages={portalNodeRefs.current.length}
+        />,
+        portalNode
+      );
+    });
   };
 
   return (
-    <>
+    <div>
       <div
         className={getWrapperClassName()}
         ref={containerRef}
@@ -466,6 +509,6 @@ export const PdfViewer: React.FC<Props> = ({
         />
       </div>
       {renderPortal()}
-    </>
+    </div>
   );
 };
