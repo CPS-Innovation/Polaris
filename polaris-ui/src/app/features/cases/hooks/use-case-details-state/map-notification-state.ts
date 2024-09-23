@@ -72,15 +72,12 @@ export const mapNotificationState = (
     return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
   }
 
-<<<<<<< HEAD
   // Every time we ask to generate an id we take the maximum id of the existing
   //  event array and add a counter to it (and increment the counter on each ask)
   let counter = 1;
   const generateUniqueId = () =>
     Math.max(...notificationState.events.map((evt) => evt.id || 0)) + counter++;
 
-=======
->>>>>>> main
   const buildEvent = (
     notificationType: NotificationType,
     {
@@ -91,10 +88,7 @@ export const mapNotificationState = (
     }: MappedCaseDocument,
     oldDoc?: MappedCaseDocument
   ): NotificationEvent => ({
-<<<<<<< HEAD
     id: generateUniqueId(),
-=======
->>>>>>> main
     documentId,
     cmsVersionId,
     notificationType,
@@ -183,7 +177,6 @@ export const mapNotificationState = (
 
   return nextState;
 };
-<<<<<<< HEAD
 
 export const registerNotifiableEvent = (
   state: NotificationState,
@@ -205,5 +198,3 @@ export const readNotification = (
           evt.id === id ? { ...evt, status: "Read" } : evt
         ),
       };
-=======
->>>>>>> main
