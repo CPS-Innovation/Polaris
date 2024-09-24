@@ -36,7 +36,7 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
     };
     const deleteRedactionTypeIds = ["16", "17", "18"];
     const mappedRedactionType = redactionTypesData
-      .filter((item) => deleteRedactionTypeIds.includes(item.id))
+      .filter((item) => !deleteRedactionTypeIds.includes(item.id))
       .map((item) => ({
         value: item.id,
         children: item.name,
