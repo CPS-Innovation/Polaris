@@ -62,6 +62,26 @@ export const buildCmsAuthError = (
   );
 };
 
+/*
+
+export const buildRedirectUrl = (
+  terminationUrl: string,
+  correlationId: string | null | undefined
+) => {
+  const delimiter = window.location.href.includes("?") ? "&" : "?";
+  let nextUrl = `${encodeURIComponent(
+    terminationUrl + delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
+  )}`;
+
+  if (correlationId) {
+    nextUrl += `&${FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}`;
+  }
+
+  return `${REAUTH_REDIRECT_URL}${encodeURIComponent(nextUrl)}`;
+};
+
+*/
+
 export const buildRedirectUrl = (
   window: Window,
   correlationId: string | null
