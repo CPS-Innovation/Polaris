@@ -23,6 +23,12 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
 
   const { state, dispatch } = reclassifyContext;
 
+  const currentClassificationVariant = useMemo(() => {
+    return state.materialTypeList.find(
+      (material) => material.typeId === currentDocTypeId
+    )?.newClassificationVariant;
+  }, [state.materialTypeList, currentDocTypeId]);
+
   useEffect(() => {
     if (formDataErrors.documentTypeErrorText && errorSummaryRef.current) {
       (errorSummaryRef?.current as HTMLButtonElement).focus();
@@ -36,14 +42,23 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
       disabled: true,
     };
     const mappedDocTypeValues = state.materialTypeList.map(
-      ({ typeId, description }) => ({
-        value: typeId,
-        children: description,
-        disabled: typeId === currentDocTypeId,
-      })
+      ({ typeId, description, newClassificationVariant }) => {
+        let disabled = false;
+        if (typeId === currentDocTypeId) disabled = true;
+        if (
+          currentClassificationVariant === "Exhibit" &&
+          newClassificationVariant === "Exhibit"
+        )
+          disabled = true;
+        return {
+          value: typeId,
+          children: description,
+          disabled: disabled,
+        };
+      }
     );
     return [defaultValue, ...mappedDocTypeValues];
-  }, [state.materialTypeList, currentDocTypeId]);
+  }, [state.materialTypeList, currentDocTypeId, currentClassificationVariant]);
 
   const handleDocTypeChange = (value: string) => {
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });

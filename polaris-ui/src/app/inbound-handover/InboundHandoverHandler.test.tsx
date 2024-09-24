@@ -13,6 +13,9 @@ describe("InboundHandoverHandler", () => {
       history: { push: mockPush as RouteComponentProps["history"]["push"] },
     } as RouteComponentProps);
 
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(jest.fn());
+  });
   beforeEach(jest.resetAllMocks);
   afterAll(jest.resetAllMocks);
 

@@ -45,6 +45,8 @@ import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+import { mapNotificationState } from "./map-notification-state";
+import { NotificationType } from "../../domain/NotificationState";
 export const reducer = (
   state: CombinedState,
   action:
@@ -276,6 +278,10 @@ export const reducer = (
           type: PIIRedactionStatus;
         };
       }
+    | {
+        type: "REGISTER_NOTIFIABLE_EVENT";
+        payload: { documentId: string; notificationType: NotificationType };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -322,40 +328,38 @@ export const reducer = (
 
       if (action.payload.data.status === "Completed") {
         const newPipelineData = action.payload.data;
-        const documentsNeedsToBeUpdated =
-          nextState.pipelineRefreshData.savedDocumentDetails.filter(
-            (document) => !hasDocumentUpdated(document, newPipelineData)
-          );
 
         nextState = {
           ...nextState,
           pipelineRefreshData: {
             ...nextState.pipelineRefreshData,
-            savedDocumentDetails: documentsNeedsToBeUpdated,
-            lastProcessingCompleted: action.payload.data.processingCompleted,
+            // If a document that is lined up to be saved and has been updated
+            //  then we need to drop it - no sense in updating it.
+            savedDocumentDetails:
+              nextState.pipelineRefreshData.savedDocumentDetails.filter(
+                (document) => !hasDocumentUpdated(document, newPipelineData)
+              ),
+            lastProcessingCompleted: newPipelineData.processingCompleted,
           },
         };
       }
 
-      let shouldBuildDocumentsState = false;
-      if (isDocumentsPresentStatus(action.payload.data.status)) {
-        const currentDocumentsRetrieved = !state.pipelineState.haveData
-          ? ""
-          : state.pipelineState.data.documentsRetrieved;
-        shouldBuildDocumentsState = isNewTime(
+      const shouldBuildDocumentsState =
+        isDocumentsPresentStatus(action.payload.data.status) &&
+        isNewTime(
           action.payload.data.documentsRetrieved,
-          currentDocumentsRetrieved
+          (state.pipelineState.haveData &&
+            state.pipelineState.data.documentsRetrieved) ||
+            ""
         );
-      }
 
       if (shouldBuildDocumentsState) {
-        const witnesses =
-          state.caseState && state.caseState.status === "succeeded"
-            ? state.caseState.data.witnesses
-            : [];
         const documentsState = mapDocumentsState(
           action.payload.data.documents,
-          witnesses
+          (state.caseState &&
+            state.caseState.status === "succeeded" &&
+            state.caseState.data.witnesses) ||
+            []
         );
         const accordionState = mapAccordionState(documentsState);
         nextState = {
@@ -363,6 +367,22 @@ export const reducer = (
           documentsState,
           accordionState,
         };
+
+        if (
+          documentsState.status === "succeeded" &&
+          state.documentsState.status === "succeeded"
+        ) {
+          const notificationState = mapNotificationState(
+            state.notificationState,
+            state.documentsState.data,
+            documentsState.data,
+            action.payload.data.documentsRetrieved
+          );
+          nextState = {
+            ...nextState,
+            notificationState,
+          };
+        }
       }
 
       const newPipelineResults = action.payload;
@@ -1415,6 +1435,18 @@ export const reducer = (
       return newState;
     }
 
+    case "REGISTER_NOTIFIABLE_EVENT": {
+      return {
+        ...state,
+        notificationState: {
+          ...state.notificationState,
+          ignoreNextEvents: [
+            ...state.notificationState.ignoreNextEvents,
+            action.payload,
+          ],
+        },
+      };
+    }
     default:
       throw new Error("Unknown action passed to case details reducer");
   }

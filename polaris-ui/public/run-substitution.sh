@@ -6,7 +6,7 @@ REACT_APP_GATEWAY_SCOPE=https://CPSGOVUK.onmicrosoft.com/fa-polaris-dev-gateway/
 REACT_APP_GATEWAY_BASE_URL=https://polaris-dev-cmsproxy.azurewebsites.net \
 REACT_APP_REDACTION_LOG_SCOPE=https://CPSGOVUK.onmicrosoft.com/fa-redaction-log-dev-reporting/user_impersonation \
 REACT_APP_REDACTION_LOG_BASE_URL=https://fa-redaction-log-dev-reporting.azurewebsites.net \
-REACT_APP_REAUTH_REDIRECT_URL=https://polaris-dev-cmsproxy.azurewebsites.net/polaris?polaris-ui-url= \
+REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND=/polaris \
 REACT_APP_MOCK_AUTH=false \
 REACT_APP_MOCK_API_SOURCE= \
 REACT_APP_MOCK_API_MAX_DELAY=1000 \

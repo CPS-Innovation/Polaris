@@ -4,7 +4,9 @@ import { reauthenticationFilter } from "./reauthentication-filter";
 import { generateGuid } from "./generate-guid";
 
 jest.mock("../../../config", () => ({
-  REAUTH_REDIRECT_URL: "http://foo?r=polaris-ui-url%3D",
+  REAUTH_REDIRECT_URL_OUTBOUND: "http://foo",
+  REAUTH_REDIRECT_URL_OUTBOUND_E2E: "http://bar",
+  REAUTH_REDIRECT_URL_INBOUND: "/baz",
 }));
 
 describe("Reauthentication Filter", () => {
@@ -39,23 +41,39 @@ describe("Reauthentication Filter", () => {
   it.each([
     [
       "http://our-ui-domain.com", // there is no existing query string
-      `http://foo?r=polaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+      undefined,
+      `http://foo?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
+    ],
+    [
+      "http://our-ui-domain.com", // there is no existing query string
+      {},
+      `http://bar?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253Fauth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
-      `http://foo?r=polaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
+      undefined,
+      `http://foo?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
     ],
-  ])("can redirect on a first auth failure ", (url, expectedRedirectUrl) => {
-    const mockWindow = {
-      location: { href: url },
-    } as Window;
+    [
+      "http://our-ui-domain.com?caseId=123", // there is an existing query string
+      {},
+      `http://bar?r=%2Fbaz%3Fpolaris-ui-url%3Dhttp%253A%252F%252Four-ui-domain.com%253FcaseId%253D123%2526auth-refresh%26fail-correlation-id%3D${uuid}`,
+    ],
+  ])(
+    "can redirect on a first auth failure ",
+    (url, cypressObject, expectedRedirectUrl) => {
+      const mockWindow = {
+        location: { href: url },
+        Cypress: cypressObject,
+      } as Window;
 
-    const response = { ok: false, status: 401 } as Response;
-    const act = () => reauthenticationFilter(response, mockWindow, uuid);
+      const response = { ok: false, status: 401 } as Response;
+      const act = () => reauthenticationFilter(response, mockWindow, uuid);
 
-    expect(act).toThrow(CmsAuthRedirectingError);
-    expect(mockWindow.location.href).toBe(expectedRedirectUrl);
-  });
+      expect(act).toThrow(CmsAuthRedirectingError);
+      expect(mockWindow.location.href).toBe(expectedRedirectUrl);
+    }
+  );
 
   it.each([
     ["http://our-ui-domain.com?auth-refresh", "http://our-ui-domain.com"],

@@ -7,8 +7,8 @@ namespace PolarisGateway.Validators
     {
         public ModifyDocumentPagesValidator()
         {
-            RuleFor(x => x.DocumentChanges).NotEmpty().WithMessage("At least one modification must be provided");
-            RuleForEach(x => x.DocumentChanges).SetValidator(new DocumentChangeValidator());
+            RuleFor(x => x.DocumentModifications).NotEmpty().WithMessage("At least one modification must be provided");
+            RuleForEach(x => x.DocumentModifications).SetValidator(new DocumentModificationValidator());
         }
     }
 }

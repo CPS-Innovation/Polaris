@@ -20,6 +20,7 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
 import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
+import { NotificationState } from "../../domain/NotificationState";
 
 const ERROR = new Error();
 
@@ -2283,6 +2284,29 @@ describe("useCaseDetailsState reducer", () => {
           title: "",
           type: "",
         },
+      });
+    });
+  });
+
+  describe("Notifications", () => {
+    it("can register a notification to be ignored", () => {
+      const existingState = {
+        notificationState: {
+          ignoreNextEvents: [],
+          events: [],
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState, {
+        type: "REGISTER_NOTIFIABLE_EVENT",
+        payload: { documentId: "1", notificationType: "New" },
+      });
+
+      expect(result).toEqual({
+        notificationState: {
+          ignoreNextEvents: [{ documentId: "1", notificationType: "New" }],
+          events: [],
+        } as NotificationState,
       });
     });
   });
