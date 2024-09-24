@@ -105,6 +105,10 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
                 className={classes.deleteBtn}
                 onClick={handleDelete}
                 data-pageNumber={pageNumber}
+                disabled={
+                  totalPages === 1 ||
+                  pageDeleteRedactions.length === totalPages - 1
+                }
               >
                 <DeleteIcon className={classes.deleteBtnIcon} width={"15px"} />
                 Delete
