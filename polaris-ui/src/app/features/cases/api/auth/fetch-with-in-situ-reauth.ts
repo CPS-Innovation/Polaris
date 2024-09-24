@@ -52,8 +52,6 @@ const inSituReauth = async (
     };
   }
 
-  console.log({ result, remainingEndpoints });
-
   return result.isSuccess || !remainingEndpoints.length
     ? // Either we are good, or we have no more endpoints to try, so the result we have is the
       //  one to return.

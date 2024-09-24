@@ -38,10 +38,7 @@ const tryHandleAsFirstAuthFail = (
     //  around the re-auth loop by setting `window.location.href` and then throwing an
     //  error to halt our code execution and prevent any follow-on functionality from firing
     //  inadvertently.
-    window.location.href = buildRedirectUrl(
-      window.location.href,
-      correlationId
-    );
+    window.location.href = buildRedirectUrl(window, correlationId);
 
     // stop any follow-on logic occurring
     throw new CmsAuthRedirectingError();
