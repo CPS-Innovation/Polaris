@@ -24,9 +24,7 @@ const documentCategoryDefinitions: {
   category: string;
   showIfEmpty: boolean;
   testFn: (caseDocument: PresentationDocumentProperties) => boolean;
-  sortFn: (
-    caseDocuments: PresentationDocumentProperties[]
-  ) => PresentationDocumentProperties[];
+  sortFn: <T extends PresentationDocumentProperties>(caseDocuments: T[]) => T[];
   subCategoryFn?: (caseDocument: PresentationDocumentProperties) => string;
 }[] = [
   // todo: when we know, write the `test` logic to identify which document goes in which section
@@ -186,7 +184,7 @@ export const getCategory = (item: PresentationDocumentProperties) => {
   };
 };
 
-export const getCategorySort = (item: AccordionDocumentSection) =>
+export const getCategorySort = (item: Omit<AccordionDocumentSection, "docs">) =>
   documentCategoryDefinitions.find(
     ({ category }) => category === item.sectionId
   )!.sortFn;

@@ -5,7 +5,7 @@ namespace Common.Dto.Request
 {
     public class ModifyDocumentRequestDto
     {
-        public List<DocumentChangesDto> DocumentChanges { get; set; }
+        public List<DocumentModificationDto> DocumentModifications { get; set; }
         public string FileName { get; set; }
         public long VersionId { get; set; }
     }

@@ -1,3 +1,4 @@
+export const URN_LOOKUP_ROUTE = "api/urn-lookup/:caseId";
 export const CASE_SEARCH_ROUTE = "api/urns/:urn/cases";
 export const CASE_ROUTE = "api/urns/:urn/cases/:caseId";
 export const INITIATE_PIPELINE_ROUTE = "api/urns/:urn/cases/:caseId";
@@ -24,3 +25,16 @@ export const SEARCH_PII_ROUTE =
 
 export const RENAME_DOCUMENT_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/rename";
+
+export const MATERIAL_TYPE_LIST = "api/reference/reclassification";
+
+export const EXHIBIT_PRODUCERS =
+  "api/urns/:urn/cases/:caseId/exhibit-producers";
+
+export const STATEMENT_WITNESS = "api/urns/:urn/cases/:caseId/witnesses";
+
+export const STATEMENT_WITNESS_NUMBERS =
+  "api/urns/:urn/cases/:caseId/witnesses/:witnessId/statements";
+
+export const SAVE_RECLASSIFY =
+  "/api/urns/:urn/cases/:caseId/documents/:docId/reclassify";

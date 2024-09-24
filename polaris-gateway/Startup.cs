@@ -1,20 +1,20 @@
-﻿using Common.Wrappers;
-using PolarisGateway.Clients.Coordinator;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Http.Headers;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using PolarisGateway.Mappers;
-using PolarisGateway.Validators;
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Headers;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Common.Telemetry;
+using Common.Wrappers;
+using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
+using PolarisGateway.Mappers;
+using PolarisGateway.Validators;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
-using System.Net;
 using PolarisGateway.Clients;
 using PolarisGateway.Clients.PdfThumbnailGenerator;
 
@@ -83,6 +83,7 @@ namespace PolarisGateway
             services.AddSingleton<IInitializationHandler, InitializationHandler>();
             services.AddSingleton<IDocumentNoteRequestMapper, DocumentNoteRequestMapper>();
             services.AddSingleton<IModifyDocumentRequestMapper, ModifyDocumentRequestMapper>();
+            services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
             services.AddTransient<IRequestFactory, RequestFactory>();
         }
 

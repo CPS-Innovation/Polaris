@@ -13,6 +13,7 @@ export type PipelineDocumentProperties = {
     | "UnexpectedFailure"
     | "OcrAndIndexFailure";
 };
+
 export type PresentationFlags = {
   read: "Ok" | "OnlyAvailableInCms";
   write:
@@ -71,6 +72,7 @@ export type Classification =
 export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
+  cmsVersionId: number;
   cmsOriginalFileName: string;
   presentationTitle: string;
   polarisDocumentVersionId: number;

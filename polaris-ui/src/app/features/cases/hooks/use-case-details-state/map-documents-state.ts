@@ -15,16 +15,15 @@ export const mapDocumentsState = (
 ): AsyncResult<MappedCaseDocument[]> => {
   const data = result.map((item) => {
     const { category, subCategory } = getCategory(item);
-    const witnessesForDoc = witnesses.find((w) => w.id === item.witnessId);
+    const witnessForDoc = witnesses.find((w) => w.id === item.witnessId);
+
     return {
       ...item,
       presentationFileName: item.presentationTitle,
       presentationCategory: category,
       presentationSubCategory: subCategory,
       attachments: getDocumentAttachments(item, result),
-      witnessIndicators: witnessesForDoc
-        ? mapWitnessIndicators(witnessesForDoc)
-        : [],
+      witnessIndicators: mapWitnessIndicators(witnessForDoc),
     };
   });
 
@@ -34,7 +33,10 @@ export const mapDocumentsState = (
   };
 };
 
-const mapWitnessIndicators = (witness: Witness): WitnessIndicator[] => {
+const mapWitnessIndicators = (witness: Witness | undefined) => {
+  if (!witness) {
+    return [];
+  }
   const keys = Object.keys(witnessIndicatorLetters) as (keyof Witness)[];
 
   return keys

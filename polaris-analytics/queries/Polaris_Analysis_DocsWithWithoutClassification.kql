@@ -1,0 +1,8 @@
+Polaris_Metrics_Indexing
+| where isnotempty(DocumentId) 
+| summarize count() by DocumentTypeId, DocumentCategory
+| join kind=leftouter Polaris_Utility_ModernMaterialTypes on $left.DocumentTypeId == $right.Code
+| summarize 
+    CountDocs = sum(count_),
+    CountDocumentTypeIds = count_distinct(DocumentTypeId) 
+by HasClassificationEntry = isnotempty(Classification)

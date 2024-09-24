@@ -28,6 +28,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_NOTES"                    = var.feature_flag_notes
     "REACT_APP_FEATURE_FLAG_SEARCH_PII"               = var.feature_flag_search_pii
     "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"          = var.feature_flag_rename_document
+    "REACT_APP_FEATURE_FLAG_RECLASSIFY"               = var.feature_flag_reclassify
+    "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"        = var.feature_flag_external_redirect
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
@@ -35,8 +37,13 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"              = var.private_beta.sign_up_url
     "REACT_APP_PRIVATE_BETA_USER_GROUP"               = var.private_beta.user_group
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP"       = var.private_beta.feature_user_group
-    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2"       = var.private_beta.feature_user_group2
-    "REACT_APP_REAUTH_REDIRECT_URL"                   = var.polaris_ui_reauth_redirect_url
+    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2"      = var.private_beta.feature_user_group2
+    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"      = var.private_beta.feature_user_group3
+    "REACT_APP_CASE_REVIEW_APP_REDIRECT_URL"          = var.case_review_app_redirect_url
+    "REACT_APP_BULK_UM_REDIRECT_URL"                  = var.bulk_um_redirect_url
+    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"          = var.polaris_ui_reauth_redirect_url.outbound_live
+    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"      = var.polaris_ui_reauth_redirect_url.outbound_e2e
+    "REACT_APP_REAUTH_REDIRECT_URL_INBOUND"           = var.polaris_ui_reauth_redirect_url.inbound
     "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
     "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
@@ -119,6 +126,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_NOTES"],
       app_settings["REACT_APP_FEATURE_FLAG_SEARCH_PII"],
       app_settings["REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"],
+      app_settings["REACT_APP_FEATURE_FLAG_RECLASSIFY"],
       app_settings["REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"],
       app_settings["REACT_APP_GATEWAY_BASE_URL"],
       app_settings["REACT_APP_GATEWAY_SCOPE"],
@@ -127,7 +135,9 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_PRIVATE_BETA_USER_GROUP"],
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP"],
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2"],
-      app_settings["REACT_APP_REAUTH_REDIRECT_URL"],
+      app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"],
+      app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"],
+      app_settings["REACT_APP_REAUTH_REDIRECT_URL_INBOUND"],
       app_settings["REACT_APP_REDACTION_LOG_BASE_URL"],
       app_settings["REACT_APP_REDACTION_LOG_SCOPE"],
       app_settings["REACT_APP_SURVEY_LINK"],

@@ -20,7 +20,7 @@ type InputProps = Omit<
     >;
   };
   formGroup?: { className: string };
-  hint?: string;
+  hint?: { children: React.ReactNode };
   label?: LabelProps;
   name?: string;
   id?: string;

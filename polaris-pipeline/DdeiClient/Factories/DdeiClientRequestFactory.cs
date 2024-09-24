@@ -12,13 +12,6 @@ namespace Ddei.Factories.Contracts
     {
         private const string CorrelationId = "Correlation-Id";
 
-        public HttpRequestMessage CreateCmsAuthValuesRequest(DdeiCmsCaseDataArgDto arg)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/cms-auth-values");
-            AddAuthHeaders(request, arg);
-            return request;
-        }
-
         public HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urn-lookup/{arg.CaseId}");
@@ -138,6 +131,23 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiCmsReclassifyDocumentArgDto arg)
+        {
+            var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
+            {
+                DocumentId = arg.DocumentId,
+                DocumentTypeId = arg.DocumentTypeId,
+                Exhibit = arg.Exhibit,
+                Statement = arg.Statement,
+                Other = arg.Other,
+                Immediate = arg.Immediate
+            });
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/reclassify");
+            AddAuthHeaders(request, arg);
+            request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
+            return request;
+        }
+
         public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCmsCaseArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/exhibit-producers");
@@ -155,6 +165,13 @@ namespace Ddei.Factories.Contracts
         public HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiCmsCaseDataArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiCmsWitnessStatementsArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/witnesses/{arg.WitnessId}/statements");
             AddAuthHeaders(request, arg);
             return request;
         }

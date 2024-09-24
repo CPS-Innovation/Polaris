@@ -26,7 +26,7 @@ namespace pdf_redactor.Services.DocumentManipulation
 
                 var modifications = new ModifyDocumentDto
                 {
-                    DocumentChanges = removeOrRotateDocumentPages.DocumentChanges
+                    DocumentModifications = removeOrRotateDocumentPages.DocumentModifications
                 };
 
                 return await _documentManipulationProvider.ModifyDocument(documentStream, caseId, documentId, modifications, correlationId);

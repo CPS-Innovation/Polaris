@@ -15,9 +15,21 @@ import Case, {
   path as casePath,
 } from "./features/cases/presentation/case-details";
 import { testAppInsightsConnection } from "../app/common/utils/appInsightsUtils";
+import {
+  InboundHandoverHandler,
+  inboundHandoverPath,
+} from "./inbound-handover/InboundHandoverHandler";
+import { isTaggedContext } from "./inbound-handover/context";
 
 export const Routes: FC = () => {
-  const { state } = useLocation();
+  const { state: navigationState } = useLocation();
+
+  const navigationStateAsContext = isTaggedContext(navigationState)
+    ? navigationState
+    : undefined;
+  const navigationStateAsBacklinkPath =
+    typeof navigationState == "string" ? navigationState : undefined;
+
   const [isAppInsightActive, setIsAppInsightActive] = useState(true);
   useEffect(() => {
     if (
@@ -68,12 +80,19 @@ export const Routes: FC = () => {
               //  `state` will be undefined.  In this case, we want to take the user back to the vanilla
               //  home page.  This is best represented by redirecting to empty and allowing the default
               //  route to kick -in.
-              to: state ? caseSearchResultsPath + state : "/",
+              to: navigationStateAsBacklinkPath
+                ? caseSearchResultsPath + navigationStateAsBacklinkPath
+                : "/",
               label: "Find a case",
             }}
+            context={navigationStateAsContext}
           />
         </Layout>
       </Route>
+      <Route
+        path={inboundHandoverPath}
+        component={InboundHandoverHandler}
+      ></Route>
       <Route>
         <Redirect to={caseSearchPath} />
       </Route>

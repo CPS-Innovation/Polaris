@@ -2,13 +2,13 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Request;
+using Common.Dto.Response;
 using Ddei.Domain.CaseData.Args;
 
 namespace DdeiClient.Services
 {
 	public interface IDdeiClient
 	{
-		Task<CmsAuthValuesDto> GetFullCmsAuthValuesAsync(DdeiCmsCaseDataArgDto arg);
 		Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCmsCaseIdArgDto arg);
 		Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg);
 		Task<CaseDto> GetCaseAsync(DdeiCmsCaseArgDto arg);
@@ -23,8 +23,10 @@ namespace DdeiClient.Services
 		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg);
 		Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg);
 		Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg);
+		Task<DocumentReclassifiedResult> ReclassifyDocumentAsync(DdeiCmsReclassifyDocumentArgDto arg);
 		Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCmsCaseArgDto arg);
 		Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCmsCaseArgDto arg);
 		Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiCmsCaseDataArgDto arg);
+		Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiCmsWitnessStatementsArgDto arg);
 	}
 }

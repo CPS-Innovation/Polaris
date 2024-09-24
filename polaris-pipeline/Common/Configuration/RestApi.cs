@@ -4,6 +4,8 @@ namespace Common.Configuration
 {
     public static class RestApi
     {
+        public const string LookupUrn = "urn-lookup/{caseId:min(1)}";
+
         // Cases (plural)
         public const string Cases = "urns/{caseUrn}/cases";
 
@@ -14,6 +16,7 @@ namespace Common.Configuration
         public const string CaseSearchCount = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
         public const string CaseExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
         public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
+        public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
 
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
@@ -22,6 +25,7 @@ namespace Common.Configuration
         public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/redact";
         public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/modify";
         public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/rename";
+        public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/reclassify";
 
         // Documents (plural)
         public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
@@ -46,6 +50,12 @@ namespace Common.Configuration
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
         public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
         public const string Thumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
+
+        public static string GetUrnLookupPath(int caseId)
+        {
+            return $"urn-lookup/{caseId}";
+        }
+
         public static string GetCasesPath(string caseUrn)
         {
             return $"urns/{caseUrn}/cases";
@@ -145,6 +155,11 @@ namespace Common.Configuration
             return $"urns/{caseUrn}/cases/{caseId}/search/count";
         }
 
+        public static string GetReclassifyDocumentPath(string caseUrn, string caseId, string documentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/reclassify";
+        }
+
         public static string GetCaseExhibitProducersPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/exhibit-producers";
@@ -158,6 +173,11 @@ namespace Common.Configuration
         public static string GetThumbnailPath(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
+
+        }
+        public static string GetWitnessStatementsPath(string caseUrn, int caseId, int witnessId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/witnesses/{witnessId}/statements";
         }
     }
 }

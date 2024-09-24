@@ -27,6 +27,11 @@ stages:
     jobs:
       - job: Validate_Networking_Terraform
         steps:
+          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: latest
+              
           # Terraform Init
           - bash: |
               terraform init \
@@ -58,6 +63,11 @@ stages:
               azureSubscription: $(dev-azure-subscription)
               
           # Terraform Init
+          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: latest
+
           - bash: |
               terraform init \
                 -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
