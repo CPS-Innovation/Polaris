@@ -73,18 +73,18 @@ export const getRedactionsToSaveLocally = (
   const locallySavedRedactions =
     (readFromLocalStorage(caseId, "redactions") as RedactionsData) ?? [];
 
-  const redactionHighlights = items.find(
-    (item) => item.documentId === documentId
-  )?.redactionHighlights;
+  const { redactionHighlights, pageDeleteRedactions } =
+    items.find((item) => item.documentId === documentId) ?? {};
 
   const filteredRedactions = locallySavedRedactions.filter(
     (redaction) => redaction.documentId !== documentId
   );
 
-  if (redactionHighlights?.length) {
+  if (redactionHighlights || pageDeleteRedactions) {
     filteredRedactions.push({
       documentId: documentId,
-      redactionHighlights: redactionHighlights,
+      redactionHighlights: redactionHighlights ?? [],
+      pageDeleteRedactions: pageDeleteRedactions ?? [],
     });
   }
 
@@ -100,12 +100,9 @@ export const getLocallySavedRedactionHighlights = (
     "redactions"
   ) as RedactionsData | null;
   if (!redactionsData) {
-    return [];
+    return;
   }
-  return (
-    redactionsData.find((data) => data.documentId === documentId)
-      ?.redactionHighlights ?? []
-  );
+  return redactionsData.find((data) => data.documentId === documentId);
 };
 
 export const handleRemoveLocallySavedRedactions = (

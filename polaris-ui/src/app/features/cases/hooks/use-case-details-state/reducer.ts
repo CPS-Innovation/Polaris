@@ -910,14 +910,14 @@ export const reducer = (
           ),
         },
       };
-      //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      if (redactionHighlights.length) {
-        addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      if (redactionsToSave.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
       }
       return newState;
     }
@@ -960,15 +960,15 @@ export const reducer = (
           ),
         },
       };
-      // //adding redaction highlight to local storage
-      // const redactionHighlights = getRedactionsToSaveLocally(
-      //   newState.tabsState.items,
-      //   documentId,
-      //   state.caseId
-      // );
-      // if (redactionHighlights.length) {
-      //   addToLocalStorage(state.caseId, "redactions", redactionHighlights);
-      // }
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      if (redactionsToSave.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
+      }
       return newState;
     }
     case "SAVING_REDACTION": {
@@ -1008,14 +1008,14 @@ export const reducer = (
           ),
         },
       };
-      //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionHighlights.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+      redactionsToSave.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
         : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
@@ -1040,15 +1040,15 @@ export const reducer = (
           ),
         },
       };
-      // //adding redaction highlight to local storage
-      // const redactionHighlights = getRedactionsToSaveLocally(
-      //   newState.tabsState.items,
-      //   documentId,
-      //   state.caseId
-      // );
-      // redactionHighlights.length
-      //   ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
-      //   : deleteFromLocalStorage(state.caseId, "redactions");
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionsToSave.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
+        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }

@@ -80,7 +80,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
     <Tabs
       idPrefix="pdf"
       items={items.map((item, index) => ({
-        isDirty: item.redactionHighlights.length > 0,
+        isDirty:
+          item.redactionHighlights.length + item.pageDeleteRedactions.length >
+          0,
         id: item.documentId,
         label: item.presentationFileName,
         panel: {
