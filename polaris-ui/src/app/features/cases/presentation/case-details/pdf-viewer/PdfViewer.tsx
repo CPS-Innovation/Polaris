@@ -52,6 +52,7 @@ type Props = {
     documentId: string;
     saveStatus: SaveStatus;
     caseId: number;
+    showDeletePage: boolean;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -243,6 +244,9 @@ export const PdfViewer: React.FC<Props> = ({
   };
 
   useEffect(() => {
+    if (!contextData.showDeletePage) {
+      return;
+    }
     console.log("pageElements>>>", pageElements);
     if (pageElements.length === 0) return;
 
@@ -254,7 +258,7 @@ export const PdfViewer: React.FC<Props> = ({
       pageDiv.appendChild(portalDiv);
       portalNodeRefs.current.push(portalDiv);
     });
-    setTriggerRender(triggerRender + 1);
+    setTriggerRender((trigger) => trigger + 1);
 
     return () => {
       console.log("clean up>>>>>");
@@ -265,10 +269,10 @@ export const PdfViewer: React.FC<Props> = ({
       });
       portalNodeRefs.current = [];
     };
-  }, [pageElements]);
+  }, [pageElements, contextData.showDeletePage]);
 
   useEffect(() => {
-    if (activeTabId !== tabId) {
+    if (activeTabId !== tabId || !contextData.showDeletePage) {
       return;
     }
     setTimeout(
@@ -295,7 +299,15 @@ export const PdfViewer: React.FC<Props> = ({
       portalNodeRefs.current = [];
       console.log("hellooooo useLayoutEffect cleanup11111");
     };
-  }, [activeTabId, innerWidth, innerHeight]);
+  }, [
+    activeTabId,
+    innerWidth,
+    innerHeight,
+    contextData.showDeletePage,
+    tabId,
+    tabIndex,
+    pageElements.length,
+  ]);
 
   const renderPortal = () => {
     console.log("addPortal>>>", portalNodeRefs);
@@ -508,7 +520,7 @@ export const PdfViewer: React.FC<Props> = ({
           handleAddRedaction={handleAddRedaction}
         />
       </div>
-      {renderPortal()}
+      {contextData.showDeletePage && renderPortal()}
     </div>
   );
 };

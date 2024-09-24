@@ -34,6 +34,7 @@ type PdfTabProps = {
   contextData: {
     correlationId: string;
     showSearchPII: boolean;
+    showDeletePage: boolean;
   };
   isOkToSave: boolean;
   handleOpenPdf: (caseDocument: {
@@ -281,6 +282,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentType,
             saveStatus: saveStatus,
             caseId,
+            showDeletePage: contextData.showDeletePage,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}

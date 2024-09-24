@@ -21,6 +21,7 @@ type PdfTabsProps = {
   contextData: {
     correlationId: string;
     showSearchPII: boolean;
+    showDeletePage: boolean;
   };
   caseId: number;
   isOkToSave: boolean;
