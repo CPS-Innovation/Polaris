@@ -59,7 +59,7 @@ import {
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
-import { TaggedContext } from "../../../../inbound-handover/context";
+import { isTaggedTriageContext, TaggedContext } from "../../../../inbound-handover/context";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
@@ -424,9 +424,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             handleClose={handleCloseErrorModal}
             type="alert"
             ariaLabel="Error Modal"
-            ariaDescription={`${
-              errorModal.title
-            } ${errorModal.message.replaceAll("</p>", "")}`}
+            ariaDescription={`${errorModal.title
+              } ${errorModal.message.replaceAll("</p>", "")}`}
           >
             <ErrorModalContent
               title={errorModal.title}
@@ -436,7 +435,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               contextData={{
                 documentId:
                   errorModal.type === "addnote" ||
-                  errorModal.type === "saverenamedocument"
+                    errorModal.type === "saverenamedocument"
                     ? actionsSidePanel.documentId
                     : getActiveTabDocument?.documentId,
               }}
@@ -611,13 +610,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     </div>
                   )}
 
-                  {context?.contextType === "triage" && (
+                  {context && isTaggedTriageContext(context) && (
                     <div className={classes.externalRedirectBtnWrapper}>
                       <Button
                         disabled={false}
                         onClick={() => {
                           openInNewTab(
-                            `/api/navigate-cms?action=activate_task&screen=case_details&taskId=${context?.taskId}&caseId=${caseId}&wId=MASTER`
+                            `/api/navigate-cms?action=activate_task&screen=case_details&taskId=${context.taskId}&caseId=${caseId}&wId=MASTER`
                           );
                         }}
                         data-testid="btn-bulk-um-classification"
@@ -737,9 +736,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     ariaLabel={
                       inFullScreen ? "Exit full screen" : "View full screen"
                     }
-                    className={`${classes.resizeBtn} ${
-                      inFullScreen && classes.inFullScreen
-                    }`}
+                    className={`${classes.resizeBtn} ${inFullScreen && classes.inFullScreen
+                      }`}
                     onClick={() => {
                       if (inFullScreen) {
                         trackEvent("Exit Full Screen", {
@@ -760,11 +758,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               </div>
             )}
             <div
-              className={`${classes.rightColumn} ${
-                inFullScreen
+              className={`${classes.rightColumn} ${inFullScreen
                   ? "govuk-grid-column-full"
                   : "govuk-grid-column-three-quarters"
-              }`}
+                }`}
             >
               {!tabsState.items.length ? (
                 <PdfTabsEmpty
@@ -778,7 +775,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   redactionTypesData={
                     redactionLog.redactionLogLookUpsData.status === "succeeded"
                       ? redactionLog.redactionLogLookUpsData.data
-                          .missedRedactions
+                        .missedRedactions
                       : []
                   }
                   isOkToSave={pipelineState.status === "complete"}
