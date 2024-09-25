@@ -9,8 +9,8 @@ namespace pdf_thumbnail_generator.Services
 {
   public static class IServiceCollectionExtension
   {
-    public const string BlobServiceContainerName = "BlobServiceContainerName";
-    public const string BlobServiceContainerName2 = "BlobServiceContainerName2";
+    public const string BlobServiceContainerNameDocuments = "BlobServiceContainerNameDocuments";
+    public const string BlobServiceContainerNameThumbails = "BlobServiceContainerNameThumbnails";
 
     public const string BlobServiceUrl = nameof(BlobServiceUrl);
 
@@ -36,8 +36,8 @@ namespace pdf_thumbnail_generator.Services
         var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
         return key switch
         {
-          "Documents" => new PolarisBlobStorageService(blobServiceClient, GetValueFromConfig(configuration, BlobServiceContainerName)),
-          "Thumbnails" => new PolarisBlobStorageService(blobServiceClient, GetValueFromConfig(configuration, BlobServiceContainerName2)),
+          "Documents" => new PolarisBlobStorageService(blobServiceClient, GetValueFromConfig(configuration, BlobServiceContainerNameDocuments)),
+          "Thumbnails" => new PolarisBlobStorageService(blobServiceClient, GetValueFromConfig(configuration, BlobServiceContainerNameThumbails)),
           _ => throw new ArgumentException($"Unknown key: {key}")
         };
       });
