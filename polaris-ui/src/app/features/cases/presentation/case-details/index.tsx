@@ -424,8 +424,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             handleClose={handleCloseErrorModal}
             type="alert"
             ariaLabel="Error Modal"
-            ariaDescription={`${errorModal.title
-              } ${errorModal.message.replaceAll("</p>", "")}`}
+            ariaDescription={`${
+              errorModal.title
+            } ${errorModal.message.replaceAll("</p>", "")}`}
           >
             <ErrorModalContent
               title={errorModal.title}
@@ -435,7 +436,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               contextData={{
                 documentId:
                   errorModal.type === "addnote" ||
-                    errorModal.type === "saverenamedocument"
+                  errorModal.type === "saverenamedocument"
                     ? actionsSidePanel.documentId
                     : getActiveTabDocument?.documentId,
               }}
@@ -736,8 +737,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     ariaLabel={
                       inFullScreen ? "Exit full screen" : "View full screen"
                     }
-                    className={`${classes.resizeBtn} ${inFullScreen && classes.inFullScreen
-                      }`}
+                    className={`${classes.resizeBtn} ${
+                      inFullScreen && classes.inFullScreen
+                    }`}
                     onClick={() => {
                       if (inFullScreen) {
                         trackEvent("Exit Full Screen", {
@@ -758,10 +760,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               </div>
             )}
             <div
-              className={`${classes.rightColumn} ${inFullScreen
-                ? "govuk-grid-column-full"
-                : "govuk-grid-column-three-quarters"
-                }`}
+              className={`${classes.rightColumn} ${
+                inFullScreen
+                  ? "govuk-grid-column-full"
+                  : "govuk-grid-column-three-quarters"
+              }`}
             >
               {!tabsState.items.length ? (
                 <PdfTabsEmpty
@@ -775,7 +778,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   redactionTypesData={
                     redactionLog.redactionLogLookUpsData.status === "succeeded"
                       ? redactionLog.redactionLogLookUpsData.data
-                        .missedRedactions
+                          .missedRedactions
                       : []
                   }
                   isOkToSave={pipelineState.status === "complete"}
