@@ -161,6 +161,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleClearAllNotifications,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -542,7 +543,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
-          <Notifications state={notificationState}></Notifications>
+          <Notifications
+            state={notificationState}
+            handleClearAllNotifications={handleClearAllNotifications}
+          ></Notifications>
         </nav>
         <PageContentWrapper>
           <div className={`govuk-grid-row ${classes.mainContent}`}>

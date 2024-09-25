@@ -2300,6 +2300,7 @@ describe("useCaseDetailsState reducer", () => {
         notificationState: {
           ignoreNextEvents: [{ documentId: "1", notificationType: "New" }],
           events: [],
+          liveNotificationCount: 0,
         } as NotificationState,
       });
     });

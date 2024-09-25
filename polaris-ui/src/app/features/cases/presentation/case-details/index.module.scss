@@ -47,7 +47,7 @@
 }
 
 .mainContent {
-  margin-top: -1.5625rem;
+  margin-top: 1rem; // enough margin to give space for the notifications button
 
   .rightColumn {
     margin-top: -3.4375rem;
@@ -187,4 +187,5 @@
 nav {
   display: flex;
   justify-content: space-between;
+  align-content: flex-start;
 }

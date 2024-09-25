@@ -61,6 +61,13 @@ const matchNested =
       : (left && left[key] && left[key][childKey]) !==
         (right && right[key] && right[key][childKey]);
 
+const ensureLiveDocCount = (
+  incompleteNotificationState: NotificationState
+): NotificationState => ({
+  ...incompleteNotificationState,
+  liveNotificationCount: incompleteNotificationState.events.length,
+});
+
 export const mapNotificationState = (
   notificationState: NotificationState,
   existingDocuments: MappedCaseDocument[] = [],
@@ -69,7 +76,7 @@ export const mapNotificationState = (
 ): NotificationState => {
   if (!existingDocuments.length) {
     // If this is first load then nothing to notify about - it is all new!
-    return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
+    //return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
   }
 
   // Every time we ask to generate an id we take the maximum id of the existing
@@ -166,35 +173,53 @@ export const mapNotificationState = (
       : existingEvent
   );
 
+  const events = [...eventsWithoutIgnored, ...existingEvents];
+
   const nextState = {
     ...notificationState,
     lastUpdatedDateTime: incomingDateTime,
-    events: [...eventsWithoutIgnored, ...existingEvents],
+    events,
     ignoreNextEvents: ignoreNextEventsStillUnmatched,
   };
 
-  console.debug(notificationState, nextState);
-
-  return nextState;
+  return ensureLiveDocCount(nextState);
 };
 
 export const registerNotifiableEvent = (
   state: NotificationState,
   event: NotificationEventCore
-) => ({
+): NotificationState => ({
   ...state,
   ignoreNextEvents: [...state.ignoreNextEvents, event],
 });
 
 export const readNotification = (
-  state: NotificationState,
-  id: number
+  state: NotificationState | NotificationState,
+  notificationId: number
 ): NotificationState =>
-  state.events.findIndex((evt) => evt.id === id && evt.status === "Live") === -1
-    ? state
-    : {
-        ...state,
-        events: state.events.map((evt) =>
-          evt.id === id ? { ...evt, status: "Read" } : evt
-        ),
-      };
+  ensureLiveDocCount(
+    state.events.some(
+      (evt) => evt.id === notificationId && evt.status === "Live"
+    )
+      ? {
+          ...state,
+          events: state.events.map((evt) =>
+            evt.id === notificationId ? { ...evt, status: "Read" } : evt
+          ),
+        }
+      : state
+  );
+
+export const readAllNotifications = (
+  state: NotificationState | NotificationState
+): NotificationState =>
+  ensureLiveDocCount(
+    state.events.some((evt) => evt.status === "Live")
+      ? {
+          ...state,
+          events: state.events.map((evt) =>
+            evt.status === "Live" ? { ...evt, status: "Read" } : evt
+          ),
+        }
+      : state
+  );

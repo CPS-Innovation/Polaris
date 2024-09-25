@@ -22,7 +22,15 @@ export type NotificationEvent = NotificationEventCore & {
 };
 
 export type NotificationState = {
+  liveNotificationCount: number;
   lastUpdatedDateTime?: string;
   ignoreNextEvents: NotificationEventCore[];
   events: NotificationEvent[];
 };
+
+export const buildDefaultNotificationState = () =>
+  ({
+    ignoreNextEvents: [],
+    events: [],
+    liveNotificationCount: 0,
+  } as NotificationState);

@@ -29,6 +29,7 @@ import {
   handleReclassifyUpdateConfirmation,
 } from "../utils/refreshCycleDataUpdate";
 import { TaggedContext } from "../../../../inbound-handover/context";
+import { buildDefaultNotificationState } from "../../domain/NotificationState";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -43,10 +44,7 @@ export const initialState = {
   },
   accordionState: { status: "loading" },
   tabsState: { items: [], headers: {}, activeTabId: undefined },
-  notificationState: {
-    ignoreNextEvents: [],
-    events: [],
-  },
+  notificationState: buildDefaultNotificationState(),
   searchTerm: "",
   searchState: {
     isResultsVisible: false,
@@ -304,24 +302,6 @@ export const useCaseDetailsState = (
     }
   }, [searchResults, dispatch]);
 
-  const handleOpenPdf = useCallback(
-    (caseDocument: {
-      documentId: CaseDocumentViewModel["documentId"];
-      mode: CaseDocumentViewModel["mode"];
-    }) => {
-      dispatch({
-        type: "REQUEST_OPEN_PDF",
-        payload: {
-          documentId: caseDocument.documentId,
-          mode: caseDocument.mode,
-        },
-      });
-      handleTabSelection(caseDocument.documentId);
-      handleSaveReadUnreadData(caseDocument.documentId);
-    },
-    [dispatch]
-  );
-
   const handleTabSelection = useCallback(
     (documentId: string) => {
       dispatch({
@@ -332,7 +312,7 @@ export const useCaseDetailsState = (
       });
       trackEvent("View Document Tab", { documentId: documentId });
     },
-    [dispatch]
+    [dispatch, trackEvent]
   );
 
   const handleClosePdf = useCallback(
@@ -345,7 +325,7 @@ export const useCaseDetailsState = (
       });
       trackEvent("Close Document", { documentId: documentId });
     },
-    [dispatch]
+    [dispatch, trackEvent]
   );
 
   const handleSearchTermChange = useCallback(
@@ -515,6 +495,24 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleOpenPdf = useCallback(
+    (caseDocument: {
+      documentId: CaseDocumentViewModel["documentId"];
+      mode: CaseDocumentViewModel["mode"];
+    }) => {
+      dispatch({
+        type: "REQUEST_OPEN_PDF",
+        payload: {
+          documentId: caseDocument.documentId,
+          mode: caseDocument.mode,
+        },
+      });
+      handleTabSelection(caseDocument.documentId);
+      handleSaveReadUnreadData(caseDocument.documentId);
+    },
+    [dispatch, handleTabSelection, handleSaveReadUnreadData]
+  );
+
   const handleGetNotes = useCallback(
     (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
@@ -663,6 +661,14 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleClearAllNotifications = useCallback(
+    () =>
+      dispatch({
+        type: "READ_ALL_NOTIFICATIONS",
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -694,5 +700,6 @@ export const useCaseDetailsState = (
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleClearAllNotifications,
   };
 };

@@ -45,6 +45,8 @@ import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
 import {
   mapNotificationState,
+  readAllNotifications,
+  readNotification,
   registerNotifiableEvent,
 } from "./map-notification-state";
 import { NotificationType } from "../../domain/NotificationState";
@@ -269,6 +271,13 @@ export const reducer = (
         type: "REGISTER_NOTIFIABLE_EVENT";
         payload: { documentId: string; notificationType: NotificationType };
       }
+    | {
+        type: "READ_ALL_NOTIFICATIONS";
+      }
+    | {
+        type: "READ_NOTIFICATION";
+        payload: { notificationId: number };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -355,13 +364,12 @@ export const reducer = (
           accordionState,
         };
 
-        if (
-          documentsState.status === "succeeded" &&
-          state.documentsState.status === "succeeded"
-        ) {
+        if (documentsState.status === "succeeded") {
           const notificationState = mapNotificationState(
             state.notificationState,
-            state.documentsState.data,
+            state.documentsState.status === "succeeded"
+              ? state.documentsState.data
+              : [],
             documentsState.data,
             action.payload.data.documentsRetrieved
           );
@@ -1344,6 +1352,23 @@ export const reducer = (
         notificationState: registerNotifiableEvent(
           state.notificationState,
           action.payload
+        ),
+      };
+    }
+
+    case "READ_ALL_NOTIFICATIONS": {
+      return {
+        ...state,
+        notificationState: readAllNotifications(state.notificationState),
+      };
+    }
+
+    case "READ_NOTIFICATION": {
+      return {
+        ...state,
+        notificationState: readNotification(
+          state.notificationState,
+          action.payload.notificationId
         ),
       };
     }
