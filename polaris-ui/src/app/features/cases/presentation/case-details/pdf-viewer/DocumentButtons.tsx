@@ -84,9 +84,9 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
             <div className={classes.pageNumberWrapper}>
-              <p className={classes.pageNumber}>
+              <p className={classes.pageNumberText}>
                 <span>Page:</span>
-                <span>
+                <span className={classes.pageNumber}>
                   {pageNumber}/{totalPages}
                 </span>
               </p>
