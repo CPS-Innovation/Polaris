@@ -68,8 +68,6 @@
   align-items: center;
   width: 100%;
   z-index: 6;
-  color: #b1b4b6;
-  font-size: 2.5rem;
   .overlayDeleteIcon {
     width: 50px;
     margin-right: 10px;
@@ -77,8 +75,18 @@
     padding: 2px;
     fill: #fff;
   }
-  .overlayDeletedText {
+  .overlayMainText {
     margin: 16px;
+    color: #b1b4b6;
+    font-size: 2.5rem;
+  }
+  .overlaySubText {
+    margin: 16px;
+    color: #fff;
+    font-size: 1rem;
+    margin-top: 0;
+    max-width: 320px;
+    text-align: center;
   }
 }
 

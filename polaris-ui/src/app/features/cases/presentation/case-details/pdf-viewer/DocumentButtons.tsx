@@ -97,7 +97,7 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
                 onClick={handleRestoreBtnClick}
                 data-pageNumber={pageNumber}
               >
-                Restore
+                Cancel
               </LinkButton>
             ) : (
               <LinkButton
@@ -121,7 +121,12 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
           <div className={classes.overlay}></div>
           <div className={classes.overlayContent}>
             <DeleteIcon className={classes.overlayDeleteIcon} width={"15px"} />
-            <p className={classes.overlayDeletedText}>Page Deleted</p>
+            <p className={classes.overlayMainText}>
+              Page selected for deletion
+            </p>
+            <p className={classes.overlaySubText}>
+              Click "save and submit" to remove the page from the document
+            </p>
           </div>
         </div>
       )}
