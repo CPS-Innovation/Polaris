@@ -28,6 +28,8 @@ terraform {
 }
 
 provider "azurerm" {
+  # temporary fix until we can upgrade to >= v3.90, see: https://github.com/hashicorp/terraform-provider-azurerm/issues/27466#issuecomment-2370655250
+  skip_provider_registration = true
   features {
     key_vault {
       purge_soft_delete_on_destroy          = false
