@@ -163,7 +163,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     trackEvent("Save All Redactions", {
       documentType: documentType,
       documentId: documentId,
-      redactionsCount: redactionHighlights?.length,
+      redactionsCount:
+        redactionHighlights?.length + pageDeleteRedactions?.length,
+      deletedPageCount: pageDeleteRedactions?.length,
       suggestedRedactionsCount: searchPIIDataItem?.searchPIIHighlights?.length,
       acceptedSuggestedRedactionsCount: activeSearchPIIHighlights?.length,
     });

@@ -49,6 +49,7 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
     trackEvent("Add Unsaved Redactions", {
       documentId: documentId,
       redactionsCount: redactionsCount,
+      deletedPageCount: pageDeleteRedactions?.length,
     });
     setShowModal(false);
   };
@@ -57,6 +58,7 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
     trackEvent("Ignore Unsaved Redactions", {
       documentId: documentId,
       redactionsCount: redactionsCount,
+      deletedPageCount: pageDeleteRedactions?.length,
     });
     handleRemoveLocallySavedRedactions(documentId, caseId);
     setShowModal(false);

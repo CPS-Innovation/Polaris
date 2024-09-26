@@ -8,6 +8,7 @@ import { ReactComponent as DeleteIcon } from "../../../../../common/presentation
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { IPageDeleteRedaction } from "../../../domain/IPageDeleteRedaction";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./DeletePage.module.scss";
 type DeletePageProps = {
   documentId: string;
@@ -28,6 +29,16 @@ export const DeletePage: React.FC<DeletePageProps> = ({
   handleAddRedaction,
   handleRemoveRedaction,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
+  const [showModal, setShowModal] = useState(false);
+  const [deleteRedactionType, setDeleteRedactionType] = useState<string>("");
+
+  const isPageDeleted = useMemo(() => {
+    return pageDeleteRedactions.find(
+      (redaction) => redaction.pageNumber === pageNumber
+    );
+  }, [pageDeleteRedactions, pageNumber]);
+
   const getMappedRedactionTypes = () => {
     const defaultOption = {
       value: "",
@@ -43,23 +54,19 @@ export const DeletePage: React.FC<DeletePageProps> = ({
 
     return [defaultOption, ...mappedRedactionType];
   };
-  const isPageDeleted = useMemo(() => {
-    return pageDeleteRedactions.find(
-      (redaction) => redaction.pageNumber === pageNumber
-    );
-  }, [pageDeleteRedactions, pageNumber]);
-  const [showModal, setShowModal] = useState(false);
-  const [deleteRedactionType, setDeleteRedactionType] = useState<string>("");
-
   const handleDelete = () => {
     setShowModal(true);
   };
-
   const handleConfirmBtnClick = () => {
     const redactionType = redactionTypesData.find(
       (type) => type.id === deleteRedactionType
     )!;
     handleAddRedaction(documentId, undefined, [{ pageNumber, redactionType }]);
+    trackEvent("Delete Page", {
+      documentId: documentId,
+      pageNumber: pageNumber,
+      reason: redactionType.name,
+    });
 
     setShowModal(false);
   };
@@ -67,12 +74,18 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     const redactionId = pageDeleteRedactions.find(
       (redaction) => redaction.pageNumber === pageNumber
     )?.id;
-    if (redactionId) handleRemoveRedaction(redactionId);
+    if (redactionId) {
+      handleRemoveRedaction(redactionId);
+      trackEvent("Undo Delete Page", {
+        documentId: documentId,
+        pageNumber: pageNumber,
+      });
+    }
   };
-
   const handleCancelBtnClick = () => {
     setShowModal(false);
   };
+
   return (
     <div>
       {!showModal && (
