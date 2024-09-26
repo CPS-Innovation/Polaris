@@ -35,9 +35,8 @@ import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { IPageDeleteRedaction } from "../../../domain/IPageDeleteRedaction";
-import { createPortal } from "react-dom";
-import { DocumentButtons } from "../pdf-viewer/DocumentButtons";
-import { useWindowResize } from "../../../../../common/hooks/useWindowResize";
+import { DeletePage } from "../portals/DeletePage";
+import { PagePortal } from "../portals/PagePortal";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -104,10 +103,6 @@ export const PdfViewer: React.FC<Props> = ({
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
-  const { innerWidth, innerHeight } = useWindowResize();
-  const portalNodeRefs = useRef<HTMLDivElement[]>([]);
-  const [pageElements, setPageElements] = useState<Element[]>([]);
-  const [triggerRender, setTriggerRender] = useState(0);
 
   const highlights = useMemo(
     () => [
@@ -241,90 +236,6 @@ export const PdfViewer: React.FC<Props> = ({
       className = `${className} ${classes.areaOnlyRedaction}`;
     if (isSearchPIIOn) className = `${className} ${classes.searchPiiOn}`;
     return className;
-  };
-
-  useEffect(() => {
-    if (!contextData.showDeletePage) {
-      return;
-    }
-    console.log("pageElements>>>", pageElements);
-    if (pageElements.length === 0) return;
-
-    portalNodeRefs.current = [];
-    console.log("useEffect>>>>>");
-
-    pageElements.forEach((pageDiv, index) => {
-      const portalDiv = document.createElement("div");
-      pageDiv.appendChild(portalDiv);
-      portalNodeRefs.current.push(portalDiv);
-    });
-    setTriggerRender((trigger) => trigger + 1);
-
-    return () => {
-      console.log("clean up>>>>>");
-      portalNodeRefs.current.forEach((portalDiv: any) => {
-        if (portalDiv && portalDiv.parentNode) {
-          portalDiv.parentNode.removeChild(portalDiv);
-        }
-      });
-      portalNodeRefs.current = [];
-    };
-  }, [pageElements, contextData.showDeletePage]);
-
-  useEffect(() => {
-    if (activeTabId !== tabId || !contextData.showDeletePage) {
-      return;
-    }
-    setTimeout(
-      () => {
-        const pdfViewer =
-          document?.querySelectorAll(".pdfViewer")?.[`${tabIndex}`];
-        const pageDivs = pdfViewer?.querySelectorAll(".page");
-        if (!pageDivs) {
-          return;
-        }
-        console.log("hellooooo useLayoutEffect adding", pageDivs);
-        setPageElements(Array.from(pageDivs));
-      },
-      pageElements.length ? 1000 : 2000
-    );
-
-    return () => {
-      console.log("hellooooo useLayoutEffect cleanup");
-      portalNodeRefs.current.forEach((portalNode) => {
-        if (portalNode && portalNode.parentNode) {
-          portalNode.parentNode.removeChild(portalNode);
-        }
-      });
-      portalNodeRefs.current = [];
-      console.log("hellooooo useLayoutEffect cleanup11111");
-    };
-  }, [
-    activeTabId,
-    innerWidth,
-    innerHeight,
-    contextData.showDeletePage,
-    tabId,
-    tabIndex,
-    pageElements.length,
-  ]);
-
-  const renderPortal = () => {
-    console.log("addPortal>>>", portalNodeRefs);
-    return portalNodeRefs.current.map((portalNode, index) => {
-      return createPortal(
-        <DocumentButtons
-          documentId={contextData.documentId}
-          pageNumber={index + 1}
-          redactionTypesData={redactionTypesData}
-          handleAddRedaction={handleAddRedaction}
-          handleRemoveRedaction={handleRemoveRedaction}
-          pageDeleteRedactions={pageDeleteRedactions}
-          totalPages={portalNodeRefs.current.length}
-        />,
-        portalNode
-      );
-    });
   };
 
   return (
@@ -499,10 +410,23 @@ export const PdfViewer: React.FC<Props> = ({
                 }}
                 highlights={highlights}
               />
+              {activeTabId === tabId && contextData.showDeletePage && (
+                <PagePortal tabIndex={tabIndex}>
+                  <DeletePage
+                    documentId={contextData.documentId}
+                    pageNumber={0}
+                    redactionTypesData={redactionTypesData}
+                    handleAddRedaction={handleAddRedaction}
+                    handleRemoveRedaction={handleRemoveRedaction}
+                    pageDeleteRedactions={pageDeleteRedactions}
+                    totalPages={0}
+                  />
+                </PagePortal>
+              )}
             </>
           )}
         </PdfLoader>
-        {(redactionHighlights.length || pageDeleteRedactions.length) && (
+        {!!(redactionHighlights.length + pageDeleteRedactions.length) && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
@@ -520,7 +444,6 @@ export const PdfViewer: React.FC<Props> = ({
           handleAddRedaction={handleAddRedaction}
         />
       </div>
-      {contextData.showDeletePage && renderPortal()}
     </div>
   );
 };

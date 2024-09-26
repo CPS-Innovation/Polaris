@@ -8,8 +8,8 @@ import { ReactComponent as DeleteIcon } from "../../../../../common/presentation
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { IPageDeleteRedaction } from "../../../domain/IPageDeleteRedaction";
-import classes from "./DocumentButton.module.scss";
-type DocumentButtonsProps = {
+import classes from "./DeletePage.module.scss";
+type DeletePageProps = {
   documentId: string;
   pageNumber: number;
   totalPages: number;
@@ -19,7 +19,7 @@ type DocumentButtonsProps = {
   handleRemoveRedaction: (id: string) => void;
 };
 
-export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
+export const DeletePage: React.FC<DeletePageProps> = ({
   documentId,
   pageNumber,
   totalPages,
@@ -50,11 +50,8 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
   }, [pageDeleteRedactions, pageNumber]);
   const [showModal, setShowModal] = useState(false);
   const [deleteRedactionType, setDeleteRedactionType] = useState<string>("");
-  const handleRotate = (e: any) => {
-    console.log("handleRotate>>", pageNumber);
-  };
+
   const handleDelete = () => {
-    console.log("handleDelete>>", pageNumber);
     setShowModal(true);
   };
 
@@ -67,8 +64,6 @@ export const DocumentButtons: React.FC<DocumentButtonsProps> = ({
     setShowModal(false);
   };
   const handleRestoreBtnClick = () => {
-    // const filteredPages = deletedPages.filter((page) => page !== pageNumber);
-    // setDeletedPages([...filteredPages]);
     const redactionId = pageDeleteRedactions.find(
       (redaction) => redaction.pageNumber === pageNumber
     )?.id;
