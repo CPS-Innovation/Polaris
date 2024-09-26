@@ -63,10 +63,6 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
                     continue;
                 }
 
-                var pageToSwapOutRect = page.Rect.ToRect();
-                var pageHeight = page.PageInfo.Height;
-                var pageWidth = page.PageInfo.Width;
-
                 // Note: Aspose page.Rect.ToRect() behaves differently to Aspose page.GetPageRect(true)
                 // it switches the height and width for certain pdfs so we need to use GetPageRect(true) instead
                 var pageRect = page.GetPageRect(true);
@@ -82,8 +78,8 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
 
                 stopwatch.Restart();
                 var pageToSwapIn = document.Pages.Insert(pageNumber);
-                pageToSwapIn.SetPageSize(pageWidth, pageHeight);
-                pageToSwapIn.Rect = Rectangle.FromRect(pageToSwapOutRect);
+                pageToSwapIn.SetPageSize(pageRect.Width, pageRect.Height);
+                pageToSwapIn.Rect = pageRect;
 
                 pageToSwapIn.PageInfo.Margin.Bottom =
                     pageToSwapIn.PageInfo.Margin.Top =
