@@ -17,7 +17,7 @@ export type NotificationEvent = NotificationEventCore & {
   dateTime: string;
   narrative: string;
   status: "Live" | "Read" | "Superseded";
-  reasonToIgnore?: "First Case Load" | "Users own event";
+  reasonToIgnore?: "First case load" | "Users own event";
 };
 
 export type NotificationState = {

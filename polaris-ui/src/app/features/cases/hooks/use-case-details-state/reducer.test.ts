@@ -171,6 +171,11 @@ describe("useCaseDetailsState reducer", () => {
           },
           documentsState: {
             status: "succeeded",
+            data: [],
+          },
+          notificationState: {
+            ignoreNextEvents: [],
+            events: [],
           },
         } as unknown as CombinedState;
 

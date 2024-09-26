@@ -62,7 +62,10 @@ const Notification: React.FC<{
           </LinkButton>
         </div>
         <div className={`govuk-body-s ${classes.narrative}`}>
-          {evt.narrative}
+          <span>{evt.narrative}</span>
+          {evt.reasonToIgnore ? (
+            <span className={classes.reasonToIgnore}>{evt.reasonToIgnore}</span>
+          ) : undefined}
         </div>
         <span className={`${classes.dateTime} govuk-body-s`}>
           {time(evt.dateTime)}
@@ -110,7 +113,7 @@ export const Notifications: React.FC<{
       handleReadNotification(
         evt.id,
         evt.documentId,
-        evt.reason === "Discarded"
+        evt.reason !== "Discarded"
       );
       // special case: if this is a "Discarded" document then there is nothing to open
       //  so lets keep the user with the panel open.
@@ -147,7 +150,7 @@ export const Notifications: React.FC<{
             Last synced with CMS:{" "}
             {lastUpdatedDateTime ? time(lastUpdatedDateTime) : "please wait..."}
           </div>
-          {!!liveNotificationCount && (
+          {!!events.length && (
             <div className={classes.body}>
               <ul ref={listRef} onScroll={handleScroll}>
                 {events.map((evt) => (

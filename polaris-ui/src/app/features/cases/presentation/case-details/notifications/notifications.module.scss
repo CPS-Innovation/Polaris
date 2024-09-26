@@ -9,7 +9,7 @@
       width: 0.9rem;
       height: 0.9rem;
       vertical-align: middle;
-      margin-left: 0.5rem;
+
       margin-right: 0.25rem;
     }
   }
@@ -162,6 +162,11 @@
 
           .narrative {
             margin-bottom: 0.5em;
+
+            .reasonToIgnore {
+              text-decoration: line-through;
+              margin-left: 1em;
+            }
           }
         }
       }

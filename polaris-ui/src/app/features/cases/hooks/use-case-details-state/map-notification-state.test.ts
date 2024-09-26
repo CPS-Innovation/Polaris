@@ -41,6 +41,7 @@ const scenarios: Scenario[] = [
       incoming: [[doc({ documentId: "1" })], incomingDateTime],
       expected: state({
         lastUpdatedDateTime: incomingDateTime,
+        liveNotificationCount: 0,
       }),
     },
   ],
@@ -56,6 +57,7 @@ const scenarios: Scenario[] = [
       incoming: [[doc({ documentId: "1" })], incomingDateTime],
       expected: state({
         lastUpdatedDateTime: incomingDateTime,
+        liveNotificationCount: 0,
       }),
     },
   ],
@@ -371,7 +373,7 @@ const scenarios: Scenario[] = [
     },
   ],
   [
-    "will add New Version, Reclassified and Updated notifications for documents that have changed all three respects to the top of the notification list ",
+    "will add New Version, Reclassified and Updated notifications for documents that have changed all three respects to the top of the notification list",
     {
       existing: [
         state({
