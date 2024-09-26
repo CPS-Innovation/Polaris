@@ -26,6 +26,7 @@ import classes from "./Reclassify.module.scss";
 
 type ReclassifyStagesProps = {
   documentId: string;
+  documentVersionId: number | null;
   currentDocTypeId: number | null;
   presentationTitle: string;
   reclassifiedDocumentUpdate?: boolean;
@@ -44,12 +45,17 @@ type ReclassifyStagesProps = {
     name: string,
     properties: Record<string, any>
   ) => void;
+  getReclassifyThumbnail: (
+    documentId: string,
+    documentVersionId: number
+  ) => Promise<string | null>;
 };
 
 const MAX_LENGTH = 252;
 
 export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   documentId,
+  documentVersionId,
   currentDocTypeId,
   presentationTitle,
   reclassifiedDocumentUpdate,
@@ -60,6 +66,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getWitnessStatementNumbers,
   handleSubmitReclassify,
   handleReclassifyTracking,
+  getReclassifyThumbnail,
 }) => {
   const continueButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
@@ -443,6 +450,28 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   }, []);
 
   useEffect(() => {
+    const fetchAndPollReclassifyThumbnail = async () => {
+      try {
+        if (!documentVersionId) return null;
+
+        const result = await getReclassifyThumbnail(
+          documentId,
+          documentVersionId
+        );
+        dispatch({
+          type: "DOCUMENT_THUMBNAIL",
+          payload: { documentThumbnailSrc: result },
+        });
+      } catch (error) {
+        console.error("Error fetching thumbnail:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAndPollReclassifyThumbnail();
+  }, [documentId, documentVersionId]);
+
+  useEffect(() => {
     if (reclassifiedDocumentUpdate) {
       closeReclassify();
     }
@@ -502,6 +531,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>
         </div>
+        {state.documentThumbnailSrc && (
+          <div className="govuk-grid-column-one-half">
+            <div className={classes.imageHolder}>
+              <img src={state.documentThumbnailSrc} alt="Document thumbnail" />
+            </div>
+          </div>
+        )}
       </div>
       {state.reClassifySaveStatus === "failure" && (
         <Modal
