@@ -59,11 +59,15 @@ import {
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
+<<<<<<< HEAD
+import { TaggedContext } from "../../../../inbound-handover/context";
 import { Notifications } from "./notifications/Notifications";
+=======
 import {
   isTaggedTriageContext,
   TaggedContext,
 } from "../../../../inbound-handover/context";
+>>>>>>> main
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
