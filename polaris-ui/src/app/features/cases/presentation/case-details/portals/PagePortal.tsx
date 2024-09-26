@@ -28,7 +28,7 @@ export const PagePortal: React.FC<PagePortalProps> = ({
     const updatedPages = Array.from(pdfViewer.querySelectorAll(".page"));
     // Cleanup old portal nodes
     portalNodeRefs.current.forEach((portalDiv) => {
-      if (portalDiv && portalDiv.parentNode) {
+      if (portalDiv?.parentNode) {
         portalDiv.parentNode.removeChild(portalDiv);
       }
     });
@@ -58,7 +58,7 @@ export const PagePortal: React.FC<PagePortalProps> = ({
         resizeObserverRef.current.disconnect();
       }
       portalNodeRefs.current.forEach((portalDiv) => {
-        if (portalDiv && portalDiv.parentNode) {
+        if (portalDiv?.parentNode) {
           portalDiv.parentNode.removeChild(portalDiv);
         }
       });

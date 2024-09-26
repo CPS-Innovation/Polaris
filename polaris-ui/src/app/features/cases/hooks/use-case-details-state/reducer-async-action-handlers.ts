@@ -11,11 +11,7 @@ import {
   getSearchPIIData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
-import {
-  NewPdfHighlight,
-  ISearchPIIHighlight,
-} from "../../domain/NewPdfHighlight";
-import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import {
   mapRedactionSaveRequest,

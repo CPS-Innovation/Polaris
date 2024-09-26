@@ -1,7 +1,9 @@
 import { RedactionLogDataSource } from "./types/RedactionLogDataSource";
 import { ListItem } from "../../app/features/cases/domain/redactionLog/ListItem";
-import { RedactionTypeData } from "../../app/features/cases/domain/redactionLog/RedactionLogData";
-import { OuCodeMapping } from "../../app/features/cases/domain/redactionLog/RedactionLogData";
+import {
+  RedactionTypeData,
+  OuCodeMapping,
+} from "../../app/features/cases/domain/redactionLog/RedactionLogData";
 
 const areasStub: ListItem[] = [
   {

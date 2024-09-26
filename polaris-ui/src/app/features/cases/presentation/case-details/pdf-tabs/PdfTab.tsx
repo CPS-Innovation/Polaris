@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { useState, useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
-import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
