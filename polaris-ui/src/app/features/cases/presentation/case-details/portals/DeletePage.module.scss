@@ -23,14 +23,9 @@
     margin-left: 5px;
   }
 }
-.cancelBtn {
-  margin-left: 10px;
-  &:focus {
-    box-shadow: 0 0.125rem 0 #0b0c0c;
-    outline: 0.1875rem solid transparent;
-  }
-}
-.deleteBtn {
+
+.deleteBtn,
+.restoreBtn {
   padding: 0 4px;
   background-color: #fff;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);

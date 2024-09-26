@@ -1,9 +1,6 @@
-import { useState, useMemo } from "react";
-import {
-  Button,
-  LinkButton,
-  Select,
-} from "../../../../../common/presentation/components";
+import { useState, useMemo, useRef } from "react";
+import { LinkButton } from "../../../../../common/presentation/components";
+import { DeleteModal } from "./DeleteModal";
 import { ReactComponent as DeleteIcon } from "../../../../../common/presentation/svgs/deleteIcon.svg";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
@@ -32,6 +29,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
   const trackEvent = useAppInsightsTrackEvent();
   const [showModal, setShowModal] = useState(false);
   const [deleteRedactionType, setDeleteRedactionType] = useState<string>("");
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
   const isPageDeleted = useMemo(() => {
     return pageDeleteRedactions.find(
@@ -39,7 +37,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     );
   }, [pageDeleteRedactions, pageNumber]);
 
-  const getMappedRedactionTypes = () => {
+  const mappedRedactionTypeValues = useMemo(() => {
     const defaultOption = {
       value: "",
       children: "-- Please select --",
@@ -53,11 +51,12 @@ export const DeletePage: React.FC<DeletePageProps> = ({
       }));
 
     return [defaultOption, ...mappedRedactionType];
-  };
+  }, [redactionTypesData]);
+
   const handleDelete = () => {
     setShowModal(true);
   };
-  const handleConfirmBtnClick = () => {
+  const handleConfirmRedaction = () => {
     const redactionType = redactionTypesData.find(
       (type) => type.id === deleteRedactionType
     )!;
@@ -70,6 +69,9 @@ export const DeletePage: React.FC<DeletePageProps> = ({
 
     setShowModal(false);
   };
+  const handleRedactionTypeSelection = (value: string) => {
+    setDeleteRedactionType(value);
+  };
   const handleRestoreBtnClick = () => {
     const redactionId = pageDeleteRedactions.find(
       (redaction) => redaction.pageNumber === pageNumber
@@ -80,15 +82,17 @@ export const DeletePage: React.FC<DeletePageProps> = ({
         documentId: documentId,
         pageNumber: pageNumber,
       });
+      setDeleteRedactionType("");
     }
   };
-  const handleCancelBtnClick = () => {
+  const handleCancelRedaction = () => {
     setShowModal(false);
+    setDeleteRedactionType("");
   };
 
   return (
     <div>
-      {!showModal && (
+      {
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
             <div className={classes.pageNumberWrapper}>
@@ -101,7 +105,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
             </div>
             {isPageDeleted ? (
               <LinkButton
-                className={classes.deleteBtn}
+                className={classes.restoreBtn}
                 onClick={handleRestoreBtnClick}
                 data-pageNumber={pageNumber}
               >
@@ -109,6 +113,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
               </LinkButton>
             ) : (
               <LinkButton
+                ref={deleteButtonRef}
                 className={classes.deleteBtn}
                 onClick={handleDelete}
                 data-pageNumber={pageNumber}
@@ -123,7 +128,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
             )}
           </div>
         </div>
-      )}
+      }
       {isPageDeleted && (
         <div>
           <div className={classes.overlay}></div>
@@ -139,43 +144,14 @@ export const DeletePage: React.FC<DeletePageProps> = ({
         </div>
       )}
       {showModal && (
-        <div className={classes.deleteModal}>
-          <div className={classes.contentWrapper}>
-            <div className="govuk-form-group">
-              <Select
-                label={{
-                  htmlFor: "select-redaction-type",
-                  children: "Select Delete Reason",
-                  className: classes.sortLabel,
-                }}
-                id="select-redaction-type"
-                data-testid="select-redaction-type"
-                value={deleteRedactionType}
-                items={getMappedRedactionTypes()}
-                formGroup={{
-                  className: classes.select,
-                }}
-                onChange={(ev) => setDeleteRedactionType(ev.target.value)}
-              />
-            </div>
-            <Button
-              disabled={false}
-              className={classes.redactButton}
-              onClick={() => handleConfirmBtnClick()}
-              data-testid="btn-redact"
-              id="btn-redact"
-            >
-              Redact
-            </Button>
-            <LinkButton
-              className={classes.cancelBtn}
-              onClick={handleCancelBtnClick}
-              data-pageNumber={pageNumber}
-            >
-              Cancel
-            </LinkButton>
-          </div>
-        </div>
+        <DeleteModal
+          parentButtonRef={deleteButtonRef}
+          deleteRedactionType={deleteRedactionType}
+          redactionTypeValues={mappedRedactionTypeValues}
+          handleConfirmRedaction={handleConfirmRedaction}
+          handleRedactionTypeSelection={handleRedactionTypeSelection}
+          handleCancelRedaction={handleCancelRedaction}
+        />
       )}
     </div>
   );

@@ -1,0 +1,35 @@
+.deleteModal {
+  user-select: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 7;
+  background: #fff;
+  background-clip: padding-box;
+  border-radius: 0.3125rem;
+  box-shadow: 0px 0px 10px 0 rgba(0, 0, 0, 0.5);
+  & :global(.govuk-form-group) {
+    margin-bottom: 0;
+  }
+  & :global(.govuk-button) {
+    margin-left: 0.625rem;
+    margin-bottom: 0;
+  }
+
+  .contentWrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 0.625rem;
+  }
+  .cancelBtn {
+    margin-left: 10px;
+    &:focus {
+      box-shadow: 0 0.125rem 0 #0b0c0c;
+      outline: 0.1875rem solid transparent;
+    }
+  }
+}
