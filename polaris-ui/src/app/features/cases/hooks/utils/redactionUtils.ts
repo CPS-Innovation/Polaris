@@ -80,7 +80,7 @@ export const getRedactionsToSaveLocally = (
     (redaction) => redaction.documentId !== documentId
   );
 
-  if (redactionHighlights || pageDeleteRedactions) {
+  if (redactionHighlights?.length || pageDeleteRedactions?.length) {
     filteredRedactions.push({
       documentId: documentId,
       redactionHighlights: redactionHighlights ?? [],
