@@ -13,13 +13,6 @@ import {
 import { useGlobalDropdownClose } from "../../../../../common/hooks/useGlobalDropdownClose";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 
-type Props = {
-  state: NotificationState;
-  handleNotificationRead: (notificationId: number, documentId: string) => void;
-  handleClearAllNotifications: () => void;
-  handleClearNotification: (notificationId: number) => void;
-};
-
 const time = (dateTime: string) => (
   <span className={classes.time}>
     <TimeIcon className={classes.timeIcon} />
@@ -46,9 +39,60 @@ const useScrollPositionRetention = <T extends HTMLElement>(
   return [elRef, handleScroll] as const;
 };
 
-export const Notifications: React.FC<Props> = ({
+const Notification: React.FC<{
+  evt: NotificationEvent;
+  handleReadNotification: ({ id, documentId }: NotificationEvent) => void;
+  handleClearNotification: (id: number) => void;
+}> = ({ evt, handleReadNotification, handleClearNotification }) => {
+  return (
+    <li
+      key={evt.id}
+      className={evt.status === "Live" ? classes.live : classes.read}
+    >
+      <div>
+        <div>
+          <Tag className={`govuk-tag--orange ${classes.tag}`}>{evt.reason}</Tag>
+        </div>
+        <div>
+          <LinkButton
+            className={classes.docLink}
+            onClick={() => handleReadNotification(evt)}
+          >
+            {evt.presentationTitle}
+          </LinkButton>
+        </div>
+        <div className={`govuk-body-s ${classes.narrative}`}>
+          {evt.narrative}
+        </div>
+        <span className={`${classes.dateTime} govuk-body-s`}>
+          {time(evt.dateTime)}
+        </span>
+      </div>
+      <div>
+        <Button
+          data-prevent-global-close
+          onClick={() => handleClearNotification(evt.id)}
+          className={`${classes.clear} govuk-button--secondary`}
+        >
+          Clear
+        </Button>
+      </div>
+    </li>
+  );
+};
+
+export const Notifications: React.FC<{
+  state: NotificationState;
+  handleReadNotification: (
+    notificationId: number,
+    documentId: string,
+    shouldOpenDoc: boolean
+  ) => void;
+  handleClearAllNotifications: () => void;
+  handleClearNotification: (notificationId: number) => void;
+}> = ({
   state: { events, lastUpdatedDateTime, liveNotificationCount },
-  handleNotificationRead,
+  handleReadNotification,
   handleClearAllNotifications,
   handleClearNotification,
 }) => {
@@ -61,12 +105,20 @@ export const Notifications: React.FC<Props> = ({
 
   useGlobalDropdownClose(dropDownBtnRef, panelRef, setIsOpen);
 
-  const handleRead = useCallback(
-    ({ id, documentId }: NotificationEvent) => {
-      handleNotificationRead(id, documentId);
-      setIsOpen(false);
+  const localHandleNotificationRead = useCallback(
+    (evt: NotificationEvent) => {
+      handleReadNotification(
+        evt.id,
+        evt.documentId,
+        evt.reason === "Discarded"
+      );
+      // special case: if this is a "Discarded" document then there is nothing to open
+      //  so lets keep the user with the panel open.
+      if (evt.reason !== "Discarded") {
+        setIsOpen(false);
+      }
     },
-    [handleNotificationRead]
+    [handleReadNotification]
   );
 
   return (
@@ -99,43 +151,12 @@ export const Notifications: React.FC<Props> = ({
             <div className={classes.body}>
               <ul ref={listRef} onScroll={handleScroll}>
                 {events.map((evt) => (
-                  <li
+                  <Notification
                     key={evt.id}
-                    className={
-                      evt.status === "Live" ? classes.live : classes.read
-                    }
-                  >
-                    <div>
-                      <div>
-                        <Tag className={`govuk-tag--orange ${classes.tag}`}>
-                          {evt.notificationType}
-                        </Tag>
-                      </div>
-                      <div>
-                        <LinkButton
-                          className={classes.docLink}
-                          onClick={() => handleRead(evt)}
-                        >
-                          {evt.presentationTitle}
-                        </LinkButton>
-                      </div>
-                      <div className={`govuk-body-s ${classes.narrative}`}>
-                        {evt.narrative}
-                      </div>
-                      <span className={`${classes.dateTime} govuk-body-s`}>
-                        {time(evt.dateTime)}
-                      </span>
-                    </div>
-                    <div>
-                      <Button
-                        data-prevent-global-close
-                        onClick={() => handleClearNotification(evt.id)}
-                        className={`${classes.clear} govuk-button--secondary`}
-                      >
-                        Clear
-                      </Button>
-                    </div>
-                  </li>
+                    evt={evt}
+                    handleReadNotification={localHandleNotificationRead}
+                    handleClearNotification={handleClearNotification}
+                  ></Notification>
                 ))}
               </ul>
               <div className={classes.footer}>

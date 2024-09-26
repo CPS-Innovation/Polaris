@@ -3,10 +3,10 @@ import {
   NotificationEvent,
   NotificationEventCore,
   NotificationState,
-  NotificationType,
+  NotificationReason,
 } from "../../domain/NotificationState";
 
-type Sense = "same" | "different";
+type Sense = "is same" | "is different";
 
 const sortFn = (a: string, b: string) => (a > b ? 1 : a < b ? -1 : 0);
 
@@ -41,21 +41,21 @@ const inLeftAndRight = <T extends { documentId: string }>(
     // a deterministic ordering is useful for tests
     .sort(([a], [b]) => sortFn(a.documentId, b.documentId));
 
-const match =
+const where =
   <T extends U, U, Key extends keyof U>(key: Key, sense: Sense) =>
   (left: T, right: U) =>
-    sense === "same"
+    sense === "is same"
       ? (left && left[key]) === (right && right[key])
       : (left && left[key]) !== (right && right[key]);
 
-const matchNested =
+const whereNested =
   <T extends U, U, Key extends keyof U, ChildKey extends keyof U[Key]>(
     key: Key,
     childKey: ChildKey,
     sense: Sense
   ) =>
   (left: T, right: U) =>
-    sense === "same"
+    sense === "is same"
       ? (left && left[key] && left[key][childKey]) ===
         (right && right[key] && right[key][childKey])
       : (left && left[key] && left[key][childKey]) !==
@@ -86,7 +86,7 @@ export const mapNotificationState = (
 ): NotificationState => {
   if (!existingDocuments.length) {
     // If this is first load then nothing to notify about - it is all new!
-    //return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
+    return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
   }
 
   // Every time we ask to generate an id we take the maximum id of the existing
@@ -96,7 +96,7 @@ export const mapNotificationState = (
     Math.max(0, ...notificationState.events.map((evt) => evt.id)) + counter++;
 
   const buildEvent = (
-    notificationType: NotificationType,
+    reason: NotificationReason,
     {
       documentId,
       cmsVersionId,
@@ -108,48 +108,44 @@ export const mapNotificationState = (
     id: generateUniqueId(),
     documentId,
     cmsVersionId,
-    notificationType,
+    reason,
     presentationTitle,
     dateTime: incomingDateTime,
     narrative: presentationCategory,
-    status:
-      notificationType === "Discarded"
-        ? // if it is Discarded then we do not need the Notification to be clickable
-          "Read"
-        : "Live",
+    status: "Live",
   });
 
   const newNotifications = inLeftNotRight(
     incomingDocuments,
     existingDocuments,
-    match("documentId", "same")
+    where("documentId", "is same")
   ).map((doc) => buildEvent("New", doc));
 
   const discardedNotifications = inLeftNotRight(
     existingDocuments,
     incomingDocuments,
-    match("documentId", "same")
+    where("documentId", "is same")
   ).map((doc) => buildEvent("Discarded", doc));
 
   const newVersionNotifications = inLeftAndRight(
     incomingDocuments,
     existingDocuments,
-    match("documentId", "same"),
-    match("cmsVersionId", "different")
+    where("documentId", "is same"),
+    where("cmsVersionId", "is different")
   ).map(([doc, oldDoc]) => buildEvent("New Version", doc, oldDoc));
 
   const reclassifiedNotifications = inLeftAndRight(
     incomingDocuments,
     existingDocuments,
-    match("documentId", "same"),
-    matchNested("cmsDocType", "documentTypeId", "different")
+    where("documentId", "is same"),
+    whereNested("cmsDocType", "documentTypeId", "is different")
   ).map(([doc, oldDoc]) => buildEvent("Reclassified", doc, oldDoc));
 
   const updatedNotifications = inLeftAndRight(
     incomingDocuments,
     existingDocuments,
-    match("documentId", "same"),
-    match("presentationTitle", "different")
+    where("documentId", "is same"),
+    where("presentationTitle", "is different")
   ).map(([doc, oldDoc]) => buildEvent("Updated", doc, oldDoc));
 
   const incomingEvents: NotificationEvent[] = [
@@ -163,22 +159,21 @@ export const mapNotificationState = (
   const eventsWithoutIgnored = inLeftNotRight(
     incomingEvents,
     notificationState.ignoreNextEvents,
-    match("documentId", "same"),
-    match("notificationType", "same")
+    where("documentId", "is same"),
+    where("reason", "is same")
   );
 
   const ignoreNextEventsNotMatchedThisTime = inLeftNotRight(
     notificationState.ignoreNextEvents as NotificationEvent[],
     incomingEvents,
-    match("documentId", "same"),
-    match("notificationType", "same")
+    where("documentId", "is same"),
+    where("reason", "is same")
   );
 
   const existingEvents = notificationState.events.map((existingEvent) =>
-    existingEvent.status !== "Superseded" &&
     discardedNotifications.some(
       (discardedDoc) => discardedDoc.documentId === existingEvent.documentId
-    )
+    ) && existingEvent.status !== "Superseded"
       ? ({ ...existingEvent, status: "Superseded" } as NotificationEvent)
       : existingEvent
   );

@@ -648,7 +648,7 @@ export const useCaseDetailsState = (
 
       dispatch({
         type: "REGISTER_NOTIFIABLE_EVENT",
-        payload: { documentId, notificationType: "Reclassified" },
+        payload: { documentId, reason: "Reclassified" },
       });
 
       dispatch({
@@ -661,13 +661,16 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
-  const handleNotificationRead = useCallback(
-    (notificationId: number, documentId: string) => {
+  const handleReadNotification = useCallback(
+    (notificationId: number, documentId: string, shouldOpenDoc: boolean) => {
       dispatch({
         type: "READ_NOTIFICATION",
         payload: { notificationId },
       });
-      handleOpenPdf({ documentId, mode: "read" });
+
+      if (shouldOpenDoc) {
+        handleOpenPdf({ documentId, mode: "read" });
+      }
     },
     [dispatch, handleOpenPdf]
   );
@@ -720,7 +723,7 @@ export const useCaseDetailsState = (
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
-    handleNotificationRead,
+    handleReadNotification,
     handleClearAllNotifications,
     handleClearNotification,
   };

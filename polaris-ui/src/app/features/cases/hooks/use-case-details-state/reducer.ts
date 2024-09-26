@@ -50,7 +50,7 @@ import {
   readNotification,
   registerNotifiableEvent,
 } from "./map-notification-state";
-import { NotificationType } from "../../domain/NotificationState";
+import { NotificationReason } from "../../domain/NotificationState";
 export const reducer = (
   state: CombinedState,
   action:
@@ -270,7 +270,7 @@ export const reducer = (
       }
     | {
         type: "REGISTER_NOTIFIABLE_EVENT";
-        payload: { documentId: string; notificationType: NotificationType };
+        payload: { documentId: string; reason: NotificationReason };
       }
     | {
         type: "CLEAR_ALL_NOTIFICATIONS";

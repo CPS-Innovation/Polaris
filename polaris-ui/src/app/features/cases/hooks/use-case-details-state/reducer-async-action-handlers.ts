@@ -365,7 +365,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
         dispatch({
           type: "REGISTER_NOTIFIABLE_EVENT",
-          payload: { documentId, notificationType: "New Version" },
+          payload: { documentId, reason: "New Version" },
         });
 
         dispatch({
@@ -619,7 +619,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
         dispatch({
           type: "REGISTER_NOTIFIABLE_EVENT",
-          payload: { documentId, notificationType: "Updated" },
+          payload: { documentId, reason: "Updated" },
         });
 
         dispatch({

@@ -147,6 +147,9 @@ describe("useCaseDetailsState", () => {
         handleSaveRename,
         handleReclassifySuccess,
         handleResetReclassifyData,
+        handleClearAllNotifications,
+        handleClearNotification,
+        handleReadNotification,
         ...stateProperties
       } = result.current;
 

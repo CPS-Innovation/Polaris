@@ -1,15 +1,13 @@
-export type NotificationType =
-  | "New"
-  | "Discarded"
-  | "New Version"
-  | "Reclassified"
-  | "Updated";
-
-type NotificationStatus = "Live" | "Read" | "Superseded";
+export type NotificationReason =
+  | "New" // documentId has appeared in the tracker
+  | "Discarded" // documentId has disappeared from the tracker
+  | "New Version" // documentId has changed version
+  | "Reclassified" // docTypeId change
+  | "Updated"; // presentationTitle change
 
 export type NotificationEventCore = {
   documentId: string;
-  notificationType: NotificationType;
+  reason: NotificationReason;
 };
 
 export type NotificationEvent = NotificationEventCore & {
@@ -18,12 +16,16 @@ export type NotificationEvent = NotificationEventCore & {
   presentationTitle: string;
   dateTime: string;
   narrative: string;
-  status: NotificationStatus;
+  status: "Live" | "Read" | "Superseded";
+  reasonToIgnore?: "First Case Load" | "Users own event";
 };
 
 export type NotificationState = {
   liveNotificationCount: number;
   lastUpdatedDateTime?: string;
+  // ignoreNextEvents allows us to register events triggered by the current user
+  //  so that we may ignore them when we see the corresponding document change
+  //  in the tracker
   ignoreNextEvents: NotificationEventCore[];
   events: NotificationEvent[];
 };

@@ -2287,18 +2287,19 @@ describe("useCaseDetailsState reducer", () => {
       const existingState = {
         notificationState: {
           ignoreNextEvents: [],
+          liveNotificationCount: 0,
           events: [],
         },
       } as unknown as CombinedState;
 
       const result = reducer(existingState, {
         type: "REGISTER_NOTIFIABLE_EVENT",
-        payload: { documentId: "1", notificationType: "New" },
+        payload: { documentId: "1", reason: "New" },
       });
 
       expect(result).toEqual({
         notificationState: {
-          ignoreNextEvents: [{ documentId: "1", notificationType: "New" }],
+          ignoreNextEvents: [{ documentId: "1", reason: "New" }],
           events: [],
           liveNotificationCount: 0,
         } as NotificationState,
