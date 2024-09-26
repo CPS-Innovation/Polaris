@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   NotificationEvent,
   NotificationState,
@@ -8,6 +8,7 @@ import classes from "./notifications.module.scss";
 import {
   Button,
   LinkButton,
+  Tag,
 } from "../../../../../common/presentation/components";
 import { useGlobalDropdownClose } from "../../../../../common/hooks/useGlobalDropdownClose";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
@@ -19,6 +20,32 @@ type Props = {
   handleClearNotification: (notificationId: number) => void;
 };
 
+const time = (dateTime: string) => (
+  <span className={classes.time}>
+    <TimeIcon className={classes.timeIcon} />
+    {formatTime(dateTime)}
+  </span>
+);
+
+const useScrollPositionRetention = <T extends HTMLElement>(
+  isElOpen: boolean
+) => {
+  const elRef = useRef<T | null>(null);
+  const [scrollPosition, setScrollPosition] = useState<number>();
+
+  const handleScroll: React.UIEventHandler<T> = (event) => {
+    setScrollPosition((event?.target as HTMLElement)?.scrollTop);
+  };
+
+  useEffect(() => {
+    if (isElOpen && elRef.current && scrollPosition !== undefined) {
+      elRef.current.scrollTo({ top: scrollPosition });
+    }
+  }, [isElOpen, scrollPosition]);
+
+  return [elRef, handleScroll] as const;
+};
+
 export const Notifications: React.FC<Props> = ({
   state: { events, lastUpdatedDateTime, liveNotificationCount },
   handleNotificationRead,
@@ -28,6 +55,9 @@ export const Notifications: React.FC<Props> = ({
   const dropDownBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const [listRef, handleScroll] =
+    useScrollPositionRetention<HTMLUListElement>(isOpen);
 
   useGlobalDropdownClose(dropDownBtnRef, panelRef, setIsOpen);
 
@@ -63,18 +93,11 @@ export const Notifications: React.FC<Props> = ({
             }`}
           >
             Last synced with CMS:{" "}
-            {lastUpdatedDateTime ? (
-              <>
-                <TimeIcon className={classes.timeIcon} />
-                {formatTime(lastUpdatedDateTime)}
-              </>
-            ) : (
-              "please wait..."
-            )}
+            {lastUpdatedDateTime ? time(lastUpdatedDateTime) : "please wait..."}
           </div>
           {!!liveNotificationCount && (
             <div className={classes.body}>
-              <ul>
+              <ul ref={listRef} onScroll={handleScroll}>
                 {events.map((evt) => (
                   <li
                     key={evt.id}
@@ -83,7 +106,11 @@ export const Notifications: React.FC<Props> = ({
                     }
                   >
                     <div>
-                      <div>{evt.notificationType}</div>
+                      <div>
+                        <Tag className={`govuk-tag--orange ${classes.tag}`}>
+                          {evt.notificationType}
+                        </Tag>
+                      </div>
                       <div>
                         <LinkButton
                           className={classes.docLink}
@@ -92,9 +119,11 @@ export const Notifications: React.FC<Props> = ({
                           {evt.presentationTitle}
                         </LinkButton>
                       </div>
-                      <div className="govuk-body">{evt.narrative}dddd</div>
+                      <div className={`govuk-body-s ${classes.narrative}`}>
+                        {evt.narrative}
+                      </div>
                       <span className={`${classes.dateTime} govuk-body-s`}>
-                        {formatTime(evt.dateTime)}
+                        {time(evt.dateTime)}
                       </span>
                     </div>
                     <div>

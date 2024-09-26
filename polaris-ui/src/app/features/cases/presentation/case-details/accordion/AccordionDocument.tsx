@@ -19,7 +19,7 @@ import {
   witnessIndicatorNames,
   witnessIndicatorPrecedenceOrder,
 } from "../../../domain/WitnessIndicators";
-import { Tooltip } from "../../../../../common/presentation/components";
+import { Tag, Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import {
   mapConversionStatusToMessage,
@@ -203,16 +203,16 @@ export const AccordionDocument: React.FC<Props> = ({
     >
       <div className={classes.listItemWrapper}>
         {activeDocumentId === caseDocument.documentId && (
-          <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
+          <Tag className={`govuk-tag--turquoise ${classes.tag}`}>
             Active Document
-          </strong>
+          </Tag>
         )}
         {reclassifyData.find(
           (doc) => doc.documentId === caseDocument.documentId
         )?.reclassified && (
-          <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
+          <Tag className={`govuk-tag--turquoise ${classes.tag}`}>
             Reclassified
-          </strong>
+          </Tag>
         )}
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
           <div className={`${classes.mainContentWrapper}`}>
@@ -363,8 +363,8 @@ export const AccordionDocument: React.FC<Props> = ({
                   witnessIndicatorPrecedenceOrder.indexOf(b)
               )
               .map((indicator) => (
-                <strong
-                  className={`govuk-tag govuk-tag--grey ${classes.tooltip}`}
+                <Tag
+                  className={`govuk-tag--grey ${classes.tooltip}`}
                   key={indicator}
                   data-testid={`indicator-${caseDocument.documentId}-${indicator}`}
                 >
@@ -372,7 +372,7 @@ export const AccordionDocument: React.FC<Props> = ({
                   <span className={classes.tooltiptext}>
                     {witnessIndicatorNames[indicator]}
                   </span>
-                </strong>
+                </Tag>
               ))}
           </div>
         )}

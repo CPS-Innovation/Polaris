@@ -179,7 +179,7 @@ const scenarios: Scenario[] = [
     },
   ],
   [
-    "will add NewVersion notifications for upversioned documents to the top of the notification list",
+    "will add New Version notifications for upversioned documents to the top of the notification list",
     {
       existing: [
         state({
@@ -223,7 +223,7 @@ const scenarios: Scenario[] = [
             documentId: "1",
             cmsVersionId: 111,
             presentationTitle: "doc-1-11",
-            notificationType: "NewVersion",
+            notificationType: "New Version",
             dateTime: incomingDateTime,
             status: "Live",
             id: expect.any(Number),
@@ -232,7 +232,7 @@ const scenarios: Scenario[] = [
             documentId: "2",
             cmsVersionId: 222,
             presentationTitle: "doc-2-22",
-            notificationType: "NewVersion",
+            notificationType: "New Version",
             dateTime: incomingDateTime,
             status: "Live",
             id: expect.any(Number),
@@ -365,7 +365,7 @@ const scenarios: Scenario[] = [
     },
   ],
   [
-    "will add NewVersion, Reclassified and Updated notifications for documents that have changed all three respects to the top of the notification list ",
+    "will add New Version, Reclassified and Updated notifications for documents that have changed all three respects to the top of the notification list ",
     {
       existing: [
         state({
@@ -420,7 +420,7 @@ const scenarios: Scenario[] = [
           evt({
             documentId: "1",
             cmsVersionId: 111,
-            notificationType: "NewVersion",
+            notificationType: "New Version",
             presentationTitle: "doc-1111",
             dateTime: incomingDateTime,
             status: "Live",
@@ -447,7 +447,7 @@ const scenarios: Scenario[] = [
           evt({
             documentId: "2",
             cmsVersionId: 222,
-            notificationType: "NewVersion",
+            notificationType: "New Version",
             presentationTitle: "doc-2222",
             dateTime: incomingDateTime,
             status: "Live",
@@ -491,7 +491,7 @@ const scenarios: Scenario[] = [
           ],
           ignoreNextEvents: [
             evt({ documentId: "3", notificationType: "New" }),
-            evt({ documentId: "5", notificationType: "NewVersion" }),
+            evt({ documentId: "5", notificationType: "New Version" }),
           ],
         }),
         [

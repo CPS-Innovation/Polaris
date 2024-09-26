@@ -365,7 +365,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
         dispatch({
           type: "REGISTER_NOTIFIABLE_EVENT",
-          payload: { documentId, notificationType: "NewVersion" },
+          payload: { documentId, notificationType: "New Version" },
         });
 
         dispatch({
@@ -416,17 +416,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     },
 
   UNLOCK_DOCUMENTS:
-    ({ dispatch, getState }) =>
+    ({ getState }) =>
     async (action) => {
       const {
         payload: { documentIds },
       } = action;
 
-      const {
-        tabsState: { items },
-        caseId,
-        urn,
-      } = getState();
+      const { caseId, urn } = getState();
 
       const requests = documentIds.map((documentId) =>
         cancelCheckoutDocument(urn, caseId, documentId)

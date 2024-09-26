@@ -61,7 +61,7 @@ const matchNested =
       : (left && left[key] && left[key][childKey]) !==
         (right && right[key] && right[key][childKey]);
 
-const applyLiveDocCount = (
+const applyLiveNotificationCount = (
   notificationState: NotificationState
 ): NotificationState => {
   const liveNotificationCount = notificationState.events.filter(
@@ -101,7 +101,7 @@ export const mapNotificationState = (
       documentId,
       cmsVersionId,
       presentationTitle,
-      cmsDocType,
+      presentationCategory,
     }: MappedCaseDocument,
     oldDoc?: MappedCaseDocument
   ): NotificationEvent => ({
@@ -111,7 +111,7 @@ export const mapNotificationState = (
     notificationType,
     presentationTitle,
     dateTime: incomingDateTime,
-    narrative: undefined,
+    narrative: presentationCategory,
     status:
       notificationType === "Discarded"
         ? // if it is Discarded then we do not need the Notification to be clickable
@@ -136,7 +136,7 @@ export const mapNotificationState = (
     existingDocuments,
     match("documentId", "same"),
     match("cmsVersionId", "different")
-  ).map(([doc, oldDoc]) => buildEvent("NewVersion", doc, oldDoc));
+  ).map(([doc, oldDoc]) => buildEvent("New Version", doc, oldDoc));
 
   const reclassifiedNotifications = inLeftAndRight(
     incomingDocuments,
@@ -192,7 +192,7 @@ export const mapNotificationState = (
     ignoreNextEvents: ignoreNextEventsNotMatchedThisTime,
   };
 
-  return applyLiveDocCount(nextState);
+  return applyLiveNotificationCount(nextState);
 };
 
 export const registerNotifiableEvent = (
@@ -220,7 +220,7 @@ export const readNotification = (
       }
     : state;
 
-  return applyLiveDocCount(nextState);
+  return applyLiveNotificationCount(nextState);
 };
 
 export const clearNotification = (
@@ -232,7 +232,7 @@ export const clearNotification = (
     events: state.events.filter((evt) => evt.id !== notificationId),
   };
 
-  return applyLiveDocCount(nextState);
+  return applyLiveNotificationCount(nextState);
 };
 
 export const clearAllNotifications = (
@@ -243,5 +243,5 @@ export const clearAllNotifications = (
     events: [],
   };
 
-  return applyLiveDocCount(nextState);
+  return applyLiveNotificationCount(nextState);
 };

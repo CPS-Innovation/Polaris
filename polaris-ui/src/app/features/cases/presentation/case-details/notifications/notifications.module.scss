@@ -1,6 +1,19 @@
 .root {
   position: relative;
 
+  .time {
+    display: inline-flex;
+    align-items: center;
+
+    .timeIcon {
+      width: 0.9rem;
+      height: 0.9rem;
+      vertical-align: middle;
+      margin-left: 0.5rem;
+      margin-right: 0.25rem;
+    }
+  }
+
   .btn {
     // cancel native button styling
     background: none;
@@ -99,14 +112,6 @@
       &.headerPopulated {
         border-bottom: 1px dashed #b1b4b6;
       }
-
-      .timeIcon {
-        width: 1rem;
-        height: 1rem;
-        vertical-align: middle;
-        margin-left: 0.5rem;
-        margin-right: 0.25rem;
-      }
     }
 
     .body {
@@ -148,6 +153,15 @@
 
           .dateTime {
             color: #505a5f;
+          }
+
+          .tag {
+            text-transform: none;
+            margin-bottom: 0.6em;
+          }
+
+          .narrative {
+            margin-bottom: 0.5em;
           }
         }
       }

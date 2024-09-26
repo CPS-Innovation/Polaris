@@ -1,7 +1,7 @@
 export type NotificationType =
   | "New"
   | "Discarded"
-  | "NewVersion"
+  | "New Version"
   | "Reclassified"
   | "Updated";
 
@@ -17,7 +17,7 @@ export type NotificationEvent = NotificationEventCore & {
   cmsVersionId: number;
   presentationTitle: string;
   dateTime: string;
-  narrative: undefined;
+  narrative: string;
   status: NotificationStatus;
 };
 
