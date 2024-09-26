@@ -10,6 +10,8 @@
     font: inherit;
     cursor: pointer;
     outline: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
 
     // todo: could these be mixins and only defined in one place
     &:hover:not(:disabled):not(:focus) {
@@ -26,13 +28,14 @@
     }
 
     margin-top: 0.5em;
-    padding: 0.25em;
-    width: 7.75em;
+    padding: 0.35em;
+    width: 8em;
     display: flex;
     justify-content: space-between;
     //align-items: center;
 
     .alert {
+      top: -0.3em;
       position: relative;
       display: inline-block;
       width: 1.75em;
@@ -84,22 +87,76 @@
     min-width: 25em;
     z-index: 7;
     box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.2);
-    border-radius: 5px 0 5px 5px;
-
+    //border-radius: 5px 0 5px 5px;
+    background-color: #fff;
     //max-height: 31.25rem; // from dropdown button
 
     .header {
-      border-bottom: 1px dashed #b1b4b6;
       background-color: #f3f2f1;
       padding: 0.2em 0.5em;
       color: #505a5f;
+
+      &.headerPopulated {
+        border-bottom: 1px dashed #b1b4b6;
+      }
+
+      .timeIcon {
+        width: 1rem;
+        height: 1rem;
+        vertical-align: middle;
+        margin-left: 0.5rem;
+        margin-right: 0.25rem;
+      }
     }
 
-    .list {
-    }
+    .body {
+      ul {
+        padding: 0;
+        margin: 0;
+        max-height: 21.5em;
+        overflow-y: scroll;
 
-    .footer {
-      padding: 0.2em 0.5em;
+        li {
+          padding: 0.5em 0.5em 0 0.5em;
+          margin-bottom: 0.25em;
+          border-left: 5px solid #1d70b8;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          &.live {
+            border-left: 5px solid #1d70b8;
+          }
+
+          &.read {
+            border-left: 5px solid #fff;
+          }
+
+          .clear {
+            margin-right: 2em;
+            font-size: 0.8em;
+            padding: 0.35em;
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+          }
+
+          .docLink {
+            padding-left: 0;
+            font-weight: bold;
+            text-align: left;
+          }
+
+          .dateTime {
+            color: #505a5f;
+          }
+        }
+      }
+
+      .footer {
+        padding: 0.5em;
+        text-align: right;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+      }
     }
   }
 }

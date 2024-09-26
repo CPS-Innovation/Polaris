@@ -61,12 +61,22 @@ const matchNested =
       : (left && left[key] && left[key][childKey]) !==
         (right && right[key] && right[key][childKey]);
 
-const ensureLiveDocCount = (
-  incompleteNotificationState: NotificationState
-): NotificationState => ({
-  ...incompleteNotificationState,
-  liveNotificationCount: incompleteNotificationState.events.length,
-});
+const applyLiveDocCount = (
+  notificationState: NotificationState
+): NotificationState => {
+  const liveNotificationCount = notificationState.events.filter(
+    (evt) => evt.status === "Live"
+  ).length;
+
+  if (liveNotificationCount === notificationState.liveNotificationCount) {
+    return notificationState;
+  }
+
+  return {
+    ...notificationState,
+    liveNotificationCount,
+  };
+};
 
 export const mapNotificationState = (
   notificationState: NotificationState,
@@ -83,7 +93,7 @@ export const mapNotificationState = (
   //  event array and add a counter to it (and increment the counter on each ask)
   let counter = 1;
   const generateUniqueId = () =>
-    Math.max(...notificationState.events.map((evt) => evt.id || 0)) + counter++;
+    Math.max(0, ...notificationState.events.map((evt) => evt.id)) + counter++;
 
   const buildEvent = (
     notificationType: NotificationType,
@@ -157,7 +167,7 @@ export const mapNotificationState = (
     match("notificationType", "same")
   );
 
-  const ignoreNextEventsStillUnmatched = inLeftNotRight(
+  const ignoreNextEventsNotMatchedThisTime = inLeftNotRight(
     notificationState.ignoreNextEvents as NotificationEvent[],
     incomingEvents,
     match("documentId", "same"),
@@ -179,10 +189,10 @@ export const mapNotificationState = (
     ...notificationState,
     lastUpdatedDateTime: incomingDateTime,
     events,
-    ignoreNextEvents: ignoreNextEventsStillUnmatched,
+    ignoreNextEvents: ignoreNextEventsNotMatchedThisTime,
   };
 
-  return ensureLiveDocCount(nextState);
+  return applyLiveDocCount(nextState);
 };
 
 export const registerNotifiableEvent = (
@@ -196,30 +206,42 @@ export const registerNotifiableEvent = (
 export const readNotification = (
   state: NotificationState | NotificationState,
   notificationId: number
-): NotificationState =>
-  ensureLiveDocCount(
-    state.events.some(
-      (evt) => evt.id === notificationId && evt.status === "Live"
-    )
-      ? {
-          ...state,
-          events: state.events.map((evt) =>
-            evt.id === notificationId ? { ...evt, status: "Read" } : evt
-          ),
-        }
-      : state
-  );
+): NotificationState => {
+  const nextState = state.events.some(
+    (evt) => evt.id === notificationId && evt.status === "Live"
+  )
+    ? {
+        ...state,
+        events: state.events.map((evt) =>
+          evt.id === notificationId
+            ? ({ ...evt, status: "Read" } as NotificationEvent)
+            : evt
+        ),
+      }
+    : state;
 
-export const readAllNotifications = (
-  state: NotificationState | NotificationState
-): NotificationState =>
-  ensureLiveDocCount(
-    state.events.some((evt) => evt.status === "Live")
-      ? {
-          ...state,
-          events: state.events.map((evt) =>
-            evt.status === "Live" ? { ...evt, status: "Read" } : evt
-          ),
-        }
-      : state
-  );
+  return applyLiveDocCount(nextState);
+};
+
+export const clearNotification = (
+  state: NotificationState,
+  notificationId: number
+): NotificationState => {
+  const nextState = {
+    ...state,
+    events: state.events.filter((evt) => evt.id !== notificationId),
+  };
+
+  return applyLiveDocCount(nextState);
+};
+
+export const clearAllNotifications = (
+  state: NotificationState
+): NotificationState => {
+  const nextState = {
+    ...state,
+    events: [],
+  };
+
+  return applyLiveDocCount(nextState);
+};

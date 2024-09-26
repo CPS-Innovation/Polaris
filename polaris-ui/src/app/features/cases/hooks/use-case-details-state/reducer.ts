@@ -45,7 +45,8 @@ import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
 import {
   mapNotificationState,
-  readAllNotifications,
+  clearAllNotifications,
+  clearNotification,
   readNotification,
   registerNotifiableEvent,
 } from "./map-notification-state";
@@ -272,7 +273,11 @@ export const reducer = (
         payload: { documentId: string; notificationType: NotificationType };
       }
     | {
-        type: "READ_ALL_NOTIFICATIONS";
+        type: "CLEAR_ALL_NOTIFICATIONS";
+      }
+    | {
+        type: "CLEAR_NOTIFICATION";
+        payload: { notificationId: number };
       }
     | {
         type: "READ_NOTIFICATION";
@@ -1356,10 +1361,20 @@ export const reducer = (
       };
     }
 
-    case "READ_ALL_NOTIFICATIONS": {
+    case "CLEAR_ALL_NOTIFICATIONS": {
       return {
         ...state,
-        notificationState: readAllNotifications(state.notificationState),
+        notificationState: clearAllNotifications(state.notificationState),
+      };
+    }
+
+    case "CLEAR_NOTIFICATION": {
+      return {
+        ...state,
+        notificationState: clearNotification(
+          state.notificationState,
+          action.payload.notificationId
+        ),
       };
     }
 

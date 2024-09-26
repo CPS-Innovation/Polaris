@@ -661,10 +661,30 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleNotificationRead = useCallback(
+    (notificationId: number, documentId: string) => {
+      dispatch({
+        type: "READ_NOTIFICATION",
+        payload: { notificationId },
+      });
+      handleOpenPdf({ documentId, mode: "read" });
+    },
+    [dispatch, handleOpenPdf]
+  );
+
   const handleClearAllNotifications = useCallback(
     () =>
       dispatch({
-        type: "READ_ALL_NOTIFICATIONS",
+        type: "CLEAR_ALL_NOTIFICATIONS",
+      }),
+    [dispatch]
+  );
+
+  const handleClearNotification = useCallback(
+    (notificationId: number) =>
+      dispatch({
+        type: "CLEAR_NOTIFICATION",
+        payload: { notificationId },
       }),
     [dispatch]
   );
@@ -700,6 +720,8 @@ export const useCaseDetailsState = (
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleNotificationRead,
     handleClearAllNotifications,
+    handleClearNotification,
   };
 };

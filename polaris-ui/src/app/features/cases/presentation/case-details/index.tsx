@@ -161,7 +161,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleNotificationRead,
     handleClearAllNotifications,
+    handleClearNotification,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -545,7 +547,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           </BackLink>
           <Notifications
             state={notificationState}
+            handleNotificationRead={handleNotificationRead}
             handleClearAllNotifications={handleClearAllNotifications}
+            handleClearNotification={handleClearNotification}
           ></Notifications>
         </nav>
         <PageContentWrapper>
