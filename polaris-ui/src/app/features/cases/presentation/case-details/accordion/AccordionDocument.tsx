@@ -150,17 +150,17 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
-    // if (featureFlags.reclassify && caseDocument.canReclassify) {
-    items = [
-      ...items,
-      {
-        id: "2",
-        label: "Reclassify document",
-        ariaLabel: "Reclassify document",
-        disabled: false,
-      },
-    ];
-    // }
+    if (featureFlags.reclassify && caseDocument.canReclassify) {
+      items = [
+        ...items,
+        {
+          id: "2",
+          label: "Reclassify document",
+          ariaLabel: "Reclassify document",
+          disabled: false,
+        },
+      ];
+    }
 
     return items;
   }, [
