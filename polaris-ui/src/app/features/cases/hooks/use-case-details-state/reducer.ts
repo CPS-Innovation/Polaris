@@ -51,6 +51,9 @@ import {
   registerNotifiableEvent,
 } from "./map-notification-state";
 import { NotificationReason } from "../../domain/NotificationState";
+
+export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
+
 export const reducer = (
   state: CombinedState,
   action:

@@ -1,4 +1,4 @@
-import { useCaseDetailsState, initialState } from "./useCaseDetailsState";
+import { useCaseDetailsState } from "./useCaseDetailsState";
 import * as api from "../../api/gateway-api";
 import * as pipelineApi from "../use-pipeline-api/usePipelineApi";
 
@@ -17,6 +17,7 @@ import {
   RedactionLogMappingData,
 } from "../../domain/redactionLog/RedactionLogData";
 import { MemoryRouter } from "react-router-dom";
+import { initialState } from "../../domain/CombinedState";
 
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
