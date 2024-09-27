@@ -39,6 +39,7 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
             <span className="govuk-header__link--homepage">Casework App</span>
           </div>
         </div>
+        <div id="menu-a-tron"></div>
       </header>
 
       <div className={`${containerCssClass} ${classes["cps-main-container"]}`}>
