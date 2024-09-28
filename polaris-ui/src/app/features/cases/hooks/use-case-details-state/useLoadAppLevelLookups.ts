@@ -7,6 +7,8 @@ import {
 } from "../../api/gateway-api";
 import { DispatchType } from "./reducer";
 
+// todo: these calls should be made once per app initialisation,
+//  not once per case visit see #28170 for moving this out of here
 export const useLoadAppLevelLookups = (dispatch: DispatchType) => {
   // Read feature flags in from MSAL-world
   const featureFlagData = useUserGroupsFeatureFlag();
@@ -17,7 +19,7 @@ export const useLoadAppLevelLookups = (dispatch: DispatchType) => {
     });
   }, [featureFlagData, dispatch]);
 
-  // Load lookups - see #28170 for moving this out of here
+  // Load lookups
   const redactionLogLookUpsData = useApi(
     getRedactionLogLookUpsData,
     [],
@@ -31,7 +33,7 @@ export const useLoadAppLevelLookups = (dispatch: DispatchType) => {
       });
   }, [redactionLogLookUpsData, dispatch]);
 
-  // Load lookups - see #28170 for moving this out of here
+  // Load lookups
   const redactionLogMappingData = useApi(
     getRedactionLogMappingData,
     [],

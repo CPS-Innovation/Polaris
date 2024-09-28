@@ -16,7 +16,7 @@ export const useGetCaseData = (
   dispatch: DispatchType,
   isUnMounting: () => boolean
 ) => {
-  // Load the case data
+  // Load case data
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   useEffect(() => {
     if (caseState.status !== "initial")
@@ -30,6 +30,8 @@ export const useGetCaseData = (
     combinedState.pipelineRefreshData,
     isUnMounting
   );
+
+  // When pipeline results have changed, update our state
   useEffect(() => {
     dispatch({
       type: "UPDATE_PIPELINE",
@@ -37,6 +39,7 @@ export const useGetCaseData = (
     });
   }, [pipelineState.pipelineResults, dispatch]);
 
+  // On a pipeline update, deal with renamed docs
   useEffect(() => {
     if (!pipelineState.pipelineResults?.haveData) {
       return;
@@ -45,10 +48,7 @@ export const useGetCaseData = (
     const activeRenameDoc = combinedState.renameDocuments.find(
       (doc) => doc.saveRenameRefreshStatus === "updating"
     );
-    const activeReclassifyDoc = combinedState.reclassifyDocuments.find(
-      (doc) => doc.saveReclassifyRefreshStatus === "updating"
-    );
-    if (!activeRenameDoc && !activeReclassifyDoc) return;
+
     if (activeRenameDoc) {
       const isUpdated = handleRenameUpdateConfirmation(
         pipelineState.pipelineResults.data,
@@ -66,6 +66,18 @@ export const useGetCaseData = (
         });
       }
     }
+  }, [pipelineState.pipelineResults, combinedState.renameDocuments, dispatch]);
+
+  // On a pipeline update, deal with reclassified docs
+  useEffect(() => {
+    if (!pipelineState.pipelineResults?.haveData) {
+      return;
+    }
+
+    const activeReclassifyDoc = combinedState.reclassifyDocuments.find(
+      (doc) => doc.saveReclassifyRefreshStatus === "updating"
+    );
+
     if (activeReclassifyDoc) {
       const isUpdated = handleReclassifyUpdateConfirmation(
         pipelineState.pipelineResults.data,
@@ -85,21 +97,24 @@ export const useGetCaseData = (
     }
   }, [
     pipelineState.pipelineResults,
-    combinedState.renameDocuments,
     combinedState.reclassifyDocuments,
     dispatch,
   ]);
 
   useEffect(() => {
     const { startRefresh } = combinedState.pipelineRefreshData;
-    const caseStateStatus = combinedState.caseState.status;
-    const pipelineResultStatus = pipelineState.pipelineResults.status;
+
     if (
+      // if we have not started refresh...
       !startRefresh &&
-      caseStateStatus === "succeeded" &&
-      pipelineResultStatus === "initiating" &&
+      // ... and only if the case data has loaded ...
+      combinedState.caseState.status === "succeeded" &&
+      // ... the pipelineResults are not in an in-flight state...
+      pipelineState.pipelineResults.status === "initiating" &&
+      // ... and the pipeline has already been triggered ...
       !pipelineState.pipelineBusy
     ) {
+      // ... the nlets start a refresh
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {
@@ -107,7 +122,10 @@ export const useGetCaseData = (
         },
       });
     }
+
+    // If we are here and refresh was previously started...
     if (startRefresh) {
+      //... then switch it off (I think)
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {

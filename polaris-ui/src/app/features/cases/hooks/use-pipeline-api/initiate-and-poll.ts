@@ -28,7 +28,6 @@ const hasAnyDocumentUpdated = (
 };
 
 export const initiateAndPoll = (
-  // todo: _ wrap up in to an object arg
   urn: string,
   caseId: number,
   delayMs: number,
@@ -84,6 +83,11 @@ export const initiateAndPoll = (
   };
 
   const startInitiatePipelinePolling = async () => {
+    // First we poll the kick-off endpoint until this request is accepted (we poll because
+    // we may already have a refresh in-flight.
+
+    // Note: `while (true)` plus using `break` is not enough. We need to be able to cancel
+    //  polling from the consumer, hence
     while (keepPolling) {
       try {
         await delay(delayMs);
@@ -95,7 +99,7 @@ export const initiateAndPoll = (
         //if you get 423 and there are redacted documents, keep polling initiate pipeline
         const shouldKeepPollingInitiate =
           trackerArgs.status === LOCKED_STATUS_CODE &&
-          savedDocumentDetails.length;
+          savedDocumentDetails.length; // I'm not sure about this, what about notes?
         if (!shouldKeepPollingInitiate) {
           startTrackerPolling(trackerArgs);
           break;
