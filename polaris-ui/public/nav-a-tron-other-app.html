@@ -22,14 +22,28 @@
     <title>Other App</title>
     <style>
         body {
-            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size: 130%;
         }
     </style>
 </head>
 
 <body class="govuk-template__body js-enabled">
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <h1>Some other app</h1>
+    <header className="govuk-header " role="banner" data-module="govuk-header" across the whole screen, not just the
+        container style="border-bottom: 10px solid #1d70b8">
+        <div className={`govuk-header__container ${containerCssClass}`}>
+            <div className={`govuk-header__logo ${classes.logo}`}>
+                <a href="/" className="govuk-header__link govuk-header__link--homepage" data-testid="link-homepage">
+                    <span className="govuk-header__logotype">
+                        <span className="govuk-header__logotype-text">
+                            Crown Prosecution Service
+                        </span>
+                    </span>
+                </a>
+                <span className="govuk-header__link--homepage">Overview</span>
+            </div>
+        </div>
+    </header>
     <div id="nav-a-tron" style="height: 5.3em"></div>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nulla purus, malesuada et enim et, condimentum
         vehicula

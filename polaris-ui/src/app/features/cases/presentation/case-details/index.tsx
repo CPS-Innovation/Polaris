@@ -420,12 +420,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   return (
     <div>
-      <div
-        id="nav-a-tron"
-        style={{
-          height: "5.3em",
-        }}
-      />
       <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
           <Modal

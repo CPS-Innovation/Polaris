@@ -188,9 +188,9 @@ nav {
                         </h1>
                     </div>
                     <ul style="display:flex; margin:10px 0; width:30%; float:left; padding:0 0 0 1em; list-style: none;">
-                        <li class="sub-overview"><a href="#">Overview</a></li>
+                        <li class="sub-overview"><a href="http://localhost:3000/polaris-ui/nav-a-tron-other-app.html?nav">Overview</a></li>
                         <li class="sub-case selected dropdown">
-                            <a href="" class="third-level-trigger">Materials</a>
+                            <a href="http://localhost:3000/polaris-ui/case-details/45CV2911222/2149310?nav" class="third-level-trigger">Materials</a>
                             <ul class="dropdown-menu third-level" style="display: none;">
                                 <li><a href="./C-casefile-1" class="disabled" disabled="">Case materials</a></li>
                                 <li><a href="https://www.figma.com/proto/Oemk95xWfmYbNzgi6grtdO/CM?page-id=595%3A6946&amp;node-id=729-4169&amp;viewport=-1533%2C504%2C0.3&amp;t=y6f4KoKfmwqMAjwQ-1&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;starting-point-node-id=729%3A4169';">Bulk UM Classification</a></li>
@@ -211,29 +211,47 @@ class NavATron extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+    fetch("http://localhost:7075/api/urns/45CV2911222/cases/2149310", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   }
 }
 
-console.log(window.location.href);
-customElements.define("nav-a-tron", NavATron);
+const url = window.location.href;
+const inNavMode = url.includes("?nav") || url.includes("&nav");
 
-const navATron = document.createElement("nav-a-tron");
+let navATron;
+if (inNavMode) {
+  customElements.define("nav-a-tron", NavATron);
 
-const script = document.scripts[document.scripts.length - 1];
-script.parentElement.insertBefore(document.createElement("nav-a-tron"), script);
+  navATron = document.createElement("nav-a-tron");
+
+  const script = document.scripts[document.scripts.length - 1];
+  script.parentElement.insertBefore(
+    document.createElement("nav-a-tron"),
+    script
+  );
+}
 
 const observer = new MutationObserver((mutationList, o) => {
   for (const mutation of mutationList) {
     if (mutation.type === "childList") {
       const navATronRoot = document.getElementById("nav-a-tron");
-      if (
-        navATronRoot &&
-        !navATronRoot.getElementsByTagName("nav-a-tron").length // already built
-      ) {
-        setTimeout(() => {
-          navATron.setAttribute("open", "true");
-        }, 200);
-        navATronRoot.append(navATron);
+      if (inNavMode) {
+        if (
+          navATronRoot &&
+          !navATronRoot.getElementsByTagName("nav-a-tron").length // already built
+        ) {
+          setTimeout(() => {
+            navATron.setAttribute("open", "true");
+          }, 200);
+          navATronRoot.append(navATron);
+        }
+      } else {
+        navATronRoot && navATronRoot.remove();
       }
     }
   }

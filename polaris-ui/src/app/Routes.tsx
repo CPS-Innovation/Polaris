@@ -69,6 +69,12 @@ export const Routes: FC = () => {
       </Route>
       <Route path={casePath}>
         <Layout isWide>
+          <div
+            id="nav-a-tron"
+            style={{
+              height: "5.3em",
+            }}
+          />
           <Helmet>
             <title>Casework App case details page</title>
           </Helmet>
