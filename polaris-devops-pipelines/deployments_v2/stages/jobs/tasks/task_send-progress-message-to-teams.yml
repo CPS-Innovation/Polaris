@@ -20,6 +20,8 @@ parameters:
     type: string
   - name: pdfGeneratorCount
     type: string
+  - name: pdfThumbnailGeneratorCount
+    type: string
   - name: pdfRedactorCount
     type: string
   - name: textExtractorCount
@@ -155,6 +157,10 @@ steps:
                               {
                                 "title": "PDF Gen Changes",
                                 "value": "${{ parameters.pdfGeneratorCount }}"
+                              },
+                              {
+                                "title": "PDF Thumb Gen Changes",
+                                "value": "${{ parameters.pdfThumbnailGeneratorCount }}"
                               },
                               {
                                 "title": "PDF Redactor Changes",

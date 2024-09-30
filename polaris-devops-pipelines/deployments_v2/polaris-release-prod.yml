@@ -45,6 +45,7 @@ stages:
       networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      pdfThumbnailGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_THUMBNAIL_GENERATOR_COUNT']]
       pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
       textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
       gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
@@ -99,6 +100,7 @@ stages:
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
+              pdfThumbnailGeneratorCount: $(pdfThumbnailGeneratorCount)
               pdfRedactorCount: $(pdfRedactorCount)
               textExtractorCount: $(textExtractorCount)
               gatewayCount: $(gatewayCount)
@@ -348,6 +350,7 @@ stages:
       networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      pdfThumbnailGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_THUMBNAIL_GENERATOR_COUNT']]
       pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
       textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
       gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
@@ -373,6 +376,7 @@ stages:
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
+              pdfThumbnailGeneratorCount: $(pdfThumbnailGeneratorCount)
               pdfRedactorCount: $(pdfRedactorCount)
               textExtractorCount: $(textExtractorCount)
               gatewayCount: $(gatewayCount)
@@ -396,6 +400,7 @@ stages:
       networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
+      pdfThumbnailGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_THUMBNAIL_GENERATOR_COUNT']]
       pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
       textExtractorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.TEXT_EXTRACTOR_COUNT']]
       gatewayCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.GATEWAY_COUNT']]
@@ -421,6 +426,7 @@ stages:
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
+              pdfThumbnailGeneratorCount: $(pdfThumbnailGeneratorCount)
               pdfRedactorCount: $(pdfRedactorCount)
               textExtractorCount: $(textExtractorCount)
               gatewayCount: $(gatewayCount)
