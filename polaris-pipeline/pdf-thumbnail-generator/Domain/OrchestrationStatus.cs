@@ -6,7 +6,6 @@ namespace pdf_thumbnail_generator.Domain
     Accepted,
     InProgress,
     Completed,
-    Failed
   }
 }
 
