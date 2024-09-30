@@ -26,7 +26,10 @@ export const useNavigationAlert = (
     presentationFileName: string;
   }[] => {
     const reactionPdfs = tabItems
-      .filter((item) => item.redactionHighlights.length > 0)
+      .filter(
+        (item) =>
+          item.redactionHighlights.length + item.pageDeleteRedactions.length > 0
+      )
       .map((item) => ({
         documentId: item.documentId!,
         presentationFileName: item.presentationFileName!,

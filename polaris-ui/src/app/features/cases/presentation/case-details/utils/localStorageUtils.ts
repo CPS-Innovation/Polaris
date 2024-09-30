@@ -1,4 +1,5 @@
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { PageDeleteRedaction } from "../../../domain/IPageDeleteRedaction";
 import { LOCAL_STORAGE_EXPIRY_DAYS } from "../../../../../config";
 
 const LOCAL_STORAGE_PREFIX = "polaris-";
@@ -8,6 +9,7 @@ export type ReadUnreadData = string[];
 export type RedactionsData = {
   documentId: string;
   redactionHighlights: IPdfHighlight[];
+  pageDeleteRedactions: PageDeleteRedaction[];
 }[];
 
 type StorageData = {
