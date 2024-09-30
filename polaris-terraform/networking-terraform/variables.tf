@@ -32,6 +32,9 @@ variable "polarisPipelineCoordinatorSubnet" {
 variable "polarisPipelinePdfGeneratorSubnet" {
 }
 
+variable "polarisPipelinePdfThumbnailGeneratorSubnet" {
+}
+
 variable "polarisPipelinePdfRedactorSubnet" {
 }
 
