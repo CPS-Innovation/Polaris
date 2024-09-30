@@ -9,13 +9,14 @@ import {
   getLocallySavedRedactionHighlights,
   handleRemoveLocallySavedRedactions,
 } from "../../../hooks/utils/redactionUtils";
-import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
+
+import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import classes from "./UnsavedRedactionModal.module.scss";
 
 type Props = {
   documentId: string;
   caseId: number;
-  handleAddRedaction: (newRedaction: NewPdfHighlight[]) => void;
+  handleAddRedaction: CaseDetailsState["handleAddRedaction"];
 };
 
 export const UnsavedRedactionModal: React.FC<Props> = ({
@@ -25,20 +26,30 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [showModal, setShowModal] = useState(false);
-  const locallySavedRedactionHighlights = useMemo(() => {
-    return getLocallySavedRedactionHighlights(documentId, caseId);
-  }, [documentId, caseId]);
+  const { redactionHighlights = [], pageDeleteRedactions = [] } =
+    useMemo(() => {
+      return (
+        getLocallySavedRedactionHighlights(documentId, caseId) ?? ({} as any)
+      );
+    }, [documentId, caseId]);
+
+  const redactionsCount = useMemo(
+    () => redactionHighlights.length + pageDeleteRedactions.length,
+    [redactionHighlights, pageDeleteRedactions]
+  );
+
   useEffect(() => {
-    if (locallySavedRedactionHighlights.length) {
+    if (redactionsCount) {
       setShowModal(true);
     }
   }, []);
 
   const handleApplyRedaction = () => {
-    handleAddRedaction(locallySavedRedactionHighlights);
+    handleAddRedaction(documentId, redactionHighlights, pageDeleteRedactions);
     trackEvent("Add Unsaved Redactions", {
       documentId: documentId,
-      redactionsCount: locallySavedRedactionHighlights.length,
+      redactionsCount: redactionsCount,
+      deletedPageCount: pageDeleteRedactions?.length,
     });
     setShowModal(false);
   };
@@ -46,14 +57,15 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
   const handleIgnoreRedaction = () => {
     trackEvent("Ignore Unsaved Redactions", {
       documentId: documentId,
-      redactionsCount: locallySavedRedactionHighlights.length,
+      redactionsCount: redactionsCount,
+      deletedPageCount: pageDeleteRedactions?.length,
     });
     handleRemoveLocallySavedRedactions(documentId, caseId);
     setShowModal(false);
   };
 
   const description = useMemo(() => {
-    return locallySavedRedactionHighlights.length === 1
+    return redactionsCount === 1
       ? {
           para1:
             "You have 1 unsaved redaction on this document, select OK to apply it.",
@@ -61,11 +73,11 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
             "If you do not want to apply the unsaved redaction, select Ignore. Please note: It will not be possible to recover the unsaved redaction if you select this option.",
         }
       : {
-          para1: `You have ${locallySavedRedactionHighlights.length} unsaved redactions on this document, select OK to apply them.`,
+          para1: `You have ${redactionsCount} unsaved redactions on this document, select OK to apply them.`,
           para2:
             "If you do not want to apply the unsaved redactions, select Ignore. Please note: It will not be possible to recover the unsaved redactions if you select this option.",
         };
-  }, [locallySavedRedactionHighlights]);
+  }, [redactionsCount]);
 
   return (
     <>
@@ -79,7 +91,7 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
         >
           <div className={classes.modalHeader}>
             <h2>
-              {locallySavedRedactionHighlights.length === 1
+              {redactionsCount === 1
                 ? "Apply Unsaved Redaction"
                 : "Apply Unsaved Redactions"}
             </h2>

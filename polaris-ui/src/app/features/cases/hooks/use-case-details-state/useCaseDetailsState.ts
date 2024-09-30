@@ -15,6 +15,7 @@ import { TaggedContext } from "../../../../inbound-handover/context";
 import { useLoadAppLevelLookups } from "./useLoadAppLevelLookups";
 import { useGetCaseData } from "./useGetCaseData";
 import { useDocumentSearch } from "./useDocumentSearch";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -110,11 +111,12 @@ export const useCaseDetailsState = (
   const handleAddRedaction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      redactions: NewPdfHighlight[]
+      redactions?: NewPdfHighlight[],
+      pageDeleteRedactions?: PageDeleteRedaction[]
     ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { documentId, redactions },
+        payload: { documentId, redactions, pageDeleteRedactions },
       }),
     [dispatch]
   );

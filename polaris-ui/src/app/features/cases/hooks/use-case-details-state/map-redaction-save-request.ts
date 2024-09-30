@@ -1,5 +1,6 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
+import { IPageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import { RedactionSavePage } from "../../domain/gateway/RedactionSavePage";
 import {
   RedactionSaveData,
@@ -12,7 +13,8 @@ import {
 
 export const mapRedactionSaveRequest = (
   documentId: string,
-  redactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[]
+  redactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[],
+  pageDeleteRedactions: IPageDeleteRedaction[]
 ): RedactionSaveData => {
   const redactions = [] as RedactionSavePage[];
 
@@ -54,9 +56,15 @@ export const mapRedactionSaveRequest = (
     );
   }
 
+  const pageDeletes = pageDeleteRedactions.map((redaction) => ({
+    pageIndex: redaction.pageNumber,
+    operation: "delete" as const,
+  }));
+
   return {
     documentId,
     redactions,
+    documentModifications: pageDeletes,
   };
 };
 

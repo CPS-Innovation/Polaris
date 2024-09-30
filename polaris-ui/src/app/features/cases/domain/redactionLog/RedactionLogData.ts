@@ -3,6 +3,7 @@ import { ListItem } from "./ListItem";
 export interface RedactionTypeData {
   id: string;
   name: string;
+  isDeletedPage?: boolean;
 }
 
 export interface OuCodeMapping {
@@ -17,7 +18,7 @@ export interface RedactionLogLookUpsData {
   divisions: ListItem[];
   documentTypes: ListItem[];
   investigatingAgencies: ListItem[];
-  missedRedactions: ListItem[];
+  missedRedactions: RedactionTypeData[];
   ouCodeMapping: OuCodeMapping[];
 }
 
