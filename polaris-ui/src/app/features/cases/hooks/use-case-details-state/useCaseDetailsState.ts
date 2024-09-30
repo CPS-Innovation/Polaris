@@ -29,6 +29,7 @@ import {
   handleReclassifyUpdateConfirmation,
 } from "../utils/refreshCycleDataUpdate";
 import { TaggedContext } from "../../../../inbound-handover/context";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -88,6 +89,7 @@ export const initialState = {
     renameDocument: false,
     reclassify: false,
     externalRedirect: false,
+    pageDelete: false,
   },
   storedUserData: { status: "loading" },
   notes: [],
@@ -397,11 +399,12 @@ export const useCaseDetailsState = (
   const handleAddRedaction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      redactions: NewPdfHighlight[]
+      redactions?: NewPdfHighlight[],
+      pageDeleteRedactions?: PageDeleteRedaction[]
     ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { documentId, redactions },
+        payload: { documentId, redactions, pageDeleteRedactions },
       }),
     [dispatch]
   );

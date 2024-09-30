@@ -311,6 +311,7 @@ describe("Search PII", () => {
             ],
           },
         ],
+        documentModifications: [],
         pii: {
           categories: [
             {
