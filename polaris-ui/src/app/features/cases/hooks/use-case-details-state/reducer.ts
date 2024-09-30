@@ -40,9 +40,11 @@ import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
+import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import { mapNotificationState } from "./map-notification-state";
 import { NotificationType } from "../../domain/NotificationState";
 export const reducer = (
@@ -118,6 +120,13 @@ export const reducer = (
         };
       }
     | {
+        type: "ADD_PAGE_DELETE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          pageDeleteRedactions: PageDeleteRedaction[];
+        };
+      }
+    | {
         type: "SAVING_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
@@ -126,6 +135,13 @@ export const reducer = (
       }
     | {
         type: "REMOVE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          redactionId: string;
+        };
+      }
+    | {
+        type: "REMOVE_PAGE_DELETE_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           redactionId: string;
@@ -558,6 +574,7 @@ export const reducer = (
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
+        pageDeleteRedactions: [],
         isDeleted: false,
         saveStatus: "initial" as const,
       };
@@ -893,14 +910,64 @@ export const reducer = (
           ),
         },
       };
-      //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      if (redactionHighlights.length) {
-        addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      if (redactionsToSave.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
+      }
+      return newState;
+    }
+    case "ADD_PAGE_DELETE_REDACTION": {
+      const { documentId, pageDeleteRedactions } = action.payload;
+      const newRedactions = pageDeleteRedactions.map((redaction, index) => ({
+        ...redaction,
+        id: String(`${+new Date()}-${index}`),
+      }));
+
+      //This is applicable only when the user deletes a page with unsaved redactions
+      const clearPageUnsavedRedactions = (
+        redactionHighlights: IPdfHighlight[]
+      ) => {
+        if (pageDeleteRedactions.length > 1) return [];
+        return redactionHighlights.filter(
+          (redaction) =>
+            redaction?.position?.pageNumber !==
+            pageDeleteRedactions[0].pageNumber
+        );
+      };
+
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageDeleteRedactions: [
+                    ...item.pageDeleteRedactions,
+                    ...newRedactions,
+                  ],
+                  redactionHighlights: [
+                    ...clearPageUnsavedRedactions(item.redactionHighlights),
+                  ],
+                }
+              : item
+          ),
+        },
+      };
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      if (redactionsToSave.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
       }
       return newState;
     }
@@ -941,14 +1008,46 @@ export const reducer = (
           ),
         },
       };
-      //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionHighlights.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+      redactionsToSave.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
+    }
+
+    case "REMOVE_PAGE_DELETE_REDACTION": {
+      const { redactionId, documentId } = action.payload;
+
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageDeleteRedactions: item.pageDeleteRedactions.filter(
+                    (redaction) => redaction.id !== redactionId
+                  ),
+                }
+              : item
+          ),
+        },
+      };
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionsToSave.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
         : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
@@ -965,6 +1064,7 @@ export const reducer = (
               ? {
                   ...item,
                   redactionHighlights: [],
+                  pageDeleteRedactions: [],
                 }
               : item
           ),

@@ -265,6 +265,7 @@ describe("gateway-apis", () => {
       await saveRedactions("urn_123", 123, "documentID_1", {
         documentId: "documentID_1",
         redactions: [],
+        documentModifications: [],
       });
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
@@ -283,6 +284,7 @@ describe("gateway-apis", () => {
         await saveRedactions("urn_123", 123, "documentID_1", {
           documentId: "documentID_1",
           redactions: [],
+          documentModifications: [],
         });
       }).rejects.toThrow(
         "An error occurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1: Save redactions failed; status - Internal Server Error (500)"
