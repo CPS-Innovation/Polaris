@@ -177,3 +177,27 @@ resource "azurerm_private_endpoint" "pipeline_pdf_redactor_pe" {
     subresource_names              = ["sites"]
   }
 }
+
+# Storage Account permissions
+resource "azurerm_role_assignment" "ra_blob_delegator_pdf_redactor" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Delegator"
+  principal_id         = azurerm_windows_function_app.fa_pdf_redactor.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.sa,
+    azurerm_windows_function_app.fa_pdf_redactor
+  ]
+}
+
+resource "azurerm_role_assignment" "ra_blob_data_contributor_pdf_redactor" {
+  scope                = azurerm_storage_container.container.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_windows_function_app.fa_pdf_redactor.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.sa,
+    azurerm_storage_container.container,
+    azurerm_windows_function_app.fa_pdf_redactor
+  ]
+}
