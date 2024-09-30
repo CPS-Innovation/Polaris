@@ -103,7 +103,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     classification: null,
   });
 
-  const unMounting = useRef(false);
   const accordionRef = useRef<AccordionRef>(null);
 
   const [accordionOldState, setAccordionOldState] =
@@ -115,6 +114,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
+  const unMounting = useRef(false);
+  useEffect(() => {
+    return () => {
+      unMounting.current = true;
+    };
+  }, []);
   const unMountingCallback = useCallback(() => {
     return unMounting.current;
   }, []);
@@ -226,12 +231,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       (actionsSidePanelRef.current as HTMLElement).focus();
     }
   }, [actionsSidePanel.open]);
-
-  useEffect(() => {
-    return () => {
-      unMounting.current = true;
-    };
-  }, []);
 
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(

@@ -114,7 +114,7 @@ export const useGetCaseData = (
       // ... and the pipeline has already been triggered ...
       !pipelineState.pipelineBusy
     ) {
-      // ... the nlets start a refresh
+      // ... then lets start a refresh
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {

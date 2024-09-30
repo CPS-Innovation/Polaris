@@ -16,6 +16,7 @@ import { useLoadAppLevelLookups } from "./useLoadAppLevelLookups";
 import { useGetCaseData } from "./useGetCaseData";
 import { useDocumentSearch } from "./useDocumentSearch";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+import { usePipelineRefreshPolling } from "./usePipelineRefreshPolling";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -35,6 +36,7 @@ export const useCaseDetailsState = (
   useLoadAppLevelLookups(dispatch);
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
+  usePipelineRefreshPolling(30000, dispatch);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {

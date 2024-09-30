@@ -19,11 +19,11 @@ const hasAnyDocumentUpdated = (
   }[],
   pipelineResult: PipelineResults
 ) => {
-  if (!savedDocumentDetails.length) {
-    return true;
-  }
-  return savedDocumentDetails.some((document) =>
-    hasDocumentUpdated(document, pipelineResult)
+  return (
+    !savedDocumentDetails.length ||
+    savedDocumentDetails.some((document) =>
+      hasDocumentUpdated(document, pipelineResult)
+    )
   );
 };
 
@@ -48,6 +48,7 @@ export const initiateAndPoll = (
     if (
       completionStatus === "Completed" &&
       isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted) &&
+      // todo: not sure about this
       hasAnyDocumentUpdated(savedDocumentDetails, pipelineResult)
     ) {
       del({

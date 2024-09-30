@@ -52,8 +52,9 @@ import {
   registerNotifiableEvent,
 } from "./map-notification-state";
 import { NotificationReason } from "../../domain/NotificationState";
-export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+
+export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
 export const reducer = (
   state: CombinedState,
@@ -76,6 +77,7 @@ export const reducer = (
           };
         };
       }
+    | { type: "UPDATE_BACKGROUND_REFRESH_PIPELINE" }
     | {
         type: "OPEN_PDF";
         payload: {
@@ -513,6 +515,23 @@ export const reducer = (
         },
       };
     }
+
+    case "UPDATE_BACKGROUND_REFRESH_PIPELINE": {
+      if (state.pipelineState.status !== "complete") {
+        console.log("Refresh", "busy");
+        return state;
+      } else {
+        console.log("Refresh", "go!");
+        return {
+          ...state,
+          pipelineRefreshData: {
+            ...state.pipelineRefreshData,
+            startRefresh: true,
+          },
+        };
+      }
+    }
+
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
 
