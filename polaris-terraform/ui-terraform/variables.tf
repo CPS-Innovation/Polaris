@@ -46,6 +46,10 @@ variable "dns_server" {
   type = string
 }
 
+variable "dns_alt_server" {
+  type = string
+}
+
 variable "polaris_ui_sub_folder" {
   type = string
   // this value must match the PUBLIC_URL=... value
@@ -183,8 +187,8 @@ variable "private_beta" {
 variable "polaris_ui_reauth_redirect_url" {
   type = object({
     outbound_live = string
-    outbound_e2e = string
-    inbound = string
+    outbound_e2e  = string
+    inbound       = string
   })
 }
 

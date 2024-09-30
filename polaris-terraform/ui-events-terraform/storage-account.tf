@@ -4,3 +4,9 @@ resource "azurerm_role_assignment" "gateway_blob_data_contributor" {
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = data.azurerm_linux_function_app.fa_gateway.identity[0].principal_id
 }
+
+resource "azurerm_role_assignment" "gateway_blob_data_thumbnails_contributor" {
+  scope                = data.azurerm_storage_container.pipeline_thumbnails_storage_container.resource_manager_id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = data.azurerm_linux_function_app.fa_gateway.identity[0].principal_id
+}

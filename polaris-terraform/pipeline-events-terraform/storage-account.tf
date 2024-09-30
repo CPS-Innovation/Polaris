@@ -23,6 +23,24 @@ resource "azurerm_role_assignment" "ra_blob_data_contributor_pdf_generator" {
   principal_id         = data.azurerm_windows_function_app.fa_pdf_generator.identity[0].principal_id
 }
 
+resource "azurerm_role_assignment" "ra_blob_delegator_pdf_thumbnail_generator" {
+  scope                = data.azurerm_storage_account.pipeline_storage_account.id
+  role_definition_name = "Storage Blob Delegator"
+  principal_id         = data.azurerm_windows_function_app.fa_pdf_thumbnail_generator.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "ra_document_blob_data_contributor_pdf_thumbnail_generator" {
+  scope                = data.azurerm_storage_container.pipeline_storage_container.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = data.azurerm_windows_function_app.fa_pdf_thumbnail_generator.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "ra_thumbnail_blob_data_contributor_pdf_thumbnail_generator" {
+  scope                = data.azurerm_storage_container.pipeline_thumbnails_storage_container.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = data.azurerm_windows_function_app.fa_pdf_thumbnail_generator.identity[0].principal_id
+}
+
 resource "azurerm_role_assignment" "ra_blob_delegator_pdf_redactor" {
   scope                = data.azurerm_storage_account.pipeline_storage_account.id
   role_definition_name = "Storage Blob Delegator"

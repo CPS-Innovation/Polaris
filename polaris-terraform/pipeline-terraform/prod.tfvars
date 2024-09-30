@@ -1,30 +1,36 @@
 env             = "prod"
 environment_tag = "production"
 dns_server      = "10.7.204.164"
+dns_alt_server  = "168.63.129.16"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 
 pipeline_logging = {
-  coordinator_scale_controller    = "AppInsights:Verbose"
-  pdf_generator_scale_controller  = "AppInsights:Verbose"
-  text_extractor_scale_controller = "AppInsights:Verbose"
-  pdf_redactor_scale_controller   = "AppInsights:Verbose"
+  coordinator_scale_controller             = "AppInsights:Verbose"
+  pdf_generator_scale_controller           = "AppInsights:Verbose"
+  pdf_thumbnail_generator_scale_controller = "AppInsights:Verbose"
+  text_extractor_scale_controller          = "AppInsights:Verbose"
+  pdf_redactor_scale_controller            = "AppInsights:Verbose"
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku           = "P3mv3"
-  pdf_generator_service_plan_sku         = "EP3"
-  pdf_generator_always_ready_instances   = 3
-  pdf_generator_maximum_scale_out_limit  = 15
-  pdf_generator_plan_maximum_burst       = 15
-  text_extractor_plan_sku                = "EP3"
-  text_extractor_always_ready_instances  = 3
-  text_extractor_maximum_scale_out_limit = 10
-  text_extractor_plan_maximum_burst      = 10
-  pdf_redactor_service_plan_sku          = "EP2"
-  pdf_redactor_always_ready_instances    = 3
-  pdf_redactor_maximum_scale_out_limit   = 15
-  pdf_redactor_plan_maximum_burst        = 15
+  coordinator_service_plan_sku                    = "P3mv3"
+  pdf_generator_service_plan_sku                  = "EP3"
+  pdf_generator_always_ready_instances            = 3
+  pdf_generator_maximum_scale_out_limit           = 15
+  pdf_generator_plan_maximum_burst                = 15
+  pdf_thumbnail_generator_service_plan_sku        = "EP3"
+  pdf_thumbnail_generator_always_ready_instances  = 3
+  pdf_thumbnail_generator_maximum_scale_out_limit = 15
+  pdf_thumbnail_generator_plan_maximum_burst      = 15
+  text_extractor_plan_sku                         = "EP3"
+  text_extractor_always_ready_instances           = 3
+  text_extractor_maximum_scale_out_limit          = 10
+  text_extractor_plan_maximum_burst               = 10
+  pdf_redactor_service_plan_sku                   = "EP2"
+  pdf_redactor_always_ready_instances             = 3
+  pdf_redactor_maximum_scale_out_limit            = 15
+  pdf_redactor_plan_maximum_burst                 = 15
 }
 
 overnight_clear_down = {
@@ -39,6 +45,12 @@ sliding_clear_down = {
   protect_blobs   = false
   schedule        = "0 * * * * *"
   batch_size      = 3
+}
+
+thumbnail_generator_sliding_clear_down = {
+  batch_size  = 5
+  schedule    = "0 * * * * *"
+  input_hours = 12
 }
 
 hte_feature_flag = false

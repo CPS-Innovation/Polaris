@@ -13,7 +13,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "HostType"                                        = "Staging1"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
     "WEBSITE_SCHEME"                                  = "https"
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"

@@ -1,11 +1,11 @@
-resource "azurerm_storage_account" "sa" {
+resource "azurerm_storage_account" "sa_pdf_thumbnail_generator" {
   #checkov:skip=CKV_AZURE_206:Ensure that Storage Accounts use replication
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
   #checkov:skip=CKV2_AZURE_50:Ensure Azure Storage Account storing Machine Learning workspace high business impact data is not publicly accessible
-  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+  name                = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
@@ -24,11 +24,7 @@ resource "azurerm_storage_account" "sa" {
     bypass         = ["Metrics", "Logging", "AzureServices"]
     virtual_network_subnet_ids = [
       data.azurerm_subnet.polaris_ci_subnet.id,
-      data.azurerm_subnet.polaris_coordinator_subnet.id,
-      data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
-      data.azurerm_subnet.polaris_pdfredactor_subnet.id,
-      data.azurerm_subnet.polaris_textextractor_2_subnet.id,
-      data.azurerm_subnet.polaris_gateway_subnet.id,
+      data.azurerm_subnet.polaris_pdfthumbnailgenerator_subnet.id,
       data.azurerm_subnet.polaris_apps_subnet.id,
       data.azurerm_subnet.polaris_apps2_subnet.id
     ]
@@ -69,28 +65,13 @@ resource "azurerm_storage_account" "sa" {
   tags = local.common_tags
 }
 
-resource "azurerm_storage_container" "container" {
-  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
-  name                  = "documents"
-  storage_account_name  = azurerm_storage_account.sa.name
-  container_access_type = "private"
-  depends_on            = [azurerm_storage_account.sa]
-}
-
-resource "azurerm_storage_container" "thumbnails" {
-  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
-  name                  = "thumbnails"
-  storage_account_name  = azurerm_storage_account.sa.name
-  container_access_type = "private"
-  depends_on            = [azurerm_storage_account.sa]
-}
-
+# PDF Generator Storage Account Private Endpoint and DNS Config
 # Create Private Endpoint for Blobs
-resource "azurerm_private_endpoint" "pipeline_sa_blob_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_pdf_thumbnail_generator_blob_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-blob-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
+  subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
   private_dns_zone_group {
@@ -99,19 +80,19 @@ resource "azurerm_private_endpoint" "pipeline_sa_blob_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-psc"
-    private_connection_resource_id = azurerm_storage_account.sa.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-blob-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_pdf_thumbnail_generator.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
 }
 
 # Create Private Endpoint for Tables
-resource "azurerm_private_endpoint" "pipeline_sa_table_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-table-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_pdf_thumbnail_generator_table_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-table-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
+  subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
   private_dns_zone_group {
@@ -120,19 +101,19 @@ resource "azurerm_private_endpoint" "pipeline_sa_table_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-table-psc"
-    private_connection_resource_id = azurerm_storage_account.sa.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-table-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_pdf_thumbnail_generator.id
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
 }
 
 # Create Private Endpoint for Files
-resource "azurerm_private_endpoint" "pipeline_sa_file_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-file-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_pdf_thumbnail_generator_file_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-file-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
+  subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
   private_dns_zone_group {
@@ -141,19 +122,19 @@ resource "azurerm_private_endpoint" "pipeline_sa_file_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-file-psc"
-    private_connection_resource_id = azurerm_storage_account.sa.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-file-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_pdf_thumbnail_generator.id
     is_manual_connection           = false
     subresource_names              = ["file"]
   }
 }
 
 # Create Private Endpoint for Queues
-resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-queue-pe"
+resource "azurerm_private_endpoint" "pipeline_sa_pdf_thumbnail_generator_queue_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-queue-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
+  subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
   tags                = local.common_tags
 
   private_dns_zone_group {
@@ -162,9 +143,21 @@ resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
   }
 
   private_service_connection {
-    name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-queue-psc"
-    private_connection_resource_id = azurerm_storage_account.sa.id
+    name                           = "sacps${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator-queue-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_pdf_thumbnail_generator.id
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
+}
+
+resource "azapi_resource" "pipeline_sa_pdf_thumbnail_generator_file_share" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "pipeline-pdf-thumbnail-generator-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_thumbnail_generator.name}/fileServices/default"
+}
+
+resource "azapi_resource" "pipeline_sa_pdf_thumbnail_generator_file_share_staging1" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "pipeline-pdf-thumbnail-generator-content-share-1"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_thumbnail_generator.name}/fileServices/default"
 }

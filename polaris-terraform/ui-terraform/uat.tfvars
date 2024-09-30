@@ -2,6 +2,7 @@ env             = "uat"
 location        = "UK South"
 environment_tag = "uat"
 dns_server      = "10.7.200.68"
+dns_alt_server  = "168.63.129.16"
 
 ui_component_service_plans = {
   gateway_service_plan_sku        = "EP1"
@@ -51,7 +52,7 @@ cms_details = {
   cin5_upstream_cms_services_domain_name     = "not-used-in-cin5.cps.gov.uk"
 }
 
-wm_task_list_host_name = "https://cps-tst.outsystemsenterprise.com"
+wm_task_list_host_name  = "https://cps-tst.outsystemsenterprise.com"
 auth_handover_whitelist = "/auth-refresh-inbound"
 
 app_service_log_retention       = 90
@@ -80,8 +81,8 @@ private_beta = {
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
 }
 
-case_review_app_redirect_url   = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
-bulk_um_redirect_url           = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
+case_review_app_redirect_url = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
+bulk_um_redirect_url         = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
 
 polaris_ui_reauth_redirect_url = {
   outbound_live = "/polaris"

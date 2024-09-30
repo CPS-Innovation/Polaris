@@ -8,6 +8,11 @@ data "azurerm_windows_function_app" "fa_pdf_generator" {
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
+data "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
+  name                = "fa-${local.polaris_resource_name}-pdf-thumbnail-generator"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
 data "azurerm_windows_function_app" "fa_pdf_redactor" {
   name                = "fa-${local.polaris_resource_name}-pdf-redactor"
   resource_group_name = "rg-${local.pipeline_resource_name}"
@@ -20,6 +25,11 @@ data "azurerm_linux_function_app" "fa_text_extractor" {
 
 data "azurerm_storage_container" "pipeline_storage_container" {
   name                 = "documents"
+  storage_account_name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+}
+
+data "azurerm_storage_container" "pipeline_thumbnails_storage_container" {
+  name                 = "thumbnails"
   storage_account_name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
 }
 

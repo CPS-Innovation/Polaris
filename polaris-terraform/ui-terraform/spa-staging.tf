@@ -26,7 +26,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_FEATURE_FLAG_SEARCH_PII"               = var.feature_flag_search_pii
     "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"          = var.feature_flag_rename_document
     "REACT_APP_FEATURE_FLAG_RECLASSIFY"               = var.feature_flag_reclassify
-    "REACT_APP_FEATURE_FLAG_PAGE_DELETE"              = var.feature_flag_page_delete 
+    "REACT_APP_FEATURE_FLAG_PAGE_DELETE"              = var.feature_flag_page_delete
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"        = var.feature_flag_external_redirect
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
@@ -50,7 +50,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_ui_staging1_file_share.name
-    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
