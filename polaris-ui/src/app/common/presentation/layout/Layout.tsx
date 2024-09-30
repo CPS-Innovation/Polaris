@@ -22,6 +22,8 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
         className="govuk-header "
         role="banner"
         data-module="govuk-header"
+        // hack: get the blue band extending across the whole screen, not just the container
+        style={{ borderBottom: "10px solid #1d70b8" }}
       >
         <div className={`govuk-header__container ${containerCssClass}`}>
           <div className={`govuk-header__logo ${classes.logo}`}>
