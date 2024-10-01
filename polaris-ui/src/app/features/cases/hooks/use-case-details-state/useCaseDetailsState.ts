@@ -17,6 +17,7 @@ import { useGetCaseData } from "./useGetCaseData";
 import { useDocumentSearch } from "./useDocumentSearch";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import { usePipelineRefreshPolling } from "./usePipelineRefreshPolling";
+import { useHydrateFromLocalStorage } from "./useHydrateFromLocalStorage";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -34,6 +35,11 @@ export const useCaseDetailsState = (
   );
 
   useLoadAppLevelLookups(dispatch);
+  useHydrateFromLocalStorage(
+    caseId,
+    combinedState.storedUserData.status,
+    dispatch
+  );
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
   usePipelineRefreshPolling(1000, dispatch);

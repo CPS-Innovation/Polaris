@@ -1203,7 +1203,6 @@ export const reducer = (
     }
     case "UPDATE_STORED_USER_DATA": {
       const { storedUserData } = action.payload;
-      debugger;
       return {
         ...state,
         storedUserData: { status: "succeeded", data: storedUserData },
