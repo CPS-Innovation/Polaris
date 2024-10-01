@@ -204,3 +204,27 @@ resource "azurerm_private_endpoint" "pipeline_coordinator_pe" {
     subresource_names              = ["sites"]
   }
 }
+
+# Storage Account permissions
+resource "azurerm_role_assignment" "ra_blob_delegator_coordinator" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Delegator"
+  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
+  
+  depends_on = [
+    azurerm_storage_account.sa,
+    azurerm_linux_function_app.fa_coordinator
+  ]
+}
+
+resource "azurerm_role_assignment" "coordinator_blob_data_contributor" {
+  scope                = azurerm_storage_container.container.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.sa,
+    azurerm_storage_container.container,
+    azurerm_linux_function_app.fa_coordinator
+  ]
+}
