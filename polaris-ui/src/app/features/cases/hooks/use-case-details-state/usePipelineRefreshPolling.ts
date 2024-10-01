@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { DispatchType } from "./reducer";
 import {
   BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS,
-  FEATURE_BACKGROUND_PIPELINE_REFRESH,
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
 } from "../../../../config";
 
 export const usePipelineRefreshPolling = (
@@ -11,7 +11,7 @@ export const usePipelineRefreshPolling = (
 ) =>
   useEffect(() => {
     const interval =
-      FEATURE_BACKGROUND_PIPELINE_REFRESH &&
+      FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH &&
       setInterval(
         () =>
           dispatch({

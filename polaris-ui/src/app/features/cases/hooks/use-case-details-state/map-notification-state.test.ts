@@ -14,7 +14,7 @@ import {
 } from "./map-notification-state";
 
 jest.mock("../../../../config", () => ({
-  FEATURE_BACKGROUND_PIPELINE_REFRESH: true,
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH: true,
 }));
 
 const existingDateTime = "2024-09-18T14:00:00Z";

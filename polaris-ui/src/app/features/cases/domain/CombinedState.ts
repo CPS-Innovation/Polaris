@@ -145,6 +145,7 @@ export const initialState = {
     reclassify: false,
     externalRedirect: false,
     pageDelete: false,
+    notifications: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

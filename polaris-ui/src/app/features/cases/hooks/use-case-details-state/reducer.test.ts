@@ -29,7 +29,7 @@ import { AccordionDocumentSection } from "../../presentation/case-details/accord
 const ERROR = new Error();
 
 jest.mock("../../../../config", () => ({
-  FEATURE_BACKGROUND_PIPELINE_REFRESH: true,
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH: true,
 }));
 
 describe("useCaseDetailsState reducer", () => {

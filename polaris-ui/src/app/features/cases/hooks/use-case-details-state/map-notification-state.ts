@@ -1,7 +1,7 @@
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import {
   BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS,
-  FEATURE_BACKGROUND_PIPELINE_REFRESH,
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
 } from "../../../../config";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
@@ -70,7 +70,7 @@ export const mapNotificationState = (
   incomingDocumentsState: AsyncResult<MappedCaseDocument[]>,
   incomingDateTime: string
 ): NotificationState => {
-  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+  if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
     return notificationState;
   }
 
@@ -214,7 +214,7 @@ export const registerNotifiableEvent = (
   state: NotificationState,
   event: NotificationEventCore
 ): NotificationState =>
-  FEATURE_BACKGROUND_PIPELINE_REFRESH
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH
     ? {
         ...state,
         ignoreNextEvents: [...state.ignoreNextEvents, event],
@@ -227,7 +227,7 @@ export const readNotification = <
   state: NotificationState<T>,
   notificationId: number
 ): NotificationState<T> => {
-  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+  if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
     return state;
   }
 
@@ -249,7 +249,7 @@ export const clearNotification = <
   state: NotificationState<T>,
   notificationId: number
 ): NotificationState<T> => {
-  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+  if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
     return state;
   }
 
@@ -262,7 +262,7 @@ export const clearNotification = <
 export const clearAllNotifications = <T extends NotificationEventCore>(
   state: NotificationState<T>
 ): NotificationState<T> => {
-  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+  if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
     return state;
   }
 

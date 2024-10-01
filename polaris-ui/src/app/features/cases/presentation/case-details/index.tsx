@@ -39,7 +39,6 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   BULK_UM_REDIRECT_URL,
   CASE_REVIEW_APP_REDIRECT_URL,
-  FEATURE_BACKGROUND_PIPELINE_REFRESH,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
 import { AccordionReducerState } from "./accordion/reducer";
@@ -559,7 +558,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
-          {FEATURE_BACKGROUND_PIPELINE_REFRESH && (
+          {featureFlags.notifications && (
             <Notifications
               state={notificationState}
               handleReadNotification={handleReadNotification}
