@@ -47,6 +47,7 @@ import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import { mapNotificationState } from "./map-notification-state";
 import { NotificationType } from "../../domain/NotificationState";
+import { PageRotation, IPageRotation } from "../../domain/IPageRotation";
 export const reducer = (
   state: CombinedState,
   action:
@@ -281,6 +282,21 @@ export const reducer = (
     | {
         type: "REGISTER_NOTIFIABLE_EVENT";
         payload: { documentId: string; notificationType: NotificationType };
+      }
+    | {
+        type: "SHOW_HIDE_PAGE_ROTATION";
+        payload: { documentId: string; rotatePageMode: boolean };
+      }
+    | {
+        type: "ADD_PAGE_ROTATION";
+        payload: { documentId: string; pageRotations: PageRotation[] };
+      }
+    | {
+        type: "REMOVE_PAGE_ROTATION";
+        payload: {
+          documentId: string;
+          rotationId: string;
+        };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -575,6 +591,8 @@ export const reducer = (
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
         pageDeleteRedactions: [],
+        pageRotations: [],
+        rotatePageMode: false,
         isDeleted: false,
         saveStatus: "initial" as const,
       };
@@ -1446,6 +1464,104 @@ export const reducer = (
           ],
         },
       };
+    }
+
+    case "SHOW_HIDE_PAGE_ROTATION": {
+      const { documentId, rotatePageMode } = action.payload;
+
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  rotatePageMode: rotatePageMode,
+                }
+              : item
+          ),
+        },
+      };
+      return newState;
+    }
+
+    case "ADD_PAGE_ROTATION": {
+      const { documentId, pageRotations } = action.payload;
+
+      const newRotations: IPageRotation[] = pageRotations.map(
+        (pageRotation, index) => ({
+          ...pageRotation,
+          id: String(`${+new Date()}-${index}`),
+        })
+      );
+      console.log("pageRotations>>>", pageRotations);
+      console.log("newRotations>>>", newRotations);
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) => {
+            if (item.documentId !== documentId) return item;
+            const rotationExists = item.pageRotations.some(
+              (rotation) => rotation.pageNumber === pageRotations[0].pageNumber
+            );
+            console.log("rotationExists>>>", rotationExists);
+            if (rotationExists) {
+              return {
+                ...item,
+                pageRotations: item.pageRotations.map((rotation) =>
+                  rotation.pageNumber === pageRotations[0].pageNumber
+                    ? {
+                        ...rotation,
+                        rotationAngle: pageRotations[0].rotationAngle,
+                      }
+                    : rotation
+                ),
+              };
+            }
+            return {
+              ...item,
+              pageRotations: [...item.pageRotations, ...newRotations],
+            };
+          }),
+        },
+      };
+
+      console.log("newState>>>", newState);
+      return newState;
+    }
+
+    case "REMOVE_PAGE_ROTATION": {
+      const { rotationId, documentId } = action.payload;
+
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageRotations: item.pageRotations.filter(
+                    (rotation) => rotation.id !== rotationId
+                  ),
+                }
+              : item
+          ),
+        },
+      };
+      //  //adding redactions to local storage
+      //  const redactionsToSave = getRedactionsToSaveLocally(
+      //    newState.tabsState.items,
+      //    documentId,
+      //    state.caseId
+      //  );
+      //  redactionsToSave.length
+      //    ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
+      //    : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
     }
     default:
       throw new Error("Unknown action passed to case details reducer");

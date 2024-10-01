@@ -44,6 +44,9 @@ type PdfTabsProps = {
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
+  handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
+  handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
+  handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -69,6 +72,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
   handleSearchPIIAction,
+  handleShowHidePageRotation,
+  handleAddPageRotation,
+  handleRemovePageRotation,
 }) => {
   const localHandleClosePdf = useCallback(
     (documentId: string) => {
@@ -116,6 +122,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
                 handleShowHideRedactionSuggestions
               }
               handleSearchPIIAction={handleSearchPIIAction}
+              handleShowHidePageRotation={handleShowHidePageRotation}
+              handleAddPageRotation={handleAddPageRotation}
+              handleRemovePageRotation={handleRemovePageRotation}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}

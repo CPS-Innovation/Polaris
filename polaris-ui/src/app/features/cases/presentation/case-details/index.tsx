@@ -162,6 +162,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleShowHidePageRotation,
+    handleAddPageRotation,
+    handleRemovePageRotation,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -818,6 +821,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       : false
                   }
                   handleAreaOnlyRedaction={handleAreaOnlyRedaction}
+                  handleShowHidePageRotation={handleShowHidePageRotation}
+                  handleAddPageRotation={handleAddPageRotation}
+                  handleRemovePageRotation={handleRemovePageRotation}
                 />
               )}
             </div>

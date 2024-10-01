@@ -25,7 +25,7 @@
   }
 }
 
-.deleteBtn,
+.rotateBtn,
 .restoreBtn {
   padding: 0 0.25rem;
   background-color: #fff;
@@ -42,7 +42,7 @@
     opacity: 0.75;
     pointer-events: none;
   }
-  .deleteBtnIcon {
+  .rotateBtnIcon {
     width: 0.9375rem;
     margin-right: 0.625rem;
     border-radius: 0.1875rem;
@@ -50,6 +50,11 @@
     border: 1px solid #b1b4b6;
     background-color: #f3f2f1;
   }
+}
+.cancelBtn {
+  font-size: 19px;
+  background: none;
+  color: #fff;
 }
 .overlay {
   background-color: #000;
@@ -71,8 +76,8 @@
   align-items: center;
   width: 100%;
   z-index: 6;
-  .overlayDeleteIcon {
-    width: 3.125rem;
+  .overlayPageIcon {
+    width: 8rem;
     margin-right: 0.625rem;
     border-radius: 0.1875rem;
     padding: 0.125rem;
@@ -86,9 +91,9 @@
   .overlaySubText {
     margin: 1rem;
     color: #fff;
-    font-size: 1rem;
+    font-size: 19px;
     margin-top: 0;
-    max-width: 20rem;
+    max-width: 30rem;
     text-align: center;
   }
 }

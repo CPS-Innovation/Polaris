@@ -50,6 +50,9 @@ type PdfTabProps = {
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
+  handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
+  handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
+  handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -78,6 +81,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
   handleSearchPIIAction,
+  handleShowHidePageRotation,
+  handleAddPageRotation,
+  handleRemovePageRotation,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
@@ -89,6 +95,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     mode,
     redactionHighlights,
     pageDeleteRedactions,
+    pageRotations,
     documentId,
     areaOnlyRedactionMode,
     isDeleted,
@@ -96,6 +103,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     cmsDocType: { documentType },
     attachments,
     hasFailedAttachments,
+    rotatePageMode,
   } = caseDocumentViewModel;
 
   const searchHighlights =
@@ -232,6 +240,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleShowHideRedactionSuggestions={
             localHandleShowHideRedactionSuggestions
           }
+          handleShowHidePageRotation={handleShowHidePageRotation}
           contextData={{
             documentId: documentId,
             tabIndex: tabIndex,
@@ -239,6 +248,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             isSearchPIIOn: isSearchPIIOn,
             isSearchPIIDefaultOptionOn: !!searchPIIDataItem?.defaultOption,
             showSearchPII: contextData.showSearchPII,
+            isRotatePageModeOn: rotatePageMode,
           }}
         />
       )}
@@ -288,10 +298,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
           pageDeleteRedactions={pageDeleteRedactions}
+          pageRotations={pageRotations}
           focussedHighlightIndex={focussedHighlightIndex}
           areaOnlyRedactionMode={areaOnlyRedactionMode}
+          rotatePageMode={rotatePageMode}
           handleAddRedaction={handleAddRedaction}
           handleRemoveRedaction={localHandleRemoveRedaction}
+          handleAddPageRotation={handleAddPageRotation}
+          handleRemovePageRotation={handleRemovePageRotation}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
           handleSearchPIIAction={handleSearchPIIAction}

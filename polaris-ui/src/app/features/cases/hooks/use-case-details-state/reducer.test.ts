@@ -730,6 +730,8 @@ describe("useCaseDetailsState reducer", () => {
             pdfBlobName: "foo",
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             url: "baz",
             isDeleted: false,
             saveStatus: "initial",
@@ -792,6 +794,8 @@ describe("useCaseDetailsState reducer", () => {
             saveStatus: "initial",
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             mode: "read",
           },
         ],
@@ -993,6 +997,8 @@ describe("useCaseDetailsState reducer", () => {
                 searchTerm: "foo",
                 occurrencesInDocumentCount: 3,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 areaOnlyRedactionMode: false,
                 searchHighlights: [
                   {
@@ -1102,6 +1108,8 @@ describe("useCaseDetailsState reducer", () => {
                 isDeleted: false,
                 saveStatus: "initial",
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1250,6 +1258,8 @@ describe("useCaseDetailsState reducer", () => {
                 areaOnlyRedactionMode: false,
                 occurrencesInDocumentCount: 4,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 pageOccurrences: [
                   {
                     boundingBoxes: [[1, 2, 3]],

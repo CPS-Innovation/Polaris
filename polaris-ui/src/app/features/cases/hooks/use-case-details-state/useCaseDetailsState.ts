@@ -30,6 +30,7 @@ import {
 } from "../utils/refreshCycleDataUpdate";
 import { TaggedContext } from "../../../../inbound-handover/context";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+import { PageRotation } from "../../domain/IPageRotation";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -666,6 +667,45 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleShowHidePageRotation = useCallback(
+    (documentId: string, rotatePageMode: boolean) => {
+      dispatch({
+        type: "SHOW_HIDE_PAGE_ROTATION",
+        payload: {
+          documentId: documentId,
+          rotatePageMode: rotatePageMode,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleAddPageRotation = useCallback(
+    (documentId: string, pageRotations: PageRotation[]) => {
+      dispatch({
+        type: "ADD_PAGE_ROTATION",
+        payload: {
+          documentId,
+          pageRotations,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleRemovePageRotation = useCallback(
+    (documentId: string, rotationId: string) => {
+      dispatch({
+        type: "REMOVE_PAGE_ROTATION",
+        payload: {
+          documentId,
+          rotationId,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -697,5 +737,8 @@ export const useCaseDetailsState = (
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleShowHidePageRotation,
+    handleAddPageRotation,
+    handleRemovePageRotation,
   };
 };

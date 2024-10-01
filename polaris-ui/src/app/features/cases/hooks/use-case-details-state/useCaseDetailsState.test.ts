@@ -147,6 +147,9 @@ describe("useCaseDetailsState", () => {
         handleSaveRename,
         handleReclassifySuccess,
         handleResetReclassifyData,
+        handleAddPageRotation,
+        handleRemovePageRotation,
+        handleShowHidePageRotation,
         ...stateProperties
       } = result.current;
 
