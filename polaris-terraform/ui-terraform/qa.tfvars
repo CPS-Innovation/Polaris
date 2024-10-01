@@ -75,8 +75,6 @@ background_pipeline_refresh_interval_ms   = 0.5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "true"
 local_storage_expiry_days                 = "30"
 
-
-
 private_beta = {
   sign_up_url         = "https://forms.office.com/e/Af374akw0Q"
   user_group          = "" // allow any user to see qa for e.g. demo purposes 
