@@ -101,6 +101,7 @@ export const useGetCaseData = (
     dispatch,
   ]);
 
+  // This triggers the first ever load of the pipeline
   useEffect(() => {
     const { startRefresh } = combinedState.pipelineRefreshData;
 
@@ -123,9 +124,9 @@ export const useGetCaseData = (
       });
     }
 
-    // If we are here and refresh was previously started...
     if (startRefresh) {
-      //... then switch it off (I think)
+      // Once startRefresh has been picked up by the reducer then we we will end up here
+      //... and then we switch it off (I think)
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {

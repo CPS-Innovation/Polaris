@@ -132,8 +132,12 @@ namespace coordinator.Mappers
                 CmsVersionId = pcdRequest.CmsVersionId,
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
                 CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
-                CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? "(Pending) PCD.pdf",
-                PresentationTitle = Path.GetFileNameWithoutExtension(pcdRequest.PdfBlobName) ?? "(Pending) PCD",
+                CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? $"(Pending) PCD.pdf",
+                PresentationTitle = Path.GetFileNameWithoutExtension(pcdRequest.PdfBlobName)
+                    // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
+                    //  false-positive name update notifications being shown in the UI, we make sure the interim name
+                    //  on th PCS request is the same as the eventual name derived from the blob name.
+                    ?? $"CMS-{pcdRequest.PolarisDocumentId}",
                 PresentationFlags = pcdRequest.PresentationFlags,
                 PdfBlobName = pcdRequest.PdfBlobName,
                 IsPdfAvailable = pcdRequest.IsPdfAvailable,

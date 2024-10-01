@@ -144,6 +144,7 @@ export const initialState = {
     renameDocument: false,
     reclassify: false,
     externalRedirect: false,
+    pageDelete: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

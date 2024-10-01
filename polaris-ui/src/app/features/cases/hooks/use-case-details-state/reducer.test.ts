@@ -21,8 +21,16 @@ import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
 import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
 import { NotificationState } from "../../domain/NotificationState";
+import * as notificationsMappingFunctions from "./map-notification-state";
+import * as mapNotificationToDocumentsState from "./map-notification-to-documents-state";
+import { AsyncResult } from "../../../../common/types/AsyncResult";
+import { AccordionDocumentSection } from "../../presentation/case-details/accordion/types";
 
 const ERROR = new Error();
+
+jest.mock("../../../../config", () => ({
+  FEATURE_BACKGROUND_PIPELINE_REFRESH: true,
+}));
 
 describe("useCaseDetailsState reducer", () => {
   afterEach(() => {
@@ -176,7 +184,9 @@ describe("useCaseDetailsState reducer", () => {
           notificationState: {
             ignoreNextEvents: [],
             events: [],
-          },
+            liveNotificationCount: 0,
+            usersEvents: [],
+          } as NotificationState,
         } as unknown as CombinedState;
 
         const nextState = reducer(existingState, {
@@ -2298,9 +2308,8 @@ describe("useCaseDetailsState reducer", () => {
       const existingState = {
         notificationState: {
           ignoreNextEvents: [],
-          liveNotificationCount: 0,
           events: [],
-        },
+        } as NotificationState,
       } as unknown as CombinedState;
 
       const result = reducer(existingState, {
@@ -2312,8 +2321,137 @@ describe("useCaseDetailsState reducer", () => {
         notificationState: {
           ignoreNextEvents: [{ documentId: "1", reason: "New" }],
           events: [],
-          liveNotificationCount: 0,
         } as NotificationState,
+      });
+    });
+
+    describe("notification action handlers", () => {
+      const priorNotificationState: NotificationState = {
+        ignoreNextEvents: [],
+        events: [],
+      };
+
+      const priorDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const priorExistingState = {
+        notificationState: priorNotificationState,
+        documentsState: priorDocumentsState,
+      } as unknown as CombinedState;
+
+      const expectedNotificationState: NotificationState = {
+        ignoreNextEvents: [],
+        events: [],
+      };
+
+      const expectedDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const expectedAccordionState: AsyncResult<AccordionDocumentSection[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const badNotificationState: NotificationState = {
+        ignoreNextEvents: [],
+        events: [],
+      };
+
+      const badDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const badAccordionState: AsyncResult<AccordionDocumentSection[]> = {
+        status: "succeeded",
+        data: [],
+      };
+      beforeEach(() => {
+        jest
+          .spyOn(
+            mapNotificationToDocumentsState,
+            "mapNotificationToDocumentsState"
+          )
+          .mockImplementation(
+            (incomingNotificationsState, incomingDocumentsState) =>
+              incomingNotificationsState === expectedNotificationState &&
+              incomingDocumentsState === priorDocumentsState
+                ? expectedDocumentsState
+                : badDocumentsState
+          );
+
+        jest
+          .spyOn(accordionMapper, "mapAccordionState")
+          .mockImplementation((incomingDocumentsState) =>
+            incomingDocumentsState === expectedDocumentsState
+              ? expectedAccordionState
+              : badAccordionState
+          );
+      });
+
+      it("should delegate clearing all notifications to a function owned by the notifications code", () => {
+        jest
+          .spyOn(notificationsMappingFunctions, "clearAllNotifications")
+          .mockImplementation((incomingNotificationsState) =>
+            incomingNotificationsState === priorNotificationState
+              ? expectedNotificationState
+              : badNotificationState
+          );
+
+        const result = reducer(priorExistingState, {
+          type: "CLEAR_ALL_NOTIFICATIONS",
+        });
+
+        expect(result.notificationState).toBe(expectedNotificationState);
+        expect(result.documentsState).toBe(expectedDocumentsState);
+        expect(result.accordionState).toBe(expectedAccordionState);
+      });
+
+      it("should delegate clearing a notification to a function owned by the notifications code", () => {
+        const notificationId = 1;
+
+        jest
+          .spyOn(notificationsMappingFunctions, "clearNotification")
+          .mockImplementation(
+            (incomingNotificationsState, incomingNotificationId) =>
+              incomingNotificationsState === priorNotificationState &&
+              incomingNotificationId === notificationId
+                ? expectedNotificationState
+                : badNotificationState
+          );
+
+        const result = reducer(priorExistingState, {
+          type: "CLEAR_NOTIFICATION",
+          payload: { notificationId: notificationId },
+        });
+
+        expect(result.notificationState).toBe(expectedNotificationState);
+        expect(result.documentsState).toBe(expectedDocumentsState);
+        expect(result.accordionState).toBe(expectedAccordionState);
+      });
+
+      it("should delegate reading a notification to a function owned by the notifications code", () => {
+        const notificationId = 1;
+        jest
+          .spyOn(notificationsMappingFunctions, "readNotification")
+          .mockImplementation(
+            (incomingNotificationsState, incomingNotificationId) =>
+              incomingNotificationsState === priorNotificationState &&
+              incomingNotificationId === notificationId
+                ? expectedNotificationState
+                : badNotificationState
+          );
+
+        const result = reducer(priorExistingState, {
+          type: "READ_NOTIFICATION",
+          payload: { notificationId: notificationId },
+        });
+
+        expect(result.notificationState).toBe(expectedNotificationState);
       });
     });
   });

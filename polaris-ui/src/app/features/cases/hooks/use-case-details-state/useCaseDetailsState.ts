@@ -36,7 +36,7 @@ export const useCaseDetailsState = (
   useLoadAppLevelLookups(dispatch);
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
-  usePipelineRefreshPolling(30000, dispatch);
+  usePipelineRefreshPolling(1000, dispatch);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {
@@ -370,7 +370,7 @@ export const useCaseDetailsState = (
   );
 
   const handleReclassifySuccess = useCallback(
-    (documentId: string, newDocTypeId: number) => {
+    (documentId: string, newDocTypeId: number, wasDocumentRenamed: boolean) => {
       dispatch({
         type: "UPDATE_RECLASSIFY_DATA",
         payload: {
@@ -387,6 +387,13 @@ export const useCaseDetailsState = (
         type: "REGISTER_NOTIFIABLE_EVENT",
         payload: { documentId, reason: "Reclassified" },
       });
+
+      if (wasDocumentRenamed) {
+        dispatch({
+          type: "REGISTER_NOTIFIABLE_EVENT",
+          payload: { documentId, reason: "Updated" },
+        });
+      }
 
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",

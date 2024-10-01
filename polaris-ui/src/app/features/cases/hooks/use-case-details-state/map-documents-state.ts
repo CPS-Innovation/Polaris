@@ -24,6 +24,7 @@ export const mapDocumentsState = (
       presentationSubCategory: subCategory,
       attachments: getDocumentAttachments(item, result),
       witnessIndicators: mapWitnessIndicators(witnessForDoc),
+      tags: [],
     };
   });
 

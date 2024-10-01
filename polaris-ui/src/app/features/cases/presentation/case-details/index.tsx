@@ -39,6 +39,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   BULK_UM_REDIRECT_URL,
   CASE_REVIEW_APP_REDIRECT_URL,
+  FEATURE_BACKGROUND_PIPELINE_REFRESH,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
 import { AccordionReducerState } from "./accordion/reducer";
@@ -366,7 +367,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       data
     );
     if (response) {
-      handleReclassifySuccess(documentId, data.documentTypeId);
+      const wasDocumentRenamed = !!(
+        data.exhibit ||
+        data.statement ||
+        data?.immediate?.documentName ||
+        data?.other?.documentName
+      );
+
+      handleReclassifySuccess(
+        documentId,
+        data.documentTypeId,
+        wasDocumentRenamed
+      );
     }
     return response;
   };
@@ -547,12 +559,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
-          <Notifications
-            state={notificationState}
-            handleReadNotification={handleReadNotification}
-            handleClearAllNotifications={handleClearAllNotifications}
-            handleClearNotification={handleClearNotification}
-          ></Notifications>
+          {FEATURE_BACKGROUND_PIPELINE_REFRESH && (
+            <Notifications
+              state={notificationState}
+              handleReadNotification={handleReadNotification}
+              handleClearAllNotifications={handleClearAllNotifications}
+              handleClearNotification={handleClearNotification}
+            ></Notifications>
+          )}
         </nav>
         <PageContentWrapper>
           <div className={`govuk-grid-row ${classes.mainContent}`}>
@@ -677,7 +691,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
-                      reclassifyData={reclassifyDocuments}
                     />
                   )}
                 </div>

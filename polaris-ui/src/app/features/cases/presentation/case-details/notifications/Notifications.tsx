@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   NotificationEvent,
   NotificationState,
@@ -12,6 +12,7 @@ import {
 } from "../../../../../common/presentation/components";
 import { useGlobalDropdownClose } from "../../../../../common/hooks/useGlobalDropdownClose";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
+import { getUiEvents } from "../../../hooks/use-case-details-state/map-notification-state";
 
 const time = (dateTime: string) => (
   <span className={classes.time}>
@@ -51,7 +52,9 @@ const Notification: React.FC<{
     >
       <div>
         <div>
-          <Tag className={`govuk-tag--orange ${classes.tag}`}>{evt.reason}</Tag>
+          <Tag gdsTagColour="orange" className={classes.tag}>
+            {evt.reason}
+          </Tag>
         </div>
         <div>
           <LinkButton
@@ -94,7 +97,7 @@ export const Notifications: React.FC<{
   handleClearAllNotifications: () => void;
   handleClearNotification: (notificationId: number) => void;
 }> = ({
-  state: { events, lastUpdatedDateTime, liveNotificationCount },
+  state: { events, lastUpdatedDateTime },
   handleReadNotification,
   handleClearAllNotifications,
   handleClearNotification,
@@ -124,6 +127,10 @@ export const Notifications: React.FC<{
     [handleReadNotification]
   );
 
+  const { liveEventCount, eventsToDisplay } = useMemo(
+    () => getUiEvents(events),
+    [events]
+  );
   return (
     <div className={classes.root}>
       <button
@@ -133,10 +140,10 @@ export const Notifications: React.FC<{
       >
         <span
           className={`${classes.alert} ${
-            liveNotificationCount ? "" : classes.alertEmpty
+            liveEventCount ? "" : classes.alertEmpty
           }`}
         >
-          <span className={classes.count}>{liveNotificationCount}</span>
+          <span className={classes.count}>{liveEventCount}</span>
         </span>
         <span className={classes.label}>Notifications</span>
       </button>
@@ -144,13 +151,13 @@ export const Notifications: React.FC<{
         <div ref={panelRef} className={classes.panel} id="notifications-panel">
           <div
             className={`${classes.header} ${
-              liveNotificationCount ? classes.headerPopulated : ""
+              liveEventCount ? classes.headerPopulated : ""
             }`}
           >
             Last synced with CMS:{" "}
             {lastUpdatedDateTime ? time(lastUpdatedDateTime) : "please wait..."}
           </div>
-          {!!events.length && (
+          {!!eventsToDisplay.length && (
             <div className={classes.body}>
               <ul ref={listRef} onScroll={handleScroll}>
                 {events.map((evt) => (

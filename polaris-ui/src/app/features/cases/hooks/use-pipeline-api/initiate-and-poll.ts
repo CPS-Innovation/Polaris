@@ -97,7 +97,7 @@ export const initiateAndPoll = (
           break;
         }
         const trackerArgs = await initiatePipeline(urn, caseId, correlationId);
-        //if you get 423 and there are redacted documents, keep polling initiate pipeline
+        // If we get 423 and there are redacted documents, keep polling initiate pipeline
         const shouldKeepPollingInitiate =
           trackerArgs.status === LOCKED_STATUS_CODE &&
           savedDocumentDetails.length; // I'm not sure about this, what about notes?

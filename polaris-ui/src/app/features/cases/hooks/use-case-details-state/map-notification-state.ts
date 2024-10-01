@@ -1,3 +1,8 @@
+import { AsyncResult } from "../../../../common/types/AsyncResult";
+import {
+  BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS,
+  FEATURE_BACKGROUND_PIPELINE_REFRESH,
+} from "../../../../config";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   NotificationEvent,
@@ -54,33 +59,36 @@ const whereNested =
       : (left && left[key] && left[key][childKey]) !==
         (right && right[key] && right[key][childKey]);
 
-const applyLiveNotificationCount = (
-  notificationState: NotificationState
-): NotificationState => {
-  const liveNotificationCount = notificationState.events.filter(
-    (evt) => evt.status === "Live"
-  ).length;
-
-  if (liveNotificationCount === notificationState.liveNotificationCount) {
-    return notificationState;
-  }
-
-  return {
-    ...notificationState,
-    liveNotificationCount,
-  };
-};
+const sortBy =
+  <T>(key: keyof T) =>
+  (a: T, b: T) =>
+    (a && a[key]) < (b && b[key]) ? -1 : (a && a[key]) > (b && b[key]) ? 1 : 0;
 
 export const mapNotificationState = (
   notificationState: NotificationState,
-  existingDocuments: MappedCaseDocument[] = [],
-  incomingDocuments: MappedCaseDocument[] = [],
+  existingDocumentState: AsyncResult<MappedCaseDocument[]>,
+  incomingDocumentsState: AsyncResult<MappedCaseDocument[]>,
   incomingDateTime: string
 ): NotificationState => {
+  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+    return notificationState;
+  }
+
+  if (incomingDocumentsState.status !== "succeeded") {
+    return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
+  }
+
+  const existingDocuments =
+    existingDocumentState.status === "succeeded"
+      ? existingDocumentState.data
+      : [];
+
+  const incomingDocuments = incomingDocumentsState.data;
+
   // Every time we ask to generate an id we take the maximum id of the existing
   //  event array and add a counter to it (and increment the counter on each ask)
   let counter = 1;
-  const generateUniqueId = () =>
+  const generateNextId = () =>
     Math.max(0, ...notificationState.events.map((evt) => evt.id)) + counter++;
 
   // If this is first load then nothing to notify about - it is all new!
@@ -112,7 +120,7 @@ export const mapNotificationState = (
       : undefined;
 
     return {
-      id: generateUniqueId(),
+      id: generateNextId(),
       documentId,
       cmsVersionId,
       reason,
@@ -182,7 +190,7 @@ export const mapNotificationState = (
   );
 
   // Remove any "ignore" event records that have been matched
-  const ignoreNextEventsNotMatchedThisTime = inLeftNotRight(
+  const ignoreNextEvents = inLeftNotRight(
     notificationState.ignoreNextEvents as NotificationEvent[],
     incomingEvents,
     where("documentId", "is same"),
@@ -190,71 +198,90 @@ export const mapNotificationState = (
   );
 
   const events = [
-    ...incomingEvents
-      //.filter(({ reasonToIgnore }) => !reasonToIgnore)
-      .sort((a, b) =>
-        a.documentId < b.documentId ? -1 : a.documentId > b.documentId ? 1 : 0
-      ),
+    ...incomingEvents.sort(sortBy("documentId") || sortBy("reason")),
     ...existingEventsStillLive,
   ];
 
-  const nextState = {
+  return {
     ...notificationState,
     lastUpdatedDateTime: incomingDateTime,
     events,
-    ignoreNextEvents: ignoreNextEventsNotMatchedThisTime,
+    ignoreNextEvents,
   };
-
-  return applyLiveNotificationCount(nextState);
 };
 
 export const registerNotifiableEvent = (
   state: NotificationState,
   event: NotificationEventCore
-): NotificationState => ({
-  ...state,
-  ignoreNextEvents: [...state.ignoreNextEvents, event],
-});
+): NotificationState =>
+  FEATURE_BACKGROUND_PIPELINE_REFRESH
+    ? {
+        ...state,
+        ignoreNextEvents: [...state.ignoreNextEvents, event],
+      }
+    : state;
 
-export const readNotification = (
-  state: NotificationState | NotificationState,
+export const readNotification = <
+  T extends NotificationEventCore & Pick<NotificationEvent, "status" | "id">
+>(
+  state: NotificationState<T>,
   notificationId: number
-): NotificationState => {
-  const nextState = state.events.some(
+): NotificationState<T> => {
+  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+    return state;
+  }
+
+  return state.events.some(
     (evt) => evt.id === notificationId && evt.status === "Live"
   )
     ? {
         ...state,
         events: state.events.map((evt) =>
-          evt.id === notificationId
-            ? ({ ...evt, status: "Read" } as NotificationEvent)
-            : evt
+          evt.id === notificationId ? { ...evt, status: "Read" } : evt
         ),
       }
     : state;
-
-  return applyLiveNotificationCount(nextState);
 };
 
-export const clearNotification = (
-  state: NotificationState,
+export const clearNotification = <
+  T extends NotificationEventCore & Pick<NotificationEvent, "id">
+>(
+  state: NotificationState<T>,
   notificationId: number
-): NotificationState => {
-  const nextState = {
+): NotificationState<T> => {
+  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+    return state;
+  }
+
+  return {
     ...state,
     events: state.events.filter((evt) => evt.id !== notificationId),
   };
-
-  return applyLiveNotificationCount(nextState);
 };
 
-export const clearAllNotifications = (
-  state: NotificationState
-): NotificationState => {
-  const nextState = {
+export const clearAllNotifications = <T extends NotificationEventCore>(
+  state: NotificationState<T>
+): NotificationState<T> => {
+  if (!FEATURE_BACKGROUND_PIPELINE_REFRESH) {
+    return state;
+  }
+
+  return {
     ...state,
     events: [],
   };
+};
 
-  return applyLiveNotificationCount(nextState);
+export const getUiEvents = (
+  allEvents: Pick<NotificationEvent, "id" | "status" | "reasonToIgnore">[]
+) => {
+  const eventsToDisplay = allEvents.filter(
+    (evt) =>
+      BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS || !evt.reasonToIgnore
+  );
+  return {
+    liveEventCount: eventsToDisplay.filter((evt) => evt.status === "Live")
+      .length,
+    eventsToDisplay,
+  };
 };
