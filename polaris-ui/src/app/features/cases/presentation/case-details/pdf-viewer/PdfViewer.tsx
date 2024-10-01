@@ -251,7 +251,7 @@ export const PdfViewer: React.FC<Props> = ({
           beforeLoad={<Wait ariaLabel="Pdf loading, please wait" />}
           // To avoid reaching out to an internet-hosted asset we have taken a local copy
           //  of the library that PdfHighlighter links to and put that in our `public` folder.
-          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.11.338.js`}
+          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.16.105.js`}
         >
           {(pdfDocument) => (
             <>
