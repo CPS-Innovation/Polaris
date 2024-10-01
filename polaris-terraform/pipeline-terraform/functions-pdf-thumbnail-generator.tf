@@ -179,3 +179,39 @@ resource "azurerm_private_endpoint" "pipeline_pdf_thumbnail_generator_pe" {
     subresource_names              = ["sites"]
   }
 }
+
+# Storage Account Permissions
+resource "azurerm_role_assignment" "ra_blob_delegator_pdf_thumbnail_generator" {
+  scope                = azurerm_storage_account.sa_pdf_thumbnail_generator.id
+  role_definition_name = "Storage Blob Delegator"
+  principal_id         = azurerm_windows_function_app.fa_pdf_thumbnail_generator.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.sa_pdf_thumbnail_generator,
+    azurerm_windows_function_app.fa_pdf_thumbnail_generator,
+  ]
+}
+
+resource "azurerm_role_assignment" "ra_document_blob_data_contributor_pdf_thumbnail_generator" {
+  scope                = azurerm_storage_container.container.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_windows_function_app.fa_pdf_thumbnail_generator.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.sa_pdf_thumbnail_generator,
+    azurerm_storage_container.container,
+    azurerm_windows_function_app.fa_pdf_thumbnail_generator,
+  ]
+}
+
+resource "azurerm_role_assignment" "ra_thumbnail_blob_data_contributor_pdf_thumbnail_generator" {
+  scope                = azurerm_storage_container.thumbnails.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_windows_function_app.fa_pdf_thumbnail_generator.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.sa_pdf_thumbnail_generator,
+    azurerm_storage_container.thumbnails,
+    azurerm_windows_function_app.fa_pdf_thumbnail_generator,
+  ]
+}
