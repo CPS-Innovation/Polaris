@@ -568,7 +568,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           )}
         </nav>
         <PageContentWrapper>
-          <div className={`govuk-grid-row ${classes.mainContent}`}>
+          <div
+            className={`govuk-grid-row ${classes.mainContent} ${
+              featureFlags.notifications
+                ? classes.mainContentWithNotifications
+                : ""
+            }`}
+          >
             {!inFullScreen && !actionsSidePanel.open && (
               <div
                 role="region"

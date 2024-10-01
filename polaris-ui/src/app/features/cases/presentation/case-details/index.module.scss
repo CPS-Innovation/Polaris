@@ -46,9 +46,11 @@
   }
 }
 
-.mainContent {
+.mainContentWithNotifications {
   margin-top: 0.6rem; // enough margin to give space for the notifications button
+}
 
+.mainContent {
   .rightColumn {
     margin-top: -3.4375rem;
     height: 100vh;
