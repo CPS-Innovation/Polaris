@@ -60,7 +60,7 @@ describe("reducerAsyncActionHandlers", () => {
     });
   });
 
-  describe("ADD_REDACTION_AND_POTENTIALLY_LOCK", () => {
+  describe("ADD_CHANGE_AND_POTENTIALLY_LOCK", () => {
     it.each<
       [
         CaseDocumentViewModel["clientLockedState"],
@@ -94,7 +94,7 @@ describe("reducerAsyncActionHandlers", () => {
           .mockImplementation(() => Promise.resolve(isLockSuccessful));
 
         const handler =
-          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+          reducerAsyncActionHandlers.ADD_CHANGE_AND_POTENTIALLY_LOCK({
             dispatch: dispatchMock,
             getState: () => combinedStateMock,
             signal: new AbortController().signal,
@@ -102,7 +102,7 @@ describe("reducerAsyncActionHandlers", () => {
 
         //act
         await handler({
-          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          type: "ADD_CHANGE_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
             redactions: [{ type: "redaction" }] as NewPdfHighlight[],
@@ -165,7 +165,7 @@ describe("reducerAsyncActionHandlers", () => {
           .mockImplementation(() => Promise.reject({ isLockSuccessful }));
 
         const handler =
-          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+          reducerAsyncActionHandlers.ADD_CHANGE_AND_POTENTIALLY_LOCK({
             dispatch: dispatchMock,
             getState: () => combinedStateMock,
             signal: new AbortController().signal,
@@ -173,7 +173,7 @@ describe("reducerAsyncActionHandlers", () => {
 
         //act
         await handler({
-          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          type: "ADD_CHANGE_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
             redactions: [{ type: "redaction" }] as NewPdfHighlight[],
@@ -239,7 +239,7 @@ describe("reducerAsyncActionHandlers", () => {
           );
 
         const handler =
-          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+          reducerAsyncActionHandlers.ADD_CHANGE_AND_POTENTIALLY_LOCK({
             dispatch: dispatchMock,
             getState: () => combinedStateMock,
             signal: new AbortController().signal,
@@ -247,7 +247,7 @@ describe("reducerAsyncActionHandlers", () => {
 
         //act
         await handler({
-          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          type: "ADD_CHANGE_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
             redactions: [{ type: "redaction" }] as NewPdfHighlight[],
@@ -299,7 +299,7 @@ describe("reducerAsyncActionHandlers", () => {
           .mockImplementation(() => Promise.resolve(true));
 
         const handler =
-          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+          reducerAsyncActionHandlers.ADD_CHANGE_AND_POTENTIALLY_LOCK({
             dispatch: dispatchMock,
             getState: () => combinedStateMock,
             signal: new AbortController().signal,
@@ -307,7 +307,7 @@ describe("reducerAsyncActionHandlers", () => {
 
         //act
         await handler({
-          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          type: "ADD_CHANGE_AND_POTENTIALLY_LOCK",
           payload: {
             documentId: "1",
             redactions: [{ type: "redaction" }] as NewPdfHighlight[],
@@ -326,7 +326,7 @@ describe("reducerAsyncActionHandlers", () => {
     );
   });
 
-  describe("REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK", () => {
+  describe("REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK", () => {
     it.each<CaseDocumentViewModel["clientLockedState"]>([
       "unlocked",
       "locking",
@@ -345,6 +345,7 @@ describe("reducerAsyncActionHandlers", () => {
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }, { id: "baz" }],
                 pageDeleteRedactions: [{}],
+                pageRotations: [{}],
               },
             ] as CaseDocumentViewModel[],
           },
@@ -357,7 +358,7 @@ describe("reducerAsyncActionHandlers", () => {
           .mockImplementation(() => Promise.resolve(true));
 
         const handler =
-          reducerAsyncActionHandlers.REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK({
+          reducerAsyncActionHandlers.REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK({
             dispatch: dispatchMock,
             getState: () => combinedStateMock,
             signal: new AbortController().signal,
@@ -365,7 +366,7 @@ describe("reducerAsyncActionHandlers", () => {
 
         //act
         await handler({
-          type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
+          type: "REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK",
           payload: {
             documentId: "1",
             redactionId: "bar",
@@ -399,6 +400,7 @@ describe("reducerAsyncActionHandlers", () => {
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [{}],
+                pageRotations: [{}],
               },
             ] as CaseDocumentViewModel[],
           },
@@ -411,7 +413,7 @@ describe("reducerAsyncActionHandlers", () => {
           .mockImplementation(() => Promise.resolve(true));
 
         const handler =
-          reducerAsyncActionHandlers.REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK({
+          reducerAsyncActionHandlers.REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK({
             dispatch: dispatchMock,
             getState: () => combinedStateMock,
             signal: new AbortController().signal,
@@ -419,7 +421,7 @@ describe("reducerAsyncActionHandlers", () => {
 
         //act
         await handler({
-          type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
+          type: "REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK",
           payload: {
             documentId: "1",
             redactionId: "bar",
@@ -450,6 +452,7 @@ describe("reducerAsyncActionHandlers", () => {
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [] as any,
+                pageRotations: [] as any,
               },
             ] as CaseDocumentViewModel[],
           },
@@ -462,7 +465,7 @@ describe("reducerAsyncActionHandlers", () => {
           .mockImplementation(() => Promise.resolve(true));
 
         const handler =
-          reducerAsyncActionHandlers.REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK({
+          reducerAsyncActionHandlers.REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK({
             dispatch: dispatchMock,
             getState: () => combinedStateMock,
             signal: new AbortController().signal,
@@ -470,7 +473,7 @@ describe("reducerAsyncActionHandlers", () => {
 
         //act
         await handler({
-          type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
+          type: "REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK",
           payload: {
             documentId: "1",
             redactionId: "bar",
@@ -514,6 +517,7 @@ describe("reducerAsyncActionHandlers", () => {
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [{}],
+                pageRotations: [{}],
               },
             ] as CaseDocumentViewModel[],
           },
@@ -537,6 +541,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
           payload: {
             documentId: "1",
+            type: "redaction",
           },
         });
 
@@ -564,6 +569,7 @@ describe("reducerAsyncActionHandlers", () => {
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [{}],
+                pageRotations: [{}],
               },
             ] as CaseDocumentViewModel[],
           },
@@ -587,6 +593,7 @@ describe("reducerAsyncActionHandlers", () => {
           type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
           payload: {
             documentId: "1",
+            type: "redaction",
           },
         });
 
@@ -624,6 +631,7 @@ describe("reducerAsyncActionHandlers", () => {
               redactionHighlights,
               pdfBlobName: "baz",
               pageDeleteRedactions: [{}],
+              pageRotations: [{}],
             },
           ] as CaseDocumentViewModel[],
         },

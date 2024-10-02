@@ -298,6 +298,12 @@ export const reducer = (
           rotationId: string;
         };
       }
+    | {
+        type: "REMOVE_ALL_ROTATIONS";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -1560,6 +1566,34 @@ export const reducer = (
       //  redactionsToSave.length
       //    ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
       //    : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
+    }
+    case "REMOVE_ALL_ROTATIONS": {
+      const { documentId } = action.payload;
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageRotations: [],
+                }
+              : item
+          ),
+        },
+      };
+      // //adding redaction highlight to local storage
+      // const redactionHighlights = getRedactionsToSaveLocally(
+      //   newState.tabsState.items,
+      //   documentId,
+      //   state.caseId
+      // );
+      // redactionHighlights.length
+      //   ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+      //   : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }

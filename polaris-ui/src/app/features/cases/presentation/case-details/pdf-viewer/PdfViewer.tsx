@@ -33,6 +33,7 @@ import { DeletePage } from "../portals/DeletePage";
 import { PagePortal } from "../portals/PagePortal";
 import { RotatePage } from "../portals/RotatePage";
 import { IPageRotation } from "../../../domain/IPageRotation";
+import { RotationFooter } from "./RotationFooter";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -69,6 +70,8 @@ type Props = {
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
   handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
+  handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
+  handleSaveRotations: CaseDetailsState["handleSaveRotations"];
 };
 
 const ensureAllPdfInView = () =>
@@ -102,6 +105,8 @@ export const PdfViewer: React.FC<Props> = ({
   handleSavedRedactions,
   focussedHighlightIndex,
   handleSearchPIIAction,
+  handleRemoveAllRotations,
+  handleSaveRotations,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
@@ -116,6 +121,10 @@ export const PdfViewer: React.FC<Props> = ({
     ],
     [searchHighlights, redactionHighlights, activeSearchPIIHighlights]
   );
+
+  const unSavedRotation = useMemo(() => {
+    return pageRotations.filter((rotation) => rotation.rotationAngle !== 0);
+  }, [pageRotations]);
 
   useEffect(() => {
     scrollToFnRef.current &&
@@ -463,6 +472,16 @@ export const PdfViewer: React.FC<Props> = ({
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
+          />
+        )}
+        {!!unSavedRotation.length && (
+          <RotationFooter
+            contextData={contextData}
+            tabIndex={tabIndex}
+            totalRotationsCount={unSavedRotation.length}
+            isOkToSave={isOkToSave}
+            handleRemoveAllRotations={handleRemoveAllRotations}
+            handleSaveRotations={handleSaveRotations}
           />
         )}
         <UnsavedRedactionModal

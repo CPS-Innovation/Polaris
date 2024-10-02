@@ -165,6 +165,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleShowHidePageRotation,
     handleAddPageRotation,
     handleRemovePageRotation,
+    handleRemoveAllRotations,
+    handleSaveRotations,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -824,6 +826,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   handleShowHidePageRotation={handleShowHidePageRotation}
                   handleAddPageRotation={handleAddPageRotation}
                   handleRemovePageRotation={handleRemovePageRotation}
+                  handleRemoveAllRotations={handleRemoveAllRotations}
+                  handleSaveRotations={handleSaveRotations}
                 />
               )}
             </div>

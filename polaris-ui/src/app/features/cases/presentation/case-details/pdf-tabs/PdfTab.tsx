@@ -53,6 +53,8 @@ type PdfTabProps = {
   handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
   handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
+  handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
+  handleSaveRotations: CaseDetailsState["handleSaveRotations"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -84,6 +86,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleShowHidePageRotation,
   handleAddPageRotation,
   handleRemovePageRotation,
+  handleRemoveAllRotations,
+  handleSaveRotations,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
@@ -309,6 +313,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
           handleSearchPIIAction={handleSearchPIIAction}
+          handleRemoveAllRotations={handleRemoveAllRotations}
+          handleSaveRotations={handleSaveRotations}
         />
       ) : (
         <Wait
