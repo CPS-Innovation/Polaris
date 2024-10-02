@@ -5,10 +5,10 @@ export type NotificationReason = keyof typeof NotificationReasonMap;
 // note if the colours do not overlap with the colours expected by our
 //  Tag control then we will get a compiler error (which is what we want)
 export const NotificationReasonMap: Record<string, TagColor> = {
-  New: "orange", // documentId has appeared in the tracker
-  Discarded: "orange", // documentId has disappeared from the tracker
-  "New Version": "orange", // documentId has changed version
-  Reclassified: "orange", // docTypeId change
+  New: "green", // documentId has appeared in the tracker
+  Discarded: "red", // documentId has disappeared from the tracker
+  "New Version": "green", // documentId has changed version
+  Reclassified: "purple", // docTypeId change
   Updated: "orange", // presentationTitle change
 };
 

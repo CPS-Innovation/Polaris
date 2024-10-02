@@ -196,9 +196,11 @@ export const AccordionDocument: React.FC<Props> = ({
     >
       <div className={classes.listItemWrapper}>
         {activeDocumentId === caseDocument.documentId && (
-          <Tag gdsTagColour="turquoise" className={classes.tag}>
-            Active Document
-          </Tag>
+          <span>
+            <Tag gdsTagColour="blue" className={classes.tag}>
+              Active Document
+            </Tag>{" "}
+          </span>
         )}
         {caseDocument.tags.map((tag) => (
           <span key={tag.label}>

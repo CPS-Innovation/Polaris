@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   NotificationEvent,
+  NotificationReasonMap,
   NotificationState,
 } from "../../../domain/NotificationState";
 import { formatTime } from "../../../../../common/utils/dates";
@@ -52,7 +53,10 @@ const Notification: React.FC<{
     >
       <div>
         <div>
-          <Tag gdsTagColour="orange" className={classes.tag}>
+          <Tag
+            gdsTagColour={NotificationReasonMap[evt.reason]}
+            className={classes.tag}
+          >
             {evt.reason}
           </Tag>
         </div>
