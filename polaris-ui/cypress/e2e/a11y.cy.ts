@@ -1,8 +1,7 @@
 function terminalLog(violations: any) {
   cy.task(
     "log",
-    `${violations.length} accessibility violation${
-      violations.length === 1 ? "" : "s"
+    `${violations.length} accessibility violation${violations.length === 1 ? "" : "s"
     } ${violations.length === 1 ? "was" : "were"} detected`
   );
   // pluck specific keys to keep the table readable
@@ -115,7 +114,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.findAllByTestId("div-pdfviewer-1")
         .last()
         .should("exist")
-        .contains("CASE FILE EVIDENCE and INFORMATION ");
+        .contains("CASE FILE EVIDENCE and INFORMATION");
       cy.selectPDFTextElement("Not Disclosable");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
