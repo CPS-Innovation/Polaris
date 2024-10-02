@@ -11,6 +11,9 @@
   :global(.pdfViewer.removePageBorders .page) {
     margin: 0 0 10px;
   }
+  :global(.page) {
+    margin-top: 10px;
+  }
 }
 .spinner {
   position: absolute;

@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { useState, useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
-import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
@@ -34,6 +33,7 @@ type PdfTabProps = {
   contextData: {
     correlationId: string;
     showSearchPII: boolean;
+    showDeletePage: boolean;
   };
   isOkToSave: boolean;
   handleOpenPdf: (caseDocument: {
@@ -88,6 +88,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     url,
     mode,
     redactionHighlights,
+    pageDeleteRedactions,
     documentId,
     areaOnlyRedactionMode,
     isDeleted,
@@ -110,12 +111,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       ) ?? []
     );
   }, [searchPIIDataItem]);
-
-  const localHandleAddRedaction = useCallback(
-    (redactions: NewPdfHighlight[]) =>
-      handleAddRedaction(documentId, redactions),
-    [documentId, handleAddRedaction]
-  );
 
   const localHandleRemoveRedaction = useCallback(
     (redactionId: string) => handleRemoveRedaction(documentId, redactionId),
@@ -167,7 +162,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     trackEvent("Save All Redactions", {
       documentType: documentType,
       documentId: documentId,
-      redactionsCount: redactionHighlights?.length,
+      redactionsCount:
+        redactionHighlights?.length + pageDeleteRedactions?.length,
+      deletedPageCount: pageDeleteRedactions?.length,
       suggestedRedactionsCount: searchPIIDataItem?.searchPIIHighlights?.length,
       acceptedSuggestedRedactionsCount: activeSearchPIIHighlights?.length,
     });
@@ -178,7 +175,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       setShowRedactionWarning(true);
       return;
     }
-    handleSavedRedactions(documentId);
+    handleSavedRedactions(documentId, isSearchPIIOn);
     saveAllRedactionsCustomEvent();
   };
 
@@ -201,7 +198,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
   const handleContinue = () => {
     setShowRedactionWarning(false);
-    handleSavedRedactions(documentId, true);
+    handleSavedRedactions(documentId, isSearchPIIOn);
     saveAllRedactionsCustomEvent();
   };
 
@@ -286,12 +283,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentType,
             saveStatus: saveStatus,
             caseId,
+            showDeletePage: contextData.showDeletePage,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
+          pageDeleteRedactions={pageDeleteRedactions}
           focussedHighlightIndex={focussedHighlightIndex}
           areaOnlyRedactionMode={areaOnlyRedactionMode}
-          handleAddRedaction={localHandleAddRedaction}
+          handleAddRedaction={handleAddRedaction}
           handleRemoveRedaction={localHandleRemoveRedaction}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}

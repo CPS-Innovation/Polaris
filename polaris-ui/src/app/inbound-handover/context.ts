@@ -31,9 +31,7 @@ type TriageContext = {
 };
 
 const isTriageContext = (o: RecordObject): o is TriageContext =>
-  Number.isInteger(o["taskId"]) &&
-  Number.isInteger(o["taskTypeId"]) &&
-  Object.keys(o).length === 2;
+  Number.isInteger(o["taskId"]) && Number.isInteger(o["taskTypeId"]);
 
 export type TaggedTriageContext = {
   contextType: "triage";

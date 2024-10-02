@@ -1,4 +1,11 @@
-﻿function proxyDestinationCorsham(r)
+﻿function getDomainFromCookie(r) {
+    let cookie = r.headersIn.Cookie || '';
+    let domainMatch = cookie.match(/([a-z0-9]+)\.cps\.gov\.uk/);
+    
+    return domainMatch[0];
+}
+
+function proxyDestinationCorsham(r)
 {
     let cmsEnv = __getCmsEnv(r);
     return r.variables.endpointHttpProtocol + '://' + r.variables[cmsEnv + 'UpstreamCmsIpCorsham'];
@@ -174,5 +181,5 @@ export default {
     proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal,
     upstreamCmsDomainName, upstreamCmsModernDomainName, replaceCmsDomains, replaceCmsDomainsAjaxViewer, upstreamCmsServicesDomainName,
     cmsMenuBarFilters, upstreamCmsIpCorsham, upstreamCmsIpFarnborough, upstreamCmsModernIpFarnborough, upstreamCmsModernIpCorsham,
-    devLoginEnvCookie
+    devLoginEnvCookie, getDomainFromCookie
 }

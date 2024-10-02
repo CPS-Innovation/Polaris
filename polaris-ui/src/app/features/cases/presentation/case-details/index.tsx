@@ -59,7 +59,10 @@ import {
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
-import { TaggedContext } from "../../../../inbound-handover/context";
+import {
+  isTaggedTriageContext,
+  TaggedContext,
+} from "../../../../inbound-handover/context";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
@@ -611,6 +614,25 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     </div>
                   )}
 
+                  {context && isTaggedTriageContext(context) && (
+                    <div className={classes.externalRedirectBtnWrapper}>
+                      <Button
+                        disabled={false}
+                        onClick={() => {
+                          openInNewTab(
+                            `/api/navigate-cms?action=activate_task&screen=case_details&taskId=${context.taskId}&caseId=${caseId}&wId=MASTER`
+                          );
+                        }}
+                        data-testid="btn-bulk-um-classification"
+                        id="btn-bulk-um-classification"
+                        className={`${classes.newWindowBtn} govuk-button--secondary`}
+                        name="secondary"
+                      >
+                        Complete triage on CMS <NewWindow />
+                      </Button>
+                    </div>
+                  )}
+
                   <SearchBox
                     id="case-details-search"
                     data-testid="search-case"
@@ -787,6 +809,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   contextData={{
                     correlationId: pipelineState?.correlationId,
                     showSearchPII: featureFlags.searchPII,
+                    showDeletePage: featureFlags.pageDelete,
                   }}
                   caseId={+caseId}
                   showOverRedactionLog={

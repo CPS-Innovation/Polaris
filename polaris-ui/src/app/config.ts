@@ -71,6 +71,10 @@ export const FEATURE_FLAG_RENAME_DOCUMENT =
 
 export const FEATURE_FLAG_RECLASSIFY =
   `${process.env.REACT_APP_FEATURE_FLAG_RECLASSIFY}` === "true";
+
+export const FEATURE_FLAG_PAGE_DELETE =
+  `${process.env.REACT_APP_FEATURE_FLAG_PAGE_DELETE}` === "true";
+
 export const FEATURE_FLAG_EXTERNAL_REDIRECT =
   `${process.env.REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT}` === "true";
 

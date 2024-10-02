@@ -1,6 +1,9 @@
 import { RedactionLogDataSource } from "./types/RedactionLogDataSource";
 import { ListItem } from "../../app/features/cases/domain/redactionLog/ListItem";
-import { OuCodeMapping } from "../../app/features/cases/domain/redactionLog/RedactionLogData";
+import {
+  RedactionTypeData,
+  OuCodeMapping,
+} from "../../app/features/cases/domain/redactionLog/RedactionLogData";
 
 const areasStub: ListItem[] = [
   {
@@ -704,22 +707,25 @@ const investigatingAgenciesStub: ListItem[] = [
   { id: "78", name: "ERSOU", children: [] },
 ];
 
-export const missedRedactionsStub: ListItem[] = [
-  { id: "1", name: "Named individual", children: [] },
-  { id: "2", name: "Title", children: [] },
-  { id: "3", name: "Occupation", children: [] },
-  { id: "4", name: "Relationship to others", children: [] },
-  { id: "5", name: "Address", children: [] },
-  { id: "6", name: "Location", children: [] },
-  { id: "7", name: "Vehicle registration", children: [] },
-  { id: "8", name: "NHS number", children: [] },
-  { id: "9", name: "Date of birth", children: [] },
-  { id: "10", name: "Bank details", children: [] },
-  { id: "11", name: "NI Number", children: [] },
-  { id: "12", name: "Phone number", children: [] },
-  { id: "13", name: "Email address", children: [] },
-  { id: "14", name: "Previous convictions", children: [] },
-  { id: "15", name: "Other", children: [] },
+export const missedRedactionsStub: RedactionTypeData[] = [
+  { id: "1", name: "Named individual" },
+  { id: "2", name: "Title" },
+  { id: "3", name: "Occupation" },
+  { id: "4", name: "Relationship to others" },
+  { id: "5", name: "Address" },
+  { id: "6", name: "Location" },
+  { id: "7", name: "Vehicle registration" },
+  { id: "8", name: "NHS number" },
+  { id: "9", name: "Date of birth" },
+  { id: "10", name: "Bank details" },
+  { id: "11", name: "NI Number" },
+  { id: "12", name: "Phone number" },
+  { id: "13", name: "Email address" },
+  { id: "14", name: "Previous convictions" },
+  { id: "15", name: "Other" },
+  { id: "16", name: "MG11 Backsheet", isDeletedPage: true },
+  { id: "17", name: "Contains personal data", isDeletedPage: true },
+  { id: "18", name: "Blank page", isDeletedPage: true },
 ];
 
 export const ouCodeMappingStub: OuCodeMapping[] = [
