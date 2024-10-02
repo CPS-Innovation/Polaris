@@ -183,16 +183,24 @@ export const AccordionDocument: React.FC<Props> = ({
     }
   };
 
+  const listItemClasses = (
+    [
+      ["accordion-document-list-item", true],
+      ["docRead", readUnreadData.includes(caseDocument.documentId)],
+      // Not perfect, but its enough to say if the tag is green then the background
+      //  should be green
+      ["docNew", caseDocument.tags.some((tag) => tag.color === "green")],
+      ["docActive", activeDocumentId === caseDocument.documentId],
+    ] as [string, boolean][]
+  )
+    .filter(([, shouldInclude]) => shouldInclude)
+    .map(([className]) => classes[className]);
+
+  //normal doc < new doc < read doc < active doc
   return (
     <li
-      className={`${classes["accordion-document-list-item"]} ${
-        readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
-      } ${
-        activeDocumentId === caseDocument.documentId ? classes.docActive : ""
-      }`}
-      data-read={`${
-        readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
-      }`}
+      className={listItemClasses.join(" ")}
+      data-read={`${readUnreadData.includes(caseDocument.documentId)}`}
     >
       <div className={classes.listItemWrapper}>
         {activeDocumentId === caseDocument.documentId && (
