@@ -13,7 +13,7 @@ import {
 } from "../../../../../common/presentation/components";
 import { useGlobalDropdownClose } from "../../../../../common/hooks/useGlobalDropdownClose";
 import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
-import { getUiEvents } from "../../../hooks/use-case-details-state/map-notification-state";
+import { filterNotificationsButtonEvents } from "../../../hooks/use-case-details-state/map-notification-state";
 
 const time = (dateTime: string) => (
   <span className={classes.time}>
@@ -137,7 +137,7 @@ export const Notifications: React.FC<{
   );
 
   const { liveEventCount, eventsToDisplay } = useMemo(
-    () => getUiEvents(events),
+    () => filterNotificationsButtonEvents(events),
     [events]
   );
   return (

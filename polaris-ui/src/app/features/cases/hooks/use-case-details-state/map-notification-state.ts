@@ -272,7 +272,7 @@ export const clearAllNotifications = <T extends NotificationEventCore>(
   };
 };
 
-export const getUiEvents = (
+export const filterNotificationsButtonEvents = (
   allEvents: Pick<NotificationEvent, "id" | "status" | "reasonToIgnore">[]
 ) => {
   const eventsToDisplay = allEvents.filter(
@@ -285,3 +285,14 @@ export const getUiEvents = (
     eventsToDisplay,
   };
 };
+
+type TMinimalNotificationEvent = NotificationEventCore &
+  Pick<NotificationEvent, "reasonToIgnore">;
+export const filterDocumentTagEvents = <T extends TMinimalNotificationEvent[]>(
+  allEvents: T
+) =>
+  allEvents.filter(
+    (evt) =>
+      BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS ||
+      evt.reasonToIgnore !== "First case load"
+  );

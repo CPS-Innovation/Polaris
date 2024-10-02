@@ -6,15 +6,19 @@ import {
   NotificationReasonMap,
   NotificationState,
 } from "../../domain/NotificationState";
+import { filterDocumentTagEvents } from "./map-notification-state";
 
 const sortBy =
   <T>(key: keyof T) =>
   (a: T, b: T) =>
     (a && a[key]) < (b && b[key]) ? -1 : (a && a[key]) > (b && b[key]) ? 1 : 0;
 
+type TMinimalNotificationEvent = NotificationEventCore &
+  Pick<NotificationEvent, "reasonToIgnore">;
+
 export const mapNotificationToDocumentsState = <
   // make the typing as accommodating as possible for unit tests
-  T extends NotificationEventCore = NotificationEvent,
+  T extends TMinimalNotificationEvent = NotificationEvent,
   U extends Pick<MappedCaseDocument, "documentId" | "tags"> = MappedCaseDocument
 >(
   notificationState: NotificationState<T>,
@@ -25,8 +29,11 @@ export const mapNotificationToDocumentsState = <
   }
 
   let hasAnyDocBeenUpdated = false;
+
+  const events = filterDocumentTagEvents(notificationState.events);
+
   const data = documentsState.data.map((doc) => {
-    const nextTagsForDoc = notificationState.events
+    const nextTagsForDoc = events
       .filter((evt) => evt.documentId === doc.documentId)
       .map(
         (evt) =>
