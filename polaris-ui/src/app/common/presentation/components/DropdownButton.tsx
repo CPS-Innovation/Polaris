@@ -36,7 +36,12 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [buttonOpen, setButtonOpen] = useState(false);
 
-  useGlobalDropdownClose(dropDownBtnRef, panelRef, setButtonOpen);
+  useGlobalDropdownClose(
+    dropDownBtnRef,
+    panelRef,
+    setButtonOpen,
+    "#dropdown-panel"
+  );
 
   const handleBtnClick = (id: string) => {
     setButtonOpen(false);

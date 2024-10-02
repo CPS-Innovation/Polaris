@@ -4,15 +4,10 @@ import { useFocusTrap } from "./useFocusTrap";
 export const useGlobalDropdownClose = (
   dropDownBtnRef: React.MutableRefObject<HTMLElement | null>,
   panelRef: React.MutableRefObject<HTMLElement | null>,
-  setButtonOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setButtonOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  panelId: string
 ) => {
-  if (panelRef.current && !panelRef.current.id) {
-    throw new Error(
-      "useGlobalClose requires the panel HTML element to have an id"
-    );
-  }
-
-  useFocusTrap(panelRef.current?.id);
+  useFocusTrap(panelId);
 
   const handleOutsideClick = useCallback(
     (event: MouseEvent) => {
