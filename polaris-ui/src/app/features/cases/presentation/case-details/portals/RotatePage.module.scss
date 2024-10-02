@@ -55,6 +55,14 @@
   font-size: 19px;
   background: none;
   color: #fff;
+  &:focus {
+    box-shadow: 0 0.125rem 0 #0b0c0c;
+    outline: 0.1875rem solid transparent;
+  }
+  &:disabled {
+    opacity: 0.75;
+    pointer-events: none;
+  }
 }
 .overlay {
   background-color: #000;
@@ -85,7 +93,7 @@
   }
   .overlayMainText {
     margin: 1rem;
-    color: #b1b4b6;
+    color: #fff;
     font-size: 2.5rem;
   }
   .overlaySubText {
@@ -98,30 +106,50 @@
   }
 }
 
-.deleteModal {
-  position: absolute;
-  top: 0.625rem;
-  right: 0.625rem;
+.rotateControlWrapper {
   display: flex;
-  flex-direction: column;
-  z-index: 7;
-  background: #fff;
-  background-clip: padding-box;
-  border-radius: 0.3125rem;
-  box-shadow: 0px 0px 0.625rem 0 rgba(0, 0, 0, 0.5);
-  & :global(.govuk-form-group) {
-    margin-bottom: 0;
-  }
-  & :global(.govuk-button) {
-    margin-left: 0.625rem;
-    margin-bottom: 0;
-  }
+  flex-direction: row;
+  align-items: center;
+}
 
-  .contentWrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-end;
-    padding: 0.625rem;
+.rotateIconWrapper {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #1d70b8;
+}
+.rotateRightBtn,
+.rotateLeftBtn {
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.5);
+  background: #f3f2f1;
+  color: #1d70b8;
+  text-decoration: underline;
+  font-size: 1.2rem;
+  border: none;
+  display: flex;
+  align-items: center;
+  // height: 30px;
+  margin: 0 30px;
+  padding: 0;
+  &:focus {
+    box-shadow: 0 0.125rem 0 #0b0c0c;
+    outline: 0.1875rem solid transparent;
   }
+  &:disabled {
+    opacity: 0.75;
+    pointer-events: none;
+  }
+}
+.rotateBtnText {
+  padding: 0 10px;
+}
+
+.rotateLeftIcon {
+  width: 20px;
+  fill: #fff;
+  transform: scaleX(-1);
+}
+.rotateRightIcon {
+  width: 20px;
+  fill: #fff;
 }
