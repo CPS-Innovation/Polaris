@@ -1,10 +1,15 @@
 import { TagColor } from "../../../common/presentation/types/TagColor";
 
-export type NotificationReason = keyof typeof NotificationReasonMap;
+export type NotificationReason =
+  | "New"
+  | "Discarded"
+  | "New Version"
+  | "Reclassified"
+  | "Updated";
 
 // note if the colours do not overlap with the colours expected by our
 //  Tag control then we will get a compiler error (which is what we want)
-export const NotificationReasonMap: Record<string, TagColor> = {
+export const NotificationReasonMap: Record<NotificationReason, TagColor> = {
   New: "green", // documentId has appeared in the tracker
   Discarded: "red", // documentId has disappeared from the tracker
   "New Version": "green", // documentId has changed version

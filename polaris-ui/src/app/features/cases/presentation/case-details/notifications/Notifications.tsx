@@ -1,95 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   NotificationEvent,
-  NotificationReasonMap,
   NotificationState,
 } from "../../../domain/NotificationState";
-import { formatTime } from "../../../../../common/utils/dates";
-import classes from "./notifications.module.scss";
-import {
-  Button,
-  LinkButton,
-  Tag,
-} from "../../../../../common/presentation/components";
+import { LinkButton } from "../../../../../common/presentation/components";
 import { useGlobalDropdownClose } from "../../../../../common/hooks/useGlobalDropdownClose";
-import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 import { filterNotificationsButtonEvents } from "../../../hooks/use-case-details-state/map-notification-state";
-
-const time = (dateTime: string) => (
-  <span className={classes.time}>
-    <TimeIcon className={classes.timeIcon} />
-    {formatTime(dateTime)}
-  </span>
-);
-
-const useScrollPositionRetention = <T extends HTMLElement>(
-  isElOpen: boolean
-) => {
-  const elRef = useRef<T | null>(null);
-  const [scrollPosition, setScrollPosition] = useState<number>();
-
-  const handleScroll: React.UIEventHandler<T> = (event) => {
-    setScrollPosition((event?.target as HTMLElement)?.scrollTop);
-  };
-
-  useEffect(() => {
-    if (isElOpen && elRef.current && scrollPosition !== undefined) {
-      elRef.current.scrollTo({ top: scrollPosition });
-    }
-  }, [isElOpen, scrollPosition]);
-
-  return [elRef, handleScroll] as const;
-};
-
-const Notification: React.FC<{
-  evt: NotificationEvent;
-  handleReadNotification: ({ id, documentId }: NotificationEvent) => void;
-  handleClearNotification: (id: number) => void;
-}> = ({ evt, handleReadNotification, handleClearNotification }) => {
-  return (
-    <li
-      key={evt.id}
-      className={evt.status === "Live" ? classes.live : classes.read}
-    >
-      <div>
-        <div>
-          <Tag
-            gdsTagColour={NotificationReasonMap[evt.reason]}
-            className={classes.tag}
-          >
-            {evt.reason}
-          </Tag>
-        </div>
-        <div>
-          <LinkButton
-            className={classes.docLink}
-            onClick={() => handleReadNotification(evt)}
-          >
-            {evt.presentationTitle}
-          </LinkButton>
-        </div>
-        <div className={`govuk-body-s ${classes.narrative}`}>
-          <span>{evt.narrative}</span>
-          {evt.reasonToIgnore ? (
-            <span className={classes.reasonToIgnore}>{evt.reasonToIgnore}</span>
-          ) : undefined}
-        </div>
-        <span className={`${classes.dateTime} govuk-body-s`}>
-          {time(evt.dateTime)}
-        </span>
-      </div>
-      <div>
-        <Button
-          data-prevent-global-close
-          onClick={() => handleClearNotification(evt.id)}
-          className={`${classes.clear} govuk-button--secondary`}
-        >
-          Clear
-        </Button>
-      </div>
-    </li>
-  );
-};
+import classes from "./notifications.module.scss";
+import { Time } from "./Time";
+import { Notification } from "./Notification";
+import { useScrollPositionRetention } from "./useScrollPositionRetention";
 
 export const Notifications: React.FC<{
   state: NotificationState;
@@ -140,6 +60,7 @@ export const Notifications: React.FC<{
     () => filterNotificationsButtonEvents(events),
     [events]
   );
+
   return (
     <div className={classes.root}>
       <button
@@ -164,7 +85,11 @@ export const Notifications: React.FC<{
             }`}
           >
             Last synced with CMS:{" "}
-            {lastUpdatedDateTime ? time(lastUpdatedDateTime) : "please wait..."}
+            {lastUpdatedDateTime ? (
+              <Time dateTime={lastUpdatedDateTime} />
+            ) : (
+              "please wait..."
+            )}
           </div>
           {!!eventsToDisplay.length && (
             <div className={classes.body}>

@@ -47,7 +47,7 @@ export const mapNotificationToDocumentsState = <
       )
       .map(
         (reason) =>
-          <TagType>{ label: reason, color: NotificationReasonMap[reason] }
+          ({ label: reason, color: NotificationReasonMap[reason] } as TagType)
       )
       .sort(sortBy("label"));
 

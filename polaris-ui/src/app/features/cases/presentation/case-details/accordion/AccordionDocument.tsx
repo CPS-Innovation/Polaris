@@ -196,7 +196,6 @@ export const AccordionDocument: React.FC<Props> = ({
     .filter(([, shouldInclude]) => shouldInclude)
     .map(([className]) => classes[className]);
 
-  //normal doc < new doc < read doc < active doc
   return (
     <li
       className={listItemClasses.join(" ")}
