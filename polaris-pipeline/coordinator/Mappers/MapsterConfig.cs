@@ -161,7 +161,11 @@ namespace coordinator.Mappers
                     CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
                     CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
                     CmsOriginalFileName = Path.GetFileName(defendantsAndCharges.PdfBlobName) ?? "(Pending) DAC.pdf",
-                    PresentationTitle = Path.GetFileNameWithoutExtension(defendantsAndCharges.PdfBlobName) ?? "(Pending) DAC",
+                    PresentationTitle = Path.GetFileNameWithoutExtension(defendantsAndCharges.PdfBlobName) 
+                        // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
+                        //  false-positive name update notifications being shown in the UI, we make sure the interim name
+                        //  on th PCS request is the same as the eventual name derived from the blob name.
+                        ?? "CMS-DAC",
                     PresentationFlags = defendantsAndCharges.PresentationFlags,
                     PdfBlobName = defendantsAndCharges.PdfBlobName,
                     IsPdfAvailable = defendantsAndCharges.IsPdfAvailable,
