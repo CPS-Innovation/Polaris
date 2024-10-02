@@ -1409,4 +1409,4 @@ describe("case details page", () => {
   });
 });
 
-export { };
+export {};
