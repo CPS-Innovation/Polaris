@@ -109,7 +109,12 @@ export const Notifications: React.FC<{
   const [listRef, handleScroll] =
     useScrollPositionRetention<HTMLUListElement>(isOpen);
 
-  useGlobalDropdownClose(dropDownBtnRef, panelRef, setIsOpen);
+  useGlobalDropdownClose(
+    dropDownBtnRef,
+    panelRef,
+    setIsOpen,
+    "#notifications-panel"
+  );
 
   const localHandleNotificationRead = useCallback(
     (evt: NotificationEvent) => {

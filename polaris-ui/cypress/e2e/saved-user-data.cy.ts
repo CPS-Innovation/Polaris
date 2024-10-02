@@ -18,7 +18,7 @@ describe("Save User Data", () => {
       cy.findByTestId("link-document-10")
         .closest("li")
         .should("have.attr", "data-read", "true");
-      return;
+
       cy.findByTestId("link-document-2")
         .closest("li")
         .should("have.attr", "data-read", "false");
