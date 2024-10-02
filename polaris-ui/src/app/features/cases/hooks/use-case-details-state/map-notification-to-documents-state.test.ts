@@ -212,6 +212,44 @@ describe("mapNotificationToDocumentsState", () => {
         },
       ],
     ],
+    [
+      "should not have multiple tags of the same name for a document",
+      [
+        { documentId: "1", reason: "Updated" },
+        { documentId: "1", reason: "Updated" },
+        { documentId: "1", reason: "Updated" },
+        { documentId: "1", reason: "New" },
+        { documentId: "2", reason: "Updated" },
+        { documentId: "2", reason: "Updated" },
+        { documentId: "2", reason: "Discarded" },
+      ],
+      [
+        {
+          documentId: "1",
+          tags: [],
+        },
+        {
+          documentId: "2",
+          tags: [{ label: "Updated", color: NotificationReasonMap["Updated"] }],
+        },
+      ],
+      [
+        {
+          documentId: "1",
+          tags: [
+            { label: "New", color: NotificationReasonMap["New"] },
+            { label: "Updated", color: NotificationReasonMap["Updated"] },
+          ],
+        },
+        {
+          documentId: "2",
+          tags: [
+            { label: "Discarded", color: NotificationReasonMap["Discarded"] },
+            { label: "Updated", color: NotificationReasonMap["Updated"] },
+          ],
+        },
+      ],
+    ],
   ])("%s", (_, inputEvents, inputDocsState, expectedDocsState) => {
     // Arrange
     const notificationsState: TNotificationState = {

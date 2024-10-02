@@ -3,9 +3,11 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   NotificationEvent,
   NotificationEventCore,
+  NotificationReason,
   NotificationReasonMap,
   NotificationState,
 } from "../../domain/NotificationState";
+import { TagType } from "../../domain/TagType";
 import { filterDocumentTagEvents } from "./map-notification-state";
 
 const sortBy =
@@ -35,12 +37,17 @@ export const mapNotificationToDocumentsState = <
   const data = documentsState.data.map((doc) => {
     const nextTagsForDoc = events
       .filter((evt) => evt.documentId === doc.documentId)
+      // we want unique tags, e.g. New, Updated not New, Updated, Updated
+      .reduce<NotificationReason[]>(
+        (prev, curr) =>
+          prev.some((reason) => reason === curr.reason)
+            ? prev
+            : [...prev, curr.reason],
+        []
+      )
       .map(
-        (evt) =>
-          ({
-            label: evt.reason,
-            color: NotificationReasonMap[evt.reason],
-          } as MappedCaseDocument["tags"][0])
+        (reason) =>
+          <TagType>{ label: reason, color: NotificationReasonMap[reason] }
       )
       .sort(sortBy("label"));
 
