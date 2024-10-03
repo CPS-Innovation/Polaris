@@ -2,7 +2,7 @@ import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceU
 
 describe("Save User Data", () => {
   describe("Read/Unread Documents", () => {
-    it.only("Should identify the document as read if the user has opened the document and should persist that state when user comes back and clear it if we clear local storage", () => {
+    it("Should identify the document as read if the user has opened the document and should persist that state when user comes back and clear it if we clear local storage", () => {
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
       cy.window().then((window) => {

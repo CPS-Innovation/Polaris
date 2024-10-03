@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NotificationState } from "../../../domain/NotificationState";
 import { LinkButton } from "../../../../../common/presentation/components";
 import { useGlobalDropdownClose } from "../../../../../common/hooks/useGlobalDropdownClose";
@@ -8,6 +8,7 @@ import { Time } from "./Time";
 import { Notification } from "./Notification";
 import { useScrollPositionRetention } from "./useScrollPositionRetention";
 import { useCaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 export const Notifications: React.FC<{
   state: NotificationState;
@@ -34,10 +35,50 @@ export const Notifications: React.FC<{
     "#notifications-panel"
   );
 
+  const trackEvent = useAppInsightsTrackEvent();
+
   const { liveEventCount, eventsToDisplay } = useMemo(
     () => filterNotificationsButtonEvents(events),
     [events]
   );
+
+  const [lastLiveEventCount, setLastLiveEventCount] = useState(0);
+  useEffect(() => {
+    if (liveEventCount > lastLiveEventCount) {
+      trackEvent("Notifications Arrived", {
+        liveEventCount,
+        lastLiveEventCount,
+      });
+    }
+    setLastLiveEventCount(liveEventCount);
+  }, [liveEventCount, lastLiveEventCount, trackEvent, setLastLiveEventCount]);
+
+  useEffect(() => {
+    if (isOpen) {
+      trackEvent("Notification Panel Opened");
+    }
+  }, [isOpen, trackEvent]);
+
+  const localHandleOpenPdf = useCallback(
+    ({ documentId, mode }) => {
+      trackEvent("Document Opened from Notification", { documentId });
+      handleOpenPdf({ documentId, mode });
+    },
+    [handleOpenPdf, trackEvent]
+  );
+
+  const localHandleClearNotification = useCallback(
+    (notificationId: number, documentId: string) => {
+      trackEvent("Notification Cleared", { notificationId, documentId });
+      handleClearNotification(notificationId);
+    },
+    [handleClearNotification, trackEvent]
+  );
+
+  const localHandleClearAllNotifications = useCallback(() => {
+    trackEvent("All Notifications Cleared");
+    handleClearAllNotifications();
+  }, [handleClearAllNotifications, trackEvent]);
 
   return (
     <div className={classes.root}>
@@ -76,13 +117,15 @@ export const Notifications: React.FC<{
                   <Notification
                     key={evt.id}
                     evt={evt}
-                    handleOpenPdf={handleOpenPdf}
-                    handleClearNotification={handleClearNotification}
+                    handleOpenPdf={localHandleOpenPdf}
+                    handleClearNotification={(id) =>
+                      localHandleClearNotification(id, evt.documentId)
+                    }
                   ></Notification>
                 ))}
               </ul>
               <div className={classes.footer}>
-                <LinkButton onClick={handleClearAllNotifications}>
+                <LinkButton onClick={localHandleClearAllNotifications}>
                   Clear all notifications
                 </LinkButton>
               </div>
