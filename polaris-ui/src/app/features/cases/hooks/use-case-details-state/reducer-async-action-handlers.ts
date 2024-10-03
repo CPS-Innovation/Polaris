@@ -9,11 +9,12 @@ import {
   addNoteData,
   saveDocumentRename,
   getSearchPIIData,
+  saveRotations,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
-import { PageRotation } from "../../domain/IPageRotation";
+import { PageRotation, RotationSaveRequest } from "../../domain/IPageRotation";
 import {
   mapRedactionSaveRequest,
   mapSearchPIISaveRedactionObject,
@@ -789,20 +790,17 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         tabsState: { items },
         caseId,
         urn,
-        searchPII,
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const {
-        redactionHighlights,
-        polarisDocumentVersionId,
-        pageDeleteRedactions,
-      } = document;
+      const { polarisDocumentVersionId, pageRotations } = document;
 
-      const redactionRequestData = mapRedactionSaveRequest(
-        documentId,
-        redactionHighlights,
-        pageDeleteRedactions
+      const rotationRequestData: RotationSaveRequest = pageRotations.map(
+        ({ pageNumber, rotationAngle }) => ({
+          pageIndex: pageNumber,
+          operation: "rotate",
+          arg: rotationAngle,
+        })
       );
 
       try {
@@ -810,7 +808,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "SAVING_REDACTION",
           payload: { documentId, saveStatus: "saving" },
         });
-        // await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
+        await saveRotations(urn, caseId, documentId, rotationRequestData);
         dispatch({
           type: "SAVING_REDACTION",
           payload: { documentId, saveStatus: "saved" },
@@ -837,7 +835,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } catch (e) {
         const { code } = e as ApiError;
         let errorMessage =
-          "Failed to save document. Please try again. </p> Your redactions have been saved and it will be possible to re-apply them next time you open this document.</p> If re-trying is not successful, please notify the Casework App product team.";
+          "Failed to save document. Please try again. </p> Your rotations have been saved and it will be possible to re-apply them next time you open this document.</p> If re-trying is not successful, please notify the Casework App product team.";
 
         switch (code) {
           case DOCUMENT_NOT_FOUND_STATUS_CODE:
@@ -846,14 +844,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             break;
           case DOCUMENT_TOO_LARGE_STATUS_CODE:
             errorMessage =
-              "Failed to save rotation. The document is too large to redact.";
+              "Failed to save rotation. The document is too large to rotate.";
             break;
         }
 
         dispatch({
           type: "SHOW_ERROR_MODAL",
           payload: {
-            type: "saveredaction",
+            type: "saverotation",
             title: "Something went wrong!",
             message: errorMessage,
           },

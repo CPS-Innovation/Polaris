@@ -54,7 +54,9 @@ type AppInsightsTrackEventNames =
   | "Save Reclassify"
   | "Save Reclassify Error"
   | "Delete Page"
-  | "Undo Delete Page";
+  | "Undo Delete Page"
+  | "Save Redaction Error"
+  | "Save Rotation Error";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -154,6 +156,10 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "Attempt to reclassify a document failed and displayed error message to the user",
   "Delete Page": "User has marked a page for deletion",
   "Undo Delete Page": "User selects to undo the page deletion",
+  "Save Redaction Error":
+    "Attempt to save redaction failed and displayed error message to the user",
+  "Save Rotation Error":
+    "Attempt to save page rotation failed and displayed error message to the user",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
