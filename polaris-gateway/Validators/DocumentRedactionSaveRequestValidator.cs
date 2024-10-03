@@ -17,7 +17,6 @@ namespace PolarisGateway.Validators
             });
             When(x => x.Redactions != null && x.Redactions.Any(), () =>
             {
-                RuleFor(x => x.Redactions).NotEmpty().WithMessage("At least one redaction must be provided");
                 RuleForEach(c => c.Redactions).SetValidator(new RedactionValidator());
             });
         }
