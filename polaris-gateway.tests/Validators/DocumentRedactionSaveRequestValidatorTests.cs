@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using PolarisGateway.Validators;
-using Xunit;
-using FluentValidation.TestHelper;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
+using FluentValidation.TestHelper;
+using PolarisGateway.Validators;
+using Xunit;
 
 namespace PolarisGateway.Tests.Validators
 {
@@ -20,22 +20,24 @@ namespace PolarisGateway.Tests.Validators
         }
 
         [Fact]
-        public async Task Redactions_WhenEmpty_ReturnsValidationError()
+        public async Task Redactions_WhenEmpty_ReturnsValidationError_WhenNoDocumentModificationsArePresent()
         {
             var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
             saveRequest.Redactions = null;
+            saveRequest.DocumentModifications = null;
 
             var redactionValidator = new DocumentRedactionSaveRequestValidator();
             var validationResult = await redactionValidator.TestValidateAsync(saveRequest);
 
-            validationResult.ShouldHaveValidationErrorFor(x => x.Redactions);
+            validationResult.ShouldHaveValidationErrorFor(x => x.DocumentModifications);
         }
 
         [Fact]
-        public async Task Redactions_WhenZeroLength_ReturnsValidationError()
+        public async Task DocumentModifications_WhenEmpty_ReturnsValidationError_WhenNoRedactionsArePresent()
         {
             var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
-            saveRequest.Redactions = new List<RedactionDefinitionDto>();
+            saveRequest.Redactions = null;
+            saveRequest.DocumentModifications = null;
 
             var redactionValidator = new DocumentRedactionSaveRequestValidator();
             var validationResult = await redactionValidator.TestValidateAsync(saveRequest);

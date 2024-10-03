@@ -443,6 +443,7 @@ describe("mapAccordionState", () => {
         {
           documentId: "1",
           cmsDocumentId: "1",
+          cmsVersionId: 1,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
           cmsOriginalFileName: "foo",
@@ -480,6 +481,7 @@ describe("mapAccordionState", () => {
         {
           documentId: "2",
           cmsDocumentId: "2",
+          cmsVersionId: 2,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
           cmsOriginalFileName: "bar",
@@ -529,6 +531,7 @@ describe("mapAccordionState", () => {
             {
               documentId: "2",
               cmsDocumentId: "2",
+              cmsVersionId: 2,
               presentationCategory: "Reviews",
               presentationSubCategory: null,
               cmsOriginalFileName: "bar",

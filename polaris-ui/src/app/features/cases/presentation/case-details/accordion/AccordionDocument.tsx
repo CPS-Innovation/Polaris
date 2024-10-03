@@ -29,15 +29,14 @@ import {
   DropdownButton,
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
 
 type Props = {
   activeDocumentId: string;
   readUnreadData: string[];
   caseDocument: MappedCaseDocument;
-  featureFlags: {
-    notes: boolean;
-    renameDocument: boolean;
-  };
+  featureFlags: FeatureFlagData;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
@@ -49,8 +48,10 @@ type Props = {
     documentType: string,
     classification: Classification
   ) => void;
+  handleReclassifyDocument: (documentId: string) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
+  reclassifyData: ReclassifyDocumentData[];
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -59,9 +60,11 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   featureFlags,
   notesData,
+  reclassifyData,
   handleOpenPdf,
   handleOpenPanel,
   handleGetNotes,
+  handleReclassifyDocument,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -136,21 +139,36 @@ export const AccordionDocument: React.FC<Props> = ({
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
-    if (!featureFlags.renameDocument) return items;
     if (featureFlags.renameDocument && caseDocument.canRename) {
       items = [
+        ...items,
         {
           id: "1",
           label: "Rename document",
           ariaLabel: "Rename document",
           disabled: false,
         },
+      ];
+    }
+    if (featureFlags.reclassify && caseDocument.canReclassify) {
+      items = [
         ...items,
+        {
+          id: "2",
+          label: "Reclassify document",
+          ariaLabel: "Reclassify document",
+          disabled: false,
+        },
       ];
     }
 
     return items;
-  }, [caseDocument.canRename, featureFlags.renameDocument]);
+  }, [
+    caseDocument.canReclassify,
+    caseDocument.canRename,
+    featureFlags.renameDocument,
+    featureFlags.reclassify,
+  ]);
 
   const handleDocumentAction = (id: string) => {
     switch (id) {
@@ -163,8 +181,10 @@ export const AccordionDocument: React.FC<Props> = ({
           caseDocument.cmsDocType.documentType,
           caseDocument.classification
         );
-
-        break;
+        return;
+      case "2":
+        handleReclassifyDocument(caseDocument.documentId);
+        return;
       default:
         break;
     }
@@ -185,6 +205,13 @@ export const AccordionDocument: React.FC<Props> = ({
         {activeDocumentId === caseDocument.documentId && (
           <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
             Active Document
+          </strong>
+        )}
+        {reclassifyData.find(
+          (doc) => doc.documentId === caseDocument.documentId
+        )?.reclassified && (
+          <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
+            Reclassified
           </strong>
         )}
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
@@ -233,7 +260,9 @@ export const AccordionDocument: React.FC<Props> = ({
                     Time added
                   </span>
                   <TimeIcon className={classes.timeIcon} />
-                  {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
+                  <span className={classes.timeValue}>
+                    {formattedFileCreatedTime}
+                  </span>
                 </>
               )}
               {featureFlags.notes && (
@@ -290,6 +319,17 @@ export const AccordionDocument: React.FC<Props> = ({
               )}
             </div>
 
+            {caseDocument.reference && (
+              <div>
+                <span className={classes.reference}>
+                  Ref:{" "}
+                  <strong className={classes.referenceValue}>
+                    {caseDocument.reference}
+                  </strong>{" "}
+                </span>
+              </div>
+            )}
+
             {!!caseDocument.attachments.length && (
               <div className={classes.attachmentWrapper}>
                 <AttachmentIcon className={classes.attachmentIcon} />
@@ -314,9 +354,9 @@ export const AccordionDocument: React.FC<Props> = ({
             />
           )}
         </div>
-        <div className={classes.witnessIndicators}>
-          {caseDocument.witnessIndicators.length > 0 &&
-            caseDocument.witnessIndicators
+        {caseDocument.witnessIndicators.length > 0 && (
+          <div className={classes.witnessIndicators}>
+            {caseDocument.witnessIndicators
               .sort(
                 (a, b) =>
                   witnessIndicatorPrecedenceOrder.indexOf(a) -
@@ -334,7 +374,8 @@ export const AccordionDocument: React.FC<Props> = ({
                   </span>
                 </strong>
               ))}
-        </div>
+          </div>
+        )}
 
         {!canViewDocument && (
           <span

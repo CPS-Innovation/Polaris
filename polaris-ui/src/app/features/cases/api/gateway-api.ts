@@ -16,6 +16,12 @@ import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequ
 import { Note } from "../domain/gateway/NotesData";
 import { SearchPIIResultItem } from "../domain/gateway/SearchPIIData";
 import { removeNonDigits } from "../presentation/case-details/utils/redactionLogUtils";
+import { MaterialType } from "../presentation/case-details/reclassify/data/MaterialType";
+import { ExhibitProducer } from "../presentation/case-details/reclassify/data/ExhibitProducer";
+import { StatementWitness } from "../presentation/case-details/reclassify/data/StatementWitness";
+import { StatementWitnessNumber } from "../presentation/case-details/reclassify/data/StatementWitnessNumber";
+import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
+import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
 
 const FORBIDDEN_STATUS_CODE = 403;
 const GONE_STATUS_CODE = 410;
@@ -65,6 +71,18 @@ export const resolvePdfUrl = (
   return fullUrl(
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
   );
+};
+
+export const lookupUrn = async (caseId: number) => {
+  const url = fullUrl(`/api/urn-lookup/${caseId}`);
+  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
+  const response = await internalReauthenticatingFetch(url, {
+    headers,
+  });
+
+  await handleGetCaseApiResponse(response, url, "Lookup URN failed");
+
+  return (await response.json()) as UrnLookupResult;
 };
 
 export const searchUrn = async (urn: string) => {
@@ -369,6 +387,95 @@ export const getSearchPIIData = async (
   }
 
   return (await response.json()) as SearchPIIResultItem[];
+};
+
+export const getMaterialTypeList = async () => {
+  const path = fullUrl(`/api/reference/reclassification`);
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get material type list failed", path, response);
+  }
+
+  return (await response.json()) as MaterialType[];
+};
+
+export const getExhibitProducers = async (urn: string, caseId: number) => {
+  const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/exhibit-producers`);
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get exhibit details failed", path, response);
+  }
+
+  return (await response.json()) as ExhibitProducer[];
+};
+
+export const getStatementWitnessDetails = async (
+  urn: string,
+  caseId: number
+) => {
+  const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/witnesses`);
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get statement details failed", path, response);
+  }
+
+  return (await response.json()) as StatementWitness[];
+};
+
+export const getWitnessStatementNumbers = async (
+  urn: string,
+  caseId: number,
+  witnessId: number
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/witnesses/${witnessId}/statements`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get witness statement numbers failed", path, response);
+  }
+
+  return (await response.json()) as StatementWitnessNumber[];
+};
+
+export const saveDocumentReclassify = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  data: ReclassifySaveData
+) => {
+  const docId = parseInt(removeNonDigits(documentId));
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/reclassify`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    return false;
+  }
+
+  return true;
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

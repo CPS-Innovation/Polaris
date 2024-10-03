@@ -6,6 +6,8 @@ import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { Classification } from "../../../domain/gateway/PipelineDocument";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
 
 type Props = {
   activeDocumentId: string;
@@ -14,10 +16,7 @@ type Props = {
   docs: MappedCaseDocument[];
   readUnreadData: string[];
   isOpen: boolean;
-  featureFlags: {
-    notes: boolean;
-    renameDocument: boolean;
-  };
+  featureFlags: FeatureFlagData;
   handleToggleOpenSection: (id: string, sectionLabel: string) => void;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
@@ -31,7 +30,9 @@ type Props = {
     classification: Classification
   ) => void;
   handleGetNotes: (documentId: string) => void;
+  handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
+  reclassifyData: ReclassifyDocumentData[];
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -50,10 +51,12 @@ export const AccordionSection: React.FC<Props> = ({
   readUnreadData,
   featureFlags,
   notesData,
+  reclassifyData,
   handleToggleOpenSection,
   handleOpenPdf,
   handleOpenPanel,
   handleGetNotes,
+  handleReclassifyDocument,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -109,6 +112,8 @@ export const AccordionSection: React.FC<Props> = ({
                     featureFlags={featureFlags}
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
+                    reclassifyData={reclassifyData}
+                    handleReclassifyDocument={handleReclassifyDocument}
                   />
                 ))}
               </ul>

@@ -26,16 +26,31 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip_corsham            = "10.2.177.2"
-  upstream_cms_modern_ip_corsham     = "10.2.177.65"
-  upstream_cms_ip_farnborough        = "10.3.177.2"
-  upstream_cms_modern_ip_farnborough = "10.3.177.65"
-  upstream_cms_domain_name           = "cms.cps.gov.uk"
-  upstream_cms_modern_domain_name    = "cmsmodern.cps.gov.uk"
-  upstream_cms_services_domain_name  = "cms-services.cps.gov.uk"
+  default_upstream_cms_ip_corsham            = "10.2.177.2"
+  default_upstream_cms_modern_ip_corsham     = "10.2.177.65"
+  default_upstream_cms_ip_farnborough        = "10.3.177.2"
+  default_upstream_cms_modern_ip_farnborough = "10.3.177.65"
+  default_upstream_cms_domain_name           = "cms.cps.gov.uk"
+  default_upstream_cms_modern_domain_name    = "cmsmodern.cps.gov.uk"
+  default_upstream_cms_services_domain_name  = "cms-services.cps.gov.uk"
+  cin4_upstream_cms_ip_corsham               = "10.2.177.35"
+  cin4_upstream_cms_modern_ip_corsham        = "10.2.177.67"
+  cin4_upstream_cms_ip_farnborough           = "10.3.177.35"
+  cin4_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
+  cin4_upstream_cms_domain_name              = "cin4.cps.gov.uk"
+  cin4_upstream_cms_modern_domain_name       = "cmsmodstage.cps.gov.uk"
+  cin4_upstream_cms_services_domain_name     = "not-used-in-cin4.cps.gov.uk"
+  cin5_upstream_cms_ip_corsham               = "10.2.177.21"
+  cin5_upstream_cms_modern_ip_corsham        = "10.2.177.67"
+  cin5_upstream_cms_ip_farnborough           = "10.3.177.21"
+  cin5_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
+  cin5_upstream_cms_domain_name              = "cin5.cps.gov.uk"
+  cin5_upstream_cms_modern_domain_name       = "cmsmodcin5.cps.gov.uk"
+  cin5_upstream_cms_services_domain_name     = "not-used-in-cin5.cps.gov.uk"
 }
 
 wm_task_list_host_name = "https://cps.outsystemsenterprise.com"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/WorkManagementApp/,https://cps.outsystemsenterprise.com/CaseReview/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -50,6 +65,9 @@ feature_flag_full_screen              = "true"
 feature_flag_notes                    = "true"
 feature_flag_search_pii               = "true"
 feature_flag_rename_document          = "true"
+feature_flag_reclassify               = "true"
+feature_flag_page_delete              = "true"
+feature_flag_external_redirect        = "true"
 local_storage_expiry_days             = "30"
 
 private_beta = {
@@ -57,9 +75,17 @@ private_beta = {
   user_group          = ""
   feature_user_group  = "8fc75d71-3479-4a77-b33b-41fd26ec4960"
   feature_user_group2 = "1663cea9-062e-4f6e-a7ac-26f0942724f3"
+  feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
 }
 
-polaris_ui_reauth_redirect_url = "/polaris-deployed?polaris-ui-url="
+case_review_app_redirect_url   = "https://cps.outsystemsenterprise.com/CaseReview/Redirect"
+bulk_um_redirect_url           = "https://cps.outsystemsenterprise.com/CaseReview/Redirect"
+
+polaris_ui_reauth_redirect_url = {
+  outbound_live = "/auth-refresh-outbound"
+  outbound_e2e  = "/polaris"
+  inbound       = "/auth-refresh-inbound"
+}
 
 ssl_certificate_name           = "polaris-prod58a2bb2c-0fbb-416c-9d39-44423b2f42ac"
 ssl_policy_name                = "AppGwSslPolicy20220101"

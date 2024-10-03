@@ -40,9 +40,13 @@ import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
+import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+import { mapNotificationState } from "./map-notification-state";
+import { NotificationType } from "../../domain/NotificationState";
 export const reducer = (
   state: CombinedState,
   action:
@@ -116,6 +120,13 @@ export const reducer = (
         };
       }
     | {
+        type: "ADD_PAGE_DELETE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          pageDeleteRedactions: PageDeleteRedaction[];
+        };
+      }
+    | {
         type: "SAVING_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
@@ -124,6 +135,13 @@ export const reducer = (
       }
     | {
         type: "REMOVE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          redactionId: string;
+        };
+      }
+    | {
+        type: "REMOVE_PAGE_DELETE_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           redactionId: string;
@@ -225,6 +243,17 @@ export const reducer = (
         };
       }
     | {
+        type: "UPDATE_RECLASSIFY_DATA";
+        payload: {
+          properties: {
+            documentId: string;
+            newDocTypeId?: number;
+            reclassified?: boolean;
+            saveReclassifyRefreshStatus: "initial" | "updating" | "updated";
+          };
+        };
+      }
+    | {
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
         payload: {
           documentId: string;
@@ -248,6 +277,10 @@ export const reducer = (
           highlightGroupIds: string[];
           type: PIIRedactionStatus;
         };
+      }
+    | {
+        type: "REGISTER_NOTIFIABLE_EVENT";
+        payload: { documentId: string; notificationType: NotificationType };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -295,40 +328,38 @@ export const reducer = (
 
       if (action.payload.data.status === "Completed") {
         const newPipelineData = action.payload.data;
-        const documentsNeedsToBeUpdated =
-          nextState.pipelineRefreshData.savedDocumentDetails.filter(
-            (document) => !hasDocumentUpdated(document, newPipelineData)
-          );
 
         nextState = {
           ...nextState,
           pipelineRefreshData: {
             ...nextState.pipelineRefreshData,
-            savedDocumentDetails: documentsNeedsToBeUpdated,
-            lastProcessingCompleted: action.payload.data.processingCompleted,
+            // If a document that is lined up to be saved and has been updated
+            //  then we need to drop it - no sense in updating it.
+            savedDocumentDetails:
+              nextState.pipelineRefreshData.savedDocumentDetails.filter(
+                (document) => !hasDocumentUpdated(document, newPipelineData)
+              ),
+            lastProcessingCompleted: newPipelineData.processingCompleted,
           },
         };
       }
 
-      let shouldBuildDocumentsState = false;
-      if (isDocumentsPresentStatus(action.payload.data.status)) {
-        const currentDocumentsRetrieved = !state.pipelineState.haveData
-          ? ""
-          : state.pipelineState.data.documentsRetrieved;
-        shouldBuildDocumentsState = isNewTime(
+      const shouldBuildDocumentsState =
+        isDocumentsPresentStatus(action.payload.data.status) &&
+        isNewTime(
           action.payload.data.documentsRetrieved,
-          currentDocumentsRetrieved
+          (state.pipelineState.haveData &&
+            state.pipelineState.data.documentsRetrieved) ||
+            ""
         );
-      }
 
       if (shouldBuildDocumentsState) {
-        const witnesses =
-          state.caseState && state.caseState.status === "succeeded"
-            ? state.caseState.data.witnesses
-            : [];
         const documentsState = mapDocumentsState(
           action.payload.data.documents,
-          witnesses
+          (state.caseState &&
+            state.caseState.status === "succeeded" &&
+            state.caseState.data.witnesses) ||
+            []
         );
         const accordionState = mapAccordionState(documentsState);
         nextState = {
@@ -336,6 +367,22 @@ export const reducer = (
           documentsState,
           accordionState,
         };
+
+        if (
+          documentsState.status === "succeeded" &&
+          state.documentsState.status === "succeeded"
+        ) {
+          const notificationState = mapNotificationState(
+            state.notificationState,
+            state.documentsState.data,
+            documentsState.data,
+            action.payload.data.documentsRetrieved
+          );
+          nextState = {
+            ...nextState,
+            notificationState,
+          };
+        }
       }
 
       const newPipelineResults = action.payload;
@@ -527,6 +574,7 @@ export const reducer = (
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
+        pageDeleteRedactions: [],
         isDeleted: false,
         saveStatus: "initial" as const,
       };
@@ -862,14 +910,64 @@ export const reducer = (
           ),
         },
       };
-      //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      if (redactionHighlights.length) {
-        addToLocalStorage(state.caseId, "redactions", redactionHighlights);
+      if (redactionsToSave.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
+      }
+      return newState;
+    }
+    case "ADD_PAGE_DELETE_REDACTION": {
+      const { documentId, pageDeleteRedactions } = action.payload;
+      const newRedactions = pageDeleteRedactions.map((redaction, index) => ({
+        ...redaction,
+        id: String(`${+new Date()}-${index}`),
+      }));
+
+      //This is applicable only when the user deletes a page with unsaved redactions
+      const clearPageUnsavedRedactions = (
+        redactionHighlights: IPdfHighlight[]
+      ) => {
+        if (pageDeleteRedactions.length > 1) return [];
+        return redactionHighlights.filter(
+          (redaction) =>
+            redaction?.position?.pageNumber !==
+            pageDeleteRedactions[0].pageNumber
+        );
+      };
+
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageDeleteRedactions: [
+                    ...item.pageDeleteRedactions,
+                    ...newRedactions,
+                  ],
+                  redactionHighlights: [
+                    ...clearPageUnsavedRedactions(item.redactionHighlights),
+                  ],
+                }
+              : item
+          ),
+        },
+      };
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      if (redactionsToSave.length) {
+        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
       }
       return newState;
     }
@@ -910,14 +1008,46 @@ export const reducer = (
           ),
         },
       };
-      //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionHighlights.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
+      redactionsToSave.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
+        : deleteFromLocalStorage(state.caseId, "redactions");
+
+      return newState;
+    }
+
+    case "REMOVE_PAGE_DELETE_REDACTION": {
+      const { redactionId, documentId } = action.payload;
+
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageDeleteRedactions: item.pageDeleteRedactions.filter(
+                    (redaction) => redaction.id !== redactionId
+                  ),
+                }
+              : item
+          ),
+        },
+      };
+      //adding redactions to local storage
+      const redactionsToSave = getRedactionsToSaveLocally(
+        newState.tabsState.items,
+        documentId,
+        state.caseId
+      );
+      redactionsToSave.length
+        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
         : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
@@ -934,6 +1064,7 @@ export const reducer = (
               ? {
                   ...item,
                   redactionHighlights: [],
+                  pageDeleteRedactions: [],
                 }
               : item
           ),
@@ -1127,6 +1258,28 @@ export const reducer = (
       };
     }
 
+    case "UPDATE_RECLASSIFY_DATA": {
+      const { properties } = action.payload;
+
+      const filteredData = state.reclassifyDocuments.filter(
+        (data) => data.documentId !== properties.documentId
+      );
+      let currentData = state.reclassifyDocuments.find(
+        (data) => data.documentId === properties.documentId
+      )!;
+
+      return {
+        ...state,
+        reclassifyDocuments: [
+          ...filteredData,
+          {
+            ...currentData,
+            ...properties,
+          },
+        ],
+      };
+    }
+
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
       const {
         documentId,
@@ -1282,6 +1435,18 @@ export const reducer = (
       return newState;
     }
 
+    case "REGISTER_NOTIFIABLE_EVENT": {
+      return {
+        ...state,
+        notificationState: {
+          ...state.notificationState,
+          ignoreNextEvents: [
+            ...state.notificationState.ignoreNextEvents,
+            action.payload,
+          ],
+        },
+      };
+    }
     default:
       throw new Error("Unknown action passed to case details reducer");
   }

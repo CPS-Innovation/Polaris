@@ -5,8 +5,8 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
-    <PublishReadyToRun>true</PublishReadyToRun>
     <RootNamespace>pdf_redactor</RootNamespace>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'false'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -71,8 +71,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Domain\Messaging\" />
   </ItemGroup>
 </Project>

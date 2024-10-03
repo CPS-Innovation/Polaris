@@ -108,10 +108,10 @@ namespace pdf_redactor.integration.tests
 
             if (pageIndexsToRotate != null)
             {
-                var documentChanges = modifications.DocumentChanges.OrderBy(x => x.PageIndex).ToList();
+                var documentChanges = modifications.DocumentModifications.OrderBy(x => x.PageIndex).ToList();
                 var firstPageRotated = documentChanges.First(x => x.Operation == DocumentManipulationOperation.RotatePage);
                 var itemIndex = documentChanges.IndexOf(firstPageRotated);
-                var numberOfPagesRemovedBeforeFirstRotation = modifications.DocumentChanges.Take(itemIndex).Where(x => x.Operation == DocumentManipulationOperation.RemovePage).Count();
+                var numberOfPagesRemovedBeforeFirstRotation = modifications.DocumentModifications.Take(itemIndex).Where(x => x.Operation == DocumentManipulationOperation.RemovePage).Count();
                 var firstRotatedPageIndex = pageIndexsToRotate.First().Key - numberOfPagesRemovedBeforeFirstRotation;
 
                 var firstRotationValue = GetRotation(pageIndexsToRotate.First().Value);

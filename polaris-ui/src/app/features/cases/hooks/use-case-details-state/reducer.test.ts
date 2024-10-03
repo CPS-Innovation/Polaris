@@ -20,6 +20,7 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
 import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
+import { NotificationState } from "../../domain/NotificationState";
 
 const ERROR = new Error();
 
@@ -728,6 +729,7 @@ describe("useCaseDetailsState reducer", () => {
             mode: "read",
             pdfBlobName: "foo",
             redactionHighlights: [],
+            pageDeleteRedactions: [],
             url: "baz",
             isDeleted: false,
             saveStatus: "initial",
@@ -789,6 +791,7 @@ describe("useCaseDetailsState reducer", () => {
             isDeleted: false,
             saveStatus: "initial",
             redactionHighlights: [],
+            pageDeleteRedactions: [],
             mode: "read",
           },
         ],
@@ -989,6 +992,7 @@ describe("useCaseDetailsState reducer", () => {
                 clientLockedState: "unlocked",
                 searchTerm: "foo",
                 occurrencesInDocumentCount: 3,
+                pageDeleteRedactions: [],
                 areaOnlyRedactionMode: false,
                 searchHighlights: [
                   {
@@ -1097,6 +1101,7 @@ describe("useCaseDetailsState reducer", () => {
                 url: undefined,
                 isDeleted: false,
                 saveStatus: "initial",
+                pageDeleteRedactions: [],
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1244,6 +1249,7 @@ describe("useCaseDetailsState reducer", () => {
                 saveStatus: "initial",
                 areaOnlyRedactionMode: false,
                 occurrencesInDocumentCount: 4,
+                pageDeleteRedactions: [],
                 pageOccurrences: [
                   {
                     boundingBoxes: [[1, 2, 3]],
@@ -2105,6 +2111,7 @@ describe("useCaseDetailsState reducer", () => {
             {
               documentId: "1",
               redactionHighlights: [],
+              pageDeleteRedactions: [],
             },
             {
               documentId: "2",
@@ -2277,6 +2284,29 @@ describe("useCaseDetailsState reducer", () => {
           title: "",
           type: "",
         },
+      });
+    });
+  });
+
+  describe("Notifications", () => {
+    it("can register a notification to be ignored", () => {
+      const existingState = {
+        notificationState: {
+          ignoreNextEvents: [],
+          events: [],
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState, {
+        type: "REGISTER_NOTIFIABLE_EVENT",
+        payload: { documentId: "1", notificationType: "New" },
+      });
+
+      expect(result).toEqual({
+        notificationState: {
+          ignoreNextEvents: [{ documentId: "1", notificationType: "New" }],
+          events: [],
+        } as NotificationState,
       });
     });
   });

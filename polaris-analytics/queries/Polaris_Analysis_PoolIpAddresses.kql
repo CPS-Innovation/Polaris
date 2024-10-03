@@ -1,0 +1,30 @@
+AppRequests
+| where AppRoleName == "fa-polaris-ddei"
+| where OperationName != "Status"
+| extend 
+    LoadBalancingCookie = tostring(Properties.LoadBalancingCookie),
+    PolarisCorrelationId = tostring(Properties.PolarisCorrelationId),
+    PreferredLoadBalancerTarget = tostring(Properties.PreferredLoadBalancerTarget),
+    ClientIPUnredacted = tostring(Properties.ClientIPUnredacted)
+| where ResultCode == "200"
+| where OperationName == "GetCase"
+| where Properties.CmsUserId != -2147483648
+| extend CorshamCookieValue = extract("CPSACL-LTM-CM-WAN-WAS-cms.cps.gov.uk_POOL=([^;]+)",1, LoadBalancingCookie )
+| extend FarnboroughCookieValue = extract("CPSAFL-LTM-CM-WAN-WAS-cms.cps.gov.uk_POOL=([^;]+)",1, LoadBalancingCookie )    
+| extend CordhamPoolIp = strcat(toint(strcat("0x", substring(substring(CorshamCookieValue, -11, 8), 0, 2))), ".", toint(strcat("0x", substring(substring(CorshamCookieValue, -11, 8), 2, 2))), ".", toint(strcat("0x", substring(substring(CorshamCookieValue, -11, 8), 4, 2))), ".", toint(strcat("0x", substring(substring(CorshamCookieValue, -11, 8), 6, 2))))
+| extend FarnboroughPoolIp = strcat(toint(strcat("0x", substring(substring(FarnboroughCookieValue, -11, 8), 0, 2))), ".", toint(strcat("0x", substring(substring(FarnboroughCookieValue, -11, 8), 2, 2))), ".", toint(strcat("0x", substring(substring(FarnboroughCookieValue, -11, 8), 4, 2))), ".", toint(strcat("0x", substring(substring(FarnboroughCookieValue, -11, 8), 6, 2))))
+| project 
+    TimeGenerated, 
+    PolarisCorrelationId,
+    CorshamPoolIp = iif(CordhamPoolIp == "...", "", CordhamPoolIp),
+    FarnboroughPoolIp = iif(FarnboroughPoolIp == "...", "", FarnboroughPoolIp),
+    PreferredLoadBalancerTarget  ,
+    ClientIPUnredacted  
+| extend TargetIp = iif(PreferredLoadBalancerTarget == "Corsham", CorshamPoolIp, FarnboroughPoolIp)
+| extend BigIpSituationVariant = case(
+    isempty(CorshamPoolIp) and isnotempty(FarnboroughPoolIp), "Farnborough",
+    isnotempty(CorshamPoolIp) and isempty(FarnboroughPoolIp), "Corsham",
+    isnotempty(CorshamPoolIp) and isnotempty(FarnboroughPoolIp) and CorshamPoolIp == FarnboroughPoolIp, "Identical",
+    "Differing"
+)
+

@@ -287,6 +287,7 @@ describe("Save User Data", () => {
             ],
           },
         ],
+        documentModifications: [],
       };
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(

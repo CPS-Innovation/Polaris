@@ -1,0 +1,92 @@
+let Base = Polaris_Metrics_DurableBase
+| where State in ("Scheduled", "Started", "Completed")
+;
+
+let Sessions = Base
+| where FunctionName in ("RefreshCaseOrchestrator", "RefreshDocumentOrchestrator")
+| order by OperationId asc, TimeGenerated asc 
+// We see that multiple case refreshes happen under the same OperationId, so we need to assign a unique session to each refresh
+// This is important
+| extend SessionId = tolong(row_window_session(TimeGenerated, 11m, 11m, FunctionName == "RefreshCaseOrchestrator" and State == "Completed"))
+;
+
+let RefreshDocumentOrchestratorBase = Sessions
+| where FunctionName == "RefreshDocumentOrchestrator"
+| order by OperationId asc, State desc, TimeGenerated asc
+// Suborchestrations do not naturally have a unique key that links a schedule to a start.  We have to assign a key ourselves by adding
+// a rank to each schedule and each start to able us to deduce the latency between each schedule/start pair via a join
+| extend Rank = row_rank_dense(SequenceNumber, State != prev(State) or OperationId != prev(OperationId) or SessionId != prev(SessionId))
+;
+
+let RefreshDocumentOrchestrator = 
+RefreshDocumentOrchestratorBase | where State == "Scheduled"
+| join kind=inner (
+    RefreshDocumentOrchestratorBase | where State == "Started"
+) on OperationId, SessionId, Rank
+| extend LatencyMs = datetime_diff('millisecond', TimeGenerated1, TimeGenerated)
+| project 
+    TimeGenerated, 
+    LatencyMs, 
+    FunctionName,
+    FunctionType,
+    ParentId,
+    InstanceId = InstanceId1 // the Started has the real InstanceId, the Scheduled has the parent orch instance id, unhelpfully
+;
+//RefreshDocumentOrchestrator
+
+
+// let RefreshCaseOrchestratorBase = Sessions
+// | where FunctionName == "RefreshCaseOrchestrator"
+// | where State in ("Scheduled", "Started")
+// ;
+
+// let RefreshCaseOrchestrator = RefreshCaseOrchestratorBase
+// | where State == "Scheduled"
+// | join kind=inner (
+//     RefreshCaseOrchestratorBase
+//     | where State == "Started"
+// ) on OperationId, SessionId
+// | project 
+//     TimeGenerated, 
+//     LatencyMs = datetime_diff('millisecond', TimeGenerated1, TimeGenerated), 
+//     FunctionName = "RefreshCaseOrchestrator",
+//     ParentId
+// ;
+//RefreshCaseOrchestrator
+
+
+let NonRefreshDocumentOrchestrator = Polaris_Metrics_DurableBase
+| where State in ("Scheduled", "Started")
+| where FunctionName != "RefreshDocumentOrchestrator"
+| order by InstanceId asc, FunctionName asc, TimeGenerated asc
+| extend ScheduledTime = case(
+    State == "Started" and prev(State) == "Scheduled"    and FunctionName == prev(FunctionName) and InstanceId == prev(InstanceId), prev(TimeGenerated),
+    // edge case: multiple scheduled entity then multiple started entity, 
+    State == "Started" and prev(State, 1) == "Scheduled" and FunctionName == prev(FunctionName, 1) and InstanceId == prev(InstanceId, 1), prev(TimeGenerated, 1), 
+    State == "Started" and prev(State, 2) == "Scheduled" and FunctionName == prev(FunctionName, 2) and InstanceId == prev(InstanceId, 2), prev(TimeGenerated, 2), 
+    State == "Started" and prev(State, 3) == "Scheduled" and FunctionName == prev(FunctionName, 3) and InstanceId == prev(InstanceId, 3), prev(TimeGenerated, 3), 
+    datetime(null))
+| where State == "Started"
+| where isnotempty(ScheduledTime) 
+| extend LatencyMs = datetime_diff('millisecond', TimeGenerated, ScheduledTime)
+| project 
+    TimeGenerated, 
+    LatencyMs, 
+    FunctionName,
+    FunctionType,
+    ParentId,
+    InstanceId
+;
+
+union NonRefreshDocumentOrchestrator, RefreshDocumentOrchestrator
+| join kind=leftouter (
+    Polaris_Metrics_CaseRefresh 
+    | summarize 
+        CaseDocCount = max(CmsDocsProcessedCount),
+        DurationSeconds = max(DurationSeconds) 
+    by CaseId
+    | project 
+        ParentId = strcat("[", CaseId, "]"),
+        CaseDocCount,
+        DurationSeconds
+    ) on ParentId | project-away ParentId1

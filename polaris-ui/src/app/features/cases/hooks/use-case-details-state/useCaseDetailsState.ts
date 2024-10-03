@@ -24,7 +24,12 @@ import {
   readFromLocalStorage,
   ReadUnreadData,
 } from "../../presentation/case-details/utils/localStorageUtils";
-import { handleRenameUpdateConfirmation } from "../utils/refreshCycleDataUpdate";
+import {
+  handleRenameUpdateConfirmation,
+  handleReclassifyUpdateConfirmation,
+} from "../utils/refreshCycleDataUpdate";
+import { TaggedContext } from "../../../../inbound-handover/context";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -39,6 +44,10 @@ export const initialState = {
   },
   accordionState: { status: "loading" },
   tabsState: { items: [], headers: {}, activeTabId: undefined },
+  notificationState: {
+    ignoreNextEvents: [],
+    events: [],
+  },
   searchTerm: "",
   searchState: {
     isResultsVisible: false,
@@ -78,16 +87,22 @@ export const initialState = {
     notes: false,
     searchPII: false,
     renameDocument: false,
+    reclassify: false,
+    externalRedirect: false,
+    pageDelete: false,
   },
   storedUserData: { status: "loading" },
   notes: [],
   searchPII: [],
   renameDocuments: [],
+  reclassifyDocuments: [],
+  context: undefined,
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (
   urn: string,
   caseId: number,
+  context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
   const featureFlagData = useUserGroupsFeatureFlag();
@@ -96,7 +111,7 @@ export const useCaseDetailsState = (
 
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
-    { ...initialState, caseId, urn },
+    { ...initialState, caseId, urn, context },
     reducerAsyncActionHandlers
   );
 
@@ -173,27 +188,54 @@ export const useCaseDetailsState = (
     if (!pipelineState.pipelineResults?.haveData) {
       return;
     }
+
     const activeRenameDoc = combinedState.renameDocuments.find(
       (doc) => doc.saveRenameRefreshStatus === "updating"
     );
-    if (!activeRenameDoc) return;
-    const isUpdated = handleRenameUpdateConfirmation(
-      pipelineState.pipelineResults.data,
-      activeRenameDoc
+    const activeReclassifyDoc = combinedState.reclassifyDocuments.find(
+      (doc) => doc.saveReclassifyRefreshStatus === "updating"
     );
-
-    if (isUpdated) {
-      dispatch({
-        type: "UPDATE_RENAME_DATA",
-        payload: {
-          properties: {
-            documentId: activeRenameDoc.documentId,
-            saveRenameRefreshStatus: "updated",
+    if (!activeRenameDoc && !activeReclassifyDoc) return;
+    if (activeRenameDoc) {
+      const isUpdated = handleRenameUpdateConfirmation(
+        pipelineState.pipelineResults.data,
+        activeRenameDoc
+      );
+      if (isUpdated) {
+        dispatch({
+          type: "UPDATE_RENAME_DATA",
+          payload: {
+            properties: {
+              documentId: activeRenameDoc.documentId,
+              saveRenameRefreshStatus: "updated",
+            },
           },
-        },
-      });
+        });
+      }
     }
-  }, [pipelineState.pipelineResults, combinedState.renameDocuments, dispatch]);
+    if (activeReclassifyDoc) {
+      const isUpdated = handleReclassifyUpdateConfirmation(
+        pipelineState.pipelineResults.data,
+        activeReclassifyDoc
+      );
+      if (isUpdated) {
+        dispatch({
+          type: "UPDATE_RECLASSIFY_DATA",
+          payload: {
+            properties: {
+              documentId: activeReclassifyDoc.documentId,
+              saveReclassifyRefreshStatus: "updated",
+            },
+          },
+        });
+      }
+    }
+  }, [
+    pipelineState.pipelineResults,
+    combinedState.renameDocuments,
+    combinedState.reclassifyDocuments,
+    dispatch,
+  ]);
 
   useEffect(() => {
     const { startRefresh } = combinedState.pipelineRefreshData;
@@ -357,11 +399,12 @@ export const useCaseDetailsState = (
   const handleAddRedaction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      redactions: NewPdfHighlight[]
+      redactions?: NewPdfHighlight[],
+      pageDeleteRedactions?: PageDeleteRedaction[]
     ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { documentId, redactions },
+        payload: { documentId, redactions, pageDeleteRedactions },
       }),
     [dispatch]
   );
@@ -579,6 +622,50 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleResetReclassifyData = useCallback(
+    (documentId: string) => {
+      dispatch({
+        type: "UPDATE_RECLASSIFY_DATA",
+        payload: {
+          properties: {
+            documentId: documentId,
+            saveReclassifyRefreshStatus: "initial",
+          },
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleReclassifySuccess = useCallback(
+    (documentId: string, newDocTypeId: number) => {
+      dispatch({
+        type: "UPDATE_RECLASSIFY_DATA",
+        payload: {
+          properties: {
+            documentId: documentId,
+            newDocTypeId: newDocTypeId,
+            reclassified: true,
+            saveReclassifyRefreshStatus: "updating",
+          },
+        },
+      });
+
+      dispatch({
+        type: "REGISTER_NOTIFIABLE_EVENT",
+        payload: { documentId, notificationType: "Reclassified" },
+      });
+
+      dispatch({
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: true,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -608,5 +695,7 @@ export const useCaseDetailsState = (
     handleGetSearchPIIData,
     handleSearchPIIAction,
     handleResetRenameData,
+    handleReclassifySuccess,
+    handleResetReclassifyData,
   };
 };

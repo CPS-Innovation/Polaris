@@ -162,3 +162,8 @@ data "azurerm_key_vault_secret" "kv_polaris_cert_ssl" {
   name         = var.ssl_certificate_name
   key_vault_id = data.azurerm_key_vault.kv_polaris_cert[0].id
 }
+
+data "azurerm_storage_container" "documents_storage_container" {
+  name                 = "documents"
+  storage_account_name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+}
