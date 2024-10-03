@@ -2,7 +2,7 @@ using Common.Domain.SearchIndex;
 using Common.Dto.Request.Search;
 using text_extractor.Mappers.Contracts;
 
-namespace Common.Mappers
+namespace text_extractor.Mappers
 {
     public class SearchFilterDocumentMapper : ISearchFilterDocumentMapper
     {

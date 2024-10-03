@@ -2,14 +2,13 @@
 using Common.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 
 namespace text_extractor.Functions
 {
     public static class Status
     {
-        [FunctionName("Status")]
+        [Function("Status")]
         public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "status")] HttpRequest req)
         {
             return Assembly.GetExecutingAssembly().CurrentStatus();

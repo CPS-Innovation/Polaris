@@ -1,11 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using Common.Wrappers;
+using Microsoft.AspNetCore.Http;
 using text_extractor.Mappers.Contracts;
 
-namespace Common.Mappers
+namespace text_extractor.Mappers
 {
     public class DtoHttpRequestHeadersMapper : IDtoHttpRequestHeadersMapper
     {
@@ -25,24 +25,40 @@ namespace Common.Mappers
             return _jsonConvertWrapper.DeserializeObject<T>(interimJson);
         }
 
-        private Dictionary<string, string> ToDictionary(HttpHeaders headers)
+        public T Map<T>(IHeaderDictionary headers)
+        {
+            var dict = ToDictionary(headers);
+            var interimJson = _jsonConvertWrapper.SerializeObject(dict);
+            return _jsonConvertWrapper.DeserializeObject<T>(interimJson);
+        }
+
+        private static Dictionary<string, string> ToDictionary(HttpHeaders headers)
         {
             var dict = new Dictionary<string, string>();
 
             foreach (var item in headers.ToList())
             {
-                if (item.Value != null)
-                {
-                    var header = String.Empty;
-                    foreach (var value in item.Value)
-                    {
-                        header += value + " ";
-                    }
+                var header = item.Value.Aggregate(string.Empty, (current, value) => current + (value + " "));
 
-                    // Trim the trailing space and add item to the dictionary
-                    header = header.TrimEnd(" ".ToCharArray());
-                    dict.Add(item.Key, header);
-                }
+                // Trim the trailing space and add item to the dictionary
+                header = header.TrimEnd(" ".ToCharArray());
+                dict.Add(item.Key, header);
+            }
+
+            return dict;
+        }
+        
+        private static Dictionary<string, string> ToDictionary(IHeaderDictionary headers)
+        {
+            var dict = new Dictionary<string, string>();
+
+            foreach (var item in headers.ToList())
+            {
+                var header = item.Value.Aggregate(string.Empty, (current, value) => current + (value + " "));
+
+                // Trim the trailing space and add item to the dictionary
+                header = header.TrimEnd(" ".ToCharArray());
+                dict.Add(item.Key, header);
             }
 
             return dict;

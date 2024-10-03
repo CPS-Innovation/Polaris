@@ -72,7 +72,7 @@ namespace pdf_redactor.tests.Functions
         [Fact]
         public async Task Run_ReturnsBadRequestWhenContentIsInvalid()
         {
-            var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
+            var errorHttpResponseMessage = new JsonResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
                 .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
@@ -89,7 +89,7 @@ namespace pdf_redactor.tests.Functions
         [Fact]
         public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
         {
-            var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
+            var errorHttpResponseMessage = new JsonResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
                 .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
@@ -104,7 +104,7 @@ namespace pdf_redactor.tests.Functions
         [Fact]
         public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
         {
-            var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
+            var errorHttpResponseMessage = new JsonResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
                 .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
@@ -119,7 +119,7 @@ namespace pdf_redactor.tests.Functions
         [Fact]
         public async Task Run_ReturnsBadRequestWhenThereAreAnyValidationErrors()
         {
-            var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
+            var errorHttpResponseMessage = new JsonResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
 
             var testFailures = _fixture.CreateMany<ValidationFailure>(2);
 

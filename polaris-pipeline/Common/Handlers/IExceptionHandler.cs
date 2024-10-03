@@ -11,6 +11,9 @@ namespace Common.Handlers
 
         HttpResponseMessage HandleException(Exception exception, Guid correlationId, string source, ILogger logger, object obj);
 
-        ObjectResult HandleExceptionNew(Exception exception, Guid correlationId, string source, ILogger logger);
+        JsonResult HandleExceptionNew(Exception exception, Guid correlationId, string source, ILogger logger);
+
+        JsonResult HandleExceptionNew(Exception exception, Guid correlationId, string source, ILogger logger,
+            object obj);
     }
 }

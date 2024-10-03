@@ -4,8 +4,6 @@ using text_extractor.Mappers;
 using text_extractor.Mappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
 namespace text_extractor.Tests.Mappers;
