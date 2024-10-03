@@ -48,8 +48,8 @@ import {
   mapNotificationState,
   clearAllNotifications,
   clearNotification,
-  readNotification,
   registerNotifiableEvent,
+  clearDocumentNotifications,
 } from "./map-notification-state";
 import { NotificationReason } from "../../domain/NotificationState";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
@@ -300,8 +300,8 @@ export const reducer = (
         payload: { notificationId: number };
       }
     | {
-        type: "READ_NOTIFICATION";
-        payload: { notificationId: number };
+        type: "CLEAR_DOCUMENT_NOTIFICATIONS";
+        payload: { documentId: string };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -1504,14 +1504,22 @@ export const reducer = (
         accordionState,
       };
     }
+    case "CLEAR_DOCUMENT_NOTIFICATIONS": {
+      const notificationState = clearDocumentNotifications(
+        state.notificationState,
+        action.payload.documentId
+      );
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        state.documentsState
+      );
+      const accordionState = mapAccordionState(documentsState);
 
-    case "READ_NOTIFICATION": {
       return {
         ...state,
-        notificationState: readNotification(
-          state.notificationState,
-          action.payload.notificationId
-        ),
+        notificationState,
+        documentsState,
+        accordionState,
       };
     }
     default:

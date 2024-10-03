@@ -45,8 +45,7 @@ export type NotificationState<
 
 export const buildDefaultNotificationState = <
   T extends NotificationEventCore
->() =>
-  ({
-    ignoreNextEvents: [],
-    events: [],
-  } as NotificationState<T>);
+>(): NotificationState<T> => ({
+  ignoreNextEvents: [],
+  events: [],
+});

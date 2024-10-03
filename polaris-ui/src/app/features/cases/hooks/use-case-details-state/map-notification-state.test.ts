@@ -11,6 +11,7 @@ import {
   mapNotificationState,
   readNotification,
   filterNotificationsButtonEvents,
+  clearDocumentNotifications,
 } from "./map-notification-state";
 
 jest.mock("../../../../config", () => ({
@@ -872,6 +873,50 @@ describe("clearNotification", () => {
         { id: 3, documentId: "33", reason: "New", status: "Live" },
       ],
     });
+  });
+});
+
+describe("clearDocumentNotification", () => {
+  it("should remove all notifications for a document", () => {
+    // Arrange
+    const state = <Parameters<typeof readNotification>[0]>{
+      events: [
+        { id: 1, documentId: "11", reason: "New", status: "Live" },
+        { id: 2, documentId: "22", reason: "New", status: "Live" },
+        { id: 2, documentId: "22", reason: "Updated", status: "Live" },
+        { id: 3, documentId: "33", reason: "New", status: "Live" },
+      ],
+      ignoreNextEvents: [],
+    };
+
+    // Act
+    const result = clearDocumentNotifications(state, "22");
+
+    // Assert
+    expect(result).toEqual({
+      ...state,
+      events: [
+        { id: 1, documentId: "11", reason: "New", status: "Live" },
+        { id: 3, documentId: "33", reason: "New", status: "Live" },
+      ],
+    });
+  });
+
+  it("should not mutate the state object if no notifications exist for a document", () => {
+    // Arrange
+    const state = <Parameters<typeof readNotification>[0]>{
+      events: [
+        { id: 1, documentId: "11", reason: "New", status: "Live" },
+        { id: 3, documentId: "33", reason: "New", status: "Live" },
+      ],
+      ignoreNextEvents: [],
+    };
+
+    // Act
+    const result = clearDocumentNotifications(state, "22");
+
+    // Assert
+    expect(result).toBe(state);
   });
 });
 

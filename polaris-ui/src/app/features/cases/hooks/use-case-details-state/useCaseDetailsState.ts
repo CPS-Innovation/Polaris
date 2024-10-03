@@ -411,20 +411,6 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
-  const handleReadNotification = useCallback(
-    (notificationId: number, documentId: string, shouldOpenDoc: boolean) => {
-      dispatch({
-        type: "READ_NOTIFICATION",
-        payload: { notificationId },
-      });
-
-      if (shouldOpenDoc) {
-        handleOpenPdf({ documentId, mode: "read" });
-      }
-    },
-    [dispatch, handleOpenPdf]
-  );
-
   const handleClearAllNotifications = useCallback(
     () =>
       dispatch({
@@ -473,7 +459,6 @@ export const useCaseDetailsState = (
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
-    handleReadNotification,
     handleClearAllNotifications,
     handleClearNotification,
   };

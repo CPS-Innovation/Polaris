@@ -7,14 +7,15 @@ import {
   NotificationEvent,
   NotificationReasonMap,
 } from "../../../domain/NotificationState";
+import { useCaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import classes from "./notifications.module.scss";
 import { Time } from "./Time";
 
 export const Notification: React.FC<{
   evt: NotificationEvent;
-  handleReadNotification: ({ id, documentId }: NotificationEvent) => void;
+  handleOpenPdf: ReturnType<typeof useCaseDetailsState>["handleOpenPdf"];
   handleClearNotification: (id: number) => void;
-}> = ({ evt, handleReadNotification, handleClearNotification }) => {
+}> = ({ evt, handleOpenPdf, handleClearNotification }) => {
   return (
     <li
       key={evt.id}
@@ -35,7 +36,12 @@ export const Notification: React.FC<{
           ) : (
             <LinkButton
               className={classes.docLink}
-              onClick={() => handleReadNotification(evt)}
+              onClick={() =>
+                handleOpenPdf({
+                  documentId: evt.documentId,
+                  mode: "read",
+                })
+              }
             >
               {evt.presentationTitle}
             </LinkButton>

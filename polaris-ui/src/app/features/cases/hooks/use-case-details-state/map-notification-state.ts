@@ -259,6 +259,22 @@ export const clearNotification = <
   };
 };
 
+export const clearDocumentNotifications = <T extends NotificationEventCore>(
+  state: NotificationState<T>,
+  documentId: string
+): NotificationState<T> => {
+  if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
+    return state;
+  }
+
+  return state.events.some((evt) => evt.documentId === documentId)
+    ? {
+        ...state,
+        events: state.events.filter((evt) => evt.documentId !== documentId),
+      }
+    : state;
+};
+
 export const clearAllNotifications = <T extends NotificationEventCore>(
   state: NotificationState<T>
 ): NotificationState<T> => {

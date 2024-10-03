@@ -45,7 +45,7 @@ describe("reducerAsyncActionHandlers", () => {
       });
 
       // assert
-      expect(dispatchMock.mock.calls.length).toBe(1);
+      expect(dispatchMock.mock.calls.length).toBe(2);
       expect(dispatchMock.mock.calls[0][0]).toEqual({
         type: "OPEN_PDF",
         payload: {
@@ -55,6 +55,12 @@ describe("reducerAsyncActionHandlers", () => {
             "Correlation-Id": "foo",
             Authorization: "bar",
           },
+        },
+      });
+      expect(dispatchMock.mock.calls[1][0]).toEqual({
+        type: "CLEAR_DOCUMENT_NOTIFICATIONS",
+        payload: {
+          documentId: "1",
         },
       });
     });

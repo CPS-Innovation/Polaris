@@ -150,7 +150,6 @@ describe("useCaseDetailsState", () => {
         handleResetReclassifyData,
         handleClearAllNotifications,
         handleClearNotification,
-        handleReadNotification,
         ...stateProperties
       } = result.current;
 

@@ -1,4 +1,4 @@
-import { CombinedState } from "../../domain/CombinedState";
+import { CombinedState, initialState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import * as accordionMapper from "./map-accordion-state";
 import * as documentsMapper from "./map-documents-state";
@@ -20,7 +20,11 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
 import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
-import { NotificationState } from "../../domain/NotificationState";
+import {
+  buildDefaultNotificationState,
+  NotificationEventCore,
+  NotificationState,
+} from "../../domain/NotificationState";
 import * as notificationsMappingFunctions from "./map-notification-state";
 import * as mapNotificationToDocumentsState from "./map-notification-to-documents-state";
 import { AsyncResult } from "../../../../common/types/AsyncResult";
@@ -715,6 +719,7 @@ describe("useCaseDetailsState reducer", () => {
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
+          notificationState: buildDefaultNotificationState(),
           urn: "bar",
           caseId: 99,
         } as CombinedState,
@@ -778,6 +783,7 @@ describe("useCaseDetailsState reducer", () => {
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
+          notificationState: buildDefaultNotificationState(),
         } as CombinedState,
         {
           type: "OPEN_PDF",
@@ -945,12 +951,15 @@ describe("useCaseDetailsState reducer", () => {
 
         const existingPipelineState = {} as CombinedState["pipelineState"];
 
+        const existingNotificationState = buildDefaultNotificationState();
+
         const nextState = reducer(
           {
             searchState: existingSearchState,
             documentsState: existingDocumentsState,
             tabsState: existingTabsState,
             pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
           } as CombinedState,
           {
             type: "OPEN_PDF",
@@ -1047,6 +1056,7 @@ describe("useCaseDetailsState reducer", () => {
             ],
           },
           pipelineState: {},
+          notificationState: existingNotificationState,
         });
       });
 
@@ -1077,12 +1087,15 @@ describe("useCaseDetailsState reducer", () => {
 
         const existingPipelineState = {} as CombinedState["pipelineState"];
 
+        const existingNotificationState = buildDefaultNotificationState();
+
         const nextState = reducer(
           {
             searchState: existingSearchState,
             documentsState: existingDocumentsState,
             tabsState: existingTabsState,
             pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
           } as CombinedState,
           {
             type: "OPEN_PDF",
@@ -1101,6 +1114,7 @@ describe("useCaseDetailsState reducer", () => {
           documentsState: existingDocumentsState,
           searchState: { ...existingSearchState, isResultsVisible: false },
           pipelineState: existingPipelineState,
+          notificationState: existingNotificationState,
           tabsState: {
             headers: {
               Authorization: "bar",
@@ -1191,6 +1205,7 @@ describe("useCaseDetailsState reducer", () => {
         } as CombinedState["searchState"];
 
         const existingPipelineState = {} as CombinedState["pipelineState"];
+        const existingNotificationState = buildDefaultNotificationState();
 
         const nextState = reducer(
           {
@@ -1198,6 +1213,7 @@ describe("useCaseDetailsState reducer", () => {
             documentsState: existingDocumentsState,
             tabsState: existingTabsState,
             pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
           } as CombinedState,
           {
             type: "OPEN_PDF",
@@ -1359,6 +1375,7 @@ describe("useCaseDetailsState reducer", () => {
             ],
           },
           pipelineState: {},
+          notificationState: existingNotificationState,
         });
       });
     });
@@ -2434,24 +2451,27 @@ describe("useCaseDetailsState reducer", () => {
         expect(result.accordionState).toBe(expectedAccordionState);
       });
 
-      it("should delegate reading a notification to a function owned by the notifications code", () => {
-        const notificationId = 1;
+      it("should delegate clearing a documents notifications to a function owned by the notifications code", () => {
+        const documentId = "1";
+
         jest
-          .spyOn(notificationsMappingFunctions, "readNotification")
+          .spyOn(notificationsMappingFunctions, "clearDocumentNotifications")
           .mockImplementation(
-            (incomingNotificationsState, incomingNotificationId) =>
+            (incomingNotificationsState, incomingDocumentIdId) =>
               incomingNotificationsState === priorNotificationState &&
-              incomingNotificationId === notificationId
+              incomingDocumentIdId === documentId
                 ? expectedNotificationState
                 : badNotificationState
           );
 
         const result = reducer(priorExistingState, {
-          type: "READ_NOTIFICATION",
-          payload: { notificationId: notificationId },
+          type: "CLEAR_DOCUMENT_NOTIFICATIONS",
+          payload: { documentId },
         });
 
         expect(result.notificationState).toBe(expectedNotificationState);
+        expect(result.documentsState).toBe(expectedDocumentsState);
+        expect(result.accordionState).toBe(expectedAccordionState);
       });
     });
   });

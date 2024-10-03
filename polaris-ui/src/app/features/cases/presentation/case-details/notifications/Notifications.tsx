@@ -1,8 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import {
-  NotificationEvent,
-  NotificationState,
-} from "../../../domain/NotificationState";
+import { useMemo, useRef, useState } from "react";
+import { NotificationState } from "../../../domain/NotificationState";
 import { LinkButton } from "../../../../../common/presentation/components";
 import { useGlobalDropdownClose } from "../../../../../common/hooks/useGlobalDropdownClose";
 import { filterNotificationsButtonEvents } from "../../../hooks/use-case-details-state/map-notification-state";
@@ -10,19 +7,16 @@ import classes from "./notifications.module.scss";
 import { Time } from "./Time";
 import { Notification } from "./Notification";
 import { useScrollPositionRetention } from "./useScrollPositionRetention";
+import { useCaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 
 export const Notifications: React.FC<{
   state: NotificationState;
-  handleReadNotification: (
-    notificationId: number,
-    documentId: string,
-    shouldOpenDoc: boolean
-  ) => void;
+  handleOpenPdf: ReturnType<typeof useCaseDetailsState>["handleOpenPdf"];
   handleClearAllNotifications: () => void;
   handleClearNotification: (notificationId: number) => void;
 }> = ({
   state: { events, lastUpdatedDateTime },
-  handleReadNotification,
+  handleOpenPdf,
   handleClearAllNotifications,
   handleClearNotification,
 }) => {
@@ -38,22 +32,6 @@ export const Notifications: React.FC<{
     panelRef,
     setIsOpen,
     "#notifications-panel"
-  );
-
-  const localHandleNotificationRead = useCallback(
-    (evt: NotificationEvent) => {
-      handleReadNotification(
-        evt.id,
-        evt.documentId,
-        evt.reason !== "Discarded"
-      );
-      // special case: if this is a "Discarded" document then there is nothing to open
-      //  so lets keep the user with the panel open.
-      if (evt.reason !== "Discarded") {
-        setIsOpen(false);
-      }
-    },
-    [handleReadNotification]
   );
 
   const { liveEventCount, eventsToDisplay } = useMemo(
@@ -98,7 +76,7 @@ export const Notifications: React.FC<{
                   <Notification
                     key={evt.id}
                     evt={evt}
-                    handleReadNotification={localHandleNotificationRead}
+                    handleOpenPdf={handleOpenPdf}
                     handleClearNotification={handleClearNotification}
                   ></Notification>
                 ))}

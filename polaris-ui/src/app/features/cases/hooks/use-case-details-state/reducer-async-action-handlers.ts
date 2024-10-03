@@ -126,7 +126,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
   REQUEST_OPEN_PDF:
     ({ dispatch }) =>
     async (action) => {
-      const { payload } = action;
+      const {
+        payload: { documentId, mode },
+      } = action;
 
       const headers = {
         ...HEADERS.correlationId(),
@@ -135,7 +137,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       dispatch({
         type: "OPEN_PDF",
-        payload: { ...payload, headers },
+        payload: { documentId, mode, headers },
+      });
+
+      dispatch({
+        type: "CLEAR_DOCUMENT_NOTIFICATIONS",
+        payload: { documentId },
       });
     },
 
