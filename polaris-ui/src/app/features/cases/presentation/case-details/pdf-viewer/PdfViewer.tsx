@@ -258,12 +258,6 @@ export const PdfViewer: React.FC<Props> = ({
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
-        {contextData.saveStatus === "saving" && (
-          <div className={classes.spinner}>
-            <Wait ariaLabel="Saving redaction, please wait" />
-          </div>
-        )}
-
         <PdfLoader
           url={url}
           headers={headers}
@@ -446,17 +440,6 @@ export const PdfViewer: React.FC<Props> = ({
                       totalPages={0}
                     />
                   )}
-                  {/* {rotatePageMode && (
-                      <RotatePage
-                        documentId={contextData.documentId}
-                        pageNumber={0}
-                        redactionTypesData={redactionTypesData}
-                        handleAddPageRotation={handleAddPageRotation}
-                        handleRemovePageRotation={handleRemovePageRotation}
-                        pageRotations={pageRotations}
-                        totalPages={0}
-                      />
-                    )} */}
                 </PagePortal>
               )}
             </>

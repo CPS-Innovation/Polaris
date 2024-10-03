@@ -522,7 +522,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           : "rl-under-redaction-content"
       }
     >
-      {saveStatus === "saving" && (
+      {saveStatus.type === "redaction" && saveStatus.status === "saving" && (
         <div
           className={classes.savingBanner}
           data-testid="rl-saving-redactions"
@@ -534,7 +534,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         </div>
       )}
 
-      {saveStatus === "saved" && (
+      {saveStatus.type === "redaction" && saveStatus.status === "saved" && (
         <div className={classes.savedBanner} data-testid="rl-saved-redactions">
           <WhiteTickIcon className={classes.whiteTickIcon} />
           <h2 className={classes.bannerText}>Redactions successfully saved</h2>
@@ -886,7 +886,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
         <div className={classes.btnWrapper}>
           <Button
-            disabled={saveStatus === "saving" || savingRedactionLog}
+            disabled={
+              (saveStatus.type === "redaction" &&
+                saveStatus.status === "saving") ||
+              savingRedactionLog
+            }
             type="submit"
             className={classes.saveBtn}
             data-testid="btn-save-redaction-log"

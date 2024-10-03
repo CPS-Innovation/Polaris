@@ -13,6 +13,7 @@ import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData
 import { SearchPIIRedactionWarningModal } from "../modals/SearchPIIRedactionWarningModal";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { SaveRotationModal } from "../modals/SaveRotationModal";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   caseId: number;
@@ -321,6 +322,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           dataTestId={`pdfTab-spinner-${tabIndex}`}
           ariaLabel="Refreshing document, please wait"
         />
+      )}
+      {saveStatus.type === "rotation" && saveStatus.status !== "error" && (
+        <SaveRotationModal saveStatus={saveStatus.status} />
       )}
 
       {showRedactionWarning && (

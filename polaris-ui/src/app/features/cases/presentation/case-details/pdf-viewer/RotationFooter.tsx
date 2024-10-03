@@ -46,7 +46,7 @@ export const RotationFooter: React.FC<RotationFooterProps> = ({
         id={`btn-link-removeAll-rotation-${tabIndex}`}
         onClick={handleRemoveAllRotationsClick}
         dataTestId={`btn-link-removeAll-${tabIndex}`}
-        disabled={saveStatus === "saving"}
+        disabled={saveStatus.status === "saving"}
         className={classes.removeButton}
       >
         Remove all rotations
@@ -67,7 +67,7 @@ export const RotationFooter: React.FC<RotationFooterProps> = ({
         className={classes.saveButton}
         onClick={handleSaveRotationsClick}
         data-testid={`btn-save-rotations-${tabIndex}`}
-        disabled={!isOkToSave || saveStatus === "saving"}
+        disabled={!isOkToSave || saveStatus.status === "saving"}
       >
         Save all rotations
       </Button>

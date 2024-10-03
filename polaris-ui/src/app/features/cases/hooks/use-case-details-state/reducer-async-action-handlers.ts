@@ -426,7 +426,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       try {
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "saving" },
+          payload: {
+            documentId,
+            saveStatus: { type: "redaction", status: "saving" },
+          },
         });
         dispatch({
           type: "SHOW_REDACTION_LOG_MODAL",
@@ -438,7 +441,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "saved" },
+          payload: {
+            documentId,
+            saveStatus: { type: "redaction", status: "saved" },
+          },
         });
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
@@ -490,7 +496,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "error" },
+          payload: {
+            documentId,
+            saveStatus: { type: "redaction", status: "error" },
+          },
         });
         dispatch({
           type: "HIDE_REDACTION_LOG_MODAL",
@@ -806,12 +815,18 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       try {
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "saving" },
+          payload: {
+            documentId,
+            saveStatus: { type: "rotation", status: "saving" },
+          },
         });
         await saveRotations(urn, caseId, documentId, rotationRequestData);
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "saved" },
+          payload: {
+            documentId,
+            saveStatus: { type: "rotation", status: "saved" },
+          },
         });
         dispatch({
           type: "REMOVE_ALL_ROTATIONS",
@@ -858,7 +873,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "error" },
+          payload: {
+            documentId,
+            saveStatus: { type: "rotation", status: "error" },
+          },
         });
       }
     },

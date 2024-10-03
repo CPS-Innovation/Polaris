@@ -600,7 +600,7 @@ export const reducer = (
         pageRotations: [],
         rotatePageMode: false,
         isDeleted: false,
-        saveStatus: "initial" as const,
+        saveStatus: { type: "none", status: "initial" } as SaveStatus,
       };
 
       if (mode === "read") {
