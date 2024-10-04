@@ -7,17 +7,16 @@ namespace PolarisGateway.Validators
     {
         public DocumentRedactionSaveRequestValidator()
         {
-            When(x => x.DocumentModifications == null, () =>
+            When(x => x.DocumentModifications == null || !x.DocumentModifications.Any(), () =>
             {
                 RuleFor(x => x.Redactions).NotEmpty().WithMessage("At least one redaction must be provided");
             });
-            When(x => x.Redactions == null, () =>
+            When(x => x.Redactions == null || !x.Redactions.Any(), () =>
             {
                 RuleFor(x => x.DocumentModifications).NotEmpty().WithMessage("At least one page deletion must be provided");
             });
-            When(x => x.Redactions != null, () =>
+            When(x => x.Redactions != null && x.Redactions.Any(), () =>
             {
-                RuleFor(x => x.Redactions).NotEmpty().WithMessage("At least one redaction must be provided");
                 RuleForEach(c => c.Redactions).SetValidator(new RedactionValidator());
             });
         }
