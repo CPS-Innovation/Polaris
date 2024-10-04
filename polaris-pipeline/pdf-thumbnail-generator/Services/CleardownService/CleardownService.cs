@@ -62,9 +62,9 @@ public class CleardownService : ICleardownService
     }
   }
 
-  private string ExtractCaseIdFromInstanceId(string instanceId)
+  private static string ExtractCaseIdFromInstanceId(string instanceId)
   {
-    var regex = new Regex(@"^\[(\d+)\]");
+    var regex = new Regex(@"^\[(\d+)\]", RegexOptions.None, TimeSpan.FromMilliseconds(100));
     var match = regex.Match(instanceId);
 
     if (match.Success)
