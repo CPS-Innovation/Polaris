@@ -102,7 +102,7 @@ export const PagePortal: React.FC<PagePortalProps> = ({
     <>
       {portalNodeRefs.current.map((portalNode, index) =>
         ReactDOM.createPortal(
-          <div key={index}>
+          <div key={index} className="page-portal">
             {React.cloneElement(children, {
               pageNumber: index + 1,
               totalPages: portalNodeRefs.current.length,
