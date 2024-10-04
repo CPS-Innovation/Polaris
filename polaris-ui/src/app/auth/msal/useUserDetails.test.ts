@@ -19,7 +19,6 @@ describe("getUserDetails", () => {
 
     const { result } = renderHook(() => useUserDetails());
 
-    result.current;
     expect(result.current).toEqual({
       cmsUserID: "test_UID",
       name: "test_name",

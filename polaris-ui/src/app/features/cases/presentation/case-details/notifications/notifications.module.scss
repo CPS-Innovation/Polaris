@@ -1,16 +1,17 @@
 .root {
   position: relative;
-
+  font-size: 1.1875rem;
   .time {
     display: inline-flex;
     align-items: center;
 
     .timeIcon {
-      width: 0.9rem;
-      height: 0.9rem;
+      width: 0.759em;
+      height: 0.759em;
+
       vertical-align: middle;
 
-      margin-right: 0.25rem;
+      margin-right: 0.21em;
     }
   }
 
@@ -36,8 +37,8 @@
     &:focus {
       color: #0b0c0c;
       background-color: #ffdd00;
-      box-shadow: 0 0.125rem 0 #0b0c0c;
-      outline: 0.1875rem solid transparent;
+      box-shadow: 0 0.105em 0 #0b0c0c;
+      outline: 0.16em solid transparent;
     }
 
     margin-top: 0.5em;
@@ -66,7 +67,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.8rem;
+        font-size: 0.67em;
         font-weight: bold;
       }
     }
@@ -99,10 +100,8 @@
     right: 0;
     min-width: 25em;
     z-index: 7;
-    box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.2);
-    //border-radius: 5px 0 5px 5px;
+    box-shadow: 0.526em 0.526em 0.526em 0.526em rgba(0, 0, 0, 0.2);
     background-color: #fff;
-    //max-height: 31.25rem; // from dropdown button
 
     .header {
       background-color: #f3f2f1;
@@ -110,7 +109,7 @@
       color: #505a5f;
 
       &.headerPopulated {
-        border-bottom: 1px dashed #b1b4b6;
+        border-bottom: 0.053em dashed #b1b4b6;
       }
     }
 
@@ -124,17 +123,17 @@
         li {
           padding: 0.5em 0.5em 0 0.5em;
           margin-bottom: 0.25em;
-          border-left: 5px solid #1d70b8;
+          border-left: 0.263em solid #1d70b8;
           display: flex;
           align-items: center;
           justify-content: space-between;
 
           &.live {
-            border-left: 5px solid #1d70b8;
+            border-left: 0.263em solid #1d70b8;
           }
 
           &.read {
-            border-left: 5px solid #fff;
+            border-left: 0.263em solid #fff;
           }
 
           .clear {
@@ -174,7 +173,7 @@
       .footer {
         padding: 0.5em;
         text-align: right;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 0.526em 0 rgba(0, 0, 0, 0.3);
       }
     }
   }
