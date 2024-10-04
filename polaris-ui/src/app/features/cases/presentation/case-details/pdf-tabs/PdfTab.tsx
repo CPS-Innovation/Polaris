@@ -14,6 +14,7 @@ import { SearchPIIRedactionWarningModal } from "../modals/SearchPIIRedactionWarn
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { SaveRotationModal } from "../modals/SaveRotationModal";
+import { PageRotationWarningModal } from "../modals/PageRotationWarningModal";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   caseId: number;
@@ -95,6 +96,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     useState<number>(0);
 
   const [showRedactionWarning, setShowRedactionWarning] = useState(false);
+  const [showPageRotationWarning, setShowPageRotationWarning] = useState(false);
   const {
     url,
     mode,
@@ -192,6 +194,18 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     saveAllRedactionsCustomEvent();
   };
 
+  const localHandleShowHidePageRotation = (
+    documentId: string,
+    rotatePageMode: boolean
+  ) => {
+    if (redactionHighlights?.length + pageDeleteRedactions?.length) {
+      setShowPageRotationWarning(true);
+      return;
+    }
+
+    handleShowHidePageRotation(documentId, rotatePageMode);
+  };
+
   const isDocumentRefreshing = () => {
     return savedDocumentDetails.find(
       (document) => document.documentId === caseDocumentViewModel.documentId
@@ -245,7 +259,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleShowHideRedactionSuggestions={
             localHandleShowHideRedactionSuggestions
           }
-          handleShowHidePageRotation={handleShowHidePageRotation}
+          handleShowHidePageRotation={localHandleShowHidePageRotation}
           contextData={{
             documentId: documentId,
             tabIndex: tabIndex,
@@ -337,6 +351,11 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleContinue={handleContinue}
           polarisDocumentVersionId={polarisDocumentVersionId!}
           hideRedactionWarningModal={() => setShowRedactionWarning(false)}
+        />
+      )}
+      {showPageRotationWarning && (
+        <PageRotationWarningModal
+          hidePageRotationWarningModal={() => setShowPageRotationWarning(false)}
         />
       )}
     </>
