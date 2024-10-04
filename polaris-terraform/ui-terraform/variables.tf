@@ -80,6 +80,7 @@ variable "cms_details" {
     cin2_upstream_cms_modern_ip_farnborough    = string
     cin2_upstream_cms_domain_name              = string
     cin2_upstream_cms_modern_domain_name       = string
+    cin2_upstream_cms_services_domain_name     = string
     cin4_upstream_cms_ip_corsham               = string
     cin4_upstream_cms_modern_ip_corsham        = string
     cin4_upstream_cms_ip_farnborough           = string
