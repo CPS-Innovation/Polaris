@@ -678,17 +678,12 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   shouldStart = (event: MouseEvent) => {
     const { enableAreaSelection } = this.props;
-    //if the target is inside pagePortal ignore it from area selection handling
-    if (
-      enableAreaSelection(event) &&
-      Boolean(asElement(event.target).closest(".page-portal"))
-    )
-      return false;
 
     return (
       enableAreaSelection(event) &&
       isHTMLElement(event.target) &&
-      Boolean(asElement(event.target).closest(".page"))
+      !!asElement(event.target).closest(".page") &&
+      !asElement(event.target).closest(".page-portal") //if the target is inside pagePortal ignore it from area selection handling
     );
   };
 
