@@ -69,6 +69,7 @@ feature_flag_search_pii               = "true"
 feature_flag_rename_document          = "true"
 feature_flag_reclassify               = "true"
 feature_flag_page_delete              = "true"
+feature_flag_page_rotate              = "true"
 feature_flag_external_redirect        = "true"
 local_storage_expiry_days             = "30"
 

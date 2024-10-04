@@ -91,6 +91,7 @@ export const initialState = {
     reclassify: false,
     externalRedirect: false,
     pageDelete: false,
+    pageRotate: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

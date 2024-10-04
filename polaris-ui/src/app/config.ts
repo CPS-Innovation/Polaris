@@ -72,6 +72,9 @@ export const FEATURE_FLAG_RECLASSIFY =
 export const FEATURE_FLAG_PAGE_DELETE =
   `${process.env.REACT_APP_FEATURE_FLAG_PAGE_DELETE}` === "true";
 
+export const FEATURE_FLAG_PAGE_ROTATE =
+  `${process.env.REACT_APP_FEATURE_FLAG_PAGE_ROTATE}` === "true";
+
 export const FEATURE_FLAG_EXTERNAL_REDIRECT =
   `${process.env.REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT}` === "true";
 

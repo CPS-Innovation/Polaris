@@ -160,6 +160,11 @@ variable "feature_flag_page_delete" {
   type = string
 }
 
+variable "feature_flag_page_rotate" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "feature_flag_external_redirect" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string

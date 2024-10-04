@@ -36,6 +36,7 @@ type Props = {
     isSearchPIIDefaultOptionOn: boolean;
     showSearchPII: boolean;
     isRotatePageModeOn: boolean;
+    showRotatePage: boolean;
   };
 };
 
@@ -51,7 +52,6 @@ export const HeaderReadMode: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
-  const showRotation = true;
 
   const handleDocumentAction = (id: string) => {
     switch (id) {
@@ -140,7 +140,7 @@ export const HeaderReadMode: React.FC<Props> = ({
       ];
     }
 
-    if (showRotation) {
+    if (contextData.showRotatePage) {
       items = [
         ...items,
         {
@@ -160,7 +160,7 @@ export const HeaderReadMode: React.FC<Props> = ({
     contextData.isSearchPIIOn,
     contextData.showSearchPII,
     contextData.isSearchPIIDefaultOptionOn,
-    showRotation,
+    contextData.showRotatePage,
     contextData.isRotatePageModeOn,
   ]);
 

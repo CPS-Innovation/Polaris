@@ -22,6 +22,7 @@ type PdfTabsProps = {
     correlationId: string;
     showSearchPII: boolean;
     showDeletePage: boolean;
+    showRotatePage: boolean;
   };
   caseId: number;
   isOkToSave: boolean;

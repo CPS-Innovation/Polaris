@@ -257,9 +257,8 @@ export const saveRotations = async (
   documentId: string,
   rotationSaveRequest: RotationSaveRequest
 ) => {
-  const docId = parseInt(removeNonDigits(documentId));
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/modify`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/modify`
   );
 
   const response = await internalFetch(url, {

@@ -804,13 +804,15 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const document = items.find((item) => item.documentId === documentId)!;
       const { polarisDocumentVersionId, pageRotations } = document;
 
-      const rotationRequestData: RotationSaveRequest = pageRotations.map(
-        ({ pageNumber, rotationAngle }) => ({
-          pageIndex: pageNumber,
-          operation: "rotate",
-          arg: `${rotationAngle}`,
-        })
-      );
+      const rotationRequestData: RotationSaveRequest = {
+        documentModifications: pageRotations.map(
+          ({ pageNumber, rotationAngle }) => ({
+            pageIndex: pageNumber,
+            operation: "rotate",
+            arg: `${rotationAngle}`,
+          })
+        ),
+      };
 
       try {
         dispatch({

@@ -36,6 +36,7 @@ type PdfTabProps = {
     correlationId: string;
     showSearchPII: boolean;
     showDeletePage: boolean;
+    showRotatePage: boolean;
   };
   isOkToSave: boolean;
   handleOpenPdf: (caseDocument: {
@@ -268,6 +269,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             isSearchPIIDefaultOptionOn: !!searchPIIDataItem?.defaultOption,
             showSearchPII: contextData.showSearchPII,
             isRotatePageModeOn: rotatePageMode,
+            showRotatePage: contextData.showRotatePage,
           }}
         />
       )}

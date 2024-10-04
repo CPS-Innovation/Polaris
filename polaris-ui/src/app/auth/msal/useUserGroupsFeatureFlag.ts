@@ -8,6 +8,7 @@ import {
   FEATURE_FLAG_RENAME_DOCUMENT,
   FEATURE_FLAG_RECLASSIFY,
   FEATURE_FLAG_PAGE_DELETE,
+  FEATURE_FLAG_PAGE_ROTATE,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
   FEATURE_FLAG_EXTERNAL_REDIRECT,
@@ -71,6 +72,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     reclassify,
     externalRedirect,
     pageDelete,
+    pageRotate,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -116,6 +118,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_PAGE_DELETE,
         userDetails?.username,
         pageDelete,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      pageRotate: showFeature(
+        FEATURE_FLAG_PAGE_ROTATE,
+        userDetails?.username,
+        pageRotate,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
