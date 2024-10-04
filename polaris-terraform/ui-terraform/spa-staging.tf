@@ -42,6 +42,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"          = var.polaris_ui_reauth.outbound_live_url
     "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"      = var.polaris_ui_reauth.outbound_e2e_url
     "REACT_APP_REAUTH_REDIRECT_URL_INBOUND"           = var.polaris_ui_reauth.inbound_url
+    "REACT_APP_REAUTH_IN_SITU_TERMINATION_URL"        = var.polaris_ui_reauth.in_situ_termination_url
     "REACT_APP_REAUTH_USE_IN_SITU_REFRESH"            = var.polaris_ui_reauth.use_in_situ_refresh
     "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
     "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"

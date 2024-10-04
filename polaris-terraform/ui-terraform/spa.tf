@@ -46,6 +46,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"      = var.polaris_ui_reauth.outbound_e2e_url
     "REACT_APP_REAUTH_REDIRECT_URL_INBOUND"           = var.polaris_ui_reauth.inbound_url
     "REACT_APP_REAUTH_USE_IN_SITU_REFRESH"            = var.polaris_ui_reauth.use_in_situ_refresh
+    "REACT_APP_REAUTH_IN_SITU_TERMINATION_URL"        = var.polaris_ui_reauth.in_situ_termination_url
     "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
     "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
@@ -142,6 +143,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_INBOUND"],
       app_settings["REACT_APP_REAUTH_USE_IN_SITU_REFRESH"],
+      app_settings["REACT_APP_REAUTH_IN_SITU_TERMINATION_URL"],
       app_settings["REACT_APP_REDACTION_LOG_BASE_URL"],
       app_settings["REACT_APP_REDACTION_LOG_SCOPE"],
       app_settings["REACT_APP_SURVEY_LINK"],

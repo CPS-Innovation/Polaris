@@ -186,6 +186,7 @@ variable "polaris_ui_reauth" {
     outbound_e2e_url = string
     inbound_url = string
     use_in_situ_refresh = string
+    in_situ_termination_url = string
   })
 }
 

@@ -1,9 +1,14 @@
 import { CmsAuthRedirectingError } from "../../../../common/errors/CmsAuthRedirectingError";
 import {
+  REAUTH_REDIRECT_URL_INBOUND,
+  REAUTH_REDIRECT_URL_OUTBOUND,
+  REAUTH_REDIRECT_URL_OUTBOUND_E2E,
+} from "../../../../config";
+import {
+  assembleRedirectUrl,
   AUTH_FAIL_REASON_QUERY_PARAM,
   AuthFailReason,
   buildCmsAuthError,
-  buildRedirectUrl,
   getCorrelationIdFromFetchArgs,
   isCmsAuthFail,
   REAUTHENTICATION_INDICATOR_QUERY_PARAM,
@@ -27,6 +32,19 @@ const cleanRefreshIndicator = (window: Window) => {
     window.history.replaceState(null, "", url.toString());
   }
 };
+
+const buildRedirectUrl = (window: Window, correlationId: string | null) =>
+  assembleRedirectUrl({
+    outboundUrl:
+      (window.Cypress && REAUTH_REDIRECT_URL_OUTBOUND_E2E) ||
+      REAUTH_REDIRECT_URL_OUTBOUND,
+    inboundUrl: REAUTH_REDIRECT_URL_INBOUND,
+    terminationUrl:
+      window.location.href +
+      (window.location.href.includes("?") ? "&" : "?") +
+      REAUTHENTICATION_INDICATOR_QUERY_PARAM,
+    correlationId,
+  });
 
 const tryHandleAsFirstAuthFail = (
   response: Response,

@@ -1,8 +1,8 @@
 import fetchJsonp from "fetch-jsonp";
 import {
+  assembleRedirectUrl,
   AuthFailReason,
   buildCmsAuthError,
-  buildRedirectUrl,
   getCorrelationIdFromFetchArgs,
   isCmsAuthFail,
 } from "./core";
@@ -11,15 +11,66 @@ import ReactDOM from "react-dom";
 import React from "react";
 import { CmsAuthError } from "../../../../common/errors/CmsAuthError";
 import { InSituReauthModal } from "./InSituReauthModal";
+import {
+  REAUTH_IN_SITU_TERMINATION_URL,
+  REAUTH_REDIRECT_URL_INBOUND,
+  REAUTH_REDIRECT_URL_OUTBOUND,
+  REAUTH_REDIRECT_URL_OUTBOUND_E2E,
+} from "../../../../config";
 
 type InSituReauthResult = {
   isSuccess: boolean;
   failReason: AuthFailReason | null | undefined;
 };
 
+const buildRedirectUrls = (
+  window: Window,
+  jsonpCallbackFunction: string,
+  correlationId: string | null
+) => {
+  // In the in-situ reauth flow, we can try multiple outbound routes to try and find auth.  This
+  //  helps with running against multiple cin* environments from one CWA environment.
+  const outboundUrlsToTry = window.Cypress
+    ? [REAUTH_REDIRECT_URL_OUTBOUND_E2E]
+    : REAUTH_REDIRECT_URL_OUTBOUND.split(",");
+
+  return outboundUrlsToTry.map((outboundUrl) =>
+    assembleRedirectUrl({
+      outboundUrl,
+      inboundUrl: REAUTH_REDIRECT_URL_INBOUND,
+      terminationUrl: `${REAUTH_IN_SITU_TERMINATION_URL}?cb=${jsonpCallbackFunction}`,
+      correlationId,
+    })
+  );
+};
+
+const tryReauth = async (
+  reauthUrls: string[],
+  jsonpCallbackFunction: string
+): Promise<InSituReauthResult> => {
+  const [reauthUrl, ...remainingReauthUrls] = reauthUrls;
+
+  let result: InSituReauthResult;
+  try {
+    const reauthResult = await fetchJsonp(reauthUrl, {
+      jsonpCallbackFunction,
+      timeout: 50000,
+    });
+    result = (await reauthResult.json()) as InSituReauthResult;
+  } catch (error) {
+    result = {
+      isSuccess: false,
+      failReason: AuthFailReason.InSituAttemptFailed,
+    };
+  }
+
+  return result.isSuccess || !remainingReauthUrls.length
+    ? result
+    : tryReauth(remainingReauthUrls, jsonpCallbackFunction);
+};
+
 const inSituReauth = async (
-  [endpoint, ...remainingEndpoints]: string[],
-  correlationId: string | undefined
+  correlationId: string | null
 ): Promise<InSituReauthResult> => {
   // We cannot quite use the native functionality of `fetch-jsonp` as we
   // should be using the `r=...` parameter for our return URL. So we mimic
@@ -29,34 +80,13 @@ const inSituReauth = async (
     Math.random() * 100000
   )}`;
 
-  const reauthUrl = buildRedirectUrl(
-    // EXPERIMENTAL!! todo: we do not want to redirect to /api/auth-refresh-termination
-    //  rather we want /auth-refresh-termination.  We need the /api/... variant for local
-    //  development, so lets feed the url fragment in from terraform/config.
-    `${endpoint}?cb=${jsonpCallbackFunction}`,
+  const reauthUrls = buildRedirectUrls(
+    window,
+    jsonpCallbackFunction,
     correlationId
   );
 
-  let result: InSituReauthResult;
-  try {
-    const reauthResult = await fetchJsonp(reauthUrl, {
-      jsonpCallbackFunction,
-      timeout: 10000,
-    });
-    result = (await reauthResult.json()) as InSituReauthResult;
-  } catch (ex) {
-    console.log(ex);
-    result = {
-      isSuccess: false,
-      failReason: AuthFailReason.InSituAttemptFailed,
-    };
-  }
-
-  return result.isSuccess || !remainingEndpoints.length
-    ? // Either we are good, or we have no more endpoints to try, so the result we have is the
-      //  one to return.
-      result
-    : inSituReauth(remainingEndpoints, correlationId);
+  return tryReauth(reauthUrls, jsonpCallbackFunction);
 };
 
 const askUserToLogInToCms = async (error: CmsAuthError) => {
@@ -97,13 +127,8 @@ export const fetchWithInSituReauth = async (
   //  2) Running against multiple cin environments e.g. cin3.cps.gov.uk and cin4.cps.gov.uk
   // Lets use a convention whereby the config can supply the endpoints to try in a comma
   //  delimited list, first endpoint to try first in the list.
-  const inboundEndpointsToTry =
-    "/auth-refresh-termination,/api/auth-refresh-termination".split(",");
   const correlationId = getCorrelationIdFromFetchArgs(...args);
-  const { isSuccess, failReason } = await inSituReauth(
-    inboundEndpointsToTry,
-    correlationId
-  );
+  const { isSuccess, failReason } = await inSituReauth(correlationId);
 
   if (!isSuccess) {
     // Auth is just not there in this browser so we need to ask the user to log in

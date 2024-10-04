@@ -88,6 +88,7 @@ polaris_ui_reauth = {
   outbound_e2e_url    = "/polaris"
   inbound_url         = "/auth-refresh-inbound"
   use_in_situ_refresh = "true"
+  in_situ_termination_url = "/auth-refresh-termination"
 }
 
 ssl_certificate_name           = "polaris-qa-notprod59598f87-3bda-4304-9ed4-e9c143ee793e"

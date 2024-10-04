@@ -88,4 +88,5 @@ polaris_ui_reauth = {
   outbound_e2e_url    = "/polaris"
   inbound_url         = "/auth-refresh-inbound"
   use_in_situ_refresh = "true"
+  in_situ_termination_url = "/auth-refresh-termination"
 }
