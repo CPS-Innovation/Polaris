@@ -808,7 +808,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         ({ pageNumber, rotationAngle }) => ({
           pageIndex: pageNumber,
           operation: "rotate",
-          arg: rotationAngle,
+          arg: `${rotationAngle}`,
         })
       );
 

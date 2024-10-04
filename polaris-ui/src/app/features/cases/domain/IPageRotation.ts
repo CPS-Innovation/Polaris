@@ -9,5 +9,5 @@ export interface IPageRotation extends PageRotation {
 export type RotationSaveRequest = {
   pageIndex: number;
   operation: "rotate";
-  arg: number;
+  arg: string;
 }[];
