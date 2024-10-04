@@ -33,7 +33,7 @@ namespace PolarisGateway.Functions
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchCount)] HttpRequest req, string caseUrn, int caseId)
         {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
             try
             {
                 context = await _initializationHandler.Initialize(req);

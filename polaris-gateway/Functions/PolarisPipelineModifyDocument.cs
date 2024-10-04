@@ -47,7 +47,7 @@ namespace PolarisGateway.Functions
         {
             var telemetryEvent = new DocumentModifiedEvent(caseId, documentId);
 
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
 
             try
             {

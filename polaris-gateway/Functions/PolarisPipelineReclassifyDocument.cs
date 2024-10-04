@@ -1,12 +1,12 @@
 using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Telemetry;
 using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
@@ -16,7 +16,7 @@ using PolarisGateway.Validators;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineReclassifyDocument
+    public class PolarisPipelineReclassifyDocument : BaseFunction
     {
         private readonly ILogger<PolarisPipelineReclassifyDocument> _logger;
         private readonly ICoordinatorClient _coordinatorClient;
@@ -32,6 +32,7 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,
             ITelemetryClient telemetryClient)
+            : base(telemetryClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
@@ -41,21 +42,15 @@ namespace PolarisGateway.Functions
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        [FunctionName(nameof(PolarisPipelineReclassifyDocument))]
+        [Function(nameof(PolarisPipelineReclassifyDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ReclassifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ReclassifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             var telemetryEvent = new DocumentReclassifiedEvent(caseId, documentId);
 
-            HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
-            {
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return result;
-            }
-
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+           (Guid CorrelationId, string? CmsAuthValues) context = default;
 
             try
             {
@@ -70,10 +65,7 @@ namespace PolarisGateway.Functions
 
                 if (!isRequestJsonValid)
                 {
-                    return SendTelemetryAndReturn(new HttpResponseMessage()
-                    {
-                        StatusCode = HttpStatusCode.BadRequest
-                    });
+                    return SendTelemetryAndReturnBadRequest(telemetryEvent);
                 }
 
                 var reclassifyDocumentDto = _reclassifyDocumentRequestMapper.Map(documentReclassification.Value);
@@ -85,9 +77,9 @@ namespace PolarisGateway.Functions
                     context.CmsAuthValues,
                     context.CorrelationId);
 
-                telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
+                telemetryEvent.IsSuccess = response.IsSuccessStatusCode();
 
-                return SendTelemetryAndReturn(response);
+                return SendTelemetryAndReturn(telemetryEvent, response);
             }
             catch (Exception ex)
             {

@@ -47,7 +47,7 @@ namespace PolarisGateway.Functions
             int caseId,
             int documentId)
         {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
 
             var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId.ToString());
 

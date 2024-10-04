@@ -23,7 +23,7 @@ namespace PolarisGateway.Clients.Coordinator
             _httpClient = httpClient;
         }
         
-        public async Task<HttpResponseMessage> GetUrnFromCaseIdAsync(int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetUrnFromCaseIdAsync(int caseId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -32,7 +32,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetCasesAsync(string caseUrn, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -41,7 +41,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> GetCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetCaseAsync(string caseUrn, int caseId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -50,7 +50,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> RefreshCaseAsync(string caseUrn, int caseId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
@@ -59,7 +59,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> DeleteCaseAsync(string caseUrn, int caseId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Delete,
@@ -93,7 +93,7 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<ContentResult> CheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> CheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
@@ -102,7 +102,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Delete,
@@ -111,7 +111,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> SaveRedactionsAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> SaveRedactionsAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Put,
@@ -137,7 +137,7 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<ContentResult> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, int documentId, Guid correlationId)
+        public async Task<ContentResult> GetDocumentNotes(string caseUrn, int caseId, string? cmsAuthValues, int documentId, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -146,7 +146,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> AddDocumentNote(string caseUrn, int caseId, string cmsAuthValues, int documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
+        public async Task<ContentResult> AddDocumentNote(string caseUrn, int caseId, string? cmsAuthValues, int documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
@@ -164,7 +164,7 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<ContentResult> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
+        public async Task<ContentResult> RenameDocumentAsync(string caseUrn, int caseId, string? cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Put,
@@ -174,7 +174,7 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(renameDocumentRequestDto), Encoding.UTF8, ContentType.Json));
         }
 
-        public async Task<ContentResult> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentRequest, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
@@ -184,7 +184,7 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
         }
         
-        public async Task<HttpResponseMessage> ReclassifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ReclassifyDocumentDto reclassifyDocumentDto, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> ReclassifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ReclassifyDocumentDto reclassifyDocumentDto, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
@@ -194,7 +194,7 @@ namespace PolarisGateway.Clients.Coordinator
                 new StringContent(JsonConvert.SerializeObject(reclassifyDocumentDto), Encoding.UTF8, ContentType.Json));
         }
         
-        public async Task<ContentResult> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetCaseExhibitProducers(string caseUrn, int caseId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -203,7 +203,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetCaseWitnesses(string caseUrn, int caseId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -212,7 +212,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<ContentResult> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetMaterialTypeListAsync(string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -221,7 +221,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<HttpResponseMessage> GetWitnessStatementsAsync(string caseUrn, int caseId, int witnessId, string cmsAuthValues, Guid correlationId)
+        public async Task<ContentResult> GetWitnessStatementsAsync(string caseUrn, int caseId, int witnessId, string? cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -230,7 +230,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        private async Task<ContentResult> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
+        private async Task<ContentResult> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string? cmsAuthValues = null, HttpContent? content = null, bool skipRetry = false)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
             if (skipRetry)
@@ -241,7 +241,7 @@ namespace PolarisGateway.Clients.Coordinator
             return await response.ToContentResultAsync();
         }
         
-        private async Task<FileStreamResult> SendDocumentRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
+        private async Task<FileStreamResult> SendDocumentRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string? cmsAuthValues = null, HttpContent? content = null, bool skipRetry = false)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
             if (skipRetry)

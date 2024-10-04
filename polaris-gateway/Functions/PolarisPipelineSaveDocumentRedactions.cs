@@ -50,7 +50,7 @@ namespace PolarisGateway.Functions
         {
             var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);
 
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
             try
             {
                 context = await _initializationHandler.Initialize(req);
