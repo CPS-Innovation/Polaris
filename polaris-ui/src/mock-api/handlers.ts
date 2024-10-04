@@ -1,5 +1,6 @@
 import { rest, RestContext } from "msw";
-
+import devUrnLookupDataSource from "./data/urnLookupResults.dev";
+import cypressUrnLookupDataSource from "./data/urnLookupResults.cypress";
 import devSearchDataSource from "./data/searchResults.dev";
 import cypressSearchDataSource from "./data/searchResults.cypress";
 import devCaseDetailsDataSource from "./data/caseDetails.dev";
@@ -10,6 +11,8 @@ import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
 import redactionLogDataSource from "./data/redactionLogData.dev";
 import cypressRedactionLogDataSource from "./data/redactionLogData.cypress";
+import reclassifyDataSource from "./data/reclassifyData.dev";
+import cypressReclassifyDataSource from "./data/resclassifyData.cypress";
 import { RedactionLogDataSource } from "./data/types/RedactionLogDataSource";
 import { SearchDataSource } from "./data/types/SearchDataSource";
 import {
@@ -30,6 +33,12 @@ import { MockApiConfig } from "./MockApiConfig";
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import pdfStrings from "./data/pdfs/pdf-strings.json";
+import { UrnLookupDataSource } from "./data/types/UrnLookupDataSource";
+
+const urnLookupDataSources: { [key: string]: UrnLookupDataSource } = {
+  dev: devUrnLookupDataSource,
+  cypress: cypressUrnLookupDataSource,
+};
 
 const searchDataSources: { [key: string]: SearchDataSource } = {
   dev: devSearchDataSource,
@@ -44,6 +53,11 @@ const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
 const redactionLogDataSources: { [key: string]: RedactionLogDataSource } = {
   dev: redactionLogDataSource,
   cypress: cypressRedactionLogDataSource,
+};
+
+const reclassifyDataSources: { [key: string]: any } = {
+  dev: reclassifyDataSource,
+  cypress: cypressReclassifyDataSource,
 };
 
 const pipelinePdfResultsDataSources: {
@@ -87,6 +101,12 @@ export const setupHandlers = ({
     ctx.delay(Math.random() * sanitisedMaxDelay);
 
   return [
+    rest.get(makeApiPath(routes.URN_LOOKUP_ROUTE), (req, res, ctx) => {
+      const { caseId } = req.params;
+      const results = urnLookupDataSources[sourceName](caseId);
+      return res(delay(ctx), ctx.json(results));
+    }),
+
     rest.get(makeApiPath(routes.CASE_SEARCH_ROUTE), (req, res, ctx) => {
       const { urn } = req.params;
       lastRequestedUrnCache.urn = urn;
@@ -206,6 +226,30 @@ export const setupHandlers = ({
       const results = searchPIIDataSources[sourceName];
       return res(delay(ctx), ctx.json(results));
       // return res(ctx.status(500), ctx.body("test_user_name"));
+    }),
+
+    rest.get(makeApiPath(routes.MATERIAL_TYPE_LIST), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].materialTypeList;
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.get(makeApiPath(routes.EXHIBIT_PRODUCERS), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].exhibitProducers;
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.get(makeApiPath(routes.STATEMENT_WITNESS), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].statementWitness;
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.get(makeApiPath(routes.STATEMENT_WITNESS_NUMBERS), (req, res, ctx) => {
+      const results = reclassifyDataSources[sourceName].statementWitnessNumbers;
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.post(makeApiPath(routes.SAVE_RECLASSIFY), (req, res, ctx) => {
+      return res(delay(ctx), ctx.json({}));
     }),
   ];
 };

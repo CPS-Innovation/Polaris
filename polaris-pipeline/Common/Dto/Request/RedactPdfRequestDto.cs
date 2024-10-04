@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Common.Dto.Request.DocumentManipulation;
 using Common.Dto.Request.Redaction;
 
 namespace Common.Dto.Request
@@ -10,5 +11,7 @@ namespace Common.Dto.Request
         public string FileName { get; set; }
 
         public List<RedactionDefinitionDto> RedactionDefinitions { get; set; }
+
+        public List<DocumentModificationDto> DocumentModifications { get; set; }
     }
 }

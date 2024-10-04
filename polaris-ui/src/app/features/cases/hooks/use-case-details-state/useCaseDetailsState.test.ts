@@ -111,7 +111,7 @@ describe("useCaseDetailsState", () => {
   describe("initialisation", () => {
     it("initialises to the expected state", () => {
       const { result } = renderHook(
-        () => useCaseDetailsState("bar", 1, isUnMounting),
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
         {
           wrapper: MemoryRouter,
         }
@@ -145,6 +145,8 @@ describe("useCaseDetailsState", () => {
         handleSearchPIIAction,
         handleResetRenameData,
         handleSaveRename,
+        handleReclassifySuccess,
+        handleResetReclassifyData,
         ...stateProperties
       } = result.current;
 
@@ -156,7 +158,7 @@ describe("useCaseDetailsState", () => {
     });
 
     it("can update state according to the api call results", async () => {
-      renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
+      renderHook(() => useCaseDetailsState("bar", 1, undefined, isUnMounting), {
         wrapper: MemoryRouter,
       });
 
@@ -179,7 +181,7 @@ describe("useCaseDetailsState", () => {
       jest.spyOn(useApi, "useApi").mockImplementation(() => {
         return { status: "loading" };
       });
-      renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
+      renderHook(() => useCaseDetailsState("bar", 1, undefined, isUnMounting), {
         wrapper: MemoryRouter,
       });
 
@@ -198,7 +200,7 @@ describe("useCaseDetailsState", () => {
       jest.spyOn(useApi, "useApi").mockImplementation(() => {
         return { status: "initial" };
       });
-      renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
+      renderHook(() => useCaseDetailsState("bar", 1, undefined, isUnMounting), {
         wrapper: MemoryRouter,
       });
 
@@ -220,9 +222,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleClosePdf },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       act(() => handleClosePdf("1"));
 
@@ -237,9 +242,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleSearchTermChange },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       act(() => handleSearchTermChange("foo"));
 
@@ -256,9 +264,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleLaunchSearchResults },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       act(() => handleLaunchSearchResults());
 
@@ -272,9 +283,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleCloseSearchResults },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       act(() => handleCloseSearchResults());
 
@@ -288,9 +302,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleChangeResultsOrder },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       act(() => handleChangeResultsOrder("byDateDesc"));
 
@@ -305,9 +322,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleUpdateFilter },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       act(() =>
         handleUpdateFilter({ filter: "category", id: "1", isSelected: true })
@@ -323,9 +343,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleCloseErrorModal },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
       act(() => handleCloseErrorModal());
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
@@ -345,9 +368,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleOpenPdf },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       act(() => handleOpenPdf({ documentId: "2", mode: "read" }));
 
@@ -368,9 +394,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleAddRedaction },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       handleAddRedaction("2", [{ type: "redaction" }] as NewPdfHighlight[]);
 
@@ -394,9 +423,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleRemoveRedaction },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       handleRemoveRedaction("2", "baz");
 
@@ -417,9 +449,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleRemoveAllRedactions },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       handleRemoveAllRedactions("2");
 
@@ -440,9 +475,12 @@ describe("useCaseDetailsState", () => {
         result: {
           current: { handleSavedRedactions },
         },
-      } = renderHook(() => useCaseDetailsState("bar", 1, isUnMounting), {
-        wrapper: MemoryRouter,
-      });
+      } = renderHook(
+        () => useCaseDetailsState("bar", 1, undefined, isUnMounting),
+        {
+          wrapper: MemoryRouter,
+        }
+      );
 
       handleSavedRedactions("2");
 

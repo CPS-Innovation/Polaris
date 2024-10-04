@@ -20,5 +20,5 @@ AppEvents
     DurationSeconds = todouble(Measurements.durationSeconds),
     VersionId = toint(Properties.versionId),
     CountEntries
-
+| extend DurationPerDocumentSeconds = todouble(DurationSeconds/ CmsDocsProcessedCount)
 

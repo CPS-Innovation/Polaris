@@ -37,9 +37,7 @@ namespace coordinator.Durable.Payloads.Domain
         [AdaptIgnore]
         public string CmsDocumentId { get; set; }
 
-        // Todo - don't send to client
         [JsonProperty("cmsVersionId")]
-        [AdaptIgnore]
         public long CmsVersionId { get; set; }
 
         [JsonIgnore]

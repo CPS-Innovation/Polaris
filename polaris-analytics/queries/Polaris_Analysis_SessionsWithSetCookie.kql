@@ -1,0 +1,68 @@
+let SessionStarts = AppTraces
+| where AppRoleName == "fa-polaris-ddei"
+| where OperationName in ("InitiateCookies", "InitiateCookiesNew")
+| where Message contains "?cookie="
+| project 
+    SessionStartTimeGenerated = TimeGenerated,
+    SessionCorrelationId = extract("'([^']+)", 1, Message) 
+;
+
+let Sessions = AppRequests 
+| where AppRoleName == "fa-polaris-ddei" 
+| where OperationName !in ("Status", "Ping", "InitiateCookies", "InitiateCookiesNew")
+| distinct 
+    PolarisCorrelationId = tostring(Properties.PolarisCorrelationId),
+    SessionCorrelationId = tostring(Properties.SessionCorrelationId)
+;
+
+let SessionSetCookies = AppTraces
+| where AppRoleName == "fa-polaris-ddei"
+| where OperationName !in ("Status", "Ping", "InitiateCookies", "InitiateCookiesNew")
+| where Message contains "path="
+| where Message contains ".CMSAUTH="
+| where Message !contains "xsey5sladg1x2nwnoojnm0iq"
+| where Message !contains "GetLoginResponseHeadersAsync"
+| extend PolarisCorrelationId = extract("'([^']+)", 1, Message)
+| project TimeGenerated, PolarisCorrelationId, OperationName
+| join Sessions on PolarisCorrelationId | project-away PolarisCorrelationId, PolarisCorrelationId1
+| summarize 
+    SetCookieEarliestTimeGenerated = min(TimeGenerated),
+    SetCookieLatestTimeGenerated = max(TimeGenerated),
+    SetCookieCount = count()
+by SessionCorrelationId
+;
+
+let SessionLatestGoodProxyCmsCalls = Polaris_ProxyCmsLogs
+| where Url contains "/CMS."
+| where StatusCode <= 299
+| join Sessions on PolarisCorrelationId | project-away PolarisCorrelationId, PolarisCorrelationId1
+| summarize 
+    SessionLatestGoodProxyCmsTimeGenerated = max(TimeGenerated)
+by SessionCorrelationId
+;
+
+let SessionEarliest302ProxyCmsCalls = Polaris_ProxyCmsLogs
+| where Url contains "/CMS."
+| where StatusCode == 302
+| join Sessions on PolarisCorrelationId | project-away PolarisCorrelationId, PolarisCorrelationId1
+| summarize 
+    SessionEarliest302ProxyCmsTimeGenerated = min(TimeGenerated)
+by SessionCorrelationId
+;
+
+SessionSetCookies
+| join kind=leftouter SessionStarts on SessionCorrelationId | project-away SessionCorrelationId1
+| join kind=leftouter SessionLatestGoodProxyCmsCalls on SessionCorrelationId | project-away SessionCorrelationId1
+| join kind=leftouter SessionEarliest302ProxyCmsCalls on SessionCorrelationId | project-away SessionCorrelationId1
+| project 
+    SessionCorrelationId,
+    SessionStartTimeGenerated,
+    SetCookieEarliestTimeGenerated,
+    SetCookieLatestTimeGenerated,
+    SetCookieCount,
+    SessionLatestGoodProxyCmsTimeGenerated,
+    SessionEarliest302ProxyCmsTimeGenerated
+| extend
+    SessionGoodTime = datetime_diff('minute', SessionLatestGoodProxyCmsTimeGenerated, SessionStartTimeGenerated),
+    FirstSetCookieTime = datetime_diff('minute', SetCookieEarliestTimeGenerated, SessionStartTimeGenerated),
+    SetCookieDuration = datetime_diff('minute', SetCookieLatestTimeGenerated, SetCookieEarliestTimeGenerated)

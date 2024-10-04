@@ -12,7 +12,7 @@ let FailedRedactionsByDocumentId = Polaris_Metrics_RedactionRequest
 | project-rename TimeGeneratedFailed = TimeGenerated 
 | project-rename OperationIdFailed = OperationId
 | project-rename  PolarisCorrelationIdFailed = PolarisCorrelationId
-| project DocumentId, TimeGeneratedFailed, OperationIdFailed, PolarisCorrelationIdFailed
+| project DocumentId, TimeGeneratedFailed, OperationIdFailed, PolarisCorrelationIdFailed, IsRequestJsonValid
 ;
 //FailedRedactionsByDocumentId
 
@@ -52,6 +52,7 @@ let DdeiExceptions = AppExceptions
         OuterMessage contains "User session not found", "Auth",
         OuterMessage contains "Sequence contains no matching element", "DocumentRemoved",
         OuterMessage contains "RegisterDocumentAsync", "RegisterDocument",
+        OuterMessage contains "An exception occurred contacting Cms Classic", "CMS Classic Exception",
         ExceptionType contains "SocketException", "Http",
         Assembly contains "Polly", "Http",
         OuterMessage contains "No matching mapping found", "e2e",
@@ -110,6 +111,7 @@ FailedRedactionsByDocumentId
         IsPdfException, "Pdf",
         IsCoordinatorException, strcat("Coordinator ", CoordinatorFailType),
         IsGatewayServiceUnavailble, "Gateway Service Unavailable/ Bad Gateway",
+        IsRequestJsonValid == false, "Invalid Redaction JSON",
         "Unknown"
     ),
     RecoveryType,

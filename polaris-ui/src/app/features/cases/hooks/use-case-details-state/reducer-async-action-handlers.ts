@@ -11,11 +11,8 @@ import {
   getSearchPIIData,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
-import {
-  NewPdfHighlight,
-  ISearchPIIHighlight,
-} from "../../domain/NewPdfHighlight";
-import { IPdfHighlight } from "../../domain/IPdfHighlight";
+import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import {
   mapRedactionSaveRequest,
   mapSearchPIISaveRedactionObject,
@@ -41,7 +38,8 @@ type AsyncActions =
       type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
-        redactions: NewPdfHighlight[];
+        redactions?: NewPdfHighlight[];
+        pageDeleteRedactions?: PageDeleteRedaction[];
       };
     }
   | {
@@ -161,7 +159,24 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         UNLOCKED_STATES_REQUIRING_LOCK.includes(clientLockedState);
 
       if (!documentRequiresLocking) {
-        dispatch({ type: "ADD_REDACTION", payload });
+        if (payload.pageDeleteRedactions) {
+          dispatch({
+            type: "ADD_PAGE_DELETE_REDACTION",
+            payload: {
+              documentId: payload.documentId,
+              pageDeleteRedactions: payload.pageDeleteRedactions,
+            },
+          });
+        }
+        if (payload?.redactions) {
+          dispatch({
+            type: "ADD_REDACTION",
+            payload: {
+              documentId: payload.documentId,
+              redactions: payload.redactions,
+            },
+          });
+        }
         return;
       }
 
@@ -172,7 +187,24 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       try {
         await checkoutDocument(urn, caseId, documentId);
 
-        dispatch({ type: "ADD_REDACTION", payload });
+        if (payload.pageDeleteRedactions) {
+          dispatch({
+            type: "ADD_PAGE_DELETE_REDACTION",
+            payload: {
+              documentId: payload.documentId,
+              pageDeleteRedactions: payload.pageDeleteRedactions,
+            },
+          });
+        }
+        if (payload?.redactions) {
+          dispatch({
+            type: "ADD_REDACTION",
+            payload: {
+              documentId: payload.documentId,
+              redactions: payload.redactions,
+            },
+          });
+        }
         dispatch({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: {
@@ -224,7 +256,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     async (action) => {
       const { payload } = action;
 
-      const { documentId } = payload;
+      const { documentId, redactionId } = payload;
       const {
         tabsState: { items },
         caseId,
@@ -233,13 +265,23 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { redactionHighlights, clientLockedState: lockedState } = document;
-
-      dispatch({ type: "REMOVE_REDACTION", payload });
+      const {
+        redactionHighlights,
+        clientLockedState: lockedState,
+        pageDeleteRedactions,
+      } = document;
+      const isRestorePage = pageDeleteRedactions.some(
+        (redaction) => redaction.id === redactionId
+      );
+      if (isRestorePage) {
+        dispatch({ type: "REMOVE_PAGE_DELETE_REDACTION", payload });
+      } else {
+        dispatch({ type: "REMOVE_REDACTION", payload });
+      }
 
       const requiresCheckIn =
         // this is the last existing highlight
-        redactionHighlights.length === 1 &&
+        redactionHighlights.length + pageDeleteRedactions.length === 1 &&
         LOCKED_STATES_REQUIRING_UNLOCK.includes(lockedState);
 
       if (!requiresCheckIn) {
@@ -317,7 +359,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const { redactionHighlights, polarisDocumentVersionId } = document;
+      const {
+        redactionHighlights,
+        polarisDocumentVersionId,
+        pageDeleteRedactions,
+      } = document;
       let piiData: any = {};
       if (searchPIIOn) {
         const suggestedHighlights =
@@ -331,16 +377,19 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const redactionRequestData = mapRedactionSaveRequest(
         documentId,
-        redactionHighlights
+        redactionHighlights,
+        pageDeleteRedactions
       );
 
-      const redactionSaveRequest = piiData?.categories
+      //piiData is for analytics only
+      const redactionSaveRequest = searchPIIOn
         ? { ...redactionRequestData, pii: piiData }
         : redactionRequestData;
 
-      const savedRedactionTypes = redactionHighlights.map(
-        (highlight) => highlight.redactionType!
-      );
+      const savedRedactionTypes = [
+        ...redactionHighlights,
+        ...pageDeleteRedactions,
+      ].map((item) => item.redactionType!);
       try {
         dispatch({
           type: "SAVING_REDACTION",
@@ -365,6 +414,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
           payload: { documentId, show: false, getData: false },
+        });
+
+        dispatch({
+          type: "REGISTER_NOTIFIABLE_EVENT",
+          payload: { documentId, notificationType: "NewVersion" },
         });
 
         dispatch({
@@ -619,6 +673,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             },
           },
         });
+
+        dispatch({
+          type: "REGISTER_NOTIFIABLE_EVENT",
+          payload: { documentId, notificationType: "Updated" },
+        });
+
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {

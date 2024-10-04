@@ -78,7 +78,8 @@ namespace PolarisGateway.Functions
                     context.CorrelationId);
 
                 telemetryEvent.IsSuccess = response.IsSuccessStatusCode();
-
+                telemetryEvent.DeletedPageCount = redactPdfRequest.DocumentModifications.Count;
+                
                 return SendTelemetryAndReturn(telemetryEvent, response);
             }
             catch (Exception ex)

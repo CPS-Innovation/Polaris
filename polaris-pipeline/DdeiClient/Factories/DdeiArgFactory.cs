@@ -1,17 +1,24 @@
+using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 
 namespace Ddei.Factories
 {
     public class DdeiArgFactory : IDdeiArgFactory
     {
-        public DdeiCmsCaseDataArgDto CreateCmsAuthValuesArg(string partialCmsAuthValues, Guid correlationId)
+        public DdeiArgFactory()
         {
-            return new DdeiCmsCaseDataArgDto
+        }
+
+        public DdeiCmsCaseIdArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId)
+        {
+            return new DdeiCmsCaseIdArgDto
             {
+                CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
-                CmsAuthValues = partialCmsAuthValues
+                CaseId = caseId
             };
         }
+
         public DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
         {
             return new DdeiCmsUrnArgDto
@@ -113,12 +120,41 @@ namespace Ddei.Factories
             };
         }
 
+        public DdeiCmsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, ReclassifyDocumentDto dto)
+        {
+            return new DdeiCmsReclassifyDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentId = documentId,
+                DocumentTypeId = dto.DocumentTypeId,
+                Exhibit = dto.Exhibit,
+                Statement = dto.Statement,
+                Other = dto.Other,
+                Immediate = dto.Immediate
+            };
+        }
+
         public DdeiCmsCaseDataArgDto CreateMaterialTypeListArgDto(string cmsAuthValues, Guid correlationId)
         {
             return new DdeiCmsCaseDataArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId
+            };
+        }
+
+        public DdeiCmsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
+        {
+            return new DdeiCmsWitnessStatementsArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                WitnessId = witnessId
             };
         }
     }

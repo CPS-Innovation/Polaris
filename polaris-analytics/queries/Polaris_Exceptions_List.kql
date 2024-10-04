@@ -6,7 +6,8 @@ let isKnownBug = (
     operationName: dynamic, 
     cmsStatusCode: dynamic,
     urn: dynamic,
-    loadBalancedDestination: dynamic ) {
+    loadBalancedDestination: dynamic,
+    appRoleName: dynamic) {
 
     let me = tostring(method);
     let et = tostring(exceptionType);
@@ -16,6 +17,7 @@ let isKnownBug = (
     let csc = tostring(cmsStatusCode);
     let u = tostring(urn);
     let lbd = tostring(loadBalancedDestination);
+    let arn = tostring(appRoleName);
 
     case(
                 om contains "An exception occurred contacting Cms Modern" and om contains "Status Code: Unauthorized", 
@@ -45,6 +47,9 @@ let isKnownBug = (
 
                 csc contains "302" and u notcontains "InitiateCookies",
         "23613 - Auth fail CMS post-InitiateCookies",
+
+        om contains "header or cookie is expected" or im contains "Cms Auth Token cannot be null",
+        "Auth fail - missing Cms-Auth-Values",
 
                 csc contains "413",
         "22626 - Upload document too large",
@@ -135,13 +140,13 @@ let isKnownBug = (
         "25015 - User not authorised to view a case",
             op contains "PolarisPipelineSaveDocumentRedactions",
         "24767 - Save Redactions(unclassified elsewhere)",
-            op contains "polaris-ui/",
+            op contains "polaris-ui",
         "25171 - UI exceptions",
             et contains "System.IndexOutOfRangeException",
         "25834 - IndexOutOfRengeException",
             om contains "The namespace declaration attribute has an incorrect 'namespaceURI': 'http://www.w3.org/2000/xmlns/",
         "26163 - Aspose -The namespace declaration attribute has an incorrect 'namespaceURI': 'http://www.w3.org/2000/xmlns/",
-            op contains "Status", 
+            op contains "Status" or op contains "Health", 
         "Status func timeout",
             et contains "OcrServiceException" and im contains "The stream was already consumed.",
         "26424 - OCR retry fail",
@@ -159,8 +164,19 @@ let isKnownBug = (
         "27446 - DDEI GetCase: Error while copying content to a stream",
         (op contains "InitiateIndex" or op contains "CompleteIndex") and (om contains "HttpClient.Timeout" or om contains "502" or im contains "Connection reset by peer"),
         "27574 - Timeouts and 502s contacting Text Extractor",
-        om contains "InitiateOcr" or om contains "CompleteOcr",
+        op contains "InitiateOcr" or op contains "CompleteOcr",
         "27575 - Computer Vision errors",
+        om contains "no longer exists in CMS: This case has been deleted",
+        "CMS Case Deleted",
+        op contains "CompleteIndex" or op contains "InitiateIndex" or op contains "StoreCaseIndexes" and im contains "502" or im contains "503" or im contains "Value cannot be null" or 
+        im contains "Unexpected character encountered while parsing value" or om contains "At least one indexing action failed",
+        "27614 - index 502/503",
+        op contains "GeneratePdf" and om contains "The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing",
+        "Pdf Generator timeouts",
+        op contains "InitiateCookies" or op contains "GetCasePcdRequests" and (om contains "NotFound" or csc == 404 or im contains "The resource cannot be found") and (om contains "uainGeneratedScript" or im contains "uainGeneratedScript" or om contains "uapcPreChargeDecRequests"),
+        "27980 - CMS Classic Not Found uainGeneratedScript",
+        arn contains "fa-polaris-pdf-generator" and om contains "Object reference not set to an instance of an object",
+        "Aspose - Object reference not set to an instance of an object",
     "");
 };
 
@@ -172,7 +188,7 @@ Polaris_Exceptions_Core
     and strcmp(format_datetime(EarliestExceptionTimeGenerated, 'yyyy-MM-dd-HH:mm'), '2023-08-30-10:09') < 0
 )
 | extend 
-    IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination ),
+    IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination, AppRoleName ),
     PolarisCorrelationId = tostring(PolarisCorrelationId)    
 | where AppRoleName !contains "staging"
 // filter out known fixes
@@ -184,14 +200,15 @@ Polaris_Exceptions_Core
 | where InnermostMessage notcontains "HTE" and OuterMessage notcontains "HTE" 
 | where IsKnownBug !startswith "25042"
 | where not(IsKnownBug startswith "23502" and OuterMessage contains "Pdf is encrypted")
-
+// case deleted in cms
+| where not(IsKnownBug startswith "CMS Case Deleted")
 // user unauthed is accounted for elsewhere
 | where ExceptionType !contains "CmsModernAuthorizationException"
 // noise from slot-swap
 | where not(AppRoleName contains "staging" and OuterMessage contains "Status")
 | where not(IsKnownBug startswith "24767" and (PolarisCorrelationId in ("00000000-0000-0000-0000-000000000000", "e2e00000-0000-0000-0000-000000000000")))
 
-
+| where not(IsKnownBug == "Auth fail - missing Cms-Auth-Values" and User == "")
 // filter out e2e tests that are intentionally omitting CmsAuthValues
 | where not( IsKnownBug == "" and ExceptionType contains "CmsAuthenticationException" and User == "")
 

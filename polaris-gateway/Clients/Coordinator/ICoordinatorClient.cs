@@ -6,6 +6,7 @@ namespace PolarisGateway.Clients.Coordinator;
 
 public interface ICoordinatorClient
 {
+    Task<HttpResponseMessage> GetUrnFromCaseIdAsync(int caseId, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> GetCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
@@ -22,7 +23,9 @@ public interface ICoordinatorClient
     Task<ContentResult> GetPii(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId);
     Task<ContentResult> ModifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ModifyDocumentDto modifyDocumentDto, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId);
+    Task<HttpResponseMessage> ReclassifyDocument(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, ReclassifyDocumentDto reclassifyDocumentDto, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
     Task<ContentResult> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId);
+    Task<HttpResponseMessage> GetWitnessStatementsAsync(string caseUrn, int caseId, int witnessId, string cmsAuthValues, Guid correlationId);
 }

@@ -1,0 +1,7 @@
+Polaris_ProxyCmsLogs
+| where Url endswith "uainGeneratedScript.aspx"
+| summarize AllRequests = count(), NotFoundRequests = countif(StatusCode == 404) by bin(TimeGenerated, 15m)
+| render timechart 
+
+// Polaris_Exceptions_List
+// | where IsKnownBug contains "uainGeneratedScript"

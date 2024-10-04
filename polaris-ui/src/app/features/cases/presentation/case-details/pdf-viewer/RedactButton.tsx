@@ -25,10 +25,12 @@ const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
     children: "-- Please select --",
     disabled: true,
   };
-  const mappedRedactionType = data.map((item) => ({
-    value: item.id,
-    children: item.name,
-  }));
+  const mappedRedactionType = data
+    .filter((item) => !item.isDeletedPage)
+    .map((item) => ({
+      value: item.id,
+      children: item.name,
+    }));
 
   return [defaultOption, ...mappedRedactionType];
 };
