@@ -168,7 +168,7 @@ data "azurerm_storage_container" "documents_storage_container" {
   storage_account_name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
 }
 
-data "azurerm_storage_container" "thumbnails_storage_container" {
-  name                 = "thumbnails"
-  storage_account_name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
-}
+# data "azurerm_storage_container" "thumbnails_storage_container" {
+#   name                 = "thumbnails"
+#   storage_account_name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+# }

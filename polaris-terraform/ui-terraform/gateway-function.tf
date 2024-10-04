@@ -239,10 +239,10 @@ resource "azurerm_role_assignment" "gateway_blob_data_contributor" {
   depends_on = [azurerm_linux_function_app.fa_polaris]
 }
 
-resource "azurerm_role_assignment" "gateway_blob_data_thumbnails_contributor" {
-  scope                = data.azurerm_storage_container.thumbnails_storage_container.resource_manager_id
-  role_definition_name = "Storage Blob Data Reader"
-  principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
-
-  depends_on = [azurerm_linux_function_app.fa_polaris]
-}
+# resource "azurerm_role_assignment" "gateway_blob_data_thumbnails_contributor" {
+#   scope                = data.azurerm_storage_container.thumbnails_storage_container.resource_manager_id
+#   role_definition_name = "Storage Blob Data Reader"
+#   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
+#
+#  depends_on = [azurerm_linux_function_app.fa_polaris]
+#}
