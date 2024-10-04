@@ -86,40 +86,54 @@ namespace coordinator.Functions
                 await documentStream.CopyToAsync(memoryStream);
                 var bytes = memoryStream.ToArray();
 
-                var base64Document = Convert.ToBase64String(bytes);
+                Stream redactedDocumentStream = null;
 
-                var redactionRequest = new RedactPdfRequestWithDocumentDto
+                if (redactPdfRequest.RedactionDefinitions.Any())
                 {
-                    FileName = document.PdfBlobName,
-                    Document = base64Document,
-                    RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
-                    VersionId = redactPdfRequest.VersionId
-                };
+                    var base64Document = Convert.ToBase64String(bytes);
 
-                var validationResult = await _requestValidator.ValidateAsync(redactionRequest);
-                if (!validationResult.IsValid)
-                    throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
+                    var redactionRequest = new RedactPdfRequestWithDocumentDto
+                    {
+                        FileName = document.PdfBlobName,
+                        Document = base64Document,
+                        RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
+                        VersionId = redactPdfRequest.VersionId
+                    };
 
-                using var redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactionRequest, currentCorrelationId);
-                if (redactedDocumentStream == null)
-                {
-                    string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
-                    throw new Exception(error);
+                    var validationResult = await _requestValidator.ValidateAsync(redactionRequest);
+                    if (!validationResult.IsValid)
+                        throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
+
+                    redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactionRequest, currentCorrelationId);
+                    if (redactedDocumentStream == null)
+                    {
+                        string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                        throw new Exception(error);
+                    }
                 }
 
                 Stream modifiedDocumentStream = null;
 
                 if (redactPdfRequest.DocumentModifications.Any())
                 {
-                    using var redactedMemoryStream = new MemoryStream();
-                    await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
-                    var redactedBytes = redactedMemoryStream.ToArray();
+                    byte[] bytesToModify = null;
 
-                    var base64RedactedDocument = Convert.ToBase64String(redactedBytes);
+                    if (redactedDocumentStream != null)
+                    {
+                        using var redactedMemoryStream = new MemoryStream();
+                        await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
+                        bytesToModify = redactedMemoryStream.ToArray();
+                    }
+                    else
+                    {
+                        bytesToModify = bytes;
+                    }
+
+                    var base64DocumentToModify = Convert.ToBase64String(bytesToModify);
 
                     var modificationRequest = new ModifyDocumentWithDocumentDto
                     {
-                        Document = base64RedactedDocument,
+                        Document = base64DocumentToModify,
                         FileName = document.PdfBlobName,
                         DocumentModifications = redactPdfRequest.DocumentModifications,
                         VersionId = redactPdfRequest.VersionId
@@ -133,7 +147,7 @@ namespace coordinator.Functions
                     }
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactionRequest.FileName);
+                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(document.PdfBlobName);
 
                 await _blobStorageService.UploadDocumentAsync(
                     modifiedDocumentStream ?? redactedDocumentStream,
