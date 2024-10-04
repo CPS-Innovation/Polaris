@@ -1,0 +1,180 @@
+.root {
+  position: relative;
+  font-size: 1.1875rem;
+  .time {
+    display: inline-flex;
+    align-items: center;
+
+    .timeIcon {
+      width: 0.759em;
+      height: 0.759em;
+
+      vertical-align: middle;
+
+      margin-right: 0.21em;
+    }
+  }
+
+  .btn {
+    // cancel native button styling
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+
+    // todo: could these be mixins and only defined in one place
+    &:hover:not(:disabled):not(:focus) {
+      color: #fff;
+      background-color: #1d70b8;
+    }
+
+    // todo: could these be mixins and only defined in one place
+    &:focus {
+      color: #0b0c0c;
+      background-color: #ffdd00;
+      box-shadow: 0 0.105em 0 #0b0c0c;
+      outline: 0.16em solid transparent;
+    }
+
+    margin-top: 0.5em;
+    padding: 0.35em;
+    width: 8em;
+    display: flex;
+    justify-content: space-between;
+    //align-items: center;
+
+    .alert {
+      top: -0.3em;
+      position: relative;
+      display: inline-block;
+      width: 1.75em;
+      height: 1.75em;
+
+      .count {
+        bottom: -0.8em;
+        right: -0.6em;
+        width: 1.6em;
+        height: 1.6em;
+        color: white;
+        background-color: #d4351c;
+        position: absolute;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.67em;
+        font-weight: bold;
+      }
+    }
+
+    &:not(:hover) .alert {
+      background: url(./alert-alert.svg) no-repeat;
+    }
+
+    &:hover .alert {
+      background: url(./alert-alert-white.svg) no-repeat;
+    }
+    &:hover .alertEmpty,
+    &:not(:hover) .alertEmpty {
+      background: url(./alert-empty.svg) no-repeat;
+      .count {
+        background-color: black;
+        color: white;
+      }
+    }
+
+    .label {
+      display: inline-block;
+      font-size: 0.9em;
+    }
+  }
+
+  .panel {
+    position: absolute;
+    top: 3.1em;
+    right: 0;
+    min-width: 25em;
+    z-index: 7;
+    box-shadow: 0.526em 0.526em 0.526em 0.526em rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+
+    .header {
+      background-color: #f3f2f1;
+      padding: 0.2em 0.5em;
+      color: #505a5f;
+
+      &.headerPopulated {
+        border-bottom: 0.053em dashed #b1b4b6;
+      }
+    }
+
+    .body {
+      ul {
+        padding: 0;
+        margin: 0;
+        max-height: 21.5em;
+        overflow-y: scroll;
+
+        li {
+          padding: 0.5em 0.5em 0 0.5em;
+          margin-bottom: 0.25em;
+          border-left: 0.263em solid #1d70b8;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          &.live {
+            border-left: 0.263em solid #1d70b8;
+          }
+
+          &.read {
+            border-left: 0.263em solid #fff;
+          }
+
+          .clear {
+            margin-right: 2em;
+            font-size: 0.8em;
+            padding: 0.35em;
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+          }
+
+          .docLink {
+            padding-left: 0;
+            font-weight: bold;
+            text-align: left;
+          }
+
+          .dateTime {
+            color: #505a5f;
+          }
+
+          .tag {
+            text-transform: none;
+            margin-bottom: 0.6em;
+          }
+
+          .narrative {
+            margin-bottom: 0.5em;
+
+            .reasonToIgnore {
+              text-decoration: line-through;
+              margin-left: 1em;
+            }
+          }
+        }
+      }
+
+      .footer {
+        padding: 0.5em;
+        text-align: right;
+        box-shadow: 0 0 0.526em 0 rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+}

@@ -46,9 +46,11 @@
   }
 }
 
-.mainContent {
-  margin-top: -1.5625rem;
+.mainContentWithNotifications {
+  margin-top: 0.6rem; // enough margin to give space for the notifications button
+}
 
+.mainContent {
   .rightColumn {
     margin-top: -3.4375rem;
     height: 100vh;
@@ -182,4 +184,10 @@
 
 .reclassifyMode {
   display: none;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-content: flex-start;
 }

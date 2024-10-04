@@ -147,13 +147,6 @@
   margin-bottom: 1.875rem;
 }
 
-.accordion .accordion-document-list-item {
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(29, 112, 184, 0.075);
-  border-left: 5px solid #1d70b8;
-}
-
 .listItemWrapper {
   padding: 0.625rem 0 0.625rem 0.625rem;
   border-bottom: 0.0625rem solid #bfc1c3;
@@ -169,11 +162,26 @@
   text-transform: none;
 }
 
-.accordion .docActive {
-  background-color: #fff;
-  border-left: none;
-  border-right: 5px solid #bfe3e0;
+// There is a hierarchy in how "strong" the classes for a document are:
+//  normal doc (accordion-document-list-item) < new doc (docNew) < read doc (docRead) < active doc (docActive)
+// We need to make sure they appear in this order in the style sheet so that "latest defined style wins"
+
+.accordion .accordion-document-list-item {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(29, 112, 184, 0.075);
+  border-left: 5px solid #1d70b8;
 }
+
+.accordion .docNew {
+  background-color: rgba(0, 112, 60, 0.075);
+  border-left: 5px solid #00703c;
+  & .accordion-document-link-button {
+    font-weight: normal;
+    color: #00703c;
+  }
+}
+
 .accordion .docRead {
   background-color: #fff;
   border-left: none;
@@ -186,6 +194,12 @@
     font-weight: normal;
     color: #4c2c92;
   }
+}
+
+.accordion .docActive {
+  background-color: #fff;
+  border-left: none;
+  border-right: 5px solid #bfe3e0;
 }
 
 .accordion .accordion-document-item-wrapper {
