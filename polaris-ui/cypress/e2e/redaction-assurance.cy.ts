@@ -25,6 +25,7 @@ describe("Redaction Assurance", () => {
         ],
       },
     ],
+    documentModifications: [],
   };
   describe("Document Fullscreen", () => {
     it("Should successfully verify the save redaction request data in non-full screen mode", () => {
@@ -629,6 +630,7 @@ describe("Redaction Assurance", () => {
           ],
         },
       ],
+      documentModifications: [],
     };
     it("Should successfully verify the save redaction request data in given screen size(1300, 1000)", () => {
       cy.viewport(1300, 1000);

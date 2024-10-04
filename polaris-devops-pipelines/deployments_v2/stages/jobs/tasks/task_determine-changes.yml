@@ -39,21 +39,9 @@ steps:
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
             $pipelineTerraformCount++
           }
-          if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
-          {
-            echo "run pipeline events terraform..."
-            Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-            $pipelineTerraformCount++
-          }
           if ($name -like 'polaris-terraform/ui-terraform/*')
           {
             echo "run ui terraform..."
-            Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-            $uiTerraformCount++
-          }
-          if ($name -like 'polaris-terraform/ui-events-terraform/*')
-          {
-            echo "run ui events terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
             $uiTerraformCount++
           }

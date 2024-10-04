@@ -12,6 +12,7 @@ export type FeatureFlagData = {
   renameDocument: boolean;
   reclassify: boolean;
   externalRedirect: boolean;
+  pageDelete: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -22,4 +23,5 @@ export type FeatureFlagQueryParams = {
   renameDocument: string;
   reclassify: string;
   externalRedirect: string;
+  pageDelete: string;
 };
