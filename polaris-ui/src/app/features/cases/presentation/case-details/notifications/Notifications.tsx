@@ -113,7 +113,7 @@ export const Notifications: React.FC<{
           {!!eventsToDisplay.length && (
             <div className={classes.body}>
               <ul ref={listRef} onScroll={handleScroll}>
-                {events.map((evt) => (
+                {eventsToDisplay.map((evt) => (
                   <Notification
                     key={evt.id}
                     evt={evt}

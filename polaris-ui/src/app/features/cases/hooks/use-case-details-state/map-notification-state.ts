@@ -288,13 +288,16 @@ export const clearAllNotifications = <T extends NotificationEventCore>(
   };
 };
 
-export const filterNotificationsButtonEvents = (
-  allEvents: Pick<NotificationEvent, "id" | "status" | "reasonToIgnore">[]
+export const filterNotificationsButtonEvents = <
+  T extends Pick<NotificationEvent, "id" | "status" | "reasonToIgnore">
+>(
+  allEvents: T[]
 ) => {
   const eventsToDisplay = allEvents.filter(
     (evt) =>
       BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS || !evt.reasonToIgnore
   );
+
   return {
     liveEventCount: eventsToDisplay.filter((evt) => evt.status === "Live")
       .length,
@@ -302,11 +305,11 @@ export const filterNotificationsButtonEvents = (
   };
 };
 
-type TMinimalNotificationEvent = NotificationEventCore &
-  Pick<NotificationEvent, "reasonToIgnore">;
-export const filterDocumentTagEvents = <T extends TMinimalNotificationEvent[]>(
-  allEvents: T
-) =>
+export const filterDocumentTagEvents = <
+  T extends Pick<NotificationEvent, "reasonToIgnore">
+>(
+  allEvents: T[]
+): T[] =>
   allEvents.filter(
     (evt) =>
       BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS ||
