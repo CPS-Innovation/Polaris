@@ -432,7 +432,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       ].map((item) => item.redactionType!);
       try {
         dispatch({
-          type: "SAVING_REDACTION",
+          type: "SAVING_DOCUMENT",
           payload: {
             documentId,
             saveStatus: { type: "redaction", status: "saving" },
@@ -447,7 +447,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
         dispatch({
-          type: "SAVING_REDACTION",
+          type: "SAVING_DOCUMENT",
           payload: {
             documentId,
             saveStatus: { type: "redaction", status: "saved" },
@@ -502,7 +502,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
         dispatch({
-          type: "SAVING_REDACTION",
+          type: "SAVING_DOCUMENT",
           payload: {
             documentId,
             saveStatus: { type: "redaction", status: "error" },
@@ -819,7 +819,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       try {
         dispatch({
-          type: "SAVING_REDACTION",
+          type: "SAVING_DOCUMENT",
           payload: {
             documentId,
             saveStatus: { type: "rotation", status: "saving" },
@@ -827,7 +827,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         await saveRotations(urn, caseId, documentId, rotationRequestData);
         dispatch({
-          type: "SAVING_REDACTION",
+          type: "SAVING_DOCUMENT",
           payload: {
             documentId,
             saveStatus: { type: "rotation", status: "saved" },
@@ -877,7 +877,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
         dispatch({
-          type: "SAVING_REDACTION",
+          type: "SAVING_DOCUMENT",
           payload: {
             documentId,
             saveStatus: { type: "rotation", status: "error" },
