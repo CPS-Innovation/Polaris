@@ -124,7 +124,7 @@ export const useCaseDetailsState = (
       pageDeleteRedactions?: PageDeleteRedaction[]
     ) =>
       dispatch({
-        type: "ADD_CHANGE_AND_POTENTIALLY_LOCK",
+        type: "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK",
         payload: { documentId, redactions, pageDeleteRedactions },
       }),
     [dispatch]
@@ -133,7 +133,7 @@ export const useCaseDetailsState = (
   const handleRemoveRedaction = useCallback(
     (documentId: CaseDocumentViewModel["documentId"], redactionId: string) =>
       dispatch({
-        type: "REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK",
+        type: "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK",
         payload: { documentId, redactionId },
       }),
     [dispatch]
@@ -428,7 +428,7 @@ export const useCaseDetailsState = (
   const handleAddPageRotation = useCallback(
     (documentId: string, pageRotations: PageRotation[]) => {
       dispatch({
-        type: "ADD_CHANGE_AND_POTENTIALLY_LOCK",
+        type: "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK",
         payload: { documentId, pageRotations },
       });
     },
@@ -438,7 +438,7 @@ export const useCaseDetailsState = (
   const handleRemovePageRotation = useCallback(
     (documentId: string, rotationId: string) => {
       dispatch({
-        type: "REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK",
+        type: "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK",
         payload: { documentId, rotationId },
       });
     },

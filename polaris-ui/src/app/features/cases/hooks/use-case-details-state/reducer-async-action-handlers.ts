@@ -37,7 +37,7 @@ type Action = Parameters<typeof reducer>[1];
 
 type AsyncActions =
   | {
-      type: "ADD_CHANGE_AND_POTENTIALLY_LOCK";
+      type: "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
         redactions?: NewPdfHighlight[];
@@ -46,7 +46,7 @@ type AsyncActions =
       };
     }
   | {
-      type: "REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK";
+      type: "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
         redactionId?: string;
@@ -157,7 +157,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       });
     },
 
-  ADD_CHANGE_AND_POTENTIALLY_LOCK:
+  ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK:
     ({ dispatch, getState }) =>
     async (action) => {
       const {
@@ -271,7 +271,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       }
     },
 
-  REMOVE_CHANGE_AND_POTENTIALLY_UNLOCK:
+  REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK:
     ({ dispatch, getState }) =>
     async (action) => {
       const {
