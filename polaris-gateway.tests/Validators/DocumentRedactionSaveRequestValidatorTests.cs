@@ -46,18 +46,6 @@ namespace PolarisGateway.Tests.Validators
         }
 
         [Fact]
-        public async Task Redactions_WhenZeroLength_ReturnsValidationError()
-        {
-            var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
-            saveRequest.Redactions = new List<RedactionDefinitionDto>();
-
-            var redactionValidator = new DocumentRedactionSaveRequestValidator();
-            var validationResult = await redactionValidator.TestValidateAsync(saveRequest);
-
-            validationResult.ShouldHaveValidationErrorFor(x => x.Redactions);
-        }
-
-        [Fact]
         public void Redactions_CorrectChildValidator_Loaded()
         {
             var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();

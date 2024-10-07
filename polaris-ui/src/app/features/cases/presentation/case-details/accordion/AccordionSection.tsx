@@ -7,7 +7,6 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { Classification } from "../../../domain/gateway/PipelineDocument";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
-import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
 
 type Props = {
   activeDocumentId: string;
@@ -32,7 +31,6 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
-  reclassifyData: ReclassifyDocumentData[];
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -51,7 +49,6 @@ export const AccordionSection: React.FC<Props> = ({
   readUnreadData,
   featureFlags,
   notesData,
-  reclassifyData,
   handleToggleOpenSection,
   handleOpenPdf,
   handleOpenPanel,
@@ -112,7 +109,6 @@ export const AccordionSection: React.FC<Props> = ({
                     featureFlags={featureFlags}
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
-                    reclassifyData={reclassifyData}
                     handleReclassifyDocument={handleReclassifyDocument}
                   />
                 ))}

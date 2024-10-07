@@ -13,6 +13,7 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP2,
   FEATURE_FLAG_EXTERNAL_REDIRECT,
   PRIVATE_BETA_FEATURE_USER_GROUP3,
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -73,6 +74,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     externalRedirect,
     pageDelete,
     pageRotate,
+    notifications,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -124,6 +126,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_PAGE_ROTATE,
         userDetails?.username,
         pageRotate,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      notifications: showFeature(
+        FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
+        userDetails?.username,
+        notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),

@@ -1,13 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { useApi } from "../../../../common/hooks/useApi";
-import {
-  getCaseDetails,
-  searchCase,
-  getRedactionLogLookUpsData,
-  getRedactionLogMappingData,
-} from "../../api/gateway-api";
-import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
-import { CombinedState } from "../../domain/CombinedState";
+import { useCallback } from "react";
+import { CombinedState, initialState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import {
@@ -18,88 +10,17 @@ import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
-import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
-import {
-  readFromLocalStorage,
-  ReadUnreadData,
-} from "../../presentation/case-details/utils/localStorageUtils";
-import {
-  handleRenameUpdateConfirmation,
-  handleReclassifyUpdateConfirmation,
-} from "../utils/refreshCycleDataUpdate";
 import { TaggedContext } from "../../../../inbound-handover/context";
+import { useLoadAppLevelLookups } from "./useLoadAppLevelLookups";
+import { useGetCaseData } from "./useGetCaseData";
+import { useDocumentSearch } from "./useDocumentSearch";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+import { usePipelineRefreshPolling } from "./usePipelineRefreshPolling";
+import { useHydrateFromLocalStorage } from "./useHydrateFromLocalStorage";
 import { PageRotation } from "../../domain/IPageRotation";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
-
-export const initialState = {
-  caseState: { status: "loading" },
-  documentsState: { status: "loading" },
-  pipelineState: { status: "initiating", haveData: false, correlationId: "" },
-  pipelineRefreshData: {
-    startRefresh: false,
-    savedDocumentDetails: [],
-    lastProcessingCompleted: "",
-  },
-  accordionState: { status: "loading" },
-  tabsState: { items: [], headers: {}, activeTabId: undefined },
-  notificationState: {
-    ignoreNextEvents: [],
-    events: [],
-  },
-  searchTerm: "",
-  searchState: {
-    isResultsVisible: false,
-    requestedSearchTerm: undefined,
-    submittedSearchTerm: undefined,
-    resultsOrder: "byDateDesc",
-    filterOptions: {
-      docType: {},
-      category: {},
-    },
-    missingDocs: [],
-    results: { status: "loading" },
-  },
-  errorModal: {
-    show: false,
-    message: "",
-    title: "",
-    type: "",
-  },
-  confirmationModal: {
-    show: false,
-    message: "",
-  },
-  documentIssueModal: {
-    show: false,
-  },
-  redactionLog: {
-    showModal: false,
-    type: RedactionLogTypes.UNDER,
-    redactionLogLookUpsData: { status: "loading" },
-    redactionLogMappingData: { status: "loading" },
-    savedRedactionTypes: [],
-  },
-  featureFlags: {
-    redactionLog: false,
-    fullScreen: false,
-    notes: false,
-    searchPII: false,
-    renameDocument: false,
-    reclassify: false,
-    externalRedirect: false,
-    pageDelete: false,
-    pageRotate: false,
-  },
-  storedUserData: { status: "loading" },
-  notes: [],
-  searchPII: [],
-  renameDocuments: [],
-  reclassifyDocuments: [],
-  context: undefined,
-} as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (
   urn: string,
@@ -107,224 +28,22 @@ export const useCaseDetailsState = (
   context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
-  const featureFlagData = useUserGroupsFeatureFlag();
-  const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
-
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
     { ...initialState, caseId, urn, context },
     reducerAsyncActionHandlers
   );
 
-  const pipelineState = usePipelineApi(
-    urn,
+  useLoadAppLevelLookups(dispatch);
+  useHydrateFromLocalStorage(
     caseId,
-    combinedState.pipelineRefreshData,
-    isUnMounting
+    combinedState.storedUserData.status,
+    dispatch
   );
-
-  const redactionLogLookUpsData = useApi(
-    getRedactionLogLookUpsData,
-    [],
-    combinedState.featureFlags.redactionLog
-  );
-
-  const redactionLogMappingData = useApi(
-    getRedactionLogMappingData,
-    [],
-    combinedState.featureFlags.redactionLog
-  );
-
-  useEffect(() => {
-    if (combinedState.storedUserData.status === "loading") {
-      const docReadData = readFromLocalStorage(
-        caseId,
-        "readUnread"
-      ) as ReadUnreadData | null;
-      dispatch({
-        type: "UPDATE_STORED_USER_DATA",
-        payload: {
-          storedUserData: { readUnread: docReadData ?? [] },
-        },
-      });
-    }
-  }, [combinedState.storedUserData.status, caseId, dispatch]);
-
-  useEffect(() => {
-    if (redactionLogLookUpsData.status !== "initial")
-      dispatch({
-        type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA",
-        payload: redactionLogLookUpsData,
-      });
-  }, [redactionLogLookUpsData, dispatch]);
-
-  useEffect(() => {
-    if (redactionLogMappingData.status !== "initial")
-      dispatch({
-        type: "UPDATE_REDACTION_LOG_MAPPING_DATA",
-        payload: redactionLogMappingData,
-      });
-  }, [redactionLogMappingData, dispatch]);
-
-  useEffect(() => {
-    dispatch({
-      type: "UPDATE_FEATURE_FLAGS_DATA",
-      payload: featureFlagData,
-    });
-  }, [featureFlagData, dispatch]);
-
-  useEffect(() => {
-    if (caseState.status !== "initial")
-      dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
-  }, [caseState, dispatch]);
-
-  useEffect(() => {
-    dispatch({
-      type: "UPDATE_PIPELINE",
-      payload: pipelineState.pipelineResults,
-    });
-  }, [pipelineState.pipelineResults, dispatch]);
-
-  useEffect(() => {
-    if (!pipelineState.pipelineResults?.haveData) {
-      return;
-    }
-
-    const activeRenameDoc = combinedState.renameDocuments.find(
-      (doc) => doc.saveRenameRefreshStatus === "updating"
-    );
-    const activeReclassifyDoc = combinedState.reclassifyDocuments.find(
-      (doc) => doc.saveReclassifyRefreshStatus === "updating"
-    );
-    if (!activeRenameDoc && !activeReclassifyDoc) return;
-    if (activeRenameDoc) {
-      const isUpdated = handleRenameUpdateConfirmation(
-        pipelineState.pipelineResults.data,
-        activeRenameDoc
-      );
-      if (isUpdated) {
-        dispatch({
-          type: "UPDATE_RENAME_DATA",
-          payload: {
-            properties: {
-              documentId: activeRenameDoc.documentId,
-              saveRenameRefreshStatus: "updated",
-            },
-          },
-        });
-      }
-    }
-    if (activeReclassifyDoc) {
-      const isUpdated = handleReclassifyUpdateConfirmation(
-        pipelineState.pipelineResults.data,
-        activeReclassifyDoc
-      );
-      if (isUpdated) {
-        dispatch({
-          type: "UPDATE_RECLASSIFY_DATA",
-          payload: {
-            properties: {
-              documentId: activeReclassifyDoc.documentId,
-              saveReclassifyRefreshStatus: "updated",
-            },
-          },
-        });
-      }
-    }
-  }, [
-    pipelineState.pipelineResults,
-    combinedState.renameDocuments,
-    combinedState.reclassifyDocuments,
-    dispatch,
-  ]);
-
-  useEffect(() => {
-    const { startRefresh } = combinedState.pipelineRefreshData;
-    const caseStateStatus = combinedState.caseState.status;
-    const pipelineResultStatus = pipelineState.pipelineResults.status;
-    if (
-      !startRefresh &&
-      caseStateStatus === "succeeded" &&
-      pipelineResultStatus === "initiating" &&
-      !pipelineState.pipelineBusy
-    ) {
-      dispatch({
-        type: "UPDATE_REFRESH_PIPELINE",
-        payload: {
-          startRefresh: true,
-        },
-      });
-    }
-    if (startRefresh) {
-      dispatch({
-        type: "UPDATE_REFRESH_PIPELINE",
-        payload: {
-          startRefresh: false,
-        },
-      });
-    }
-  }, [
-    combinedState.pipelineRefreshData,
-    combinedState.caseState.status,
-    pipelineState.pipelineResults.status,
-    pipelineState.pipelineBusy,
-    dispatch,
-  ]);
-
-  const searchResults = useApi(
-    searchCase,
-    [
-      urn,
-      caseId,
-      combinedState.searchState.submittedSearchTerm
-        ? combinedState.searchState.submittedSearchTerm
-        : "",
-    ],
-    //  Note: we let the user trigger a search without the pipeline being ready.
-    //  If we additionally observe the complete-state of the pipeline here, we can ensure that a search
-    //  is triggered when either:
-    //  a) the pipeline is ready and the user subsequently submits a search
-    //  b) the user submits a search before the pipeline is ready, but it then becomes ready
-    // combinedState.pipelineState.status === "complete",
-    //  It makes it much easier if we enforce that the documents need to be known before allowing
-    //   a search (logically, we do not need to wait for the documents call to return at the point we trigger a
-    //   search, we only need them when we map the eventual result of the search call).  However, this is a tidier
-    //   place to enforce the wait as we are already waiting for the pipeline here. If we don't wait here, then
-    //   we have to deal with the condition where the search results have come back but we do not yet have the
-    //   the documents result, and we have to chase up fixing the full mapped objects at that later point.
-    //   (Assumption: this is edge-casey stuff as the documents call should always really have come back unless
-    //   the user is super quick to trigger a search).
-    !!(
-      combinedState.searchState.submittedSearchTerm &&
-      combinedState.pipelineState.status === "complete" &&
-      combinedState.documentsState.status === "succeeded"
-    )
-  );
-
-  useEffect(() => {
-    if (searchResults.status !== "initial") {
-      dispatch({ type: "UPDATE_SEARCH_RESULTS", payload: searchResults });
-    }
-  }, [searchResults, dispatch]);
-
-  const handleOpenPdf = useCallback(
-    (caseDocument: {
-      documentId: CaseDocumentViewModel["documentId"];
-      mode: CaseDocumentViewModel["mode"];
-    }) => {
-      dispatch({
-        type: "REQUEST_OPEN_PDF",
-        payload: {
-          documentId: caseDocument.documentId,
-          mode: caseDocument.mode,
-        },
-      });
-      handleTabSelection(caseDocument.documentId);
-      handleSaveReadUnreadData(caseDocument.documentId);
-    },
-    [dispatch]
-  );
+  useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
+  useDocumentSearch(urn, caseId, combinedState, dispatch);
+  usePipelineRefreshPolling(1000, dispatch);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {
@@ -336,7 +55,7 @@ export const useCaseDetailsState = (
       });
       trackEvent("View Document Tab", { documentId: documentId });
     },
-    [dispatch]
+    [dispatch, trackEvent]
   );
 
   const handleClosePdf = useCallback(
@@ -349,7 +68,7 @@ export const useCaseDetailsState = (
       });
       trackEvent("Close Document", { documentId: documentId });
     },
-    [dispatch]
+    [dispatch, trackEvent]
   );
 
   const handleSearchTermChange = useCallback(
@@ -520,6 +239,24 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleOpenPdf = useCallback(
+    (caseDocument: {
+      documentId: CaseDocumentViewModel["documentId"];
+      mode: CaseDocumentViewModel["mode"];
+    }) => {
+      dispatch({
+        type: "REQUEST_OPEN_PDF",
+        payload: {
+          documentId: caseDocument.documentId,
+          mode: caseDocument.mode,
+        },
+      });
+      handleTabSelection(caseDocument.documentId);
+      handleSaveReadUnreadData(caseDocument.documentId);
+    },
+    [dispatch, handleTabSelection, handleSaveReadUnreadData]
+  );
+
   const handleGetNotes = useCallback(
     (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
@@ -640,7 +377,7 @@ export const useCaseDetailsState = (
   );
 
   const handleReclassifySuccess = useCallback(
-    (documentId: string, newDocTypeId: number) => {
+    (documentId: string, newDocTypeId: number, wasDocumentRenamed: boolean) => {
       dispatch({
         type: "UPDATE_RECLASSIFY_DATA",
         payload: {
@@ -655,8 +392,15 @@ export const useCaseDetailsState = (
 
       dispatch({
         type: "REGISTER_NOTIFIABLE_EVENT",
-        payload: { documentId, notificationType: "Reclassified" },
+        payload: { documentId, reason: "Reclassified" },
       });
+
+      if (wasDocumentRenamed) {
+        dispatch({
+          type: "REGISTER_NOTIFIABLE_EVENT",
+          payload: { documentId, reason: "Updated" },
+        });
+      }
 
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
@@ -717,6 +461,22 @@ export const useCaseDetailsState = (
       }),
     [dispatch]
   );
+  const handleClearAllNotifications = useCallback(
+    () =>
+      dispatch({
+        type: "CLEAR_ALL_NOTIFICATIONS",
+      }),
+    [dispatch]
+  );
+
+  const handleClearNotification = useCallback(
+    (notificationId: number) =>
+      dispatch({
+        type: "CLEAR_NOTIFICATION",
+        payload: { notificationId },
+      }),
+    [dispatch]
+  );
 
   return {
     ...combinedState,
@@ -754,5 +514,7 @@ export const useCaseDetailsState = (
     handleRemovePageRotation,
     handleSaveRotations,
     handleRemoveAllRotations,
+    handleClearAllNotifications,
+    handleClearNotification,
   };
 };

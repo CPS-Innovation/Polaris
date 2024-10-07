@@ -33,9 +33,7 @@ stages:
       targetPlanName: "qa"
       terraformStorageAccount: $(qa-terraform-storage-account)
       pipelineTerraformContainerName: $(pipeline-terraform-container-name)
-      pipelineEventsTerraformContainerName: $(pipeline-events-terraform-container-name)
       uiTerraformContainerName: $(ui-terraform-container-name)
-      uiEventsTerraformContainerName: $(ui-events-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsqastorageterraform-key1)
       targetSuffix: "-qa"

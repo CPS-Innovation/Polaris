@@ -1,5 +1,5 @@
 import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useUserDetails } from "../../../app/auth";
 type AppInsightsTrackEventNames =
@@ -56,7 +56,12 @@ type AppInsightsTrackEventNames =
   | "Delete Page"
   | "Undo Delete Page"
   | "Save Redaction Error"
-  | "Save Rotation Error";
+  | "Save Rotation Error"
+  | "Notification Panel Opened"
+  | "Document Opened from Notification"
+  | "Notification Cleared"
+  | "All Notifications Cleared"
+  | "Notifications Arrived";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -160,38 +165,47 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "Attempt to save redaction failed and displayed error message to the user",
   "Save Rotation Error":
     "Attempt to save page rotation failed and displayed error message to the user",
+  "Notifications Arrived": "Notifications Arrived",
+  "Notification Panel Opened": "Notification Panel Opened",
+  "Document Opened from Notification": "Document Opened from Notification",
+  "Notification Cleared": "Notification Cleared",
+  "All Notifications Cleared": "All Notifications Cleared",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
   const appInsights = useAppInsightsContext();
   const userDetails = useUserDetails();
 
-  const trackEvent = (
-    name: AppInsightsTrackEventNames,
-    properties: { [key: string]: any } = {}
-  ) => {
-    if (!name || !appInsights?.trackEvent) {
-      return;
-    }
-    const description: string = eventDescription[name]
-      ? eventDescription[name]
-      : "";
-    const generalProperties = urn
-      ? {
-          urn: urn,
-          caseId: caseId,
-        }
-      : {};
-    appInsights.trackEvent({
-      name,
-      properties: {
-        ...properties,
-        description,
-        ...generalProperties,
-        ...userDetails,
-      },
-    });
-  };
+  const trackEvent = useCallback(
+    (
+      name: AppInsightsTrackEventNames,
+      properties: { [key: string]: any } = {}
+    ) => {
+      if (!name || !appInsights?.trackEvent) {
+        return;
+      }
+      const description: string = eventDescription[name]
+        ? eventDescription[name]
+        : "";
+      const generalProperties = urn
+        ? {
+            urn: urn,
+            caseId: caseId,
+          }
+        : {};
+
+      appInsights.trackEvent({
+        name,
+        properties: {
+          ...properties,
+          description,
+          ...generalProperties,
+          ...userDetails,
+        },
+      });
+    },
+    [appInsights, caseId, urn, userDetails]
+  );
 
   return trackEvent;
 };

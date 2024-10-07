@@ -12,7 +12,7 @@ type UseApiParams = <T extends (...args: any[]) => Promise<any>>(
   If there is an api method `getFoo(id: number, name: string) => Promise<Model>` then `useApi` is called thus:
     `const state = useApi(getFoo, 1, "bar")`
 
-  The `UseApiParams` type ensures that the second (third.. etc) paramters passed to useApi are
+  The `UseApiParams` type ensures that the second (third.. etc) parameters passed to useApi are
   strongly-typed to the argument types of the function passed as the first param e.g. `getFoo`.
 
   This approach is borrowed from redux-sagas and avoids the use of anonymous lambdas being passed e.g.

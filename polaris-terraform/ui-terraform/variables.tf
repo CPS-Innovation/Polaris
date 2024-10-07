@@ -170,6 +170,22 @@ variable "feature_flag_external_redirect" {
   type = string
 }
 
+variable "feature_flag_background_pipeline_refresh" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
+variable "background_pipeline_refresh_interval_ms" {
+  type = number
+}
+
+variable "background_pipeline_refresh_show_own_notifications" {
+  # For testing it is useful for the tester to be able to drive notifiactions
+  #  by editing the case in view and to have notifiactions appear for their
+  #  own changes.  Obviously not suitable for prod.
+  type = string
+}
+
 variable "local_storage_expiry_days" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string

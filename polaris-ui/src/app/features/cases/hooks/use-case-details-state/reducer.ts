@@ -44,10 +44,20 @@ import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
+import {
+  mapNotificationState,
+  clearAllNotifications,
+  clearNotification,
+  registerNotifiableEvent,
+  clearDocumentNotifications,
+} from "./map-notification-state";
+import { NotificationReason } from "../../domain/NotificationState";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
-import { mapNotificationState } from "./map-notification-state";
-import { NotificationType } from "../../domain/NotificationState";
 import { PageRotation, IPageRotation } from "../../domain/IPageRotation";
+import { mapNotificationToDocumentsState } from "./map-notification-to-documents-state";
+
+export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
+
 export const reducer = (
   state: CombinedState,
   action:
@@ -281,7 +291,18 @@ export const reducer = (
       }
     | {
         type: "REGISTER_NOTIFIABLE_EVENT";
-        payload: { documentId: string; notificationType: NotificationType };
+        payload: { documentId: string; reason: NotificationReason };
+      }
+    | {
+        type: "CLEAR_ALL_NOTIFICATIONS";
+      }
+    | {
+        type: "CLEAR_NOTIFICATION";
+        payload: { notificationId: number };
+      }
+    | {
+        type: "CLEAR_DOCUMENT_NOTIFICATIONS";
+        payload: { documentId: string };
       }
     | {
         type: "SHOW_HIDE_PAGE_ROTATION";
@@ -376,35 +397,34 @@ export const reducer = (
         );
 
       if (shouldBuildDocumentsState) {
-        const documentsState = mapDocumentsState(
+        const coreDocumentsState = mapDocumentsState(
           action.payload.data.documents,
           (state.caseState &&
             state.caseState.status === "succeeded" &&
             state.caseState.data.witnesses) ||
             []
         );
+
+        const notificationState = mapNotificationState(
+          state.notificationState,
+          state.documentsState,
+          coreDocumentsState,
+          action.payload.data.documentsRetrieved
+        );
+
+        const documentsState = mapNotificationToDocumentsState(
+          notificationState,
+          coreDocumentsState
+        );
+
         const accordionState = mapAccordionState(documentsState);
+
         nextState = {
           ...nextState,
+          notificationState,
           documentsState,
           accordionState,
         };
-
-        if (
-          documentsState.status === "succeeded" &&
-          state.documentsState.status === "succeeded"
-        ) {
-          const notificationState = mapNotificationState(
-            state.notificationState,
-            state.documentsState.data,
-            documentsState.data,
-            action.payload.data.documentsRetrieved
-          );
-          nextState = {
-            ...nextState,
-            notificationState,
-          };
-        }
       }
 
       const newPipelineResults = action.payload;
@@ -500,23 +520,28 @@ export const reducer = (
     }
 
     case "UPDATE_REFRESH_PIPELINE": {
-      let newSavedDocumentDetails =
-        state.pipelineRefreshData.savedDocumentDetails;
-      if (action.payload.savedDocumentDetails) {
-        newSavedDocumentDetails = [
-          ...newSavedDocumentDetails,
-          action.payload.savedDocumentDetails,
-        ];
-      }
+      const {
+        savedDocumentDetails: payloadSavedDocumentDetails,
+        startRefresh,
+      } = action.payload;
+
+      const savedDocumentDetails = payloadSavedDocumentDetails
+        ? [
+            ...state.pipelineRefreshData.savedDocumentDetails,
+            payloadSavedDocumentDetails,
+          ]
+        : state.pipelineRefreshData.savedDocumentDetails;
+
       return {
         ...state,
         pipelineRefreshData: {
           ...state.pipelineRefreshData,
-          startRefresh: action.payload.startRefresh,
-          savedDocumentDetails: newSavedDocumentDetails,
+          startRefresh,
+          savedDocumentDetails,
         },
       };
     }
+
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
 
@@ -1462,13 +1487,63 @@ export const reducer = (
     case "REGISTER_NOTIFIABLE_EVENT": {
       return {
         ...state,
-        notificationState: {
-          ...state.notificationState,
-          ignoreNextEvents: [
-            ...state.notificationState.ignoreNextEvents,
-            action.payload,
-          ],
-        },
+        notificationState: registerNotifiableEvent(
+          state.notificationState,
+          action.payload
+        ),
+      };
+    }
+
+    case "CLEAR_ALL_NOTIFICATIONS": {
+      const notificationState = clearAllNotifications(state.notificationState);
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        state.documentsState
+      );
+      const accordionState = mapAccordionState(documentsState);
+
+      return {
+        ...state,
+        notificationState,
+        documentsState,
+        accordionState,
+      };
+    }
+
+    case "CLEAR_NOTIFICATION": {
+      const notificationState = clearNotification(
+        state.notificationState,
+        action.payload.notificationId
+      );
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        state.documentsState
+      );
+      const accordionState = mapAccordionState(documentsState);
+
+      return {
+        ...state,
+        notificationState,
+        documentsState,
+        accordionState,
+      };
+    }
+    case "CLEAR_DOCUMENT_NOTIFICATIONS": {
+      const notificationState = clearDocumentNotifications(
+        state.notificationState,
+        action.payload.documentId
+      );
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        state.documentsState
+      );
+      const accordionState = mapAccordionState(documentsState);
+
+      return {
+        ...state,
+        notificationState,
+        documentsState,
+        accordionState,
       };
     }
 

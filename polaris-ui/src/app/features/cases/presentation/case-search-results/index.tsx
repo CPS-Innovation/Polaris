@@ -204,11 +204,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                         <span>Status:</span>
                         <span>
                           {item.isCaseCharged ? (
-                            <Tag className="govuk-tag--blue"> Charged</Tag>
+                            <Tag gdsTagColour="blue"> Charged</Tag>
                           ) : (
-                            <Tag className="govuk-tag--yellow">
-                              Not yet charged
-                            </Tag>
+                            <Tag gdsTagColour="yellow">Not yet charged</Tag>
                           )}
                         </span>
                       </div>

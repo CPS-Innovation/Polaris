@@ -14,6 +14,7 @@ export type FeatureFlagData = {
   externalRedirect: boolean;
   pageDelete: boolean;
   pageRotate: boolean;
+  notifications: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -26,4 +27,5 @@ export type FeatureFlagQueryParams = {
   externalRedirect: string;
   pageDelete: string;
   pageRotate: string;
+  notifications: string;
 };

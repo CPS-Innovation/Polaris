@@ -59,6 +59,7 @@ import {
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
+import { Notifications } from "./notifications/Notifications";
 import {
   isTaggedTriageContext,
   TaggedContext,
@@ -102,7 +103,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     classification: null,
   });
 
-  const unMounting = useRef(false);
   const accordionRef = useRef<AccordionRef>(null);
 
   const [accordionOldState, setAccordionOldState] =
@@ -114,6 +114,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
+  const unMounting = useRef(false);
+  useEffect(() => {
+    return () => {
+      unMounting.current = true;
+    };
+  }, []);
   const unMountingCallback = useCallback(() => {
     return unMounting.current;
   }, []);
@@ -135,6 +141,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     searchPII,
     renameDocuments,
     reclassifyDocuments,
+    notificationState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -167,6 +174,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleRemovePageRotation,
     handleRemoveAllRotations,
     handleSaveRotations,
+    handleClearAllNotifications,
+    handleClearNotification,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -226,12 +235,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       (actionsSidePanelRef.current as HTMLElement).focus();
     }
   }, [actionsSidePanel.open]);
-
-  useEffect(() => {
-    return () => {
-      unMounting.current = true;
-    };
-  }, []);
 
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
@@ -367,7 +370,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       data
     );
     if (response) {
-      handleReclassifySuccess(documentId, data.documentTypeId);
+      const wasDocumentRenamed = !!(
+        data.exhibit ||
+        data.statement ||
+        data?.immediate?.documentName ||
+        data?.other?.documentName
+      );
+
+      handleReclassifySuccess(
+        documentId,
+        data.documentTypeId,
+        wasDocumentRenamed
+      );
     }
     return response;
   };
@@ -548,9 +562,23 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
+          {featureFlags.notifications && (
+            <Notifications
+              state={notificationState}
+              handleOpenPdf={handleOpenPdf}
+              handleClearAllNotifications={handleClearAllNotifications}
+              handleClearNotification={handleClearNotification}
+            ></Notifications>
+          )}
         </nav>
         <PageContentWrapper>
-          <div className={`govuk-grid-row ${classes.mainContent}`}>
+          <div
+            className={`govuk-grid-row ${classes.mainContent} ${
+              featureFlags.notifications
+                ? classes.mainContentWithNotifications
+                : ""
+            }`}
+          >
             {!inFullScreen && !actionsSidePanel.open && (
               <div
                 role="region"
@@ -672,7 +700,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
-                      reclassifyData={reclassifyDocuments}
                     />
                   )}
                 </div>

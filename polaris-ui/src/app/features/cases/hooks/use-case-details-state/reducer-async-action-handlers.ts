@@ -137,7 +137,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
   REQUEST_OPEN_PDF:
     ({ dispatch }) =>
     async (action) => {
-      const { payload } = action;
+      const {
+        payload: { documentId, mode },
+      } = action;
 
       const headers = {
         ...HEADERS.correlationId(),
@@ -146,7 +148,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       dispatch({
         type: "OPEN_PDF",
-        payload: { ...payload, headers },
+        payload: { documentId, mode, headers },
+      });
+
+      dispatch({
+        type: "CLEAR_DOCUMENT_NOTIFICATIONS",
+        payload: { documentId },
       });
     },
 
@@ -457,7 +464,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
         dispatch({
           type: "REGISTER_NOTIFIABLE_EVENT",
-          payload: { documentId, notificationType: "NewVersion" },
+          payload: { documentId, reason: "New Version" },
         });
 
         dispatch({
@@ -511,17 +518,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     },
 
   UNLOCK_DOCUMENTS:
-    ({ dispatch, getState }) =>
+    ({ getState }) =>
     async (action) => {
       const {
         payload: { documentIds },
       } = action;
 
-      const {
-        tabsState: { items },
-        caseId,
-        urn,
-      } = getState();
+      const { caseId, urn } = getState();
 
       const requests = documentIds.map((documentId) =>
         cancelCheckoutDocument(urn, caseId, documentId)
@@ -718,7 +721,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
         dispatch({
           type: "REGISTER_NOTIFIABLE_EVENT",
-          payload: { documentId, notificationType: "Updated" },
+          payload: { documentId, reason: "Updated" },
         });
 
         dispatch({
@@ -836,7 +839,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "REGISTER_NOTIFIABLE_EVENT",
-          payload: { documentId, notificationType: "NewVersion" },
+          payload: { documentId, reason: "New Version" },
         });
 
         dispatch({
