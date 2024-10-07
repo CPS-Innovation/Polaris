@@ -212,16 +212,16 @@ class NavATron extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
 
-    fetch("http://localhost:7075/api/urns/45CV2911222/cases/2149310", {
-      credentials: "include",
-    })
-      .then((response) => response.json())
-      .then((data) => console.log(data));
+    // fetch("http://localhost:7075/api/urns/45CV2911222/cases/2149310", {
+    //   credentials: "include",
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => console.log(data));
   }
 }
 
 const url = window.location.href;
-const inNavMode = url.includes("?nav") || url.includes("&nav");
+const inNavMode = true;
 
 let navATron;
 if (inNavMode) {
@@ -239,7 +239,7 @@ if (inNavMode) {
 const observer = new MutationObserver((mutationList, o) => {
   for (const mutation of mutationList) {
     if (mutation.type === "childList") {
-      const navATronRoot = document.getElementById("nav-a-tron");
+      const navATronRoot = document.getElementsByClassName("nav-a-tron")[0];
       if (inNavMode) {
         if (
           navATronRoot &&
