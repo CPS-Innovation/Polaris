@@ -2,18 +2,14 @@ import { useMemo } from "react";
 import { LinkButton } from "../../../../../common/presentation/components";
 import { ReactComponent as RotateIcon } from "../../../../../common/presentation/svgs/rotateIcon.svg";
 import { ReactComponent as PageIcon } from "../../../../../common/presentation/svgs/pageIcon.svg";
-
-import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { IPageRotation } from "../../../domain/IPageRotation";
-import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./RotatePage.module.scss";
 
 type RotatePageProps = {
   documentId: string;
   pageNumber: number;
   totalPages: number;
-  redactionTypesData: RedactionTypeData[];
   pageRotations: IPageRotation[];
   handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
@@ -23,13 +19,10 @@ export const RotatePage: React.FC<RotatePageProps> = ({
   documentId,
   pageNumber,
   totalPages,
-  redactionTypesData,
   pageRotations,
   handleAddPageRotation,
   handleRemovePageRotation,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
-
   const pageRotateData = useMemo(() => {
     return pageRotations.find((rotation) => rotation.pageNumber === pageNumber);
   }, [pageRotations, pageNumber]);
@@ -46,11 +39,6 @@ export const RotatePage: React.FC<RotatePageProps> = ({
         },
       ]);
     }
-    // trackEvent("Delete Page", {
-    //   documentId: documentId,
-    //   pageNumber: pageNumber,
-    //   reason: redactionType.name,
-    // });
   };
   const handleRotateRight = () => {
     if (pageRotateData)
@@ -60,20 +48,11 @@ export const RotatePage: React.FC<RotatePageProps> = ({
           rotationAngle: (pageRotateData?.rotationAngle + 90) % 360,
         },
       ]);
-    // trackEvent("Delete Page", {
-    //   documentId: documentId,
-    //   pageNumber: pageNumber,
-    //   reason: redactionType.name,
-    // });
   };
 
   const handleRestoreBtnClick = () => {
     if (pageRotateData) {
       handleRemovePageRotation(documentId, pageRotateData?.id);
-      // trackEvent("Undo Delete Page", {
-      //   documentId: documentId,
-      //   pageNumber: pageNumber,
-      // });
     }
   };
 

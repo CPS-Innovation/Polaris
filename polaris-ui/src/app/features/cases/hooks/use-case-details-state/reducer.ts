@@ -1576,8 +1576,6 @@ export const reducer = (
           id: String(`${+new Date()}-${index}`),
         })
       );
-      console.log("pageRotations>>>", pageRotations);
-      console.log("newRotations>>>", newRotations);
       let newState = {
         ...state,
         tabsState: {
@@ -1587,7 +1585,6 @@ export const reducer = (
             const rotationExists = item.pageRotations.some(
               (rotation) => rotation.pageNumber === pageRotations[0].pageNumber
             );
-            console.log("rotationExists>>>", rotationExists);
             if (rotationExists) {
               return {
                 ...item,
@@ -1608,8 +1605,6 @@ export const reducer = (
           }),
         },
       };
-
-      console.log("newState>>>", newState);
       return newState;
     }
 
@@ -1632,15 +1627,6 @@ export const reducer = (
           ),
         },
       };
-      //  //adding redactions to local storage
-      //  const redactionsToSave = getRedactionsToSaveLocally(
-      //    newState.tabsState.items,
-      //    documentId,
-      //    state.caseId
-      //  );
-      //  redactionsToSave.length
-      //    ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
-      //    : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }
@@ -1660,15 +1646,6 @@ export const reducer = (
           ),
         },
       };
-      // //adding redaction highlight to local storage
-      // const redactionHighlights = getRedactionsToSaveLocally(
-      //   newState.tabsState.items,
-      //   documentId,
-      //   state.caseId
-      // );
-      // redactionHighlights.length
-      //   ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
-      //   : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }

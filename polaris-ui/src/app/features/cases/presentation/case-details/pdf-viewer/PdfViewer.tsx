@@ -433,7 +433,6 @@ export const PdfViewer: React.FC<Props> = ({
                     <RotatePage
                       documentId={contextData.documentId}
                       pageNumber={0}
-                      redactionTypesData={redactionTypesData}
                       handleAddPageRotation={handleAddPageRotation}
                       handleRemovePageRotation={handleRemovePageRotation}
                       pageRotations={pageRotations}

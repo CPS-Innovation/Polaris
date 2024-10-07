@@ -267,7 +267,7 @@ export const saveRotations = async (
     body: JSON.stringify(rotationSaveRequest),
   });
 
-  if (response.ok) {
+  if (!response.ok) {
     throw new ApiError("Save rotation failed", url, response);
   }
 };
