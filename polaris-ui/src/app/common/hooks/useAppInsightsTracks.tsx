@@ -61,7 +61,10 @@ type AppInsightsTrackEventNames =
   | "Document Opened from Notification"
   | "Notification Cleared"
   | "All Notifications Cleared"
-  | "Notifications Arrived";
+  | "Notifications Arrived"
+  | "Save Rotation"
+  | "Save Rotation Error"
+  | "Remove All Rotations";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -163,13 +166,15 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Undo Delete Page": "User selects to undo the page deletion",
   "Save Redaction Error":
     "Attempt to save redaction failed and displayed error message to the user",
-  "Save Rotation Error":
-    "Attempt to save page rotation failed and displayed error message to the user",
   "Notifications Arrived": "Notifications Arrived",
   "Notification Panel Opened": "Notification Panel Opened",
   "Document Opened from Notification": "Document Opened from Notification",
   "Notification Cleared": "Notification Cleared",
   "All Notifications Cleared": "All Notifications Cleared",
+  "Save Rotation": "User has clicked on the 'Save all rotations' button",
+  "Save Rotation Error":
+    "Attempt to save rotations failed and displayed error message to the user",
+  "Remove All Rotations": "User has clicked the 'Remove All Rotations' button",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

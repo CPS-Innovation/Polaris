@@ -29,14 +29,19 @@ export const RotationFooter: React.FC<RotationFooterProps> = ({
   const { documentType, documentId, saveStatus } = contextData;
   const trackEvent = useAppInsightsTrackEvent();
   const handleRemoveAllRotationsClick = () => {
-    // trackEvent("Remove All Redactions", {
-    //   documentType: documentType,
-    //   documentId: documentId,
-    //   redactionsCount: totalRedactionsCount,
-    // });
+    trackEvent("Remove All Rotations", {
+      documentType: documentType,
+      documentId: documentId,
+      rotatedPagesCount: totalRotationsCount,
+    });
     handleRemoveAllRotations(documentId);
   };
   const handleSaveRotationsClick = () => {
+    trackEvent("Save Rotation", {
+      documentType: documentType,
+      documentId: documentId,
+      rotatedPagesCount: totalRotationsCount,
+    });
     handleSaveRotations(documentId);
   };
 
