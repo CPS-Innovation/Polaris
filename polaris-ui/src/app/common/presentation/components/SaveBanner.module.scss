@@ -10,7 +10,7 @@ modal {
   color: #fff;
   font-size: 1.1875rem;
   font-weight: bold;
-  padding: 0 10px;
+  padding: 0 0.625rem;
 }
 .savingBanner {
   display: flex;
@@ -18,7 +18,7 @@ modal {
   align-items: center;
   height: 4.625rem;
   background-color: #1d70b8;
-  padding-right: 90px;
+  padding-right: 5.625rem;
 }
 .savedBanner {
   display: flex;
@@ -29,14 +29,14 @@ modal {
   overflow: hidden;
   animation: reduceHeight 0.5s forwards;
   animation-delay: 3s;
-  padding-right: 90px;
+  padding-right: 5.625rem;
 }
 .greyColor {
   color: #505a5f;
 }
 .bannerText {
   margin-left: 1rem;
-  font-size: 19px;
+  font-size: 1.1875rem;
 }
 .whiteTickIcon {
   width: 2.25rem;

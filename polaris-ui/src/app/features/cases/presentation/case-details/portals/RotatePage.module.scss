@@ -52,7 +52,7 @@
   }
 }
 .cancelBtn {
-  font-size: 19px;
+  font-size: 1.1875rem;
   background: none;
   color: #fff;
   &:focus {
@@ -99,7 +99,7 @@
   .overlaySubText {
     margin: 1rem;
     color: #fff;
-    font-size: 19px;
+    font-size: 1.1875rem;
     margin-top: 0;
     max-width: 30rem;
     text-align: center;
@@ -115,12 +115,12 @@
 .rotateIconWrapper {
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 0.625rem;
   background-color: #1d70b8;
 }
 .rotateRightBtn,
 .rotateLeftBtn {
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 1.25rem 0 rgba(0, 0, 0, 0.5);
   background: #f3f2f1;
   color: #1d70b8;
   text-decoration: underline;
@@ -128,8 +128,7 @@
   border: none;
   display: flex;
   align-items: center;
-  // height: 30px;
-  margin: 0 30px;
+  margin: 0 1.875rem;
   padding: 0;
   &:focus {
     box-shadow: 0 0.125rem 0 #0b0c0c;
@@ -141,15 +140,15 @@
   }
 }
 .rotateBtnText {
-  padding: 0 10px;
+  padding: 0 0.625rem;
 }
 
 .rotateLeftIcon {
-  width: 20px;
+  width: 1.25rem;
   fill: #fff;
   transform: scaleX(-1);
 }
 .rotateRightIcon {
-  width: 20px;
+  width: 1.25rem;
   fill: #fff;
 }
