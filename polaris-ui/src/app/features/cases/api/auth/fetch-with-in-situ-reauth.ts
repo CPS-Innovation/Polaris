@@ -3,6 +3,7 @@ import {
   assembleRedirectUrl,
   AuthFailReason,
   buildCmsAuthError,
+  FetchArgs,
   getCorrelationIdFromFetchArgs,
   isCmsAuthFail,
 } from "./core";
@@ -80,6 +81,14 @@ const inSituReauth = async (
     Math.random() * 100000
   )}`;
 
+  // We are here because:
+  //  1) the user has come to Polaris before logging in to CMS
+  //  2) the user has been logged out by CMS
+  //  3) the user has logged-in to CMS once more since we last obtained auth
+  // The config may define more than one endpoint to try for auth refresh: this is useful
+  //  in pre-prod environments where we may be:
+  //  1) Making use of dev login and so cookies will be available on our proxy domain
+  //  2) Running against multiple cin environments e.g. cin3.cps.gov.uk and cin4.cps.gov.uk
   const reauthUrls = buildRedirectUrls(
     window,
     jsonpCallbackFunction,
@@ -108,8 +117,17 @@ const askUserToLogInToCms = async (error: CmsAuthError) => {
   });
 };
 
+const tryObtainAuth = async (correlationId: string | null) => {
+  const { isSuccess, failReason } = await inSituReauth(correlationId);
+
+  if (!isSuccess) {
+    // Auth is just not there in this browser so we need to ask the user to log in
+    await askUserToLogInToCms(buildCmsAuthError(failReason));
+  }
+};
+
 export const fetchWithInSituReauth = async (
-  ...args: Parameters<typeof fetch>
+  ...args: FetchArgs
 ): Promise<Response> => {
   const response = await fetchWithCookies(...args);
   if (!isCmsAuthFail(response)) {
@@ -117,24 +135,14 @@ export const fetchWithInSituReauth = async (
     return response;
   }
 
-  // We are here because:
-  //  1) the user has come to Polaris before logging in to CMS
-  //  2) the user has been logged out by CMS
-  //  3) the user has logged-in to CMS once more since we last obtained auth
-  // The config may define more than one endpoint to try for auth refresh: this is useful
-  //  in pre-prod environments where we may be:
-  //  1) Making use of dev login and so cookies will be available on our proxy domain
-  //  2) Running against multiple cin environments e.g. cin3.cps.gov.uk and cin4.cps.gov.uk
-  // Lets use a convention whereby the config can supply the endpoints to try in a comma
-  //  delimited list, first endpoint to try first in the list.
   const correlationId = getCorrelationIdFromFetchArgs(...args);
-  const { isSuccess, failReason } = await inSituReauth(correlationId);
-
-  if (!isSuccess) {
-    // Auth is just not there in this browser so we need to ask the user to log in
-    await askUserToLogInToCms(buildCmsAuthError(failReason));
-  }
+  await tryObtainAuth(correlationId);
 
   // Whatever the user did, we recurse around the loop again
+  return fetchWithInSituReauth(...args);
+};
+
+export const fetchWithProactiveInSituReauth = async (...args: FetchArgs) => {
+  await tryObtainAuth(null);
   return fetchWithInSituReauth(...args);
 };

@@ -9,6 +9,7 @@ import {
   AUTH_FAIL_REASON_QUERY_PARAM,
   AuthFailReason,
   buildCmsAuthError,
+  FetchArgs,
   getCorrelationIdFromFetchArgs,
   isCmsAuthFail,
   REAUTHENTICATION_INDICATOR_QUERY_PARAM,
@@ -102,9 +103,7 @@ export const fullWindowReauthenticationFilter = (
   tryHandleAsSecondAuthFail(response, window) ||
   handleNonAuthCall(response, window);
 
-export const fetchWithFullWindowReauth = async (
-  ...args: Parameters<typeof fetch>
-) => {
+export const fetchWithFullWindowReauth = async (...args: FetchArgs) => {
   const response = await fetchWithCookies(...args);
   const correlationId = getCorrelationIdFromFetchArgs(...args);
 

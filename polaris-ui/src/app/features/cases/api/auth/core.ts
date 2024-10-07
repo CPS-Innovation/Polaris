@@ -1,19 +1,18 @@
 import { CmsAuthError } from "../../../../common/errors/CmsAuthError";
-import {
-  REAUTH_REDIRECT_URL_OUTBOUND,
-  REAUTH_REDIRECT_URL_OUTBOUND_E2E,
-  REAUTH_REDIRECT_URL_INBOUND,
-  REAUTH_USE_IN_SITU_REFRESH,
-} from "../../../../config";
+import { REAUTH_USE_IN_SITU_REFRESH } from "../../../../config";
 
 export const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
 export const FAIL_CORRELATION_ID_QUERY_PARAM = "fail-correlation-id";
 export const AUTH_FAIL_REASON_QUERY_PARAM = "auth-fail-reason";
 export const CORRELATION_ID = "Correlation-Id";
 
-export const PREFERRED_AUTH_MODE = REAUTH_USE_IN_SITU_REFRESH
+export type FetchArgs = Parameters<typeof fetch>;
+
+type ReauthMode = "in-situ" | "full-window";
+
+export const PREFERRED_AUTH_MODE: ReauthMode = REAUTH_USE_IN_SITU_REFRESH
   ? "in-situ"
-  : ("full-window" as const);
+  : "full-window";
 
 export const STATUS_CODES = {
   UNAUTHORIZED: 401 as const,
@@ -44,7 +43,7 @@ export const buildCmsAuthError = (
     case AuthFailReason.CmsAuthNotValid:
     case AuthFailReason.CmsModernAuthNotValid:
       customMessage =
-        "It may be the case that your CMS session has expired, or you may have logged in to CMS on another computer since logging in to this one.";
+        "It may be the case that your CMS log in session has expired, or you may have logged in to CMS on another computer since logging in to this one.";
       break;
     case AuthFailReason.InSituAttemptFailed:
       customMessage =
@@ -65,9 +64,7 @@ export const buildCmsAuthError = (
 export const isCmsAuthFail = (response: Response) =>
   response.status === STATUS_CODES.UNAUTHORIZED;
 
-export const getCorrelationIdFromFetchArgs = (
-  ...args: Parameters<typeof fetch>
-) => {
+export const getCorrelationIdFromFetchArgs = (...args: FetchArgs) => {
   const headers = args[1]?.headers as Record<string, string> | undefined;
   return headers?.[CORRELATION_ID] || null;
 };

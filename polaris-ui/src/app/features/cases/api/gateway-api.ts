@@ -22,9 +22,12 @@ import { StatementWitnessNumber } from "../presentation/case-details/reclassify/
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
 import { fetchWithFullWindowReauth } from "./auth/fetch-with-full-window-reauth";
-import { fetchWithInSituReauth } from "./auth/fetch-with-in-situ-reauth";
+import {
+  fetchWithInSituReauth,
+  fetchWithProactiveInSituReauth,
+} from "./auth/fetch-with-in-situ-reauth";
 import { fetchWithCookies } from "./auth/fetch-with-cookies";
-import { PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
+import { FetchArgs, PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
 
 const buildHeaders = async (
   ...args: (
@@ -79,7 +82,9 @@ export const lookupUrn = async (caseId: number) => {
     headers,
   });
 
-  handleGetCaseApiResponse(response, url, "Lookup URN failed");
+  if (!response.ok) {
+    throw caseCallErrorFactory(response, url, "Lookup URN failed");
+  }
 
   return (await response.json()) as UrnLookupResult;
 };
@@ -91,7 +96,9 @@ export const searchUrn = async (urn: string) => {
     headers,
   });
 
-  handleGetCaseApiResponse(response, url, "Search URN failed");
+  if (!response.ok) {
+    throw caseCallErrorFactory(response, url, "Search URN failed");
+  }
 
   return (await response.json()) as CaseSearchResult[];
 };
@@ -103,7 +110,9 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
-  await handleGetCaseApiResponse(response, url, "Get Case Details failed");
+  if (!response.ok) {
+    throw caseCallErrorFactory(response, url, "Get Case Details failed");
+  }
 
   return (await response.json()) as CaseDetails;
 };
@@ -116,7 +125,7 @@ export const initiatePipeline = async (
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
   const correlationIdHeader = HEADERS.correlationId(correlationId);
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
     method: "POST",
   });
@@ -143,7 +152,7 @@ export const getPipelinePdfResults = async (
     HEADERS.auth
   );
 
-  const response = await nonReauthenticatingFetch(trackerUrl, {
+  const response = await reauthenticatingFetch(trackerUrl, {
     headers,
   });
   // we are ignoring the tracker status 404 as it is an expected one and continue polling
@@ -171,7 +180,7 @@ export const searchCase = async (
   const path = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
   );
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -194,7 +203,7 @@ export const checkoutDocument = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
-  const response = await nonReauthenticatingFetch(url, {
+  const response = await reauthenticatingFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
   });
@@ -217,7 +226,7 @@ export const cancelCheckoutDocument = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
-  const response = await nonReauthenticatingFetch(url, {
+  const response = await reauthenticatingFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "DELETE",
   });
@@ -239,7 +248,7 @@ export const saveRedactions = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
 
-  const response = await nonReauthenticatingFetch(url, {
+  const response = await proactiveReauthenticatingFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify(redactionSaveRequest),
@@ -254,7 +263,7 @@ export const saveRedactionLog = async (
   redactionLogRequestData: RedactionLogRequestData
 ) => {
   const url = fullUrl(`/api/redactionLogs`, REDACTION_LOG_BASE_URL);
-  const response = await nonReauthenticatingFetch(url, {
+  const response = await reauthenticatingFetch(url, {
     headers: await buildHeaders(
       HEADERS.correlationId,
       HEADERS.authRedactionLog
@@ -309,7 +318,7 @@ export const getNotesData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -331,7 +340,7 @@ export const addNoteData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
     body: JSON.stringify({ documentId: docId, text: text }),
@@ -355,7 +364,7 @@ export const saveDocumentRename = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/rename`
   );
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify({ documentId: docId, documentName: name }),
@@ -377,7 +386,7 @@ export const getSearchPIIData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/pii`
   );
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -405,7 +414,7 @@ export const getMaterialTypeList = async () => {
 export const getExhibitProducers = async (urn: string, caseId: number) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/exhibit-producers`);
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -422,7 +431,7 @@ export const getStatementWitnessDetails = async (
 ) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/witnesses`);
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -442,7 +451,7 @@ export const getWitnessStatementNumbers = async (
     `/api/urns/${urn}/cases/${caseId}/witnesses/${witnessId}/statements`
   );
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -464,7 +473,7 @@ export const saveDocumentReclassify = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/reclassify`
   );
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await reauthenticatingFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
     body: JSON.stringify(data),
@@ -473,52 +482,43 @@ export const saveDocumentReclassify = async (
   return response.ok;
 };
 
-const nonReauthenticatingFetch = async (...args: Parameters<typeof fetch>) =>
+const nonReauthenticatingFetch = async (...args: FetchArgs) =>
   fetchWithCookies(...args);
 
-const reauthenticatingFetch = async (...args: Parameters<typeof fetch>) =>
+const reauthenticatingFetch = async (...args: FetchArgs) =>
   PREFERRED_AUTH_MODE === "in-situ"
     ? fetchWithInSituReauth(...args)
     : fetchWithFullWindowReauth(...args);
 
-const handleGetCaseApiResponse = (
+const proactiveReauthenticatingFetch = async (...args: FetchArgs) =>
+  PREFERRED_AUTH_MODE === "in-situ"
+    ? fetchWithProactiveInSituReauth(...args)
+    : // there is not a proactive equivalent (yet, or ever?) in the full-page reauth flow.
+      fetchWithFullWindowReauth(...args);
+
+const caseCallErrorFactory = (
   response: Response,
   url: string,
   errorMessage: string
 ) => {
-  if (response.status === STATUS_CODES.FORBIDDEN_STATUS_CODE) {
-    throw new ApiError(
+  const knownMessageMap: { [key: number]: [string, string] } = {
+    [STATUS_CODES.FORBIDDEN_STATUS_CODE]: [
       "You do not have access to this case.",
-      url,
-      response,
-      undefined,
-      "You do not have access to this case."
-    );
-  }
-
-  if (response.status === STATUS_CODES.GONE_STATUS_CODE) {
-    throw new ApiError(
+      "You do not have access to this case.",
+    ],
+    [STATUS_CODES.GONE_STATUS_CODE]: [
       "This case no longer exists.",
-      url,
-      response,
-      undefined,
-      "This case no longer exists."
-    );
-  }
-
-  if (
-    response.status === STATUS_CODES.UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE
-  ) {
-    throw new ApiError(
+      "This case no longer exists.",
+    ],
+    [STATUS_CODES.UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE]: [
       "CMS Modern unauthorized.",
-      url,
-      response,
-      undefined,
-      "It looks like you do not have access to CMS Modern, please contact the service desk."
-    );
-  }
+      "It looks like you do not have access to CMS Modern, please contact the service desk.",
+    ],
+  };
 
-  if (!response.ok) {
-    throw new ApiError(errorMessage, url, response);
-  }
+  const knownMessage = knownMessageMap[response.status];
+
+  return knownMessage
+    ? new ApiError(knownMessage[0], url, response, undefined, knownMessage[1])
+    : new ApiError(errorMessage, url, response);
 };
