@@ -1,3 +1,4 @@
+import { renderHook } from "@testing-library/react-hooks";
 import { useUserDetails } from "./useUserDetails";
 
 jest.mock("./msalInstance", () => ({
@@ -16,8 +17,9 @@ describe("getUserDetails", () => {
     const cookieSpy = jest.spyOn(document, "cookie", "get");
     cookieSpy.mockReturnValue("UID=test_UID; abc=123;");
 
-    const userDetails = useUserDetails();
-    expect(userDetails).toEqual({
+    const { result } = renderHook(() => useUserDetails());
+
+    expect(result.current).toEqual({
       cmsUserID: "test_UID",
       name: "test_name",
       username: "test_username",
@@ -29,8 +31,8 @@ describe("getUserDetails", () => {
     const cookieSpy = jest.spyOn(document, "cookie", "get");
     cookieSpy.mockReturnValue("test_UID; abc=123;");
 
-    const userDetails = useUserDetails();
-    expect(userDetails).toEqual({
+    const { result } = renderHook(() => useUserDetails());
+    expect(result.current).toEqual({
       cmsUserID: null,
       name: "test_name",
       username: "test_username",

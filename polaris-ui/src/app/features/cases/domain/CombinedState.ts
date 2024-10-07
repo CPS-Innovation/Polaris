@@ -1,7 +1,6 @@
 import { AsyncPipelineResult } from "../hooks/use-pipeline-api/AsyncPipelineResult";
 import { AsyncResult } from "../../../common/types/AsyncResult";
 import { CaseDetails } from "./gateway/CaseDetails";
-
 import { CaseDocumentViewModel } from "./CaseDocumentViewModel";
 import { PipelineResults } from "./gateway/PipelineResults";
 import { MappedTextSearchResult } from "./MappedTextSearchResult";
@@ -22,7 +21,10 @@ import { SearchPIIData } from "./gateway/SearchPIIData";
 import { RenameDocumentData } from "./gateway/RenameDocumentData";
 import { ReclassifyDocumentData } from "./gateway/ReclassifyDocumentData";
 import { TaggedContext } from "../../../inbound-handover/context";
-import { NotificationState } from "./NotificationState";
+import {
+  buildDefaultNotificationState,
+  NotificationState,
+} from "./NotificationState";
 
 export type CombinedState = {
   urn: string;
@@ -88,3 +90,67 @@ export type CombinedState = {
   renameDocuments: RenameDocumentData[];
   reclassifyDocuments: ReclassifyDocumentData[];
 };
+
+export const initialState = {
+  caseState: { status: "loading" },
+  documentsState: { status: "loading" },
+  pipelineState: { status: "initiating", haveData: false, correlationId: "" },
+  pipelineRefreshData: {
+    startRefresh: false,
+    savedDocumentDetails: [],
+    lastProcessingCompleted: "",
+  },
+  accordionState: { status: "loading" },
+  tabsState: { items: [], headers: {}, activeTabId: undefined },
+  notificationState: buildDefaultNotificationState(),
+  searchTerm: "",
+  searchState: {
+    isResultsVisible: false,
+    requestedSearchTerm: undefined,
+    submittedSearchTerm: undefined,
+    resultsOrder: "byDateDesc",
+    filterOptions: {
+      docType: {},
+      category: {},
+    },
+    missingDocs: [],
+    results: { status: "loading" },
+  },
+  errorModal: {
+    show: false,
+    message: "",
+    title: "",
+    type: "",
+  },
+  confirmationModal: {
+    show: false,
+    message: "",
+  },
+  documentIssueModal: {
+    show: false,
+  },
+  redactionLog: {
+    showModal: false,
+    type: RedactionLogTypes.UNDER,
+    redactionLogLookUpsData: { status: "loading" },
+    redactionLogMappingData: { status: "loading" },
+    savedRedactionTypes: [],
+  },
+  featureFlags: {
+    redactionLog: false,
+    fullScreen: false,
+    notes: false,
+    searchPII: false,
+    renameDocument: false,
+    reclassify: false,
+    externalRedirect: false,
+    pageDelete: false,
+    notifications: false,
+  },
+  storedUserData: { status: "loading" },
+  notes: [],
+  searchPII: [],
+  renameDocuments: [],
+  reclassifyDocuments: [],
+  context: undefined,
+} as Omit<CombinedState, "caseId" | "urn">;

@@ -31,6 +31,9 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_RECLASSIFY"               = var.feature_flag_reclassify
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"              = var.feature_flag_page_delete 
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"        = var.feature_flag_external_redirect
+    "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"            = var.feature_flag_background_pipeline_refresh
+    "REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"             = tostring(var.background_pipeline_refresh_interval_ms)
+    "REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS"  = var.background_pipeline_refresh_show_own_notifications
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
@@ -131,6 +134,9 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"],
       app_settings["REACT_APP_FEATURE_FLAG_RECLASSIFY"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_DELETE"],
+      app_settings["REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"],
+      app_settings["REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"],
+      app_settings["REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS"],
       app_settings["REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"],
       app_settings["REACT_APP_GATEWAY_BASE_URL"],
       app_settings["REACT_APP_GATEWAY_SCOPE"],

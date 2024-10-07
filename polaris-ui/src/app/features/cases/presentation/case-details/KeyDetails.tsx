@@ -121,9 +121,7 @@ export const KeyDetails: React.FC<{
               {getDOBText()}
             </h2>
           )}
-          {isYouthOffender() && (
-            <Tag className="govuk-tag--blue"> Youth offender</Tag>
-          )}
+          {isYouthOffender() && <Tag gdsTagColour="blue"> Youth offender</Tag>}
           {isMultipleDefendantsOrCharges && dacDocumentId && (
             <LinkButton
               dataTestId="link-defendant-details"

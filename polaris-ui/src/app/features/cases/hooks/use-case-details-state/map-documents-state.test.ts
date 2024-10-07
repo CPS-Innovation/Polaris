@@ -35,6 +35,7 @@ describe("mapDocumentsState", () => {
           presentationFileName: "foo",
           presentationSubCategory: null,
           witnessIndicators: [],
+          tags: [],
         },
         {
           ...doc2,
@@ -43,6 +44,7 @@ describe("mapDocumentsState", () => {
           presentationFileName: "bar",
           presentationSubCategory: null,
           witnessIndicators: [],
+          tags: [],
         },
       ] as MappedCaseDocument[],
     };
@@ -97,6 +99,7 @@ describe("mapDocumentsState", () => {
           presentationFileName: "foo",
           presentationSubCategory: null,
           witnessIndicators: ["V"],
+          tags: [],
         },
         {
           ...doc2,
@@ -105,6 +108,7 @@ describe("mapDocumentsState", () => {
           presentationFileName: "bar",
           presentationSubCategory: null,
           witnessIndicators: [],
+          tags: [],
         },
       ] as MappedCaseDocument[],
     };
