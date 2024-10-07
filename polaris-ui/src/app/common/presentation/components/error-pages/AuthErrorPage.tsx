@@ -34,9 +34,10 @@ export const AuthErrorPage: React.FC<Props> = ({ error, children }: Props) => {
       <p className="govuk-body-l">
         Once you have logged in to CMS return to this tab and{" "}
         {children || (
-          <a href={window.location.href}>click here to reload this screen</a>
+          <span>
+            <a href={window.location.href}>click here to reload this screen</a>.
+          </span>
         )}
-        .
       </p>
 
       <h2 className="govuk-heading-s">Technical information</h2>
