@@ -67,6 +67,11 @@ namespace Ddei.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
+        public async Task VerifyCmsAuthAsync(DdeiCmsCaseDataArgDto arg)
+        {
+            await CallDdei(_ddeiClientRequestFactory.CreateVerifyCmsAuthRequest(arg));
+        }
+
         public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCmsCaseIdArgDto arg)
         {
             var result = await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
