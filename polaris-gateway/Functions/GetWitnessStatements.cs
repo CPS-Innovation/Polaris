@@ -1,8 +1,7 @@
 using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
@@ -27,11 +26,11 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
 
-        [FunctionName(nameof(GetWitnessStatements))]
+        [Function(nameof(GetWitnessStatements))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.WitnessStatements)] HttpRequest req, string caseUrn, int caseId, int witnessId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.WitnessStatements)] HttpRequest req, string caseUrn, int caseId, int witnessId)
         {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
             try
             {
                 context = await _initializationHandler.Initialize(req);

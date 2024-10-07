@@ -1,11 +1,10 @@
 ﻿using Common.Constants;
-using Microsoft.Extensions.Configuration;
 
 namespace PolarisGateway.Clients.Coordinator
 {
     public class RequestFactory : IRequestFactory
     {
-        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues, HttpContent content)
+        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string? cmsAuthValues, HttpContent? content)
         {
             var request = new HttpRequestMessage(httpMethod, requestUri)
             {

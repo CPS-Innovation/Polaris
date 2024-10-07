@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Clients.Coordinator;
 using Common.ValueObjects;
+using Microsoft.Azure.Functions.Worker;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -29,11 +28,11 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
-        [FunctionName(nameof(PolarisPipelineCheckoutDocument))]
+        [Function(nameof(PolarisPipelineCheckoutDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
             try
             {
                 context = await _initializationHandler.Initialize(req);

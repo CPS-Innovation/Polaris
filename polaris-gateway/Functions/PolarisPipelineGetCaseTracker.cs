@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
+using Microsoft.Azure.Functions.Worker;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
@@ -28,11 +27,11 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
-        [FunctionName(nameof(PolarisPipelineGetCaseTracker))]
+        [Function(nameof(PolarisPipelineGetCaseTracker))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
         {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
             try
             {
                 context = await _initializationHandler.Initialize(req);

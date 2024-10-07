@@ -1,38 +1,42 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
+using Common.Telemetry;
+using Microsoft.Azure.Functions.Worker;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineCaseDelete
+    public class PolarisPipelineCaseDelete : BaseFunction
     {
         private readonly ILogger<PolarisPipelineCaseDelete> _logger;
         private readonly ICoordinatorClient _coordinatorClient;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
+        private readonly ITelemetryClient _telemetryClient;
 
         public PolarisPipelineCaseDelete(
             ILogger<PolarisPipelineCaseDelete> logger,
             ICoordinatorClient coordinatorClient,
             IInitializationHandler initializationHandler,
-            IUnhandledExceptionHandler unhandledExceptionHandler)
+            IUnhandledExceptionHandler unhandledExceptionHandler,
+            ITelemetryClient telemetryClient)
+        : base(telemetryClient)
         {
             _logger = logger;
             _coordinatorClient = coordinatorClient;
             _initializationHandler = initializationHandler;
             _unhandledExceptionHandler = unhandledExceptionHandler;
+            _telemetryClient = telemetryClient;
         }
 
-        [FunctionName(nameof(PolarisPipelineCaseDelete))]
+        [Function(nameof(PolarisPipelineCaseDelete))]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
+            (Guid CorrelationId, string? CmsAuthValues) context = default;
 
             try
             {
