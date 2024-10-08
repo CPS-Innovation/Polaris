@@ -91,7 +91,7 @@ stages:
 
       - deployment: Set_Log_Analytics_Archival_Periods
         condition: succeeded()
-        dependsOn: Apply_UI_Terraform
+        dependsOn: Apply_Main_Terraform
         displayName: Update Analytics Archival Periods
         environment: ${{ parameters.targetEnv }}
         strategy:
