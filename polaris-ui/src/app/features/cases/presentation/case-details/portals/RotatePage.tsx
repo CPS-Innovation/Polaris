@@ -4,6 +4,7 @@ import { ReactComponent as RotateIcon } from "../../../../../common/presentation
 import { ReactComponent as PageIcon } from "../../../../../common/presentation/svgs/pageIcon.svg";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { IPageRotation } from "../../../domain/IPageRotation";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./RotatePage.module.scss";
 
 type RotatePageProps = {
@@ -23,36 +24,58 @@ export const RotatePage: React.FC<RotatePageProps> = ({
   handleAddPageRotation,
   handleRemovePageRotation,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const pageRotateData = useMemo(() => {
     return pageRotations.find((rotation) => rotation.pageNumber === pageNumber);
   }, [pageRotations, pageNumber]);
 
   const handleRotateBtnClick = () => {
     handleAddPageRotation(documentId, [{ pageNumber, rotationAngle: 0 }]);
+    trackEvent("Rotate Page", {
+      documentId: documentId,
+      pageNumber: pageNumber,
+    });
   };
   const handleRotateLeft = () => {
     if (pageRotateData) {
+      const rotationAngle = (pageRotateData?.rotationAngle - 90) % 360;
       handleAddPageRotation(documentId, [
         {
           pageNumber,
-          rotationAngle: (pageRotateData?.rotationAngle - 90) % 360,
+          rotationAngle: rotationAngle,
         },
       ]);
+      trackEvent("Rotate Page Left", {
+        documentId: documentId,
+        pageNumber: pageNumber,
+        rotationAngle: rotationAngle,
+      });
     }
   };
   const handleRotateRight = () => {
-    if (pageRotateData)
+    if (pageRotateData) {
+      const rotationAngle = (pageRotateData?.rotationAngle + 90) % 360;
       handleAddPageRotation(documentId, [
         {
           pageNumber,
-          rotationAngle: (pageRotateData?.rotationAngle + 90) % 360,
+          rotationAngle: rotationAngle,
         },
       ]);
+      trackEvent("Rotate Page Right", {
+        documentId: documentId,
+        pageNumber: pageNumber,
+        rotationAngle: rotationAngle,
+      });
+    }
   };
 
-  const handleRestoreBtnClick = () => {
+  const handleCancelBtnClick = () => {
     if (pageRotateData) {
       handleRemovePageRotation(documentId, pageRotateData?.id);
+      trackEvent("Undo Rotate Page", {
+        documentId: documentId,
+        pageNumber: pageNumber,
+      });
     }
   };
 
@@ -71,8 +94,8 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             </div>
             {pageRotateData ? (
               <LinkButton
-                className={classes.restoreBtn}
-                onClick={handleRestoreBtnClick}
+                className={classes.cancelBtn}
+                onClick={handleCancelBtnClick}
                 data-pageNumber={pageNumber}
               >
                 Cancel
@@ -84,7 +107,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
                 data-pageNumber={pageNumber}
               >
                 <RotateIcon className={classes.rotateBtnIcon} />
-                Rotate Page
+                Rotate page
               </LinkButton>
             )}
           </div>
@@ -130,7 +153,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             </p>
             <LinkButton
               className={classes.cancelBtn}
-              onClick={handleRestoreBtnClick}
+              onClick={handleCancelBtnClick}
               data-pageNumber={pageNumber}
             >
               Cancel
