@@ -15,8 +15,7 @@ steps:
         $count=$temp.Length
         echo "******** Total changed $count files for $targetLabel ********"
 
-        $pipelineTerraformCount=0
-        $uiTerraformCount=0
+        $mainTerraformCount=0
         $networkingTerraformCount=0
         $coordinatorCount=0
         $pdfGeneratorCount=0
@@ -33,17 +32,11 @@ steps:
         {
           $name=$temp[$i]
           echo "this is $name file"
-          if ($name -like 'polaris-terraform/pipeline-terraform/*')
+          if ($name -like 'polaris-terraform/main-terraform/*')
           {
-            echo "run pipeline terraform..."
+            echo "run main terraform..."
             Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-            $pipelineTerraformCount++
-          }
-          if ($name -like 'polaris-terraform/ui-terraform/*')
-          {
-            echo "run ui terraform..."
-            Write-Host "##vso[task.setvariable variable=RUN_TERRAFORM;isOutput=true]true"
-            $uiTerraformCount++
+            $mainTerraformCount++
           }
           if ($name -like 'polaris-terraform/networking-terraform/*')
           {
@@ -113,8 +106,7 @@ steps:
           }
         }
 
-        Write-Host "##vso[task.setvariable variable=PIPELINE_TERRAFORM_COUNT;isOutput=true]$pipelineTerraformCount"
-        Write-Host "##vso[task.setvariable variable=UI_TERRAFORM_COUNT;isOutput=true]$uiTerraformCount"
+        Write-Host "##vso[task.setvariable variable=MAIN_TERRAFORM_COUNT;isOutput=true]$mainTerraformCount"
         Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT;isOutput=true]$networkingTerraformCount"
         Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT;isOutput=true]$coordinatorCount"
         Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT;isOutput=true]$pdfGeneratorCount"
