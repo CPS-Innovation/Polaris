@@ -52,7 +52,10 @@ import {
   clearDocumentNotifications,
 } from "./map-notification-state";
 import { NotificationReason } from "../../domain/NotificationState";
-import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+import {
+  PageDeleteRedaction,
+  IPageDeleteRedaction,
+} from "../../domain/IPageDeleteRedaction";
 import { mapNotificationToDocumentsState } from "./map-notification-to-documents-state";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
@@ -953,6 +956,21 @@ export const reducer = (
         id: String(`${+new Date()}-${index}`),
       }));
 
+      //Bug:28212 - This is a fix for bug which we could not reproduce, by filtering out any duplicate page delete entries
+      const filterDuplicates = (
+        pageDeleteRedactions: IPageDeleteRedaction[]
+      ) => {
+        const deletedPages = new Set();
+
+        return pageDeleteRedactions.filter((redaction) => {
+          if (!deletedPages.has(redaction.pageNumber)) {
+            deletedPages.add(redaction.pageNumber);
+            return true;
+          }
+          return false;
+        });
+      };
+
       //This is applicable only when the user deletes a page with unsaved redactions
       const clearPageUnsavedRedactions = (
         redactionHighlights: IPdfHighlight[]
@@ -973,10 +991,10 @@ export const reducer = (
             item.documentId === documentId
               ? {
                   ...item,
-                  pageDeleteRedactions: [
+                  pageDeleteRedactions: filterDuplicates([
                     ...item.pageDeleteRedactions,
                     ...newRedactions,
-                  ],
+                  ]),
                   redactionHighlights: [
                     ...clearPageUnsavedRedactions(item.redactionHighlights),
                   ],
