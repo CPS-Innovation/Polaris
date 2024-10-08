@@ -200,7 +200,12 @@ describe("mapNotificationToDocumentsState", () => {
         },
         {
           documentId: "2",
-          tags: [],
+          tags: [
+            {
+              color: "green",
+              label: "New",
+            },
+          ],
         },
         {
           documentId: "3",
