@@ -61,7 +61,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleSubmitReclassify,
   handleReclassifyTracking,
 }) => {
-  const continueButtonRef = useRef(null);
+  const backButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
     documentNewNameErrorText: "",
@@ -304,8 +304,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   };
 
   const handleContinueBtnClick = () => {
-    if (continueButtonRef.current)
-      (continueButtonRef.current as HTMLButtonElement).blur();
+    if (backButtonRef.current)
+      (backButtonRef.current as HTMLButtonElement).focus();
     const validData = validateData();
     if (!validData) return;
     if (state.reClassifyStage === "stage1") {
@@ -393,7 +393,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       return (
         <>
           <Button
-            ref={continueButtonRef}
             onClick={handleContinueBtnClick}
             disabled={
               state.reClassifyStage === "stage2" &&
@@ -436,6 +435,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
+        if (backButtonRef.current)
+          (backButtonRef.current as HTMLButtonElement).focus();
       }
     };
 
@@ -460,6 +461,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           state.reClassifySaveStatus === "saving" ||
           state.reClassifySaveStatus === "success"
         }
+        ref={backButtonRef}
       >
         Back
       </LinkButton>
@@ -497,7 +499,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           )}
 
           {state.reClassifyStage === "stage3" && (
-            <ReclassifyStage3 presentationTitle={presentationTitle} />
+            <ReclassifyStage3
+              presentationTitle={presentationTitle}
+              backButtonRef={backButtonRef}
+            />
           )}
 
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>

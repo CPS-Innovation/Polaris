@@ -8,10 +8,12 @@ import classes from "./Reclassify.module.scss";
 
 type ReclassifyStage3Props = {
   presentationTitle: string;
+  backButtonRef: React.RefObject<HTMLButtonElement>;
 };
 
 export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   presentationTitle,
+  backButtonRef,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
 
@@ -31,6 +33,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
       type: "UPDATE_CLASSIFY_STAGE",
       payload: { newStage: "stage2" },
     });
+    if (backButtonRef.current) backButtonRef.current.focus();
   };
 
   const documentFieldNames = useMemo(
