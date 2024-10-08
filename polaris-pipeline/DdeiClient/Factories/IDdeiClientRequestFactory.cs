@@ -4,6 +4,7 @@ namespace Ddei.Factories
 {
     public interface IDdeiClientRequestFactory
     {
+        HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiCmsCaseDataArgDto arg);
         HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg);
         HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg);
         HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg);

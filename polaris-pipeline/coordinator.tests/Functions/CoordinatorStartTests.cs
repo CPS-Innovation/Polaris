@@ -17,6 +17,10 @@ using Moq;
 using Xunit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Ddei.Factories;
+using DdeiClient.Services;
+using Ddei.Domain.CaseData.Args;
+using DdeiClient.Exceptions;
 
 namespace coordinator.tests.Functions
 {
@@ -28,9 +32,12 @@ namespace coordinator.tests.Functions
         private readonly Guid _correlationId;
         private readonly HttpRequest _httpRequest;
         private readonly IHeaderDictionary _httpRequestHeaders;
+        private readonly DdeiCmsCaseDataArgDto _mockVerifyArg;
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
         private readonly Mock<ICleardownService> _mockCleardownService;
+        private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
+        private readonly Mock<IDdeiClient> _mockDdeiClient;
         private readonly RefreshCase _coordinatorStart;
 
         public CoordinatorStartTests()
@@ -70,7 +77,15 @@ namespace coordinator.tests.Functions
 
             _mockCleardownService.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>()));
-            _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
+
+            _mockVerifyArg = fixture.Create<DdeiCmsCaseDataArgDto>();
+            _mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
+            _mockDdeiArgFactory.Setup(factory => factory.CreateCmsCaseDataArgDto(cmsAuthValues, _correlationId))
+                .Returns(_mockVerifyArg);
+            _mockDdeiClient = new Mock<IDdeiClient>();
+            _mockDdeiClient.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg));
+
+            _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object, _mockDdeiArgFactory.Object, _mockDdeiClient.Object);
         }
 
         [Fact]
@@ -174,6 +189,17 @@ namespace coordinator.tests.Functions
 
             // Assert
             httpResponseMessage.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be((int)HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Run_Returns401HttpResponseMessage_WhenCmsAuthIsNotValid()
+        {
+            _mockDdeiClient.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg)).ThrowsAsync(new DdeiClientException(HttpStatusCode.Unauthorized, null));
+            // Act
+            var httpResponseMessage = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+
+            // Assert
+            httpResponseMessage.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be((int)HttpStatusCode.Unauthorized);
         }
     }
 }
