@@ -39,7 +39,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var arg = _ddeiArgFactory.CreateMaterialTypeListArgDto(cmsAuthValues, currentCorrelationId);
+                var arg = _ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, currentCorrelationId);
                 var result = await _ddeiClient.GetMaterialTypeListAsync(arg);
 
                 return new OkObjectResult(result);

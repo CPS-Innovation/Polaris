@@ -9,6 +9,7 @@ namespace DdeiClient.Services
 {
 	public interface IDdeiClient
 	{
+		Task VerifyCmsAuthAsync(DdeiCmsCaseDataArgDto arg);
 		Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCmsCaseIdArgDto arg);
 		Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiCmsUrnArgDto arg);
 		Task<CaseDto> GetCaseAsync(DdeiCmsCaseArgDto arg);
