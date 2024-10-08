@@ -3,7 +3,7 @@
 const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
 describe("Reauth and handover flows", { tags: ["@ci", "@ci-chunk-2"] }, () => {
   describe("Reauth flow", () => {
-    it("can send the user around the reauth flow", () => {
+    it("can obtain cms auth", () => {
       cy.on("uncaught:exception", () => false)
 
       // have we logged in OK?
@@ -11,8 +11,9 @@ describe("Reauth and handover flows", { tags: ["@ci", "@ci-chunk-2"] }, () => {
         .visit(`/polaris-ui/case-search-results?urn=${TARGET_URN}`)
         // we expect to not be logged-in to CMS...
         .contains("CMS_AUTH_ERROR")
-        // ... and now we do log in
-        .loginToCms()
+
+      // ... and now we do log in
+      cy.loginToCms()
 
       cy.visit(`/polaris-ui/case-search-results?urn=${TARGET_URN}`)
 
