@@ -25,13 +25,13 @@ data "azurerm_virtual_network" "polaris_vnet" {
 
 # begin: vnet subnet lookups
 data "azurerm_subnet" "polaris_sa_subnet" {
-  name                 = "${var.resource_name_prefix}-sa-subnet"
+  name                 = "${var.pipeline_resource_name_prefix}-sa-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
 data "azurerm_subnet" "polaris_sa2_subnet" {
-  name                 = "${var.resource_name_prefix}-sa2-subnet"
+  name                 = "${var.pipeline_resource_name_prefix}-sa2-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
@@ -81,25 +81,25 @@ data "azurerm_subnet" "polaris_app_gateway_subnet" {
 }
 
 data "azurerm_subnet" "polaris_coordinator_subnet" {
-  name                 = "${var.resource_name_prefix}-coordinator-subnet"
+  name                 = "${var.pipeline_resource_name_prefix}-coordinator-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
 data "azurerm_subnet" "polaris_pdfgenerator_subnet" {
-  name                 = "${var.resource_name_prefix}-pdfgenerator-subnet"
+  name                 = "${var.pipeline_resource_name_prefix}-pdfgenerator-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
 data "azurerm_subnet" "polaris_pdfredactor_subnet" {
-  name                 = "${var.resource_name_prefix}-pdfredactor-subnet"
+  name                 = "${var.pipeline_resource_name_prefix}-pdfredactor-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
 data "azurerm_subnet" "polaris_textextractor_2_subnet" {
-  name                 = "${var.resource_name_prefix}-textextractor-subnet-2"
+  name                 = "${var.pipeline_resource_name_prefix}-textextractor-subnet-2"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }

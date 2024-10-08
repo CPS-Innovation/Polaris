@@ -5,6 +5,11 @@ variable "resource_name_prefix" {
   default = "polaris"
 }
 
+variable "pipeline_resource_name_prefix" {
+  type    = string
+  default = "polaris-pipeline"
+}
+
 variable "networking_resource_name_suffix" {
   default = "networking"
 }
