@@ -63,7 +63,6 @@ type AppInsightsTrackEventNames =
   | "All Notifications Cleared"
   | "Notifications Arrived"
   | "Save Rotation"
-  | "Save Rotation Error"
   | "Remove All Rotations";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
