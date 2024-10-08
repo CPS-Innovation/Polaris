@@ -1,6 +1,6 @@
 //import fetchMock from "jest-fetch-mock";
 import { fetchWithFullWindowReauth } from "./auth/fetch-with-full-window-reauth";
-import { fetchWithProactiveInSituReauth } from "./auth/fetch-with-in-situ-reauth";
+import { fetchWithCookies } from "./auth/fetch-with-cookies";
 import * as HEADERS from "./auth/header-factory";
 import {
   searchUrn,
@@ -15,23 +15,35 @@ import {
 
 jest.mock("./auth/fetch-with-full-window-reauth");
 jest.mock("./auth/fetch-with-in-situ-reauth");
+jest.mock("./auth/fetch-with-cookies");
 jest.mock("./auth/header-factory");
 jest.mock("../../../config", () => ({
   GATEWAY_BASE_URL: "https://gateway-url",
+  REAUTH_USE_IN_SITU_REFRESH: false,
 }));
 
-const mockOutResponse = (body?: any, init?: ResponseInit | undefined) => {
-  var response = new Response(JSON.stringify(body), init);
-  (fetchWithFullWindowReauth as jest.Mock).mockReturnValue(response);
-  return response;
-};
-
-const mockOutResponseProactive = (
+const mockOutReauthResponse = (
+  expectedBehaviour:
+    | "no-reauth"
+    //| "in-situ"
+    | "full-window-reauth",
   body?: any,
   init?: ResponseInit | undefined
 ) => {
   var response = new Response(JSON.stringify(body), init);
-  (fetchWithProactiveInSituReauth as jest.Mock).mockReturnValue(response);
+  switch (expectedBehaviour) {
+    case "no-reauth": {
+      (fetchWithCookies as jest.Mock).mockReturnValue(response);
+      break;
+    }
+    case "full-window-reauth": {
+      (fetchWithFullWindowReauth as jest.Mock).mockReturnValue(response);
+      break;
+    }
+    default:
+      throw new Error("Fetch flavour not yet expected by test suite");
+  }
+
   return response;
 };
 
@@ -45,7 +57,8 @@ describe("gateway-apis", () => {
 
   describe("searchUrn", () => {
     it("searchUrn should call the expected flavour of fetch", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "full-window-reauth",
         { data: "mocked response" },
         {
           status: 200,
@@ -57,7 +70,8 @@ describe("gateway-apis", () => {
     });
 
     it("searchUrn should throw error for any other failed response status", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "full-window-reauth",
         { data: "mocked response" },
         {
           status: 500,
@@ -72,7 +86,8 @@ describe("gateway-apis", () => {
 
   describe("getCaseDetails", () => {
     it("getCaseDetails should call the expected flavour of fetch", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "full-window-reauth",
         { data: "mocked response" },
         {
           status: 200,
@@ -84,7 +99,8 @@ describe("gateway-apis", () => {
     });
 
     it("getCaseDetails should throw error if for any other failed response status", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "full-window-reauth",
         { data: "mocked response" },
         {
           status: 500,
@@ -100,7 +116,8 @@ describe("gateway-apis", () => {
 
   describe("getPipelinePdfResults", () => {
     it("getPipelinePdfResults should call the expected flavour of fetch", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "no-reauth",
         { documents: [] },
         {
           status: 200,
@@ -113,7 +130,8 @@ describe("gateway-apis", () => {
     });
 
     it("getPipelinePdfResults should not throw error if response status is 404 and should return false", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "no-reauth",
         { documents: [] },
         {
           status: 404,
@@ -124,7 +142,7 @@ describe("gateway-apis", () => {
     });
 
     it("getPipelinePdfResults should throw error if for any other failed response status ", async () => {
-      mockOutResponse(null, {
+      mockOutReauthResponse("no-reauth", null, {
         status: 500,
       });
       expect(async () => {
@@ -135,7 +153,7 @@ describe("gateway-apis", () => {
 
   describe("searchCase", () => {
     it("searchCase should call the expected flavour of fetch", async () => {
-      mockOutResponse([], {
+      mockOutReauthResponse("no-reauth", [], {
         status: 200,
       });
       const response = await searchCase("urn_123", 123, "test");
@@ -144,7 +162,8 @@ describe("gateway-apis", () => {
     });
 
     it("searchCase should throw error if for failed response status ", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "no-reauth",
         { documents: [] },
         {
           status: 500,
@@ -158,7 +177,7 @@ describe("gateway-apis", () => {
 
   describe("checkoutDocument", () => {
     it("checkoutDocument should call the expected flavour of fetch", async () => {
-      mockOutResponse("success", {
+      mockOutReauthResponse("no-reauth", "success", {
         status: 200,
       });
       const response = await checkoutDocument("urn_123", 123, "documentID_1");
@@ -167,7 +186,7 @@ describe("gateway-apis", () => {
     });
 
     it("checkoutDocument should throw error if for failed response status ", async () => {
-      mockOutResponse("success", {
+      mockOutReauthResponse("no-reauth", "success", {
         status: 500,
       });
       expect(async () => {
@@ -178,7 +197,7 @@ describe("gateway-apis", () => {
 
   describe("cancelCheckoutDocument", () => {
     it("cancelCheckoutDocument should call the expected flavour of fetch", async () => {
-      mockOutResponse("success", {
+      mockOutReauthResponse("no-reauth", "success", {
         status: 200,
       });
       const response = await cancelCheckoutDocument(
@@ -191,7 +210,7 @@ describe("gateway-apis", () => {
     });
 
     it("cancelCheckoutDocument should throw error if for failed response status ", async () => {
-      mockOutResponse("Internal server Error", {
+      mockOutReauthResponse("no-reauth", "Internal server Error", {
         status: 500,
       });
       expect(async () => {
@@ -202,7 +221,7 @@ describe("gateway-apis", () => {
 
   describe("saveRedactions", () => {
     it("saveRedactions should call the expected flavour of fetch", async () => {
-      mockOutResponse("success", {
+      mockOutReauthResponse("no-reauth", "success", {
         status: 200,
       });
 
@@ -219,7 +238,7 @@ describe("gateway-apis", () => {
     });
 
     it("saveRedactions should throw error if for failed response status ", async () => {
-      mockOutResponse("Internal server Error", {
+      mockOutReauthResponse("no-reauth", "Internal server Error", {
         status: 500,
       });
 
@@ -239,7 +258,8 @@ describe("gateway-apis", () => {
     });
 
     it("initiatePipeline should call fetch and should not call reauthentication", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "no-reauth",
         { trackerUrl: "https://tracker_url/" },
         {
           status: 200,
@@ -255,7 +275,8 @@ describe("gateway-apis", () => {
     });
 
     it("initiatePipeline should not throw error if response status is 423", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "no-reauth",
         { trackerUrl: "https://tracker_url/" },
         {
           status: 423,
@@ -271,7 +292,8 @@ describe("gateway-apis", () => {
     });
 
     it("initiatePipeline should resolve a relative tracker url to a fully-qualified url", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "no-reauth",
         { trackerUrl: "tracker_url" },
         {
           status: 200,
@@ -282,7 +304,8 @@ describe("gateway-apis", () => {
     });
 
     it("initiatePipeline should throw error if for any other failed response status", async () => {
-      mockOutResponse(
+      mockOutReauthResponse(
+        "no-reauth",
         { trackerUrl: "tracker_url" },
         {
           status: 500,

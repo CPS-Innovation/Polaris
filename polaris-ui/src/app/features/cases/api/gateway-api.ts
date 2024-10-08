@@ -78,7 +78,7 @@ export const resolvePdfUrl = (
 export const lookupUrn = async (caseId: number) => {
   const url = fullUrl(`/api/urn-lookup/${caseId}`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
-  const response = await reauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth", url, {
     headers,
   });
 
@@ -92,7 +92,7 @@ export const lookupUrn = async (caseId: number) => {
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
-  const response = await reauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth", url, {
     headers,
   });
 
@@ -106,7 +106,7 @@ export const searchUrn = async (urn: string) => {
 export const getCaseDetails = async (urn: string, caseId: number) => {
   const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
-  const response = await reauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -125,7 +125,7 @@ export const initiatePipeline = async (
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
   const correlationIdHeader = HEADERS.correlationId(correlationId);
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
     method: "POST",
   });
@@ -152,7 +152,7 @@ export const getPipelinePdfResults = async (
     HEADERS.auth
   );
 
-  const response = await reauthenticatingFetch(trackerUrl, {
+  const response = await fetchImplementation("reauth-if-in-situ", trackerUrl, {
     headers,
   });
   // we are ignoring the tracker status 404 as it is an expected one and continue polling
@@ -180,7 +180,7 @@ export const searchCase = async (
   const path = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
   );
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -203,7 +203,7 @@ export const checkoutDocument = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
-  const response = await reauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth-if-in-situ", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
   });
@@ -226,7 +226,7 @@ export const cancelCheckoutDocument = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
-  const response = await reauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth-if-in-situ", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "DELETE",
   });
@@ -248,7 +248,7 @@ export const saveRedactions = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
 
-  const response = await proactiveReauthenticatingFetch(url, {
+  const response = await fetchImplementation("proactive-reauth", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify(redactionSaveRequest),
@@ -263,7 +263,7 @@ export const saveRedactionLog = async (
   redactionLogRequestData: RedactionLogRequestData
 ) => {
   const url = fullUrl(`/api/redactionLogs`, REDACTION_LOG_BASE_URL);
-  const response = await reauthenticatingFetch(url, {
+  const response = await fetchImplementation("no-reauth", url, {
     headers: await buildHeaders(
       HEADERS.correlationId,
       HEADERS.authRedactionLog
@@ -283,7 +283,7 @@ export const getRedactionLogLookUpsData = async () => {
     HEADERS.correlationId,
     HEADERS.authRedactionLog
   );
-  const response = await nonReauthenticatingFetch(url, {
+  const response = await fetchImplementation("no-reauth", url, {
     headers,
   });
   if (!response.ok) {
@@ -298,7 +298,7 @@ export const getRedactionLogMappingData = async () => {
     HEADERS.correlationId,
     HEADERS.authRedactionLog
   );
-  const response = await nonReauthenticatingFetch(url, {
+  const response = await fetchImplementation("no-reauth", url, {
     headers,
   });
 
@@ -318,7 +318,7 @@ export const getNotesData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -340,7 +340,7 @@ export const addNoteData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
     body: JSON.stringify({ documentId: docId, text: text }),
@@ -364,7 +364,7 @@ export const saveDocumentRename = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/rename`
   );
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify({ documentId: docId, documentName: name }),
@@ -386,7 +386,7 @@ export const getSearchPIIData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/pii`
   );
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -400,7 +400,7 @@ export const getSearchPIIData = async (
 export const getMaterialTypeList = async () => {
   const path = fullUrl(`/api/reference/reclassification`);
 
-  const response = await nonReauthenticatingFetch(path, {
+  const response = await fetchImplementation("no-reauth", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -414,7 +414,7 @@ export const getMaterialTypeList = async () => {
 export const getExhibitProducers = async (urn: string, caseId: number) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/exhibit-producers`);
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -431,7 +431,7 @@ export const getStatementWitnessDetails = async (
 ) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/witnesses`);
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -451,7 +451,7 @@ export const getWitnessStatementNumbers = async (
     `/api/urns/${urn}/cases/${caseId}/witnesses/${witnessId}/statements`
   );
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -473,7 +473,7 @@ export const saveDocumentReclassify = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/reclassify`
   );
 
-  const response = await reauthenticatingFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
     body: JSON.stringify(data),
@@ -482,19 +482,36 @@ export const saveDocumentReclassify = async (
   return response.ok;
 };
 
-const nonReauthenticatingFetch = async (...args: FetchArgs) =>
-  fetchWithCookies(...args);
-
-const reauthenticatingFetch = async (...args: FetchArgs) =>
-  PREFERRED_AUTH_MODE === "in-situ"
-    ? fetchWithInSituReauth(...args)
-    : fetchWithFullWindowReauth(...args);
-
-const proactiveReauthenticatingFetch = async (...args: FetchArgs) =>
-  PREFERRED_AUTH_MODE === "in-situ"
-    ? fetchWithProactiveInSituReauth(...args)
-    : // there is not a proactive equivalent (yet, or ever?) in the full-page reauth flow.
-      fetchWithFullWindowReauth(...args);
+const fetchImplementation = (
+  reauthBehaviour:
+    | "no-reauth"
+    | "reauth-if-in-situ"
+    | "reauth"
+    | "proactive-reauth",
+  ...args: FetchArgs
+) => {
+  switch (reauthBehaviour) {
+    case "reauth-if-in-situ": {
+      return PREFERRED_AUTH_MODE === "in-situ"
+        ? fetchWithInSituReauth(...args)
+        : fetchWithCookies(...args);
+    }
+    case "reauth": {
+      return PREFERRED_AUTH_MODE === "in-situ"
+        ? fetchWithInSituReauth(...args)
+        : fetchWithFullWindowReauth(...args);
+    }
+    case "proactive-reauth": {
+      return PREFERRED_AUTH_MODE === "in-situ"
+        ? fetchWithProactiveInSituReauth(...args)
+        : // there is not a proactive equivalent (yet, or ever?) in the full-page reauth flow.
+          fetchWithCookies(...args);
+    }
+    default: {
+      return fetchWithCookies(...args);
+    }
+  }
+};
 
 const caseCallErrorFactory = (
   response: Response,
