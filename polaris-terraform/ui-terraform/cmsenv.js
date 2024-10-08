@@ -171,6 +171,7 @@ function __getCmsEnvCookieOut(r)
 function __getCmsEnvInternal(cookie)
 {
     if(cookie.includes("cin3")) return "default";
+    if(cookie.includes("cin2")) return "cin2";
     if(cookie.includes("cin4")) return "cin4";
     if(cookie.includes("cin5")) return "cin5";
     return "default";
