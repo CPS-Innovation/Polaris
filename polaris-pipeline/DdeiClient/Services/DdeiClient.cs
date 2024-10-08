@@ -69,6 +69,7 @@ namespace Ddei.Services
 
         public async Task VerifyCmsAuthAsync(DdeiCmsCaseDataArgDto arg)
         {
+            // Will throw in the same way as any other call if auth is not correct.
             await CallDdei(_ddeiClientRequestFactory.CreateVerifyCmsAuthRequest(arg));
         }
 
