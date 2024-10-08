@@ -389,16 +389,18 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       {state.reclassifyVariant !== "Statement" &&
         state.reclassifyVariant !== "Exhibit" && (
           <Radios
-            hint={{
-              children: (
-                <span>
-                  Do you want to change the document name of{" "}
-                  <strong className={classes.highlight}>
-                    {presentationTitle}
-                  </strong>
-                  ?
-                </span>
-              ),
+            fieldset={{
+              legend: {
+                children: (
+                  <span>
+                    Do you want to change the document name of{" "}
+                    <strong className={classes.highlight}>
+                      {presentationTitle}
+                    </strong>
+                    ?
+                  </span>
+                ),
+              },
             }}
             className={
               formDataErrors.documentNewNameErrorText
@@ -636,8 +638,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       )}
       {state.reclassifyVariant !== "Immediate" && (
         <Radios
-          hint={{
-            children: <span>What is the document status?</span>,
+          fieldset={{
+            legend: {
+              children: <span>What is the document status?</span>,
+            },
           }}
           key={"document-used-status"}
           onChange={handleDocumentUsedStatusChange}
