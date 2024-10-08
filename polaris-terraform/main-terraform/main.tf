@@ -44,6 +44,9 @@ provider "azurerm" {
       recover_soft_deleted_keys             = true
       recover_soft_deleted_secrets          = true
     }
+    cognitive_account {
+      purge_soft_delete_on_destroy = true
+    }
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
@@ -78,7 +81,7 @@ data "azurerm_subscription" "current" {}
 data "azuread_application_published_app_ids" "well_known" {}
 
 resource "random_uuid" "random_id" {
-  count = 3
+  count = 7
 }
 
 resource "azuread_service_principal" "msgraph" {
