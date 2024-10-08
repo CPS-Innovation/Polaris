@@ -36,6 +36,13 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"                = var.cms_details.default_upstream_cms_domain_name
     "DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"       = var.cms_details.default_upstream_cms_services_domain_name
     "DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"         = var.cms_details.default_upstream_cms_modern_domain_name
+    "CIN2_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin2_upstream_cms_ip_corsham
+    "CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin2_upstream_cms_modern_ip_corsham
+    "CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin2_upstream_cms_ip_farnborough
+    "CIN2_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"         = var.cms_details.cin2_upstream_cms_modern_ip_farnborough
+    "CIN2_UPSTREAM_CMS_DOMAIN_NAME"                   = var.cms_details.cin2_upstream_cms_domain_name
+    "CIN2_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin2_upstream_cms_services_domain_name
+    "CIN2_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin2_upstream_cms_modern_domain_name
     "CIN4_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin4_upstream_cms_ip_corsham
     "CIN4_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin4_upstream_cms_modern_ip_corsham
     "CIN4_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin4_upstream_cms_ip_farnborough
