@@ -68,7 +68,6 @@ namespace pdf_generator.tests.Functions
               DocumentDeltaType.RequiresIndexing
           );
       _generatePdfRequest.CmsCaseId = 123456;
-      _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileExtension = ".doc";
       _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test document";
       _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
       _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
@@ -136,7 +135,7 @@ namespace pdf_generator.tests.Functions
     [Fact]
     public async Task Run_ReturnsUnsupportedWhenFileTypeIsUnrecognised()
     {
-      _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileExtension = ".junk";
+      _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "foo.junk";
       var result = await _generatePdf.Run(_mockDurableActivityContext.Object);
       result.Should().Be(PdfConversionStatus.DocumentTypeUnsupported);
     }

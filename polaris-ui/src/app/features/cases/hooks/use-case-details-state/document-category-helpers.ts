@@ -125,7 +125,7 @@ export const getCommunicationsSubCategory = <
 >(
   doc: T
 ): CommunicationSubCategory =>
-  doc.cmsOriginalFileExtension === ".hte"
+  doc.cmsOriginalFileName?.endsWith(".hte")
     ? CommunicationSubCategory.emails
     : CommunicationSubCategory.communicationFiles;
 
@@ -135,7 +135,7 @@ export const getDocumentAttachments = <
   item: T,
   docs: T[]
 ) =>
-  item.cmsOriginalFileExtension === ".hte"
+  item.cmsOriginalFileName?.endsWith(".hte")
     ? docs
         .filter((doc) => doc.polarisParentDocumentId === item.documentId)
         .map(({ documentId, presentationTitle }) => ({
