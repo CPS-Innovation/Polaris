@@ -493,5 +493,9 @@ const getPipelinePdfResults = (resultsCount: number) => {
         polarisDocumentVersionId: document.polarisDocumentVersionId + index,
       })),
     }));
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
   return resultsArray as PipelineResultsWithPdfBlobNames[];
 };

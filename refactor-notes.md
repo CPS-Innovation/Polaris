@@ -20,13 +20,12 @@
 
 ## Ids
 
-| Name                     | Current                                                         | To be       |                    |
-| ------------------------ | --------------------------------------------------------------- | ----------- | ------------------ |
-| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..."     | Remove      |                    |
-| documentId               | Does not exist over the wire, transposed from polarisDocumentId | Keep -> int |                    |
-| cmsDocumentId            | Appears to be null all the time                                 | Remove      | :white_check_mark: |
-| cmsVersionId             | Numeric versionId of document                                   | Remove      |                    |
-| polarisDocumentVersionId | Incrementing artificial number                                  |             |                    |
+| Name                     | Current                                                     | To be                |                    |
+| ------------------------ | ----------------------------------------------------------- | -------------------- | ------------------ |
+| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId |                    |
+| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId  |                    |
+| polarisDocumentVersionId | Incrementing artificial number                              | Remove               |                    |
+| cmsDocumentId            | Appears to be null all the time                             | Remove               | :white_check_mark: |
 
 gateway-api.ts hack
 
@@ -120,6 +119,8 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
 - UX for XLSX may be slow
 - pre-emptive pdf generation from UI (pre convert the most likely/popular docs)
 - get rid of PdfBlobName from backend and from mock as the mechanism for blob retrieval
+- sort out CmsVersionId and PolarisDocumentId in backend/tracker
+- polarisDocumentVersionId -> does this ever get employed for PCDs/DACs? How should we "store by version" for PCDs in blob storage
 
 # Done
 

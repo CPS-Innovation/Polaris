@@ -1,7 +1,6 @@
 import { CmsDocType } from "./CmsDocType";
 
 export type PipelineDocumentProperties = {
-  polarisDocumentId?: string;
   documentId: string;
   status:
     | "New"
