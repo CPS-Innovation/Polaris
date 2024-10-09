@@ -1,27 +1,51 @@
-export type NotificationType =
+import { TagColor } from "../../../common/presentation/types/TagColor";
+
+export type NotificationReason =
   | "New"
   | "Discarded"
-  | "NewVersion"
+  | "New Version"
   | "Reclassified"
   | "Updated";
 
-type NotificationStatus = "Live" | "Read" | "Superseded";
+// note if the colours do not overlap with the colours expected by our
+//  Tag control then we will get a compiler error (which is what we want)
+export const NotificationReasonMap: Record<NotificationReason, TagColor> = {
+  New: "green", // documentId has appeared in the tracker
+  Discarded: "red", // documentId has disappeared from the tracker
+  "New Version": "green", // documentId has changed version
+  Reclassified: "purple", // docTypeId change
+  Updated: "orange", // presentationTitle change
+};
 
 export type NotificationEventCore = {
   documentId: string;
-  notificationType: NotificationType;
+  reason: NotificationReason;
 };
 
 export type NotificationEvent = NotificationEventCore & {
+  id: number;
   cmsVersionId: number;
   presentationTitle: string;
   dateTime: string;
-  narrative: undefined;
-  status: NotificationStatus;
+  narrative: string;
+  status: "Live" | "Read" | "Superseded";
+  reasonToIgnore?: "First case load" | "Users own event";
 };
 
-export type NotificationState = {
+export type NotificationState<
+  T extends NotificationEventCore = NotificationEvent
+> = {
   lastUpdatedDateTime?: string;
+  // ignoreNextEvents allows us to register events triggered by the current user
+  //  so that we may ignore them when we see the corresponding document change
+  //  in the tracker
   ignoreNextEvents: NotificationEventCore[];
-  events: NotificationEvent[];
+  events: T[];
 };
+
+export const buildDefaultNotificationState = <
+  T extends NotificationEventCore
+>(): NotificationState<T> => ({
+  ignoreNextEvents: [],
+  events: [],
+});

@@ -57,6 +57,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     setShowModal(true);
   };
   const handleConfirmRedaction = () => {
+    setShowModal(false);
     const redactionType = redactionTypesData.find(
       (type) => type.id === deleteRedactionType
     )!;
@@ -66,8 +67,6 @@ export const DeletePage: React.FC<DeletePageProps> = ({
       pageNumber: pageNumber,
       reason: redactionType.name,
     });
-
-    setShowModal(false);
   };
   const handleRedactionTypeSelection = (value: string) => {
     setDeleteRedactionType(value);

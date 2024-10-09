@@ -10,8 +10,8 @@ describe("useIsMounted", () => {
       unmount,
     } = renderHook(() => useIsMounted());
 
-    expect(isMounted()).toEqual(true);
+    expect(isMounted.current).toEqual(true);
     unmount();
-    expect(isMounted()).toEqual(false);
+    expect(isMounted.current).toEqual(false);
   });
 });

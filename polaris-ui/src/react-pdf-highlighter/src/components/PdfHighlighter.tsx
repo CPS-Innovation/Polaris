@@ -126,7 +126,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   resizeObserver: ResizeObserver | null = null;
   containerNode?: HTMLDivElement | null = null;
-  unsubscribe = () => {};
+  unsubscribe = () => { };
   mouseSelectionRef: React.RefObject<MouseSelection>;
   constructor(props: Props<T_HT>) {
     super(props);
@@ -225,8 +225,15 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         // enhanceTextSelection: true, // deprecated. https://github.com/mozilla/pdf.js/issues/9943#issuecomment-409369485
         textLayerMode: 2,
         linkService: this.linkService,
-        renderer: "canvas",
-        l10n: null,
+        // renderer: "canvas", // removed in v2.16.105
+        l10n: {
+          getLanguage: () => Promise.resolve("en-GB"),
+          getDirection: () => Promise.resolve("ltr"),
+          get: (key: string, args?: any, fallback?: string) => Promise.resolve(fallback || key),
+          translate: function (element: HTMLElement): Promise<void> {
+            return Promise.resolve();
+          }
+        },
       });
 
     this.linkService.setDocument(pdfDocument);
@@ -494,7 +501,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         ...pageViewport.convertToPdfPoint(
           0,
           scaledToViewport(boundingRect, pageViewport, usePdfCoordinates).top -
-            scrollMargin
+          scrollMargin
         ),
         0,
       ],
@@ -678,10 +685,12 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   shouldStart = (event: MouseEvent) => {
     const { enableAreaSelection } = this.props;
+
     return (
       enableAreaSelection(event) &&
       isHTMLElement(event.target) &&
-      Boolean(asElement(event.target).closest(".page"))
+      !!asElement(event.target).closest(".page") &&
+      !asElement(event.target).closest(".page-portal") //if the target is inside pagePortal ignore it from area selection handling
     );
   };
 

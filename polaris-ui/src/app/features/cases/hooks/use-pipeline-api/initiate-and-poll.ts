@@ -19,16 +19,15 @@ const hasAnyDocumentUpdated = (
   }[],
   pipelineResult: PipelineResults
 ) => {
-  if (!savedDocumentDetails.length) {
-    return true;
-  }
-  return savedDocumentDetails.some((document) =>
-    hasDocumentUpdated(document, pipelineResult)
+  return (
+    !savedDocumentDetails.length ||
+    savedDocumentDetails.some((document) =>
+      hasDocumentUpdated(document, pipelineResult)
+    )
   );
 };
 
 export const initiateAndPoll = (
-  // todo: _ wrap up in to an object arg
   urn: string,
   caseId: number,
   delayMs: number,
@@ -49,6 +48,7 @@ export const initiateAndPoll = (
     if (
       completionStatus === "Completed" &&
       isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted) &&
+      // todo: not sure about this
       hasAnyDocumentUpdated(savedDocumentDetails, pipelineResult)
     ) {
       del({
@@ -84,6 +84,11 @@ export const initiateAndPoll = (
   };
 
   const startInitiatePipelinePolling = async () => {
+    // First we poll the kick-off endpoint until this request is accepted (we poll because
+    // we may already have a refresh in-flight.
+
+    // Note: `while (true)` plus using `break` is not enough. We need to be able to cancel
+    //  polling from the consumer, hence
     while (keepPolling) {
       try {
         await delay(delayMs);
@@ -92,10 +97,10 @@ export const initiateAndPoll = (
           break;
         }
         const trackerArgs = await initiatePipeline(urn, caseId, correlationId);
-        //if you get 423 and there are redacted documents, keep polling initiate pipeline
+        // If we get 423 and there are redacted documents, keep polling initiate pipeline
         const shouldKeepPollingInitiate =
           trackerArgs.status === LOCKED_STATUS_CODE &&
-          savedDocumentDetails.length;
+          savedDocumentDetails.length; // I'm not sure about this, what about notes?
         if (!shouldKeepPollingInitiate) {
           startTrackerPolling(trackerArgs);
           break;

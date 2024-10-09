@@ -13,22 +13,13 @@ stages:
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
 
-      - job: Build_Pipeline_Terraform_Artifacts
+      - job: Build_Main_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
-            displayName: "Publish pipeline terraform artifact"
+            displayName: "Publish main terraform artifact"
             inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files"
-              publishLocation: "pipeline"
-
-      - job: Build_UI_Terraform_Artifacts
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: "Publish UI terraform artifact"
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/"
-              artifact: "ui-terraform-files"
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/main-terraform/"
+              artifact: "main-terraform-files"
               publishLocation: "pipeline"
 
       - job: Build_Coordinator_Artifact

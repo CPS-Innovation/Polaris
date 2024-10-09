@@ -64,6 +64,7 @@ describe("useNavigationAlert hook", () => {
       canRename: false,
       renameStatus: "CanRename",
       reference: null,
+      tags: [],
     },
     {
       clientLockedState: "unlocked",
@@ -120,6 +121,7 @@ describe("useNavigationAlert hook", () => {
       canRename: false,
       renameStatus: "CanRename",
       reference: null,
+      tags: [],
     },
   ];
 

@@ -19,7 +19,7 @@ import {
   witnessIndicatorNames,
   witnessIndicatorPrecedenceOrder,
 } from "../../../domain/WitnessIndicators";
-import { Tooltip } from "../../../../../common/presentation/components";
+import { Tag, Tooltip } from "../../../../../common/presentation/components";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import {
   mapConversionStatusToMessage,
@@ -30,7 +30,6 @@ import {
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
-import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
 
 type Props = {
   activeDocumentId: string;
@@ -51,7 +50,6 @@ type Props = {
   handleReclassifyDocument: (documentId: string) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
-  reclassifyData: ReclassifyDocumentData[];
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -60,7 +58,6 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   featureFlags,
   notesData,
-  reclassifyData,
   handleOpenPdf,
   handleOpenPanel,
   handleGetNotes,
@@ -71,27 +68,23 @@ export const AccordionDocument: React.FC<Props> = ({
   const canViewDocument =
     caseDocument.presentationFlags?.read === "Ok" &&
     caseDocument.conversionStatus === "DocumentConverted";
-  const getAttachmentText = () => {
-    if (caseDocument.attachments.length === 1) {
-      return "1 attachment";
-    }
-    return `${caseDocument.attachments.length} attachments`;
-  };
+
+  const getAttachmentText = () =>
+    caseDocument.attachments.length === 1
+      ? "1 attachment"
+      : `${caseDocument.attachments.length} attachments`;
 
   const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
 
-  const isNotesDisabled = useCallback(() => {
-    if (
+  const isNotesDisabled = useCallback(
+    () =>
       caseDocument.cmsDocType.documentType === "PCD" ||
-      caseDocument.cmsDocType.documentCategory === "Review"
-    ) {
-      return true;
-    }
-    return false;
-  }, [
-    caseDocument.cmsDocType.documentType,
-    caseDocument.cmsDocType.documentCategory,
-  ]);
+      caseDocument.cmsDocType.documentCategory === "Review",
+    [
+      caseDocument.cmsDocType.documentType,
+      caseDocument.cmsDocType.documentCategory,
+    ]
+  );
 
   const openNotesBtnAriaLabel = useCallback(() => {
     if (isNotesDisabled()) {
@@ -190,30 +183,39 @@ export const AccordionDocument: React.FC<Props> = ({
     }
   };
 
+  const listItemClasses = (
+    [
+      ["accordion-document-list-item", true],
+      ["docRead", readUnreadData.includes(caseDocument.documentId)],
+      // Not perfect, but its enough to say if the tag is green then the background
+      //  should be green
+      ["docNew", caseDocument.tags.some((tag) => tag.color === "green")],
+      ["docActive", activeDocumentId === caseDocument.documentId],
+    ] as [string, boolean][]
+  )
+    .filter(([, shouldInclude]) => shouldInclude)
+    .map(([className]) => classes[className]);
+
   return (
     <li
-      className={`${classes["accordion-document-list-item"]} ${
-        readUnreadData.includes(caseDocument.documentId) ? classes.docRead : ""
-      } ${
-        activeDocumentId === caseDocument.documentId ? classes.docActive : ""
-      }`}
-      data-read={`${
-        readUnreadData.includes(caseDocument.documentId) ? "true" : "false"
-      }`}
+      className={listItemClasses.join(" ")}
+      data-read={`${readUnreadData.includes(caseDocument.documentId)}`}
     >
       <div className={classes.listItemWrapper}>
         {activeDocumentId === caseDocument.documentId && (
-          <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
-            Active Document
-          </strong>
+          <span>
+            <Tag gdsTagColour="blue" className={classes.tag}>
+              Active Document
+            </Tag>{" "}
+          </span>
         )}
-        {reclassifyData.find(
-          (doc) => doc.documentId === caseDocument.documentId
-        )?.reclassified && (
-          <strong className={`govuk-tag govuk-tag--turquoise ${classes.tag}`}>
-            Reclassified
-          </strong>
-        )}
+        {caseDocument.tags.map((tag) => (
+          <span key={tag.label}>
+            <Tag gdsTagColour={tag.color} className={classes.tag}>
+              {tag.label}
+            </Tag>{" "}
+          </span>
+        ))}
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
           <div className={`${classes.mainContentWrapper}`}>
             {canViewDocument ? (
@@ -363,8 +365,9 @@ export const AccordionDocument: React.FC<Props> = ({
                   witnessIndicatorPrecedenceOrder.indexOf(b)
               )
               .map((indicator) => (
-                <strong
-                  className={`govuk-tag govuk-tag--grey ${classes.tooltip}`}
+                <Tag
+                  gdsTagColour="grey"
+                  className={classes.tooltip}
                   key={indicator}
                   data-testid={`indicator-${caseDocument.documentId}-${indicator}`}
                 >
@@ -372,7 +375,7 @@ export const AccordionDocument: React.FC<Props> = ({
                   <span className={classes.tooltiptext}>
                     {witnessIndicatorNames[indicator]}
                   </span>
-                </strong>
+                </Tag>
               ))}
           </div>
         )}

@@ -1,10 +1,7 @@
 import { mapAccordionState } from "./map-accordion-state";
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import {
-  ConversionStatus,
-  PresentationDocumentProperties,
-} from "../../domain/gateway/PipelineDocument";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 const mapUnSortedDocsToCategory = (
   categories: string[],
@@ -477,6 +474,7 @@ describe("mapAccordionState", () => {
           canRename: false,
           renameStatus: "CanRename",
           reference: null,
+          tags: [],
         },
         {
           documentId: "2",
@@ -515,6 +513,7 @@ describe("mapAccordionState", () => {
           canRename: false,
           renameStatus: "CanRename",
           reference: null,
+          tags: [],
         },
       ],
     };
@@ -565,6 +564,7 @@ describe("mapAccordionState", () => {
               canRename: false,
               renameStatus: "CanRename",
               reference: null,
+              tags: [],
             },
           ],
         },

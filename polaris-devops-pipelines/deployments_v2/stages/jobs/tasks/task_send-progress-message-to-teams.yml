@@ -10,9 +10,7 @@ parameters:
     type: string
   - name: buildVersion
     type: string
-  - name: pipelineTerraformCount
-    type: string
-  - name: uiTerraformCount
+  - name: mainTerraformCount
     type: string
   - name: networkingTerraformCount
     type: string
@@ -139,12 +137,8 @@ steps:
                             "type": "FactSet",
                             "facts": [
                               {
-                                "title": "Pipeline TF Changes",
-                                "value": "${{ parameters.pipelineTerraformCount }}"
-                              },
-                              {
-                                "title": "UI TF Changes",
-                                "value": "${{ parameters.uiTerraformCount }}"
+                                "title": "Main TF Changes",
+                                "value": "${{ parameters.mainTerraformCount }}"
                               },
                               {
                                 "title": "Network TF Changes",
