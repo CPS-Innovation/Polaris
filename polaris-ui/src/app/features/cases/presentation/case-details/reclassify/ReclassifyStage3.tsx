@@ -126,7 +126,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
     }));
   };
   return (
-    <div role="main" aria-describedby="main-description">
+    <div role="main" aria-labelledby="main-description">
       <LinkButton
         className={classes.backBtn}
         onClick={handleBackBtnClick}

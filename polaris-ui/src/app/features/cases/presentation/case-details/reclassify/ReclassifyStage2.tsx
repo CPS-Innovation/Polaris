@@ -377,7 +377,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     );
   }
   return (
-    <div role="main" aria-describedby="main-description">
+    <div role="main" aria-labelledby="main-description">
       <LinkButton
         className={classes.backBtn}
         onClick={handleBackBtnClick}

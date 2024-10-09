@@ -73,7 +73,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
   return (
-    <div role="main" aria-describedby="main-description">
+    <div role="main" aria-labelledby="main-description">
       <LinkButton
         className={classes.backBtn}
         onClick={handleBackBtnClick}
