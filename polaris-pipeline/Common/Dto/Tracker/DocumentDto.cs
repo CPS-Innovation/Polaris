@@ -58,9 +58,6 @@ namespace Common.Dto.Tracker
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
 
-        [JsonProperty("isPdfAvailable")]
-        public bool IsPdfAvailable { get; set; }
-
         [JsonProperty("pdfBlobName")]
         public string PdfBlobName { get; set; }
 
