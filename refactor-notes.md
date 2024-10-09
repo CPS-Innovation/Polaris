@@ -3,9 +3,10 @@
 - hack model back
 
   - remove cmsOriginalFileExtension, pdfBlobName, presentationFileName
+  - e2e tests for reclassify and rename
   - sort out ids (numeric) and requesting for document via id, docType -> int, remove hack from gateway-api
   - e2e test type files copied across
-  
+
 - read case and docs via gateway
 
   - conversion state stored in UI state

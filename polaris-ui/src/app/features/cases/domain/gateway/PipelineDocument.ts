@@ -3,7 +3,6 @@ import { CmsDocType } from "./CmsDocType";
 export type PipelineDocumentProperties = {
   polarisDocumentId?: string;
   documentId: string;
-  pdfBlobName: string;
   status:
     | "New"
     | "PdfUploadedToBlob"

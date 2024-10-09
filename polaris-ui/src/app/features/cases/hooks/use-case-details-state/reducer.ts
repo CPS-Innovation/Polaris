@@ -425,26 +425,16 @@ export const reducer = (
       );
 
       const openPdfsWeNeedToUpdate = newPipelineResults.data.documents
-        .filter(
-          (item) =>
-            item.pdfBlobName &&
-            state.tabsState.items.some(
-              (tabItem) => tabItem.documentId === item.documentId
-            )
+        .filter((item) =>
+          state.tabsState.items.some(
+            (tabItem) => tabItem.documentId === item.documentId
+          )
         )
-        .map(
-          ({
-            documentId,
-            pdfBlobName,
-            polarisDocumentVersionId,
-            presentationTitle,
-          }) => ({
-            documentId,
-            pdfBlobName,
-            polarisDocumentVersionId,
-            presentationTitle,
-          })
-        );
+        .map(({ documentId, polarisDocumentVersionId, presentationTitle }) => ({
+          documentId,
+          polarisDocumentVersionId,
+          presentationTitle,
+        }));
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }
@@ -475,7 +465,6 @@ export const reducer = (
             {
               ...curr,
               url,
-              pdfBlobName: matchingFreshPdfRecord.pdfBlobName,
               polarisDocumentVersionId:
                 matchingFreshPdfRecord.polarisDocumentVersionId,
               presentationFileName: matchingFreshPdfRecord.presentationTitle,
@@ -583,10 +572,8 @@ export const reducer = (
           )
         : undefined;
 
-      const blobName = pipelineDocument?.pdfBlobName;
-
       const url =
-        blobName &&
+        pipelineDocument &&
         resolvePdfUrl(
           state.urn,
           state.caseId,
@@ -600,7 +587,6 @@ export const reducer = (
         ...foundDocument,
         clientLockedState: "unlocked" as const,
         url,
-        pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
         pageDeleteRedactions: [],
         isDeleted: false,

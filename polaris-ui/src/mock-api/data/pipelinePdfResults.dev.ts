@@ -1,11 +1,16 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
-import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
+import {
+  PipelinePdfResultsDataSource,
+  PipelineResultsWithPdfBlobNames,
+} from "./types/PipelinePdfResultsDataSource";
 
 const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(5);
 
 export default dataSource;
 
-const pipelinePdfResult: PipelineResults = {
+const pipelinePdfResult: PipelineResults & {
+  documents: { pdfBlobName: string }[];
+} = {
   transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
@@ -511,5 +516,5 @@ const getPipelinePdfResults = (resultsCount: number) => {
       })),
     }));
 
-  return resultsArray;
+  return resultsArray as PipelineResultsWithPdfBlobNames[];
 };

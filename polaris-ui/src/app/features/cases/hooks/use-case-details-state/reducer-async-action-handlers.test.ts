@@ -628,7 +628,6 @@ describe("reducerAsyncActionHandlers", () => {
               documentId: "1",
               cmsDocumentId: "a",
               redactionHighlights,
-              pdfBlobName: "baz",
               pageDeleteRedactions: [{}],
             },
           ] as CaseDocumentViewModel[],
@@ -689,9 +688,9 @@ describe("reducerAsyncActionHandlers", () => {
         caseId: 99,
         tabsState: {
           items: [
-            { documentId: "1", pdfBlobName: "bar1" },
-            { documentId: "2", pdfBlobName: "bar2" },
-            { documentId: "3", pdfBlobName: "bar3" },
+            { documentId: "1" },
+            { documentId: "2" },
+            { documentId: "3" },
           ] as CaseDocumentViewModel[],
         },
       } as CombinedState;
@@ -727,9 +726,9 @@ describe("reducerAsyncActionHandlers", () => {
         caseId: 99,
         tabsState: {
           items: [
-            { documentId: "1", pdfBlobName: "bar1" },
-            { documentId: "2", pdfBlobName: "bar2" },
-            { documentId: "3", pdfBlobName: "bar3" },
+            { documentId: "1" },
+            { documentId: "2" },
+            { documentId: "3" },
           ] as CaseDocumentViewModel[],
         },
       } as CombinedState;

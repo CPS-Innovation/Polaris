@@ -6,7 +6,6 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
   saveStatus: SaveStatus;
   isDeleted: boolean;
   url: string | undefined;
-  pdfBlobName: string | undefined;
   sasUrl: undefined | string;
   areaOnlyRedactionMode: boolean;
   redactionHighlights: IPdfHighlight[];

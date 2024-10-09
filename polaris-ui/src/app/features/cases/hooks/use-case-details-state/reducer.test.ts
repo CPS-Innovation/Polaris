@@ -22,7 +22,6 @@ import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
 import {
   buildDefaultNotificationState,
-  NotificationEventCore,
   NotificationState,
 } from "../../domain/NotificationState";
 import * as notificationsMappingFunctions from "./map-notification-state";
@@ -396,7 +395,7 @@ describe("useCaseDetailsState reducer", () => {
         haveData: true,
 
         data: {
-          documents: [{ documentId: "1", pdfBlobName: "foo" }],
+          documents: [{ documentId: "1" }],
           transactionId: "123",
           status: "Completed",
         },
@@ -425,7 +424,7 @@ describe("useCaseDetailsState reducer", () => {
             status: "complete",
             haveData: true,
             data: {
-              documents: [{ documentId: "1", pdfBlobName: "foo" }],
+              documents: [{ documentId: "1" }],
               status: "Completed",
               transactionId: "123",
             },
@@ -444,7 +443,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -457,7 +455,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "1",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -492,17 +489,14 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "1",
-              pdfBlobName: "foo",
               polarisDocumentVersionId: 1,
             },
             {
               documentId: "2",
-              pdfBlobName: "foo",
               polarisDocumentVersionId: 2,
             },
             {
               documentId: "3",
-              pdfBlobName: "foo",
               polarisDocumentVersionId: 1,
             },
           ],
@@ -515,7 +509,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -555,19 +548,19 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "1",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 1,
           },
           {
             documentId: "2",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 2,
           },
           {
             documentId: "3",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 1,
           },
         ],
@@ -582,7 +575,7 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
+
               polarisDocumentVersionId: 2,
             },
           ],
@@ -595,7 +588,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -638,7 +630,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "2",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 2,
           },
         ],
@@ -702,7 +694,7 @@ describe("useCaseDetailsState reducer", () => {
         haveData: true,
         data: {
           transactionId: "",
-          documents: [{ documentId: "1", pdfBlobName: "foo" }],
+          documents: [{ documentId: "1" }],
         },
       } as CombinedState["pipelineState"];
 
@@ -747,7 +739,7 @@ describe("useCaseDetailsState reducer", () => {
             clientLockedState: "unlocked",
             areaOnlyRedactionMode: false,
             mode: "read",
-            pdfBlobName: "foo",
+
             redactionHighlights: [],
             pageDeleteRedactions: [],
             url: "baz",
