@@ -39,7 +39,7 @@ stages:
                   parameters:
                     azureSubscription: $(dev-azure-subscription)
                     
-                - template: ../stages/jobs/tasks/task_apply-alerting-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisAlertingBuild
                     targetTerraformArtifact: "alerting-terraform-files"
@@ -73,7 +73,7 @@ stages:
                   parameters:
                     azureSubscription: $(qa-azure-subscription)
                     
-                - template: ../stages/jobs/tasks/task_apply-alerting-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisAlertingBuild
                     targetTerraformArtifact: "alerting-terraform-files"
@@ -107,7 +107,7 @@ stages:
                   parameters:
                     azureSubscription: $(prod-azure-subscription)
                     
-                - template: ../stages/jobs/tasks/task_apply-alerting-terraform.yml
+                - template: ../stages/jobs/tasks/task_apply-terraform.yml
                   parameters:
                     targetBuild: PolarisAlertingBuild
                     targetTerraformArtifact: "alerting-terraform-files"

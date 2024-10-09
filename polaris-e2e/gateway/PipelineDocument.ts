@@ -4,7 +4,6 @@ export type PipelineDocumentProperties = {
   polarisDocumentId?: string;
   documentId: string;
   pdfBlobName: string;
-  isPdfAvailable?: boolean;
   status:
     | "New"
     | "PdfUploadedToBlob"

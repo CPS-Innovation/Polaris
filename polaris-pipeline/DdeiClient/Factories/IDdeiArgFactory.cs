@@ -5,6 +5,7 @@ namespace Ddei.Factories
 {
     public interface IDdeiArgFactory
     {
+        DdeiCmsCaseDataArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId);
         DdeiCmsCaseIdArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId);
         DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn);
         DdeiCmsCaseArgDto CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId);
@@ -21,7 +22,6 @@ namespace Ddei.Factories
         DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string text);
         DdeiCmsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string documentName);
         DdeiCmsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, ReclassifyDocumentDto dto);
-        DdeiCmsCaseDataArgDto CreateMaterialTypeListArgDto(string cmsAuthValues, Guid correlationId);
         DdeiCmsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId);
     }
 }

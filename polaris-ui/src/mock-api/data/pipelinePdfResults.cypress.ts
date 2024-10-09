@@ -203,7 +203,6 @@ const pipelinePdfResult: PipelineResults = {
         documentType: "DAC",
         documentCategory: "Review",
       },
-      isPdfAvailable: false,
       presentationFlags: {
         read: "Ok",
         write: "DocTypeNotAllowed",

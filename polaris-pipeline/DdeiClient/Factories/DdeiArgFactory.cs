@@ -9,6 +9,15 @@ namespace Ddei.Factories
         {
         }
 
+        public DdeiCmsCaseDataArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId)
+        {
+            return new DdeiCmsCaseDataArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId
+            };
+        }
+
         public DdeiCmsCaseIdArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId)
         {
             return new DdeiCmsCaseIdArgDto
@@ -134,15 +143,6 @@ namespace Ddei.Factories
                 Statement = dto.Statement,
                 Other = dto.Other,
                 Immediate = dto.Immediate
-            };
-        }
-
-        public DdeiCmsCaseDataArgDto CreateMaterialTypeListArgDto(string cmsAuthValues, Guid correlationId)
-        {
-            return new DdeiCmsCaseDataArgDto
-            {
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId
             };
         }
 

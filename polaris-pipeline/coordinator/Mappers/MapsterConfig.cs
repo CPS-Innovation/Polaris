@@ -140,7 +140,6 @@ namespace coordinator.Mappers
                     ?? $"CMS-{pcdRequest.PolarisDocumentId}",
                 PresentationFlags = pcdRequest.PresentationFlags,
                 PdfBlobName = pcdRequest.PdfBlobName,
-                IsPdfAvailable = pcdRequest.IsPdfAvailable,
                 Status = pcdRequest.Status
             };
         }
@@ -168,7 +167,6 @@ namespace coordinator.Mappers
                         ?? "CMS-DAC",
                     PresentationFlags = defendantsAndCharges.PresentationFlags,
                     PdfBlobName = defendantsAndCharges.PdfBlobName,
-                    IsPdfAvailable = defendantsAndCharges.IsPdfAvailable,
                     Status = defendantsAndCharges.Status
                 }
             };

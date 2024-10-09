@@ -107,7 +107,7 @@ namespace coordinator.Functions
                     throw new Exception(error);
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(modificationRequest.FileName);
+                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(document.PdfBlobName);
 
                 await _blobStorageService.UploadDocumentAsync(
                     modifiedDocumentStream,
