@@ -282,10 +282,11 @@ variable "app_gateway_back_end_host_name" {
 
 variable "pipeline_logging" {
   type = object({
-    coordinator_scale_controller    = string
-    pdf_generator_scale_controller  = string
-    text_extractor_scale_controller = string
-    pdf_redactor_scale_controller   = string
+    coordinator_scale_controller             = string
+    pdf_generator_scale_controller           = string
+    pdf_thumbnail_generator_scale_controller = string
+    text_extractor_scale_controller          = string
+    pdf_redactor_scale_controller            = string
   })
 }
 

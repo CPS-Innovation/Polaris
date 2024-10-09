@@ -7,7 +7,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   #checkov:skip=CKV_AZURE_213:Ensure that App Service configures health check
   #checkov:skip=CKV_AZURE_71:Ensure that Managed identity provider is enabled for app services
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
-  name                          = "as-web-${local.resource_name}"
+  name                          = "as-web-${local.global_resource_name}"
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
   service_plan_id               = azurerm_service_plan.asp_polaris_spa.id
@@ -164,8 +164,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
 module "azurerm_app_reg_as_web_polaris" {
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "as-web-${local.resource_name}-appreg"
-  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}"]
+  display_name            = "as-web-${local.global_resource_name}-appreg"
+  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.global_resource_name}"]
   owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
   prevent_duplicate_names = true
   group_membership_claims = ["ApplicationGroup"]
@@ -204,14 +204,14 @@ module "azurerm_app_reg_as_web_polaris" {
       }]
   }]
   single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
+    redirect_uris = var.env != "prod" ? ["https://as-web-${local.global_resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.global_resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
   }
   api = {
     mapped_claims_enabled          = true
     requested_access_token_version = 1
   }
   web = {
-    homepage_url  = "https://as-web-${local.resource_name}.azurewebsites.net"
+    homepage_url  = "https://as-web-${local.global_resource_name}.azurewebsites.net"
     redirect_uris = ["https://getpostman.com/oauth2/callback"]
     implicit_grant = {
       access_token_issuance_enabled = true

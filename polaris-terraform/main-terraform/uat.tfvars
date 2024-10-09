@@ -46,10 +46,11 @@ ui_logging = {
 }
 
 pipeline_logging = {
-  coordinator_scale_controller    = "AppInsights:None"
-  pdf_generator_scale_controller  = "AppInsights:None"
-  text_extractor_scale_controller = "AppInsights:None"
-  pdf_redactor_scale_controller   = "AppInsights:None"
+  coordinator_scale_controller             = "AppInsights:None"
+  pdf_generator_scale_controller           = "AppInsights:None"
+  pdf_thumbnail_generator_scale_controller = "AppInsights:None"
+  text_extractor_scale_controller          = "AppInsights:None"
+  pdf_redactor_scale_controller            = "AppInsights:None"
 }
 
 cms_details = {
