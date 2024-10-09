@@ -51,7 +51,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = (props) => {
               onClick={() => props.handleOpenPdf(caseDocument)}
               dataTestId={`link-document-${caseDocument.documentId}`}
             >
-              {caseDocument.presentationFileName}
+              {caseDocument.presentationTitle}
             </LinkButton>
           ))}
         </div>

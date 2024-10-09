@@ -19,7 +19,6 @@ export const mapDocumentsState = (
 
     return {
       ...item,
-      presentationFileName: item.presentationTitle,
       presentationCategory: category,
       presentationSubCategory: subCategory,
       attachments: getDocumentAttachments(item, result),

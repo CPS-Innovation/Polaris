@@ -3,8 +3,8 @@ import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { mapMissingDocuments } from "./map-missing-documents";
 
 const CASE_DOCUMENTS = [
-  { documentId: "1", presentationFileName: "file-name-1" },
-  { documentId: "2", presentationFileName: "file-name-2" },
+  { documentId: "1", presentationTitle: "file-name-1" },
+  { documentId: "2", presentationTitle: "file-name-2" },
 ] as MappedCaseDocument[];
 
 describe("mapMissingDocuments", () => {

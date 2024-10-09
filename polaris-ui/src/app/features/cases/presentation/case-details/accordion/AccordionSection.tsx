@@ -23,7 +23,7 @@ type Props = {
   handleOpenPanel: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
+    presentationTitle: string,
     type: "notes" | "rename",
     documentType: string,
     classification: Classification

@@ -467,7 +467,7 @@ export const reducer = (
               url,
               polarisDocumentVersionId:
                 matchingFreshPdfRecord.polarisDocumentVersionId,
-              presentationFileName: matchingFreshPdfRecord.presentationTitle,
+              presentationTitle: matchingFreshPdfRecord.presentationTitle,
             },
           ];
         }

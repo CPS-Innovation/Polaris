@@ -25,7 +25,6 @@ describe("useNavigationAlert hook", () => {
       mode: "read",
       presentationCategory: "Reviews",
       presentationSubCategory: null,
-      presentationFileName: "MCLOVEMG3  very long",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       attachments: [],
@@ -80,7 +79,6 @@ describe("useNavigationAlert hook", () => {
       mode: "read",
       presentationCategory: "Reviews",
       presentationSubCategory: null,
-      presentationFileName: "MCLOVEMG4 test",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       attachments: [],
@@ -134,11 +132,11 @@ describe("useNavigationAlert hook", () => {
     expect(result.current.unSavedRedactionDocs).toEqual([
       {
         documentId: "1",
-        presentationFileName: "MCLOVEMG3  very long",
+        presentationTitle: "MCLOVEMG3  very long",
       },
       {
         documentId: "2",
-        presentationFileName: "MCLOVEMG4 test",
+        presentationTitle: "MCLOVEMG4 test",
       },
     ]);
   });

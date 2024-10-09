@@ -13,7 +13,7 @@ export const mapMissingDocuments = (
     const fileName =
       caseDocuments.find(
         (caseDocument) => caseDocument.documentId === documentId
-      )?.presentationFileName || "";
+      )?.presentationTitle || "";
 
     return { documentId, fileName };
   });
