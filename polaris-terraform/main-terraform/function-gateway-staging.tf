@@ -20,8 +20,8 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
-    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
@@ -49,9 +49,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     cors {
       allowed_origins = [
-        "https://as-web-${local.resource_name}.azurewebsites.net",
-        "https://${local.resource_name}-cmsproxy.azurewebsites.net",
-        "https://${local.resource_name}-notprod.cps.gov.uk",
+        "https://as-web-${local.global_resource_name}.azurewebsites.net",
+        "https://${local.global_resource_name}-cmsproxy.azurewebsites.net",
+        "https://${local.global_resource_name}-notprod.cps.gov.uk",
         var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true
@@ -85,7 +85,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_fa_polaris.client_id
-      allowed_audiences          = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.resource_name}-gateway"]
+      allowed_audiences          = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.global_resource_name}-gateway"]
     }
 
     login {

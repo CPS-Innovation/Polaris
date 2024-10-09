@@ -1,9 +1,9 @@
 #################### Functions ####################
 
 resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
-  name                          = "fa-${local.global_name}-pdf-thumbnail-generator"
-  location                      = azurerm_resource_group.rg.location
-  resource_group_name           = azurerm_resource_group.rg.name
+  name                          = "fa-${local.global_resource_name}-pdf-thumbnail-generator"
+  location                      = azurerm_resource_group.rg_polaris_pipeline.location
+  resource_group_name           = azurerm_resource_group.rg_polaris_pipeline.name
   service_plan_id               = azurerm_service_plan.asp_polaris_pipeline_ep_pdf_thumbnail_generator.id
   storage_account_name          = azurerm_storage_account.sa_pdf_thumbnail_generator.name
   storage_account_access_key    = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_access_key
@@ -110,8 +110,8 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
 
 module "azurerm_app_reg_fa_pdf_thumbnail_generator" {
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-pdf-thumbnail-generator-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-pdf-thumbnail-generator"]
+  display_name            = "fa-${local.global_resource_name}-pdf-thumbnail-generator-appreg"
+  identifier_uris         = ["api://fa-${local.global_resource_name}-pdf-thumbnail-generator"]
   prevent_duplicate_names = true
   #use this code for adding app_roles
   /*app_role = [
@@ -162,8 +162,8 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_thu
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_pdf_thumbnail_generator_pe" {
   name                = "${azurerm_windows_function_app.fa_pdf_thumbnail_generator.name}-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg_polaris_pipeline.name
+  location            = azurerm_resource_group.rg_polaris_pipeline.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
   tags                = local.common_tags
 

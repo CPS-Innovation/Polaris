@@ -1,6 +1,6 @@
 #################### Functions ####################
 resource "azurerm_linux_function_app" "fa_polaris" {
-  name                          = "fa-${local.resource_name}-gateway"
+  name                          = "fa-${local.global_resource_name}-gateway"
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
   service_plan_id               = azurerm_service_plan.asp_polaris_gateway.id
@@ -23,8 +23,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
-    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
@@ -56,9 +56,9 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     cors {
       allowed_origins = [
-        "https://as-web-${local.resource_name}.azurewebsites.net",
-        "https://${local.resource_name}-cmsproxy.azurewebsites.net",
-        "https://${local.resource_name}-notprod.cps.gov.uk",
+        "https://as-web-${local.global_resource_name}.azurewebsites.net",
+        "https://${local.global_resource_name}-cmsproxy.azurewebsites.net",
+        "https://${local.global_resource_name}-notprod.cps.gov.uk",
         var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true
@@ -92,7 +92,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_fa_polaris.client_id
-      allowed_audiences          = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.resource_name}-gateway"]
+      allowed_audiences          = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.global_resource_name}-gateway"]
     }
 
     login {
@@ -142,8 +142,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
 
 module "azurerm_app_reg_fa_polaris" {
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.resource_name}-gateway-appreg"
-  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.resource_name}-gateway"]
+  display_name            = "fa-${local.global_resource_name}-gateway-appreg"
+  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.global_resource_name}-gateway"]
   owners                  = [data.azuread_client_config.current.object_id]
   prevent_duplicate_names = true
   group_membership_claims = ["ApplicationGroup"]
@@ -164,12 +164,12 @@ module "azurerm_app_reg_fa_polaris" {
     requested_access_token_version = 1
     known_client_applications      = []
     oauth2_permission_scope = [{
-      admin_consent_description  = "Allow the calling application to make requests of the ${local.resource_name} Gateway"
-      admin_consent_display_name = "Call the ${local.resource_name} Gateway"
+      admin_consent_description  = "Allow the calling application to make requests of the ${local.global_resource_name} Gateway"
+      admin_consent_display_name = "Call the ${local.global_resource_name} Gateway"
       id                         = element(random_uuid.random_id[*].result, 0)
       type                       = "Admin"
-      user_consent_description   = "Interact with the ${local.resource_name} Gateway on-behalf of the calling user"
-      user_consent_display_name  = "Interact with the ${local.resource_name} Gateway"
+      user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling user"
+      user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
       value                      = "user_impersonation"
     }]
   }
@@ -184,7 +184,7 @@ module "azurerm_app_reg_fa_polaris" {
     }]
   }]
   web = {
-    redirect_uris = ["https://fa-${local.resource_name}-gateway.azurewebsites.net/.auth/login/aad/callback"]
+    redirect_uris = ["https://fa-${local.global_resource_name}-gateway.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
       id_token_issuance_enabled     = true
       access_token_issuance_enabled = true
@@ -232,17 +232,23 @@ resource "azurerm_private_endpoint" "polaris_gateway_pe" {
 
 # Storage Account Permissions
 resource "azurerm_role_assignment" "gateway_blob_data_contributor" {
-  scope                = data.azurerm_storage_container.documents_storage_container.resource_manager_id
+  scope                = azurerm_storage_container.container.resource_manager_id
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
-  
-  depends_on = [azurerm_linux_function_app.fa_polaris]
+
+  depends_on = [
+    azurerm_linux_function_app.fa_polaris,
+    azurerm_storage_container.container
+  ]
 }
 
-# resource "azurerm_role_assignment" "gateway_blob_data_thumbnails_contributor" {
-#   scope                = data.azurerm_storage_container.thumbnails_storage_container.resource_manager_id
-#   role_definition_name = "Storage Blob Data Reader"
-#   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
-#
-#  depends_on = [azurerm_linux_function_app.fa_polaris]
-#}
+resource "azurerm_role_assignment" "gateway_blob_data_thumbnails_contributor" {
+   scope                = azurerm_storage_container.thumbnails.resource_manager_id
+   role_definition_name = "Storage Blob Data Reader"
+   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
+
+  depends_on = [
+    azurerm_linux_function_app.fa_polaris,
+    azurerm_storage_container.thumbnails
+  ]
+}
