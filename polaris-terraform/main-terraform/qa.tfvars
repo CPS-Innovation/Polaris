@@ -117,7 +117,7 @@ case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseRev
 bulk_um_redirect_url         = "https://cps-tst.outsystemsenterprise.com/CaseReview/Redirect"
 
 polaris_ui_reauth = {
-  outbound_live_url   = "/polaris,https://${var.cms_details.default_upstream_cms_domain_name}/polaris,https://${var.cms_details.cin4_upstream_cms_domain_name}/polaris,https://${var.cms_details.cin5_upstream_cms_domain_name}/polaris"
+  outbound_live_url   = "/polaris,https://cin3.cps.gov.uk/polaris,https://cin4.cps.gov.uk/polaris,https://cin2.cps.gov.uk/polaris,https://cin5.cps.gov.uk/polaris"
   outbound_e2e_url    = "/polaris"
   inbound_url         = "/auth-refresh-inbound"
   use_in_situ_refresh = "true"
