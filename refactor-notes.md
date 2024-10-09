@@ -108,6 +108,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
 - get document based on version - check all of this
 - UX for XLSX may be slow
 - pre-emptive pdf generation from UI (pre convert the most likely/popular docs)
+- get rid of PdfBlobName from backend
 
 # Done
 

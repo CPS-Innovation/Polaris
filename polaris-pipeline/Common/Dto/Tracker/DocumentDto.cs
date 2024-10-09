@@ -59,6 +59,7 @@ namespace Common.Dto.Tracker
         public string CmsFileCreatedDate { get; set; }
 
         [JsonProperty("pdfBlobName")]
+        [JsonIgnore]
         public string PdfBlobName { get; set; }
 
         [JsonProperty("isOcrProcessed")]
