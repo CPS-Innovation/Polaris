@@ -36,7 +36,7 @@ namespace Common.Dto.Tracker
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
 
-        [JsonProperty("cmsVersionId")]
+        [JsonProperty("versionId")]
         public long CmsVersionId { get; set; }
 
         [JsonProperty("cmsDocType")]
