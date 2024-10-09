@@ -95,7 +95,7 @@ namespace coordinator.Durable.Activity
                 return true;
             }
 
-            var fileExtension = payload.CmsDocumentTracker.CmsOriginalFileExtension
+            var fileExtension = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName)
                 .Replace(".", string.Empty)
                 .ToUpperInvariant();
 

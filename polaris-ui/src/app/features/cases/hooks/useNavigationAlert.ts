@@ -4,7 +4,7 @@ import { Location } from "history";
 import { CaseDocumentViewModel } from "../../cases/domain/CaseDocumentViewModel";
 export type UnSavedRedactionDoc = {
   documentId: CaseDocumentViewModel["documentId"];
-  presentationFileName: string;
+  presentationTitle: string;
 };
 
 export const useNavigationAlert = (
@@ -23,7 +23,7 @@ export const useNavigationAlert = (
   const navigationUnblockHandle = useRef<any>();
   const unSavedRedactionDocs = useMemo((): {
     documentId: CaseDocumentViewModel["documentId"];
-    presentationFileName: string;
+    presentationTitle: string;
   }[] => {
     const reactionPdfs = tabItems
       .filter(
@@ -32,7 +32,7 @@ export const useNavigationAlert = (
       )
       .map((item) => ({
         documentId: item.documentId!,
-        presentationFileName: item.presentationFileName!,
+        presentationTitle: item.presentationTitle!,
       }));
     return reactionPdfs;
   }, [tabItems]);

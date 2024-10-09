@@ -14,7 +14,7 @@ export const HeaderSearchMode: React.FC<Props> = ({
   caseDocumentViewModel: {
     searchTerm,
     occurrencesInDocumentCount,
-    presentationFileName,
+    presentationTitle,
   },
   focussedHighlightIndex,
   handleSetFocussedHighlightIndex,
@@ -33,7 +33,7 @@ export const HeaderSearchMode: React.FC<Props> = ({
       <div className={classes.heavyText}>
         {occurrencesInDocumentCount}{" "}
         {occurrencesInDocumentCount === 1 ? "match" : "matches"} for "
-        {searchTerm}" in {presentationFileName}
+        {searchTerm}" in {presentationTitle}
       </div>
 
       <HeaderSearchModeNavigation

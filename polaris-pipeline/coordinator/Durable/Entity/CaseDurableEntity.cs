@@ -235,7 +235,6 @@ namespace coordinator.Durable.Entity
                         cmsVersionId: newDocument.VersionId,
                         cmsDocType: newDocument.CmsDocType,
                         path: newDocument.Path,
-                        fileExtension: newDocument.FileExtension,
                         cmsFileCreatedDate: newDocument.DocumentDate,
                         cmsOriginalFileName: newDocument.FileName,
                         presentationTitle: newDocument.PresentationTitle,
@@ -275,7 +274,6 @@ namespace coordinator.Durable.Entity
 
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
                 trackerDocument.Path = updatedDocument.Path;
-                trackerDocument.CmsOriginalFileExtension = updatedDocument.FileExtension;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;

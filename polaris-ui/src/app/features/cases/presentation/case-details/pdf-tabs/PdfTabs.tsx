@@ -85,7 +85,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           item.redactionHighlights.length + item.pageDeleteRedactions.length >
           0,
         id: item.documentId,
-        label: item.presentationFileName,
+        label: item.presentationTitle,
         panel: {
           children: (
             <PdfTab
