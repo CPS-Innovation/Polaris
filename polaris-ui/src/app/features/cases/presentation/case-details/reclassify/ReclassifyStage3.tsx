@@ -122,8 +122,8 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
     }));
   };
   return (
-    <div>
-      <h1>Check your answers</h1>
+    <div role="main" aria-describedby="main-description">
+      <h1 id="main-description">Check your answers</h1>
       <h2>Document details</h2>
       <Table rows={getTableRows()} />
     </div>

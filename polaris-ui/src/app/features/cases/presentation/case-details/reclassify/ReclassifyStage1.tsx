@@ -64,8 +64,8 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
   return (
-    <div>
-      <h1>What type of document is this?</h1>
+    <div role="main" aria-describedby="main-description">
+      <h1 id="main-description">What type of document is this?</h1>
       {formDataErrors.documentTypeErrorText && (
         <div
           ref={errorSummaryRef}

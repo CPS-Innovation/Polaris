@@ -369,8 +369,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     );
   }
   return (
-    <div>
-      <h1>{getHeaderText(state.reclassifyVariant)}</h1>
+    <div role="main" aria-describedby="main-description">
+      <h1 id="main-description">{getHeaderText(state.reclassifyVariant)}</h1>
       {!!errorSummaryList.length && (
         <div
           ref={errorSummaryRef}
