@@ -25,7 +25,7 @@ export const mapDocumentsState = (
       attachments: getDocumentAttachments(item, result),
       witnessIndicators: mapWitnessIndicators(witnessForDoc),
       tags: [],
-    };
+    } as MappedCaseDocument;
   });
 
   return {
