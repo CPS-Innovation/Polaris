@@ -66,14 +66,14 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     documentTypeErrorText: "",
     documentNewNameErrorText: "",
     exhibitItemNameErrorText: "",
-    otherExhibitProducerErrorText: "",
     exhibitReferenceErrorText: "",
+    otherExhibitProducerErrorText: "",
     statementWitnessErrorText: "",
-    statementNumberErrorText: "",
     statementDayErrorText: "",
     statementMonthErrorText: "",
     statementYearErrorText: "",
     statementDateErrorText: "",
+    statementNumberErrorText: "",
   };
   const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>(
     errorTextsInitialValue
@@ -304,10 +304,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   };
 
   const handleContinueBtnClick = () => {
-    if (backButtonRef.current)
-      (backButtonRef.current as HTMLButtonElement).focus();
     const validData = validateData();
     if (!validData) return;
+    if (backButtonRef.current)
+      (backButtonRef.current as HTMLButtonElement).focus();
     if (state.reClassifyStage === "stage1") {
       dispatch({
         type: "UPDATE_CLASSIFY_STAGE",
@@ -445,7 +445,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
   useEffect(() => {
     if (reclassifiedDocumentUpdate) {
-      closeReclassify();
+      setTimeout(() => {
+        closeReclassify();
+      }, 2000);
     }
   }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
 
@@ -453,7 +455,14 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     return <div>loading data</div>;
   }
   return (
-    <div className={classes.reClassifyStages}>
+    <div
+      className={classes.reClassifyStages}
+      role="region"
+      aria-labelledby="reclassify-region-label"
+    >
+      <span id="reclassify-region-label" className={classes.visuallyHidden}>
+        {`Document reclassify region, you can reclassify document ${presentationTitle}.`}
+      </span>
       <LinkButton
         className={classes.backBtn}
         onClick={handleBackBtnClick}
@@ -467,6 +476,14 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       </LinkButton>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
+          <div aria-live="polite" className={classes.visuallyHidden}>
+            {(state.reClassifySaveStatus === "saving" ||
+              (state.reClassifySaveStatus === "success" &&
+                !reclassifiedDocumentUpdate)) && (
+              <span>Saving to CMS. Please wait</span>
+            )}
+            {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
+          </div>
           {(state.reClassifySaveStatus === "saving" ||
             state.reClassifySaveStatus === "success") && (
             <NotificationBanner className={classes.notificationBanner}>

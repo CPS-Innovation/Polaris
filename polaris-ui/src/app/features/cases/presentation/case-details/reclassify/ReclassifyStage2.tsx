@@ -124,8 +124,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     return [defaultValue, ...mappedValues, otherOption];
   }, [state.exhibitProducers]);
 
-  const getHeaderText = (varaint: ReclassifyVariant) => {
-    switch (varaint) {
+  const getHeaderText = (variant: ReclassifyVariant) => {
+    switch (variant) {
       case "Statement":
         return "Enter the statement details";
       case "Exhibit":
@@ -420,7 +420,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                       key="document-new-name"
                       id="document-new-name"
                       data-testid={"document-new-name"}
-                      className="govuk-input--width-10"
+                      className="govuk-input--width-20"
                       label={{
                         children: "Enter new document name",
                       }}
@@ -452,7 +452,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         <div>
           <Input
             id="exhibit-item-name"
-            className="govuk-input--width-10"
+            className="govuk-input--width-20"
             errorMessage={
               formDataErrors.exhibitItemNameErrorText
                 ? {
@@ -477,7 +477,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                   }
                 : undefined
             }
-            className="govuk-input--width-10"
+            className="govuk-input--width-20"
             label={{
               children: "Exhibit Reference",
             }}
@@ -509,10 +509,11 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               >
                 <Input
                   id="exhibit-other-producer-name"
-                  className={`govuk-input--width-10  `}
+                  className="govuk-input--width-20"
                   label={{
                     children: "Enter name",
                   }}
+                  aria-label="Enter other producer or witness name"
                   errorMessage={
                     formDataErrors.otherExhibitProducerErrorText
                       ? {
