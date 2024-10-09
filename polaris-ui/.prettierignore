@@ -14,3 +14,4 @@ public/*.js
 src/react-pdf-highlighter
 src/mock-api/data/pdfs/pdf-strings.json
 deploy-pipeline.yml
+multi-reporter-config.json
