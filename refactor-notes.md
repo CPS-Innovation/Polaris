@@ -2,9 +2,10 @@
 
 - hack model back
 
-  - remove cmsOriginalFileExtension, pdfBlobName, presentationFileName
-  - e2e tests for reclassify and rename
+  - :white_check_mark: remove isPdfAvailable
+  - :white_check_mark: remove cmsOriginalFileExtension, pdfBlobName, presentationFileName
   - sort out ids (numeric) and requesting for document via id, docType -> int, remove hack from gateway-api
+  - e2e tests for reclassify
   - e2e test type files copied across
 
 - read case and docs via gateway
@@ -16,6 +17,16 @@
 - rationalise reducer state (with a view to serialization)
 
 # Immediate
+
+## Ids
+
+| Name                     | Current                                                         | To be       |                    |
+| ------------------------ | --------------------------------------------------------------- | ----------- | ------------------ |
+| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..."     | Remove      |                    |
+| documentId               | Does not exist over the wire, transposed from polarisDocumentId | Keep -> int |                    |
+| cmsDocumentId            | Appears to be null all the time                                 | Remove      | :white_check_mark: |
+| cmsVersionId             | Numeric versionId of document                                   | Remove      |                    |
+| polarisDocumentVersionId | Incrementing artificial number                                  |             |                    |
 
 gateway-api.ts hack
 
@@ -108,7 +119,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
 - get document based on version - check all of this
 - UX for XLSX may be slow
 - pre-emptive pdf generation from UI (pre convert the most likely/popular docs)
-- get rid of PdfBlobName from backend
+- get rid of PdfBlobName from backend and from mock as the mechanism for blob retrieval
 
 # Done
 

@@ -69,7 +69,6 @@ export type Classification =
 
 export type PresentationDocumentProperties = {
   documentId: string;
-  cmsDocumentId: string;
   cmsVersionId: number;
   cmsOriginalFileName: string;
   presentationTitle: string;

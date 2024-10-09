@@ -204,7 +204,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       if (unCategorisedDocs) {
         unCategorisedDocs.docs.forEach((doc: MappedCaseDocument) => {
           trackEvent("Uncategorised Document", {
-            documentId: doc.cmsDocumentId,
+            documentId: doc.documentId,
             documentTypeId: doc.cmsDocType.documentTypeId,
             documentDocumentType: doc.cmsDocType.documentType,
             fileName: doc.presentationTitle,
