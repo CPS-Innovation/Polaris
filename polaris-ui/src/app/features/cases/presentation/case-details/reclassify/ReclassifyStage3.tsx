@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import {
   Table,
   LinkButton,
@@ -8,15 +8,15 @@ import classes from "./Reclassify.module.scss";
 
 type ReclassifyStage3Props = {
   presentationTitle: string;
-  backButtonRef: React.RefObject<HTMLButtonElement>;
+  handleBackBtnClick: () => void;
 };
 
 export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   presentationTitle,
-  backButtonRef,
+  handleBackBtnClick,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
-
+  const backButtonRef = useRef(null);
   const { state, dispatch } = reclassifyContext;
 
   const getMaterialType = (id: string) => {
@@ -33,8 +33,12 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
       type: "UPDATE_CLASSIFY_STAGE",
       payload: { newStage: "stage2" },
     });
-    if (backButtonRef.current) backButtonRef.current.focus();
   };
+
+  useEffect(() => {
+    if (backButtonRef.current)
+      (backButtonRef.current as HTMLButtonElement).focus();
+  }, []);
 
   const documentFieldNames = useMemo(
     () => ({
@@ -123,6 +127,17 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   };
   return (
     <div role="main" aria-describedby="main-description">
+      <LinkButton
+        className={classes.backBtn}
+        onClick={handleBackBtnClick}
+        disabled={
+          state.reClassifySaveStatus === "saving" ||
+          state.reClassifySaveStatus === "success"
+        }
+        ref={backButtonRef}
+      >
+        Back
+      </LinkButton>
       <h1 id="main-description">Check your answers</h1>
       <h2>Document details</h2>
       <Table rows={getTableRows()} />

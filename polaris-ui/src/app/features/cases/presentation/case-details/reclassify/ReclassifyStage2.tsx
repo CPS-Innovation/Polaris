@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
+  LinkButton,
   Select,
   Input,
   Radios,
@@ -23,6 +24,7 @@ type ReclassifyStage2Props = {
   getWitnessStatementNumbers: (
     witnessId: number
   ) => Promise<StatementWitnessNumber[]>;
+  handleBackBtnClick: () => void;
 };
 
 export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
@@ -31,32 +33,32 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   getExhibitProducers,
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
+  handleBackBtnClick,
 }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [lookupError, setLookupDataError] = useState("");
   const reclassifyContext = useReClassifyContext();
 
   const { state, dispatch } = reclassifyContext!;
   const errorSummaryRef = useRef(null);
-
+  const backButtonRef = useRef(null);
   useEffect(() => {
     const fetchDataOnMount = async () => {
       if (
         state.reclassifyVariant === "Exhibit" &&
         state.exhibitProducers !== null
       ) {
-        setLoading(false);
         return;
       }
       if (
         state.reclassifyVariant === "Statement" &&
         state.statementWitness !== null
       ) {
-        setLoading(false);
         return;
       }
       try {
         if (state.reclassifyVariant === "Exhibit") {
+          setLoading(true);
           const result = await getExhibitProducers();
           dispatch({
             type: "ADD_EXHIBIT_PRODUCERS",
@@ -64,6 +66,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           });
         }
         if (state.reclassifyVariant === "Statement") {
+          setLoading(true);
           const result = await getStatementWitnessDetails();
           dispatch({
             type: "ADD_STATEMENT_WITNESSS",
@@ -83,6 +86,11 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
     fetchDataOnMount();
   }, []);
+
+  useEffect(() => {
+    if (!loading && backButtonRef.current)
+      (backButtonRef.current as HTMLButtonElement).focus();
+  }, [loading]);
 
   const statementWitnessValues = useMemo(() => {
     const defaultValue = {
@@ -370,6 +378,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   }
   return (
     <div role="main" aria-describedby="main-description">
+      <LinkButton
+        className={classes.backBtn}
+        onClick={handleBackBtnClick}
+        ref={backButtonRef}
+      >
+        Back
+      </LinkButton>
       <h1 id="main-description">{getHeaderText(state.reclassifyVariant)}</h1>
       {!!errorSummaryList.length && (
         <div

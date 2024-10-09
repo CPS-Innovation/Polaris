@@ -61,7 +61,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleSubmitReclassify,
   handleReclassifyTracking,
 }) => {
-  const backButtonRef = useRef(null);
+  const continueButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
     documentNewNameErrorText: "",
@@ -306,8 +306,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const handleContinueBtnClick = () => {
     const validData = validateData();
     if (!validData) return;
-    if (backButtonRef.current)
-      (backButtonRef.current as HTMLButtonElement).focus();
+    if (continueButtonRef.current)
+      (continueButtonRef.current as HTMLButtonElement).blur();
     if (state.reClassifyStage === "stage1") {
       dispatch({
         type: "UPDATE_CLASSIFY_STAGE",
@@ -393,6 +393,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       return (
         <>
           <Button
+            ref={continueButtonRef}
             onClick={handleContinueBtnClick}
             disabled={
               state.reClassifyStage === "stage2" &&
@@ -435,8 +436,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
-        if (backButtonRef.current)
-          (backButtonRef.current as HTMLButtonElement).focus();
       }
     };
 
@@ -451,109 +450,87 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
   }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
 
+  if (loading) return <div>loading data</div>;
   return (
     <div className={classes.reClassifyStages}>
-      <span aria-live="polite" className={classes.visuallyHidden}>
-        {loading ? "loading data" : "data loaded"}
-      </span>
-      {loading ? (
-        <div>loading data</div>
-      ) : (
-        <>
-          <LinkButton
-            className={classes.backBtn}
-            onClick={handleBackBtnClick}
-            disabled={
-              state.reClassifySaveStatus === "saving" ||
-              state.reClassifySaveStatus === "success"
-            }
-            ref={backButtonRef}
-          >
-            Back
-          </LinkButton>
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-one-half">
-              <div aria-live="polite" className={classes.visuallyHidden}>
-                {(state.reClassifySaveStatus === "saving" ||
-                  (state.reClassifySaveStatus === "success" &&
-                    !reclassifiedDocumentUpdate)) && (
-                  <span>Saving to CMS. Please wait</span>
-                )}
-                {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-one-half">
+          <div aria-live="polite" className={classes.visuallyHidden}>
+            {(state.reClassifySaveStatus === "saving" ||
+              (state.reClassifySaveStatus === "success" &&
+                !reclassifiedDocumentUpdate)) && (
+              <span>Saving to CMS. Please wait</span>
+            )}
+            {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
+          </div>
+          {(state.reClassifySaveStatus === "saving" ||
+            state.reClassifySaveStatus === "success") && (
+            <NotificationBanner className={classes.notificationBanner}>
+              <div className={classes.bannerContent}>
+                <div className={classes.spinnerWrapper}>
+                  <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+                </div>
+                <p className={classes.notificationBannerText}>
+                  Saving to CMS. Please wait.
+                </p>
               </div>
-              {(state.reClassifySaveStatus === "saving" ||
-                state.reClassifySaveStatus === "success") && (
-                <NotificationBanner className={classes.notificationBanner}>
-                  <div className={classes.bannerContent}>
-                    <div className={classes.spinnerWrapper}>
-                      <Spinner
-                        diameterPx={25}
-                        ariaLabel={"spinner-animation"}
-                      />
-                    </div>
-                    <p className={classes.notificationBannerText}>
-                      Saving to CMS. Please wait.
-                    </p>
-                  </div>
-                </NotificationBanner>
-              )}
+            </NotificationBanner>
+          )}
 
-              {state.reClassifyStage === "stage1" && (
-                <ReclassifyStage1
-                  currentDocTypeId={currentDocTypeId}
-                  presentationTitle={presentationTitle}
-                  formDataErrors={formDataErrors}
-                />
-              )}
-              {state.reClassifyStage === "stage2" && (
-                <ReclassifyStage2
-                  presentationTitle={presentationTitle}
-                  formDataErrors={formDataErrors}
-                  getExhibitProducers={getExhibitProducers}
-                  getStatementWitnessDetails={getStatementWitnessDetails}
-                  getWitnessStatementNumbers={getWitnessStatementNumbers}
-                />
-              )}
+          {state.reClassifyStage === "stage1" && (
+            <ReclassifyStage1
+              currentDocTypeId={currentDocTypeId}
+              presentationTitle={presentationTitle}
+              formDataErrors={formDataErrors}
+              handleBackBtnClick={handleBackBtnClick}
+            />
+          )}
+          {state.reClassifyStage === "stage2" && (
+            <ReclassifyStage2
+              presentationTitle={presentationTitle}
+              formDataErrors={formDataErrors}
+              getExhibitProducers={getExhibitProducers}
+              getStatementWitnessDetails={getStatementWitnessDetails}
+              getWitnessStatementNumbers={getWitnessStatementNumbers}
+              handleBackBtnClick={handleBackBtnClick}
+            />
+          )}
 
-              {state.reClassifyStage === "stage3" && (
-                <ReclassifyStage3
-                  presentationTitle={presentationTitle}
-                  backButtonRef={backButtonRef}
-                />
-              )}
+          {state.reClassifyStage === "stage3" && (
+            <ReclassifyStage3
+              presentationTitle={presentationTitle}
+              handleBackBtnClick={handleBackBtnClick}
+            />
+          )}
 
-              <div className={classes.btnWrapper}>{renderActionButtons()}</div>
+          <div className={classes.btnWrapper}>{renderActionButtons()}</div>
+        </div>
+      </div>
+      {state.reClassifySaveStatus === "failure" && (
+        <Modal
+          isVisible
+          handleClose={() => {
+            handleCloseErrorModal();
+          }}
+          type="alert"
+          ariaLabel="Save reclassification error modal"
+          ariaDescription="Failed to save the reclassification. Please try again later"
+        >
+          <div className={classes.alertContent}>
+            <h1 className="govuk-heading-l">Something went wrong</h1>
+            <p>Failed to save the reclassification. Please try again later</p>
+            <div className={classes.actionButtonsWrapper}>
+              <Button
+                onClick={() => {
+                  handleCloseErrorModal();
+                }}
+                data-testid="btn-reclassify-error-ok"
+              >
+                Ok
+              </Button>
             </div>
           </div>
-          {state.reClassifySaveStatus === "failure" && (
-            <Modal
-              isVisible
-              handleClose={() => {
-                handleCloseErrorModal();
-              }}
-              type="alert"
-              ariaLabel="Save reclassification error modal"
-              ariaDescription="Failed to save the reclassification. Please try again later"
-            >
-              <div className={classes.alertContent}>
-                <h1 className="govuk-heading-l">Something went wrong</h1>
-                <p>
-                  Failed to save the reclassification. Please try again later
-                </p>
-                <div className={classes.actionButtonsWrapper}>
-                  <Button
-                    onClick={() => {
-                      handleCloseErrorModal();
-                    }}
-                    data-testid="btn-reclassify-error-ok"
-                  >
-                    Ok
-                  </Button>
-                </div>
-              </div>
-            </Modal>
-          )}
-        </>
+        </Modal>
       )}
     </div>
   );

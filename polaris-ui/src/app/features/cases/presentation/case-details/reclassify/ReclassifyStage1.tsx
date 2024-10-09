@@ -1,5 +1,6 @@
 import { useMemo, useRef, useEffect } from "react";
 import {
+  LinkButton,
   Select,
   ErrorSummary,
 } from "../../../../../common/presentation/components";
@@ -11,15 +12,18 @@ type ReclassifyStage1Props = {
   formDataErrors: FormDataErrors;
   presentationTitle: string;
   currentDocTypeId: number | null;
+  handleBackBtnClick: () => void;
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   presentationTitle,
   formDataErrors,
   currentDocTypeId,
+  handleBackBtnClick,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
   const errorSummaryRef = useRef(null);
+  const backButtonRef = useRef(null);
 
   const { state, dispatch } = reclassifyContext;
 
@@ -34,6 +38,11 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
       (errorSummaryRef?.current as HTMLButtonElement).focus();
     }
   }, [formDataErrors]);
+
+  useEffect(() => {
+    if (backButtonRef.current)
+      (backButtonRef.current as HTMLButtonElement).focus();
+  }, []);
 
   const docTypesValues = useMemo(() => {
     const defaultValue = {
@@ -65,6 +74,13 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   };
   return (
     <div role="main" aria-describedby="main-description">
+      <LinkButton
+        className={classes.backBtn}
+        onClick={handleBackBtnClick}
+        ref={backButtonRef}
+      >
+        Back
+      </LinkButton>
       <h1 id="main-description">What type of document is this?</h1>
       {formDataErrors.documentTypeErrorText && (
         <div
