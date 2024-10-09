@@ -25,6 +25,7 @@
 | polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId |                    |
 | cmsVersionId             | Numeric versionId of document                               | Rename -> versionId  |                    |
 | polarisDocumentVersionId | Incrementing artificial number                              | Remove               |                    |
+| polarisParentDocumentId  | Incrementing artificial number                              | ????                 |                    |
 | cmsDocumentId            | Appears to be null all the time                             | Remove               | :white_check_mark: |
 
 gateway-api.ts hack

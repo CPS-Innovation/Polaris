@@ -16,7 +16,7 @@ type PdfTabsProps = {
 
   savedDocumentDetails: {
     documentId: string;
-    polarisDocumentVersionId: number;
+    versionId: number;
   }[];
   contextData: {
     correlationId: string;
@@ -119,7 +119,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}
-              polarisDocumentVersionId={item.polarisDocumentVersionId}
+              versionId={item.versionId}
             />
           ),
         },

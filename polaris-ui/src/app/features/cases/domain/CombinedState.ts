@@ -37,7 +37,7 @@ export type CombinedState = {
     startRefresh: boolean;
     savedDocumentDetails: {
       documentId: string;
-      polarisDocumentVersionId: number;
+      versionId: number;
     }[];
     lastProcessingCompleted: string;
   };

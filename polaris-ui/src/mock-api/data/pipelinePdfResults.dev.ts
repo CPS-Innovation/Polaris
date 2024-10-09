@@ -1,13 +1,11 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
-import {
-  PipelinePdfResultsDataSource,
-  PipelineResultsWithPdfBlobNames,
-} from "./types/PipelinePdfResultsDataSource";
+import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
+
 const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(5);
+
 export default dataSource;
-const pipelinePdfResult: PipelineResults & {
-  documents: { pdfBlobName: string }[];
-} = {
+
+const pipelinePdfResult: PipelineResults = {
   transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
@@ -15,13 +13,11 @@ const pipelinePdfResult: PipelineResults & {
   documents: [
     {
       documentId: "1",
-      cmsVersionId: 1,
-      pdfBlobName: "MCLOVEMG3",
+      versionId: 1,
       status: "Indexed",
-      cmsOriginalFileName: "MCLOVEMG3 very long.pdf",
+      cmsOriginalFileName: "MCLOVEMG3.pdf",
       presentationTitle: "UM MCLOVEMG3 very long",
       cmsFileCreatedDate: "2022-06-02T21:22:33Z",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1029,
@@ -48,13 +44,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "2",
-      cmsVersionId: 2,
-      pdfBlobName: "CM01",
+      versionId: 2,
       status: "Indexed",
-      cmsOriginalFileName: "CM01 Item 4 very long.pdf",
+      cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "CM01 Item 4 very long",
       cmsFileCreatedDate: "2020-06-02T11:45:33Z",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1029,
@@ -81,13 +75,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "3",
-      cmsVersionId: 3,
-      pdfBlobName: "MG05MCLOVE",
+      versionId: 3,
       status: "UnexpectedFailure",
-      cmsOriginalFileName: "MG05MCLOVE very long.pdf",
+      cmsOriginalFileName: "MG05MCLOVE.pdf",
       presentationTitle: "MG05MCLOVE very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 5,
@@ -114,13 +106,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "4",
-      cmsVersionId: 4,
-      pdfBlobName: "MG06_3June",
+      versionId: 4,
       status: "Indexed",
-      cmsOriginalFileName: "MG06_3June very long.hte",
+      cmsOriginalFileName: "MG06_3June.hte",
       presentationTitle: "MG06_3June very long",
       cmsFileCreatedDate: "2020-06-03",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 6,
@@ -147,13 +137,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "5",
-      cmsVersionId: 5,
-      pdfBlobName: "MG06_10june",
+      versionId: 5,
       status: "Indexed",
-      cmsOriginalFileName: "MG06_10june very long.hte",
+      cmsOriginalFileName: "MG06_10june.hte",
       presentationTitle: "MG06_10june very long",
       cmsFileCreatedDate: "2020-06-10",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
@@ -180,13 +168,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "6",
-      cmsVersionId: 6,
-      pdfBlobName: "MCLOVEMG3",
+      versionId: 6,
       status: "Indexed",
-      cmsOriginalFileName: "MCLOVEMG3 very long.pdf",
+      cmsOriginalFileName: "MCLOVEMG3.pdf",
       presentationTitle: "MCLOVEMG3 very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
@@ -213,13 +199,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "7",
-      cmsVersionId: 7,
-      pdfBlobName: "CM01",
+      versionId: 7,
       status: "Indexed",
-      cmsOriginalFileName: "CM01 very long.pdf",
+      cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "CM01 very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: -1,
@@ -246,13 +230,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "8",
-      cmsVersionId: 8,
-      pdfBlobName: "MG05MCLOVE",
+      versionId: 8,
       status: "Indexed",
-      cmsOriginalFileName: "MG05MCLOVE very long.pdf",
+      cmsOriginalFileName: "MG05MCLOVE.pdf",
       presentationTitle: "MG05MCLOVE very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 5,
@@ -279,13 +261,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "9",
-      cmsVersionId: 9,
-      pdfBlobName: "MG06_3June",
+      versionId: 9,
       status: "Indexed",
-      cmsOriginalFileName: "MG06_3June very long.pdf",
+      cmsOriginalFileName: "MG06_3June.pdf",
       presentationTitle: "MG06_3June very long",
       cmsFileCreatedDate: "2020-06-03",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 6,
@@ -312,13 +292,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "10",
-      cmsVersionId: 10,
-      pdfBlobName: "MG06_10june",
+      versionId: 10,
       status: "Indexed",
-      cmsOriginalFileName: "MG06_10june very long.pdf",
+      cmsOriginalFileName: "MG06_10june.pdf",
       presentationTitle: "MG06_10june very long",
       cmsFileCreatedDate: "2020-06-10",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 6,
@@ -345,13 +323,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "10",
-      cmsVersionId: 10,
-      pdfBlobName: "MG06_10june",
+      versionId: 10,
       status: "Indexed",
-      cmsOriginalFileName: "MG06_10june  very long .pdf",
+      cmsOriginalFileName: "MG06_10june.pdf",
       presentationTitle: "MG06_11june  very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1031,
@@ -378,13 +354,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "11",
-      cmsVersionId: 11,
-      pdfBlobName: "PortraitLandscape",
+      versionId: 11,
       status: "Indexed",
       cmsOriginalFileName: "PortraitLandscape.pdf",
       presentationTitle: "PortraitLandscape",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1019,
@@ -411,13 +385,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "12",
-      cmsVersionId: 12,
-      pdfBlobName: "SearchPII",
+      versionId: 12,
       status: "Indexed",
       cmsOriginalFileName: "SearchPII.pdf",
       presentationTitle: "SearchPII",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1019,
@@ -444,13 +416,11 @@ const pipelinePdfResult: PipelineResults & {
     },
     {
       documentId: "13",
-      cmsVersionId: 13,
-      pdfBlobName: "MG06_13june",
+      versionId: 13,
       status: "Indexed",
-      cmsOriginalFileName: "MG06_13june very long.pdf",
+      cmsOriginalFileName: "MG06_13june.pdf",
       presentationTitle: "MG06_13june very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1031,
@@ -490,12 +460,8 @@ const getPipelinePdfResults = (resultsCount: number) => {
       ).toISOString(),
       documents: pipelinePdfResult.documents.map((document) => ({
         ...document,
-        polarisDocumentVersionId: document.polarisDocumentVersionId + index,
+        versionId: document.versionId + index,
       })),
     }));
-<<<<<<< HEAD
-=======
-
->>>>>>> main
-  return resultsArray as PipelineResultsWithPdfBlobNames[];
+  return resultsArray;
 };

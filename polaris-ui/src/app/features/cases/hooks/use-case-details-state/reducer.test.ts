@@ -342,15 +342,13 @@ describe("useCaseDetailsState reducer", () => {
             transactionId: "123",
             status: "Completed",
             processingCompleted: "2023-04-05T15:02:17.601Z",
-            documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
+            documents: [{ documentId: "1", versionId: 2 }],
           },
         },
         tabsState: { items: [] },
         pipelineRefreshData: {
           startRefresh: false,
-          savedDocumentDetails: [
-            { documentId: "2", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "2", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       } as unknown as CombinedState;
@@ -365,8 +363,8 @@ describe("useCaseDetailsState reducer", () => {
           pipelineRefreshData: {
             startRefresh: false,
             savedDocumentDetails: [
-              { documentId: "1", polarisDocumentVersionId: 1 },
-              { documentId: "2", polarisDocumentVersionId: 1 },
+              { documentId: "1", versionId: 1 },
+              { documentId: "2", versionId: 1 },
             ],
             lastProcessingCompleted: "2023-04-05T15:01:17.601Z",
           },
@@ -380,7 +378,7 @@ describe("useCaseDetailsState reducer", () => {
               transactionId: "123",
               status: "Completed",
               processingCompleted: "2023-04-05T15:02:17.601Z",
-              documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
+              documents: [{ documentId: "1", versionId: 2 }],
             },
           } as AsyncPipelineResult<PipelineResults>,
         }
@@ -413,7 +411,7 @@ describe("useCaseDetailsState reducer", () => {
             savedDocumentDetails: [
               {
                 documentId: "1",
-                polarisDocumentVersionId: 1,
+                versionId: 1,
               },
             ],
           },
@@ -489,15 +487,15 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "1",
-              polarisDocumentVersionId: 1,
+              versionId: 1,
             },
             {
               documentId: "2",
-              polarisDocumentVersionId: 2,
+              versionId: 2,
             },
             {
               documentId: "3",
-              polarisDocumentVersionId: 1,
+              versionId: 1,
             },
           ],
         },
@@ -548,20 +546,17 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "1",
             url: "baz",
-
-            polarisDocumentVersionId: 1,
+            versionId: 1,
           },
           {
             documentId: "2",
             url: "baz",
-
-            polarisDocumentVersionId: 2,
+            versionId: 2,
           },
           {
             documentId: "3",
             url: "baz",
-
-            polarisDocumentVersionId: 1,
+            versionId: 1,
           },
         ],
       });
@@ -576,7 +571,7 @@ describe("useCaseDetailsState reducer", () => {
             {
               documentId: "2",
 
-              polarisDocumentVersionId: 2,
+              versionId: 2,
             },
           ],
         },
@@ -630,8 +625,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "2",
             url: "baz",
-
-            polarisDocumentVersionId: 2,
+            versionId: 2,
           },
         ],
       });
@@ -2199,9 +2193,7 @@ describe("useCaseDetailsState reducer", () => {
       const existingState = {
         pipelineRefreshData: {
           startRefresh: false,
-          savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       } as unknown as CombinedState;
@@ -2212,7 +2204,7 @@ describe("useCaseDetailsState reducer", () => {
           startRefresh: true,
           savedDocumentDetails: {
             documentId: "2",
-            polarisDocumentVersionId: 1,
+            versionId: 1,
           },
         },
       });
@@ -2221,8 +2213,8 @@ describe("useCaseDetailsState reducer", () => {
         pipelineRefreshData: {
           startRefresh: true,
           savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-            { documentId: "2", polarisDocumentVersionId: 1 },
+            { documentId: "1", versionId: 1 },
+            { documentId: "2", versionId: 1 },
           ],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
@@ -2232,9 +2224,7 @@ describe("useCaseDetailsState reducer", () => {
       const existingState = {
         pipelineRefreshData: {
           startRefresh: false,
-          savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       } as unknown as CombinedState;
@@ -2249,9 +2239,7 @@ describe("useCaseDetailsState reducer", () => {
       expect(result).toEqual({
         pipelineRefreshData: {
           startRefresh: true,
-          savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       });

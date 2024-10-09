@@ -14,7 +14,7 @@ type Props = {
   documentId: string;
   documentTypeId: number;
   correlationId: string;
-  polarisDocumentVersionId: number;
+  versionId: number;
   presentationTitle: string;
 
   handleShowHideDocumentIssueModal: (value: boolean) => void;
@@ -25,7 +25,7 @@ export const ReportAnIssueModal: React.FC<Props> = ({
   documentTypeId,
   presentationTitle,
   correlationId,
-  polarisDocumentVersionId,
+  versionId,
   handleShowHideDocumentIssueModal,
 }) => {
   const [issueDescription, setIssueDescription] = useState("");
@@ -34,9 +34,9 @@ export const ReportAnIssueModal: React.FC<Props> = ({
 
   const handleIssueReporting = () => {
     trackEvent("Report Document Issue", {
-      documentId: documentId,
-      documentTypeId: documentTypeId,
-      polarisVersionId: polarisDocumentVersionId,
+      documentId,
+      documentTypeId,
+      versionId,
       correlationId: correlationId,
       fileName: presentationTitle,
       moreDetails: issueDescription,

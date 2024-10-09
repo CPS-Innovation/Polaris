@@ -1,12 +1,12 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
-import {
-  PipelinePdfResultsDataSource,
-  PipelineResultsWithPdfBlobNames,
-} from "./types/PipelinePdfResultsDataSource";
+import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 //the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
+
 const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
+
 export default dataSource;
-const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
+
+const pipelinePdfResult: PipelineResults = {
   transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
@@ -14,13 +14,11 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
   documents: [
     {
       documentId: "1",
-      cmsVersionId: 1,
-      pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
       cmsOriginalFileName: "MCLOVEMG3.pdf",
       presentationTitle: "MCLOVEMG3",
       cmsFileCreatedDate: "2020-06-01",
-      polarisDocumentVersionId: 1,
+      versionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1,
@@ -47,13 +45,12 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "2",
-      cmsVersionId: 2,
-      pdfBlobName: "CM01",
+      versionId: 2,
       status: "Indexed",
       cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "CM01",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
+
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1019,
@@ -80,13 +77,11 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "3",
-      cmsVersionId: 3,
-      pdfBlobName: "MG05MCLOVE",
+      versionId: 3,
       status: "Indexed",
       cmsOriginalFileName: "MG05MCLOVE.pdf",
       presentationTitle: "Doc_3",
       cmsFileCreatedDate: "2020-06-03",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1012,
@@ -113,13 +108,11 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "4",
-      cmsVersionId: 4,
-      pdfBlobName: "MG06_3June",
+      versionId: 4,
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June.hte",
       presentationTitle: "Doc_4",
       cmsFileCreatedDate: "2020-06-04",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 4,
@@ -146,13 +139,11 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "5",
-      cmsVersionId: 5,
-      pdfBlobName: "MG06_10june",
+      versionId: 5,
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june.hte",
       presentationTitle: "Doc_5",
       cmsFileCreatedDate: "2020-06-10",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 5,
@@ -179,13 +170,12 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "6",
-      cmsVersionId: 6,
-      pdfBlobName: "CM01",
+      versionId: 6,
       status: "Indexed",
-      cmsOriginalFileName: "Test DAC.pdf",
+      cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "Test DAC",
       cmsFileCreatedDate: "2023-05-11",
-      polarisDocumentVersionId: 1,
+
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1029,
@@ -212,13 +202,11 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "8",
-      cmsVersionId: 8,
-      pdfBlobName: "MG06_3June",
+      versionId: 8,
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June.pdf",
       presentationTitle: "Doc_8",
       cmsFileCreatedDate: "2020-06-04",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 4,
@@ -245,13 +233,12 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "9",
-      cmsVersionId: 19,
-      pdfBlobName: "MG06_3June",
+      versionId: 19,
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June.pdf",
       presentationTitle: "Doc_9",
       cmsFileCreatedDate: "2020-06-10",
-      polarisDocumentVersionId: 1,
+
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 7,
@@ -278,13 +265,12 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "10",
-      cmsVersionId: 10,
-      pdfBlobName: "PortraitLandscape",
+      versionId: 10,
       status: "Indexed",
       cmsOriginalFileName: "PortraitLandscape.pdf",
       presentationTitle: "PortraitLandscape",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
+
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1019,
@@ -311,13 +297,11 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "12",
-      cmsVersionId: 12,
-      pdfBlobName: "SearchPII",
+      versionId: 12,
       status: "Indexed",
       cmsOriginalFileName: "SearchPII.pdf",
       presentationTitle: "SearchPII",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1019,
@@ -344,7 +328,8 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
   ],
 };
-// this will return updated tracker data with updated polarisDocumentVersionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow
+
+// this will return updated tracker data with updated versionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow
 const getPipelinePdfResults = (resultsCount: number) => {
   let resultsArray = Array(resultsCount)
     .fill({})
@@ -358,11 +343,12 @@ const getPipelinePdfResults = (resultsCount: number) => {
       ).toISOString(),
       documents: pipelinePdfResult.documents.map((document) => ({
         ...document,
-        polarisDocumentVersionId: document.polarisDocumentVersionId + index,
+        versionId: document.versionId + index,
       })),
     }));
-  return resultsArray as PipelineResultsWithPdfBlobNames[];
+  return resultsArray;
 };
+
 // This will create two results one with document id 2 and the second with document id 2 deleted.
 const getRefreshDeletedDocuments = () => {
   const resultsArray = getPipelinePdfResults(2);
@@ -371,12 +357,12 @@ const getRefreshDeletedDocuments = () => {
     {
       ...resultsArray[1],
       documents: (
-        resultsArray[1]
-          .documents as PipelineResultsWithPdfBlobNames["documents"]
+        resultsArray[1].documents as (typeof resultsArray)[0]["documents"]
       ).filter(({ documentId }) => documentId !== "2"),
-    } as PipelineResultsWithPdfBlobNames,
+    },
   ];
 };
+
 const getRefreshRenamedDocuments = (
   id: string,
   newName: string,
@@ -411,7 +397,8 @@ const getRefreshRenamedDocuments = (
     };
   });
 };
-export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
+
+export const missingDocsPipelinePdfResults: PipelineResults = {
   transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
@@ -419,13 +406,11 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
   documents: [
     {
       documentId: "1",
-      cmsVersionId: 1,
-      pdfBlobName: "MCLOVEMG3",
+      versionId: 1,
       status: "Indexed",
-      cmsOriginalFileName: "MCLOVEMG3  very long .pdf",
+      cmsOriginalFileName: "MCLOVEMG3.pdf",
       presentationTitle: "MCLOVEMG3  very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
@@ -452,13 +437,11 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "2",
-      cmsVersionId: 2,
-      pdfBlobName: "CM01",
+      versionId: 2,
       status: "Indexed",
-      cmsOriginalFileName: "CM01  very long .pdf",
+      cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "CM01  very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 11,
@@ -485,13 +468,11 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "3",
-      cmsVersionId: 3,
-      pdfBlobName: "MG05MCLOVE",
+      versionId: 3,
       status: "Indexed",
-      cmsOriginalFileName: "MG05MCLOVE very long .pdf",
+      cmsOriginalFileName: "MG05MCLOVE.pdf",
       presentationTitle: "MG05MCLOVE very long",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 5,
@@ -518,13 +499,11 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "4",
-      cmsVersionId: 4,
-      pdfBlobName: "MG06_3June",
+      versionId: 4,
       status: "OcrAndIndexFailure",
-      cmsOriginalFileName: "MG06_3June  very long .pdf",
+      cmsOriginalFileName: "MG06_3June.pdf",
       presentationTitle: "MG06_3June  very long",
       cmsFileCreatedDate: "2020-06-03",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 6,
@@ -551,13 +530,11 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "5",
-      cmsVersionId: 5,
-      pdfBlobName: "MG06_10june",
+      versionId: 5,
       status: "UnableToConvertToPdf",
-      cmsOriginalFileName: "MG06_10june  very long .pdf",
+      cmsOriginalFileName: "MG06_10june.pdf",
       presentationTitle: "MG06_10june  very long",
       cmsFileCreatedDate: "2020-06-10",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
@@ -584,13 +561,11 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "12",
-      cmsVersionId: 12,
-      pdfBlobName: "SearchPII",
+      versionId: 12,
       status: "Indexed",
       cmsOriginalFileName: "SearchPII.pdf",
       presentationTitle: "SearchPII",
       cmsFileCreatedDate: "2020-06-02",
-      polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1019,
@@ -617,215 +592,206 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
   ],
 };
-export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
-  {
-    transactionId: "121",
-    status: "Completed",
-    processingCompleted: new Date().toISOString(),
-    documentsRetrieved: new Date().toISOString(),
-    documents: [
-      {
-        documentId: "1",
-        cmsVersionId: 1,
-        pdfBlobName: "MCLOVEMG3",
-        status: "OcrAndIndexFailure",
-        cmsOriginalFileName: "MCLOVEMG3  very long .pdf",
-        presentationTitle: "MCLOVEMG3  very long",
-        cmsFileCreatedDate: "2020-06-02",
-        polarisDocumentVersionId: 1,
-        categoryListOrder: null,
-        cmsDocType: {
-          documentTypeId: 3,
-          documentType: "MG3",
-          documentCategory: "MGForm",
-        },
-        presentationFlags: {
-          read: "Ok",
-          write: "Ok",
-        },
-        polarisParentDocumentId: null,
-        witnessId: null,
-        hasFailedAttachments: false,
-        hasNotes: true,
-        conversionStatus: "DocumentConverted",
-        isUnused: false,
-        isInbox: false,
-        classification: null,
-        isWitnessManagement: false,
-        canReclassify: false,
-        canRename: false,
-        renameStatus: "CanRename",
-        reference: null,
+
+export const allMissingDocsPipelinePdfResults: PipelineResults = {
+  transactionId: "121",
+  status: "Completed",
+  processingCompleted: new Date().toISOString(),
+  documentsRetrieved: new Date().toISOString(),
+  documents: [
+    {
+      documentId: "1",
+      versionId: 1,
+      status: "OcrAndIndexFailure",
+      cmsOriginalFileName: "MCLOVEMG3.pdf",
+      presentationTitle: "MCLOVEMG3  very long",
+      cmsFileCreatedDate: "2020-06-02",
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 3,
+        documentType: "MG3",
+        documentCategory: "MGForm",
       },
-      {
-        documentId: "2",
-        cmsVersionId: 2,
-        pdfBlobName: "CM01",
-        status: "OcrAndIndexFailure",
-        cmsOriginalFileName: "CM01  very long .pdf",
-        presentationTitle: "CM01  very long",
-        cmsFileCreatedDate: "2020-06-02",
-        polarisDocumentVersionId: 1,
-        categoryListOrder: null,
-        cmsDocType: {
-          documentTypeId: 11,
-          documentType: "MG11",
-          documentCategory: "MGForm",
-        },
-        presentationFlags: {
-          read: "Ok",
-          write: "Ok",
-        },
-        polarisParentDocumentId: null,
-        witnessId: null,
-        hasFailedAttachments: false,
-        hasNotes: true,
-        conversionStatus: "DocumentConverted",
-        isUnused: false,
-        isInbox: false,
-        classification: null,
-        isWitnessManagement: false,
-        canReclassify: false,
-        canRename: false,
-        renameStatus: "CanRename",
-        reference: null,
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
-      {
-        documentId: "3",
-        cmsVersionId: 3,
-        pdfBlobName: "MG05MCLOVE",
-        status: "OcrAndIndexFailure",
-        cmsOriginalFileName: "MG05MCLOVE very long .pdf",
-        presentationTitle: "MG05MCLOVE very long",
-        cmsFileCreatedDate: "2020-06-02",
-        polarisDocumentVersionId: 1,
-        categoryListOrder: null,
-        cmsDocType: {
-          documentTypeId: 5,
-          documentType: "MG5",
-          documentCategory: "MGForm",
-        },
-        presentationFlags: {
-          read: "Ok",
-          write: "Ok",
-        },
-        polarisParentDocumentId: null,
-        witnessId: null,
-        hasFailedAttachments: false,
-        hasNotes: false,
-        conversionStatus: "DocumentConverted",
-        isUnused: false,
-        isInbox: false,
-        classification: null,
-        isWitnessManagement: false,
-        canReclassify: false,
-        canRename: false,
-        renameStatus: "CanRename",
-        reference: null,
+      polarisParentDocumentId: null,
+      witnessId: null,
+      hasFailedAttachments: false,
+      hasNotes: true,
+      conversionStatus: "DocumentConverted",
+      isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
+    },
+    {
+      documentId: "2",
+      versionId: 2,
+      status: "OcrAndIndexFailure",
+      cmsOriginalFileName: "CM01.pdf",
+      presentationTitle: "CM01  very long",
+      cmsFileCreatedDate: "2020-06-02",
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 11,
+        documentType: "MG11",
+        documentCategory: "MGForm",
       },
-      {
-        documentId: "4",
-        cmsVersionId: 4,
-        pdfBlobName: "MG06_3June",
-        status: "OcrAndIndexFailure",
-        cmsOriginalFileName: "MG06_3June  very long .pdf",
-        presentationTitle: "MG06_3June  very long",
-        cmsFileCreatedDate: "2020-06-03",
-        polarisDocumentVersionId: 1,
-        categoryListOrder: null,
-        cmsDocType: {
-          documentTypeId: 6,
-          documentType: "MG6",
-          documentCategory: "MGForm",
-        },
-        presentationFlags: {
-          read: "Ok",
-          write: "Ok",
-        },
-        polarisParentDocumentId: null,
-        witnessId: null,
-        hasFailedAttachments: false,
-        hasNotes: false,
-        conversionStatus: "DocumentConverted",
-        isUnused: false,
-        isInbox: false,
-        classification: null,
-        isWitnessManagement: false,
-        canReclassify: false,
-        canRename: false,
-        renameStatus: "CanRename",
-        reference: null,
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
-      {
-        documentId: "5",
-        cmsVersionId: 5,
-        pdfBlobName: "MG06_10june",
-        status: "UnableToConvertToPdf",
-        cmsOriginalFileName: "MG06_10june  very long .pdf",
-        presentationTitle: "MG06_10june  very long",
-        cmsFileCreatedDate: "2020-06-10",
-        polarisDocumentVersionId: 1,
-        categoryListOrder: null,
-        cmsDocType: {
-          documentTypeId: 3,
-          documentType: "MG3",
-          documentCategory: "MGForm",
-        },
-        presentationFlags: {
-          read: "Ok",
-          write: "Ok",
-        },
-        polarisParentDocumentId: null,
-        witnessId: null,
-        hasFailedAttachments: false,
-        hasNotes: false,
-        conversionStatus: "DocumentConverted",
-        isUnused: false,
-        isInbox: false,
-        classification: null,
-        isWitnessManagement: false,
-        canReclassify: false,
-        canRename: false,
-        renameStatus: "CanRename",
-        reference: null,
+      polarisParentDocumentId: null,
+      witnessId: null,
+      hasFailedAttachments: false,
+      hasNotes: true,
+      conversionStatus: "DocumentConverted",
+      isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
+    },
+    {
+      documentId: "3",
+      versionId: 3,
+      status: "OcrAndIndexFailure",
+      cmsOriginalFileName: "MG05MCLOVE.pdf",
+      presentationTitle: "MG05MCLOVE very long",
+      cmsFileCreatedDate: "2020-06-02",
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 5,
+        documentType: "MG5",
+        documentCategory: "MGForm",
       },
-      {
-        documentId: "12",
-        cmsVersionId: 12,
-        pdfBlobName: "SearchPII",
-        status: "Indexed",
-        cmsOriginalFileName: "SearchPII.pdf",
-        presentationTitle: "SearchPII",
-        cmsFileCreatedDate: "2020-06-02",
-        polarisDocumentVersionId: 1,
-        categoryListOrder: null,
-        cmsDocType: {
-          documentTypeId: 1019,
-          documentType: "MG12",
-          documentCategory: "MGForm",
-        },
-        presentationFlags: {
-          read: "Ok",
-          write: "Ok",
-        },
-        polarisParentDocumentId: null,
-        witnessId: null,
-        hasFailedAttachments: false,
-        hasNotes: false,
-        conversionStatus: "DocumentConverted",
-        isUnused: false,
-        isInbox: false,
-        classification: null,
-        isWitnessManagement: false,
-        canReclassify: false,
-        canRename: false,
-        renameStatus: "CanRename",
-        reference: null,
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
-    ],
-  };
+      polarisParentDocumentId: null,
+      witnessId: null,
+      hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
+      isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
+    },
+    {
+      documentId: "4",
+      versionId: 4,
+      status: "OcrAndIndexFailure",
+      cmsOriginalFileName: "MG06_3June.pdf",
+      presentationTitle: "MG06_3June  very long",
+      cmsFileCreatedDate: "2020-06-03",
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 6,
+        documentType: "MG6",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: null,
+      hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
+      isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
+    },
+    {
+      documentId: "5",
+      versionId: 5,
+      status: "UnableToConvertToPdf",
+      cmsOriginalFileName: "MG06_10june.pdf",
+      presentationTitle: "MG06_10june  very long",
+      cmsFileCreatedDate: "2020-06-10",
+
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 3,
+        documentType: "MG3",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: null,
+      hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
+      isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
+    },
+    {
+      documentId: "12",
+      versionId: 12,
+      status: "Indexed",
+      cmsOriginalFileName: "SearchPII.pdf",
+      presentationTitle: "SearchPII",
+      cmsFileCreatedDate: "2020-06-02",
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 1019,
+        documentType: "MG12",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: null,
+      hasFailedAttachments: false,
+      hasNotes: false,
+      conversionStatus: "DocumentConverted",
+      isUnused: false,
+      isInbox: false,
+      classification: null,
+      isWitnessManagement: false,
+      canReclassify: false,
+      canRename: false,
+      renameStatus: "CanRename",
+      reference: null,
+    },
+  ],
+};
+
 export const refreshPipelineDeletedDocuments: PipelinePdfResultsDataSource =
   () => getRefreshDeletedDocuments();
+
 export const refreshPipelineRenamedDocuments: (
   documentId: string,
   newName: string,

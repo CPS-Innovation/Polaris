@@ -66,11 +66,11 @@ export const resolvePdfUrl = (
   urn: string,
   caseId: number,
   documentId: string,
-  polarisDocumentVersionId: number
+  versionId: number
 ) => {
   // the backend does not look at the v parameter
   return fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${versionId}`
   );
 };
 
