@@ -1,4 +1,4 @@
-﻿namespace PolarisGateway.Clients.Coordinator
+﻿namespace PolarisGateway.Clients
 {
     public interface IRequestFactory
     {

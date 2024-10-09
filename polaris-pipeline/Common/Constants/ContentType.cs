@@ -4,5 +4,6 @@ namespace Common.Constants
     {
         public const string Json = "application/json";
         public const string Pdf = "application/pdf";
+        public const string Jpeg = "image/jpeg";
     }
 }

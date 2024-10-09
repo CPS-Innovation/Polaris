@@ -24,13 +24,14 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sa_gateway_file_share.name
-    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
@@ -115,6 +116,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["DdeiBaseUrl"],
       app_settings["HostType"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
+      app_settings["PolarisPdfThumbnailGeneratorBaseUrl"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["TenantId"],
       app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
@@ -237,5 +239,16 @@ resource "azurerm_role_assignment" "gateway_blob_data_contributor" {
   depends_on = [
     azurerm_linux_function_app.fa_polaris,
     azurerm_storage_container.container
+  ]
+}
+
+resource "azurerm_role_assignment" "gateway_blob_data_thumbnails_contributor" {
+  scope                = azurerm_storage_container.thumbnails.resource_manager_id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
+
+  depends_on = [
+    azurerm_linux_function_app.fa_polaris,
+    azurerm_storage_container.thumbnails
   ]
 }

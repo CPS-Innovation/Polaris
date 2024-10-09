@@ -7,6 +7,7 @@ export type ReclassifyState = {
   exhibitProducers: ExhibitProducer[] | null;
   statementWitness: StatementWitness[] | null;
   statementWitnessNumbers: Record<string, number[]>;
+  documentThumbnailSrc: string | null;
   newDocTypeId: string;
   reclassifyVariant: ReclassifyVariant;
   reClassifyStage: "stage1" | "stage2" | "stage3";
@@ -33,6 +34,7 @@ export const reclassifyInitialState: ReclassifyState = {
   statementWitness: null,
   statementWitnessNumbers: {},
   newDocTypeId: "",
+  documentThumbnailSrc: null,
   reclassifyVariant: "Immediate",
   reClassifyStage: "stage1",
   reClassifySaveStatus: "initial",
@@ -124,6 +126,10 @@ export type ReclassifyActions =
   | {
       type: "UPDATE_STATEMENT_WITNESS_NUMBERS";
       payload: { witnessId: number; statementNumbers: number[] };
+    }
+  | {
+      type: "DOCUMENT_THUMBNAIL";
+      payload: { documentThumbnailSrc: string | null };
     };
 
 const getReclassifyVariant = (
@@ -302,6 +308,12 @@ export const reClassifyReducer = (
       return {
         ...state,
         reClassifySaveStatus: action.payload.value,
+      };
+    }
+    case "DOCUMENT_THUMBNAIL": {
+      return {
+        ...state,
+        documentThumbnailSrc: action.payload.documentThumbnailSrc,
       };
     }
     default:

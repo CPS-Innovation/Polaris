@@ -478,6 +478,102 @@ export const saveDocumentReclassify = async (
   return true;
 };
 
+export const getThumbnail = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  polarisDocumentVersionId: number,
+  maxDimension: number = 1000,
+  pageIndex: number = 0
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${polarisDocumentVersionId}/thumbnails/${maxDimension}/${pageIndex}`
+  );
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (response.status === 404) {
+    return false;
+  }
+  if (!response.ok) {
+    throw new ApiError("Get Reclassify thumbnail failed", path, response);
+  }
+
+  return URL.createObjectURL(await response.blob());
+};
+
+export const postGenerateThumbnail = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  polarisDocumentVersionId: number,
+  maxDimension: number = 1000,
+  pageIndex: number = 0
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${polarisDocumentVersionId}/thumbnails/${maxDimension}/${pageIndex}`
+  );
+
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Generate Reclassify thumbnail failed", path, response);
+  }
+};
+
+export const fetchAndPollThumbnail = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  polarisDocumentVersionId: number,
+  pollInterval = 2000,
+  maxRetries = 10
+) => {
+  try {
+    let thumbnail = await getThumbnail(
+      urn,
+      caseId,
+      documentId,
+      polarisDocumentVersionId
+    );
+
+    if (thumbnail) {
+      return thumbnail;
+    }
+
+    // If thumbnail doesn't exist (404), trigger the generation process
+    await postGenerateThumbnail(
+      urn,
+      caseId,
+      documentId,
+      polarisDocumentVersionId
+    );
+
+    for (let retryCount = 0; retryCount < maxRetries; retryCount++) {
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+
+      thumbnail = await getThumbnail(
+        urn,
+        caseId,
+        documentId,
+        polarisDocumentVersionId
+      );
+
+      if (thumbnail) {
+        return thumbnail;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    return null;
+  }
+};
+
 const internalFetch = async (...args: Parameters<typeof fetch>) => {
   return await fetch(args[0], {
     ...args[1],

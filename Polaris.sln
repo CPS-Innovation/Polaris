@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor.integration.te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-maintenance", "polaris-maintenance\polaris-maintenance.csproj", "{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-thumbnail-generator", "polaris-pipeline\pdf-thumbnail-generator\pdf-thumbnail-generator.csproj", "{FA180605-A5FE-49CB-A0A6-695AA7F2AE45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -154,6 +156,12 @@ Global
 		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
 		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA180605-A5FE-49CB-A0A6-695AA7F2AE45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA180605-A5FE-49CB-A0A6-695AA7F2AE45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA180605-A5FE-49CB-A0A6-695AA7F2AE45}.Integration Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA180605-A5FE-49CB-A0A6-695AA7F2AE45}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
+		{FA180605-A5FE-49CB-A0A6-695AA7F2AE45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA180605-A5FE-49CB-A0A6-695AA7F2AE45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +181,7 @@ Global
 		{0911AA3D-D9BA-4F86-9AED-E0C176824455} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{41925855-62F0-41F0-9213-65DFCD074924} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{7CDF2DED-89D0-479F-9CC4-586451766FC1} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{FA180605-A5FE-49CB-A0A6-695AA7F2AE45} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CCE1AB69-A62F-420B-88D0-216C65C26EAD}

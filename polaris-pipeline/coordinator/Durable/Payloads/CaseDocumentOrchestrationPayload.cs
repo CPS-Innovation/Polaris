@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
-using coordinator.Helpers;
 using coordinator.Durable.Payloads.Domain;
+using Common.Services.BlobStorageService;
 
 namespace coordinator.Durable.Payloads
 {

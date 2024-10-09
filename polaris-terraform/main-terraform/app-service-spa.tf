@@ -17,55 +17,52 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   client_certificate_enabled    = false
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY"                               = data.azurerm_application_insights.global_ai.instrumentation_key
-    "HostType"                                                     = "Production"
-    "REACT_APP_AI_KEY"                                             = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_CLIENT_ID"                                          = module.azurerm_app_reg_as_web_polaris.client_id
-    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"                         = var.feature_flag_hte_emails_on
-    "REACT_APP_FEATURE_FLAG_REDACTION_LOG"                         = var.feature_flag_redaction_log
-    "REACT_APP_FEATURE_FLAG_REDACTION_LOG_UNDER_OVER"              = var.feature_flag_redaction_log_under_over
-    "REACT_APP_FEATURE_FLAG_FULL_SCREEN"                           = var.feature_flag_full_screen
-    "REACT_APP_FEATURE_FLAG_NOTES"                                 = var.feature_flag_notes
-    "REACT_APP_FEATURE_FLAG_SEARCH_PII"                            = var.feature_flag_search_pii
-    "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"                       = var.feature_flag_rename_document
-    "REACT_APP_FEATURE_FLAG_RECLASSIFY"                            = var.feature_flag_reclassify
-    "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
-    "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"                     = var.feature_flag_external_redirect
-    "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
-    "REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"            = tostring(var.background_pipeline_refresh_interval_ms)
-    "REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS" = var.background_pipeline_refresh_show_own_notifications
-    "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"                          = var.local_storage_expiry_days
-    "REACT_APP_GATEWAY_BASE_URL"                                   = ""
-    "REACT_APP_GATEWAY_SCOPE"                                      = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
-    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"                       = var.is_redaction_service_offline
-    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"                           = var.private_beta.sign_up_url
-    "REACT_APP_PRIVATE_BETA_USER_GROUP"                            = var.private_beta.user_group
-    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP"                    = var.private_beta.feature_user_group
-    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2"                   = var.private_beta.feature_user_group2
-    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"                   = var.private_beta.feature_user_group3
-    "REACT_APP_CASE_REVIEW_APP_REDIRECT_URL"                       = var.case_review_app_redirect_url
-    "REACT_APP_BULK_UM_REDIRECT_URL"                               = var.bulk_um_redirect_url
-    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"                       = var.polaris_ui_reauth_redirect_url.outbound_live
-    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"                   = var.polaris_ui_reauth_redirect_url.outbound_e2e
-    "REACT_APP_REAUTH_REDIRECT_URL_INBOUND"                        = var.polaris_ui_reauth_redirect_url.inbound
-    "REACT_APP_REDACTION_LOG_BASE_URL"                             = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
-    "REACT_APP_REDACTION_LOG_SCOPE"                                = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
-    "REACT_APP_SURVEY_LINK"                                        = "https://www.smartsurvey.co.uk/s/DG5B6G/"
-    "REACT_APP_TENANT_ID"                                          = data.azurerm_client_config.current.tenant_id
-    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"              = "1"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"                     = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTOVERVNET"                                      = "1"
-    "WEBSITE_CONTENTSHARE"                                         = azapi_resource.polaris_sacpspolaris_ui_file_share.name
-    "WEBSITE_DNS_ALT_SERVER"                                       = "168.63.129.16"
-    "WEBSITE_DNS_SERVER"                                           = var.dns_server
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                              = "1"
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"                 = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"                   = "0"
-    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"                          = "10"
-    "WEBSITE_SWAP_WARMUP_PING_PATH"                                = "/polaris-ui/build-version.txt"
-    "WEBSITE_SWAP_WARMUP_PING_STATUSES"                            = "200,202"
-    "WEBSITE_WARMUP_PATH"                                          = "/polaris-ui/build-version.txt"
-    "WEBSITES_ENABLE_APP_CACHE"                                    = "true"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "HostType"                                        = "Production"
+    "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
+    "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
+    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"            = var.feature_flag_hte_emails_on
+    "REACT_APP_FEATURE_FLAG_REDACTION_LOG"            = var.feature_flag_redaction_log
+    "REACT_APP_FEATURE_FLAG_REDACTION_LOG_UNDER_OVER" = var.feature_flag_redaction_log_under_over
+    "REACT_APP_FEATURE_FLAG_FULL_SCREEN"              = var.feature_flag_full_screen
+    "REACT_APP_FEATURE_FLAG_NOTES"                    = var.feature_flag_notes
+    "REACT_APP_FEATURE_FLAG_SEARCH_PII"               = var.feature_flag_search_pii
+    "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"          = var.feature_flag_rename_document
+    "REACT_APP_FEATURE_FLAG_RECLASSIFY"               = var.feature_flag_reclassify
+    "REACT_APP_FEATURE_FLAG_PAGE_DELETE"              = var.feature_flag_page_delete
+    "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"        = var.feature_flag_external_redirect
+    "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"             = var.local_storage_expiry_days
+    "REACT_APP_GATEWAY_BASE_URL"                      = ""
+    "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
+    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"          = var.is_redaction_service_offline
+    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"              = var.private_beta.sign_up_url
+    "REACT_APP_PRIVATE_BETA_USER_GROUP"               = var.private_beta.user_group
+    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP"       = var.private_beta.feature_user_group
+    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2"      = var.private_beta.feature_user_group2
+    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"      = var.private_beta.feature_user_group3
+    "REACT_APP_CASE_REVIEW_APP_REDIRECT_URL"          = var.case_review_app_redirect_url
+    "REACT_APP_BULK_UM_REDIRECT_URL"                  = var.bulk_um_redirect_url
+    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"          = var.polaris_ui_reauth_redirect_url.outbound_live
+    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"      = var.polaris_ui_reauth_redirect_url.outbound_e2e
+    "REACT_APP_REAUTH_REDIRECT_URL_INBOUND"           = var.polaris_ui_reauth_redirect_url.inbound
+    "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
+    "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
+    "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
+    "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_ui_file_share.name
+    "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/polaris-ui/build-version.txt"
+    "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
+    "WEBSITE_WARMUP_PATH"                             = "/polaris-ui/build-version.txt"
+    "WEBSITES_ENABLE_APP_CACHE"                       = "true"
   }
 
   sticky_settings {
@@ -132,9 +129,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"],
       app_settings["REACT_APP_FEATURE_FLAG_RECLASSIFY"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_DELETE"],
-      app_settings["REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"],
-      app_settings["REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"],
-      app_settings["REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS"],
       app_settings["REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"],
       app_settings["REACT_APP_GATEWAY_BASE_URL"],
       app_settings["REACT_APP_GATEWAY_SCOPE"],

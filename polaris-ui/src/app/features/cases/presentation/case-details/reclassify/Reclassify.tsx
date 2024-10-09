@@ -8,6 +8,7 @@ import { ReclassifySaveData } from "./data/ReclassifySaveData";
 
 type ReclassifyProps = {
   documentId: string;
+  documentVersionId: number | null;
   currentDocTypeId: number | null;
   presentationTitle: string;
   reclassifiedDocumentUpdate?: boolean;
@@ -26,10 +27,15 @@ type ReclassifyProps = {
     name: string,
     properties: Record<string, any>
   ) => void;
+  getReclassifyThumbnail: (
+    documentId: string,
+    documentVersionId: number
+  ) => Promise<string | null>;
 };
 
 export const Reclassify: React.FC<ReclassifyProps> = ({
   documentId,
+  documentVersionId,
   currentDocTypeId,
   presentationTitle,
   reclassifiedDocumentUpdate,
@@ -40,12 +46,14 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
   getWitnessStatementNumbers,
   handleSubmitReclassify,
   handleReclassifyTracking,
+  getReclassifyThumbnail,
 }) => {
   return (
     <div>
       <ReClassifyProvider>
         <ReclassifyStages
           documentId={documentId}
+          documentVersionId={documentVersionId}
           currentDocTypeId={currentDocTypeId}
           presentationTitle={presentationTitle}
           reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
@@ -56,6 +64,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
           getWitnessStatementNumbers={getWitnessStatementNumbers}
           handleSubmitReclassify={handleSubmitReclassify}
           handleReclassifyTracking={handleReclassifyTracking}
+          getReclassifyThumbnail={getReclassifyThumbnail}
         />
       </ReClassifyProvider>
     </div>

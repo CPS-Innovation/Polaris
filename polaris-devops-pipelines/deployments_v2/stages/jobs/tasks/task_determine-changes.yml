@@ -19,6 +19,7 @@ steps:
         $networkingTerraformCount=0
         $coordinatorCount=0
         $pdfGeneratorCount=0
+        $pdfThumbnailGeneratorCount=0
         $pdfRedactorCount=0
         $textExtractorCount=0
         $gatewayCount=0
@@ -55,6 +56,12 @@ steps:
             echo "run pdf generator..."
             Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
             $pdfGeneratorCount++
+          }
+          if ($name -like 'polaris-pipeline/pdf-thumbnail-generator/*' -Or $name -like 'polaris-pipeline/pdf-thumbnail-generator.tests/*')
+          {
+            echo "run pdf thumbnail generator..."
+            Write-Host "##vso[task.setvariable variable=RUN_CODEBASE;isOutput=true]true"
+            $pdfThumbnailGeneratorCount++
           }
           if ($name -like 'polaris-pipeline/pdf-redactor/*' -Or $name -like 'polaris-pipeline/pdf-redactor.tests/*')
           {
@@ -110,6 +117,7 @@ steps:
         Write-Host "##vso[task.setvariable variable=NETWORKING_TERRAFORM_COUNT;isOutput=true]$networkingTerraformCount"
         Write-Host "##vso[task.setvariable variable=COORDINATOR_COUNT;isOutput=true]$coordinatorCount"
         Write-Host "##vso[task.setvariable variable=PDF_GENERATOR_COUNT;isOutput=true]$pdfGeneratorCount"
+        Write-Host "##vso[task.setvariable variable=PDF_THUMBNAIL_GENERATOR_COUNT;isOutput=true]$pdfThumbnailGeneratorCount"
         Write-Host "##vso[task.setvariable variable=TEXT_EXTRACTOR_COUNT;isOutput=true]$textExtractorCount"
         Write-Host "##vso[task.setvariable variable=GATEWAY_COUNT;isOutput=true]$gatewayCount"
         Write-Host "##vso[task.setvariable variable=UI_COUNT;isOutput=true]$uiCount"

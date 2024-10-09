@@ -63,6 +63,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   const handleDocTypeChange = (value: string) => {
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
+
   return (
     <div>
       <h1>What type of document is this?</h1>

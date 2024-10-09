@@ -1,7 +1,6 @@
 ﻿using Common.Constants;
-using Microsoft.Extensions.Configuration;
 
-namespace PolarisGateway.Clients.Coordinator
+namespace PolarisGateway.Clients
 {
     public class RequestFactory : IRequestFactory
     {

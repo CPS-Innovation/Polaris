@@ -56,6 +56,7 @@ import {
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
   saveDocumentReclassify,
+  fetchAndPollThumbnail,
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
@@ -74,12 +75,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const [reclassifyDetails, setInReclassifyDetails] = useState<{
     open: boolean;
     documentId: string;
+    documentVersionId: number | null;
     presentationFileName: string;
     docTypeId: number | null;
     isUnused: boolean;
   }>({
     open: false,
     documentId: "",
+    documentVersionId: null,
     presentationFileName: "",
     docTypeId: null,
     isUnused: false,
@@ -308,6 +311,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       setInReclassifyDetails({
         open: true,
         documentId,
+        documentVersionId: selectedDocument.cmsVersionId,
         presentationFileName: selectedDocument.presentationTitle,
         docTypeId: selectedDocument.cmsDocType.documentTypeId,
         isUnused: selectedDocument.isUnused,
@@ -325,6 +329,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     setInReclassifyDetails({
       open: false,
       documentId: "",
+      documentVersionId: null,
       presentationFileName: "",
       docTypeId: null,
       isUnused: false,
@@ -352,6 +357,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const handleGetWitnessStatementNumbers = (witnessId: number) => {
     return getWitnessStatementNumbers(urn, +caseId, witnessId);
+  };
+
+  const handleGetDocumentThumbnail = (
+    documentId: string,
+    versionId: number
+  ) => {
+    return fetchAndPollThumbnail(urn, +caseId, documentId, versionId);
   };
 
   const handleSubmitReclassify = async (
@@ -856,6 +868,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
         <div>
           <Reclassify
             documentId={reclassifyDetails.documentId}
+            documentVersionId={reclassifyDetails.documentVersionId}
             currentDocTypeId={reclassifyDetails.docTypeId}
             presentationTitle={reclassifyDetails.presentationFileName}
             reclassifiedDocumentUpdate={activeReclassifyDocumentUpdated(
@@ -868,6 +881,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             getWitnessStatementNumbers={handleGetWitnessStatementNumbers}
             handleSubmitReclassify={handleSubmitReclassify}
             handleReclassifyTracking={handleReclassifyTracking}
+            getReclassifyThumbnail={handleGetDocumentThumbnail}
           />
         </div>
       )}
