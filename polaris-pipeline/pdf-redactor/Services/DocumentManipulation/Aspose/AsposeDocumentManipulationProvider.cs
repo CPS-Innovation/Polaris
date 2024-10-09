@@ -78,7 +78,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
             var currentRotation = int.Parse(rotationString);
             var rotationAngle = int.Parse(value);
 
-            var newAngle = currentRotation + rotationAngle;
+            var newAngle = (currentRotation + rotationAngle) % 360;
 
             return GetRotation(newAngle);
         }

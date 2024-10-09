@@ -25,7 +25,6 @@ import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategor
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 import {
   getDefaultValuesFromMappings,
-  redactString,
   removeNonDigits,
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
@@ -388,7 +387,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         ...additionalData,
         documentId: parseInt(removeNonDigits(additionalData.documentId)),
         documentTypeId: cmsDocumentTypeId,
-        originalFileName: redactString(additionalData.originalFileName),
+        originalFileName: additionalData.originalFileName,
       },
     };
 

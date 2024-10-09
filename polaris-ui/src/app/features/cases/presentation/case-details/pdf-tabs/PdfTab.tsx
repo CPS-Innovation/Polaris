@@ -283,7 +283,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentType,
             saveStatus: saveStatus,
             caseId,
-            showDeletePage: contextData.showDeletePage,
+            showDeletePage:
+              contextData.showDeletePage && documentType !== "DAC",
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
