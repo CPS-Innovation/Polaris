@@ -497,7 +497,6 @@ namespace coordinator.Durable.Entity
 
             if (status == DocumentStatus.PdfUploadedToBlob)
             {
-                document.IsPdfAvailable = true;
                 document.PdfBlobName = pdfBlobName;
             }
         }
