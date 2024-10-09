@@ -421,6 +421,23 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     );
   };
 
+  const getAriaMainRoleDescription = () => {
+    if (state.reClassifyStage === "stage1")
+      return "What type of document is this?";
+    if (state.reClassifyStage === "stage3") return "Check your answers";
+    if (
+      state.reClassifyStage === "stage2" &&
+      state.reclassifyVariant === "Exhibit"
+    )
+      return "Enter the exhibit details";
+    if (
+      state.reClassifyStage === "stage2" &&
+      state.reclassifyVariant === "Statement"
+    )
+      return "Enter the statement details";
+    return "Enter the document details";
+  };
+
   useEffect(() => {
     const fetchDataOnMount = async () => {
       if (state.materialTypeList.length) return;
@@ -457,11 +474,11 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   return (
     <div
       className={classes.reClassifyStages}
-      role="region"
-      aria-labelledby="reclassify-region-label"
+      role="main"
+      aria-describedby="main-description"
     >
-      <span id="reclassify-region-label" className={classes.visuallyHidden}>
-        {`Document reclassify region, you can reclassify document ${presentationTitle}.`}
+      <span id="main-description" className={classes.visuallyHidden}>
+        {getAriaMainRoleDescription()}
       </span>
       <LinkButton
         className={classes.backBtn}
