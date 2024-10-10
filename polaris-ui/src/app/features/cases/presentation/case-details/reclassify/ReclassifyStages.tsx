@@ -521,7 +521,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           ariaDescription="Something went wrong. Failed to save reclassification. Please try again later"
         >
           <div className={classes.alertContent}>
-            <h1 className="govuk-heading-l">Something went wrong</h1>
+            <h1 className="govuk-heading-l">Something went wrong!</h1>
             <p>Failed to save reclassification. Please try again later</p>
             <div className={classes.actionButtonsWrapper}>
               <Button
