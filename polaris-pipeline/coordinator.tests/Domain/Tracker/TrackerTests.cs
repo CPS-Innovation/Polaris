@@ -52,6 +52,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _fixture = new Fixture();
             _transactionId = _fixture.Create<string>();
+            _fixture.Customize<CmsDocumentDto>(c => c.With(d => d.DocumentId, _fixture.Create<int>().ToString()));
             _cmsDocuments = _fixture.CreateMany<CmsDocumentDto>(3).ToList();
             _pcdRequests = _fixture.CreateMany<PcdRequestDto>(2).ToList();
             _defendantsAndChargesList = _fixture.Create<DefendantsAndChargesListDto>();
@@ -374,13 +375,12 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_ChangesWithDeletedDocuments()
         {
             // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
+            var tracker = new CaseDurableEntity();
             tracker.Reset(_transactionId);
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
             tracker.PcdRequests.ForEach(doc => doc.Status = DocumentStatus.Indexed);
-            (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) synchroniseDocumentsArg
-                = new(_cmsDocuments.Take(1).ToArray(), _pcdRequests.Take(1).ToArray(), null);
+            var synchroniseDocumentsArg = new(_cmsDocuments.Take(1).ToArray(), _pcdRequests.Take(1).ToArray(), null);
 
             // Act 
             var deltas = await tracker.GetCaseDocumentChanges(synchroniseDocumentsArg);

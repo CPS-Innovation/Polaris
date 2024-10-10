@@ -124,10 +124,8 @@ namespace coordinator.Mappers
 
         private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
         {
-            return new CmsDocumentEntity
+            return new CmsDocumentEntity(pcdRequest.DocumentId, pcdRequest.VersionId, pcdRequest.PresentationFlags)
             {
-                DocumentId = pcdRequest.DocumentId,
-                VersionId = pcdRequest.VersionId,
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
                 CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
                 CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? $"(Pending) PCD.pdf",
@@ -136,7 +134,6 @@ namespace coordinator.Mappers
                     //  false-positive name update notifications being shown in the UI, we make sure the interim name
                     //  on th PCS request is the same as the eventual name derived from the blob name.
                     ?? $"CMS-{pcdRequest.DocumentId}",
-                PresentationFlags = pcdRequest.PresentationFlags,
                 PdfBlobName = pcdRequest.PdfBlobName,
                 Status = pcdRequest.Status
             };
@@ -149,10 +146,8 @@ namespace coordinator.Mappers
 
             return new CmsDocumentEntity[1]
             {
-                new CmsDocumentEntity
+                new CmsDocumentEntity(defendantsAndCharges.DocumentId, defendantsAndCharges.VersionId,defendantsAndCharges.PresentationFlags)
                 {
-                    DocumentId = defendantsAndCharges.DocumentId,
-                    VersionId = defendantsAndCharges.VersionId,
                     CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
                     CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
                     CmsOriginalFileName = Path.GetFileName(defendantsAndCharges.PdfBlobName) ?? "(Pending) DAC.pdf",
@@ -161,7 +156,6 @@ namespace coordinator.Mappers
                         //  false-positive name update notifications being shown in the UI, we make sure the interim name
                         //  on th PCS request is the same as the eventual name derived from the blob name.
                         ?? "CMS-DAC",
-                    PresentationFlags = defendantsAndCharges.PresentationFlags,
                     PdfBlobName = defendantsAndCharges.PdfBlobName,
                     Status = defendantsAndCharges.Status
                 }

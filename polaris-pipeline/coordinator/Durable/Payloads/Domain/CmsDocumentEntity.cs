@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Common.Constants;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Newtonsoft.Json;
@@ -11,8 +12,13 @@ namespace coordinator.Durable.Payloads.Domain
             : base()
         { }
 
+        public CmsDocumentEntity(string documentId,
+            long versionId,
+            PresentationFlagsDto presentationFlags)
+        : base(documentId, versionId, presentationFlags) { }
+
         public CmsDocumentEntity(
-            string documentId,
+            string cmsDocumentId,
             long versionId,
             DocumentTypeDto cmsDocType,
             string path,
@@ -36,7 +42,7 @@ namespace coordinator.Durable.Payloads.Domain
             bool canRename,
             string renameStatus,
             string reference)
-            : base(documentId, versionId, presentationFlags)
+            : base($"{PolarisDocumentTypePrefixes.CmsDocument}-{cmsDocumentId}", versionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             Path = path;

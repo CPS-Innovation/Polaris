@@ -41,7 +41,8 @@ public class CaseDurableEntityTests
         var newDocId = _fixture.Create<string>();
 
         var existingDocInEntity = _fixture.Create<CmsDocumentEntity>();
-        existingDocInEntity.CmsDocumentId = existingDocId;
+        existingDocInEntity.DocumentId = $"CMS-{existingDocId}";
+
         var existingDocInIncoming = _fixture.Create<CmsDocumentDto>();
         existingDocInIncoming.DocumentId = existingDocId;
 

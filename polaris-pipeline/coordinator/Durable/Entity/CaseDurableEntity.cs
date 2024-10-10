@@ -87,9 +87,9 @@ namespace coordinator.Durable.Entity
             Failed = null;
             FailedReason = null;
             // todo: this initialisation should be done in a more constructor-like way, at least only once
-            CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
-            PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
-            DefendantsAndCharges = DefendantsAndCharges ?? null;
+            CmsDocuments ??= new List<CmsDocumentEntity>();
+            PcdRequests ??= new List<PcdRequestEntity>();
+            DefendantsAndCharges ??= null;
         }
 
         public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
@@ -224,7 +224,7 @@ namespace coordinator.Durable.Entity
                 var trackerDocument
                     = new CmsDocumentEntity
                     (
-                        documentId: DocumentIdHelper.GetQualifiedDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
+                        cmsDocumentId: newDocument.DocumentId,
                         versionId: newDocument.VersionId,
                         cmsDocType: newDocument.CmsDocType,
                         path: newDocument.Path,
@@ -234,7 +234,7 @@ namespace coordinator.Durable.Entity
                         isOcrProcessed: newDocument.IsOcrProcessed,
                         isDispatched: newDocument.IsDispatched,
                         categoryListOrder: newDocument.CategoryListOrder,
-                        parentDocumentId: DocumentIdHelper.GetQualifiedDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
+                        parentDocumentId: newDocument.ParentDocumentId,
                         cmsParentDocumentId: newDocument.ParentDocumentId,
                         witnessId: newDocument.WitnessId,
                         presentationFlags: newDocument.PresentationFlags,
@@ -327,7 +327,7 @@ namespace coordinator.Durable.Entity
 
             foreach (var newPcdRequest in createdPcdRequests)
             {
-                var documentId = DocumentIdHelper.GetQualifiedDocumentId(PolarisDocumentType.PcdRequest, newPcdRequest.Id.ToString());
+                var documentId = newPcdRequest.Id.ToString();
                 var trackerPcdRequest = new PcdRequestEntity(documentId, newPcdRequest);
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
@@ -370,7 +370,7 @@ namespace coordinator.Durable.Entity
         {
             if (createdDefendantsAndCharges != null)
             {
-                var documentId = DocumentIdHelper.GetQualifiedDocumentId(PolarisDocumentType.DefendantsAndCharges, createdDefendantsAndCharges.CaseId.ToString());
+                var documentId = createdDefendantsAndCharges.CaseId.ToString();
                 DefendantsAndCharges = new DefendantsAndChargesEntity(documentId, createdDefendantsAndCharges);
 
                 return DefendantsAndCharges;

@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using Common.Constants;
 using Common.Dto.Case;
+using Common.Dto.FeatureFlags;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -8,8 +10,13 @@ namespace coordinator.Durable.Payloads.Domain
         public DefendantsAndChargesEntity()
         { }
 
-        public DefendantsAndChargesEntity(string documentId, DefendantsAndChargesListDto defendantsAndCharges)
-            : base(documentId, 1, defendantsAndCharges.PresentationFlags)
+        public DefendantsAndChargesEntity(string documentId,
+            long versionId,
+            PresentationFlagsDto presentationFlags)
+        : base(documentId, versionId, presentationFlags) { }
+
+        public DefendantsAndChargesEntity(string cmsDocumentId, DefendantsAndChargesListDto defendantsAndCharges)
+            : base($"{PolarisDocumentTypePrefixes.DefendantsAndCharges}-{cmsDocumentId}", 1, defendantsAndCharges.PresentationFlags)
         {
             DefendantsAndCharges = defendantsAndCharges;
         }

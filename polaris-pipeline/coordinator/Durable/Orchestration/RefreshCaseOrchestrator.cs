@@ -189,7 +189,7 @@ namespace coordinator.Durable.Orchestration
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
-                var documentId = DocumentIdHelper.GetQualifiedDocumentId(PolarisDocumentType.DefendantsAndCharges, caseDocumentPayload.CmsCaseId.ToString());
+                var documentId = caseDocumentPayload.CmsCaseId.ToString();
                 var payload = new CaseDocumentOrchestrationPayload
                 (
                     cmsAuthValues: caseDocumentPayload.CmsAuthValues,
