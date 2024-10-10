@@ -61,7 +61,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleSubmitReclassify,
   handleReclassifyTracking,
 }) => {
-  const continueButtonRef = useRef(null);
   const acceptAndSaveButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
@@ -307,8 +306,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const handleContinueBtnClick = () => {
     const validData = validateData();
     if (!validData) return;
-    if (continueButtonRef.current)
-      (continueButtonRef.current as HTMLButtonElement).blur();
     if (state.reClassifyStage === "stage1") {
       dispatch({
         type: "UPDATE_CLASSIFY_STAGE",
@@ -396,7 +393,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       return (
         <>
           <Button
-            ref={continueButtonRef}
             onClick={handleContinueBtnClick}
             disabled={
               state.reClassifyStage === "stage2" &&
