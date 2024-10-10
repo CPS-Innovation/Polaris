@@ -55,11 +55,19 @@ type AppInsightsTrackEventNames =
   | "Save Reclassify Error"
   | "Delete Page"
   | "Undo Delete Page"
+  | "Save Redaction Error"
+  | "Save Rotation Error"
   | "Notification Panel Opened"
   | "Document Opened from Notification"
   | "Notification Cleared"
   | "All Notifications Cleared"
-  | "Notifications Arrived";
+  | "Notifications Arrived"
+  | "Save Rotation"
+  | "Remove All Rotations"
+  | "Rotate Page"
+  | "Undo Rotate Page"
+  | "Rotate Page Right"
+  | "Rotate Page Left";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -159,11 +167,21 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "Attempt to reclassify a document failed and displayed error message to the user",
   "Delete Page": "User has marked a page for deletion",
   "Undo Delete Page": "User selects to undo the page deletion",
+  "Save Redaction Error":
+    "Attempt to save redaction failed and displayed error message to the user",
   "Notifications Arrived": "Notifications Arrived",
   "Notification Panel Opened": "Notification Panel Opened",
   "Document Opened from Notification": "Document Opened from Notification",
   "Notification Cleared": "Notification Cleared",
   "All Notifications Cleared": "All Notifications Cleared",
+  "Save Rotation": "User has clicked on the 'Save all rotations' button",
+  "Save Rotation Error":
+    "Attempt to save rotations failed and displayed error message to the user",
+  "Remove All Rotations": "User has clicked 'Remove All Rotations' button",
+  "Rotate Page": "User has clicked page 'Rotate page' button",
+  "Undo Rotate Page": "User has cancelled page rotate",
+  "Rotate Page Right": "User clicked 'Rotate page right' button",
+  "Rotate Page Left": "User clicked 'Rotate page left' button",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

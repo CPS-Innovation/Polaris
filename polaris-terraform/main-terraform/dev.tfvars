@@ -103,6 +103,7 @@ feature_flag_external_redirect                     = "true"
 feature_flag_background_pipeline_refresh           = "true"
 background_pipeline_refresh_interval_ms            = 0.5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "true"
+feature_flag_page_rotate                           = "true"
 local_storage_expiry_days                          = "30"
 
 private_beta = {

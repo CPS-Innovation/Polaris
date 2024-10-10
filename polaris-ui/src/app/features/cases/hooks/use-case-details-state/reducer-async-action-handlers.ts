@@ -9,10 +9,12 @@ import {
   addNoteData,
   saveDocumentRename,
   getSearchPIIData,
+  saveRotations,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
+import { PageRotation, RotationSaveRequest } from "../../domain/IPageRotation";
 import {
   mapRedactionSaveRequest,
   mapSearchPIISaveRedactionObject,
@@ -35,24 +37,27 @@ type Action = Parameters<typeof reducer>[1];
 
 type AsyncActions =
   | {
-      type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
+      type: "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
         redactions?: NewPdfHighlight[];
         pageDeleteRedactions?: PageDeleteRedaction[];
+        pageRotations?: PageRotation[];
       };
     }
   | {
-      type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK";
+      type: "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
-        redactionId: string;
+        redactionId?: string;
+        rotationId?: string;
       };
     }
   | {
       type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
+        type: "redaction" | "rotation";
       };
     }
   | {
@@ -113,6 +118,12 @@ type AsyncActions =
       payload: {
         documentId: string;
       };
+    }
+  | {
+      type: "SAVE_ROTATIONS";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+      };
     };
 
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
@@ -146,18 +157,54 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       });
     },
 
-  ADD_REDACTION_AND_POTENTIALLY_LOCK:
+  ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK:
     ({ dispatch, getState }) =>
     async (action) => {
-      const { payload } = action;
-
-      const { documentId } = payload;
+      const {
+        payload: {
+          documentId,
+          pageDeleteRedactions,
+          redactions,
+          pageRotations,
+        },
+      } = action;
       const {
         tabsState: { items },
         caseId,
         urn,
       } = getState();
 
+      const addRedaction = () => {
+        if (pageDeleteRedactions) {
+          dispatch({
+            type: "ADD_PAGE_DELETE_REDACTION",
+            payload: {
+              documentId: documentId,
+              pageDeleteRedactions: pageDeleteRedactions,
+            },
+          });
+        }
+        if (redactions) {
+          dispatch({
+            type: "ADD_REDACTION",
+            payload: {
+              documentId: documentId,
+              redactions: redactions,
+            },
+          });
+        }
+      };
+
+      const addRotation = () => {
+        if (pageRotations)
+          dispatch({
+            type: "ADD_PAGE_ROTATION",
+            payload: {
+              documentId: documentId,
+              pageRotations: pageRotations,
+            },
+          });
+      };
       const { clientLockedState } = items.find(
         (item) => item.documentId === documentId
       )!;
@@ -166,24 +213,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         UNLOCKED_STATES_REQUIRING_LOCK.includes(clientLockedState);
 
       if (!documentRequiresLocking) {
-        if (payload.pageDeleteRedactions) {
-          dispatch({
-            type: "ADD_PAGE_DELETE_REDACTION",
-            payload: {
-              documentId: payload.documentId,
-              pageDeleteRedactions: payload.pageDeleteRedactions,
-            },
-          });
-        }
-        if (payload?.redactions) {
-          dispatch({
-            type: "ADD_REDACTION",
-            payload: {
-              documentId: payload.documentId,
-              redactions: payload.redactions,
-            },
-          });
-        }
+        pageRotations ? addRotation() : addRedaction();
         return;
       }
 
@@ -194,24 +224,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       try {
         await checkoutDocument(urn, caseId, documentId);
 
-        if (payload.pageDeleteRedactions) {
-          dispatch({
-            type: "ADD_PAGE_DELETE_REDACTION",
-            payload: {
-              documentId: payload.documentId,
-              pageDeleteRedactions: payload.pageDeleteRedactions,
-            },
-          });
-        }
-        if (payload?.redactions) {
-          dispatch({
-            type: "ADD_REDACTION",
-            payload: {
-              documentId: payload.documentId,
-              redactions: payload.redactions,
-            },
-          });
-        }
+        pageRotations ? addRotation() : addRedaction();
         dispatch({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: {
@@ -258,12 +271,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       }
     },
 
-  REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK:
+  REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK:
     ({ dispatch, getState }) =>
     async (action) => {
-      const { payload } = action;
+      const {
+        payload: { documentId, redactionId, rotationId },
+      } = action;
 
-      const { documentId, redactionId } = payload;
       const {
         tabsState: { items },
         caseId,
@@ -271,25 +285,43 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-
       const {
         redactionHighlights,
         clientLockedState: lockedState,
         pageDeleteRedactions,
+        pageRotations,
       } = document;
-      const isRestorePage = pageDeleteRedactions.some(
-        (redaction) => redaction.id === redactionId
-      );
-      if (isRestorePage) {
-        dispatch({ type: "REMOVE_PAGE_DELETE_REDACTION", payload });
-      } else {
-        dispatch({ type: "REMOVE_REDACTION", payload });
+      if (redactionId) {
+        const isRestorePage = pageDeleteRedactions.some(
+          (redaction) => redaction.id === redactionId
+        );
+        if (isRestorePage) {
+          dispatch({
+            type: "REMOVE_PAGE_DELETE_REDACTION",
+            payload: { documentId, redactionId },
+          });
+        } else {
+          dispatch({
+            type: "REMOVE_REDACTION",
+            payload: { documentId, redactionId },
+          });
+        }
       }
-
+      if (rotationId) {
+        dispatch({
+          type: "REMOVE_PAGE_ROTATION",
+          payload: {
+            documentId,
+            rotationId,
+          },
+        });
+      }
       const requiresCheckIn =
-        // this is the last existing highlight
-        redactionHighlights.length + pageDeleteRedactions.length === 1 &&
-        LOCKED_STATES_REQUIRING_UNLOCK.includes(lockedState);
+        // this is the last existing redaction or rotation
+        redactionHighlights.length +
+          pageDeleteRedactions.length +
+          pageRotations.length ===
+          1 && LOCKED_STATES_REQUIRING_UNLOCK.includes(lockedState);
 
       if (!requiresCheckIn) {
         return;
@@ -314,9 +346,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
   REMOVE_ALL_REDACTIONS_AND_UNLOCK:
     ({ dispatch, getState }) =>
     async (action) => {
-      const { payload } = action;
-
-      const { documentId } = payload;
+      const {
+        payload: { documentId, type },
+      } = action;
       const {
         tabsState: { items },
         caseId,
@@ -329,8 +361,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const requiresCheckIn =
         LOCKED_STATES_REQUIRING_UNLOCK.includes(lockedState);
-
-      dispatch({ type: "REMOVE_ALL_REDACTIONS", payload });
+      type === "redaction"
+        ? dispatch({ type: "REMOVE_ALL_REDACTIONS", payload: { documentId } })
+        : dispatch({ type: "REMOVE_ALL_ROTATIONS", payload: { documentId } });
 
       if (!requiresCheckIn) {
         return;
@@ -399,8 +432,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       ].map((item) => item.redactionType!);
       try {
         dispatch({
-          type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "saving" },
+          type: "SAVING_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: { type: "redaction", status: "saving" },
+          },
         });
         dispatch({
           type: "SHOW_REDACTION_LOG_MODAL",
@@ -411,8 +447,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
         dispatch({
-          type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "saved" },
+          type: "SAVING_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: { type: "redaction", status: "saved" },
+          },
         });
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
@@ -463,8 +502,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
         dispatch({
-          type: "SAVING_REDACTION",
-          payload: { documentId, saveStatus: "error" },
+          type: "SAVING_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: { type: "redaction", status: "error" },
+          },
         });
         dispatch({
           type: "HIDE_REDACTION_LOG_MODAL",
@@ -746,6 +788,99 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             documentId,
             searchPIIResult: [],
             getSearchPIIStatus: "failure",
+          },
+        });
+      }
+    },
+  SAVE_ROTATIONS:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const { payload } = action;
+      const { documentId } = payload;
+
+      const {
+        tabsState: { items },
+        caseId,
+        urn,
+      } = getState();
+
+      const document = items.find((item) => item.documentId === documentId)!;
+      const { polarisDocumentVersionId, pageRotations } = document;
+
+      const rotationRequestData: RotationSaveRequest = {
+        documentModifications: pageRotations.map(
+          ({ pageNumber, rotationAngle }) => ({
+            pageIndex: pageNumber,
+            operation: "rotate",
+            arg: `${rotationAngle}`,
+          })
+        ),
+      };
+
+      try {
+        dispatch({
+          type: "SAVING_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: { type: "rotation", status: "saving" },
+          },
+        });
+        await saveRotations(urn, caseId, documentId, rotationRequestData);
+        dispatch({
+          type: "SAVING_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: { type: "rotation", status: "saved" },
+          },
+        });
+        dispatch({
+          type: "REMOVE_ALL_ROTATIONS",
+          payload: { documentId },
+        });
+        dispatch({
+          type: "REGISTER_NOTIFIABLE_EVENT",
+          payload: { documentId, reason: "New Version" },
+        });
+
+        dispatch({
+          type: "UPDATE_REFRESH_PIPELINE",
+          payload: {
+            startRefresh: true,
+            savedDocumentDetails: {
+              documentId: documentId,
+              polarisDocumentVersionId: polarisDocumentVersionId,
+            },
+          },
+        });
+      } catch (e) {
+        const { code } = e as ApiError;
+        let errorMessage =
+          "Failed to save rotations. Please try again. </p> If re-trying is not successful, please notify the Casework App product team.";
+
+        switch (code) {
+          case DOCUMENT_NOT_FOUND_STATUS_CODE:
+            errorMessage =
+              "Failed to save rotation. The document no longer exists in CMS.";
+            break;
+          case DOCUMENT_TOO_LARGE_STATUS_CODE:
+            errorMessage =
+              "Failed to save rotation. The document is too large to rotate.";
+            break;
+        }
+
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "saverotation",
+            title: "Something went wrong!",
+            message: errorMessage,
+          },
+        });
+        dispatch({
+          type: "SAVING_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: { type: "rotation", status: "error" },
           },
         });
       }

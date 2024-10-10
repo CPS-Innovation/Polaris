@@ -45,7 +45,7 @@ export const Footer: React.FC<Props> = ({
         id={`btn-link-removeAll-${tabIndex}`}
         onClick={handleRemoveAllRedactionsClick}
         dataTestId={`btn-link-removeAll-${tabIndex}`}
-        disabled={saveStatus === "saving"}
+        disabled={saveStatus.status === "saving"}
         className={classes.removeButton}
       >
         Remove all redactions
@@ -66,7 +66,7 @@ export const Footer: React.FC<Props> = ({
         className={classes.saveButton}
         onClick={handleSaveAllRedactionsClick}
         data-testid={`btn-save-redaction-${tabIndex}`}
-        disabled={!isOkToSave || saveStatus === "saving"}
+        disabled={!isOkToSave || saveStatus.status === "saving"}
       >
         Save all redactions
       </Button>
