@@ -9,6 +9,5 @@ namespace Common.Dto.Case.PreCharge
         public PcdCommentsDto Comments { get; set; }
 
         public List<PcdRequestSuspectDto> Suspects { get; set; }
-
     }
 }

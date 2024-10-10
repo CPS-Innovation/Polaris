@@ -439,7 +439,6 @@ describe("mapAccordionState", () => {
       data: [
         {
           documentId: "1",
-          cmsDocumentId: "1",
           cmsVersionId: 1,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
@@ -476,7 +475,6 @@ describe("mapAccordionState", () => {
         },
         {
           documentId: "2",
-          cmsDocumentId: "2",
           cmsVersionId: 2,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
@@ -525,7 +523,6 @@ describe("mapAccordionState", () => {
           docs: [
             {
               documentId: "2",
-              cmsDocumentId: "2",
               cmsVersionId: 2,
               presentationCategory: "Reviews",
               presentationSubCategory: null,

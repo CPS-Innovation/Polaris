@@ -64,7 +64,6 @@ namespace TextExtractor.TestHarness.Services
                 cmsVersionId: 1,
                 cmsDocType: new DocumentTypeDto(),
                 path: null,
-                fileExtension: fileExtension,
                 cmsFileCreatedDate: DateTime.Now.ToString(),
                 cmsOriginalFileName: cmsOriginalFileName,
                 presentationTitle: TestProperties.PresentationTitle,
