@@ -102,7 +102,7 @@ namespace coordinator.Functions
                 using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
                 if (modifiedDocumentStream == null)
                 {
-                    string error = $"Error modifying document for {caseId}, polarisDocumentId {documentId}";
+                    string error = $"Error modifying document for {caseId}, documentId {documentId}";
                     throw new Exception(error);
                 }
 
@@ -126,7 +126,7 @@ namespace coordinator.Functions
                     urn: caseUrn,
                     caseId: int.Parse(caseId),
                     documentId: int.Parse(document.CmsDocumentId),
-                    versionId: document.CmsVersionId
+                    versionId: document.VersionId
                 );
 
                 var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);

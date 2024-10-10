@@ -1,23 +1,23 @@
 /// <reference types="cypress" />
-import "cypress-wait-until"
-import { PipelineResults } from "../../gateway/PipelineResults"
-import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes"
-import { WAIT_UNTIL_OPTIONS } from "../support/options"
+import "cypress-wait-until";
+import { PipelineResults } from "../../gateway/PipelineResults";
+import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes";
+import { WAIT_UNTIL_OPTIONS } from "../support/options";
 
 const {
   ATTACHMENT_TARGET_URN,
   ATTACHMENT_CASE_ID,
   ATTACHMENT_PARENT_DOCUMENT_ID,
-} = Cypress.env()
+} = Cypress.env();
 
-let routes: ApiRoutes
+let routes: ApiRoutes;
 
 describe("Attachments", { tags: ["@ci", "@ci-chunk-3"] }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
-      routes = makeApiRoutes(headers)
-    })
-  })
+      routes = makeApiRoutes(headers);
+    });
+  });
 
   it("can observe expected attachment documents and parents in tracker responses", () => {
     cy.clearCaseTracker(ATTACHMENT_TARGET_URN, ATTACHMENT_CASE_ID)
@@ -41,10 +41,9 @@ describe("Attachments", { tags: ["@ci", "@ci-chunk-3"] }, () => {
       .then(({ documents }) => {
         expect(
           documents.some(
-            (document) =>
-              document.polarisDocumentId == ATTACHMENT_PARENT_DOCUMENT_ID
+            (document) => document.documentId == ATTACHMENT_PARENT_DOCUMENT_ID
           )
-        ).to.be.true
-      })
-  })
-})
+        ).to.be.true;
+      });
+  });
+});

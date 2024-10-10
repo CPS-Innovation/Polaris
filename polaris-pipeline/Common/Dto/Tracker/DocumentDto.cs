@@ -13,14 +13,14 @@ namespace Common.Dto.Tracker
         { }
 
         [JsonProperty("documentId")]
-        public string PolarisDocumentId { get; set; }
+        public string DocumentId { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
 
         [JsonProperty("versionId")]
-        public long CmsVersionId { get; set; }
+        public long VersionId { get; set; }
 
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
@@ -69,8 +69,8 @@ namespace Common.Dto.Tracker
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
-        [JsonProperty("piiCmsVersionId")]
-        public int? PiiCmsVersionId { get; set; }
+        [JsonProperty("piiVersionId")]
+        public int? PiiVersionId { get; set; }
 
         [JsonProperty("isUnused")]
         public bool IsUnused { get; set; }

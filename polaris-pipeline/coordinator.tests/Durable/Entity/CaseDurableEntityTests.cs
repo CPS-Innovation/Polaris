@@ -84,7 +84,7 @@ public class CaseDurableEntityTests
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         // make sure triggers for different delta types are not found
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
         // our operative change
         docInIncoming.PresentationTitle = newDocTitle;
@@ -121,7 +121,7 @@ public class CaseDurableEntityTests
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         // make sure triggers for different delta types are not found
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
         // our operative change
         docInIncoming.CmsDocType.DocumentCategory = newDocCategory;
@@ -157,7 +157,7 @@ public class CaseDurableEntityTests
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         // make sure triggers for different delta types are not found
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
         // our operative change
         docInIncoming.CategoryListOrder = newCategoryListOrder;
@@ -193,7 +193,7 @@ public class CaseDurableEntityTests
 
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = true;
         // note: presentationTitle and categoryListOrder are going to be different between the two docs
         // due to AutoFixture but the Ocr flag change should be strong enough to return RequiresPdfRefresh

@@ -114,8 +114,8 @@ namespace coordinator.tests.Domain.Tracker
             var serialisedTracker = JsonConvert.SerializeObject(_caseEntity);
             var deserialisedTracker = JsonConvert.DeserializeObject<CaseDurableEntity>(serialisedTracker);
 
-            _caseEntity.CmsDocuments[0].PolarisDocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].PolarisDocumentId);
-            _caseEntity.PcdRequests[0].PolarisDocumentId.Should().Be(deserialisedTracker.PcdRequests[0].PolarisDocumentId);
+            _caseEntity.CmsDocuments[0].DocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].DocumentId);
+            _caseEntity.PcdRequests[0].DocumentId.Should().Be(deserialisedTracker.PcdRequests[0].DocumentId);
             deserialisedTracker.TransactionId.Should().Be(_transactionId);
         }
 
@@ -139,11 +139,11 @@ namespace coordinator.tests.Domain.Tracker
             // Arrange
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            var polarisDocumentId = _caseEntity.CmsDocuments.First().PolarisDocumentId;
+            var documentId = _caseEntity.CmsDocuments.First().DocumentId;
             var cmsDocumentId = _caseEntity.CmsDocuments.First().CmsDocumentId;
 
             // Act
-            _caseEntity.SetDocumentStatus((polarisDocumentId, status, _pdfBlobName));
+            _caseEntity.SetDocumentStatus((documentId, status, _pdfBlobName));
 
             // Assert
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == cmsDocumentId);
@@ -180,8 +180,8 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf}
+                new(_fixture.Create<string>(),  _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<string>(),  _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf}
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.UnableToConvertToPdf };
@@ -195,9 +195,9 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),  _fixture.Create<string>(), null,  _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),_fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),  _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
+                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),  _fixture.Create<string>(), null,  _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),_fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),  _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.Indexed };
@@ -464,7 +464,7 @@ namespace coordinator.tests.Domain.Tracker
                 var newVersion = _caseEntity.CmsDocuments.Find(x => x.CmsDocumentId == modifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
-                newVersion?.CmsVersionId.Should().Be(newVersionId);
+                newVersion?.VersionId.Should().Be(newVersionId);
             }
         }
 
@@ -503,10 +503,10 @@ namespace coordinator.tests.Domain.Tracker
                 var unmodifiedDocument = _caseEntity.CmsDocuments.Find(x => x.CmsDocumentId == unmodifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
-                newVersion?.CmsVersionId.Should().Be(newVersionId);
+                newVersion?.VersionId.Should().Be(newVersionId);
 
                 unmodifiedDocument.Should().NotBeNull();
-                unmodifiedDocument?.CmsVersionId.Should().Be(unmodifiedDocumentVersionId);
+                unmodifiedDocument?.VersionId.Should().Be(unmodifiedDocumentVersionId);
 
                 var searchResultForDocumentRemovedFromCms = _caseEntity.CmsDocuments.Find(x => x.CmsDocumentId == documentRemovedFromCmsId);
                 searchResultForDocumentRemovedFromCms.Should().BeNull();

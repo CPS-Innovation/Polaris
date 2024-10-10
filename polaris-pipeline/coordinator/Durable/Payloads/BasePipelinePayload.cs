@@ -11,7 +11,7 @@ public abstract class BasePipelinePayload
         CmsCaseUrn = cmsCaseUrn;
         CmsCaseId = cmsCaseId;
         CorrelationId = correlationId;
-        PolarisDocumentId = documentId;
+        DocumentId = documentId;
     }
 
     [Required]
@@ -23,5 +23,5 @@ public abstract class BasePipelinePayload
     [Required]
     public Guid CorrelationId { get; set; }
 
-    public string PolarisDocumentId { get; set; }
+    public string DocumentId { get; set; }
 }

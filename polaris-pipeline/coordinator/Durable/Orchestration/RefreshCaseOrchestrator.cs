@@ -189,7 +189,7 @@ namespace coordinator.Durable.Orchestration
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
-                var polarisDocumentId = PolarisDocumentIdHelper.GetPolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, caseDocumentPayload.CmsCaseId.ToString());
+                var documentId = DocumentIdHelper.GetQualifiedDocumentId(PolarisDocumentType.DefendantsAndCharges, caseDocumentPayload.CmsCaseId.ToString());
                 var payload = new CaseDocumentOrchestrationPayload
                 (
                     cmsAuthValues: caseDocumentPayload.CmsAuthValues,
@@ -199,7 +199,7 @@ namespace coordinator.Durable.Orchestration
                     cmsCaseId: caseDocumentPayload.CmsCaseId,
                     serializedTrackerCmsDocumentDto: null,
                     serializedTrackerPcdRequestDto: null,
-                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(polarisDocumentId, new DefendantsAndChargesListDto { })),
+                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(documentId, new DefendantsAndChargesListDto { })),
                     documentDeltaType: DocumentDeltaType.RequiresIndexing
                 );
                 defendantsAndChargesPayloads.Add(payload);
@@ -212,7 +212,7 @@ namespace coordinator.Durable.Orchestration
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
                             nameof(RefreshDocumentOrchestrator),
-                            RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
+                            RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.DocumentId),
                             payload
                         )
                     );

@@ -10,8 +10,9 @@ namespace Common.Mappers
         {
             return new SearchFilterDocument
             {
+                DocumentId = searchRequestDocumentDto.DocumentId,
                 CmsDocumentId = searchRequestDocumentDto.CmsDocumentId,
-                CmsVersionId = searchRequestDocumentDto.CmsVersionId
+                VersionId = searchRequestDocumentDto.VersionId
             };
         }
     }

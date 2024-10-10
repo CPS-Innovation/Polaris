@@ -24,17 +24,17 @@ namespace coordinator.Durable.Payloads
             if (serializedTrackerCmsDocumentDto != null)
             {
                 CmsDocumentTracker = JsonSerializer.Deserialize<CmsDocumentEntity>(serializedTrackerCmsDocumentDto);
-                PolarisDocumentId = CmsDocumentTracker.PolarisDocumentId;
+                DocumentId = CmsDocumentTracker.DocumentId;
             }
             else if (serializedTrackerPcdRequestDto != null)
             {
                 PcdRequestTracker = JsonSerializer.Deserialize<PcdRequestEntity>(serializedTrackerPcdRequestDto);
-                PolarisDocumentId = PcdRequestTracker.PolarisDocumentId;
+                DocumentId = PcdRequestTracker.DocumentId;
             }
             else if (serializedTrackerDefendantAndChargesDto != null)
             {
                 DefendantAndChargesTracker = JsonSerializer.Deserialize<DefendantsAndChargesEntity>(serializedTrackerDefendantAndChargesDto);
-                PolarisDocumentId = DefendantAndChargesTracker.PolarisDocumentId;
+                DocumentId = DefendantAndChargesTracker.DocumentId;
             }
             SubCorrelationId = subCorrelationId;
             CmsAuthValues = cmsAuthValues;
@@ -60,16 +60,16 @@ namespace coordinator.Durable.Payloads
             }
         }
 
-        public long CmsVersionId
+        public long VersionId
         {
             get
             {
                 if (CmsDocumentTracker != null)
-                    return CmsDocumentTracker.CmsVersionId;
+                    return CmsDocumentTracker.VersionId;
                 if (PcdRequestTracker != null)
-                    return PcdRequestTracker.CmsVersionId;
+                    return PcdRequestTracker.VersionId;
                 else
-                    return DefendantAndChargesTracker.CmsVersionId;
+                    return DefendantAndChargesTracker.VersionId;
             }
         }
 

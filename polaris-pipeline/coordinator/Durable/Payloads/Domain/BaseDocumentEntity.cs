@@ -14,14 +14,12 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public BaseDocumentEntity(
-            string polarisDocumentId,
-            string cmsDocumentId,
-            long cmsVersionId,
+            string documentId,
+            long versionId,
             PresentationFlagsDto presentationFlags)
         {
-            PolarisDocumentId = polarisDocumentId;
-            CmsDocumentId = cmsDocumentId;
-            CmsVersionId = cmsVersionId;
+            DocumentId = documentId;
+            VersionId = versionId;
             PresentationFlags = presentationFlags;
             Status = DocumentStatus.New;
         }
@@ -32,13 +30,19 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("cmsDocumentId")]
         [AdaptIgnore]
-        public string CmsDocumentId { get; set; }
+        public string CmsDocumentId
+        {
+            get
+            {
+                return DocumentId.Split('-')[1];
+            }
+        }
 
-        [JsonProperty("cmsVersionId")]
-        public long CmsVersionId { get; set; }
+        [JsonProperty("versionId")]
+        public long VersionId { get; set; }
 
-        [JsonProperty("polarisDocumentId")]
-        public string PolarisDocumentId { get; set; }
+        [JsonProperty("documentId")]
+        public string DocumentId { get; set; }
 
         [Obsolete("This shouldn't really be a property as it can always be worked out buy convention")]
         [JsonProperty("pdfBlobName")]
@@ -50,7 +54,7 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
-        [JsonProperty("piiCmsVersionId")]
-        public long? PiiCmsVersionId { get; set; }
+        [JsonProperty("piiVersionId")]
+        public long? PiiVersionId { get; set; }
     }
 }

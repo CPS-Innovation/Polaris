@@ -35,11 +35,11 @@ namespace TextExtractor.TestHarness.Services
             try
             {
                 using (var documentStream = File.Open(filePath, FileMode.Open))
-                    await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
+                    await _textExtractorClient.ExtractTextAsync(payload.DocumentId,
                         payload.CmsCaseUrn,
                         payload.CmsCaseId,
                         payload.CmsDocumentId,
-                        payload.CmsVersionId,
+                        payload.VersionId,
                         payload.BlobName,
                         payload.CorrelationId,
                         documentStream);
@@ -51,15 +51,15 @@ namespace TextExtractor.TestHarness.Services
         }
 
         private string SerializedCmsDocumentDto(
-            string polarisDocumentId,
+            string documentId,
             string cmsDocumentId,
             string fileExtension,
             string cmsOriginalFileName)
         {
             var cmsDocumentEntity = new CmsDocumentEntity(
-                polarisDocumentId: polarisDocumentId,
+                documentId: documentId,
                 cmsDocumentId: cmsDocumentId,
-                cmsVersionId: 1,
+                versionId: 1,
                 cmsDocType: new DocumentTypeDto(),
                 path: null,
                 cmsFileCreatedDate: DateTime.Now.ToString(),

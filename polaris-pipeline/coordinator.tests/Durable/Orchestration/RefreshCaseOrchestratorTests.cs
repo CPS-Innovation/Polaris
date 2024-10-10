@@ -63,7 +63,7 @@ namespace coordinator.tests.Durable.Orchestration
                         .With(p => p.CmsCaseId, _cmsCaseId)
                         .With(p => p.CmsCaseUrn, _cmsCaseUrn)
                         .With(p => p.CorrelationId, _correlationId)
-                        .With(p => p.PolarisDocumentId, _documentId)
+                        .With(p => p.DocumentId, _documentId)
                         .Create();
             _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
 
@@ -77,8 +77,6 @@ namespace coordinator.tests.Durable.Orchestration
             _trackerCmsDocuments = fixture.CreateMany<(CmsDocumentEntity, DocumentDeltaType)>(11)
                 .ToList();
 
-            for (int i = 0; i < _trackerCmsDocuments.Count; i++)
-                _trackerCmsDocuments[i].Item1.CmsDocumentId = $"CMS-{i + 1}";
             _deltaDocuments = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = _trackerCmsDocuments.Where(d => d.Item1.Status == DocumentStatus.New).ToList(),

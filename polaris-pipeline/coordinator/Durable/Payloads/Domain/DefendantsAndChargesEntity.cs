@@ -9,7 +9,7 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public DefendantsAndChargesEntity(string documentId, DefendantsAndChargesListDto defendantsAndCharges)
-            : base(documentId, $"DAC", 1, defendantsAndCharges.PresentationFlags)
+            : base(documentId, 1, defendantsAndCharges.PresentationFlags)
         {
             DefendantsAndCharges = defendantsAndCharges;
         }

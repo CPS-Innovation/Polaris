@@ -12,9 +12,8 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public CmsDocumentEntity(
-            string polarisDocumentId,
-            string cmsDocumentId,
-            long cmsVersionId,
+            string documentId,
+            long versionId,
             DocumentTypeDto cmsDocType,
             string path,
             string cmsFileCreatedDate,
@@ -23,7 +22,7 @@ namespace coordinator.Durable.Payloads.Domain
             bool isOcrProcessed,
             bool isDispatched,
             int? categoryListOrder,
-            string polarisParentDocumentId,
+            string parentDocumentId,
             string cmsParentDocumentId,
             int? witnessId,
             PresentationFlagsDto presentationFlags,
@@ -37,7 +36,7 @@ namespace coordinator.Durable.Payloads.Domain
             bool canRename,
             string renameStatus,
             string reference)
-            : base(polarisDocumentId, cmsDocumentId, cmsVersionId, presentationFlags)
+            : base(documentId, versionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             Path = path;
@@ -47,7 +46,7 @@ namespace coordinator.Durable.Payloads.Domain
             IsOcrProcessed = isOcrProcessed;
             IsDispatched = isDispatched;
             CategoryListOrder = categoryListOrder;
-            PolarisParentDocumentId = polarisParentDocumentId;
+            PolarisParentDocumentId = parentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
             WitnessId = witnessId;
             HasFailedAttachments = hasFailedAttachments;

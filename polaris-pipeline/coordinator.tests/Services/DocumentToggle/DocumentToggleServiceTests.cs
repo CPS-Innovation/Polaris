@@ -75,7 +75,6 @@ namespace coordinator.tests.Services.DocumentToggle
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
           "DOC-ID",
-          "2",
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",
@@ -113,7 +112,6 @@ namespace coordinator.tests.Services.DocumentToggle
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
           "DOC-ID",
-          "2",
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",
@@ -151,7 +149,6 @@ namespace coordinator.tests.Services.DocumentToggle
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
           "DOC-ID",
-          "2",
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",
@@ -190,7 +187,6 @@ namespace coordinator.tests.Services.DocumentToggle
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
           "DOC-ID",
-          "2",
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",

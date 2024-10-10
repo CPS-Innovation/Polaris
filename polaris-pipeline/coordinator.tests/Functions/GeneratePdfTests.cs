@@ -70,8 +70,7 @@ namespace pdf_generator.tests.Functions
       _generatePdfRequest.CmsCaseId = 123456;
       _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test document";
       _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
-      _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
-      _generatePdfRequest.CmsDocumentTracker.CmsDocumentId = _fixture.Create<string>();
+      _generatePdfRequest.CmsDocumentTracker.VersionId = 654321;
 
       _documentStream = new MemoryStream();
       _pdfStream = new MemoryStream();
@@ -117,7 +116,7 @@ namespace pdf_generator.tests.Functions
               _generatePdfRequest.CmsCaseUrn,
               _generatePdfRequest.CmsCaseId.ToString(),
               _generatePdfRequest.CmsDocumentId,
-              _generatePdfRequest.CmsVersionId.ToString(),
+              _generatePdfRequest.VersionId.ToString(),
               _documentStream,
               FileType.DOC))
           .ReturnsAsync(new ConvertToPdfResponse() { PdfStream = _pdfStream, Status = PdfConversionStatus.DocumentConverted });
@@ -153,8 +152,8 @@ namespace pdf_generator.tests.Functions
               _pdfStream,
               _generatePdfRequest.BlobName,
               _generatePdfRequest.CmsCaseId.ToString(),
-              _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
-              _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
+              _generatePdfRequest.CmsDocumentTracker.DocumentId,
+              _generatePdfRequest.CmsDocumentTracker.VersionId.ToString(),
               _generatePdfRequest.CorrelationId
           )
       );
@@ -172,8 +171,8 @@ namespace pdf_generator.tests.Functions
               _pdfStream,
               _generatePdfRequest.BlobName,
               _generatePdfRequest.CmsCaseId.ToString(),
-              _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
-              _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
+              _generatePdfRequest.CmsDocumentTracker.DocumentId,
+              _generatePdfRequest.CmsDocumentTracker.VersionId.ToString(),
               _generatePdfRequest.CorrelationId
           )
       );

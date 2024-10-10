@@ -109,7 +109,7 @@ namespace coordinator.Services.PiiService
                 {
                     piiLine = new PiiLine
                     {
-                        PolarisDocumentId = entity.PolarisDocumentId,
+                        DocumentId = entity.DocumentId,
                         PageIndex = entity.PageIndex,
                         LineIndex = entity.LineIndex,
                         AccumulativeLineIndex = entity.AccumulativeLineIndex,

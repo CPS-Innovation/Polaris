@@ -126,9 +126,8 @@ namespace coordinator.Mappers
         {
             return new CmsDocumentEntity
             {
-                PolarisDocumentId = pcdRequest.PolarisDocumentId,
-                CmsDocumentId = pcdRequest.CmsDocumentId,
-                CmsVersionId = pcdRequest.CmsVersionId,
+                DocumentId = pcdRequest.DocumentId,
+                VersionId = pcdRequest.VersionId,
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
                 CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
                 CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? $"(Pending) PCD.pdf",
@@ -136,7 +135,7 @@ namespace coordinator.Mappers
                     // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
                     //  false-positive name update notifications being shown in the UI, we make sure the interim name
                     //  on th PCS request is the same as the eventual name derived from the blob name.
-                    ?? $"CMS-{pcdRequest.PolarisDocumentId}",
+                    ?? $"CMS-{pcdRequest.DocumentId}",
                 PresentationFlags = pcdRequest.PresentationFlags,
                 PdfBlobName = pcdRequest.PdfBlobName,
                 Status = pcdRequest.Status
@@ -152,9 +151,8 @@ namespace coordinator.Mappers
             {
                 new CmsDocumentEntity
                 {
-                    PolarisDocumentId = defendantsAndCharges.PolarisDocumentId,
-                    CmsDocumentId = defendantsAndCharges.CmsDocumentId,
-                    CmsVersionId = defendantsAndCharges.CmsVersionId,
+                    DocumentId = defendantsAndCharges.DocumentId,
+                    VersionId = defendantsAndCharges.VersionId,
                     CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
                     CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
                     CmsOriginalFileName = Path.GetFileName(defendantsAndCharges.PdfBlobName) ?? "(Pending) DAC.pdf",

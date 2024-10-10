@@ -42,7 +42,7 @@ namespace text_extractor.Services.CaseSearchService
             _logger = logger;
         }
 
-        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, string documentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
+        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, string documentId, long cmsCaseId, long versionId, string blobPath, Guid correlationId)
         {
             var blobName = Path.GetFileName(blobPath);
             var lines = new List<SearchLine>();
@@ -54,7 +54,6 @@ namespace text_extractor.Services.CaseSearchService
                         (line, index) => _searchLineFactory.Create
                                             (
                                                 cmsCaseId,
-                                                cmsDocumentId,
                                                 documentId,
                                                 versionId,
                                                 blobName,
@@ -115,7 +114,7 @@ namespace text_extractor.Services.CaseSearchService
                 throw new RequestFailedException($"At least one indexing action failed. Status(es) = {string.Join(", ", statuses)}");
             }
 
-            _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), $"Case: {cmsCaseId}, Document: {cmsDocumentId}, Version: {versionId}, indexed {lines.Count} lines");
+            _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), $"Case: {cmsCaseId}, Document: {documentId}, Version: {versionId}, indexed {lines.Count} lines");
             return lines.Count;
         }
 

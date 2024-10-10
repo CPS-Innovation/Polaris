@@ -106,7 +106,7 @@ namespace coordinator.Functions
                     redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, documentId, redactionRequest, currentCorrelationId);
                     if (redactedDocumentStream == null)
                     {
-                        string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {documentId}";
+                        string error = $"Error Saving redaction details to the document for {caseId}, documentId {documentId}";
                         throw new Exception(error);
                     }
                 }
@@ -141,7 +141,7 @@ namespace coordinator.Functions
                     modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
                     if (modifiedDocumentStream == null)
                     {
-                        string error = $"Error modifying document for {caseId}, polarisDocumentId {documentId}";
+                        string error = $"Error modifying document for {caseId}, documentId {documentId}";
                         throw new Exception(error);
                     }
                 }
@@ -166,7 +166,7 @@ namespace coordinator.Functions
                     urn: caseUrn,
                     caseId: int.Parse(caseId),
                     documentId: int.Parse(document.CmsDocumentId),
-                    versionId: document.CmsVersionId
+                    versionId: document.VersionId
                 );
 
                 var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);

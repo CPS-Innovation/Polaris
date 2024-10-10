@@ -55,7 +55,7 @@ namespace coordinator.Functions
                          urn: caseUrn,
                          caseId: int.Parse(caseId),
                          documentId: int.Parse(document.CmsDocumentId),
-                         versionId: document.CmsVersionId
+                         versionId: document.VersionId
                  );
 
                 var result = await _ddeiClient.CheckoutDocumentAsync(arg);

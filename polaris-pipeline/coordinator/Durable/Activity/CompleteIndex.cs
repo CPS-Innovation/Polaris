@@ -22,8 +22,8 @@ namespace coordinator.Durable.Activity
             var results = await _textExtractorClient.GetDocumentIndexCount(
                 payload.CmsCaseUrn,
                 payload.CmsCaseId,
-                payload.CmsDocumentId,
-                payload.CmsVersionId,
+                payload.DocumentId,
+                payload.VersionId,
                 payload.CorrelationId);
 
             var isComplete = results.LineCount >= targetCount;

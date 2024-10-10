@@ -81,9 +81,8 @@ namespace text_extractor.Functions
                 var storedLinesCount = await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
-                        extractTextRequest.PolarisDocumentId,
+                        extractTextRequest.DocumentId,
                         caseId,
-                        documentId,
                         versionId,
                         extractTextRequest.BlobName,
                         currentCorrelationId

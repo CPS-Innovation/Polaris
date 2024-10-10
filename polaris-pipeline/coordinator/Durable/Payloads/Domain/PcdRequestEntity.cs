@@ -8,7 +8,7 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public PcdRequestEntity(string documentId, PcdRequestDto pcdRequest)
-            : base(documentId, $"PCD-{pcdRequest.Id}", 1, pcdRequest.PresentationFlags)
+            : base(documentId, 1, pcdRequest.PresentationFlags)
         {
             PcdRequest = pcdRequest;
         }

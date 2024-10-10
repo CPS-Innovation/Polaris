@@ -66,8 +66,8 @@ namespace coordinator.Functions
                 var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, documentId, currentCorrelationId);
                 var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, documentId, currentCorrelationId);
 
-                if (document.PiiCmsVersionId != null &&
-                    document.PiiCmsVersionId == document.CmsVersionId &&
+                if (document.PiiVersionId != null &&
+                    document.PiiVersionId == document.VersionId &&
                     ocrResults != null && piiResults != null)
                 {
                     var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, CharacterLimit, currentCorrelationId);
@@ -113,7 +113,7 @@ namespace coordinator.Functions
 
                     await client.SignalEntityAsync<ICaseDurableEntity>(
                         caseEntityId,
-                        x => x.SetPiiCmsVersionId(documentId));
+                        x => x.SetPiiVersionId(documentId));
 
                     return new OkObjectResult(results);
                 }

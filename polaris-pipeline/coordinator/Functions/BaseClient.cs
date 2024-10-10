@@ -64,14 +64,14 @@ namespace coordinator.Functions
                 return response;
             }
 
-            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(documentId));
+            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.DocumentId.Equals(documentId));
             if (response.CmsDocument == null)
             {
-                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId.Equals(documentId));
+                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.DocumentId.Equals(documentId));
 
                 if (response.PcdRequest == null)
                 {
-                    if (documentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
+                    if (documentId.Equals(entityState.DefendantsAndCharges.DocumentId))
                     {
                         response.DefendantsAndCharges = entityState.DefendantsAndCharges;
                     }

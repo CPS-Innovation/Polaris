@@ -3,9 +3,9 @@ using Common.Domain.Document;
 
 namespace coordinator.Durable
 {
-    public static class PolarisDocumentIdHelper
+    public static class DocumentIdHelper
     {
-        public static string GetPolarisDocumentId(PolarisDocumentType polarisDocumentType, string value)
+        public static string GetQualifiedDocumentId(PolarisDocumentType polarisDocumentType, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

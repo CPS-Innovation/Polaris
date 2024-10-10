@@ -76,11 +76,11 @@ namespace coordinator.Functions
                         .ToList();
 
                 var filteredSearchResults = searchResults
-                    .Where(result => documents.Any(doc => doc.PolarisDocumentId == result.PolarisDocumentId && doc.CmsVersionId == result.VersionId))
+                    .Where(result => documents.Any(doc => doc.DocumentId == result.DocumentId && doc.VersionId == result.VersionId))
                     .ToList();
 
                 var documentIds = filteredSearchResults
-                    .Select(result => result.PolarisDocumentId)
+                    .Select(result => result.DocumentId)
                     .Distinct()
                     .ToList();
 

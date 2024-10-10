@@ -18,7 +18,9 @@
 
 # Immediate
 
-WHAT TO DO ABOUT ISOCRed?
+- check 423s in prod
+- WHAT TO DO ABOUT isOCR-ed?
+- Make sure analytics events are ok
 
 ## Ids
 

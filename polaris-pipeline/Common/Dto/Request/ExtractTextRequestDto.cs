@@ -6,11 +6,11 @@ namespace Common.Dto.Request
     {
         public StoreCaseIndexesRequestDto(string documentId, string blobName)
         {
-            PolarisDocumentId = documentId;
+            DocumentId = documentId;
             BlobName = blobName;
         }
 
-        public string PolarisDocumentId { get; set; }
+        public string DocumentId { get; set; }
 
         [Required]
         public string BlobName { get; set; }

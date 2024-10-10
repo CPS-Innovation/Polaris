@@ -62,8 +62,8 @@ namespace coordinator.Durable.Activity
                         payload.CorrelationId,
                         payload.CmsCaseUrn,
                         payload.CmsCaseId.ToString(),
-                        payload.CmsDocumentId,
-                        payload.CmsVersionId.ToString(),
+                        payload.DocumentId,
+                        payload.VersionId.ToString(),
                         documentStream,
                         fileType);
 
@@ -77,8 +77,8 @@ namespace coordinator.Durable.Activity
                 response.PdfStream,
                 payload.BlobName,
                 payload.CmsCaseId.ToString(),
-                payload.PolarisDocumentId,
-                payload.CmsVersionId.ToString(),
+                payload.DocumentId,
+                payload.VersionId.ToString(),
                 payload.CorrelationId
             );
 
