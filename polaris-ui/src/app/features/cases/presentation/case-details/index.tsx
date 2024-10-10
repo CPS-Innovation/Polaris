@@ -329,15 +329,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       docTypeId: null,
       isUnused: false,
     });
-
+    handleOpenAccordion(documentId);
     setTimeout(() => {
-      handleOpenAccordion(documentId);
       (
         document.querySelector(
           `#document-housekeeping-actions-dropdown-${reclassifyDetails.documentId}`
         ) as HTMLElement
       ).focus();
-    }, 100);
+    }, 500);
   };
 
   const handleGetMaterialTypeList = () => {
