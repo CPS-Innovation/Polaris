@@ -581,12 +581,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               },
             }}
             hint={{
-              children: (
-                <span>
-                  For example, 27 3 2024 <br /> Leave blank if the document is
-                  Undated.
-                </span>
-              ),
+              children: <span>For example, 27 3 2024</span>,
             }}
             id="statement-date"
             items={[
