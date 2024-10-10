@@ -62,6 +62,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleReclassifyTracking,
 }) => {
   const continueButtonRef = useRef(null);
+  const acceptAndSaveButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
     documentNewNameErrorText: "",
@@ -382,6 +383,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       type: "UPDATE_RECLASSIFY_SAVE_STATUS",
       payload: { value: "initial" },
     });
+    if (acceptAndSaveButtonRef.current)
+      (acceptAndSaveButtonRef.current as HTMLButtonElement).focus();
   };
 
   const closeReclassify = useCallback(() => {
@@ -411,6 +414,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
     return (
       <Button
+        ref={acceptAndSaveButtonRef}
         onClick={handleAcceptAndSave}
         disabled={
           state.reClassifySaveStatus === "saving" ||
@@ -514,11 +518,11 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           }}
           type="alert"
           ariaLabel="Save reclassification error modal"
-          ariaDescription="Failed to save the reclassification. Please try again later"
+          ariaDescription="Something went wrong. Failed to save reclassification. Please try again later"
         >
           <div className={classes.alertContent}>
             <h1 className="govuk-heading-l">Something went wrong</h1>
-            <p>Failed to save the reclassification. Please try again later</p>
+            <p>Failed to save reclassification. Please try again later</p>
             <div className={classes.actionButtonsWrapper}>
               <Button
                 onClick={() => {
