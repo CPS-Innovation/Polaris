@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using Common.ValueObjects;
 using coordinator.Helpers;
 using Ddei.Factories;
 using DdeiClient.Services;
@@ -37,7 +36,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req,
             string caseUrn,
             string caseId,
-            string polarisDocumentId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -47,7 +46,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(CheckoutDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(CheckoutDocument));
                 var document = response.CmsDocument;
 
                 var arg = _ddeiArgFactory.CreateDocumentArgDto(

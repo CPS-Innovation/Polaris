@@ -10,7 +10,6 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Common.Domain.SearchIndex;
 using Common.Dto.Response;
-using Common.ValueObjects;
 using text_extractor.Mappers.Contracts;
 using text_extractor.Factories.Contracts;
 using Common.Logging;
@@ -43,7 +42,7 @@ namespace text_extractor.Services.CaseSearchService
             _logger = logger;
         }
 
-        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
+        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, string documentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
         {
             var blobName = Path.GetFileName(blobPath);
             var lines = new List<SearchLine>();
@@ -56,7 +55,7 @@ namespace text_extractor.Services.CaseSearchService
                                             (
                                                 cmsCaseId,
                                                 cmsDocumentId,
-                                                polarisDocumentId,
+                                                documentId,
                                                 versionId,
                                                 blobName,
                                                 readResult,

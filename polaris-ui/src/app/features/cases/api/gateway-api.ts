@@ -51,8 +51,8 @@ const fullUrl = (path: string, baseUrl: string = GATEWAY_BASE_URL) => {
 // hack
 const temporaryApiModelMapping = (arr: any[]) =>
   arr.forEach((item) => {
-    if (item.polarisDocumentId) {
-      item.documentId = item.polarisDocumentId;
+    if (item["polarisDocumentId"]) {
+      item.documentId = item["polarisDocumentId"];
     }
     if (item.cmsDocType?.documentTypeId) {
       item.cmsDocType.documentTypeId = parseInt(

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Domain.Document;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
@@ -11,7 +12,6 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Telemetry;
-using Common.ValueObjects;
 using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
@@ -189,7 +189,7 @@ namespace coordinator.Durable.Orchestration
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
-                PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, caseDocumentPayload.CmsCaseId.ToString());
+                var polarisDocumentId = PolarisDocumentIdHelper.GetPolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, caseDocumentPayload.CmsCaseId.ToString());
                 var payload = new CaseDocumentOrchestrationPayload
                 (
                     cmsAuthValues: caseDocumentPayload.CmsAuthValues,
@@ -199,7 +199,7 @@ namespace coordinator.Durable.Orchestration
                     cmsCaseId: caseDocumentPayload.CmsCaseId,
                     serializedTrackerCmsDocumentDto: null,
                     serializedTrackerPcdRequestDto: null,
-                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(polarisDocumentId, 1, new DefendantsAndChargesListDto { })),
+                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(polarisDocumentId, new DefendantsAndChargesListDto { })),
                     documentDeltaType: DocumentDeltaType.RequiresIndexing
                 );
                 defendantsAndChargesPayloads.Add(payload);

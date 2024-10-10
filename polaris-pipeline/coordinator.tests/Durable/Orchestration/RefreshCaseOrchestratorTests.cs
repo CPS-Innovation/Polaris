@@ -20,7 +20,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.ValueObjects;
 using coordinator.Durable.Entity;
 using Common.Telemetry;
 using coordinator.Validators;
@@ -36,7 +35,7 @@ namespace coordinator.tests.Durable.Orchestration
         private readonly string _cmsAuthValues;
         private readonly long _cmsCaseId;
         private readonly string _cmsCaseUrn;
-        private readonly PolarisDocumentId _polarisDocumentId;
+        private readonly string _documentId;
         private readonly Guid _correlationId;
         private readonly (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _caseDocuments;
         private readonly string _transactionId;
@@ -56,7 +55,7 @@ namespace coordinator.tests.Durable.Orchestration
             _cmsCaseUrn = fixture.Create<string>();
             _cmsCaseId = fixture.Create<long>();
             _correlationId = fixture.Create<Guid>();
-            _polarisDocumentId = fixture.Create<PolarisDocumentId>();
+            _documentId = fixture.Create<string>();
             fixture.Create<Guid>();
             var durableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk"));
             _payload = fixture.Build<CaseOrchestrationPayload>()
@@ -64,7 +63,7 @@ namespace coordinator.tests.Durable.Orchestration
                         .With(p => p.CmsCaseId, _cmsCaseId)
                         .With(p => p.CmsCaseUrn, _cmsCaseUrn)
                         .With(p => p.CorrelationId, _correlationId)
-                        .With(p => p.PolarisDocumentId, _polarisDocumentId)
+                        .With(p => p.PolarisDocumentId, _documentId)
                         .Create();
             _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
 

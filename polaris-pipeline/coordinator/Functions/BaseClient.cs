@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Durable.Entity;
-using Common.ValueObjects;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.Extensions.Logging;
@@ -35,7 +34,7 @@ namespace coordinator.Functions
         (
                 IDurableEntityClient client,
                 string caseId,
-                PolarisDocumentId polarisDocumentId,
+                string documentId,
                 ILogger logger,
                 Guid currentCorrelationId,
                 string loggerSource
@@ -65,20 +64,20 @@ namespace coordinator.Functions
                 return response;
             }
 
-            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
+            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(documentId));
             if (response.CmsDocument == null)
             {
-                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId.Equals(polarisDocumentId));
+                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId.Equals(documentId));
 
                 if (response.PcdRequest == null)
                 {
-                    if (polarisDocumentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
+                    if (documentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
                     {
                         response.DefendantsAndCharges = entityState.DefendantsAndCharges;
                     }
                     else
                     {
-                        var baseMessage = $"No Document found with id '{polarisDocumentId}'";
+                        var baseMessage = $"No Document found with id '{documentId}'";
                         response.Error = new NotFoundObjectResult(baseMessage);
                         return response;
                     }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Domain.SearchIndex;
 using Common.Dto.Response;
-using Common.ValueObjects;
 using Common.Wrappers;
 using Common.Handlers;
 
@@ -33,10 +32,10 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string documentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
-            request.Headers.Add(PolarisDocumentId, polarisDocumentId.ToString());
+            request.Headers.Add(PolarisDocumentId, documentId.ToString());
             // BlobName header is deprecated and will be removed in the future
             request.Headers.Add("BlobName", blobName);
 

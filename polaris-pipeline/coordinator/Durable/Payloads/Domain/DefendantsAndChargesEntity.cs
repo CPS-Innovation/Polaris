@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Common.Dto.Case;
-using Common.ValueObjects;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -9,8 +8,8 @@ namespace coordinator.Durable.Payloads.Domain
         public DefendantsAndChargesEntity()
         { }
 
-        public DefendantsAndChargesEntity(PolarisDocumentId polarisDocumentId, int polarisDocumentVersionId, DefendantsAndChargesListDto defendantsAndCharges)
-            : base(polarisDocumentId, polarisDocumentVersionId, $"DAC", 1, defendantsAndCharges.PresentationFlags)
+        public DefendantsAndChargesEntity(string documentId, DefendantsAndChargesListDto defendantsAndCharges)
+            : base(documentId, $"DAC", 1, defendantsAndCharges.PresentationFlags)
         {
             DefendantsAndCharges = defendantsAndCharges;
         }

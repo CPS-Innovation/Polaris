@@ -8,7 +8,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Extensions;
-using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
 
@@ -34,7 +33,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req,
             string caseUrn,
             int caseId,
-            string polarisDocumentId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -42,7 +41,7 @@ namespace coordinator.Functions
             try
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
-                var response = await GetTrackerDocument(client, caseId.ToString(), new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(GetDocument));
+                var response = await GetTrackerDocument(client, caseId.ToString(), documentId, _logger, currentCorrelationId, nameof(GetDocument));
                 var blobName = response.GetBlobName();
 
                 var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);

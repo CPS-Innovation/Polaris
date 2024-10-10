@@ -18,15 +18,17 @@
 
 # Immediate
 
+WHAT TO DO ABOUT ISOCRed?
+
 ## Ids
 
-| Name                     | Current                                                     | To be                |                    |
-| ------------------------ | ----------------------------------------------------------- | -------------------- | ------------------ |
-| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId |                    |
-| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId  |                    |
-| polarisDocumentVersionId | Incrementing artificial number                              | Remove               |                    |
-| polarisParentDocumentId  | Incrementing artificial number                              | ????                 |                    |
-| cmsDocumentId            | Appears to be null all the time                             | Remove               | :white_check_mark: |
+| Name                     | Current                                                     | To be                      |                    |
+| ------------------------ | ----------------------------------------------------------- | -------------------------- | ------------------ |
+| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId       |                    |
+| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId        |                    |
+| polarisDocumentVersionId | Incrementing artificial number                              | Remove                     |                    |
+| polarisParentDocumentId  | Incrementing artificial number                              | Rename -> parentDocumentId | :white_check_mark: |
+| cmsDocumentId            | Appears to be null all the time                             | Remove                     | :white_check_mark: |
 
 gateway-api.ts hack
 
@@ -122,6 +124,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
 - get rid of PdfBlobName from backend and from mock as the mechanism for blob retrieval
 - sort out CmsVersionId and PolarisDocumentId in backend/tracker
 - polarisDocumentVersionId -> does this ever get employed for PCDs/DACs? How should we "store by version" for PCDs in blob storage
+- PiiCmsVersionId???
 
 # Done
 

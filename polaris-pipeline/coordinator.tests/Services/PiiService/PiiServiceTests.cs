@@ -82,7 +82,7 @@ namespace coordinator.tests.Services.PiiServiceTests
             var expectedWordCount = reconciledPiiEntity.LineText.Split(' ').Length;
             var reconciledPiiEntities = new List<ReconciledPiiEntity> { reconciledPiiEntity };
 
-            var result = _piiService.MapReconcilledPiiToResponse(reconciledPiiEntities);
+            var result = _piiService.MapReconciledPiiToResponse(reconciledPiiEntities);
 
             result.Count().Should().Be(1);
             result.First().Text.Should().Be(expectedLineText);
@@ -101,7 +101,7 @@ namespace coordinator.tests.Services.PiiServiceTests
                 reconciledPiiEntity3
             };
 
-            var result = _piiService.MapReconcilledPiiToResponse(reconciledPiiEntities);
+            var result = _piiService.MapReconciledPiiToResponse(reconciledPiiEntities);
 
             result.Count().Should().Be(1);
             result.First().Words.Count(x => x.BoundingBox != null).Should().Be(reconciledPiiEntities.Count);

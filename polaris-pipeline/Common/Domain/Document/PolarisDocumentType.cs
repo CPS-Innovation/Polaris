@@ -1,4 +1,4 @@
-﻿namespace Common.ValueObjects
+﻿namespace Common.Domain.Document
 {
     public enum PolarisDocumentType
     {

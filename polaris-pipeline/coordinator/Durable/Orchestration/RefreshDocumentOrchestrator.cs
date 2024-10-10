@@ -4,7 +4,6 @@ using Common.Constants;
 using Common.Dto.Response;
 using Common.Logging;
 using Common.Telemetry;
-using Common.ValueObjects;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
@@ -32,9 +31,9 @@ namespace coordinator.Durable.Orchestration
             maxNumberOfAttempts: 3
         );
 
-        public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetKey(long caseId, string documentId)
         {
-            return $"[{caseId}]-{polarisDocumentId}";
+            return $"[{caseId}]-{documentId}";
         }
 
         public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log, ITelemetryClient telemetryClient)

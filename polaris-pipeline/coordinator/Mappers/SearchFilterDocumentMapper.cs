@@ -12,7 +12,7 @@ namespace coordinator.Mappers
             {
                 CmsDocumentId = baseDocumentEntity.CmsDocumentId,
                 CmsVersionId = baseDocumentEntity.CmsVersionId,
-                PolarisDocumentId = baseDocumentEntity.PolarisDocumentIdValue,
+                PolarisDocumentId = baseDocumentEntity.PolarisDocumentId,
             };
         }
     }

@@ -1,6 +1,4 @@
-﻿using Common.ValueObjects;
-
-namespace Common.Configuration
+﻿namespace Common.Configuration
 {
     public static class RestApi
     {
@@ -19,10 +17,10 @@ namespace Common.Configuration
         public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
 
         // Document (singular)
-        public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
-        public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/checkout";
+        public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}";
+        public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/checkout";
         public const string AddNoteToDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
-        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/redact";
+        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact";
         public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/modify";
         public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/rename";
         public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/reclassify";
@@ -44,7 +42,7 @@ namespace Common.Configuration
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
-        public const string PiiResults = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}/pii";
+        public const string PiiResults = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/pii";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
@@ -74,18 +72,18 @@ namespace Common.Configuration
             return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
         }
 
-        public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetDocumentPath(string caseUrn, long caseId, string documentId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}";
         }
-        public static string GetRedactDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetRedactDocumentPath(string caseUrn, long caseId, string documentId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/redact";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact";
         }
 
-        public static string GetDocumentCheckoutPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetDocumentCheckoutPath(string caseUrn, long caseId, string documentId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/checkout";
         }
 
         public static string GetDocumentNotesPath(string caseUrn, long caseId, int documentId)
@@ -138,9 +136,9 @@ namespace Common.Configuration
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
         }
 
-        public static string GetPiiPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetPiiPath(string caseUrn, long caseId, string documentId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/pii";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/pii";
         }
 
         public static string GetModifyDocumentPath(string caseUrn, string caseId, string documentId)

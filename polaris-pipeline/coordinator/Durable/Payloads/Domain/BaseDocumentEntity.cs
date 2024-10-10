@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Converters;
 using Common.Dto.FeatureFlags;
 using Mapster;
-using Common.ValueObjects;
 using Common.Dto.Tracker;
 using Common.Constants;
 using System;
@@ -15,14 +14,12 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public BaseDocumentEntity(
-            PolarisDocumentId polarisDocumentId,
-            int polarisDocumentVersionId,
+            string polarisDocumentId,
             string cmsDocumentId,
             long cmsVersionId,
             PresentationFlagsDto presentationFlags)
         {
             PolarisDocumentId = polarisDocumentId;
-            PolarisDocumentVersionId = polarisDocumentVersionId;
             CmsDocumentId = cmsDocumentId;
             CmsVersionId = cmsVersionId;
             PresentationFlags = presentationFlags;
@@ -40,24 +37,8 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("cmsVersionId")]
         public long CmsVersionId { get; set; }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisDocumentId { get; set; }
-
         [JsonProperty("polarisDocumentId")]
-        public string PolarisDocumentIdValue
-        {
-            get
-            {
-                return PolarisDocumentId.ToString();
-            }
-            set
-            {
-                PolarisDocumentId = new PolarisDocumentId(value);
-            }
-        }
-
-        [JsonProperty("polarisDocumentVersionId")]
-        public int PolarisDocumentVersionId { get; set; }
+        public string PolarisDocumentId { get; set; }
 
         [Obsolete("This shouldn't really be a property as it can always be worked out buy convention")]
         [JsonProperty("pdfBlobName")]

@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Common.ValueObjects;
 using Newtonsoft.Json;
 
 namespace coordinator.Durable.Payloads.Domain
@@ -13,8 +12,7 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public CmsDocumentEntity(
-            PolarisDocumentId polarisDocumentId,
-            int polarisDocumentVersionId,
+            string polarisDocumentId,
             string cmsDocumentId,
             long cmsVersionId,
             DocumentTypeDto cmsDocType,
@@ -25,7 +23,7 @@ namespace coordinator.Durable.Payloads.Domain
             bool isOcrProcessed,
             bool isDispatched,
             int? categoryListOrder,
-            PolarisDocumentId polarisParentDocumentId,
+            string polarisParentDocumentId,
             string cmsParentDocumentId,
             int? witnessId,
             PresentationFlagsDto presentationFlags,
@@ -39,7 +37,7 @@ namespace coordinator.Durable.Payloads.Domain
             bool canRename,
             string renameStatus,
             string reference)
-            : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
+            : base(polarisDocumentId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             Path = path;
@@ -90,21 +88,8 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisParentDocumentId { get; set; }
-
         [JsonProperty("polarisParentDocumentId")]
-        public string PolarisParentDocumentIdValue
-        {
-            get
-            {
-                return PolarisParentDocumentId?.ToString();
-            }
-            set
-            {
-                PolarisParentDocumentId = new PolarisDocumentId(value);
-            }
-        }
+        public string PolarisParentDocumentId { get; set; }
 
         [JsonProperty("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }

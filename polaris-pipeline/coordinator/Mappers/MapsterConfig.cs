@@ -127,7 +127,6 @@ namespace coordinator.Mappers
             return new CmsDocumentEntity
             {
                 PolarisDocumentId = pcdRequest.PolarisDocumentId,
-                PolarisDocumentVersionId = pcdRequest.PolarisDocumentVersionId,
                 CmsDocumentId = pcdRequest.CmsDocumentId,
                 CmsVersionId = pcdRequest.CmsVersionId,
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
@@ -154,7 +153,6 @@ namespace coordinator.Mappers
                 new CmsDocumentEntity
                 {
                     PolarisDocumentId = defendantsAndCharges.PolarisDocumentId,
-                    PolarisDocumentVersionId = defendantsAndCharges.PolarisDocumentVersionId,
                     CmsDocumentId = defendantsAndCharges.CmsDocumentId,
                     CmsVersionId = defendantsAndCharges.CmsVersionId,
                     CmsDocType = new DocumentTypeDto("DAC", null, "Review"),

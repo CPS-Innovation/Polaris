@@ -1,32 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using Common.ValueObjects;
 
 namespace Common.Dto.Request
 {
     public class StoreCaseIndexesRequestDto
     {
-        public StoreCaseIndexesRequestDto(PolarisDocumentId polarisDocumentId, string blobName)
+        public StoreCaseIndexesRequestDto(string documentId, string blobName)
         {
-            PolarisDocumentId = polarisDocumentId;
+            PolarisDocumentId = documentId;
             BlobName = blobName;
         }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisDocumentId { get; set; }
-
-        [JsonPropertyName("PolarisDocumentId")]
-        public string PolarisDocumentIdValue
-        {
-            get
-            {
-                return PolarisDocumentId?.ToString();
-            }
-            set
-            {
-                PolarisDocumentId = new PolarisDocumentId(value);
-            }
-        }
+        public string PolarisDocumentId { get; set; }
 
         [Required]
         public string BlobName { get; set; }

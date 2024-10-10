@@ -26,7 +26,7 @@ describe("useNavigationAlert hook", () => {
       versionId: 1,
       categoryListOrder: null,
       attachments: [],
-      polarisParentDocumentId: null,
+      parentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -78,7 +78,7 @@ describe("useNavigationAlert hook", () => {
       versionId: 2,
       categoryListOrder: null,
       attachments: [],
-      polarisParentDocumentId: null,
+      parentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",

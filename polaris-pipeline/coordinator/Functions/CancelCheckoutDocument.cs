@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.ValueObjects;
 using Ddei.Factories;
 using DdeiClient.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +35,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req,
             string caseUrn,
             string caseId,
-            string polarisDocumentId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -46,7 +45,7 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(CancelCheckoutDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(CancelCheckoutDocument));
                 var document = response.CmsDocument;
 
                 var arg = _ddeiArgFactory.CreateDocumentArgDto(

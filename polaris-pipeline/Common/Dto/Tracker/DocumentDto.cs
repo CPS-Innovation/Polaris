@@ -2,7 +2,6 @@
 using Common.Constants;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Common.ValueObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -13,24 +12,8 @@ namespace Common.Dto.Tracker
         public DocumentDto()
         { }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisDocumentId { get; set; }
-
-        [JsonProperty("polarisDocumentId")]
-        public string PolarisDocumentIdValue
-        {
-            get
-            {
-                return PolarisDocumentId.ToString();
-            }
-            set
-            {
-                PolarisDocumentId = new PolarisDocumentId(value);
-            }
-        }
-
-        [JsonProperty("polarisDocumentVersionId")]
-        public int PolarisDocumentVersionId { get; set; }
+        [JsonProperty("documentId")]
+        public string PolarisDocumentId { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
@@ -66,21 +49,8 @@ namespace Common.Dto.Tracker
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisParentDocumentId { get; set; }
-
-        [JsonProperty("polarisParentDocumentId")]
-        public string PolarisParentDocumentIdValue
-        {
-            get
-            {
-                return PolarisParentDocumentId?.ToString();
-            }
-            set
-            {
-                PolarisParentDocumentId = new PolarisDocumentId(value);
-            }
-        }
+        [JsonProperty("parentDocumentId")]
+        public string PolarisParentDocumentId { get; set; }
 
         [JsonProperty("cmsParentDocumentId")]
         [JsonIgnore]

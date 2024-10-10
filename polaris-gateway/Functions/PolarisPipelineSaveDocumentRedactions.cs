@@ -8,7 +8,6 @@ using PolarisGateway.Validators;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Mappers;
 using Common.Dto.Request;
-using Common.ValueObjects;
 using Common.Telemetry;
 using PolarisGateway.TelemetryEvents;
 using System.Net;
@@ -47,9 +46,9 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
-            var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);
+            var telemetryEvent = new RedactionRequestEvent(caseId, documentId);
 
             HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
             {
@@ -82,7 +81,7 @@ namespace PolarisGateway.Functions
                 var response = await _coordinatorClient.SaveRedactionsAsync(
                     caseUrn,
                     caseId,
-                    new PolarisDocumentId(polarisDocumentId),
+                    documentId,
                     redactPdfRequest,
                     context.CmsAuthValues,
                     context.CorrelationId);

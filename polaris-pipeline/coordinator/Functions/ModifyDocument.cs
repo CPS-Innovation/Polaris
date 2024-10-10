@@ -17,7 +17,6 @@ using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorageService;
-using Common.ValueObjects;
 using Common.Wrappers;
 using Ddei.Factories;
 using DdeiClient.Services;
@@ -74,7 +73,7 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(documentId), _logger, currentCorrelationId, nameof(ModifyDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ModifyDocument));
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
