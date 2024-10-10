@@ -62,18 +62,19 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   handleReclassifyTracking,
 }) => {
   const continueButtonRef = useRef(null);
+  const acceptAndSaveButtonRef = useRef(null);
   const errorTextsInitialValue: FormDataErrors = {
     documentTypeErrorText: "",
     documentNewNameErrorText: "",
     exhibitItemNameErrorText: "",
-    otherExhibitProducerErrorText: "",
     exhibitReferenceErrorText: "",
+    otherExhibitProducerErrorText: "",
     statementWitnessErrorText: "",
-    statementNumberErrorText: "",
     statementDayErrorText: "",
     statementMonthErrorText: "",
     statementYearErrorText: "",
     statementDateErrorText: "",
+    statementNumberErrorText: "",
   };
   const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>(
     errorTextsInitialValue
@@ -304,10 +305,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   };
 
   const handleContinueBtnClick = () => {
-    if (continueButtonRef.current)
-      (continueButtonRef.current as HTMLButtonElement).blur();
     const validData = validateData();
     if (!validData) return;
+    if (continueButtonRef.current)
+      (continueButtonRef.current as HTMLButtonElement).blur();
     if (state.reClassifyStage === "stage1") {
       dispatch({
         type: "UPDATE_CLASSIFY_STAGE",
@@ -382,6 +383,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       type: "UPDATE_RECLASSIFY_SAVE_STATUS",
       payload: { value: "initial" },
     });
+    if (acceptAndSaveButtonRef.current)
+      (acceptAndSaveButtonRef.current as HTMLButtonElement).focus();
   };
 
   const closeReclassify = useCallback(() => {
@@ -411,6 +414,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
     return (
       <Button
+        ref={acceptAndSaveButtonRef}
         onClick={handleAcceptAndSave}
         disabled={
           state.reClassifySaveStatus === "saving" ||
@@ -444,27 +448,25 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
   useEffect(() => {
     if (reclassifiedDocumentUpdate) {
-      closeReclassify();
+      setTimeout(() => {
+        closeReclassify();
+      }, 2000);
     }
   }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
 
-  if (loading) {
-    return <div>loading data</div>;
-  }
+  if (loading) return <div>loading data</div>;
   return (
     <div className={classes.reClassifyStages}>
-      <LinkButton
-        className={classes.backBtn}
-        onClick={handleBackBtnClick}
-        disabled={
-          state.reClassifySaveStatus === "saving" ||
-          state.reClassifySaveStatus === "success"
-        }
-      >
-        Back
-      </LinkButton>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
+          <div aria-live="polite" className={classes.visuallyHidden}>
+            {(state.reClassifySaveStatus === "saving" ||
+              (state.reClassifySaveStatus === "success" &&
+                !reclassifiedDocumentUpdate)) && (
+              <span>Saving to CMS. Please wait</span>
+            )}
+            {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
+          </div>
           {(state.reClassifySaveStatus === "saving" ||
             state.reClassifySaveStatus === "success") && (
             <NotificationBanner className={classes.notificationBanner}>
@@ -484,6 +486,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               currentDocTypeId={currentDocTypeId}
               presentationTitle={presentationTitle}
               formDataErrors={formDataErrors}
+              handleBackBtnClick={handleBackBtnClick}
             />
           )}
           {state.reClassifyStage === "stage2" && (
@@ -493,11 +496,15 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               getExhibitProducers={getExhibitProducers}
               getStatementWitnessDetails={getStatementWitnessDetails}
               getWitnessStatementNumbers={getWitnessStatementNumbers}
+              handleBackBtnClick={handleBackBtnClick}
             />
           )}
 
           {state.reClassifyStage === "stage3" && (
-            <ReclassifyStage3 presentationTitle={presentationTitle} />
+            <ReclassifyStage3
+              presentationTitle={presentationTitle}
+              handleBackBtnClick={handleBackBtnClick}
+            />
           )}
 
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>
@@ -511,11 +518,11 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           }}
           type="alert"
           ariaLabel="Save reclassification error modal"
-          ariaDescription="Failed to save the reclassification. Please try again later"
+          ariaDescription="Something went wrong. Failed to save reclassification. Please try again later"
         >
           <div className={classes.alertContent}>
-            <h1 className="govuk-heading-l">Something went wrong</h1>
-            <p>Failed to save the reclassification. Please try again later</p>
+            <h1 className="govuk-heading-l">Something went wrong!</h1>
+            <p>Failed to save reclassification. Please try again later</p>
             <div className={classes.actionButtonsWrapper}>
               <Button
                 onClick={() => {
