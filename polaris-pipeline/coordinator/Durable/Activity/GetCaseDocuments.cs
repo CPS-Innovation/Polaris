@@ -5,7 +5,7 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using coordinator.Services.DocumentToggle;
-using DdeiClient.Services;
+using DdeiClient;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -42,9 +42,9 @@ namespace coordinator.Durable.Activity
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
-            if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
+            if (string.IsNullOrWhiteSpace(payload.Urn))
                 throw new ArgumentException("CaseUrn cannot be empty");
-            if (payload.CmsCaseId == 0)
+            if (payload.CaseId == 0)
                 throw new ArgumentException("CaseId cannot be zero");
             if (string.IsNullOrWhiteSpace(payload.CmsAuthValues))
                 throw new ArgumentException("Cms Auth Token cannot be null");
@@ -52,8 +52,8 @@ namespace coordinator.Durable.Activity
                 throw new ArgumentException("CorrelationId must be valid GUID");
 
             var getDocumentsTask = _ddeiClient.ListDocumentsAsync(
-                payload.CmsCaseUrn,
-                payload.CmsCaseId.ToString(),
+                payload.Urn,
+                payload.CaseId.ToString(),
                 payload.CmsAuthValues,
                 payload.CorrelationId
             );
@@ -61,8 +61,8 @@ namespace coordinator.Durable.Activity
             var arg = _ddeiArgFactory.CreateCaseArg(
                 payload.CmsAuthValues,
                 payload.CorrelationId,
-                payload.CmsCaseUrn,
-                payload.CmsCaseId);
+                payload.Urn,
+                payload.CaseId);
 
             var getPcdRequestsTask = _ddeiClient.GetPcdRequests(arg);
             var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndCharges(arg);
@@ -83,7 +83,7 @@ namespace coordinator.Durable.Activity
 
             var defendantsAndCharges = new DefendantsAndChargesListDto
             {
-                CaseId = payload.CmsCaseId,
+                CaseId = payload.CaseId,
                 DefendantsAndCharges = defendantsAndChargesResult.OrderBy(dac => dac.ListOrder)
             };
 

@@ -134,7 +134,7 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<HttpResponseMessage> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, int documentId, Guid correlationId)
+        public async Task<HttpResponseMessage> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, string documentId, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Get,
@@ -143,7 +143,7 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues);
         }
 
-        public async Task<HttpResponseMessage> AddDocumentNote(string caseUrn, int caseId, string cmsAuthValues, int documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
+        public async Task<HttpResponseMessage> AddDocumentNote(string caseUrn, int caseId, string cmsAuthValues, string documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
@@ -161,7 +161,7 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, int documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
+        public async Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, string documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Put,

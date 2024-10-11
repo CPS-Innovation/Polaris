@@ -57,36 +57,36 @@
             return $"urns/{caseUrn}/cases";
         }
 
-        public static string GetCasePath(string caseUrn, long caseId)
+        public static string GetCasePath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}";
         }
 
-        public static string GetCaseTrackerPath(string caseUrn, long caseId)
+        public static string GetCaseTrackerPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/tracker";
         }
 
-        public static string GetCaseSearchQueryPath(string caseUrn, long caseId, string searchTerm)
+        public static string GetCaseSearchQueryPath(string caseUrn, int caseId, string searchTerm)
         {
             return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
         }
 
-        public static string GetDocumentPath(string caseUrn, long caseId, string documentId)
+        public static string GetDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}";
         }
-        public static string GetRedactDocumentPath(string caseUrn, long caseId, string documentId)
+        public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact";
         }
 
-        public static string GetDocumentCheckoutPath(string caseUrn, long caseId, string documentId)
+        public static string GetDocumentCheckoutPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/checkout";
         }
 
-        public static string GetDocumentNotesPath(string caseUrn, long caseId, int documentId)
+        public static string GetDocumentNotesPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/notes";
         }
@@ -96,22 +96,22 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         }
 
-        public static string GetExtractPath(string caseUrn, long caseId, string documentId, long versionId)
+        public static string GetExtractPath(string caseUrn, int caseId, string documentId, long versionId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
         }
 
-        public static string GetRemoveCaseIndexesPath(string caseUrn, long caseId)
+        public static string GetRemoveCaseIndexesPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
         }
 
-        public static string GetWaitForCaseEmptyResultsPath(string caseUrn, long caseId)
+        public static string GetWaitForCaseEmptyResultsPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
         }
 
-        public static string GetSearchPath(string caseUrn, long caseId)
+        public static string GetSearchPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/search";
         }
@@ -121,22 +121,22 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
 
-        public static string GetRenameDocumentPath(string caseUrn, long caseId, int documentId)
+        public static string GetRenameDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/rename";
         }
 
-        public static string GetCaseIndexCountResultsPath(string caseUrn, long caseId)
+        public static string GetCaseIndexCountResultsPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/case-index-count";
         }
 
-        public static string GetDocumentIndexCountResultsPath(string caseUrn, long caseId, string documentId, long versionId)
+        public static string GetDocumentIndexCountResultsPath(string caseUrn, int caseId, string documentId, long versionId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
         }
 
-        public static string GetPiiPath(string caseUrn, long caseId, string documentId)
+        public static string GetPiiPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/pii";
         }
@@ -146,7 +146,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/modify";
         }
 
-        public static string CaseSearchCountPath(string caseUrn, long caseId)
+        public static string CaseSearchCountPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/search/count";
         }

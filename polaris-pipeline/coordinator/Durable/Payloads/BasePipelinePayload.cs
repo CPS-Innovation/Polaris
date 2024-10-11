@@ -6,19 +6,19 @@ namespace coordinator.Durable.Payloads;
 
 public abstract class BasePipelinePayload
 {
-    protected BasePipelinePayload(string cmsCaseUrn, int cmsCaseId, Guid correlationId, string documentId = null)
+    protected BasePipelinePayload(string urn, int caseId, Guid correlationId, string documentId = null)
     {
-        CmsCaseUrn = cmsCaseUrn;
-        CmsCaseId = cmsCaseId;
+        Urn = urn;
+        CaseId = caseId;
         CorrelationId = correlationId;
         DocumentId = documentId;
     }
 
     [Required]
-    public string CmsCaseUrn { get; set; }
+    public string Urn { get; set; }
 
     [RequiredLongGreaterThanZero]
-    public int CmsCaseId { get; set; }
+    public int CaseId { get; set; }
 
     [Required]
     public Guid CorrelationId { get; set; }

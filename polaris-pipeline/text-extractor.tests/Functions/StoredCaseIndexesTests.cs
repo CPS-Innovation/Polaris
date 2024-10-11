@@ -41,7 +41,7 @@ namespace text_extractor.tests.Functions
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Guid _correlationId;
         private readonly string _caseUrn;
-        private readonly long _caseId;
+        private readonly int _caseId;
         private readonly long _versionId;
         private readonly string _documentId;
         private readonly StoreCaseIndexes _storeCaseIndexes;
@@ -69,7 +69,7 @@ namespace text_extractor.tests.Functions
 
             _correlationId = _fixture.Create<Guid>();
             _caseUrn = _fixture.Create<string>();
-            _caseId = _fixture.Create<long>();
+            _caseId = _fixture.Create<int>();
             _versionId = _fixture.Create<long>();
             _documentId = _fixture.Create<string>();
 

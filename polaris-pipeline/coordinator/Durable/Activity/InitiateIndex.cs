@@ -27,8 +27,8 @@ namespace coordinator.Durable.Activity
 
             return await _textExtractorClient.StoreCaseIndexesAsync(
                 payload.DocumentId,
-                payload.CmsCaseUrn,
-                payload.CmsCaseId,
+                payload.Urn,
+                payload.CaseId,
                 payload.VersionId,
                 payload.BlobName,
                 payload.CorrelationId,

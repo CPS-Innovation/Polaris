@@ -4,7 +4,7 @@ using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
 using Common.Dto.Response;
 using Common.Wrappers;
-using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Exceptions;
@@ -29,7 +29,7 @@ public class DdeiClientTests
     private readonly HttpResponseMessage _httpResponseMessage;
     private readonly List<DdeiCaseDocumentResponse> _content;
     private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapperMock;
-    private readonly Ddei.Services.DdeiClient _ddeiClient;
+    private readonly DdeiClient _ddeiClient;
 
     public DdeiClientTests()
     {
@@ -51,7 +51,7 @@ public class DdeiClientTests
             Content = new StreamContent(documentStream)
         };
 
-        var loggerMock = new Mock<ILogger<Ddei.Services.DdeiClient>>();
+        var loggerMock = new Mock<ILogger<DdeiClient>>();
 
         _jsonConvertWrapperMock = new Mock<IJsonConvertWrapper>();
         _jsonConvertWrapperMock.Setup(wrapper => wrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
@@ -66,7 +66,7 @@ public class DdeiClientTests
         var mockHttpRequestFactory = new Mock<IDdeiClientRequestFactory>();
 
         mockHttpRequestFactory
-            .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCmsCaseArgDto>()))
+            .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCaseIdentifiersArgDto>()))
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
@@ -80,7 +80,7 @@ public class DdeiClientTests
         var mockCmsMaterialTypeMapper = new Mock<ICmsMaterialTypeMapper>();
         var mockCaseWitnessStatementMapper = new Mock<ICaseWitnessStatementMapper>();
 
-        _ddeiClient = new Ddei.Services.DdeiClient
+        _ddeiClient = new DdeiClient
             (
                 httpClient,
                 mockHttpRequestFactory.Object,

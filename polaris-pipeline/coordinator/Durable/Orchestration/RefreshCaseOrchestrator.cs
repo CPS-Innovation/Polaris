@@ -58,7 +58,7 @@ namespace coordinator.Durable.Orchestration
 
             var log = context.CreateReplaySafeLogger(_log);
 
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
+            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CaseId, true, payload.CorrelationId, log);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             RefreshedCaseEvent telemetryEvent = default;
@@ -66,7 +66,7 @@ namespace coordinator.Durable.Orchestration
             {
                 telemetryEvent = new RefreshedCaseEvent(
                     correlationId: payload.CorrelationId,
-                    caseId: payload.CmsCaseId,
+                    caseId: payload.CaseId,
                     versionId: await caseEntity.GetVersion(),
                     startTime: await caseEntity.GetStartTime()
                 );
@@ -153,8 +153,8 @@ namespace coordinator.Durable.Orchestration
                                 cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                                 correlationId: caseDocumentPayload.CorrelationId,
                                 subCorrelationId: context.NewGuid(),
-                                urn: caseDocumentPayload.CmsCaseUrn,
-                                caseId: caseDocumentPayload.CmsCaseId,
+                                urn: caseDocumentPayload.Urn,
+                                caseId: caseDocumentPayload.CaseId,
                                 serializedTrackerCmsDocumentDto: JsonSerializer.Serialize(trackerCmsDocument.Item1),
                                 serializedTrackerPcdRequestDto: null,
                                 serializedTrackerDefendantAndChargesDto: null,
@@ -175,8 +175,8 @@ namespace coordinator.Durable.Orchestration
                                 cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                                 correlationId: caseDocumentPayload.CorrelationId,
                                 subCorrelationId: context.NewGuid(),
-                                urn: caseDocumentPayload.CmsCaseUrn,
-                                caseId: caseDocumentPayload.CmsCaseId,
+                                urn: caseDocumentPayload.Urn,
+                                caseId: caseDocumentPayload.CaseId,
                                 serializedTrackerCmsDocumentDto: null,
                                 serializedTrackerPcdRequestDto: JsonSerializer.Serialize(trackerPcdRequest),
                                 serializedTrackerDefendantAndChargesDto: null,
@@ -189,14 +189,14 @@ namespace coordinator.Durable.Orchestration
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
-                var documentId = caseDocumentPayload.CmsCaseId;
+                var documentId = caseDocumentPayload.CaseId;
                 var payload = new CaseDocumentOrchestrationPayload
                 (
                     cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                     correlationId: caseDocumentPayload.CorrelationId,
                     subCorrelationId: context.NewGuid(),
-                    urn: caseDocumentPayload.CmsCaseUrn,
-                    caseId: caseDocumentPayload.CmsCaseId,
+                    urn: caseDocumentPayload.Urn,
+                    caseId: caseDocumentPayload.CaseId,
                     serializedTrackerCmsDocumentDto: null,
                     serializedTrackerPcdRequestDto: null,
                     serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(documentId, new DefendantsAndChargesListDto { })),
@@ -212,7 +212,7 @@ namespace coordinator.Durable.Orchestration
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
                             nameof(RefreshDocumentOrchestrator),
-                            RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.DocumentId),
+                            RefreshDocumentOrchestrator.GetKey(payload.CaseId, payload.DocumentId),
                             payload
                         )
                     );
@@ -235,7 +235,7 @@ namespace coordinator.Durable.Orchestration
         private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
             GetDocuments(IDurableOrchestrationContext context, CaseOrchestrationPayload payload)
         {
-            var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
+            var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.Urn, payload.CaseId, payload.CmsAuthValues, payload.CorrelationId);
             var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
             if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
             {

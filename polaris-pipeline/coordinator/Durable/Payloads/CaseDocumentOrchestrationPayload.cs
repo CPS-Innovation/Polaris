@@ -98,7 +98,7 @@ namespace coordinator.Durable.Payloads
             get
             {
                 return !string.IsNullOrEmpty(DocumentId)
-                    ? BlobNameHelper.GetBlobName(CmsCaseId, DocumentId, BlobNameHelper.BlobType.Pdf)
+                    ? BlobNameHelper.GetBlobName(CaseId, DocumentId, BlobNameHelper.BlobType.Pdf)
                     : throw new Exception("No document tracker found");
             }
         }
@@ -108,7 +108,7 @@ namespace coordinator.Durable.Payloads
             get
             {
                 return !string.IsNullOrEmpty(DocumentId)
-                    ? BlobNameHelper.GetBlobName(CmsCaseId, DocumentId, BlobNameHelper.BlobType.Ocr)
+                    ? BlobNameHelper.GetBlobName(CaseId, DocumentId, BlobNameHelper.BlobType.Ocr)
                     : throw new Exception("No document tracker found");
             }
         }

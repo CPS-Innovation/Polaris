@@ -1,4 +1,4 @@
-namespace Ddei.Domain
+namespace Ddei.Domain.Response
 {
     public class DdeiCaseIdentifiersDto
     {

@@ -9,7 +9,7 @@ namespace coordinator.Durable.Orchestration
     public class BaseOrchestrator
     {
         [Obsolete]
-        protected async Task<ICaseDurableEntity> CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, long caseId, bool newVersion, Guid correlationId, ILogger log)
+        protected async Task<ICaseDurableEntity> CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, int caseId, bool newVersion, Guid correlationId, ILogger log)
         {
             var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
@@ -26,7 +26,7 @@ namespace coordinator.Durable.Orchestration
             return caseEntity;
         }
 
-        protected ICaseDurableEntity CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, long caseId)
+        protected ICaseDurableEntity CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, int caseId)
         {
             var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);

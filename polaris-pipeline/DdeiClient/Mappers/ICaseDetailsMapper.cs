@@ -1,7 +1,8 @@
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
-using Ddei.Domain;
-using Ddei.Domain.PreCharge;
+using Ddei.Domain.Response;
+using Ddei.Domain.Response.Defendant;
+using Ddei.Domain.Response.PreCharge;
 
 namespace DdeiClient.Mappers
 {

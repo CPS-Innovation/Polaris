@@ -31,7 +31,7 @@ namespace coordinator.Durable.Orchestration
             maxNumberOfAttempts: 3
         );
 
-        public static string GetKey(long caseId, string documentId)
+        public static string GetKey(int caseId, string documentId)
         {
             return $"[{caseId}]-{documentId}";
         }
@@ -47,7 +47,7 @@ namespace coordinator.Durable.Orchestration
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
             var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = CreateOrGetCaseDurableEntity(context, payload.CmsCaseId);
+            var caseEntity = CreateOrGetCaseDurableEntity(context, payload.CaseId);
 
             // 1. Get Pdf
             try
@@ -80,8 +80,8 @@ namespace coordinator.Durable.Orchestration
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
-                CaseUrn = payload.CmsCaseUrn,
-                CaseId = payload.CmsCaseId,
+                CaseUrn = payload.Urn,
+                CaseId = payload.CaseId,
                 DocumentId = payload.DocumentId,
                 DocumentTypeId = payload.DocumentTypeId,
                 DocumentType = payload.DocumentType,

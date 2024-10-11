@@ -13,7 +13,7 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient.Services;
+using DdeiClient;
 using FluentValidation;
 
 namespace coordinator.Functions
@@ -43,7 +43,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
-            int documentId
+            long documentId
             )
         {
             Guid currentCorrelationId = default;

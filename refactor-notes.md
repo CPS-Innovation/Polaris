@@ -26,9 +26,9 @@
 
 | Name                     | Current                                                     | To be                      |                    |
 | ------------------------ | ----------------------------------------------------------- | -------------------------- | ------------------ |
-| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId       |                    |
-| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId        |                    |
-| polarisDocumentVersionId | Incrementing artificial number                              | Remove                     |                    |
+| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId       | :white_check_mark: |
+| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId        | :white_check_mark: |
+| polarisDocumentVersionId | Incrementing artificial number                              | Remove                     | :white_check_mark: |
 | polarisParentDocumentId  | Incrementing artificial number                              | Rename -> parentDocumentId | :white_check_mark: |
 | cmsDocumentId            | Appears to be null all the time                             | Remove                     | :white_check_mark: |
 

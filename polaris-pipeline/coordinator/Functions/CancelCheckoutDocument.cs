@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Common.Configuration;
 using Ddei.Factories;
-using DdeiClient.Services;
+using DdeiClient;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

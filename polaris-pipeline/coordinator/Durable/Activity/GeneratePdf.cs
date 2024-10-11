@@ -5,7 +5,7 @@ using Common.Domain.Document;
 using Common.Services.BlobStorageService;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers;
-using DdeiClient.Services;
+using DdeiClient;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -60,8 +60,8 @@ namespace coordinator.Durable.Activity
 
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(
                         payload.CorrelationId,
-                        payload.CmsCaseUrn,
-                        payload.CmsCaseId.ToString(),
+                        payload.Urn,
+                        payload.CaseId.ToString(),
                         payload.DocumentId,
                         payload.VersionId.ToString(),
                         documentStream,
@@ -76,7 +76,7 @@ namespace coordinator.Durable.Activity
             (
                 response.PdfStream,
                 payload.BlobName,
-                payload.CmsCaseId.ToString(),
+                payload.CaseId.ToString(),
                 payload.DocumentId,
                 payload.VersionId.ToString(),
                 payload.CorrelationId
@@ -110,8 +110,8 @@ namespace coordinator.Durable.Activity
                 var arg = _ddeiArgFactory.CreatePcdArg(
                     payload.CmsAuthValues,
                     payload.CorrelationId,
-                    payload.CmsCaseUrn,
-                    payload.CmsCaseId,
+                    payload.Urn,
+                    payload.CaseId,
                     payload.PcdRequestTracker.PcdRequest.Id);
                 var pcdRequest = await _ddeiClient.GetPcdRequest(arg);
                 return await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);
@@ -121,14 +121,14 @@ namespace coordinator.Durable.Activity
                 var arg = _ddeiArgFactory.CreateCaseArg(
                     payload.CmsAuthValues,
                     payload.CorrelationId,
-                    payload.CmsCaseUrn,
-                    payload.CmsCaseId);
+                    payload.Urn,
+                    payload.CaseId);
 
                 var defendantsAndChargesResult = await _ddeiClient.GetDefendantAndCharges(arg);
 
                 var defendantsAndCharges = new DefendantsAndChargesListDto
                 {
-                    CaseId = payload.CmsCaseId,
+                    CaseId = payload.CaseId,
                     DefendantsAndCharges = defendantsAndChargesResult.OrderBy(dac => dac.ListOrder)
                 };
                 return await _convertPcdRequestToHtmlService.ConvertAsync(defendantsAndCharges);

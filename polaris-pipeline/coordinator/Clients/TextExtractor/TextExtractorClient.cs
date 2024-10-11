@@ -32,7 +32,7 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string documentId, string urn, long caseId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string documentId, string urn, int caseId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(urn, caseId, documentId, versionId), correlationId);
             request.Headers.Add(DocumentId, documentId);
@@ -62,7 +62,7 @@ namespace coordinator.Clients.TextExtractor
 
         public async Task<IList<StreamlinedSearchLine>> SearchTextAsync(
             string urn,
-            long caseId,
+            int caseId,
             string searchTerm,
             Guid correlationId
         )
@@ -78,7 +78,7 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string urn, long caseId, Guid correlationId)
+        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string urn, int caseId, Guid correlationId)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetRemoveCaseIndexesPath(urn, caseId), correlationId);
 
@@ -90,7 +90,7 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<SearchIndexCountResult> GetCaseIndexCount(string urn, long caseId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(string urn, int caseId, Guid correlationId)
         {
             var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetCaseIndexCountResultsPath(urn, caseId), correlationId);
 
@@ -102,7 +102,7 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, long caseId, string documentId, long versionId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string documentId, long versionId, Guid correlationId)
         {
             var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetDocumentIndexCountResultsPath(urn, caseId, documentId, versionId), correlationId);
 

@@ -12,7 +12,7 @@ namespace text_extractor.tests.Factories
 {
 	public class SearchLineFactoryTests
 	{
-		private readonly long _caseId;
+		private readonly int _caseId;
 		private readonly string _documentId;
 		private readonly long _versionId;
 		private readonly string _blobName;

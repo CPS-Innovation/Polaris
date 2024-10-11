@@ -10,7 +10,7 @@ using Common.Dto.Request;
 using Common.Wrappers;
 using coordinator.Functions;
 using Ddei.Factories;
-using DdeiClient.Services;
+using DdeiClient;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;

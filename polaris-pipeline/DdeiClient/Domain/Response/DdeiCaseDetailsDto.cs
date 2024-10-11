@@ -1,6 +1,8 @@
-using Ddei.Domain.PreCharge;
+using Ddei.Domain.Response.ActionPlan;
+using Ddei.Domain.Response.Defendant;
+using Ddei.Domain.Response.PreCharge;
 
-namespace Ddei.Domain
+namespace Ddei.Domain.Response
 {
     public class DdeiCaseDetailsDto
     {
