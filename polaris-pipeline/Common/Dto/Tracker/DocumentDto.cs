@@ -3,7 +3,6 @@ using Common.Constants;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Common.ValueObjects;
-using Mapster;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -36,10 +35,6 @@ namespace Common.Dto.Tracker
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
-
-        [JsonProperty("cmsDocumentId")]
-        [AdaptIgnore]
-        public string CmsDocumentId { get; set; }
 
         [JsonProperty("cmsVersionId")]
         public long CmsVersionId { get; set; }

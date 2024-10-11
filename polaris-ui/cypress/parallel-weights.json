@@ -1,16 +1,1 @@
-{
-  "cypress/e2e/a11y.cy.ts": { "time": 46598, "weight": 10 },
-  "cypress/e2e/auth.cy.ts": { "time": 4659, "weight": 1 },
-  "cypress/e2e/case-details-page.cy.ts": { "time": 147616, "weight": 34 },
-  "cypress/e2e/case-search-results.cy.ts": { "time": 4271, "weight": 0 },
-  "cypress/e2e/case-search.cy.ts": { "time": 7923, "weight": 1 },
-  "cypress/e2e/landing-page.cy.ts": { "time": 3455, "weight": 0 },
-  "cypress/e2e/notes.cy.ts": { "time": 28012, "weight": 6 },
-  "cypress/e2e/redaction-assurance.cy.ts": { "time": 137615, "weight": 31 },
-  "cypress/e2e/redaction.cy.ts": { "time": 67531, "weight": 15 },
-  "cypress/e2e/redactionLog.cy.ts": { "time": 51996, "weight": 12 },
-  "cypress/e2e/rename-document.cy.ts": { "time": 10555, "weight": 2 },
-  "cypress/e2e/saved-user-data.cy.ts": { "time": 30995, "weight": 7 },
-  "cypress/e2e/search-pii.cy.ts": { "time": 19528, "weight": 4 },
-  "cypress/e2e/search.cy.ts": { "time": 43107, "weight": 9 }
-}
+{"cypress/e2e/a11y.cy.ts":{"time":31218,"weight":7},"cypress/e2e/auth.cy.ts":{"time":1812,"weight":0},"cypress/e2e/case-details-page.cy.ts":{"time":135801,"weight":34},"cypress/e2e/case-search-results.cy.ts":{"time":3598,"weight":0},"cypress/e2e/case-search.cy.ts":{"time":2772,"weight":0},"cypress/e2e/landing-page.cy.ts":{"time":1124,"weight":0},"cypress/e2e/notes.cy.ts":{"time":24823,"weight":6},"cypress/e2e/redaction-assurance.cy.ts":{"time":128453,"weight":32},"cypress/e2e/redaction.cy.ts":{"time":46142,"weight":11},"cypress/e2e/redactionLog.cy.ts":{"time":83527,"weight":20},"cypress/e2e/rename-document.cy.ts":{"time":10602,"weight":2},"cypress/e2e/saved-user-data.cy.ts":{"time":29662,"weight":7},"cypress/e2e/search-pii.cy.ts":{"time":13947,"weight":3},"cypress/e2e/search.cy.ts":{"time":45463,"weight":11}}

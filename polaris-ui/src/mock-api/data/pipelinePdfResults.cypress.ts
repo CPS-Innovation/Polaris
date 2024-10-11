@@ -5,9 +5,7 @@ import {
 } from "./types/PipelinePdfResultsDataSource";
 //the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
 const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
-
 export default dataSource;
-
 const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
   transactionId: "121",
   status: "Completed",
@@ -16,7 +14,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
   documents: [
     {
       documentId: "1",
-      cmsDocumentId: "1",
       cmsVersionId: 1,
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
@@ -50,7 +47,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "2",
-      cmsDocumentId: "2",
       cmsVersionId: 2,
       pdfBlobName: "CM01",
       status: "Indexed",
@@ -84,7 +80,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "3",
-      cmsDocumentId: "3",
       cmsVersionId: 3,
       pdfBlobName: "MG05MCLOVE",
       status: "Indexed",
@@ -118,7 +113,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "4",
-      cmsDocumentId: "4",
       cmsVersionId: 4,
       pdfBlobName: "MG06_3June",
       status: "Indexed",
@@ -152,7 +146,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "5",
-      cmsDocumentId: "5",
       cmsVersionId: 5,
       pdfBlobName: "MG06_10june",
       status: "Indexed",
@@ -186,7 +179,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "6",
-      cmsDocumentId: "null",
       cmsVersionId: 6,
       pdfBlobName: "CM01",
       status: "Indexed",
@@ -220,7 +212,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "8",
-      cmsDocumentId: "8",
       cmsVersionId: 8,
       pdfBlobName: "MG06_3June",
       status: "Indexed",
@@ -254,7 +245,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "9",
-      cmsDocumentId: "9",
       cmsVersionId: 19,
       pdfBlobName: "MG06_3June",
       status: "Indexed",
@@ -288,7 +278,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "10",
-      cmsDocumentId: "10",
       cmsVersionId: 10,
       pdfBlobName: "PortraitLandscape",
       status: "Indexed",
@@ -322,7 +311,6 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "12",
-      cmsDocumentId: "12",
       cmsVersionId: 12,
       pdfBlobName: "SearchPII",
       status: "Indexed",
@@ -362,7 +350,6 @@ const getPipelinePdfResults = (resultsCount: number) => {
     .fill({})
     .map((value, index) => ({
       ...pipelinePdfResult,
-
       processingCompleted: new Date(
         new Date().getTime() + index * 1000
       ).toISOString(),
@@ -374,13 +361,11 @@ const getPipelinePdfResults = (resultsCount: number) => {
         polarisDocumentVersionId: document.polarisDocumentVersionId + index,
       })),
     }));
-
   return resultsArray as PipelineResultsWithPdfBlobNames[];
 };
 // This will create two results one with document id 2 and the second with document id 2 deleted.
 const getRefreshDeletedDocuments = () => {
   const resultsArray = getPipelinePdfResults(2);
-
   return [
     resultsArray[0],
     {
@@ -392,7 +377,6 @@ const getRefreshDeletedDocuments = () => {
     } as PipelineResultsWithPdfBlobNames,
   ];
 };
-
 const getRefreshRenamedDocuments = (
   id: string,
   newName: string,
@@ -427,7 +411,6 @@ const getRefreshRenamedDocuments = (
     };
   });
 };
-
 export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
   transactionId: "121",
   status: "Completed",
@@ -436,7 +419,6 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
   documents: [
     {
       documentId: "1",
-      cmsDocumentId: "1",
       cmsVersionId: 1,
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
@@ -470,7 +452,6 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "2",
-      cmsDocumentId: "2",
       cmsVersionId: 2,
       pdfBlobName: "CM01",
       status: "Indexed",
@@ -504,7 +485,6 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "3",
-      cmsDocumentId: "3",
       cmsVersionId: 3,
       pdfBlobName: "MG05MCLOVE",
       status: "Indexed",
@@ -538,7 +518,6 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "4",
-      cmsDocumentId: "4",
       cmsVersionId: 4,
       pdfBlobName: "MG06_3June",
       status: "OcrAndIndexFailure",
@@ -572,7 +551,6 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "5",
-      cmsDocumentId: "5",
       cmsVersionId: 5,
       pdfBlobName: "MG06_10june",
       status: "UnableToConvertToPdf",
@@ -606,7 +584,6 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
     {
       documentId: "12",
-      cmsDocumentId: "12",
       cmsVersionId: 12,
       pdfBlobName: "SearchPII",
       status: "Indexed",
@@ -640,7 +617,6 @@ export const missingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames = {
     },
   ],
 };
-
 export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
   {
     transactionId: "121",
@@ -650,7 +626,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
     documents: [
       {
         documentId: "1",
-        cmsDocumentId: "1",
         cmsVersionId: 1,
         pdfBlobName: "MCLOVEMG3",
         status: "OcrAndIndexFailure",
@@ -684,7 +659,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
       },
       {
         documentId: "2",
-        cmsDocumentId: "2",
         cmsVersionId: 2,
         pdfBlobName: "CM01",
         status: "OcrAndIndexFailure",
@@ -718,7 +692,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
       },
       {
         documentId: "3",
-        cmsDocumentId: "3",
         cmsVersionId: 3,
         pdfBlobName: "MG05MCLOVE",
         status: "OcrAndIndexFailure",
@@ -752,7 +725,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
       },
       {
         documentId: "4",
-        cmsDocumentId: "4",
         cmsVersionId: 4,
         pdfBlobName: "MG06_3June",
         status: "OcrAndIndexFailure",
@@ -786,7 +758,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
       },
       {
         documentId: "5",
-        cmsDocumentId: "5",
         cmsVersionId: 5,
         pdfBlobName: "MG06_10june",
         status: "UnableToConvertToPdf",
@@ -820,7 +791,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
       },
       {
         documentId: "12",
-        cmsDocumentId: "12",
         cmsVersionId: 12,
         pdfBlobName: "SearchPII",
         status: "Indexed",
@@ -854,10 +824,8 @@ export const allMissingDocsPipelinePdfResults: PipelineResultsWithPdfBlobNames =
       },
     ],
   };
-
 export const refreshPipelineDeletedDocuments: PipelinePdfResultsDataSource =
   () => getRefreshDeletedDocuments();
-
 export const refreshPipelineRenamedDocuments: (
   documentId: string,
   newName: string,
