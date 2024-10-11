@@ -1,9 +1,9 @@
+using Ddei.Domain.CaseData.Args.Core;
+
 namespace Ddei.Domain.CaseData.Args
 {
-    public class DdeiCmsWitnessStatementsArgDto : DdeiCmsCaseDataArgDto
+    public class DdeiCmsWitnessStatementsArgDto : DdeiCaseIdentifiersArgDto
     {
-        public string Urn { get; set; }
-        public int CaseId { get; set; }
         public int WitnessId { get; set; }
     }
 }

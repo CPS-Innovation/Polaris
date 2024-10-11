@@ -1,4 +1,4 @@
-namespace Common.Dto.Request
+namespace Common.Dto.Response
 {
     public class MaterialTypeDto
     {

@@ -1,5 +1,5 @@
 
-namespace Ddei.Domain
+namespace Ddei.Domain.Response.Defendant
 {
     public class DdeiOffenceDto
     {

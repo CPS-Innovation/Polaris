@@ -1,4 +1,4 @@
-namespace Ddei.Domain
+namespace Ddei.Domain.Response.ActionPlan
 {
     public class DdeiActionPlanDto
     {
@@ -13,14 +13,7 @@ namespace Ddei.Domain
         public string ChaserDate { get; set; }
         public string AllDefendantsFlag { get; set; }
         public string DefendantId { get; set; }
-        public IEnumerable<ActionPlanItemDto> ActionPlanItems { get; set; }
+        public IEnumerable<DdeiActionPlanItemDto> ActionPlanItems { get; set; }
         public string HasDocuments { get; set; }
-    }
-
-    public class ActionPlanItemDto
-    {
-        public string CaseActionPlanId { get; set; }
-        public string CategoryId { get; set; }
-        public string Text { get; set; }
     }
 }

@@ -10,10 +10,6 @@ namespace Common.Dto.Tracker
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-        [Obsolete]
-        [JsonProperty("versionId")]
-        public int? VersionId { get; set; }
-
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public CaseRefreshStatus Status { get; set; }

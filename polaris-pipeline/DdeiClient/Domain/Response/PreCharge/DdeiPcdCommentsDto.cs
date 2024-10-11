@@ -1,4 +1,4 @@
-namespace Ddei.Domain.PreCharge
+namespace Ddei.Domain.Response.PreCharge
 {
     public class DdeiPcdCommentsDto
     {

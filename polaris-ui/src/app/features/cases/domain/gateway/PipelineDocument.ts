@@ -68,16 +68,15 @@ export type Classification =
 
 export type PresentationDocumentProperties = {
   documentId: string;
-  cmsVersionId: number;
   cmsOriginalFileName: string;
   presentationTitle: string;
-  polarisDocumentVersionId: number;
+  versionId: number;
   cmsFileCreatedDate: string;
   categoryListOrder: number | null;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
-  polarisParentDocumentId: string | null;
+  parentDocumentId: string | null;
   witnessId: number | null;
   hasFailedAttachments: boolean;
   hasNotes: boolean;

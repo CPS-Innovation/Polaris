@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Ddei.Domain
+namespace Ddei.Domain.Response
 {
     public class DdeiCmsAuthValuesDto
     {

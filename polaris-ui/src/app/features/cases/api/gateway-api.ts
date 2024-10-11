@@ -52,9 +52,6 @@ const fullUrl = (path: string, baseUrl: string = GATEWAY_BASE_URL) => {
 // hack
 const temporaryApiModelMapping = (arr: any[]) =>
   arr.forEach((item) => {
-    if (item.polarisDocumentId) {
-      item.documentId = item.polarisDocumentId;
-    }
     if (item.cmsDocType?.documentTypeId) {
       item.cmsDocType.documentTypeId = parseInt(
         item.cmsDocType.documentTypeId,
@@ -67,11 +64,11 @@ export const resolvePdfUrl = (
   urn: string,
   caseId: number,
   documentId: string,
-  polarisDocumentVersionId: number
+  versionId: number
 ) => {
   // the backend does not look at the v parameter
   return fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${versionId}`
   );
 };
 

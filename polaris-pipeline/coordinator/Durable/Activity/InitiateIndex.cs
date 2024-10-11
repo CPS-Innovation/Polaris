@@ -26,11 +26,10 @@ namespace coordinator.Durable.Activity
             using var documentStream = await _blobStorageService.GetDocumentAsync(payload.OcrBlobName, payload.CorrelationId);
 
             return await _textExtractorClient.StoreCaseIndexesAsync(
-                payload.PolarisDocumentId,
-                payload.CmsCaseUrn,
-                payload.CmsCaseId,
-                payload.CmsDocumentId,
-                payload.CmsVersionId,
+                payload.DocumentId,
+                payload.Urn,
+                payload.CaseId,
+                payload.VersionId,
                 payload.BlobName,
                 payload.CorrelationId,
                 documentStream);

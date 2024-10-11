@@ -86,7 +86,7 @@ namespace coordinator.Services.PiiService
                 }
             }
 
-            return MapReconcilledPiiToResponse(results);
+            return MapReconciledPiiToResponse(results);
         }
 
         public PiiEntitiesWrapper MapPiiResults(RecognizePiiEntitiesResultCollection[] piiResults)
@@ -97,7 +97,7 @@ namespace coordinator.Services.PiiService
             };
         }
 
-        public IEnumerable<PiiLine> MapReconcilledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
+        public IEnumerable<PiiLine> MapReconciledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
         {
             var results = new List<PiiLine>();
 
@@ -109,7 +109,7 @@ namespace coordinator.Services.PiiService
                 {
                     piiLine = new PiiLine
                     {
-                        PolarisDocumentId = entity.PolarisDocumentId,
+                        DocumentId = entity.DocumentId,
                         PageIndex = entity.PageIndex,
                         LineIndex = entity.LineIndex,
                         AccumulativeLineIndex = entity.AccumulativeLineIndex,
@@ -151,13 +151,13 @@ namespace coordinator.Services.PiiService
             return results;
         }
 
-        public async Task<PiiEntitiesWrapper> GetPiiResultsFromBlob(int caseId, string polarisDocumentId, Guid correlationId)
+        public async Task<PiiEntitiesWrapper> GetPiiResultsFromBlob(int caseId, string documentId, Guid correlationId)
         {
             Stream piiStream;
 
             try
             {
-                var piiBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Pii);
+                var piiBlobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Pii);
                 piiStream = await _blobStorageService.GetDocumentAsync(piiBlobName, correlationId);
             }
             catch (Exception)

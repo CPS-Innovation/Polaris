@@ -2,7 +2,6 @@
 using Common.Constants;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Common.ValueObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -13,31 +12,15 @@ namespace Common.Dto.Tracker
         public DocumentDto()
         { }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisDocumentId { get; set; }
-
-        [JsonProperty("polarisDocumentId")]
-        public string PolarisDocumentIdValue
-        {
-            get
-            {
-                return PolarisDocumentId.ToString();
-            }
-            set
-            {
-                PolarisDocumentId = new PolarisDocumentId(value);
-            }
-        }
-
-        [JsonProperty("polarisDocumentVersionId")]
-        public int PolarisDocumentVersionId { get; set; }
+        [JsonProperty("documentId")]
+        public string DocumentId { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
 
-        [JsonProperty("cmsVersionId")]
-        public long CmsVersionId { get; set; }
+        [JsonProperty("versionId")]
+        public long VersionId { get; set; }
 
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
@@ -66,21 +49,8 @@ namespace Common.Dto.Tracker
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisParentDocumentId { get; set; }
-
-        [JsonProperty("polarisParentDocumentId")]
-        public string PolarisParentDocumentIdValue
-        {
-            get
-            {
-                return PolarisParentDocumentId?.ToString();
-            }
-            set
-            {
-                PolarisParentDocumentId = new PolarisDocumentId(value);
-            }
-        }
+        [JsonProperty("parentDocumentId")]
+        public string PolarisParentDocumentId { get; set; }
 
         [JsonProperty("cmsParentDocumentId")]
         [JsonIgnore]
@@ -99,8 +69,8 @@ namespace Common.Dto.Tracker
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
-        [JsonProperty("piiCmsVersionId")]
-        public int? PiiCmsVersionId { get; set; }
+        [JsonProperty("piiVersionId")]
+        public int? PiiVersionId { get; set; }
 
         [JsonProperty("isUnused")]
         public bool IsUnused { get; set; }

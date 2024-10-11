@@ -1,10 +1,10 @@
+using Ddei.Domain.CaseData.Args.Core;
 using Common.Dto.Request;
 
 namespace Ddei.Domain.CaseData.Args
 {
-    public class DdeiCmsReclassifyDocumentArgDto : DdeiCmsCaseArgDto
+    public class DdeiCmsReclassifyDocumentArgDto : DdeiDocumentArgDto
     {
-        public int DocumentId { get; set; }
         public int DocumentTypeId { get; set; }
         public ReclassificationStatement Statement { get; set; }
         public ReclassificationExhibit Exhibit { get; set; }

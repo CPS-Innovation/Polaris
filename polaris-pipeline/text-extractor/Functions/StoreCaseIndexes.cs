@@ -52,7 +52,7 @@ namespace text_extractor.Functions
 
         [FunctionName(nameof(StoreCaseIndexes))]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequestMessage request,
-            string caseUrn, long caseId, string documentId, long versionId)
+            string caseUrn, int caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
             try
@@ -81,9 +81,8 @@ namespace text_extractor.Functions
                 var storedLinesCount = await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
-                        extractTextRequest.PolarisDocumentId,
+                        extractTextRequest.DocumentId,
                         caseId,
-                        documentId,
                         versionId,
                         extractTextRequest.BlobName,
                         currentCorrelationId

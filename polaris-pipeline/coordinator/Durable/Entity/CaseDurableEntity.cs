@@ -2,7 +2,6 @@
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
-using Common.ValueObjects;
 using coordinator.Durable.Orchestration;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -32,26 +31,20 @@ namespace coordinator.Durable.Entity
         public string TransactionId { get; set; }
 
 
-        private int? version = null;
-
         // Currently useful in analytics to e.g. determine if/when a case has been refreshed
         [JsonProperty("versionId")]
-        public int? Version
-        {
-            get { return version; }
-            set { version = value; }
-        }
+        public int? Version { get; set; }
 
         [Obsolete]
         public Task<int?> GetVersion()
         {
-            return Task.FromResult(version);
+            return Task.FromResult(Version);
         }
 
         [Obsolete]
         public void SetVersion(int value)
         {
-            version = value;
+            Version = value;
         }
 
         [JsonConverter(typeof(StringEnumConverter))]
@@ -93,9 +86,9 @@ namespace coordinator.Durable.Entity
             Failed = null;
             FailedReason = null;
             // todo: this initialisation should be done in a more constructor-like way, at least only once
-            CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
-            PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
-            DefendantsAndCharges = DefendantsAndCharges ?? null;
+            CmsDocuments ??= new List<CmsDocumentEntity>();
+            PcdRequests ??= new List<PcdRequestEntity>();
+            DefendantsAndCharges ??= null;
         }
 
         public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
@@ -139,7 +132,7 @@ namespace coordinator.Durable.Entity
                 statuses.All(s => s is DocumentStatus.UnableToConvertToPdf));
         }
 
-        private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<string>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
+        private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<long>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
         {
             var newDocuments =
                 (from incomingDocument in incomingDocuments
@@ -154,7 +147,7 @@ namespace coordinator.Durable.Entity
                  (
                      cmsDocument != null &&
                      (
-                         cmsDocument.CmsVersionId != incomingDocument.VersionId ||
+                         cmsDocument.VersionId != incomingDocument.VersionId ||
                          cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
                          cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId ||
                          cmsDocument.CmsDocType?.DocumentCategory != incomingDocument.CmsDocType?.DocumentCategory ||
@@ -189,10 +182,11 @@ namespace coordinator.Durable.Entity
                     .Where(incomingPcd => !PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id))
                     .ToList();
 
-            var updatedPcdRequests =
-                incomingPcdRequests
-                    .Where(incomingPcd => PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id && pcd.Status != DocumentStatus.Indexed))
-                    .ToList();
+            // Return empty list for updated pcds.  Before this we had the following:
+            //     .Where(incomingPcd => PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id && pcd.Status != DocumentStatus.Indexed))
+            // which did nothing.  We could be doing some sort of hash comparison here on pcd requests to see if they've changed, but this would
+            // involve always having to request the full pcd request from DDEI on every refresh, which would be costly.
+            var updatedPcdRequests = Enumerable.Empty<PcdRequestDto>().ToList();
 
             var deletedPcdRequestIds
                 = PcdRequests.Where(pcd => !incomingPcdRequests.Exists(incomingPcd => incomingPcd.Id == pcd.PcdRequest.Id))
@@ -229,10 +223,8 @@ namespace coordinator.Durable.Entity
                 var trackerDocument
                     = new CmsDocumentEntity
                     (
-                        polarisDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
-                        polarisDocumentVersionId: 1,
                         cmsDocumentId: newDocument.DocumentId,
-                        cmsVersionId: newDocument.VersionId,
+                        versionId: newDocument.VersionId,
                         cmsDocType: newDocument.CmsDocType,
                         path: newDocument.Path,
                         cmsFileCreatedDate: newDocument.DocumentDate,
@@ -241,7 +233,7 @@ namespace coordinator.Durable.Entity
                         isOcrProcessed: newDocument.IsOcrProcessed,
                         isDispatched: newDocument.IsDispatched,
                         categoryListOrder: newDocument.CategoryListOrder,
-                        polarisParentDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
+                        parentDocumentId: newDocument.ParentDocumentId,
                         cmsParentDocumentId: newDocument.ParentDocumentId,
                         witnessId: newDocument.WitnessId,
                         presentationFlags: newDocument.PresentationFlags,
@@ -299,10 +291,9 @@ namespace coordinator.Durable.Entity
                     caseDeltaType = DocumentDeltaType.RequiresPdfRefresh;
                 }
 
-                if (trackerDocument.CmsVersionId != updatedDocument.VersionId)
+                if (trackerDocument.VersionId != updatedDocument.VersionId)
                 {
-                    trackerDocument.PolarisDocumentVersionId++;
-                    trackerDocument.CmsVersionId = updatedDocument.VersionId;
+                    trackerDocument.VersionId = updatedDocument.VersionId;
                     caseDeltaType = DocumentDeltaType.RequiresIndexing;
                 }
 
@@ -314,7 +305,7 @@ namespace coordinator.Durable.Entity
                 .ToList();
         }
 
-        private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<string> documentIdsToDelete)
+        private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<long> documentIdsToDelete)
         {
             var deleteDocuments
                 = CmsDocuments
@@ -335,8 +326,8 @@ namespace coordinator.Durable.Entity
 
             foreach (var newPcdRequest in createdPcdRequests)
             {
-                var polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.PcdRequest, newPcdRequest.Id.ToString());
-                var trackerPcdRequest = new PcdRequestEntity(polarisDocumentId, 1, newPcdRequest);
+                var documentId = newPcdRequest.Id;
+                var trackerPcdRequest = new PcdRequestEntity(documentId, newPcdRequest);
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
             }
@@ -351,8 +342,6 @@ namespace coordinator.Durable.Entity
             foreach (var updatedPcdRequest in updatedPcdRequests)
             {
                 var trackerPcdRequest = PcdRequests.Find(pcd => pcd.PcdRequest.Id == updatedPcdRequest.Id);
-
-                trackerPcdRequest.PolarisDocumentVersionId++;
                 trackerPcdRequest.PresentationFlags = updatedPcdRequest.PresentationFlags;
 
                 changedPcdRequests.Add(trackerPcdRequest);
@@ -380,8 +369,8 @@ namespace coordinator.Durable.Entity
         {
             if (createdDefendantsAndCharges != null)
             {
-                PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, createdDefendantsAndCharges.CaseId.ToString());
-                DefendantsAndCharges = new DefendantsAndChargesEntity(polarisDocumentId, 1, createdDefendantsAndCharges);
+                var documentId = createdDefendantsAndCharges.CaseId;
+                DefendantsAndCharges = new DefendantsAndChargesEntity(documentId, createdDefendantsAndCharges);
 
                 return DefendantsAndCharges;
             }
@@ -394,8 +383,6 @@ namespace coordinator.Durable.Entity
             if (updatedDefendantsAndCharges != null)
             {
                 DefendantsAndCharges.DefendantsAndCharges = updatedDefendantsAndCharges;
-                DefendantsAndCharges.PolarisDocumentVersionId++;
-
                 return DefendantsAndCharges;
             }
 
@@ -412,15 +399,15 @@ namespace coordinator.Durable.Entity
             return deletedDefendantsAndCharges;
         }
 
-        private BaseDocumentEntity GetDocument(string polarisDocumentId)
+        private BaseDocumentEntity GetDocument(string documentId)
         {
-            var cmsDocument = CmsDocuments.Find(doc => doc.PolarisDocumentId.ToString().Equals(polarisDocumentId, StringComparison.OrdinalIgnoreCase));
+            var cmsDocument = CmsDocuments.Find(doc => doc.DocumentId == documentId);
             if (cmsDocument != null)
             {
                 return cmsDocument;
             }
 
-            var pcdRequest = PcdRequests.Find(pcd => pcd.PolarisDocumentId.ToString().Equals(polarisDocumentId, StringComparison.OrdinalIgnoreCase));
+            var pcdRequest = PcdRequests.Find(pcd => pcd.DocumentId == documentId);
             if (pcdRequest != null)
             {
                 return pcdRequest;
@@ -465,45 +452,32 @@ namespace coordinator.Durable.Entity
         }
 
         [Obsolete]
-        public Task<string[]> GetPolarisDocumentIds()
+        public Task<string[]> GetDocumentIds()
         {
-            var polarisDocumentIds =
-                CmsDocuments?.Select(doc => doc.PolarisDocumentId.ToString())
-                    .Union(PcdRequests?.Select(pcd => pcd.PolarisDocumentId.ToString())
-                    .Union(new string[] { DefendantsAndCharges?.PolarisDocumentId.ToString() }))
+            var documentIds =
+                CmsDocuments?.Select(doc => doc.DocumentId)
+                    .Union(PcdRequests?.Select(pcd => pcd.DocumentId)
+                    .Union(new string[] { DefendantsAndCharges?.DocumentId }))
                     .ToArray();
 
-            return Task.FromResult(polarisDocumentIds);
+            return Task.FromResult(documentIds);
         }
 
         [Obsolete]
-        public void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args)
+        public void SetDocumentFlags((string DocumentId, bool IsOcrProcessed, bool IsDispatched) args)
         {
-            var (polarisDocumentId, isOcrProcessed, isDispatched) = args;
+            var (DocumentId, isOcrProcessed, isDispatched) = args;
 
-            var document = GetDocument(polarisDocumentId) as CmsDocumentEntity;
+            var document = GetDocument(DocumentId) as CmsDocumentEntity;
             document.IsOcrProcessed = isOcrProcessed;
             document.IsDispatched = isDispatched;
         }
 
-        public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
+        public void SetDocumentConversionStatus((string DocumentId, PdfConversionStatus Status) args)
         {
-            var (polarisDocumentId, status, pdfBlobName) = args;
+            var (documentId, status) = args;
 
-            var document = GetDocument(polarisDocumentId);
-            document.Status = status;
-
-            if (status == DocumentStatus.PdfUploadedToBlob)
-            {
-                document.PdfBlobName = pdfBlobName;
-            }
-        }
-
-        public void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args)
-        {
-            var (polarisDocumentId, status) = args;
-
-            var document = GetDocument(polarisDocumentId);
+            var document = GetDocument(documentId);
             document.ConversionStatus = status;
         }
 
@@ -539,37 +513,37 @@ namespace coordinator.Durable.Entity
             return context.DispatchAsync<CaseDurableEntity>();
         }
 
-        public void SetDocumentPdfConversionSucceeded((string polarisDocumentId, string pdfBlobName) arg)
+        public void SetDocumentPdfConversionSucceeded((string documentId, string pdfBlobName) arg)
         {
-            var document = GetDocument(arg.polarisDocumentId);
+            var document = GetDocument(arg.documentId);
             document.PdfBlobName = arg.pdfBlobName;
             document.Status = DocumentStatus.PdfUploadedToBlob;
         }
 
-        public void SetDocumentPdfConversionFailed((string PolarisDocumentId, PdfConversionStatus PdfConversionStatus) arg)
+        public void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg)
         {
-            var document = GetDocument(arg.PolarisDocumentId);
+            var document = GetDocument(arg.DocumentId);
             document.Status = DocumentStatus.UnableToConvertToPdf;
             document.ConversionStatus = arg.PdfConversionStatus;
         }
 
-        public void SetDocumentIndexingSucceeded(string polarisDocumentId)
+        public void SetDocumentIndexingSucceeded(string documentId)
         {
-            var document = GetDocument(polarisDocumentId);
+            var document = GetDocument(documentId);
             document.Status = DocumentStatus.Indexed;
         }
 
-        public void SetDocumentIndexingFailed(string polarisDocumentId)
+        public void SetDocumentIndexingFailed(string documentId)
         {
-            var document = GetDocument(polarisDocumentId);
+            var document = GetDocument(documentId);
             document.Status = DocumentStatus.OcrAndIndexFailure;
         }
 
-        public void SetPiiCmsVersionId(string polarisDocumentId)
+        public void SetPiiVersionId(string documentId)
         {
-            var document = GetDocument(polarisDocumentId);
+            var document = GetDocument(documentId);
 
-            document.PiiCmsVersionId = document.CmsVersionId;
+            document.PiiVersionId = document.VersionId;
         }
     }
 }

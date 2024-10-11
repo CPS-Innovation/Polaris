@@ -439,12 +439,11 @@ describe("mapAccordionState", () => {
       data: [
         {
           documentId: "1",
-          cmsVersionId: 1,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
           cmsOriginalFileName: "foo.pdf",
           presentationTitle: "foo!",
-          polarisDocumentVersionId: 1,
+          versionId: 1,
           categoryListOrder: null,
           attachments: [],
           cmsDocType: {
@@ -457,7 +456,7 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
-          polarisParentDocumentId: null,
+          parentDocumentId: null,
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
@@ -475,12 +474,11 @@ describe("mapAccordionState", () => {
         },
         {
           documentId: "2",
-          cmsVersionId: 2,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
           cmsOriginalFileName: "bar.pdf",
           presentationTitle: "bar!",
-          polarisDocumentVersionId: 1,
+          versionId: 2,
           categoryListOrder: null,
           attachments: [],
           cmsDocType: {
@@ -493,7 +491,7 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
-          polarisParentDocumentId: null,
+          parentDocumentId: null,
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
@@ -523,12 +521,11 @@ describe("mapAccordionState", () => {
           docs: [
             {
               documentId: "2",
-              cmsVersionId: 2,
               presentationCategory: "Reviews",
               presentationSubCategory: null,
               cmsOriginalFileName: "bar.pdf",
               presentationTitle: "bar!",
-              polarisDocumentVersionId: 1,
+              versionId: 2,
               categoryListOrder: null,
               attachments: [],
               cmsDocType: {
@@ -541,7 +538,7 @@ describe("mapAccordionState", () => {
                 read: "Ok",
                 write: "Ok",
               },
-              polarisParentDocumentId: null,
+              parentDocumentId: null,
               witnessId: null,
               witnessIndicators: [],
               hasFailedAttachments: false,

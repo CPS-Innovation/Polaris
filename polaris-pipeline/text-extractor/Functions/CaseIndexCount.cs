@@ -34,7 +34,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(CaseIndexCount))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseIndexCount)] HttpRequestMessage request, long caseId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseIndexCount)] HttpRequestMessage request, int caseId)
         {
             Guid correlationId = Guid.Empty;
 

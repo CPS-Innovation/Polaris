@@ -499,9 +499,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             documentTypeId={getActiveTabDocument?.cmsDocType?.documentTypeId}
             documentId={getActiveTabDocument?.documentId!}
             presentationTitle={getActiveTabDocument?.presentationTitle!}
-            polarisDocumentVersionId={
-              getActiveTabDocument?.polarisDocumentVersionId!
-            }
+            versionId={getActiveTabDocument?.versionId!}
             correlationId={pipelineState?.correlationId}
             handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
           />

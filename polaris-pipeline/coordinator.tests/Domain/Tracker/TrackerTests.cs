@@ -18,7 +18,6 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
-using Common.ValueObjects;
 using Newtonsoft.Json;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Payloads.Domain;
@@ -44,7 +43,6 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
         private readonly Mock<ILogger<GetTracker>> _mockLogger;
-
         private readonly CaseDurableEntity _caseEntity;
         private readonly EntityStateResponse<CaseDurableEntity> _entityStateResponse;
         private readonly GetTracker _trackerStatus;
@@ -71,7 +69,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _pdfBlobName = _fixture.Create<string>();
 
-            _synchroniseDocumentsArg = new(_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
+            _synchroniseDocumentsArg = (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
             _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState = _caseEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
 
@@ -115,8 +113,8 @@ namespace coordinator.tests.Domain.Tracker
             var serialisedTracker = JsonConvert.SerializeObject(_caseEntity);
             var deserialisedTracker = JsonConvert.DeserializeObject<CaseDurableEntity>(serialisedTracker);
 
-            _caseEntity.CmsDocuments[0].PolarisDocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].PolarisDocumentId);
-            _caseEntity.PcdRequests[0].PolarisDocumentId.Should().Be(deserialisedTracker.PcdRequests[0].PolarisDocumentId);
+            _caseEntity.CmsDocuments[0].DocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].DocumentId);
+            _caseEntity.PcdRequests[0].DocumentId.Should().Be(deserialisedTracker.PcdRequests[0].DocumentId);
             deserialisedTracker.TransactionId.Should().Be(_transactionId);
         }
 
@@ -128,27 +126,6 @@ namespace coordinator.tests.Domain.Tracker
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.New);
-        }
-
-        [Theory]
-        [InlineData(DocumentStatus.Indexed)]
-        [InlineData(DocumentStatus.UnableToConvertToPdf)]
-        [InlineData(DocumentStatus.PdfUploadedToBlob)]
-        [InlineData(DocumentStatus.OcrAndIndexFailure)]
-        public async Task RegisterIndexed_RegistersStates(DocumentStatus status)
-        {
-            // Arrange
-            _caseEntity.Reset(_transactionId);
-            await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            var polarisDocumentId = _caseEntity.CmsDocuments.First().PolarisDocumentIdValue;
-            var cmsDocumentId = _caseEntity.CmsDocuments.First().CmsDocumentId;
-
-            // Act
-            _caseEntity.SetDocumentStatus((polarisDocumentId, status, _pdfBlobName));
-
-            // Assert
-            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == cmsDocumentId);
-            document?.Status.Should().Be(status);
         }
 
         [Fact]
@@ -181,8 +158,8 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf}
+                new(_fixture.Create<long>(),  _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<long>(),  _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf}
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.UnableToConvertToPdf };
@@ -196,9 +173,9 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), null,  _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),_fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
+                new(_fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),  _fixture.Create<string>(), null,  _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),_fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(),  _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.Indexed };
@@ -304,11 +281,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.UpdatedPcdRequests.Count.Should().Be(0);
             deltas.DeletedPcdRequests.Count.Should().Be(0);
             deltas.Any().Should().BeTrue();
-            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
-            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
-            tracker.PcdRequests[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.PcdRequests[1].PolarisDocumentVersionId.Should().Be(1);
         }
 
         [Fact]
@@ -330,9 +302,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
             deltas.DeletedCmsDocuments.Count.Should().Be(0);
             deltas.Any().Should().BeFalse();
-            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
-            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
         }
 
         [Fact]
@@ -354,35 +323,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
             deltas.DeletedCmsDocuments.Count.Should().Be(0);
             deltas.Any().Should().BeFalse();
-            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
-            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
-        }
-
-        [Fact]
-        public async Task SynchroniseDocument_FailedPcdRequestsAreReprocessed()
-        {
-            // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
-            await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
-            tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.UnableToConvertToPdf);
-
-            // Act 
-            var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-
-            // Assert
-            tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
-            deltas.CreatedCmsDocuments.Count.Should().Be(0);
-            deltas.UpdatedCmsDocuments.Count.Should().Be(0);
-            deltas.DeletedCmsDocuments.Count.Should().Be(0);
-            deltas.CreatedPcdRequests.Count.Should().Be(0);
-            deltas.UpdatedPcdRequests.Count.Should().Be(2);
-            deltas.DeletedPcdRequests.Count.Should().Be(0);
-            deltas.Any().Should().BeTrue();
-            tracker.PcdRequests[0].PolarisDocumentVersionId.Should().Be(2);
-            tracker.PcdRequests[1].PolarisDocumentVersionId.Should().Be(2);
         }
 
         [Fact]
@@ -406,16 +346,13 @@ namespace coordinator.tests.Domain.Tracker
             deltas.UpdatedCmsDocuments.Count.Should().Be(2);
             deltas.DeletedCmsDocuments.Count.Should().Be(0);
             deltas.Any().Should().BeTrue();
-            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(2);
-            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(2);
         }
 
         [Fact]
         public async Task SynchroniseDocument_ChangesWithDeletedDocuments()
         {
             // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
+            var tracker = new CaseDurableEntity();
             tracker.Reset(_transactionId);
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
@@ -435,8 +372,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.UpdatedPcdRequests.Count.Should().Be(0);
             deltas.DeletedPcdRequests.Count.Should().Be(1);
             deltas.Any().Should().BeTrue();
-            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.PcdRequests[0].PolarisDocumentVersionId.Should().Be(1);
         }
 
         [Fact]
@@ -489,25 +424,19 @@ namespace coordinator.tests.Domain.Tracker
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
 
-            var newDaysDocuments = new CmsDocumentDto[3];
-            _cmsDocuments.CopyTo(newDaysDocuments);
-            var originalVersionId = newDaysDocuments[1].VersionId;
-            var newVersionId = originalVersionId + 1;
-            newDaysDocuments[1].VersionId = newVersionId;
-            var modifiedDocumentId = newDaysDocuments[1].DocumentId;
-            (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
-                new(newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
+            var nextDocs = new CmsDocumentDto[3];
+            _cmsDocuments.CopyTo(nextDocs);
+            nextDocs[1].VersionId += 1;
 
             _caseEntity.Reset(_transactionId);
-            await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);
+
+            await _caseEntity.GetCaseDocumentChanges((nextDocs, Array.Empty<PcdRequestDto>(), null));
 
             using (new AssertionScope())
             {
                 _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
-                var newVersion = _caseEntity.CmsDocuments.Find(x => x.CmsDocumentId == modifiedDocumentId);
-
-                newVersion.Should().NotBeNull();
-                newVersion?.CmsVersionId.Should().Be(newVersionId);
+                var newVersion = _caseEntity.CmsDocuments.Find(x => x.CmsDocumentId == nextDocs[1].DocumentId);
+                newVersion.VersionId.Should().Be(nextDocs[1].VersionId);
             }
         }
 
@@ -546,10 +475,10 @@ namespace coordinator.tests.Domain.Tracker
                 var unmodifiedDocument = _caseEntity.CmsDocuments.Find(x => x.CmsDocumentId == unmodifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
-                newVersion?.CmsVersionId.Should().Be(newVersionId);
+                newVersion?.VersionId.Should().Be(newVersionId);
 
                 unmodifiedDocument.Should().NotBeNull();
-                unmodifiedDocument?.CmsVersionId.Should().Be(unmodifiedDocumentVersionId);
+                unmodifiedDocument?.VersionId.Should().Be(unmodifiedDocumentVersionId);
 
                 var searchResultForDocumentRemovedFromCms = _caseEntity.CmsDocuments.Find(x => x.CmsDocumentId == documentRemovedFromCmsId);
                 searchResultForDocumentRemovedFromCms.Should().BeNull();

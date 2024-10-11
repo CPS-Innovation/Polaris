@@ -4,7 +4,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using Common.ValueObjects;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
@@ -33,7 +32,7 @@ namespace PolarisGateway.Functions
         [FunctionName(nameof(PolarisPipelineGetDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try
@@ -42,7 +41,7 @@ namespace PolarisGateway.Functions
                 return await _coordinatorClient.GetDocumentAsync(
                     caseUrn,
                     caseId,
-                    new PolarisDocumentId(polarisDocumentId),
+                    documentId,
                     context.CorrelationId);
 
             }

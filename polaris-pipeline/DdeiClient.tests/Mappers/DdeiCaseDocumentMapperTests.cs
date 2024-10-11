@@ -29,7 +29,7 @@ public class DdeiCaseDocumentMapperTests
 
         using (new AssertionScope())
         {
-            result.DocumentId.Should().Be(_documentResponse.Id.ToString());
+            result.DocumentId.Should().Be(_documentResponse.Id);
             result.FileName.Should().Be(_documentResponse.OriginalFileName);
             result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
@@ -48,7 +48,7 @@ public class DdeiCaseDocumentMapperTests
 
         using (new AssertionScope())
         {
-            result.DocumentId.Should().Be(_documentResponse.Id.ToString());
+            result.DocumentId.Should().Be(_documentResponse.Id);
             result.FileName.Should().Be(_documentResponse.OriginalFileName);
             result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
@@ -67,7 +67,7 @@ public class DdeiCaseDocumentMapperTests
 
         using (new AssertionScope())
         {
-            result.DocumentId.Should().Be(_documentResponse.Id.ToString());
+            result.DocumentId.Should().Be(_documentResponse.Id);
             result.FileName.Should().Be(_documentResponse.OriginalFileName);
             result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
@@ -86,7 +86,7 @@ public class DdeiCaseDocumentMapperTests
 
         using (new AssertionScope())
         {
-            result.DocumentId.Should().Be(_documentResponse.Id.ToString());
+            result.DocumentId.Should().Be(_documentResponse.Id);
             result.FileName.Should().Be(_documentResponse.OriginalFileName);
             result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);

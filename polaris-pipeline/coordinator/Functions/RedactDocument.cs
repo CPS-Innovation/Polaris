@@ -18,10 +18,9 @@ using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorageService;
-using Common.ValueObjects;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient.Services;
+using DdeiClient;
 using FluentValidation;
 
 namespace coordinator.Functions
@@ -65,7 +64,7 @@ namespace coordinator.Functions
             HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            string polarisDocumentId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -74,7 +73,7 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(RedactDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(RedactDocument));
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
@@ -104,10 +103,10 @@ namespace coordinator.Functions
                     if (!validationResult.IsValid)
                         throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
 
-                    redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactionRequest, currentCorrelationId);
+                    redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, documentId, redactionRequest, currentCorrelationId);
                     if (redactedDocumentStream == null)
                     {
-                        string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                        string error = $"Error Saving redaction details to the document for {caseId}, documentId {documentId}";
                         throw new Exception(error);
                     }
                 }
@@ -139,10 +138,10 @@ namespace coordinator.Functions
                         VersionId = redactPdfRequest.VersionId
                     };
 
-                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modificationRequest, currentCorrelationId);
+                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
                     if (modifiedDocumentStream == null)
                     {
-                        string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                        string error = $"Error modifying document for {caseId}, documentId {documentId}";
                         throw new Exception(error);
                     }
                 }
@@ -153,7 +152,7 @@ namespace coordinator.Functions
                     modifiedDocumentStream ?? redactedDocumentStream,
                     uploadFileName,
                     caseId,
-                    polarisDocumentId,
+                    documentId,
                     redactPdfRequest.VersionId.ToString(),
                     currentCorrelationId);
 
@@ -166,8 +165,8 @@ namespace coordinator.Functions
                     correlationId: currentCorrelationId,
                     urn: caseUrn,
                     caseId: int.Parse(caseId),
-                    documentId: int.Parse(document.CmsDocumentId),
-                    versionId: document.CmsVersionId
+                    documentId: document.CmsDocumentId,
+                    versionId: document.VersionId
                 );
 
                 var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);

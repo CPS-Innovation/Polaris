@@ -33,7 +33,7 @@ namespace coordinator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PiiResults)] HttpRequest req,
             string caseUrn,
             int caseId,
-            string polarisDocumentId)
+            string documentId)
         {
             Guid currentCorrelationId = default;
 
@@ -41,12 +41,12 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
-                var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
+                var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, documentId, currentCorrelationId);
+                var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, documentId, currentCorrelationId);
 
                 if (ocrResults == null || piiResults == null) return new EmptyResult(); // Need to handle this...
 
-                var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, 1000, currentCorrelationId);
+                var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, 1000, currentCorrelationId);
 
                 var results = _piiService.ReconcilePiiResults(piiChunks, piiResults);
 

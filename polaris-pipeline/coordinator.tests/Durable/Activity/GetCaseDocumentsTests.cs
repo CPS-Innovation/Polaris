@@ -9,13 +9,13 @@ using Xunit;
 using coordinator.Durable.Activity;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using DdeiClient.Services;
+using DdeiClient;
 using coordinator.Services.DocumentToggle;
-using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
+using Ddei.Domain.CaseData.Args.Core;
 
 namespace coordinator.tests.Durable.Activity
 {
@@ -54,10 +54,10 @@ namespace coordinator.tests.Durable.Activity
                 .Returns(_payload);
 
             mockDocumentExtractionService
-                .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCmsCaseArgDto>()))
+                .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
                 .ReturnsAsync(_case);
             mockDocumentExtractionService
-                .Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(), _payload.CmsAuthValues, _payload.CorrelationId))
+                .Setup(client => client.ListDocumentsAsync(_payload.Urn, _payload.CaseId.ToString(), _payload.CmsAuthValues, _payload.CorrelationId))
                 .ReturnsAsync(_caseDocuments);
 
             var mockDocumentToggleService = new Mock<IDocumentToggleService>();
@@ -81,7 +81,7 @@ namespace coordinator.tests.Durable.Activity
         [Fact]
         public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
-            _payload.CmsCaseId = 0;
+            _payload.CaseId = 0;
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 
@@ -107,7 +107,7 @@ namespace coordinator.tests.Durable.Activity
         [InlineData(" ")]
         public async Task Run_WhenCaseUrnIsNullOrWhitespace_ThrowsArgumentException(string caseUrn)
         {
-            _payload.CmsCaseUrn = caseUrn;
+            _payload.Urn = caseUrn;
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 

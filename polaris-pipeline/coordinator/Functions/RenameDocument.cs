@@ -8,7 +8,7 @@ using Common.Extensions;
 using Common.Wrappers;
 using coordinator.Helpers;
 using Ddei.Factories;
-using DdeiClient.Services;
+using DdeiClient;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +43,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
-            int documentId
+            long documentId
             )
         {
             Guid currentCorrelationId = default;

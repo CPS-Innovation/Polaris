@@ -20,7 +20,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.ValueObjects;
 using coordinator.Durable.Entity;
 using Common.Telemetry;
 using coordinator.Validators;
@@ -34,9 +33,9 @@ namespace coordinator.tests.Durable.Orchestration
     {
         private readonly CaseOrchestrationPayload _payload;
         private readonly string _cmsAuthValues;
-        private readonly long _cmsCaseId;
-        private readonly string _cmsCaseUrn;
-        private readonly PolarisDocumentId _polarisDocumentId;
+        private readonly long _caseId;
+        private readonly string _urn;
+        private readonly string _documentId;
         private readonly Guid _correlationId;
         private readonly (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _caseDocuments;
         private readonly string _transactionId;
@@ -53,22 +52,22 @@ namespace coordinator.tests.Durable.Orchestration
         {
             var fixture = new Fixture();
             _cmsAuthValues = fixture.Create<string>();
-            _cmsCaseUrn = fixture.Create<string>();
-            _cmsCaseId = fixture.Create<long>();
+            _urn = fixture.Create<string>();
+            _caseId = fixture.Create<long>();
             _correlationId = fixture.Create<Guid>();
-            _polarisDocumentId = fixture.Create<PolarisDocumentId>();
+            _documentId = fixture.Create<string>();
             fixture.Create<Guid>();
             var durableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk"));
             _payload = fixture.Build<CaseOrchestrationPayload>()
                         .With(p => p.CmsAuthValues, _cmsAuthValues)
-                        .With(p => p.CmsCaseId, _cmsCaseId)
-                        .With(p => p.CmsCaseUrn, _cmsCaseUrn)
+                        .With(p => p.CaseId, _caseId)
+                        .With(p => p.Urn, _urn)
                         .With(p => p.CorrelationId, _correlationId)
-                        .With(p => p.PolarisDocumentId, _polarisDocumentId)
+                        .With(p => p.DocumentId, _documentId)
                         .Create();
             _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
 
-            _transactionId = $"[{_cmsCaseId}]";
+            _transactionId = $"[{_caseId}]";
 
             // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
             //  matches the regex attribute that decorates it.
@@ -78,8 +77,6 @@ namespace coordinator.tests.Durable.Orchestration
             _trackerCmsDocuments = fixture.CreateMany<(CmsDocumentEntity, DocumentDeltaType)>(11)
                 .ToList();
 
-            for (int i = 0; i < _trackerCmsDocuments.Count; i++)
-                _trackerCmsDocuments[i].Item1.CmsDocumentId = $"CMS-{i + 1}";
             _deltaDocuments = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = _trackerCmsDocuments.Where(d => d.Item1.Status == DocumentStatus.New).ToList(),
@@ -212,7 +209,7 @@ namespace coordinator.tests.Durable.Orchestration
                     It.Is<CaseDocumentOrchestrationPayload>
                     (
                         payload =>
-                            payload.CmsCaseId == _payload.CmsCaseId &&
+                            payload.CaseId == _payload.CaseId &&
                             (
                                 (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.Item1.CmsDocumentId) ||
                                 (payload.DefendantAndChargesTracker != null && payload.DefendantAndChargesTracker.CmsDocumentId == document.Item1.CmsDocumentId)

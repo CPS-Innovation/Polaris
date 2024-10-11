@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Common.ValueObjects;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.Services.DocumentToggle;
 using FluentAssertions;
@@ -75,9 +74,7 @@ namespace coordinator.tests.Services.DocumentToggle
       // Arrange
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
-          new PolarisDocumentId("DOC-ID"),
-          1,
-          "2",
+          123,
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",
@@ -87,7 +84,7 @@ namespace coordinator.tests.Services.DocumentToggle
           true,
           false,
           2,
-          new PolarisDocumentId("3"),
+          "3",
           "3",
           null,
           new PresentationFlagsDto(),
@@ -114,9 +111,7 @@ namespace coordinator.tests.Services.DocumentToggle
       // Arrange
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
-          new PolarisDocumentId("DOC-ID"),
-          1,
-          "2",
+          123,
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",
@@ -126,7 +121,7 @@ namespace coordinator.tests.Services.DocumentToggle
           true,
           false,
           2,
-          new PolarisDocumentId("3"),
+          "3",
           "3",
           null,
           new PresentationFlagsDto(),
@@ -153,9 +148,7 @@ namespace coordinator.tests.Services.DocumentToggle
       // Arrange
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
-          new PolarisDocumentId("DOC-ID"),
-          1,
-          "2",
+          123,
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",
@@ -165,7 +158,7 @@ namespace coordinator.tests.Services.DocumentToggle
           true,
           false,
           2,
-          new PolarisDocumentId("3"),
+          "3",
           "3",
           null,
           new PresentationFlagsDto(),
@@ -193,9 +186,7 @@ namespace coordinator.tests.Services.DocumentToggle
       // Arrange
       var documentToggleService = new DocumentToggleService("");
       var document = new CmsDocumentEntity(
-          new PolarisDocumentId("DOC-ID"),
-          1,
-          "2",
+          123,
           3L,
           new DocumentTypeDto(),
           "foo/bar.pdf",
@@ -205,7 +196,7 @@ namespace coordinator.tests.Services.DocumentToggle
           true,
           false,
           2,
-          new PolarisDocumentId("3"),
+          "3",
           "3",
           null,
           new PresentationFlagsDto(),

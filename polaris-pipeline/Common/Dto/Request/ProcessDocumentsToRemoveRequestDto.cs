@@ -7,7 +7,7 @@ namespace Common.Dto.Request;
 
 public class ProcessDocumentsToRemoveRequestDto
 {
-    public ProcessDocumentsToRemoveRequestDto(string caseUrn, long caseId, List<DocumentVersionDto> documentsToRemove)
+    public ProcessDocumentsToRemoveRequestDto(string caseUrn, int caseId, List<DocumentVersionDto> documentsToRemove)
     {
         CaseUrn = caseUrn;
         CaseId = caseId;

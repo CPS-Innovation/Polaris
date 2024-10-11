@@ -18,14 +18,19 @@
 
 # Immediate
 
+- check 423s in prod
+- WHAT TO DO ABOUT isOCR-ed?
+- Make sure analytics events are ok
+
 ## Ids
 
-| Name                     | Current                                                     | To be                |                    |
-| ------------------------ | ----------------------------------------------------------- | -------------------- | ------------------ |
-| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId |                    |
-| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId  |                    |
-| polarisDocumentVersionId | Incrementing artificial number                              | Remove               |                    |
-| cmsDocumentId            | Appears to be null all the time                             | Remove               | :white_check_mark: |
+| Name                     | Current                                                     | To be                      |                    |
+| ------------------------ | ----------------------------------------------------------- | -------------------------- | ------------------ |
+| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId       | :white_check_mark: |
+| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId        | :white_check_mark: |
+| polarisDocumentVersionId | Incrementing artificial number                              | Remove                     | :white_check_mark: |
+| polarisParentDocumentId  | Incrementing artificial number                              | Rename -> parentDocumentId | :white_check_mark: |
+| cmsDocumentId            | Appears to be null all the time                             | Remove                     | :white_check_mark: |
 
 gateway-api.ts hack
 
@@ -113,6 +118,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
   );
 ```
 
+- MapsterConfig and the coercion of non-doc entities to doc entities
 - lift lookups etc above case
 - get rid of the CMS-12344
 - get document based on version - check all of this
@@ -121,6 +127,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
 - get rid of PdfBlobName from backend and from mock as the mechanism for blob retrieval
 - sort out CmsVersionId and PolarisDocumentId in backend/tracker
 - polarisDocumentVersionId -> does this ever get employed for PCDs/DACs? How should we "store by version" for PCDs in blob storage
+- PiiCmsVersionId???
 
 # Done
 

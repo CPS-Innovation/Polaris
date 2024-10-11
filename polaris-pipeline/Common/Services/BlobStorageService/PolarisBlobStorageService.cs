@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Common.ValueObjects;
 using Microsoft.WindowsAzure.Storage;
 
 namespace Common.Services.BlobStorageService
@@ -49,14 +48,14 @@ namespace Common.Services.BlobStorageService
             await UploadDocumentInternal(stream, blobName);
         }
 
-        public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, PolarisDocumentId polarisDocumentId, string versionId, Guid correlationId)
+        public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, string documentId, string versionId, Guid correlationId)
         {
             var blobClient = await UploadDocumentInternal(stream, blobName);
 
             var metadata = new Dictionary<string, string>
             {
                 {DocumentTags.CaseId, caseId},
-                {DocumentTags.DocumentId, polarisDocumentId.Value},
+                {DocumentTags.DocumentId, documentId},
                 {DocumentTags.VersionId, string.IsNullOrWhiteSpace(versionId) ? "1" : versionId}
             };
 

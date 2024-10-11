@@ -399,11 +399,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const {
-        redactionHighlights,
-        polarisDocumentVersionId,
-        pageDeleteRedactions,
-      } = document;
+      const { redactionHighlights, versionId, pageDeleteRedactions } = document;
       let piiData: any = {};
       if (searchPIIOn) {
         const suggestedHighlights =
@@ -472,8 +468,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             startRefresh: true,
             savedDocumentDetails: {
-              documentId: documentId,
-              polarisDocumentVersionId: polarisDocumentVersionId,
+              documentId,
+              versionId,
             },
           },
         });
@@ -805,7 +801,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const { polarisDocumentVersionId, pageRotations } = document;
+      const { versionId, pageRotations } = document;
 
       const rotationRequestData: RotationSaveRequest = {
         documentModifications: pageRotations.map(
@@ -847,8 +843,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             startRefresh: true,
             savedDocumentDetails: {
-              documentId: documentId,
-              polarisDocumentVersionId: polarisDocumentVersionId,
+              documentId,
+              versionId,
             },
           },
         });

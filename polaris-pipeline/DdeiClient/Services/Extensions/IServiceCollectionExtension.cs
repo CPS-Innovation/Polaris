@@ -8,7 +8,7 @@ using Ddei.Factories;
 using Ddei.Factories.Contracts;
 using Ddei.Mappers;
 using DdeiClient.Mappers;
-using DdeiClient.Services;
+using DdeiClient;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 
@@ -26,7 +26,7 @@ namespace Ddei.Services.Extensions
         {
             services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
 
-            services.AddHttpClient<IDdeiClient, DdeiClient>((service, client) =>
+            services.AddHttpClient<IDdeiClient, DdeiClient.DdeiClient>((service, client) =>
             {
                 client.BaseAddress = new Uri(configuration[DdeiBaseUrlConfigKey]);
                 client.DefaultRequestHeaders.Add(FunctionKey, configuration[DdeiAccessKeyConfigKey]);

@@ -37,11 +37,12 @@ public class CaseDurableEntityTests
     public async Task GetCaseDocumentChanges_ReturnsANewDocumentIfANewDocumentIsPresent()
     {
         // Arrange
-        var existingDocId = _fixture.Create<string>();
-        var newDocId = _fixture.Create<string>();
+        var existingDocId = _fixture.Create<long>();
+        var newDocId = _fixture.Create<long>();
 
         var existingDocInEntity = _fixture.Create<CmsDocumentEntity>();
         existingDocInEntity.CmsDocumentId = existingDocId;
+
         var existingDocInIncoming = _fixture.Create<CmsDocumentDto>();
         existingDocInIncoming.DocumentId = existingDocId;
 
@@ -84,7 +85,7 @@ public class CaseDurableEntityTests
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         // make sure triggers for different delta types are not found
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
         // our operative change
         docInIncoming.PresentationTitle = newDocTitle;
@@ -121,7 +122,7 @@ public class CaseDurableEntityTests
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         // make sure triggers for different delta types are not found
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
         // our operative change
         docInIncoming.CmsDocType.DocumentCategory = newDocCategory;
@@ -157,7 +158,7 @@ public class CaseDurableEntityTests
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         // make sure triggers for different delta types are not found
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
         // our operative change
         docInIncoming.CategoryListOrder = newCategoryListOrder;
@@ -193,7 +194,7 @@ public class CaseDurableEntityTests
 
         var docInIncoming = _fixture.Create<CmsDocumentDto>();
         docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.CmsVersionId;
+        docInIncoming.VersionId = docInEntity.VersionId;
         docInIncoming.IsOcrProcessed = true;
         // note: presentationTitle and categoryListOrder are going to be different between the two docs
         // due to AutoFixture but the Ocr flag change should be strong enough to return RequiresPdfRefresh

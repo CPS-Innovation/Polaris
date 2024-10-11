@@ -10,7 +10,7 @@ public class CaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
     {
         return new CmsDocumentDto
         {
-            DocumentId = ddeiResponse.Id.ToString(),
+            DocumentId = ddeiResponse.Id,
             VersionId = ddeiResponse.VersionId,
             Path = ddeiResponse.Path,
             FileName = ddeiResponse.OriginalFileName,

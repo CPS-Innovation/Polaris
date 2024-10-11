@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -11,13 +10,12 @@ using System.Threading.Tasks;
 using AutoFixture;
 using coordinator.Clients.PdfGenerator;
 using Common.Domain.Document;
-using Common.Exceptions;
 using Common.Dto.Tracker;
 using Common.Services.BlobStorageService;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers;
 using coordinator.Durable.Activity;
-using DdeiClient.Services;
+using DdeiClient;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -54,6 +52,7 @@ namespace pdf_generator.tests.Functions
     {
       _serializedGeneratePdfRequest = _fixture.Create<string>();
 
+
       var trackerCmsDocumentDto = _fixture.Create<DocumentDto>();
       _generatePdfRequest = new CaseDocumentOrchestrationPayload
           (
@@ -67,11 +66,10 @@ namespace pdf_generator.tests.Functions
               null,
               DocumentDeltaType.RequiresIndexing
           );
-      _generatePdfRequest.CmsCaseId = 123456;
+      _generatePdfRequest.CaseId = 123456;
       _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test document";
       _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
-      _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
-      _generatePdfRequest.CmsDocumentTracker.CmsDocumentId = _fixture.Create<string>();
+      _generatePdfRequest.CmsDocumentTracker.VersionId = 654321;
 
       _documentStream = new MemoryStream();
       _pdfStream = new MemoryStream();
@@ -114,10 +112,10 @@ namespace pdf_generator.tests.Functions
       _mockPdfGeneratorClient
           .Setup(client => client.ConvertToPdfAsync(
               _generatePdfRequest.CorrelationId,
-              _generatePdfRequest.CmsCaseUrn,
-              _generatePdfRequest.CmsCaseId.ToString(),
-              _generatePdfRequest.CmsDocumentId,
-              _generatePdfRequest.CmsVersionId.ToString(),
+              _generatePdfRequest.Urn,
+              _generatePdfRequest.CaseId.ToString(),
+              _generatePdfRequest.DocumentId,
+              _generatePdfRequest.VersionId.ToString(),
               _documentStream,
               FileType.DOC))
           .ReturnsAsync(new ConvertToPdfResponse() { PdfStream = _pdfStream, Status = PdfConversionStatus.DocumentConverted });
@@ -152,9 +150,9 @@ namespace pdf_generator.tests.Functions
           (
               _pdfStream,
               _generatePdfRequest.BlobName,
-              _generatePdfRequest.CmsCaseId.ToString(),
-              _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
-              _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
+              _generatePdfRequest.CaseId.ToString(),
+              _generatePdfRequest.CmsDocumentTracker.DocumentId,
+              _generatePdfRequest.CmsDocumentTracker.VersionId.ToString(),
               _generatePdfRequest.CorrelationId
           )
       );
@@ -171,9 +169,9 @@ namespace pdf_generator.tests.Functions
           (
               _pdfStream,
               _generatePdfRequest.BlobName,
-              _generatePdfRequest.CmsCaseId.ToString(),
-              _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
-              _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
+              _generatePdfRequest.CaseId.ToString(),
+              _generatePdfRequest.CmsDocumentTracker.DocumentId,
+              _generatePdfRequest.CmsDocumentTracker.VersionId.ToString(),
               _generatePdfRequest.CorrelationId
           )
       );

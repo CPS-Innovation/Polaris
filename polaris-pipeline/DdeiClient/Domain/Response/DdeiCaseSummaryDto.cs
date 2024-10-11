@@ -1,4 +1,4 @@
-namespace Ddei.Domain
+namespace Ddei.Domain.Response
 {
     public class DdeiCaseSummaryDto
     {
@@ -18,15 +18,6 @@ namespace Ddei.Domain
         public string OwningUnit { get; set; }
         public bool CtlActive { get; set; }
         public string EarliestCtlDate { get; set; }
-        public LockingDto Locking { get; set; }
-    }
-
-    public class LockingDto
-    {
-        public string Application { get; set; }
-        public string BySurname { get; set; }
-        public string ByFirstNames { get; set; }
-        public string Locked { get; set; }
-        public string Since { get; set; }
+        public CaseLockingDto Locking { get; set; }
     }
 }
