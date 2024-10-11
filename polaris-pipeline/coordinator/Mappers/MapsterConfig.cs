@@ -7,7 +7,7 @@ using Azure.AI.TextAnalytics;
 using coordinator.Domain;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads.Domain;
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
 using Common.Dto.Tracker;
 using Mapster;
 

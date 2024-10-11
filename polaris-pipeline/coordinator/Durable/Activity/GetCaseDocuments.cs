@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Document;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
 using coordinator.Services.DocumentToggle;
-using DdeiClient;
+using Ddei;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;

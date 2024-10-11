@@ -12,7 +12,7 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient;
+using Ddei;
 using FluentValidation;
 using Common.Exceptions;
 

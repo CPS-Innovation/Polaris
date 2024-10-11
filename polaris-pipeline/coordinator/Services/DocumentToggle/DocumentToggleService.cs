@@ -4,12 +4,12 @@ using System.Linq;
 using System;
 using System.Reflection;
 using System.Text;
-using Common.Dto.FeatureFlags;
+using Common.Dto.Response.Document.FeatureFlags;
 using coordinator.Domain.DocumentToggle;
 using coordinator.Domain.Exceptions;
-using Common.Dto.Document;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Case;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Case;
 using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Services.DocumentToggle

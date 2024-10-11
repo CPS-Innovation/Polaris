@@ -8,7 +8,7 @@ using Common.Extensions;
 using Common.Wrappers;
 using coordinator.Helpers;
 using Ddei.Factories;
-using DdeiClient;
+using Ddei;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

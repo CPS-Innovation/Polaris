@@ -1,6 +1,6 @@
 ﻿using Common.Constants;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.FeatureFlags;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document.FeatureFlags;
 
 namespace coordinator.Durable.Payloads.Domain
 {

@@ -13,7 +13,7 @@ using coordinator.Durable.Payloads;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
 using coordinator.Domain;
-using DdeiClient;
+using Ddei;
 using Ddei.Factories;
 
 namespace coordinator.Functions

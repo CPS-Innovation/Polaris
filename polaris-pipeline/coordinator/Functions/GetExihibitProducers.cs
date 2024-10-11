@@ -4,7 +4,7 @@ using Common.Configuration;
 using Common.Extensions;
 using coordinator.Helpers;
 using Ddei.Factories;
-using DdeiClient;
+using Ddei;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;

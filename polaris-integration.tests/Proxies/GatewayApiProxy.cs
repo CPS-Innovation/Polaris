@@ -1,5 +1,5 @@
 using Common.Configuration;
-using Common.Dto.Case;
+using Common.Dto.Response.Case;
 using Common.Dto.Tracker;
 using System.Net;
 using Newtonsoft.Json;

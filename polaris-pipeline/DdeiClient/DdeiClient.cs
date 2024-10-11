@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Document;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
 using Common.Dto.Response;
 using Common.Wrappers;
 using Ddei.Domain.Response;
@@ -10,18 +10,18 @@ using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.PreCharge;
 using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Exceptions;
-using DdeiClient.Mappers;
+using Ddei.Exceptions;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Domain.Response.Defendant;
+using Ddei.Domain.Response.Document;
 
-namespace DdeiClient
+namespace Ddei
 {
     public class DdeiClient : IDdeiClient
     {
         private readonly IDdeiArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
-        private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _caseDocumentMapper;
+        private readonly ICaseDocumentMapper<DdeiDocumentResponse> _caseDocumentMapper;
         private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
         private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
         private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
@@ -39,7 +39,7 @@ namespace DdeiClient
             IDdeiClientRequestFactory ddeiClientRequestFactory,
             IDdeiArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
-            ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper,
+            ICaseDocumentMapper<DdeiDocumentResponse> caseDocumentMapper,
             ICaseDocumentNoteMapper caseDocumentNoteMapper,
             ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
             ICaseExhibitProducerMapper caseExhibitProducerMapper,
@@ -77,11 +77,6 @@ namespace DdeiClient
         {
             var result = await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
             return _caseIdentifiersMapper.MapCaseIdentifiers(result);
-        }
-
-        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg)
-        {
-            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
         }
 
         public async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg)
@@ -128,7 +123,7 @@ namespace DdeiClient
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId
             }; ;
-            var ddeiResults = await CallDdei<List<DdeiCaseDocumentResponse>>(
+            var ddeiResults = await CallDdei<List<DdeiDocumentResponse>>(
                 _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg)
             );
 
@@ -185,30 +180,30 @@ namespace DdeiClient
 
         public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg)
         {
-            var ddeiResults = await CallDdei<List<DdeiCaseDocumentNoteResponse>>(_ddeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
+            var ddeiResults = await CallDdei<List<DdeiDocumentNoteResponse>>(_ddeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseDocumentNoteMapper.Map(ddeiResult)).ToArray();
         }
 
         public async Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg)
         {
-            var response = await CallDdei<DdeiCaseDocumentNoteAddedResponse>(_ddeiClientRequestFactory.CreateAddDocumentNoteRequest(arg));
+            var response = await CallDdei<DdeiDocumentNoteAddedResponse>(_ddeiClientRequestFactory.CreateAddDocumentNoteRequest(arg));
 
             return _caseDocumentNoteResultMapper.Map(response);
         }
 
-        public async Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg)
+        public async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg)
         {
-            var response = await CallDdei<DdeiCaseDocumentRenamedResponse>(_ddeiClientRequestFactory.CreateRenameDocumentRequest(arg));
+            var response = await CallDdei<DdeiDocumentRenamedResponse>(_ddeiClientRequestFactory.CreateRenameDocumentRequest(arg));
 
-            return new DocumentRenamedResult { Id = response.Id, OperationName = response.OperationName };
+            return new DocumentRenamedResultDto { Id = response.Id, OperationName = response.OperationName };
         }
 
-        public async Task<DocumentReclassifiedResult> ReclassifyDocumentAsync(DdeiCmsReclassifyDocumentArgDto arg)
+        public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiCmsReclassifyDocumentArgDto arg)
         {
-            var response = await CallDdei<DdeiCaseDocumentReclassifiedResponse>(_ddeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
+            var response = await CallDdei<DdeiDocumentReclassifiedResponse>(_ddeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
 
-            return new DocumentReclassifiedResult
+            return new DocumentReclassifiedResultDto
             {
                 DocumentId = response.Id,
                 DocumentTypeId = response.DocumentTypeId,
@@ -221,7 +216,7 @@ namespace DdeiClient
 
         public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCaseIdentifiersArgDto arg)
         {
-            var ddeiResults = await CallDdei<List<DdeiCaseDocumentExhibitProducerResponse>>(_ddeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
+            var ddeiResults = await CallDdei<List<DdeiDocumentExhibitProducerResponse>>(_ddeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseExhibitProducerMapper.Map(ddeiResult)).ToArray();
         }
@@ -245,6 +240,11 @@ namespace DdeiClient
             var ddeiResults = await CallDdei<List<DdeiCaseWitnessStatementsResponse>>(_ddeiClientRequestFactory.CreateGetWitnessStatementsRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseWitnessStatementMapper.Map(ddeiResult)).ToArray();
+        }
+
+        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg)
+        {
+            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
         }
 
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)

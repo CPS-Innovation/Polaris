@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Common.Constants;
-using Common.Dto.Case;
-using Common.Dto.FeatureFlags;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Document.FeatureFlags;
 
 namespace coordinator.Durable.Payloads.Domain
 {

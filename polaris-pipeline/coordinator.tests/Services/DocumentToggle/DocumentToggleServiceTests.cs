@@ -1,7 +1,7 @@
 using System;
 using System.IO;
-using Common.Dto.Document;
-using Common.Dto.FeatureFlags;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Document.FeatureFlags;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.Services.DocumentToggle;
 using FluentAssertions;

@@ -13,7 +13,7 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient;
+using Ddei;
 using FluentValidation;
 
 namespace coordinator.Functions

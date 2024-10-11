@@ -20,7 +20,7 @@ using Common.Extensions;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient;
+using Ddei;
 using FluentValidation;
 
 namespace coordinator.Functions

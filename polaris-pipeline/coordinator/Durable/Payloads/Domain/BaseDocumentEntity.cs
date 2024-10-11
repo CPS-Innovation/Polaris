@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Common.Dto.FeatureFlags;
 using Mapster;
 using Common.Dto.Tracker;
 using Common.Constants;
 using System;
+using Common.Dto.Response.Document.FeatureFlags;
 
 namespace coordinator.Durable.Payloads.Domain
 {

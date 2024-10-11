@@ -1,12 +1,12 @@
-using Common.Dto.Document;
-using Common.Dto.Response;
-using DdeiClient.Mappers;
+using Common.Dto.Response.Document;
+using Ddei.Domain.Response.Document;
+
 
 namespace Ddei.Mappers;
 
-public class CaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
+public class CaseDocumentMapper : ICaseDocumentMapper<DdeiDocumentResponse>
 {
-    public CmsDocumentDto Map(DdeiCaseDocumentResponse ddeiResponse)
+    public CmsDocumentDto Map(DdeiDocumentResponse ddeiResponse)
     {
         return new CmsDocumentDto
         {

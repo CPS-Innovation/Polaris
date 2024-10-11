@@ -1,6 +1,5 @@
-using Common.Dto.Case;
+using Common.Dto.Response.Case;
 using Ddei.Domain.Response;
-using DdeiClient.Mappers;
 
 namespace Ddei.Mappers;
 

@@ -1,4 +1,4 @@
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
 using coordinator.Validators;
 using FluentAssertions;
 using Xunit;

@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using coordinator.Clients.TextExtractor;
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
 using TextExtractor.TestHarness.Constants;
 using TextExtractor.TestHarness.Extensions;
 using coordinator.Durable.Payloads;

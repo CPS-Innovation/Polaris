@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
 using Common.Validators;
 
 namespace Common.Dto.Request;

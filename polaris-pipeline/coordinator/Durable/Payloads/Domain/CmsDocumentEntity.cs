@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Common.Constants;
-using Common.Dto.Document;
-using Common.Dto.FeatureFlags;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Document.FeatureFlags;
 using Newtonsoft.Json;
 
 namespace coordinator.Durable.Payloads.Domain

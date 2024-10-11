@@ -5,7 +5,7 @@ using Common.Domain.Document;
 using Common.Services.BlobStorageService;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers;
-using DdeiClient;
+using Ddei;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ using coordinator.Durable.Payloads;
 using coordinator.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
-using Common.Dto.Case;
+using Common.Dto.Response.Case;
 using System.Linq;
 
 namespace coordinator.Durable.Activity

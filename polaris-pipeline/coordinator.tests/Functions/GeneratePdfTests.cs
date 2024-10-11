@@ -15,7 +15,7 @@ using Common.Services.BlobStorageService;
 using coordinator.Services.RenderHtmlService;
 using Common.Wrappers;
 using coordinator.Durable.Activity;
-using DdeiClient;
+using Ddei;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;

@@ -1,25 +1,23 @@
 using AutoFixture;
-using Common.Constants;
-using Common.Dto.Response;
-using DdeiClient.Mappers;
 using Ddei.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
+using Ddei.Domain.Response.Document;
 
-namespace DdeiClient.tests.Mappers;
+namespace Ddei.tests.Mappers;
 
 public class DdeiCaseDocumentMapperTests
 {
-    private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _mapper;
-    private readonly DdeiCaseDocumentResponse _documentResponse;
+    private readonly ICaseDocumentMapper<DdeiDocumentResponse> _mapper;
+    private readonly DdeiDocumentResponse _documentResponse;
 
     public DdeiCaseDocumentMapperTests()
     {
         var fixture = new Fixture();
         _mapper = new CaseDocumentMapper();
-        _documentResponse = fixture.Create<DdeiCaseDocumentResponse>();
+        _documentResponse = fixture.Create<DdeiDocumentResponse>();
     }
 
     [Fact]

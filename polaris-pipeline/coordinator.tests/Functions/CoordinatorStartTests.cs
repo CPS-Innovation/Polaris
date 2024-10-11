@@ -17,8 +17,8 @@ using Xunit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ddei.Factories;
-using DdeiClient;
-using DdeiClient.Exceptions;
+using Ddei;
+using Ddei.Exceptions;
 using Ddei.Domain.CaseData.Args.Core;
 
 namespace coordinator.tests.Functions

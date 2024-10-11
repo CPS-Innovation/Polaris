@@ -1,9 +1,7 @@
 ﻿using System.Net;
-using System.Text.Json;
 using AutoFixture;
 using Azure;
 using Common.Exceptions;
-using Common.Dto.Response;
 using Common.Handlers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -74,28 +72,6 @@ namespace Common.Tests.Handlers
             httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
         }
 
-        [Fact]
-        public async Task HandleExceptionWithData_Returns()
-        {
-            var ocrCompletedTime = DateTime.Now;
 
-            var extractTextResult = new ExtractTextResult
-            {
-                LineCount = 100,
-                OcrCompletedTime = ocrCompletedTime,
-                PageCount = 5,
-                WordCount = 1000
-            };
-
-            var httpResponseMessage = _exceptionHandler.HandleException(new ApplicationException(), _correlationId, _source, _loggerMock.Object, extractTextResult);
-
-            var errorResponse = await httpResponseMessage.Content.ReadAsStringAsync();
-            var exceptionContent = JsonSerializer.Deserialize<ExceptionContent>(errorResponse);
-            var result = JsonSerializer.Deserialize<ExtractTextResult>(exceptionContent?.Data.ToString()!);
-
-            Assert.Equal(extractTextResult.GetType().Name, exceptionContent?.DataType);
-            Assert.Equal(extractTextResult.LineCount, result?.LineCount);
-            Assert.Equal(ocrCompletedTime, result?.OcrCompletedTime);
-        }
     }
 }

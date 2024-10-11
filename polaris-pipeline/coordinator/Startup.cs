@@ -31,7 +31,7 @@ using Common.Services;
 using Common.Streaming;
 using Common.Telemetry;
 using Common.Wrappers;
-using Ddei.Services.Extensions;
+using Ddei.Extensions;
 using FluentValidation;
 using System.Net.Http;
 using Polly;

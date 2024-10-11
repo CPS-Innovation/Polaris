@@ -1,11 +1,11 @@
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Document;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
 using Common.Dto.Response;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 
-namespace DdeiClient
+namespace Ddei
 {
 	public interface IDdeiClient
 	{
@@ -23,8 +23,8 @@ namespace DdeiClient
 		Task<HttpResponseMessage> UploadPdfAsync(DdeiCmsDocumentIdAndVersionIdArgDto arg, Stream stream);
 		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg);
 		Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg);
-		Task<DocumentRenamedResult> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg);
-		Task<DocumentReclassifiedResult> ReclassifyDocumentAsync(DdeiCmsReclassifyDocumentArgDto arg);
+		Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg);
+		Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiCmsReclassifyDocumentArgDto arg);
 		Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCaseIdentifiersArgDto arg);
 		Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCaseIdentifiersArgDto arg);
 		Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiBaseArgDto arg);
