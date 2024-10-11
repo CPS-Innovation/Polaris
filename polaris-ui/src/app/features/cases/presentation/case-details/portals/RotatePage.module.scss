@@ -25,8 +25,8 @@
   }
 }
 
-.deleteBtn,
-.restoreBtn {
+.rotateBtn,
+.cancelBtn {
   padding: 0 0.25rem;
   background-color: #fff;
   box-shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.2),
@@ -42,13 +42,26 @@
     opacity: 0.75;
     pointer-events: none;
   }
-  .deleteBtnIcon {
+  .rotateBtnIcon {
     width: 0.9375rem;
     margin-right: 0.625rem;
     border-radius: 0.1875rem;
     padding: 0.125rem;
     border: 1px solid #b1b4b6;
     background-color: #f3f2f1;
+  }
+}
+.cancelBtn {
+  font-size: 1.1875rem;
+  background: none;
+  color: #fff;
+  &:focus {
+    box-shadow: 0 0.125rem 0 #0b0c0c;
+    outline: 0.1875rem solid transparent;
+  }
+  &:disabled {
+    opacity: 0.75;
+    pointer-events: none;
   }
 }
 .overlay {
@@ -71,8 +84,8 @@
   align-items: center;
   width: 100%;
   z-index: 6;
-  .overlayDeleteIcon {
-    width: 3.125rem;
+  .overlayPageIcon {
+    width: 8rem;
     margin-right: 0.625rem;
     border-radius: 0.1875rem;
     padding: 0.125rem;
@@ -80,43 +93,62 @@
   }
   .overlayMainText {
     margin: 1rem;
-    color: #b1b4b6;
+    color: #fff;
     font-size: 2.5rem;
   }
   .overlaySubText {
     margin: 1rem;
     color: #fff;
-    font-size: 1rem;
+    font-size: 1.1875rem;
     margin-top: 0;
-    max-width: 20rem;
+    max-width: 30rem;
     text-align: center;
   }
 }
 
-.deleteModal {
-  position: absolute;
-  top: 0.625rem;
-  right: 0.625rem;
+.rotateControlWrapper {
   display: flex;
-  flex-direction: column;
-  z-index: 7;
-  background: #fff;
-  background-clip: padding-box;
-  border-radius: 0.3125rem;
-  box-shadow: 0px 0px 0.625rem 0 rgba(0, 0, 0, 0.5);
-  & :global(.govuk-form-group) {
-    margin-bottom: 0;
-  }
-  & :global(.govuk-button) {
-    margin-left: 0.625rem;
-    margin-bottom: 0;
-  }
+  flex-direction: row;
+  align-items: center;
+}
 
-  .contentWrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-end;
-    padding: 0.625rem;
+.rotateIconWrapper {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem;
+  background-color: #1d70b8;
+}
+.rotateRightBtn,
+.rotateLeftBtn {
+  box-shadow: 0 0 1.25rem 0 rgba(0, 0, 0, 0.5);
+  background: #f3f2f1;
+  color: #1d70b8;
+  text-decoration: underline;
+  font-size: 1.2rem;
+  border: none;
+  display: flex;
+  align-items: center;
+  margin: 0 1.875rem;
+  padding: 0;
+  &:focus {
+    box-shadow: 0 0.125rem 0 #0b0c0c;
+    outline: 0.1875rem solid transparent;
   }
+  &:disabled {
+    opacity: 0.75;
+    pointer-events: none;
+  }
+}
+.rotateBtnText {
+  padding: 0 0.625rem;
+}
+
+.rotateLeftIcon {
+  width: 1.25rem;
+  fill: #fff;
+  transform: scaleX(-1);
+}
+.rotateRightIcon {
+  width: 1.25rem;
+  fill: #fff;
 }

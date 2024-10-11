@@ -169,6 +169,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleShowHidePageRotation,
+    handleAddPageRotation,
+    handleRemovePageRotation,
+    handleRemoveAllRotations,
+    handleSaveRotations,
     handleClearAllNotifications,
     handleClearNotification,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
@@ -329,15 +334,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       docTypeId: null,
       isUnused: false,
     });
-
+    handleOpenAccordion(documentId);
     setTimeout(() => {
-      handleOpenAccordion(documentId);
       (
         document.querySelector(
           `#document-housekeeping-actions-dropdown-${reclassifyDetails.documentId}`
         ) as HTMLElement
       ).focus();
-    }, 100);
+    }, 500);
   };
 
   const handleGetMaterialTypeList = () => {
@@ -837,6 +841,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     correlationId: pipelineState?.correlationId,
                     showSearchPII: featureFlags.searchPII,
                     showDeletePage: featureFlags.pageDelete,
+                    showRotatePage: featureFlags.pageRotate,
                   }}
                   caseId={+caseId}
                   showOverRedactionLog={
@@ -845,6 +850,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       : false
                   }
                   handleAreaOnlyRedaction={handleAreaOnlyRedaction}
+                  handleShowHidePageRotation={handleShowHidePageRotation}
+                  handleAddPageRotation={handleAddPageRotation}
+                  handleRemovePageRotation={handleRemovePageRotation}
+                  handleRemoveAllRotations={handleRemoveAllRotations}
+                  handleSaveRotations={handleSaveRotations}
                 />
               )}
             </div>
