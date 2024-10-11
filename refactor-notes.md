@@ -118,6 +118,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
   );
 ```
 
+- MapsterConfig and the coercion of non-doc entities to doc entities
 - lift lookups etc above case
 - get rid of the CMS-12344
 - get document based on version - check all of this

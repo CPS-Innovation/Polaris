@@ -11,7 +11,6 @@ namespace Common.Mappers
             return new SearchFilterDocument
             {
                 DocumentId = searchRequestDocumentDto.DocumentId,
-                CmsDocumentId = searchRequestDocumentDto.CmsDocumentId,
                 VersionId = searchRequestDocumentDto.VersionId
             };
         }

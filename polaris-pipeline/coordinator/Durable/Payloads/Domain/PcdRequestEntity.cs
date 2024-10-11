@@ -9,15 +9,24 @@ namespace coordinator.Durable.Payloads.Domain
         public PcdRequestEntity()
         { }
 
-        public PcdRequestEntity(string documentId,
+        public PcdRequestEntity(
+            long cmsDocumentId,
             long versionId,
             PresentationFlagsDto presentationFlags)
-        : base(documentId, versionId, presentationFlags) { }
+        : base(cmsDocumentId, versionId, presentationFlags) { }
 
-        public PcdRequestEntity(string cmsDocumentId, PcdRequestDto pcdRequest)
-            : base($"{PolarisDocumentTypePrefixes.PcdRequest}-{cmsDocumentId}", 1, pcdRequest.PresentationFlags)
+        public PcdRequestEntity(long cmsDocumentId, PcdRequestDto pcdRequest)
+            : base(cmsDocumentId, 1, pcdRequest.PresentationFlags)
         {
             PcdRequest = pcdRequest;
+        }
+
+        public override string DocumentId
+        {
+            get
+            {
+                return $"{PolarisDocumentTypePrefixes.PcdRequest}-{CmsDocumentId}";
+            }
         }
 
         public PcdRequestDto PcdRequest { get; set; }

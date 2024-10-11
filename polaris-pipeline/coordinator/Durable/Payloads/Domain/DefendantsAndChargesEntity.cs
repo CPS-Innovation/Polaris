@@ -10,15 +10,23 @@ namespace coordinator.Durable.Payloads.Domain
         public DefendantsAndChargesEntity()
         { }
 
-        public DefendantsAndChargesEntity(string documentId,
+        public DefendantsAndChargesEntity(
+            long cmsDocumentId,
             long versionId,
             PresentationFlagsDto presentationFlags)
-        : base(documentId, versionId, presentationFlags) { }
+        : base(cmsDocumentId, versionId, presentationFlags) { }
 
-        public DefendantsAndChargesEntity(string cmsDocumentId, DefendantsAndChargesListDto defendantsAndCharges)
-            : base($"{PolarisDocumentTypePrefixes.DefendantsAndCharges}-{cmsDocumentId}", 1, defendantsAndCharges.PresentationFlags)
+        public DefendantsAndChargesEntity(long cmsDocumentId, DefendantsAndChargesListDto defendantsAndCharges)
+            : base(cmsDocumentId, 1, defendantsAndCharges.PresentationFlags)
         {
             DefendantsAndCharges = defendantsAndCharges;
+        }
+        public override string DocumentId
+        {
+            get
+            {
+                return $"{PolarisDocumentTypePrefixes.DefendantsAndCharges}-{CmsDocumentId}";
+            }
         }
 
         public DefendantsAndChargesListDto DefendantsAndCharges { get; set; }

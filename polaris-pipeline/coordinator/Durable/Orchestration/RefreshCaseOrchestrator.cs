@@ -153,8 +153,8 @@ namespace coordinator.Durable.Orchestration
                                 cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                                 correlationId: caseDocumentPayload.CorrelationId,
                                 subCorrelationId: context.NewGuid(),
-                                cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
-                                cmsCaseId: caseDocumentPayload.CmsCaseId,
+                                urn: caseDocumentPayload.CmsCaseUrn,
+                                caseId: caseDocumentPayload.CmsCaseId,
                                 serializedTrackerCmsDocumentDto: JsonSerializer.Serialize(trackerCmsDocument.Item1),
                                 serializedTrackerPcdRequestDto: null,
                                 serializedTrackerDefendantAndChargesDto: null,
@@ -175,8 +175,8 @@ namespace coordinator.Durable.Orchestration
                                 cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                                 correlationId: caseDocumentPayload.CorrelationId,
                                 subCorrelationId: context.NewGuid(),
-                                cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
-                                cmsCaseId: caseDocumentPayload.CmsCaseId,
+                                urn: caseDocumentPayload.CmsCaseUrn,
+                                caseId: caseDocumentPayload.CmsCaseId,
                                 serializedTrackerCmsDocumentDto: null,
                                 serializedTrackerPcdRequestDto: JsonSerializer.Serialize(trackerPcdRequest),
                                 serializedTrackerDefendantAndChargesDto: null,
@@ -189,14 +189,14 @@ namespace coordinator.Durable.Orchestration
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
-                var documentId = caseDocumentPayload.CmsCaseId.ToString();
+                var documentId = caseDocumentPayload.CmsCaseId;
                 var payload = new CaseDocumentOrchestrationPayload
                 (
                     cmsAuthValues: caseDocumentPayload.CmsAuthValues,
                     correlationId: caseDocumentPayload.CorrelationId,
                     subCorrelationId: context.NewGuid(),
-                    cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
-                    cmsCaseId: caseDocumentPayload.CmsCaseId,
+                    urn: caseDocumentPayload.CmsCaseUrn,
+                    caseId: caseDocumentPayload.CmsCaseId,
                     serializedTrackerCmsDocumentDto: null,
                     serializedTrackerPcdRequestDto: null,
                     serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(documentId, new DefendantsAndChargesListDto { })),

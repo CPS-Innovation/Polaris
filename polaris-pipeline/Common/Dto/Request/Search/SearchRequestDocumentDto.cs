@@ -7,9 +7,6 @@ namespace Common.Dto.Request.Search
         [JsonProperty("documentId")]
         public string DocumentId { get; set; }
 
-        [JsonProperty("cmsDocumentId")]
-        public string CmsDocumentId { get; set; }
-
         [JsonProperty("versionId")]
         public long VersionId { get; set; }
     }

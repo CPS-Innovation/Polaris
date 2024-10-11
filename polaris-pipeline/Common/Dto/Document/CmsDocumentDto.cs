@@ -4,7 +4,7 @@ namespace Common.Dto.Document
 {
     public class CmsDocumentDto
     {
-        public string DocumentId { get; set; }
+        public long DocumentId { get; set; }
 
         public long VersionId { get; set; }
 

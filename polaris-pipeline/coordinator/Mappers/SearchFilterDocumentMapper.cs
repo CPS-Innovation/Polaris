@@ -11,7 +11,6 @@ namespace coordinator.Mappers
             return new SearchFilterDocument
             {
                 DocumentId = baseDocumentEntity.DocumentId,
-                CmsDocumentId = baseDocumentEntity.CmsDocumentId,
                 VersionId = baseDocumentEntity.VersionId,
             };
         }

@@ -54,7 +54,7 @@ namespace coordinator.Functions
                     correlationId: currentCorrelationId,
                     urn: caseUrn,
                     caseId: int.Parse(caseId),
-                    documentId: int.Parse(document.CmsDocumentId),
+                    documentId: document.CmsDocumentId,
                     versionId: document.VersionId
                 );
                 await _ddeiClient.CancelCheckoutDocumentAsync(arg);

@@ -12,14 +12,14 @@ namespace coordinator.Durable.Payloads
                 string cmsAuthValues,
                 Guid correlationId,
                 Guid subCorrelationId,
-                string cmsCaseUrn,
-                int cmsCaseId,
+                string urn,
+                int caseId,
                 string serializedTrackerCmsDocumentDto,
                 string serializedTrackerPcdRequestDto,
                 string serializedTrackerDefendantAndChargesDto,
                 DocumentDeltaType documentDeltaType
             )
-            : base(cmsCaseUrn, cmsCaseId, correlationId)
+            : base(urn, caseId, correlationId)
         {
             if (serializedTrackerCmsDocumentDto != null)
             {
@@ -46,19 +46,6 @@ namespace coordinator.Durable.Payloads
         public string CmsAuthValues { get; set; }
 
         public DocumentDeltaType DocumentDeltaType { get; set; }
-
-        public string CmsDocumentId
-        {
-            get
-            {
-                if (CmsDocumentTracker != null)
-                    return CmsDocumentTracker.CmsDocumentId;
-                if (PcdRequestTracker != null)
-                    return PcdRequestTracker.CmsDocumentId;
-                else
-                    return DefendantAndChargesTracker.CmsDocumentId ?? string.Empty;
-            }
-        }
 
         public long VersionId
         {
@@ -110,8 +97,8 @@ namespace coordinator.Durable.Payloads
         {
             get
             {
-                return !string.IsNullOrEmpty(CmsDocumentId)
-                    ? BlobNameHelper.GetBlobName(CmsCaseId, CmsDocumentId, BlobNameHelper.BlobType.Pdf)
+                return !string.IsNullOrEmpty(DocumentId)
+                    ? BlobNameHelper.GetBlobName(CmsCaseId, DocumentId, BlobNameHelper.BlobType.Pdf)
                     : throw new Exception("No document tracker found");
             }
         }
@@ -120,8 +107,8 @@ namespace coordinator.Durable.Payloads
         {
             get
             {
-                return !string.IsNullOrEmpty(CmsDocumentId)
-                    ? BlobNameHelper.GetBlobName(CmsCaseId, CmsDocumentId, BlobNameHelper.BlobType.Ocr)
+                return !string.IsNullOrEmpty(DocumentId)
+                    ? BlobNameHelper.GetBlobName(CmsCaseId, DocumentId, BlobNameHelper.BlobType.Ocr)
                     : throw new Exception("No document tracker found");
             }
         }

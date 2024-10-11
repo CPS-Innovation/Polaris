@@ -34,15 +34,15 @@ namespace TextExtractor.TestHarness.Services
 
             try
             {
-                using (var documentStream = File.Open(filePath, FileMode.Open))
-                    await _textExtractorClient.ExtractTextAsync(payload.DocumentId,
-                        payload.CmsCaseUrn,
-                        payload.CmsCaseId,
-                        payload.CmsDocumentId,
-                        payload.VersionId,
-                        payload.BlobName,
-                        payload.CorrelationId,
-                        documentStream);
+                // using (var documentStream = File.Open(filePath, FileMode.Open))
+                //     await _textExtractorClient.ExtractTextAsync(payload.DocumentId,
+                //         payload.CmsCaseUrn,
+                //         payload.CmsCaseId,
+                //         payload.DocumentId,
+                //         payload.VersionId,
+                //         payload.BlobName,
+                //         payload.CorrelationId,
+                //         documentStream);
             }
             catch (Exception ex)
             {
@@ -57,8 +57,7 @@ namespace TextExtractor.TestHarness.Services
             string cmsOriginalFileName)
         {
             var cmsDocumentEntity = new CmsDocumentEntity(
-                documentId: documentId,
-                cmsDocumentId: cmsDocumentId,
+                cmsDocumentId: documentId,
                 versionId: 1,
                 cmsDocType: new DocumentTypeDto(),
                 path: null,
@@ -68,7 +67,7 @@ namespace TextExtractor.TestHarness.Services
                 isOcrProcessed: false,
                 isDispatched: false,
                 categoryListOrder: null,
-                polarisParentDocumentId: null,
+                cmsParentDocumentId: null,
                 cmsParentDocumentId: null,
                 witnessId: null,
                 presentationFlags: new Common.Dto.FeatureFlags.PresentationFlagsDto(),

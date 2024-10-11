@@ -13,7 +13,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using coordinator.Durable.Payloads.Domain;
 using Common.Constants;
-using Common.Domain.Document;
 
 namespace coordinator.Durable.Entity
 {
@@ -133,7 +132,7 @@ namespace coordinator.Durable.Entity
                 statuses.All(s => s is DocumentStatus.UnableToConvertToPdf));
         }
 
-        private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<string>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
+        private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<long>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
         {
             var newDocuments =
                 (from incomingDocument in incomingDocuments
@@ -306,7 +305,7 @@ namespace coordinator.Durable.Entity
                 .ToList();
         }
 
-        private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<string> documentIdsToDelete)
+        private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<long> documentIdsToDelete)
         {
             var deleteDocuments
                 = CmsDocuments
@@ -327,7 +326,7 @@ namespace coordinator.Durable.Entity
 
             foreach (var newPcdRequest in createdPcdRequests)
             {
-                var documentId = newPcdRequest.Id.ToString();
+                var documentId = newPcdRequest.Id;
                 var trackerPcdRequest = new PcdRequestEntity(documentId, newPcdRequest);
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
@@ -370,7 +369,7 @@ namespace coordinator.Durable.Entity
         {
             if (createdDefendantsAndCharges != null)
             {
-                var documentId = createdDefendantsAndCharges.CaseId.ToString();
+                var documentId = createdDefendantsAndCharges.CaseId;
                 DefendantsAndCharges = new DefendantsAndChargesEntity(documentId, createdDefendantsAndCharges);
 
                 return DefendantsAndCharges;
@@ -472,19 +471,6 @@ namespace coordinator.Durable.Entity
             var document = GetDocument(DocumentId) as CmsDocumentEntity;
             document.IsOcrProcessed = isOcrProcessed;
             document.IsDispatched = isDispatched;
-        }
-
-        public void SetDocumentStatus((string DocumentId, DocumentStatus Status, string PdfBlobName) args)
-        {
-            var (DocumentId, status, pdfBlobName) = args;
-
-            var document = GetDocument(DocumentId);
-            document.Status = status;
-
-            if (status == DocumentStatus.PdfUploadedToBlob)
-            {
-                document.PdfBlobName = pdfBlobName;
-            }
         }
 
         public void SetDocumentConversionStatus((string DocumentId, PdfConversionStatus Status) args)

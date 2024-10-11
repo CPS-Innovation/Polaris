@@ -26,11 +26,6 @@ namespace coordinator.Mappers
                 )
                 .Map
                 (
-                    dest => dest.VersionId,
-                    src => src.Version
-                )
-                .Map
-                (
                     dest => dest.DocumentsRetrieved,
                     src => GetDocumentsRetrieved(src)
                 )
@@ -106,25 +101,20 @@ namespace coordinator.Mappers
             return documents;
         }
 
-        private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity)
-        {
-            if (caseEntity.Running != null && caseEntity.Retrieved.HasValue)
-                return caseEntity.Running?.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime();
+        private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity) =>
+            caseEntity.Retrieved.HasValue && caseEntity.Running.HasValue
+                ? caseEntity.Running.Value.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime()
+                : null;
 
-            return null;
-        }
 
-        private static DateTime? GetProcessingCompleted(CaseDurableEntity caseEntity)
-        {
-            if (caseEntity.Running != null && caseEntity.Completed.HasValue)
-                return caseEntity.Running?.AddSeconds(caseEntity.Completed.Value).ToUniversalTime();
-
-            return null;
-        }
+        private static DateTime? GetProcessingCompleted(CaseDurableEntity caseEntity) =>
+            caseEntity.Retrieved.HasValue && caseEntity.Completed.HasValue
+                ? caseEntity.Running.Value.AddSeconds(caseEntity.Completed.Value).ToUniversalTime()
+                : null;
 
         private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
         {
-            return new CmsDocumentEntity(pcdRequest.DocumentId, pcdRequest.VersionId, pcdRequest.PresentationFlags)
+            return new CmsDocumentEntity(pcdRequest.CmsDocumentId, pcdRequest.VersionId, pcdRequest.PresentationFlags)
             {
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
                 CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
@@ -146,7 +136,7 @@ namespace coordinator.Mappers
 
             return new CmsDocumentEntity[1]
             {
-                new CmsDocumentEntity(defendantsAndCharges.DocumentId, defendantsAndCharges.VersionId,defendantsAndCharges.PresentationFlags)
+                new CmsDocumentEntity(defendantsAndCharges.CmsDocumentId, defendantsAndCharges.VersionId,defendantsAndCharges.PresentationFlags)
                 {
                     CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
                     CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),

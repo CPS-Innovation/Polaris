@@ -13,13 +13,13 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public CmsDocumentEntity(
-            string cmsDocumentId,
+            long cmsDocumentId,
             long versionId,
             PresentationFlagsDto presentationFlags)
-        : base($"{PolarisDocumentTypePrefixes.CmsDocument}-{cmsDocumentId}", versionId, presentationFlags) { }
+        : base(cmsDocumentId, versionId, presentationFlags) { }
 
         public CmsDocumentEntity(
-            string cmsDocumentId,
+            long cmsDocumentId,
             long versionId,
             DocumentTypeDto cmsDocType,
             string path,
@@ -43,7 +43,7 @@ namespace coordinator.Durable.Payloads.Domain
             bool canRename,
             string renameStatus,
             string reference)
-            : base($"{PolarisDocumentTypePrefixes.CmsDocument}-{cmsDocumentId}", versionId, presentationFlags)
+            : base(cmsDocumentId, versionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             Path = path;
@@ -67,6 +67,13 @@ namespace coordinator.Durable.Payloads.Domain
             RenameStatus = renameStatus;
             Reference = reference;
         }
+        public override string DocumentId
+        {
+            get
+            {
+                return $"{PolarisDocumentTypePrefixes.CmsDocument}-{CmsDocumentId}";
+            }
+        }
 
         [JsonProperty("path")]
         public string Path { get; set; }
@@ -78,9 +85,6 @@ namespace coordinator.Durable.Payloads.Domain
         [Required]
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
-
-        [JsonProperty("presentationTitle")]
-        public string PresentationTitle { get; set; }
 
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
@@ -132,5 +136,6 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("reference")]
         public string Reference { get; set; }
+
     }
 }

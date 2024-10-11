@@ -14,8 +14,8 @@ public class CmsDocumentsResponseValidatorTests
         var validator = new CmsDocumentsResponseValidator();
 
         var docs = new[] {
-            new CmsDocumentDto {DocumentId = "1"},
-            new CmsDocumentDto {DocumentId = "2"},
+            new CmsDocumentDto {DocumentId = 1},
+            new CmsDocumentDto {DocumentId = 2},
         };
 
         // Act
@@ -32,9 +32,9 @@ public class CmsDocumentsResponseValidatorTests
         var validator = new CmsDocumentsResponseValidator();
 
         var docs = new[] {
-            new CmsDocumentDto {DocumentId = "1"},
-            new CmsDocumentDto {DocumentId = "2"},
-            new CmsDocumentDto {DocumentId = "1"},
+            new CmsDocumentDto {DocumentId = 1},
+            new CmsDocumentDto {DocumentId = 2},
+            new CmsDocumentDto {DocumentId = 1},
         };
 
         // Act

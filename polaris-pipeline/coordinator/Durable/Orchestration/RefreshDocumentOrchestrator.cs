@@ -82,7 +82,7 @@ namespace coordinator.Durable.Orchestration
             {
                 CaseUrn = payload.CmsCaseUrn,
                 CaseId = payload.CmsCaseId,
-                DocumentId = payload.CmsDocumentId,
+                DocumentId = payload.DocumentId,
                 DocumentTypeId = payload.DocumentTypeId,
                 DocumentType = payload.DocumentType,
                 DocumentCategory = payload.DocumentCategory,

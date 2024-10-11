@@ -27,9 +27,6 @@ namespace coordinator.Durable.Entity
         Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
 
         [Obsolete]
-        void SetDocumentStatus((string DocumentId, DocumentStatus Status, string PdfBlobName) args);
-
-        [Obsolete]
         void SetDocumentConversionStatus((string DocumentId, PdfConversionStatus Status) args);
 
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);

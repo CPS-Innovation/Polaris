@@ -77,7 +77,7 @@ namespace Ddei.Factories
             Guid correlationId,
             string urn,
             int caseId,
-            int documentId,
+            long documentId,
             long versionId)
         {
             return new DdeiCmsDocumentArgDto

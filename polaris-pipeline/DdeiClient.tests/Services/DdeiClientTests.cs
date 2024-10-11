@@ -166,10 +166,10 @@ public class DdeiClientTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
+            result[0].DocumentId.Should().Be(searchResults[0].Id);
             result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
             result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
-            result[3].DocumentId.Should().Be(searchResults[3].Id.ToString());
+            result[3].DocumentId.Should().Be(searchResults[3].Id);
             result[3].FileName.Should().Be(searchResults[3].OriginalFileName);
             result[3].PresentationTitle.Should().Be(searchResults[3].PresentationTitle);
         }
@@ -191,7 +191,7 @@ public class DdeiClientTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
+            result[0].DocumentId.Should().Be(searchResults[0].Id);
             result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
             result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
         }
