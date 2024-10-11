@@ -53,12 +53,12 @@ const temporaryApiModelMapping = (arr: any[]) =>
   arr.forEach((item) => {
     if (item.polarisDocumentId) {
       item.documentId = item.polarisDocumentId;
-      if (item.cmsDocType?.documentTypeId) {
-        item.cmsDocType.documentTypeId = parseInt(
-          item.cmsDocType.documentTypeId,
-          10
-        );
-      }
+    }
+    if (item.cmsDocType?.documentTypeId) {
+      item.cmsDocType.documentTypeId = parseInt(
+        item.cmsDocType.documentTypeId,
+        10
+      );
     }
   });
 
@@ -68,6 +68,7 @@ export const resolvePdfUrl = (
   documentId: string,
   polarisDocumentVersionId: number
 ) => {
+  // the backend does not look at the v parameter
   return fullUrl(
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
   );
