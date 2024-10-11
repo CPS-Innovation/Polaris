@@ -56,6 +56,7 @@ import {
   PageDeleteRedaction,
   IPageDeleteRedaction,
 } from "../../domain/IPageDeleteRedaction";
+import { PageRotation, IPageRotation } from "../../domain/IPageRotation";
 import { mapNotificationToDocumentsState } from "./map-notification-to-documents-state";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
@@ -140,7 +141,7 @@ export const reducer = (
         };
       }
     | {
-        type: "SAVING_REDACTION";
+        type: "SAVING_DOCUMENT";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           saveStatus: SaveStatus;
@@ -305,6 +306,27 @@ export const reducer = (
     | {
         type: "CLEAR_DOCUMENT_NOTIFICATIONS";
         payload: { documentId: string };
+      }
+    | {
+        type: "SHOW_HIDE_PAGE_ROTATION";
+        payload: { documentId: string; rotatePageMode: boolean };
+      }
+    | {
+        type: "ADD_PAGE_ROTATION";
+        payload: { documentId: string; pageRotations: PageRotation[] };
+      }
+    | {
+        type: "REMOVE_PAGE_ROTATION";
+        payload: {
+          documentId: string;
+          rotationId: string;
+        };
+      }
+    | {
+        type: "REMOVE_ALL_ROTATIONS";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+        };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -588,8 +610,10 @@ export const reducer = (
         url,
         redactionHighlights: redactionsHighlightsToRetain,
         pageDeleteRedactions: [],
+        pageRotations: [],
+        rotatePageMode: false,
         isDeleted: false,
-        saveStatus: "initial" as const,
+        saveStatus: { type: "none", status: "initial" } as SaveStatus,
       };
 
       if (mode === "read") {
@@ -999,7 +1023,7 @@ export const reducer = (
       }
       return newState;
     }
-    case "SAVING_REDACTION": {
+    case "SAVING_DOCUMENT": {
       const { documentId, saveStatus } = action.payload;
 
       return {
@@ -1522,6 +1546,109 @@ export const reducer = (
         documentsState,
         accordionState,
       };
+    }
+
+    case "SHOW_HIDE_PAGE_ROTATION": {
+      const { documentId, rotatePageMode } = action.payload;
+
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  rotatePageMode: rotatePageMode,
+                }
+              : item
+          ),
+        },
+      };
+      return newState;
+    }
+
+    case "ADD_PAGE_ROTATION": {
+      const { documentId, pageRotations } = action.payload;
+
+      const newRotations: IPageRotation[] = pageRotations.map(
+        (pageRotation, index) => ({
+          ...pageRotation,
+          id: String(`${+new Date()}-${index}`),
+        })
+      );
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) => {
+            if (item.documentId !== documentId) return item;
+            const rotationExists = item.pageRotations.some(
+              (rotation) => rotation.pageNumber === pageRotations[0].pageNumber
+            );
+            if (rotationExists) {
+              return {
+                ...item,
+                pageRotations: item.pageRotations.map((rotation) =>
+                  rotation.pageNumber === pageRotations[0].pageNumber
+                    ? {
+                        ...rotation,
+                        rotationAngle: pageRotations[0].rotationAngle,
+                      }
+                    : rotation
+                ),
+              };
+            }
+            return {
+              ...item,
+              pageRotations: [...item.pageRotations, ...newRotations],
+            };
+          }),
+        },
+      };
+      return newState;
+    }
+
+    case "REMOVE_PAGE_ROTATION": {
+      const { rotationId, documentId } = action.payload;
+
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageRotations: item.pageRotations.filter(
+                    (rotation) => rotation.id !== rotationId
+                  ),
+                }
+              : item
+          ),
+        },
+      };
+
+      return newState;
+    }
+    case "REMOVE_ALL_ROTATIONS": {
+      const { documentId } = action.payload;
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageRotations: [],
+                }
+              : item
+          ),
+        },
+      };
+
+      return newState;
     }
     default:
       throw new Error("Unknown action passed to case details reducer");

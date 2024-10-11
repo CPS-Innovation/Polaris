@@ -22,6 +22,7 @@ type Props = {
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
+  handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
   handleShowHideRedactionSuggestions: (
     documentId: string,
     showSuggestion: boolean,
@@ -34,6 +35,8 @@ type Props = {
     isSearchPIIOn: boolean;
     isSearchPIIDefaultOptionOn: boolean;
     showSearchPII: boolean;
+    isRotatePageModeOn: boolean;
+    showRotatePage: boolean;
   };
 };
 
@@ -44,6 +47,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
+  handleShowHidePageRotation,
   contextData,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -72,6 +76,12 @@ export const HeaderReadMode: React.FC<Props> = ({
           contextData.documentId,
           !contextData.isSearchPIIOn,
           false
+        );
+        break;
+      case "5":
+        handleShowHidePageRotation(
+          contextData.documentId,
+          !contextData.isRotatePageModeOn
         );
         break;
     }
@@ -130,6 +140,19 @@ export const HeaderReadMode: React.FC<Props> = ({
       ];
     }
 
+    if (contextData.showRotatePage) {
+      items = [
+        ...items,
+        {
+          id: "5",
+          label: contextData.isRotatePageModeOn
+            ? "Hide Rotate Page Options"
+            : "Show Rotate Page Options",
+          ariaLabel: "Rotate document pages",
+          disabled: false,
+        },
+      ];
+    }
     return items;
   }, [
     showOverRedactionLog,
@@ -137,6 +160,8 @@ export const HeaderReadMode: React.FC<Props> = ({
     contextData.isSearchPIIOn,
     contextData.showSearchPII,
     contextData.isSearchPIIDefaultOptionOn,
+    contextData.showRotatePage,
+    contextData.isRotatePageModeOn,
   ]);
 
   const handleRedactAreaToolButtonClick = useCallback(() => {

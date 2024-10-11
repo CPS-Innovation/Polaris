@@ -736,9 +736,14 @@ describe("useCaseDetailsState reducer", () => {
 
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             url: "baz",
             isDeleted: false,
-            saveStatus: "initial",
+            saveStatus: {
+              status: "initial",
+              type: "none",
+            },
           },
         ],
         activeTabId: "",
@@ -796,9 +801,14 @@ describe("useCaseDetailsState reducer", () => {
             areaOnlyRedactionMode: false,
             url: undefined,
             isDeleted: false,
-            saveStatus: "initial",
+            saveStatus: {
+              status: "initial",
+              type: "none",
+            },
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             mode: "read",
           },
         ],
@@ -1003,6 +1013,8 @@ describe("useCaseDetailsState reducer", () => {
                 searchTerm: "foo",
                 occurrencesInDocumentCount: 3,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 areaOnlyRedactionMode: false,
                 searchHighlights: [
                   {
@@ -1033,7 +1045,10 @@ describe("useCaseDetailsState reducer", () => {
                   },
                 ],
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
               },
               {
                 documentId: "2",
@@ -1115,8 +1130,13 @@ describe("useCaseDetailsState reducer", () => {
                 mode: "read",
                 url: undefined,
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1263,10 +1283,15 @@ describe("useCaseDetailsState reducer", () => {
                 mode: "search",
                 searchTerm: "bar",
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
                 areaOnlyRedactionMode: false,
                 occurrencesInDocumentCount: 4,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 pageOccurrences: [
                   {
                     boundingBoxes: [[1, 2, 3]],

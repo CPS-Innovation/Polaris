@@ -30,6 +30,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"                       = var.feature_flag_rename_document
     "REACT_APP_FEATURE_FLAG_RECLASSIFY"                            = var.feature_flag_reclassify
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
+    "REACT_APP_FEATURE_FLAG_PAGE_ROTATE"                           = var.feature_flag_page_rotate
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"                     = var.feature_flag_external_redirect
     "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
     "REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"            = tostring(var.background_pipeline_refresh_interval_ms)
@@ -132,6 +133,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"],
       app_settings["REACT_APP_FEATURE_FLAG_RECLASSIFY"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_DELETE"],
+      app_settings["REACT_APP_FEATURE_FLAG_PAGE_ROTATE"],
       app_settings["REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"],
       app_settings["REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"],
       app_settings["REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS"],

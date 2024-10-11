@@ -22,6 +22,7 @@ import { StatementWitness } from "../presentation/case-details/reclassify/data/S
 import { StatementWitnessNumber } from "../presentation/case-details/reclassify/data/StatementWitnessNumber";
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
+import { RotationSaveRequest } from "../domain/IPageRotation";
 
 const FORBIDDEN_STATUS_CODE = 403;
 const GONE_STATUS_CODE = 410;
@@ -246,6 +247,26 @@ export const saveRedactions = async (
 
   if (!response.ok) {
     throw new ApiError("Save redactions failed", url, response);
+  }
+};
+export const saveRotations = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  rotationSaveRequest: RotationSaveRequest
+) => {
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/modify`
+  );
+
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+    body: JSON.stringify(rotationSaveRequest),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Save rotation failed", url, response);
   }
 };
 
