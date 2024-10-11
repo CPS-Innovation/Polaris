@@ -1,3 +1,4 @@
+using Common.Dto.Case;
 using Common.Dto.Request;
 using Common.ValueObjects;
 
@@ -27,4 +28,5 @@ public interface ICoordinatorClient
     Task<HttpResponseMessage> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
     Task<HttpResponseMessage> GetMaterialTypeListAsync(string cmsAuthValues, Guid correlationId);
     Task<HttpResponseMessage> GetWitnessStatementsAsync(string caseUrn, int caseId, int witnessId, string cmsAuthValues, Guid correlationId);
+    Task<HttpResponseMessage> ReorderStatements(string caseUrn, int caseId, OrderedStatementsDto orderedStatementsDto, string cmsAuthValues, Guid correlationId);
 }

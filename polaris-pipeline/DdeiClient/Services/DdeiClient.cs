@@ -247,6 +247,11 @@ namespace Ddei.Services
             return ddeiResults.Select(ddeiResult => _caseWitnessStatementMapper.Map(ddeiResult)).ToArray();
         }
 
+        public async Task ReorderStatements(DdeiCmsReorderStatementsArgDto arg)
+        {
+            await CallDdei(_ddeiClientRequestFactory.CreateReorderStatementsRequest(arg));
+        }
+
         private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCmsCaseArgDto arg)
         {
             return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));

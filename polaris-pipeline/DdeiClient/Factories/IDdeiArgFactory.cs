@@ -1,3 +1,4 @@
+using Common.Dto.Case;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 
@@ -23,6 +24,7 @@ namespace Ddei.Factories
         DdeiCmsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string documentName);
         DdeiCmsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, ReclassifyDocumentDto dto);
         DdeiCmsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId);
+        DdeiCmsReorderStatementsArgDto CreateReorderStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, OrderedStatementsDto orderedStatements);
     }
 }
 

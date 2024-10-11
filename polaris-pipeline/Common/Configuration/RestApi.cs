@@ -17,6 +17,7 @@ namespace Common.Configuration
         public const string CaseExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
         public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
         public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
+        public const string ReorderStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/reorder-statements";
 
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{polarisDocumentId}";
@@ -171,6 +172,11 @@ namespace Common.Configuration
         public static string GetWitnessStatementsPath(string caseUrn, int caseId, int witnessId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/witnesses/{witnessId}/statements";
+        }
+
+        public static string GetReorderStatementsPath(string caseUrn, int caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/reorder-statements";
         }
     }
 }

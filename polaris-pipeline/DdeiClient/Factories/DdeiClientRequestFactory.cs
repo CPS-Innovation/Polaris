@@ -183,6 +183,16 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateReorderStatementsRequest(DdeiCmsReorderStatementsArgDto arg)
+        {
+            var content = JsonSerializer.Serialize(arg.OrderedStatements);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/reorder-statements");
+            AddAuthHeaders(request, arg);
+            request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
+            return request;
+        }
+
         private void AddAuthHeaders(HttpRequestMessage request, DdeiCmsCaseDataArgDto arg)
         {
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);

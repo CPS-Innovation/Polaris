@@ -1,3 +1,4 @@
+using Common.Dto.Case;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 
@@ -155,6 +156,18 @@ namespace Ddei.Factories
                 Urn = urn,
                 CaseId = caseId,
                 WitnessId = witnessId
+            };
+        }
+
+        public DdeiCmsReorderStatementsArgDto CreateReorderStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, OrderedStatementsDto orderedStatements)
+        {
+            return new DdeiCmsReorderStatementsArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                OrderedStatements = orderedStatements
             };
         }
     }

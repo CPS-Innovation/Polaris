@@ -2,6 +2,7 @@
 using System.Text;
 using Common.Configuration;
 using Common.Constants;
+using Common.Dto.Case;
 using Common.Dto.Request;
 using Common.ValueObjects;
 using Newtonsoft.Json;
@@ -226,6 +227,16 @@ namespace PolarisGateway.Clients.Coordinator
                 RestApi.GetWitnessStatementsPath(caseUrn, caseId, witnessId),
                 correlationId,
                 cmsAuthValues);
+        }
+
+        public async Task<HttpResponseMessage> ReorderStatements(string caseUrn, int caseId, OrderedStatementsDto orderedStatements, string cmsAuthValues, Guid correlationId)
+        {
+            return await SendRequestAsync(
+                HttpMethod.Post,
+                RestApi.GetReorderStatementsPath(caseUrn, caseId),
+                correlationId,
+                cmsAuthValues,
+                new StringContent(JsonConvert.SerializeObject(orderedStatements), Encoding.UTF8, ContentType.Json));
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)

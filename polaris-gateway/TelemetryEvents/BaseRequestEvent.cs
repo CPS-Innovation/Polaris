@@ -20,7 +20,7 @@ namespace PolarisGateway.TelemetryEvents
             {
                     { nameof(CorrelationId), CorrelationId.ToString() },
                     { nameof(CaseId), CaseId.ToString() },
-                    { nameof(DocumentId), DocumentId.ToString() },
+                    { nameof(DocumentId), DocumentId?.ToString() },
 
                     { nameof(IsRequestValid), IsRequestValid.ToString() },
                     { nameof(IsRequestJsonValid), IsRequestJsonValid.ToString() },

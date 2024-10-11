@@ -29,5 +29,6 @@ namespace DdeiClient.Services
 		Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCmsCaseArgDto arg);
 		Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiCmsCaseDataArgDto arg);
 		Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiCmsWitnessStatementsArgDto arg);
+		Task ReorderStatements(DdeiCmsReorderStatementsArgDto arg);
 	}
 }

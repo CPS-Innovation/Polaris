@@ -25,5 +25,6 @@ namespace Ddei.Factories
         HttpRequestMessage CreateCaseWitnessesRequest(DdeiCmsCaseArgDto arg);
         HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiCmsCaseDataArgDto arg);
         HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiCmsWitnessStatementsArgDto arg);
+        HttpRequestMessage CreateReorderStatementsRequest(DdeiCmsReorderStatementsArgDto arg);
     }
 }
