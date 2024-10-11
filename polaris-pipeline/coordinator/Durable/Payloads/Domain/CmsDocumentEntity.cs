@@ -12,10 +12,11 @@ namespace coordinator.Durable.Payloads.Domain
             : base()
         { }
 
-        public CmsDocumentEntity(string documentId,
+        public CmsDocumentEntity(
+            string cmsDocumentId,
             long versionId,
             PresentationFlagsDto presentationFlags)
-        : base(documentId, versionId, presentationFlags) { }
+        : base($"{PolarisDocumentTypePrefixes.CmsDocument}-{cmsDocumentId}", versionId, presentationFlags) { }
 
         public CmsDocumentEntity(
             string cmsDocumentId,

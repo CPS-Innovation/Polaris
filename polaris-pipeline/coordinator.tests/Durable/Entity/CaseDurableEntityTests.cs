@@ -37,11 +37,12 @@ public class CaseDurableEntityTests
     public async Task GetCaseDocumentChanges_ReturnsANewDocumentIfANewDocumentIsPresent()
     {
         // Arrange
-        var existingDocId = _fixture.Create<string>();
-        var newDocId = _fixture.Create<string>();
+        var existingDocId = _fixture.Create<int>().ToString();
+        var newDocId = _fixture.Create<int>().ToString();
 
         var existingDocInEntity = _fixture.Create<CmsDocumentEntity>();
         existingDocInEntity.DocumentId = $"CMS-{existingDocId}";
+
 
         var existingDocInIncoming = _fixture.Create<CmsDocumentDto>();
         existingDocInIncoming.DocumentId = existingDocId;

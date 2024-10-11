@@ -80,7 +80,7 @@ namespace coordinator.Durable.Payloads.Domain
             }
             if (!Regex.Match(documentId, DocumentIdPatternRegex).Success)
             {
-                throw new ArgumentException("Parameter must be in the format of {CMS|PCD|DAC}-[0-9]+", nameof(documentId));
+                throw new ArgumentException($"Parameter must be in the format of {{CMS|PCD|DAC}}-[0-9]+ and received {documentId}", nameof(documentId));
             }
         }
     }
