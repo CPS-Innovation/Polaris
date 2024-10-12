@@ -50,9 +50,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId)
+        public DdeiPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId)
         {
-            return new DdeiCmsPcdArgDto
+            return new DdeiPcdArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -73,7 +73,7 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsDocumentIdAndVersionIdArgDto CreateDocumentArgDto(
+        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentArgDto(
             string cmsAuthValues,
             Guid correlationId,
             string urn,
@@ -81,7 +81,7 @@ namespace Ddei.Factories
             long documentId,
             long versionId)
         {
-            return new DdeiCmsDocumentIdAndVersionIdArgDto
+            return new DdeiDocumentIdAndVersionIdArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -92,9 +92,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId)
+        public DdeiDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId)
         {
-            return new DdeiCmsDocumentNotesArgDto
+            return new DdeiDocumentNotesArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -104,9 +104,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string text)
+        public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string text)
         {
-            return new DdeiCmsAddDocumentNoteArgDto
+            return new DdeiAddDocumentNoteArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -117,9 +117,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string documentName)
+        public DdeiRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string documentName)
         {
-            return new DdeiCmsRenameDocumentArgDto
+            return new DdeiRenameDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -130,9 +130,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, ReclassifyDocumentDto dto)
+        public DdeiReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, ReclassifyDocumentDto dto)
         {
-            return new DdeiCmsReclassifyDocumentArgDto
+            return new DdeiReclassifyDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -147,9 +147,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
+        public DdeiWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
         {
-            return new DdeiCmsWitnessStatementsArgDto
+            return new DdeiWitnessStatementsArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,

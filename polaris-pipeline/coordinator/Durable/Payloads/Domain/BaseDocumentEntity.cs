@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Mapster;
 using Common.Dto.Tracker;
 using Common.Constants;
 using System;
@@ -32,7 +31,7 @@ namespace coordinator.Durable.Payloads.Domain
         public abstract string DocumentId { get; }
 
         [JsonProperty("cmsDocumentId")]
-        [AdaptIgnore]
+        //[AdaptIgnore]
         public long CmsDocumentId { get; set; }
 
         [JsonProperty("versionId")]

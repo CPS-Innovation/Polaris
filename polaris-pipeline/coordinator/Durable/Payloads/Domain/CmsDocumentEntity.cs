@@ -13,10 +13,10 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public CmsDocumentEntity(
-            long cmsDocumentId,
-            long versionId,
-            PresentationFlagsDto presentationFlags)
-        : base(cmsDocumentId, versionId, presentationFlags) { }
+           long cmsDocumentId,
+           long versionId,
+           PresentationFlagsDto presentationFlags)
+       : base(cmsDocumentId, versionId, presentationFlags) { }
 
         public CmsDocumentEntity(
             long cmsDocumentId,
@@ -29,7 +29,6 @@ namespace coordinator.Durable.Payloads.Domain
             bool isOcrProcessed,
             bool isDispatched,
             int? categoryListOrder,
-            string parentDocumentId,
             string cmsParentDocumentId,
             int? witnessId,
             PresentationFlagsDto presentationFlags,
@@ -53,7 +52,6 @@ namespace coordinator.Durable.Payloads.Domain
             IsOcrProcessed = isOcrProcessed;
             IsDispatched = isDispatched;
             CategoryListOrder = categoryListOrder;
-            PolarisParentDocumentId = parentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
             WitnessId = witnessId;
             HasFailedAttachments = hasFailedAttachments;
@@ -98,8 +96,14 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
 
-        [JsonProperty("polarisParentDocumentId")]
-        public string PolarisParentDocumentId { get; set; }
+        [JsonProperty("parentDocumentId")]
+        public string ParentDocumentId
+        {
+            get
+            {
+                return $"{PolarisDocumentTypePrefixes.CmsDocument}-{CmsParentDocumentId}";
+            }
+        }
 
         [JsonProperty("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }

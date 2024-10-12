@@ -233,7 +233,6 @@ namespace coordinator.Durable.Entity
                         isOcrProcessed: newDocument.IsOcrProcessed,
                         isDispatched: newDocument.IsDispatched,
                         categoryListOrder: newDocument.CategoryListOrder,
-                        parentDocumentId: newDocument.ParentDocumentId,
                         cmsParentDocumentId: newDocument.ParentDocumentId,
                         witnessId: newDocument.WitnessId,
                         presentationFlags: newDocument.PresentationFlags,

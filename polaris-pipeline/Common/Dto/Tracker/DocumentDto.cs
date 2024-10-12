@@ -50,11 +50,7 @@ namespace Common.Dto.Tracker
         public PresentationFlagsDto PresentationFlags { get; set; }
 
         [JsonProperty("parentDocumentId")]
-        public string PolarisParentDocumentId { get; set; }
-
-        [JsonProperty("cmsParentDocumentId")]
-        [JsonIgnore]
-        public string CmsParentDocumentId { get; set; }
+        public string ParentDocumentId { get; set; }
 
         [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }

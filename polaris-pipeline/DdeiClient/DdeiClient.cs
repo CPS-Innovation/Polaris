@@ -102,7 +102,7 @@ namespace Ddei
             return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
         }
 
-        public async Task<PcdRequestDto> GetPcdRequest(DdeiCmsPcdArgDto arg)
+        public async Task<PcdRequestDto> GetPcdRequest(DdeiPcdArgDto arg)
         {
             var pcdRequest = await CallDdei<DdeiPcdRequestDto>(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
             return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
@@ -135,7 +135,7 @@ namespace Ddei
         public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
         {
             var response = await CallDdei(
-                _ddeiClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiCmsFileStoreArgDto
+                _ddeiClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiFileStoreArgDto
                 {
                     Path = path,
                     CmsAuthValues = cmsAuthValues,
@@ -146,7 +146,7 @@ namespace Ddei
             return await response.Content.ReadAsStreamAsync();
         }
 
-        public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiCmsDocumentIdAndVersionIdArgDto arg)
+        public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
         {
             var response = await CallDdei(
                 _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg),
@@ -164,12 +164,12 @@ namespace Ddei
                 };
         }
 
-        public async Task CancelCheckoutDocumentAsync(DdeiCmsDocumentIdAndVersionIdArgDto arg)
+        public async Task CancelCheckoutDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
         {
             await CallDdei(_ddeiClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg));
         }
 
-        public async Task<HttpResponseMessage> UploadPdfAsync(DdeiCmsDocumentIdAndVersionIdArgDto arg, Stream stream)
+        public async Task<HttpResponseMessage> UploadPdfAsync(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream)
         {
             return await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream), new HttpStatusCode[]
             {
@@ -178,28 +178,28 @@ namespace Ddei
             });
         }
 
-        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiCmsDocumentNotesArgDto arg)
+        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiDocumentNotesArgDto arg)
         {
             var ddeiResults = await CallDdei<List<DdeiDocumentNoteResponse>>(_ddeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseDocumentNoteMapper.Map(ddeiResult)).ToArray();
         }
 
-        public async Task<DocumentNoteResult> AddDocumentNote(DdeiCmsAddDocumentNoteArgDto arg)
+        public async Task<DocumentNoteResult> AddDocumentNote(DdeiAddDocumentNoteArgDto arg)
         {
             var response = await CallDdei<DdeiDocumentNoteAddedResponse>(_ddeiClientRequestFactory.CreateAddDocumentNoteRequest(arg));
 
             return _caseDocumentNoteResultMapper.Map(response);
         }
 
-        public async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiCmsRenameDocumentArgDto arg)
+        public async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
         {
             var response = await CallDdei<DdeiDocumentRenamedResponse>(_ddeiClientRequestFactory.CreateRenameDocumentRequest(arg));
 
             return new DocumentRenamedResultDto { Id = response.Id, OperationName = response.OperationName };
         }
 
-        public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiCmsReclassifyDocumentArgDto arg)
+        public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
         {
             var response = await CallDdei<DdeiDocumentReclassifiedResponse>(_ddeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
 
@@ -235,7 +235,7 @@ namespace Ddei
             return ddeiResults.Select(ddeiResult => _cmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
         }
 
-        public async Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiCmsWitnessStatementsArgDto arg)
+        public async Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiWitnessStatementsArgDto arg)
         {
             var ddeiResults = await CallDdei<List<DdeiCaseWitnessStatementsResponse>>(_ddeiClientRequestFactory.CreateGetWitnessStatementsRequest(arg));
 
