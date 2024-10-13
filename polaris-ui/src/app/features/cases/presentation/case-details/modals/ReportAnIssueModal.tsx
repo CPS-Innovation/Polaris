@@ -9,10 +9,11 @@ import { ConfirmationModalContent } from "../../../../../common/presentation/com
 import { addToReportedDocuments } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./ReportAnIssueModal.module.scss";
+import { CmsDocType } from "../../../domain/gateway/CmsDocType";
 
 type Props = {
   documentId: string;
-  documentTypeId: number;
+  documentTypeId: CmsDocType["documentTypeId"];
   correlationId: string;
   versionId: number;
   presentationTitle: string;

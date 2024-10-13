@@ -73,7 +73,7 @@ namespace coordinator.Durable.Entity
         public List<PcdRequestEntity> PcdRequests { get; set; } = new List<PcdRequestEntity>();
 
         [JsonProperty("defendantsAndCharges")]
-        public DefendantsAndChargesEntity DefendantsAndCharges { get; set; } = new DefendantsAndChargesEntity();
+        public DefendantsAndChargesEntity DefendantsAndCharges { get; set; } = null; // null is the default state (do not initialise to an empty object)
 
         [Obsolete]
         public void Reset(string transactionId)

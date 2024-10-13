@@ -1,3 +1,4 @@
+import { CmsDocType } from "../../domain/gateway/CmsDocType";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 import { CommunicationSubCategory } from "./document-category-definitions";
 
@@ -113,7 +114,7 @@ const unusedCommRegexes = [
 
 export const isUnusedCommunicationMaterial = (
   filename: string,
-  documentTypeId: number
+  documentTypeId: CmsDocType["documentTypeId"]
 ) =>
   !!filename &&
   documentTypeId === 1029 &&

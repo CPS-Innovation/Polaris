@@ -234,42 +234,42 @@ namespace coordinator.tests.Services.DocumentToggle
     [Theory]
     [InlineData(
       @"",
-      ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+      ".pdf", 1, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"FileType Read *",
-      ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+      ".pdf", 1, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"DocType Read *",
-      ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+      ".pdf", 1, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"FileType  Read *
         DocType   Read *",
-      ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
+      ".pdf", 1, ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
     [InlineData(
       @"FileType  ReadWrite *
         DocType   Read      *",
-      ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
+      ".pdf", 1, ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
     [InlineData(
       @"FileType  Read      *
         DocType   ReadWrite *",
-      ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
+      ".pdf", 1, ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
     [InlineData(
       @"FileType  ReadWrite .doc
         DocType   ReadWrite MG2",
-      ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+      ".pdf", 1, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"FileType  ReadWrite *
         FileType  Deny      .pdf
         DocType   ReadWrite *",
-      ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+      ".pdf", 1, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"FileType  ReadWrite *
         FileType  Read      .pdf
         DocType   ReadWrite *",
-      ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
+      ".pdf", 1, ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
     public void SetDocumentPresentationFlags_ShouldObeyTheRules(string configContent,
                                                                    string inputDocumentExtension,
-                                                                   string inputDocumentCmsType,
+                                                                   int? inputDocumentCmsType,
                                                                    ReadFlag expectedReadFlag,
                                                                    WriteFlag expectWriteFlag)
     {
@@ -294,27 +294,27 @@ namespace coordinator.tests.Services.DocumentToggle
     }
 
     [Theory]
-    [InlineData(".doc", "0", true, WriteFlag.Ok)]
-    [InlineData(".docm", "0", true, WriteFlag.Ok)]
-    [InlineData(".docx", "0", true, WriteFlag.Ok)]
-    [InlineData(".pdf", "0", true, WriteFlag.Ok)]
-    [InlineData(".bmp", "0", true, WriteFlag.Ok)]
-    [InlineData(".gif", "0", true, WriteFlag.Ok)]
-    [InlineData(".jpeg", "0", true, WriteFlag.Ok)]
-    [InlineData(".jpg", "0", true, WriteFlag.Ok)]
-    [InlineData(".png", "0", true, WriteFlag.Ok)]
-    [InlineData(".ppt", "0", true, WriteFlag.Ok)]
-    [InlineData(".pptx", "0", true, WriteFlag.Ok)]
-    [InlineData(".rtf", "0", true, WriteFlag.Ok)]
-    [InlineData(".text", "0", true, WriteFlag.Ok)]
-    [InlineData(".tif", "0", true, WriteFlag.Ok)]
-    [InlineData(".tiff", "0", true, WriteFlag.Ok)]
-    [InlineData(".txt", "0", true, WriteFlag.Ok)]
-    [InlineData(".xls", "0", true, WriteFlag.Ok)]
-    [InlineData(".xlsx", "0", true, WriteFlag.Ok)]
-    [InlineData(".hte", "0", true, WriteFlag.OriginalFileTypeNotAllowed)]
-    [InlineData(".doc", "-54321", true, WriteFlag.DocTypeNotAllowed)]
-    public void CurrentRulesInDocumentToggleFile_WorkAsExpected(string filetype, string docTypeId, bool isOcrProcessed, WriteFlag writeFlag)
+    [InlineData(".doc", 0, true, WriteFlag.Ok)]
+    [InlineData(".docm", 0, true, WriteFlag.Ok)]
+    [InlineData(".docx", 0, true, WriteFlag.Ok)]
+    [InlineData(".pdf", 0, true, WriteFlag.Ok)]
+    [InlineData(".bmp", 0, true, WriteFlag.Ok)]
+    [InlineData(".gif", 0, true, WriteFlag.Ok)]
+    [InlineData(".jpeg", 0, true, WriteFlag.Ok)]
+    [InlineData(".jpg", 0, true, WriteFlag.Ok)]
+    [InlineData(".png", 0, true, WriteFlag.Ok)]
+    [InlineData(".ppt", 0, true, WriteFlag.Ok)]
+    [InlineData(".pptx", 0, true, WriteFlag.Ok)]
+    [InlineData(".rtf", 0, true, WriteFlag.Ok)]
+    [InlineData(".text", 0, true, WriteFlag.Ok)]
+    [InlineData(".tif", 0, true, WriteFlag.Ok)]
+    [InlineData(".tiff", 0, true, WriteFlag.Ok)]
+    [InlineData(".txt", 0, true, WriteFlag.Ok)]
+    [InlineData(".xls", 0, true, WriteFlag.Ok)]
+    [InlineData(".xlsx", 0, true, WriteFlag.Ok)]
+    [InlineData(".hte", 0, true, WriteFlag.OriginalFileTypeNotAllowed)]
+    [InlineData(".doc", -54321, true, WriteFlag.DocTypeNotAllowed)]
+    public void CurrentRulesInDocumentToggleFile_WorkAsExpected(string filetype, int docTypeId, bool isOcrProcessed, WriteFlag writeFlag)
     {
       // Arrange
       var documentToggleService = new DocumentToggleService(DocumentToggleService.ReadConfig());

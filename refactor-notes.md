@@ -4,7 +4,7 @@
 
   - :white_check_mark: remove isPdfAvailable
   - :white_check_mark: remove cmsOriginalFileExtension, pdfBlobName, presentationFileName
-  - sort out ids (numeric) and requesting for document via id, docType -> int, remove hack from gateway-api
+  - :white_check_mark: sort out ids (numeric) and requesting for document via id, docType -> int, remove hack from gateway-api
   - e2e tests for reclassify
   - e2e test type files copied across
 
@@ -15,6 +15,7 @@
 - how search knits in?
 
 - rationalise reducer state (with a view to serialization)
+  q
 
 # Immediate
 
@@ -31,7 +32,7 @@
 | polarisParentDocumentId  | Incrementing artificial number                              | Rename -> parentDocumentId | :white_check_mark: |
 | cmsDocumentId            | Appears to be null all the time                             | Remove                     | :white_check_mark: |
 
-gateway-api.ts hack
+:white_check_mark: gateway-api.ts hack
 
 ```
 export type PresentationDocumentProperties = {

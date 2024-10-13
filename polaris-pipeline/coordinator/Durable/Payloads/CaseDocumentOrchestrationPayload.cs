@@ -60,14 +60,11 @@ namespace coordinator.Durable.Payloads
             }
         }
 
-        public string DocumentTypeId
+        public int? DocumentTypeId
         {
             get
             {
-                if (CmsDocumentTracker != null)
-                    return CmsDocumentTracker.CmsDocType.DocumentTypeId;
-                else
-                    return string.Empty;
+                return CmsDocumentTracker?.CmsDocType?.DocumentTypeId;
             }
         }
 

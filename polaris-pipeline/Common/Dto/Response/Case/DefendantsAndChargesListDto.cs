@@ -12,6 +12,6 @@ namespace Common.Dto.Response.Case
         [JsonProperty("defendants")]
         public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; } = new List<DefendantAndChargesDto>();
 
-        public PresentationFlagsDto PresentationFlags { get; set; }
+        public PresentationFlagsDto PresentationFlags { get; set; } = new PresentationFlagsDto();
     }
 }

@@ -49,17 +49,6 @@ const fullUrl = (path: string, baseUrl: string = GATEWAY_BASE_URL) => {
   return new URL(path, origin).toString();
 };
 
-// hack
-const temporaryApiModelMapping = (arr: any[]) =>
-  arr.forEach((item) => {
-    if (item.cmsDocType?.documentTypeId) {
-      item.cmsDocType.documentTypeId = parseInt(
-        item.cmsDocType.documentTypeId,
-        10
-      );
-    }
-  });
-
 export const resolvePdfUrl = (
   urn: string,
   caseId: number,
@@ -153,15 +142,8 @@ export const getPipelinePdfResults = async (
   if (!response.ok) {
     throw new ApiError("Get Pipeline pdf results failed", trackerUrl, response);
   }
-  const rawResponse: { documents: any[] } = await response.json();
-  const { documents } = rawResponse;
-  temporaryApiModelMapping(documents);
 
-  // temporary hack for #24313 before feature flag comes in
-  // return rawResponse as PipelineResults;
-  var typedRawResponse = rawResponse as PipelineResults;
-
-  return typedRawResponse;
+  return (await response.json()) as PipelineResults;
 };
 export const searchCase = async (
   urn: string,
@@ -179,10 +161,7 @@ export const searchCase = async (
     throw new ApiError("Search Case Text failed", path, response);
   }
 
-  const rawResponse = await response.json();
-  temporaryApiModelMapping(rawResponse);
-
-  return rawResponse as ApiTextSearchResult[];
+  return (await response.json()) as ApiTextSearchResult[];
 };
 
 export const checkoutDocument = async (

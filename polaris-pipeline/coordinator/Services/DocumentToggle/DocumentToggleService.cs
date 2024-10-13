@@ -190,7 +190,7 @@ namespace coordinator.Services.DocumentToggle
                       .LastOrDefault(def => def.Type == DefinitionType.DocType
                         && (
                           def.Identifier == DocumentToggleConstants.Wildcard ||
-                            def.Identifier.Equals(document.CmsDocType.DocumentTypeId, StringComparison.InvariantCultureIgnoreCase)));
+                            def.Identifier.Equals(document.CmsDocType.DocumentTypeId?.ToString(), StringComparison.InvariantCultureIgnoreCase)));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
         }

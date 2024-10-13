@@ -29,7 +29,7 @@ public class DdeiDocumentResponse
     public string CmsDocCategory { get; set; }
 
     [JsonProperty("typeId")]
-    public string DocumentTypeId { get; set; }
+    public int? DocumentTypeId { get; set; }
 
     [JsonProperty("type")]
     public string DocumentType { get; set; }
