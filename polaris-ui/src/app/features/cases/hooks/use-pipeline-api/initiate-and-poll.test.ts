@@ -118,7 +118,7 @@ describe("initiateAndPoll", () => {
         Promise.resolve({
           transactionId: "",
           status: "Failed",
-          documents: [{ pdfBlobName: "foo", status: "PdfUploadedToBlob" }],
+          documents: [{ status: "PdfUploadedToBlob" }],
         } as PipelineResults)
       );
 
@@ -174,7 +174,7 @@ describe("initiateAndPoll", () => {
       transactionId: "",
       status: "Completed",
       processingCompleted: new Date().toISOString(),
-      documents: [{ pdfBlobName: "foo" }],
+      documents: [{}],
     } as PipelineResults;
 
     const getPipelinePdfResultsSpy = jest
@@ -234,10 +234,7 @@ describe("initiateAndPoll", () => {
       transactionId: "",
       status: "Running",
       processingCompleted: "",
-      documents: [
-        { pdfBlobName: "foo", status: "PdfUploadedToBlob" },
-        { status: "None" },
-      ],
+      documents: [{ status: "PdfUploadedToBlob" }, { status: "None" }],
     } as PipelineResults;
 
     const expectedFinalResults = {
@@ -245,8 +242,8 @@ describe("initiateAndPoll", () => {
       status: "Completed",
       processingCompleted: new Date().toISOString(),
       documents: [
-        { pdfBlobName: "foo", status: "PdfUploadedToBlob" },
-        { pdfBlobName: "bar", status: "PdfUploadedToBlob" },
+        { status: "PdfUploadedToBlob" },
+        { status: "PdfUploadedToBlob" },
       ],
     } as PipelineResults;
 

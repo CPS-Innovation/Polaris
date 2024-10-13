@@ -1,0 +1,40 @@
+.savedBanner,
+.savingBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 1.1875rem;
+  font-weight: bold;
+  padding: 0 0.625rem;
+}
+.savingBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
+  background-color: #1d70b8;
+  padding-right: 5.625rem;
+}
+.savedBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
+  background-color: #00703c;
+  overflow: hidden;
+  animation: reduceHeight 0.5s forwards;
+  animation-delay: 3s;
+  padding-right: 5.625rem;
+}
+.greyColor {
+  color: #505a5f;
+}
+.bannerText {
+  margin-left: 1rem;
+  font-size: 1.1875rem;
+}
+.whiteTickIcon {
+  width: 2.25rem;
+  fill: #fff;
+}

@@ -42,7 +42,7 @@ type Props = {
   handleOpenPanel: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
+    presentationTitle: string,
     type: "notes" | "rename",
     documentType: string,
     classification: Classification
@@ -91,13 +91,9 @@ export const AccordionDocument: React.FC<Props> = ({
       return `Notes are disabled for this document`;
     }
     return caseDocument.hasNotes
-      ? `There are notes available for document ${caseDocument.presentationFileName}, Open notes`
-      : `There are no notes available for document ${caseDocument.presentationFileName}, Open notes`;
-  }, [
-    caseDocument.hasNotes,
-    caseDocument.presentationFileName,
-    isNotesDisabled,
-  ]);
+      ? `There are notes available for document ${caseDocument.presentationTitle}, Open notes`
+      : `There are no notes available for document ${caseDocument.presentationTitle}, Open notes`;
+  }, [caseDocument.hasNotes, caseDocument.presentationTitle, isNotesDisabled]);
 
   const notesHoverOverCallback = () => {
     const documentNote = notesData.find(
@@ -169,7 +165,7 @@ export const AccordionDocument: React.FC<Props> = ({
         handleOpenPanel(
           caseDocument.documentId,
           caseDocument.cmsDocType.documentCategory,
-          caseDocument.presentationFileName,
+          caseDocument.presentationTitle,
           "rename",
           caseDocument.cmsDocType.documentType,
           caseDocument.classification
@@ -228,16 +224,16 @@ export const AccordionDocument: React.FC<Props> = ({
                 }}
                 className={`${classes["accordion-document-link-button"]}`}
                 dataTestId={`link-document-${caseDocument.documentId}`}
-                ariaLabel={`Open Document ${caseDocument.presentationFileName}`}
+                ariaLabel={`Open Document ${caseDocument.presentationTitle}`}
               >
-                {caseDocument.presentationFileName}
+                {caseDocument.presentationTitle}
               </LinkButton>
             ) : (
               <span
                 className={`${classes["accordion-document-link-name"]}`}
                 data-testid={`name-text-document-${caseDocument.documentId}`}
               >
-                {caseDocument.presentationFileName}
+                {caseDocument.presentationTitle}
               </span>
             )}
             <div className={`${classes["accordion-information-items"]}`}>
@@ -297,7 +293,7 @@ export const AccordionDocument: React.FC<Props> = ({
                       handleOpenPanel(
                         caseDocument.documentId,
                         caseDocument.cmsDocType.documentCategory,
-                        caseDocument.presentationFileName,
+                        caseDocument.presentationTitle,
                         "notes",
                         caseDocument.cmsDocType.documentType,
                         caseDocument.classification

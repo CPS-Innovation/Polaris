@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
+  LinkButton,
   Select,
   Input,
   Radios,
@@ -23,6 +24,7 @@ type ReclassifyStage2Props = {
   getWitnessStatementNumbers: (
     witnessId: number
   ) => Promise<StatementWitnessNumber[]>;
+  handleBackBtnClick: () => void;
 };
 
 export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
@@ -31,32 +33,32 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   getExhibitProducers,
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
+  handleBackBtnClick,
 }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [lookupError, setLookupDataError] = useState("");
   const reclassifyContext = useReClassifyContext();
 
   const { state, dispatch } = reclassifyContext!;
   const errorSummaryRef = useRef(null);
-
+  const backButtonRef = useRef(null);
   useEffect(() => {
     const fetchDataOnMount = async () => {
       if (
         state.reclassifyVariant === "Exhibit" &&
         state.exhibitProducers !== null
       ) {
-        setLoading(false);
         return;
       }
       if (
         state.reclassifyVariant === "Statement" &&
         state.statementWitness !== null
       ) {
-        setLoading(false);
         return;
       }
       try {
         if (state.reclassifyVariant === "Exhibit") {
+          setLoading(true);
           const result = await getExhibitProducers();
           dispatch({
             type: "ADD_EXHIBIT_PRODUCERS",
@@ -64,6 +66,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           });
         }
         if (state.reclassifyVariant === "Statement") {
+          setLoading(true);
           const result = await getStatementWitnessDetails();
           dispatch({
             type: "ADD_STATEMENT_WITNESSS",
@@ -83,6 +86,11 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
     fetchDataOnMount();
   }, []);
+
+  useEffect(() => {
+    if (!loading && backButtonRef.current)
+      (backButtonRef.current as HTMLButtonElement).focus();
+  }, [loading]);
 
   const statementWitnessValues = useMemo(() => {
     const defaultValue = {
@@ -124,8 +132,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     return [defaultValue, ...mappedValues, otherOption];
   }, [state.exhibitProducers]);
 
-  const getHeaderText = (varaint: ReclassifyVariant) => {
-    switch (varaint) {
+  const getHeaderText = (variant: ReclassifyVariant) => {
+    switch (variant) {
       case "Statement":
         return "Enter the statement details";
       case "Exhibit":
@@ -369,8 +377,15 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     );
   }
   return (
-    <div>
-      <h1>{getHeaderText(state.reclassifyVariant)}</h1>
+    <div role="main" aria-labelledby="main-description">
+      <LinkButton
+        className={classes.backBtn}
+        onClick={handleBackBtnClick}
+        ref={backButtonRef}
+      >
+        Back
+      </LinkButton>
+      <h1 id="main-description">{getHeaderText(state.reclassifyVariant)}</h1>
       {!!errorSummaryList.length && (
         <div
           ref={errorSummaryRef}
@@ -389,16 +404,18 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       {state.reclassifyVariant !== "Statement" &&
         state.reclassifyVariant !== "Exhibit" && (
           <Radios
-            hint={{
-              children: (
-                <span>
-                  Do you want to change the document name of{" "}
-                  <strong className={classes.highlight}>
-                    {presentationTitle}
-                  </strong>
-                  ?
-                </span>
-              ),
+            fieldset={{
+              legend: {
+                children: (
+                  <span>
+                    Do you want to change the document name of{" "}
+                    <strong className={classes.highlight}>
+                      {presentationTitle}
+                    </strong>
+                    ?
+                  </span>
+                ),
+              },
             }}
             className={
               formDataErrors.documentNewNameErrorText
@@ -418,7 +435,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                       key="document-new-name"
                       id="document-new-name"
                       data-testid={"document-new-name"}
-                      className="govuk-input--width-10"
+                      className="govuk-input--width-20"
                       label={{
                         children: "Enter new document name",
                       }}
@@ -450,7 +467,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         <div>
           <Input
             id="exhibit-item-name"
-            className="govuk-input--width-10"
+            className="govuk-input--width-20"
             errorMessage={
               formDataErrors.exhibitItemNameErrorText
                 ? {
@@ -475,7 +492,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                   }
                 : undefined
             }
-            className="govuk-input--width-10"
+            className="govuk-input--width-20"
             label={{
               children: "Exhibit Reference",
             }}
@@ -507,10 +524,11 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               >
                 <Input
                   id="exhibit-other-producer-name"
-                  className={`govuk-input--width-10  `}
+                  className="govuk-input--width-20"
                   label={{
                     children: "Enter name",
                   }}
+                  aria-label="Enter other producer or witness name"
                   errorMessage={
                     formDataErrors.otherExhibitProducerErrorText
                       ? {
@@ -563,12 +581,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               },
             }}
             hint={{
-              children: (
-                <span>
-                  For example, 27 3 2024 <br /> Leave blank if the document is
-                  Undated.
-                </span>
-              ),
+              children: <span>For example, 27 3 2024</span>,
             }}
             id="statement-date"
             items={[
@@ -636,8 +649,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       )}
       {state.reclassifyVariant !== "Immediate" && (
         <Radios
-          hint={{
-            children: <span>What is the document status?</span>,
+          fieldset={{
+            legend: {
+              children: <span>What is the document status?</span>,
+            },
           }}
           key={"document-used-status"}
           onChange={handleDocumentUsedStatusChange}

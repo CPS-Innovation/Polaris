@@ -28,6 +28,7 @@ import {
 } from "./auth/fetch-with-in-situ-reauth";
 import { fetchWithCookies } from "./auth/fetch-with-cookies";
 import { FetchArgs, PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
+import { RotationSaveRequest } from "../domain/IPageRotation";
 
 const buildHeaders = async (
   ...args: (
@@ -256,6 +257,26 @@ export const saveRedactions = async (
 
   if (!response.ok) {
     throw new ApiError("Save redactions failed", url, response);
+  }
+};
+export const saveRotations = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  rotationSaveRequest: RotationSaveRequest
+) => {
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/modify`
+  );
+
+  const response = await fetchImplementation("reauth-if-in-situ", url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "POST",
+    body: JSON.stringify(rotationSaveRequest),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Save rotation failed", url, response);
   }
 };
 

@@ -19,7 +19,6 @@ namespace coordinator.Durable.Payloads.Domain
             long cmsVersionId,
             DocumentTypeDto cmsDocType,
             string path,
-            string fileExtension,
             string cmsFileCreatedDate,
             string cmsOriginalFileName,
             string presentationTitle,
@@ -44,7 +43,6 @@ namespace coordinator.Durable.Payloads.Domain
         {
             CmsDocType = cmsDocType;
             Path = path;
-            CmsOriginalFileExtension = fileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
             PresentationTitle = presentationTitle;
@@ -68,9 +66,6 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("path")]
         public string Path { get; set; }
-
-        [JsonProperty("cmsOriginalFileExtension")]
-        public string CmsOriginalFileExtension { get; set; }
 
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }

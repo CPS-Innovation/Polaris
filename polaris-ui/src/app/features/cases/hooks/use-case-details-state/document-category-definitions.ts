@@ -115,7 +115,7 @@ const documentCategoryDefinitions: {
     category: "Communications",
     showIfEmpty: true,
     testFn: (doc) =>
-      doc.cmsOriginalFileExtension === ".hte" ||
+      doc.cmsOriginalFileName?.endsWith(".hte") ||
       docTypeTest(
         doc,
         [

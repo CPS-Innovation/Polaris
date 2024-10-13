@@ -3,7 +3,7 @@ import * as GDS from "govuk-react-jsx";
 export type RadiosProps = {
   fieldset?: {
     legend: {
-      children: string;
+      children: React.ReactNode;
       className?: string;
       isPageHeading?: boolean;
     };

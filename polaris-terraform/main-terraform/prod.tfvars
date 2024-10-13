@@ -98,9 +98,10 @@ feature_flag_rename_document                       = "true"
 feature_flag_reclassify                            = "true"
 feature_flag_page_delete                           = "true"
 feature_flag_external_redirect                     = "true"
-feature_flag_background_pipeline_refresh           = "false"
+feature_flag_background_pipeline_refresh           = "true"
 background_pipeline_refresh_interval_ms            = 5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "false"
+feature_flag_page_rotate                           = "true"
 local_storage_expiry_days                          = "30"
 
 private_beta = {

@@ -18,6 +18,7 @@ import { useDocumentSearch } from "./useDocumentSearch";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import { usePipelineRefreshPolling } from "./usePipelineRefreshPolling";
 import { useHydrateFromLocalStorage } from "./useHydrateFromLocalStorage";
+import { PageRotation } from "../../domain/IPageRotation";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -123,7 +124,7 @@ export const useCaseDetailsState = (
       pageDeleteRedactions?: PageDeleteRedaction[]
     ) =>
       dispatch({
-        type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+        type: "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK",
         payload: { documentId, redactions, pageDeleteRedactions },
       }),
     [dispatch]
@@ -132,7 +133,7 @@ export const useCaseDetailsState = (
   const handleRemoveRedaction = useCallback(
     (documentId: CaseDocumentViewModel["documentId"], redactionId: string) =>
       dispatch({
-        type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
+        type: "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK",
         payload: { documentId, redactionId },
       }),
     [dispatch]
@@ -142,7 +143,7 @@ export const useCaseDetailsState = (
     (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
-        payload: { documentId },
+        payload: { documentId, type: "redaction" },
       }),
     [dispatch]
   );
@@ -411,6 +412,55 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleShowHidePageRotation = useCallback(
+    (documentId: string, rotatePageMode: boolean) => {
+      dispatch({
+        type: "SHOW_HIDE_PAGE_ROTATION",
+        payload: {
+          documentId: documentId,
+          rotatePageMode: rotatePageMode,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleAddPageRotation = useCallback(
+    (documentId: string, pageRotations: PageRotation[]) => {
+      dispatch({
+        type: "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK",
+        payload: { documentId, pageRotations },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleRemovePageRotation = useCallback(
+    (documentId: string, rotationId: string) => {
+      dispatch({
+        type: "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK",
+        payload: { documentId, rotationId },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleSaveRotations = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "SAVE_ROTATIONS",
+        payload: { documentId },
+      }),
+    [dispatch]
+  );
+  const handleRemoveAllRotations = useCallback(
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
+        payload: { documentId, type: "rotation" },
+      }),
+    [dispatch]
+  );
   const handleClearAllNotifications = useCallback(
     () =>
       dispatch({
@@ -459,6 +509,11 @@ export const useCaseDetailsState = (
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleShowHidePageRotation,
+    handleAddPageRotation,
+    handleRemovePageRotation,
+    handleSaveRotations,
+    handleRemoveAllRotations,
     handleClearAllNotifications,
     handleClearNotification,
   };

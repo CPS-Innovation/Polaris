@@ -74,13 +74,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const [reclassifyDetails, setInReclassifyDetails] = useState<{
     open: boolean;
     documentId: string;
-    presentationFileName: string;
+    presentationTitle: string;
     docTypeId: number | null;
     isUnused: boolean;
   }>({
     open: false,
     documentId: "",
-    presentationFileName: "",
+    presentationTitle: "",
     docTypeId: null,
     isUnused: false,
   });
@@ -91,7 +91,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     documentId: string;
     documentCategory: string;
     documentType: string;
-    presentationFileName: string;
+    presentationTitle: string;
     classification: Classification;
   }>({
     open: false,
@@ -99,7 +99,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     documentId: "",
     documentCategory: "",
     documentType: "",
-    presentationFileName: "",
+    presentationTitle: "",
     classification: null,
   });
 
@@ -169,6 +169,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleShowHidePageRotation,
+    handleAddPageRotation,
+    handleRemovePageRotation,
+    handleRemoveAllRotations,
+    handleSaveRotations,
     handleClearAllNotifications,
     handleClearNotification,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
@@ -207,7 +212,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             documentId: doc.cmsDocumentId,
             documentTypeId: doc.cmsDocType.documentTypeId,
             documentDocumentType: doc.cmsDocType.documentType,
-            fileName: doc.presentationFileName,
+            fileName: doc.presentationTitle,
           });
         });
       }
@@ -261,7 +266,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       documentId: "",
       documentCategory: "",
       documentType: "",
-      presentationFileName: "",
+      presentationTitle: "",
     });
   }, [actionsSidePanel]);
 
@@ -280,7 +285,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const handleOpenPanel = (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
+    presentationTitle: string,
     type: "notes" | "rename",
     documentType: string,
     classification: Classification
@@ -291,7 +296,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       documentId: documentId,
       documentCategory: documentCategory,
       documentType: documentType,
-      presentationFileName: presentationFileName,
+      presentationTitle,
       classification: classification,
     });
   };
@@ -308,7 +313,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       setInReclassifyDetails({
         open: true,
         documentId,
-        presentationFileName: selectedDocument.presentationTitle,
+        presentationTitle: selectedDocument.presentationTitle,
         docTypeId: selectedDocument.cmsDocType.documentTypeId,
         isUnused: selectedDocument.isUnused,
       });
@@ -325,19 +330,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     setInReclassifyDetails({
       open: false,
       documentId: "",
-      presentationFileName: "",
+      presentationTitle: "",
       docTypeId: null,
       isUnused: false,
     });
-
+    handleOpenAccordion(documentId);
     setTimeout(() => {
-      handleOpenAccordion(documentId);
       (
         document.querySelector(
           `#document-housekeeping-actions-dropdown-${reclassifyDetails.documentId}`
         ) as HTMLElement
       ).focus();
-    }, 100);
+    }, 500);
   };
 
   const handleGetMaterialTypeList = () => {
@@ -398,7 +402,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       }
       if (
         properties.exhibit &&
-        properties.exhibit.item !== reclassifyDetails.presentationFileName
+        properties.exhibit.item !== reclassifyDetails.presentationTitle
       ) {
         return true;
       }
@@ -528,7 +532,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               caseUrn={caseState.data.uniqueReferenceNumber}
               isCaseCharged={caseState.data.isCaseCharged}
               owningUnit={caseState.data.owningUnit}
-              documentName={getActiveTabDocument.presentationFileName}
+              documentName={getActiveTabDocument.presentationTitle}
               cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
               additionalData={{
                 originalFileName: getActiveTabDocument.cmsOriginalFileName,
@@ -718,11 +722,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         id="actions-panel-region-label"
                         className={classes.sidePanelLabel}
                       >
-                        {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationFileName}.`}
+                        {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationTitle}.`}
                       </span>
                       <NotesPanel
                         activeDocumentId={getActiveTabDocument?.documentId}
-                        documentName={actionsSidePanel.presentationFileName}
+                        documentName={actionsSidePanel.presentationTitle}
                         documentCategory={actionsSidePanel.documentCategory}
                         documentId={actionsSidePanel.documentId}
                         notesData={notes}
@@ -738,10 +742,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         id="actions-panel-region-label"
                         className={classes.sidePanelLabel}
                       >
-                        {`Rename document panel, you can rename document ${actionsSidePanel.presentationFileName}.`}
+                        {`Rename document panel, you can rename document ${actionsSidePanel.presentationTitle}.`}
                       </span>
                       <RenamePanel
-                        documentName={actionsSidePanel.presentationFileName}
+                        documentName={actionsSidePanel.presentationTitle}
                         documentType={actionsSidePanel.documentType}
                         documentId={actionsSidePanel.documentId}
                         classification={actionsSidePanel.classification}
@@ -837,6 +841,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     correlationId: pipelineState?.correlationId,
                     showSearchPII: featureFlags.searchPII,
                     showDeletePage: featureFlags.pageDelete,
+                    showRotatePage: featureFlags.pageRotate,
                   }}
                   caseId={+caseId}
                   showOverRedactionLog={
@@ -845,6 +850,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       : false
                   }
                   handleAreaOnlyRedaction={handleAreaOnlyRedaction}
+                  handleShowHidePageRotation={handleShowHidePageRotation}
+                  handleAddPageRotation={handleAddPageRotation}
+                  handleRemovePageRotation={handleRemovePageRotation}
+                  handleRemoveAllRotations={handleRemoveAllRotations}
+                  handleSaveRotations={handleSaveRotations}
                 />
               )}
             </div>
@@ -857,7 +867,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           <Reclassify
             documentId={reclassifyDetails.documentId}
             currentDocTypeId={reclassifyDetails.docTypeId}
-            presentationTitle={reclassifyDetails.presentationFileName}
+            presentationTitle={reclassifyDetails.presentationTitle}
             reclassifiedDocumentUpdate={activeReclassifyDocumentUpdated(
               reclassifyDetails.documentId
             )}

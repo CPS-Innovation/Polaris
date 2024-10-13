@@ -17,11 +17,11 @@ type Props = {
 
 export const ListItem: React.FC<Props> = ({
   documentResult: {
-    presentationFileName,
+    presentationTitle,
     documentId,
     cmsFileCreatedDate: createdDate,
     cmsDocType,
-    occurrences: [firstOcurrence, ...subsequentOccurrences],
+    occurrences: [firstOccurrence, ...subsequentOccurrences],
     occurrencesInDocumentCount,
   },
   handleOpenPdf,
@@ -36,11 +36,11 @@ export const ListItem: React.FC<Props> = ({
           });
           handleOpenPdf({ documentId, mode: "search" });
         }}
-        ariaLabel={`Open Document ${presentationFileName}`}
+        ariaLabel={`Open Document ${presentationTitle}`}
         dataTestId={`link-result-document-${documentId}`}
         className={classes.headingLinkButton}
       >
-        {presentationFileName}
+        {presentationTitle}
       </LinkButton>
 
       <div className="govuk-body-s">
@@ -54,7 +54,7 @@ export const ListItem: React.FC<Props> = ({
         </div>
       </div>
 
-      <ContextText contextTextChunks={firstOcurrence.contextTextChunks} />
+      <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
 
       {subsequentOccurrences.length ? (
         <Details
@@ -64,11 +64,12 @@ export const ListItem: React.FC<Props> = ({
             trackEvent("View 'x' More", {
               viewMoreCount:
                 occurrencesInDocumentCount -
-                firstOcurrence.occurrencesInLine.length,
+                firstOccurrence.occurrencesInLine.length,
             });
           }}
           summaryChildren={`View ${
-            occurrencesInDocumentCount - firstOcurrence.occurrencesInLine.length
+            occurrencesInDocumentCount -
+            firstOccurrence.occurrencesInLine.length
           } more`}
           children={subsequentOccurrences.map((occurrence) => (
             <span key={occurrence.id}>

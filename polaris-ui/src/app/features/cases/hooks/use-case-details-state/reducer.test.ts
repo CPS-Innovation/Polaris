@@ -22,7 +22,6 @@ import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
 import {
   buildDefaultNotificationState,
-  NotificationEventCore,
   NotificationState,
 } from "../../domain/NotificationState";
 import * as notificationsMappingFunctions from "./map-notification-state";
@@ -396,7 +395,7 @@ describe("useCaseDetailsState reducer", () => {
         haveData: true,
 
         data: {
-          documents: [{ documentId: "1", pdfBlobName: "foo" }],
+          documents: [{ documentId: "1" }],
           transactionId: "123",
           status: "Completed",
         },
@@ -425,7 +424,7 @@ describe("useCaseDetailsState reducer", () => {
             status: "complete",
             haveData: true,
             data: {
-              documents: [{ documentId: "1", pdfBlobName: "foo" }],
+              documents: [{ documentId: "1" }],
               status: "Completed",
               transactionId: "123",
             },
@@ -444,7 +443,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -457,7 +455,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "1",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -492,17 +489,14 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "1",
-              pdfBlobName: "foo",
               polarisDocumentVersionId: 1,
             },
             {
               documentId: "2",
-              pdfBlobName: "foo",
               polarisDocumentVersionId: 2,
             },
             {
               documentId: "3",
-              pdfBlobName: "foo",
               polarisDocumentVersionId: 1,
             },
           ],
@@ -515,7 +509,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -555,19 +548,19 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "1",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 1,
           },
           {
             documentId: "2",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 2,
           },
           {
             documentId: "3",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 1,
           },
         ],
@@ -582,7 +575,7 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
+
               polarisDocumentVersionId: 2,
             },
           ],
@@ -595,7 +588,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -638,7 +630,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "2",
             url: "baz",
-            pdfBlobName: "foo",
+
             polarisDocumentVersionId: 2,
           },
         ],
@@ -702,7 +694,7 @@ describe("useCaseDetailsState reducer", () => {
         haveData: true,
         data: {
           transactionId: "",
-          documents: [{ documentId: "1", pdfBlobName: "foo" }],
+          documents: [{ documentId: "1" }],
         },
       } as CombinedState["pipelineState"];
 
@@ -747,12 +739,17 @@ describe("useCaseDetailsState reducer", () => {
             clientLockedState: "unlocked",
             areaOnlyRedactionMode: false,
             mode: "read",
-            pdfBlobName: "foo",
+
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             url: "baz",
             isDeleted: false,
-            saveStatus: "initial",
+            saveStatus: {
+              status: "initial",
+              type: "none",
+            },
           },
         ],
         activeTabId: "",
@@ -810,9 +807,14 @@ describe("useCaseDetailsState reducer", () => {
             areaOnlyRedactionMode: false,
             url: undefined,
             isDeleted: false,
-            saveStatus: "initial",
+            saveStatus: {
+              status: "initial",
+              type: "none",
+            },
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             mode: "read",
           },
         ],
@@ -1017,6 +1019,8 @@ describe("useCaseDetailsState reducer", () => {
                 searchTerm: "foo",
                 occurrencesInDocumentCount: 3,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 areaOnlyRedactionMode: false,
                 searchHighlights: [
                   {
@@ -1047,7 +1051,10 @@ describe("useCaseDetailsState reducer", () => {
                   },
                 ],
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
               },
               {
                 documentId: "2",
@@ -1129,8 +1136,13 @@ describe("useCaseDetailsState reducer", () => {
                 mode: "read",
                 url: undefined,
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1277,10 +1289,15 @@ describe("useCaseDetailsState reducer", () => {
                 mode: "search",
                 searchTerm: "bar",
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
                 areaOnlyRedactionMode: false,
                 occurrencesInDocumentCount: 4,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 pageOccurrences: [
                   {
                     boundingBoxes: [[1, 2, 3]],

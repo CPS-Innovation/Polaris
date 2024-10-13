@@ -38,3 +38,6 @@ export const STATEMENT_WITNESS_NUMBERS =
 
 export const SAVE_RECLASSIFY =
   "/api/urns/:urn/cases/:caseId/documents/:docId/reclassify";
+
+export const SAVE_ROTATION_ROUTE =
+  "api/urns/:urn/cases/:caseId/documents/:documentId/modify";
