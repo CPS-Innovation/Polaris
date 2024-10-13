@@ -18,7 +18,6 @@
 
 # Immediate
 
-- check 423s in prod
 - WHAT TO DO ABOUT isOCR-ed?
 - Make sure analytics events are ok
 
@@ -128,6 +127,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
 - sort out CmsVersionId and PolarisDocumentId in backend/tracker
 - polarisDocumentVersionId -> does this ever get employed for PCDs/DACs? How should we "store by version" for PCDs in blob storage
 - PiiCmsVersionId???
+- ids and routes could go to pdfs/{pdfId} and materials/{materialId}/versions/{versionId}
 
 # Done
 
