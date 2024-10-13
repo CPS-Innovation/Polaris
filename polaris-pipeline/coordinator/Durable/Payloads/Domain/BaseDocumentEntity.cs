@@ -47,9 +47,6 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
-        [JsonProperty("presentationTitle")]
-        public string PresentationTitle { get; set; }
-
         [JsonProperty("piiVersionId")]
         public long? PiiVersionId { get; set; }
     }

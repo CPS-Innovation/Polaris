@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.AI.TextAnalytics;
 using coordinator.Domain;
 using coordinator.Durable.Entity;
-using coordinator.Durable.Payloads.Domain;
-using Common.Dto.Response.Document;
 using Common.Dto.Tracker;
 using Mapster;
+using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Mappers
 {
@@ -37,7 +35,16 @@ namespace coordinator.Mappers
                 .Map
                 (
                     dest => dest.Documents,
-                    src => GetDocumentEntities(src)
+                    src => Enumerable.Empty<DocumentDto>()
+                        .Concat(src.CmsDocuments.Adapt<DocumentDto[]>())
+                        .Concat(src.PcdRequests.Adapt<DocumentDto[]>())
+                        .Concat(
+                            (src.DefendantsAndCharges.HasMultipleDefendants
+                                    ? new[] { src.DefendantsAndCharges }
+                                    : Enumerable.Empty<DefendantsAndChargesEntity>())
+                            .Adapt<DocumentDto[]>()
+                        )
+                //GetDocumentEntities(src)
                 );
 
             TypeAdapterConfig<RecognizePiiEntitiesResultCollection, PiiEntitiesResultCollection>
@@ -79,27 +86,27 @@ namespace coordinator.Mappers
                 );
         }
 
-        private static List<CmsDocumentEntity> GetDocumentEntities(CaseDurableEntity caseEntity)
-        {
-            var documents = new List<CmsDocumentEntity>();
+        // private static List<CmsDocumentEntity> GetDocumentEntities(CaseDurableEntity caseEntity)
+        // {
+        //     var documents = new List<CmsDocumentEntity>();
 
-            if (caseEntity.CmsDocuments?.Any() == true)
-                documents.AddRange(caseEntity.CmsDocuments);
+        //     if (caseEntity.CmsDocuments?.Any() == true)
+        //         documents.AddRange(caseEntity.CmsDocuments);
 
-            if (caseEntity.DefendantsAndCharges != null && caseEntity.DefendantsAndCharges.HasMultipleDefendants)
-            {
-                var defendantsAndChargesDocument = ConvertToTrackerCmsDocumentDto(caseEntity.DefendantsAndCharges);
-                documents.AddRange(defendantsAndChargesDocument);
-            }
+        //     if (caseEntity.DefendantsAndCharges != null && caseEntity.DefendantsAndCharges.HasMultipleDefendants)
+        //     {
+        //         var defendantsAndChargesDocument = ConvertToTrackerCmsDocumentDto(caseEntity.DefendantsAndCharges);
+        //         documents.AddRange(defendantsAndChargesDocument);
+        //     }
 
-            if (caseEntity.PcdRequests?.Any() == true)
-            {
-                var pcdRequestDocuments = caseEntity.PcdRequests.Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest));
-                documents.AddRange(pcdRequestDocuments);
-            }
+        //     if (caseEntity.PcdRequests?.Any() == true)
+        //     {
+        //         var pcdRequestDocuments = caseEntity.PcdRequests.Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest));
+        //         documents.AddRange(pcdRequestDocuments);
+        //     }
 
-            return documents;
-        }
+        //     return documents;
+        // }
 
         private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity) =>
             caseEntity.Retrieved.HasValue && caseEntity.Running.HasValue
@@ -112,45 +119,45 @@ namespace coordinator.Mappers
                 ? caseEntity.Running.Value.AddSeconds(caseEntity.Completed.Value).ToUniversalTime()
                 : null;
 
-        private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
-        {
-            return new CmsDocumentEntity(pcdRequest.CmsDocumentId, pcdRequest.VersionId, pcdRequest.PresentationFlags)
-            {
-                CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
-                CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
-                CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? $"(Pending) PCD.pdf",
-                PresentationTitle = Path.GetFileNameWithoutExtension(pcdRequest.PdfBlobName)
-                    // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
-                    //  false-positive name update notifications being shown in the UI, we make sure the interim name
-                    //  on th PCS request is the same as the eventual name derived from the blob name.
-                    ?? $"CMS-{pcdRequest.DocumentId}",
-                PdfBlobName = pcdRequest.PdfBlobName,
-                Status = pcdRequest.Status
-            };
-        }
+        // private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
+        // {
+        //     return new CmsDocumentEntity(pcdRequest.CmsDocumentId, pcdRequest.VersionId, pcdRequest.PresentationFlags)
+        //     {
+        //         //CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
+        //         //CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
+        //         //CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? $"(Pending) PCD.pdf",
+        //         // PresentationTitle = Path.GetFileNameWithoutExtension(pcdRequest.PdfBlobName)
+        //         //     // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
+        //         //     //  false-positive name update notifications being shown in the UI, we make sure the interim name
+        //         //     //  on th PCS request is the same as the eventual name derived from the blob name.
+        //         //     ?? $"CMS-{pcdRequest.DocumentId}",
+        //         //PdfBlobName = pcdRequest.PdfBlobName,
+        //         //Status = pcdRequest.Status
+        //     };
+        // }
 
-        private static CmsDocumentEntity[] ConvertToTrackerCmsDocumentDto(DefendantsAndChargesEntity defendantsAndCharges)
-        {
-            if (defendantsAndCharges == null)
-                return new CmsDocumentEntity[0];
+        // private static CmsDocumentEntity[] ConvertToTrackerCmsDocumentDto(DefendantsAndChargesEntity defendantsAndCharges)
+        // {
+        //     if (defendantsAndCharges == null)
+        //         return new CmsDocumentEntity[0];
 
-            return new CmsDocumentEntity[1]
-            {
-                new CmsDocumentEntity(defendantsAndCharges.CmsDocumentId, defendantsAndCharges.VersionId,defendantsAndCharges.PresentationFlags)
-                {
-                    CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
-                    CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
-                    CmsOriginalFileName = Path.GetFileName(defendantsAndCharges.PdfBlobName) ?? "(Pending) DAC.pdf",
-                    PresentationTitle = Path.GetFileNameWithoutExtension(defendantsAndCharges.PdfBlobName) 
-                        // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
-                        //  false-positive name update notifications being shown in the UI, we make sure the interim name
-                        //  on th PCS request is the same as the eventual name derived from the blob name.
-                        ?? "CMS-DAC",
-                    PdfBlobName = defendantsAndCharges.PdfBlobName,
-                    Status = defendantsAndCharges.Status
-                }
-            };
-        }
+        //     return new CmsDocumentEntity[1]
+        //     {
+        //         new CmsDocumentEntity(defendantsAndCharges.CmsDocumentId, defendantsAndCharges.VersionId,defendantsAndCharges.PresentationFlags)
+        //         {
+        //             // CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
+        //             //CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
+        //             //CmsOriginalFileName = Path.GetFileName(defendantsAndCharges.PdfBlobName) ?? "(Pending) DAC.pdf",
+        //             // PresentationTitle = Path.GetFileNameWithoutExtension(defendantsAndCharges.PdfBlobName) 
+        //             //     // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
+        //             //     //  false-positive name update notifications being shown in the UI, we make sure the interim name
+        //             //     //  on th PCS request is the same as the eventual name derived from the blob name.
+        //             //     ?? "CMS-DAC",
+        //             //PdfBlobName = defendantsAndCharges.PdfBlobName,
+        //             //Status = defendantsAndCharges.Status
+        //         }
+        //     };
+        // }
 
     }
 }

@@ -37,6 +37,7 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("documents")]
         public List<DocumentDto> Documents { get; set; }
+
     }
 }
 

@@ -108,6 +108,9 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }
 
+        [JsonProperty("presentationTitle")]
+        public new string PresentationTitle { get; set; }
+
         [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }
 

@@ -67,13 +67,13 @@ namespace coordinator.Durable.Entity
         public string FailedReason { get; set; }
 
         [JsonProperty("documents")]
-        public List<CmsDocumentEntity> CmsDocuments { get; set; }
+        public List<CmsDocumentEntity> CmsDocuments { get; set; } = new List<CmsDocumentEntity>();
 
         [JsonProperty("pcdRequests")]
-        public List<PcdRequestEntity> PcdRequests { get; set; }
+        public List<PcdRequestEntity> PcdRequests { get; set; } = new List<PcdRequestEntity>();
 
         [JsonProperty("defendantsAndCharges")]
-        public DefendantsAndChargesEntity DefendantsAndCharges { get; set; }
+        public DefendantsAndChargesEntity DefendantsAndCharges { get; set; } = new DefendantsAndChargesEntity();
 
         [Obsolete]
         public void Reset(string transactionId)
