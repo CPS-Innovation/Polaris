@@ -2,7 +2,9 @@ import { Component, ErrorInfo, ReactNode } from "react";
 import { Layout } from "../layout/Layout";
 import { WaitPage } from ".";
 import { CmsAuthRedirectingError } from "../../errors/CmsAuthRedirectingError";
-import { ErrorPage } from "./ErrorPage";
+import { ErrorPage } from "./error-pages/ErrorPage";
+import { CmsAuthError } from "../../errors/CmsAuthError";
+import { AuthErrorPage } from "./error-pages/AuthErrorPage";
 
 interface Props {
   children: ReactNode;
@@ -34,6 +36,8 @@ export class ErrorBoundary extends Component<Props, State> {
         <Layout>
           {this.state.error instanceof CmsAuthRedirectingError ? (
             <WaitPage data-testid="div-wait-reauth" />
+          ) : this.state.error instanceof CmsAuthError ? (
+            <AuthErrorPage error={this.state.error} />
           ) : (
             <ErrorPage error={this.state.error} />
           )}
