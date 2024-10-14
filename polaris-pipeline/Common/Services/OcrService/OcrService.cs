@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
-using coordinator.Factories.ComputerVisionClientFactory;
+using Common.Factories.ComputerVisionClientFactory;
 using Common.Logging;
 using Common.Streaming;
-using PolarisDomain = coordinator.Services.OcrService.Domain;
+using PolarisDomain = Common.Services.OcrService.Domain;
 using Mapster;
 using System.Threading;
 
-namespace coordinator.Services.OcrService
+namespace Common.Services.OcrService
 {
     public class OcrService : IOcrService
     {
@@ -19,7 +19,7 @@ namespace coordinator.Services.OcrService
         //  the polling delay is best set between 1 and 2 seconds.  Up until this point we have used 500ms and we are currently experiencing 
         //  the occasional very slow document processing operation.  The article makes it clear that there is a limit in the number of requests
         //  per second, so by increasing the delay we are seeing if we can improve throughput by reducing the number of requests.
-        private const int _pollingDelayMs = 2000;
+
         private const int _httpTimeoutMs = 50000; // temporarily set this high so we don't trigger timeouts
         private readonly ComputerVisionClient _computerVisionClient;
         private readonly ILogger<OcrService> _log;

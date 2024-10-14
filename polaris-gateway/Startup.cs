@@ -15,6 +15,12 @@ using PolarisGateway.Mappers;
 using PolarisGateway.Validators;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
+using Ddei.Extensions;
+using Common.Services.DocumentToggle;
+using Common.Services.BlobStorageService;
+using Common.Services;
+using Common.Services.OcrService;
+using Common.Factories.ComputerVisionClientFactory;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -68,6 +74,8 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             }).AddPolicyHandler(GetRetryPolicy());
 
+            services.AddDdeiClient(Configuration);
+
             services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
@@ -77,6 +85,14 @@ namespace PolarisGateway
             services.AddSingleton<IModifyDocumentRequestMapper, ModifyDocumentRequestMapper>();
             services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
             services.AddTransient<IRequestFactory, RequestFactory>();
+
+            services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
+            services.AddSingleton<IOcrService, OcrService>();
+            services.AddSingleton<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+
+            services.AddBlobStorageWithDefaultAzureCredential(Configuration);
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

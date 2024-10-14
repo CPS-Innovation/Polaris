@@ -1,4 +1,4 @@
-namespace coordinator.Domain.DocumentToggle
+namespace Common.Services.DocumentToggle.Domain
 {
     public class Definition
     {

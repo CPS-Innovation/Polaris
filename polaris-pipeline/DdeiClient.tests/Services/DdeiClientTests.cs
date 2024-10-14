@@ -2,7 +2,7 @@ using System.Net;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
-using Common.Dto.Response;
+using System.Linq;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
@@ -22,10 +22,7 @@ namespace Ddei.tests.Services;
 public class DdeiClientTests
 {
     private readonly Fixture _fixture;
-    private readonly string _caseUrn;
-    private readonly string _caseId;
-    private readonly string _cmsAuthValues;
-    private readonly Guid _correlationId;
+    private readonly DdeiCaseIdentifiersArgDto _ddeiCaseIdentifiersArgDto;
     private readonly HttpResponseMessage _httpResponseMessage;
     private readonly List<DdeiDocumentResponse> _content;
     private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapperMock;
@@ -36,10 +33,12 @@ public class DdeiClientTests
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
 
-        _caseUrn = _fixture.Create<string>();
-        _caseId = _fixture.Create<int>().ToString();
-        _cmsAuthValues = _fixture.Create<string>();
-        _correlationId = _fixture.Create<Guid>();
+        var caseUrn = _fixture.Create<string>();
+        var caseId = _fixture.Create<int>().ToString();
+        var cmsAuthValues = _fixture.Create<string>();
+        var correlationId = _fixture.Create<Guid>();
+
+        _ddeiCaseIdentifiersArgDto = _fixture.Create<DdeiCaseIdentifiersArgDto>();
 
         _content = _fixture.CreateMany<DdeiDocumentResponse>(5).ToList();
 
@@ -111,7 +110,7 @@ public class DdeiClientTests
     {
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-        await Assert.ThrowsAsync<DdeiClientException>(() => _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId));
+        await Assert.ThrowsAsync<DdeiClientException>(() => _ddeiClient.ListDocumentsAsync(_ddeiCaseIdentifiersArgDto));
     }
 
     [Fact]
@@ -122,7 +121,7 @@ public class DdeiClientTests
 
         try
         {
-            await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+            await _ddeiClient.ListDocumentsAsync(_ddeiCaseIdentifiersArgDto);
         }
         catch (DdeiClientException exception)
         {
@@ -138,7 +137,7 @@ public class DdeiClientTests
 
         try
         {
-            await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+            await _ddeiClient.ListDocumentsAsync(_ddeiCaseIdentifiersArgDto);
         }
         catch (DdeiClientException exception)
         {
@@ -149,9 +148,9 @@ public class DdeiClientTests
     [Fact]
     public async Task ListDocumentsAsync_ReturnsMappedDocuments()
     {
-        var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+        var result = await _ddeiClient.ListDocumentsAsync(_ddeiCaseIdentifiersArgDto);
 
-        result.Length.Should().Be(_content.Count);
+        result.Count().Should().Be(_content.Count);
     }
 
     [Fact]
@@ -161,17 +160,17 @@ public class DdeiClientTests
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
-        var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+        var result = await _ddeiClient.ListDocumentsAsync(_ddeiCaseIdentifiersArgDto);
 
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result[0].DocumentId.Should().Be(searchResults[0].Id);
-            result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
-            result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
-            result[3].DocumentId.Should().Be(searchResults[3].Id);
-            result[3].FileName.Should().Be(searchResults[3].OriginalFileName);
-            result[3].PresentationTitle.Should().Be(searchResults[3].PresentationTitle);
+            result.First().DocumentId.Should().Be(searchResults[0].Id);
+            result.First().FileName.Should().Be(searchResults[0].OriginalFileName);
+            result.First().PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
+            result.ElementAt(3).DocumentId.Should().Be(searchResults[3].Id);
+            result.ElementAt(3).FileName.Should().Be(searchResults[3].OriginalFileName);
+            result.ElementAt(3).PresentationTitle.Should().Be(searchResults[3].PresentationTitle);
         }
     }
 
@@ -186,14 +185,14 @@ public class DdeiClientTests
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
-        var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+        var result = await _ddeiClient.ListDocumentsAsync(_ddeiCaseIdentifiersArgDto);
 
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result[0].DocumentId.Should().Be(searchResults[0].Id);
-            result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
-            result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
+            result.First().DocumentId.Should().Be(searchResults[0].Id);
+            result.First().FileName.Should().Be(searchResults[0].OriginalFileName);
+            result.First().PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
         }
     }
 

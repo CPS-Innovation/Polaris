@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
-using coordinator.Helpers;
+using Common.Helpers;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.IdentityModel.Tokens;
 

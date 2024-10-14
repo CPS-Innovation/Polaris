@@ -1,8 +1,8 @@
-using coordinator.Helpers;
+using Common.Helpers;
 using FluentAssertions;
 using Xunit;
 
-namespace coordinator.Tests.Helpers;
+namespace Common.Tests.Helpers;
 
 public class BlobNameHelperTests
 {

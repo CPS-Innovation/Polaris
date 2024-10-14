@@ -4,8 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
-using coordinator.Services.OcrService;
-using coordinator.Services.OcrService.Domain;
+using Common.Services.OcrService;
+using Common.Services.OcrService.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 

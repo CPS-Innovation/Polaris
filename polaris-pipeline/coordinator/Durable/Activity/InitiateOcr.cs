@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Common.Services.BlobStorageService;
-using coordinator.Services.OcrService;
+using Common.Services.OcrService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 

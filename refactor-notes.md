@@ -19,8 +19,13 @@
 
 # Immediate
 
+- DdeiClient methods to be suffixed Async
 - WHAT TO DO ABOUT isOCR-ed?
 - Make sure analytics events are ok
+- Other coordinatorclientcalls that can die
+- Should services return ienumerable
+- Need to do PCD and DAC in doc list
+- hack out old BlobStorageServiceStuff
 
 ## Ids
 

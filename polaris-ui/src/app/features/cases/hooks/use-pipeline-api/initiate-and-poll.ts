@@ -1,6 +1,10 @@
 import { ApiError } from "../../../../common/errors/ApiError";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
-import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
+import {
+  getDocuments,
+  getPipelinePdfResults,
+  initiatePipeline,
+} from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { getPipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
@@ -122,12 +126,19 @@ export const initiateAndPoll = (
           break;
         }
 
-        const pipelineResult = await getPipelinePdfResults(
-          trackerArgs.trackerUrl,
-          trackerArgs.correlationId
-        );
-        if (pipelineResult) {
-          handleApiCallSuccess(pipelineResult);
+        const [pipelineResults, experimentalDocumentResults] =
+          await Promise.all([
+            getPipelinePdfResults(
+              trackerArgs.trackerUrl,
+              trackerArgs.correlationId
+            ),
+            [], //getDocuments(urn, caseId),
+          ]);
+
+        console.debug(experimentalDocumentResults);
+
+        if (pipelineResults) {
+          handleApiCallSuccess(pipelineResults);
         }
       } catch (error) {
         handleApiCallError(error);

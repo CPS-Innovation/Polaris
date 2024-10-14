@@ -5,18 +5,16 @@ using System;
 using System.Reflection;
 using System.Text;
 using Common.Dto.Response.Document.FeatureFlags;
-using coordinator.Domain.DocumentToggle;
-using coordinator.Domain.Exceptions;
+using Common.Services.DocumentToggle.Domain;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Case;
-using coordinator.Durable.Payloads.Domain;
 
-namespace coordinator.Services.DocumentToggle
+namespace Common.Services.DocumentToggle
 {
     public class DocumentToggleService : IDocumentToggleService
     {
-        private const string ConfigResourceName = "coordinator.document-toggle.config";
+        private const string ConfigResourceName = "Common.document-toggle.config";
 
         private static readonly PresentationFlagsDto ReadOnly = new PresentationFlagsDto
         {
@@ -45,16 +43,6 @@ namespace coordinator.Services.DocumentToggle
             var lines = SplitConfigLines(configFileContent);
 
             _definitions = CreateDefinitions(lines);
-        }
-
-        public bool CanReadDocument(BaseDocumentEntity document)
-        {
-            return document.PresentationFlags.Read == ReadFlag.Ok;
-        }
-
-        public bool CanWriteDocument(BaseDocumentEntity document)
-        {
-            return document.PresentationFlags.Write == WriteFlag.Ok;
         }
 
         public PresentationFlagsDto GetDocumentPresentationFlags(CmsDocumentDto document)

@@ -5,6 +5,8 @@ using System;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Common.Services.BlobStorageService;
+using Common.Services.OcrService;
+using Common.Factories.ComputerVisionClientFactory;
 
 namespace Common.Services
 {
@@ -34,6 +36,13 @@ namespace Common.Services
             });
 
             services.AddTransient((Func<IServiceProvider, IPolarisBlobStorageService>)(serviceProvider =>
+            {
+                var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
+                var blobServiceContainerName = GetValueFromConfig(configuration, BlobServiceContainerName);
+                return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName);
+            }));
+
+            services.AddTransient((Func<IServiceProvider, IV2PolarisBlobStorageService>)(serviceProvider =>
             {
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 var blobServiceContainerName = GetValueFromConfig(configuration, BlobServiceContainerName);

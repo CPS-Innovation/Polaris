@@ -118,7 +118,7 @@ namespace coordinator.Durable.Activity
             }
             else if (payload.DefendantAndChargesTracker != null)
             {
-                var arg = _ddeiArgFactory.CreateCaseArg(
+                var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
                     payload.CmsAuthValues,
                     payload.CorrelationId,
                     payload.Urn,

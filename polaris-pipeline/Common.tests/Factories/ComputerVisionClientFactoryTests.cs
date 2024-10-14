@@ -4,10 +4,10 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
-using coordinator.Factories.ComputerVisionClientFactory;
-using coordinator.Constants;
+using Common.Factories.ComputerVisionClientFactory;
 
-namespace coordinator.tests.Factories;
+
+namespace Common.tests.Factories;
 
 public class ComputerVisionClientFactoryTests
 {
@@ -21,7 +21,7 @@ public class ComputerVisionClientFactoryTests
 		_serviceUrl = fixture.Create<string>();
 		var configuration = new Mock<IConfiguration>();
 
-		configuration.Setup(x => x[ConfigKeys.ComputerVisionClientServiceUrl]).Returns(_serviceUrl);
+		configuration.Setup(x => x[Common.Factories.ComputerVisionClientFactory.Constants.ComputerVisionClientServiceUrl]).Returns(_serviceUrl);
 
 		_computerVisionClientFactory = new ComputerVisionClientFactory(configuration.Object);
 	}

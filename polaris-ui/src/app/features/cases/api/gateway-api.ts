@@ -23,6 +23,7 @@ import { StatementWitnessNumber } from "../presentation/case-details/reclassify/
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
 import { RotationSaveRequest } from "../domain/IPageRotation";
+import { PresentationDocumentProperties } from "../domain/gateway/PipelineDocument";
 
 const FORBIDDEN_STATUS_CODE = 403;
 const GONE_STATUS_CODE = 410;
@@ -58,6 +59,7 @@ export const resolvePdfUrl = (
   // the backend does not look at the v parameter
   return fullUrl(
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${versionId}`
+    //`api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}`
   );
 };
 
@@ -95,6 +97,18 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   await handleGetCaseApiResponse(response, url, "Get Case Details failed");
 
   return (await response.json()) as CaseDetails;
+};
+
+export const getDocuments = async (urn: string, caseId: number) => {
+  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
+
+  const response = await internalReauthenticatingFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  await handleGetCaseApiResponse(response, url, "Get Documents failed");
+
+  return (await response.json()) as PresentationDocumentProperties[];
 };
 
 export const initiatePipeline = async (

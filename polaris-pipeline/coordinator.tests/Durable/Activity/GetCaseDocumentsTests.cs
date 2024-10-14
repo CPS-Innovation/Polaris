@@ -10,7 +10,7 @@ using coordinator.Durable.Activity;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
 using Ddei;
-using coordinator.Services.DocumentToggle;
+using Common.Services.DocumentToggle;
 using Common.Dto.Response.Case;
 using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Payloads;
@@ -56,8 +56,16 @@ namespace coordinator.tests.Durable.Activity
             mockDocumentExtractionService
                 .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
                 .ReturnsAsync(_case);
+
+            var mockDdeiCaseIdentifiersArgDto = fixture.Create<DdeiCaseIdentifiersArgDto>();
+
+            var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
+            mockDdeiArgFactory
+                .Setup(factory => factory.CreateCaseIdentifiersArg(_payload.CmsAuthValues, _payload.CorrelationId, _payload.Urn, _payload.CaseId))
+                .Returns(mockDdeiCaseIdentifiersArgDto);
+
             mockDocumentExtractionService
-                .Setup(client => client.ListDocumentsAsync(_payload.Urn, _payload.CaseId.ToString(), _payload.CmsAuthValues, _payload.CorrelationId))
+                .Setup(client => client.ListDocumentsAsync(mockDdeiCaseIdentifiersArgDto))
                 .ReturnsAsync(_caseDocuments);
 
             var mockDocumentToggleService = new Mock<IDocumentToggleService>();
@@ -72,7 +80,7 @@ namespace coordinator.tests.Durable.Activity
 
             _getCaseDocuments = new GetCaseDocuments(
                 mockDocumentExtractionService.Object,
-                new DdeiArgFactory(), // todo: this should be a mock
+                mockDdeiArgFactory.Object,
                 mockDocumentToggleService.Object,
                 mockLogger.Object,
                 _mockConfiguration.Object);

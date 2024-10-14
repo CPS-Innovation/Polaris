@@ -11,15 +11,15 @@ using coordinator.Clients.TextAnalytics;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
-using coordinator.Factories.ComputerVisionClientFactory;
+using Common.Factories.ComputerVisionClientFactory;
 using coordinator.Factories.TextAnalyticsClientFactory;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
 using coordinator.Services.CleardownService;
-using coordinator.Services.DocumentToggle;
+using Common.Services.DocumentToggle;
 using coordinator.Services.OcrResultsService;
-using coordinator.Services.OcrService;
+using Common.Services.OcrService;
 using coordinator.Services.PiiService;
 using coordinator.Services.TextSanitizationService;
 using coordinator.Services.RenderHtmlService;
@@ -124,7 +124,7 @@ namespace coordinator
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
-            services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+            // services.AddTransient<IDocumentToggleService, DocumentToggleService>();
             services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
               DocumentToggleService.ReadConfig()
             ));

@@ -9,7 +9,7 @@ using Common.Services.BlobStorageService;
 using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
-using coordinator.Helpers;
+using Common.Helpers;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.TextSanitizationService;
 using Microsoft.Extensions.Configuration;

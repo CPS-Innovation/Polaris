@@ -3,7 +3,7 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
 
-namespace coordinator.Services.DocumentToggle
+namespace Common.Services.DocumentToggle
 {
     public interface IDocumentToggleService
     {

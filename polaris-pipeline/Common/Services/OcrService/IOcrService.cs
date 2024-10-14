@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using coordinator.Services.OcrService.Domain;
+using Common.Services.OcrService.Domain;
 
-namespace coordinator.Services.OcrService
+namespace Common.Services.OcrService
 {
     public interface IOcrService
     {

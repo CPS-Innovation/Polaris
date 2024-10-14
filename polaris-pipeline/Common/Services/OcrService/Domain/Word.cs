@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace coordinator.Services.OcrService.Domain
+namespace Common.Services.OcrService.Domain
 {
-  public class Line
+  public class Word
   {
     [JsonProperty(PropertyName = "boundingBox")]
     public IList<double?> BoundingBox { get; set; }
@@ -11,7 +11,7 @@ namespace coordinator.Services.OcrService.Domain
     [JsonProperty(PropertyName = "text")]
     public string Text { get; set; }
 
-    [JsonProperty(PropertyName = "words")]
-    public IList<Word> Words { get; set; }
+    [JsonProperty(PropertyName = "confidence")]
+    public double Confidence { get; set; }
   }
 }

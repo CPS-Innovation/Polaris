@@ -1,8 +1,7 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Extensions.Configuration;
-using coordinator.Constants;
 
-namespace coordinator.Factories.ComputerVisionClientFactory
+namespace Common.Factories.ComputerVisionClientFactory
 {
 	public class ComputerVisionClientFactory : IComputerVisionClientFactory
 	{
@@ -15,9 +14,9 @@ namespace coordinator.Factories.ComputerVisionClientFactory
 
 		public ComputerVisionClient Create()
 		{
-			return new ComputerVisionClient(new ApiKeyServiceClientCredentials(_configuration[ConfigKeys.ComputerVisionClientServiceKey]))
+			return new ComputerVisionClient(new ApiKeyServiceClientCredentials(_configuration[Constants.ComputerVisionClientServiceKey]))
 			{
-				Endpoint = _configuration[ConfigKeys.ComputerVisionClientServiceUrl]
+				Endpoint = _configuration[Constants.ComputerVisionClientServiceUrl]
 			};
 		}
 	}

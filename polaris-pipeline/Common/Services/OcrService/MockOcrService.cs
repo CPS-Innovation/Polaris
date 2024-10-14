@@ -1,14 +1,12 @@
 ﻿#if DEBUG
 using System;
 using System.Threading.Tasks;
-using Common.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.IO;
-using coordinator.Services.OcrService.Domain;
+using Common.Services.OcrService.Domain;
 
-namespace coordinator.Services.OcrService
+namespace Common.Services.OcrService
 {
     public class MockOcrService : IOcrService
     {
