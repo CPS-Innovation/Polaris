@@ -39,7 +39,7 @@ namespace coordinator.Mappers
                         .Concat(src.CmsDocuments.Adapt<DocumentDto[]>())
                         .Concat(src.PcdRequests.Adapt<DocumentDto[]>())
                         .Concat(
-                            (src.DefendantsAndCharges.HasMultipleDefendants
+                            (src.DefendantsAndCharges != null && src.DefendantsAndCharges.HasMultipleDefendants
                                     ? new[] { src.DefendantsAndCharges }
                                     : Enumerable.Empty<DefendantsAndChargesEntity>())
                             .Adapt<DocumentDto[]>()
