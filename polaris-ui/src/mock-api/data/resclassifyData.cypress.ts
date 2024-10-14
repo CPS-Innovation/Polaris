@@ -1,4 +1,7 @@
 import { MaterialType } from "../../app/features/cases/presentation/case-details/reclassify/data/MaterialType";
+import { ExhibitProducer } from "../../app/features/cases/presentation/case-details/reclassify/data/ExhibitProducer";
+import { StatementWitness } from "../../app/features/cases/presentation/case-details/reclassify/data/StatementWitness";
+import { StatementWitnessNumber } from "../../app/features/cases/presentation/case-details/reclassify/data/StatementWitnessNumber";
 export const materialTypeList: MaterialType[] = [
   {
     typeId: 1015,
@@ -26,7 +29,40 @@ export const materialTypeList: MaterialType[] = [
     newClassificationVariant: "Exhibit",
   },
 ];
+const exhibitProducers: ExhibitProducer[] = [
+  { id: 1, exhibitProducer: "PC Blaynee" },
+  { id: 2, exhibitProducer: "PC Jones" },
+  { id: 3, exhibitProducer: "PC Lucy" },
+];
+
+const statementWitness: StatementWitness[] = [
+  { id: 1, name: "PC Blaynee_S" },
+  { id: 2, name: "PC Jones_S" },
+  { id: 3, name: "PC Lucy_S" },
+];
+
+const statementWitnessNumbers: StatementWitnessNumber[] = [
+  {
+    documentId: 1,
+    statementNumber: 2,
+  },
+  {
+    documentId: 2,
+    statementNumber: 3,
+  },
+  {
+    documentId: 3,
+    statementNumber: 4,
+  },
+  {
+    documentId: 4,
+    statementNumber: 7,
+  },
+];
 const dataSource = {
   materialTypeList,
+  exhibitProducers,
+  statementWitness,
+  statementWitnessNumbers,
 };
 export default dataSource;

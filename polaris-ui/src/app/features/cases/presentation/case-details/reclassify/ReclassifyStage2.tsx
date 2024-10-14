@@ -506,6 +506,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           <div className={classes.producerSelectWrapper}>
             <Select
               id="exhibit-select-producer"
+              data-testid="exhibit-select-producer"
               items={exhibitProducersValues}
               label={{
                 children: "Select existing producer or witness",
@@ -553,6 +554,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         <div>
           <Select
             id="statement-witness"
+            data-testid="reclassify-statement-witness"
             errorMessage={
               formDataErrors.statementWitnessErrorText
                 ? {
@@ -623,6 +625,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
           <Input
             id="statement-number"
+            data-testid="reclassify-statement-number"
             errorMessage={
               formDataErrors.statementNumberErrorText
                 ? {
