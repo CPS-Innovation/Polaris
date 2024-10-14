@@ -425,7 +425,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             key={"change-document-name"}
             onChange={handleDocumentRenameStatusChange}
             value={state.formData.documentRenameStatus}
-            name="radio-change-document-name"
+            name="change-document-name"
             items={[
               {
                 children: "Yes",
@@ -460,6 +460,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 value: "NO",
               },
             ]}
+            data-testid="reclassify-rename"
           />
         )}
 

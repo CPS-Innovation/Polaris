@@ -43,7 +43,7 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
       isInbox: false,
       classification: null,
       isWitnessManagement: false,
-      canReclassify: false,
+      canReclassify: true,
       canRename: true,
       renameStatus: "CanRename",
       reference: null,
@@ -77,8 +77,8 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
       isInbox: false,
       classification: null,
       isWitnessManagement: false,
-      canReclassify: false,
-      canRename: true,
+      canReclassify: true,
+      canRename: false,
       renameStatus: "CanRename",
       reference: null,
     },
@@ -112,7 +112,7 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
       classification: null,
       isWitnessManagement: false,
       canReclassify: false,
-      canRename: true,
+      canRename: false,
       renameStatus: "CanRename",
       reference: null,
     },
@@ -315,7 +315,7 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
       isInbox: false,
       classification: null,
       isWitnessManagement: false,
-      canReclassify: false,
+      canReclassify: true,
       canRename: true,
       renameStatus: "CanRename",
       reference: null,
@@ -419,6 +419,48 @@ const getRefreshRenamedDocuments = (
             presentationTitle: newName,
           },
         ],
+      };
+    }
+    return {
+      ...result,
+      status: "DocumentsRetrieved" as const,
+    };
+  });
+};
+
+const getRefreshReclassifyDocuments = (
+  id: string,
+  newDocTypeId: number,
+  trackerCalls: number
+) => {
+  const resultsArray = getPipelinePdfResults(trackerCalls);
+  return resultsArray.map((result, index) => {
+    if (index === 0)
+      return {
+        ...result,
+        status: "Completed" as const,
+      };
+    const currentDocument = resultsArray[trackerCalls - 1].documents.find(
+      ({ documentId }, index) => documentId === id
+    )!;
+
+    if (index === trackerCalls - 1) {
+      return {
+        ...result,
+        documents: [
+          ...resultsArray[trackerCalls - 1].documents.filter(
+            ({ documentId }) => documentId !== id
+          ),
+          {
+            ...currentDocument,
+            cmsDocType: {
+              ...currentDocument.cmsDocType,
+              documentTypeId: newDocTypeId,
+            },
+          },
+        ],
+
+        status: "DocumentsRetrieved" as const,
       };
     }
     return {
@@ -864,3 +906,10 @@ export const refreshPipelineRenamedDocuments: (
   trackerCalls: number
 ) => PipelineResults[] = (documentId, newName, trackerCalls) =>
   getRefreshRenamedDocuments(documentId, newName, trackerCalls);
+
+export const refreshPipelineReclassifyDocuments: (
+  documentId: string,
+  newDocTypeId: number,
+  trackerCalls: number
+) => PipelineResults[] = (documentId, newDocTypeId, trackerCalls) =>
+  getRefreshReclassifyDocuments(documentId, newDocTypeId, trackerCalls);

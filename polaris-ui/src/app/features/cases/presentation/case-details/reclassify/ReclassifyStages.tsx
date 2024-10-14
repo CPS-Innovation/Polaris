@@ -403,10 +403,15 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               state.reclassifyVariant === "Statement" &&
               !state.statementWitness?.length
             }
+            data-testid="reclassify-continue-btn"
           >
             Continue
           </Button>
-          <LinkButton className={classes.btnCancel} onClick={closeReclassify}>
+          <LinkButton
+            className={classes.btnCancel}
+            onClick={closeReclassify}
+            data-testid="reclassify-cancel-btn"
+          >
             Cancel
           </LinkButton>
         </>
@@ -416,6 +421,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       <Button
         ref={acceptAndSaveButtonRef}
         onClick={handleAcceptAndSave}
+        data-testid="reclassify-save-btn"
         disabled={
           state.reClassifySaveStatus === "saving" ||
           state.reClassifySaveStatus === "success"
@@ -456,31 +462,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
 
   if (loading) return <div>loading data</div>;
   return (
-    <div className={classes.reClassifyStages}>
+    <div
+      className={classes.reClassifyStages}
+      data-testid="div-reclassify-stages"
+    >
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
-          <div aria-live="polite" className={classes.visuallyHidden}>
-            {(state.reClassifySaveStatus === "saving" ||
-              (state.reClassifySaveStatus === "success" &&
-                !reclassifiedDocumentUpdate)) && (
-              <span>Saving to CMS. Please wait</span>
-            )}
-            {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
-          </div>
-          {(state.reClassifySaveStatus === "saving" ||
-            state.reClassifySaveStatus === "success") && (
-            <NotificationBanner className={classes.notificationBanner}>
-              <div className={classes.bannerContent}>
-                <div className={classes.spinnerWrapper}>
-                  <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
-                </div>
-                <p className={classes.notificationBannerText}>
-                  Saving to CMS. Please wait.
-                </p>
-              </div>
-            </NotificationBanner>
-          )}
-
           {state.reClassifyStage === "stage1" && (
             <ReclassifyStage1
               currentDocTypeId={currentDocTypeId}
@@ -503,6 +490,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           {state.reClassifyStage === "stage3" && (
             <ReclassifyStage3
               presentationTitle={presentationTitle}
+              reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
               handleBackBtnClick={handleBackBtnClick}
             />
           )}
