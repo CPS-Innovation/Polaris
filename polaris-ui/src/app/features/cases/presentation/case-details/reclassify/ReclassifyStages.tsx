@@ -127,7 +127,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const exhibitItemNameValidation = () => {
       if (!exhibitItemName) {
         errorTexts.exhibitItemNameErrorText =
-          "Exhibit item should not be empty";
+          "Exhibit item name should not be empty";
         return;
       }
       const characterErrorText = handleTextValidation(
@@ -135,10 +135,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         EXHIBIT_TEXT_VALIDATION_REGEX
       );
       if (characterErrorText) {
-        errorTexts.exhibitItemNameErrorText = `Exhibit item should not contain ${characterErrorText}`;
+        errorTexts.exhibitItemNameErrorText = `Exhibit item name should not contain ${characterErrorText}`;
       }
       if (exhibitItemName.length > MAX_LENGTH) {
-        errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
+        errorTexts.exhibitItemNameErrorText = `Exhibit item name must be ${MAX_LENGTH} characters or less`;
       }
     };
 
@@ -410,7 +410,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           <LinkButton
             className={classes.btnCancel}
             onClick={closeReclassify}
-            data-testid="reclassify-cancel-btn"
+            dataTestId="reclassify-cancel-btn"
           >
             Cancel
           </LinkButton>
@@ -506,17 +506,17 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           }}
           type="alert"
           ariaLabel="Save reclassification error modal"
-          ariaDescription="Something went wrong. Failed to save reclassification. Please try again later"
+          ariaDescription="Something went wrong. Failed to save reclassification. Please try again later."
         >
           <div className={classes.alertContent}>
             <h1 className="govuk-heading-l">Something went wrong!</h1>
-            <p>Failed to save reclassification. Please try again later</p>
+            <p>Failed to save reclassification. Please try again later.</p>
             <div className={classes.actionButtonsWrapper}>
               <Button
                 onClick={() => {
                   handleCloseErrorModal();
                 }}
-                data-testid="btn-reclassify-error-ok"
+                data-testid="btn-error-modal-ok"
               >
                 Ok
               </Button>

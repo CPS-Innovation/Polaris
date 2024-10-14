@@ -303,36 +303,43 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           return {
             children: formDataErrors[inputName],
             href: "#document-new-name",
+            "data-testid": "reclassify-document-new-name-link",
           };
         case "exhibitItemNameErrorText":
           return {
             children: formDataErrors[inputName],
             href: "#exhibit-item-name",
+            "data-testid": "reclassify-exhibit-item-name-link",
           };
         case "otherExhibitProducerErrorText":
           return {
             children: formDataErrors[inputName],
             href: "#exhibit-other-producer-name",
+            "data-testid": "reclassify-exhibit-other-producer-name-link",
           };
         case "exhibitReferenceErrorText":
           return {
             children: formDataErrors[inputName],
             href: "#exhibit-reference",
+            "data-testid": "reclassify-exhibit-reference-link",
           };
         case "statementWitnessErrorText":
           return {
             children: formDataErrors[inputName],
             href: "#statement-witness",
+            "data-testid": "reclassify-statement-witness-link",
           };
         case "statementNumberErrorText":
           return {
             children: formDataErrors[inputName],
             href: "#statement-number",
+            "data-testid": "reclassify-statement-number-link",
           };
         case "statementDateErrorText":
           return {
             children: formDataErrors.statementDateErrorText,
             href: getDateInputLink(),
+            "data-testid": "reclassify-statement-date-link",
           };
       }
     },
@@ -341,7 +348,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
   const errorSummaryList = useMemo(() => {
     const validErrors = Object.fromEntries(
-      Object.entries(formDataErrors).filter(([key, value]) => value !== "")
+      Object.entries(formDataErrors).filter(
+        ([key, value]) =>
+          value !== "" &&
+          key !== "statementDayErrorText" &&
+          key !== "statementMonthErrorText" &&
+          key !== "statementYearErrorText"
+      )
     );
     const errorSummary = Object.keys(validErrors).map((error, index) => ({
       reactListKey: `${index}`,
@@ -434,7 +447,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                     <Input
                       key="document-new-name"
                       id="document-new-name"
-                      data-testid={"document-new-name"}
+                      data-testid="document-new-name"
                       className="govuk-input--width-20"
                       label={{
                         children: "Enter new document name",
@@ -468,6 +481,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         <div>
           <Input
             id="exhibit-item-name"
+            data-testid="exhibit-item-name"
             className="govuk-input--width-20"
             errorMessage={
               formDataErrors.exhibitItemNameErrorText
@@ -486,6 +500,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           />
           <Input
             id="exhibit-reference"
+            data-testid="exhibit-reference"
             errorMessage={
               formDataErrors.exhibitReferenceErrorText
                 ? {
@@ -526,6 +541,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               >
                 <Input
                   id="exhibit-other-producer-name"
+                  data-testid="exhibit-other-producer-name"
                   className="govuk-input--width-20"
                   label={{
                     children: "Enter name",
