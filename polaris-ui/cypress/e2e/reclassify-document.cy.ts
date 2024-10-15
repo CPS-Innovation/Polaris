@@ -164,14 +164,18 @@ describe("Feature Reclassify Document", () => {
         "have.text",
         "Do you want to change the document name of PortraitLandscape?"
       );
-    cy.get('input[type="radio"][name="change-document-name"][value="YES"]')
+    cy.get(
+      'input[type="radio"][name="reclassify-change-document-name"][value="YES"]'
+    )
       .should("exist")
       .should("not.be.checked")
       .then((radioYes) => {
         const Id = radioYes.attr("id");
         cy.get(`label[for="${Id}"]`).should("have.text", "Yes");
       });
-    cy.get('input[type="radio"][name="change-document-name"][value="NO"]')
+    cy.get(
+      'input[type="radio"][name="reclassify-change-document-name"][value="NO"]'
+    )
       .should("exist")
       .should("be.checked")
       .then((radioNo) => {
@@ -311,14 +315,18 @@ describe("Feature Reclassify Document", () => {
       )
       .next()
       .within(() => {
-        cy.get('input[type="radio"][name="change-document-name"][value="YES"]')
+        cy.get(
+          'input[type="radio"][name="reclassify-change-document-name"][value="YES"]'
+        )
           .should("exist")
           .should("not.be.checked")
           .then((radioYes) => {
             const Id = radioYes.attr("id");
             cy.get(`label[for="${Id}"]`).should("have.text", "Yes");
           });
-        cy.get('input[type="radio"][name="change-document-name"][value="NO"]')
+        cy.get(
+          'input[type="radio"][name="reclassify-change-document-name"][value="NO"]'
+        )
           .should("exist")
           .should("be.checked")
           .then((radioNo) => {
@@ -529,21 +537,21 @@ describe("Feature Reclassify Document", () => {
       .should("have.text", "For example, 27 3 2024")
       .next()
       .within(() => {
-        cy.get('input[type="text"][name="statement-date-day"]')
+        cy.get('input[type="text"][name="reclassify-statement-date-day"]')
           .should("exist")
           .type("01")
           .then((textDay) => {
             const Id = textDay.attr("id");
             cy.get(`label[for="${Id}"]`).should("have.text", "Day");
           });
-        cy.get('input[type="text"][name="statement-date-month"]')
+        cy.get('input[type="text"][name="reclassify-statement-date-month"]')
           .should("exist")
           .type("10")
           .then((textMonth) => {
             const Id = textMonth.attr("id");
             cy.get(`label[for="${Id}"]`).should("have.text", "Month");
           });
-        cy.get('input[type="text"][name="statement-date-year"]')
+        cy.get('input[type="text"][name="reclassify-statement-date-year"]')
           .should("exist")
           .type("1980")
           .then((textMonth) => {
@@ -760,25 +768,25 @@ describe("Feature Reclassify Document", () => {
       "You're entering exhibit details for MCLOVEMG3"
     );
 
-    cy.findByTestId("exhibit-item-name")
+    cy.findByTestId("reclassify-exhibit-item-name")
       .should("have.value", "MCLOVEMG3")
       .then((item) => {
         const Id = item.attr("id");
         cy.get(`label[for="${Id}"]`).should("have.text", "Item Name");
       });
-    cy.findByTestId("exhibit-item-name").clear().type("MCLOVEMG3_1");
+    cy.findByTestId("reclassify-exhibit-item-name").clear().type("MCLOVEMG3_1");
 
-    cy.findByTestId("exhibit-reference")
+    cy.findByTestId("reclassify-exhibit-reference")
       .should("have.value", "")
       .then((reference) => {
         const Id = reference.attr("id");
         cy.get(`label[for="${Id}"]`).should("have.text", "Exhibit Reference");
       });
-    cy.findByTestId("exhibit-reference").type("test reference");
-    cy.findByTestId("exhibit-select-producer")
+    cy.findByTestId("reclassify-exhibit-reference").type("test reference");
+    cy.findByTestId("reclassify-exhibit-producer")
       .find("option:selected")
       .should("have.text", "Select a Producer");
-    cy.findByTestId("exhibit-select-producer")
+    cy.findByTestId("reclassify-exhibit-producer")
       .find("option")
       .then((options) => {
         const optionTexts = Array.from(options).map(
@@ -792,7 +800,7 @@ describe("Feature Reclassify Document", () => {
           "Other producer or witness",
         ]);
       });
-    cy.findByTestId("exhibit-select-producer").select("PC Blaynee");
+    cy.findByTestId("reclassify-exhibit-producer").select("PC Blaynee");
 
     cy.findByTestId("div-reclassify")
       .find("legend")
@@ -1059,7 +1067,7 @@ describe("Feature Reclassify Document", () => {
       .should("have.length", 1)
       .and("have.text", "Enter the document details");
     cy.get(
-      'input[type="radio"][name="change-document-name"][value="YES"]'
+      'input[type="radio"][name="reclassify-change-document-name"][value="YES"]'
     ).check();
     cy.findByTestId("reclassify-continue-btn").click();
 
@@ -1071,12 +1079,12 @@ describe("Feature Reclassify Document", () => {
       "New name should be different from current name"
     );
     cy.findByTestId("reclassify-document-new-name-link").click();
-    cy.focused().should("have.id", "document-new-name");
-    cy.get("#document-new-name-error").should(
+    cy.focused().should("have.id", "reclassify-document-new-name");
+    cy.get("#reclassify-document-new-name-error").should(
       "have.text",
       "Error: New name should be different from current name"
     );
-    cy.findByTestId("document-new-name").clear();
+    cy.findByTestId("reclassify-document-new-name").clear();
     cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("reclassify-error-summary")
@@ -1087,14 +1095,14 @@ describe("Feature Reclassify Document", () => {
       "New name should not be empty"
     );
     cy.findByTestId("reclassify-document-new-name-link").click();
-    cy.focused().should("have.id", "document-new-name");
-    cy.get("#document-new-name-error").should(
+    cy.focused().should("have.id", "reclassify-document-new-name");
+    cy.get("#reclassify-document-new-name-error").should(
       "have.text",
       "Error: New name should not be empty"
     );
     const maxLengthText =
       "New name should not be emptyNew name should not be emptyNew name should not be emptyNew name should not be emptyNew name should not be emptyNew name should not be emptyNew name should not be emptyNew name should not be emptyNew name should not be 12345";
-    cy.findByTestId("document-new-name").type(maxLengthText);
+    cy.findByTestId("reclassify-document-new-name").type(maxLengthText);
     cy.realPress(".");
     cy.findByTestId("reclassify-continue-btn").click();
 
@@ -1106,12 +1114,12 @@ describe("Feature Reclassify Document", () => {
       "New name must be 252 characters or less"
     );
     cy.findByTestId("reclassify-document-new-name-link").click();
-    cy.focused().should("have.id", "document-new-name");
-    cy.get("#document-new-name-error").should(
+    cy.focused().should("have.id", "reclassify-document-new-name");
+    cy.get("#reclassify-document-new-name-error").should(
       "have.text",
       "Error: New name must be 252 characters or less"
     );
-    cy.findByTestId("document-new-name").clear().type("abc");
+    cy.findByTestId("reclassify-document-new-name").clear().type("abc");
     cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("div-reclassify")
@@ -1157,26 +1165,28 @@ describe("Feature Reclassify Document", () => {
       "Statement number should not be empty"
     );
     cy.findByTestId("reclassify-statement-witness-link").click();
-    cy.focused().should("have.id", "statement-witness");
-    cy.get("#statement-witness-error").should(
+    cy.focused().should("have.id", "reclassify-statement-witness");
+    cy.get("#reclassify-statement-witness-error").should(
       "have.text",
       "Error: Statement witness should not be empty"
     );
     cy.findByTestId("reclassify-statement-number-link").click();
-    cy.focused().should("have.id", "statement-number");
-    cy.get("#statement-number-error").should(
+    cy.focused().should("have.id", "reclassify-statement-number");
+    cy.get("#reclassify-statement-number-error").should(
       "have.text",
       "Error: Statement number should not be empty"
     );
     cy.findByTestId("reclassify-statement-date-link").click();
-    cy.focused().should("have.id", "statement-day");
-    cy.get("#statement-date-error").should(
+    cy.focused().should("have.id", "reclassify-statement-day");
+    cy.get("#reclassify-statement-date-error").should(
       "have.text",
       "Error: Statement date must be a real date"
     );
     cy.findByTestId("reclassify-statement-witness").select("PC Blaynee_S");
     cy.findByTestId("reclassify-statement-number").type("3");
-    cy.get('input[type="text"][name="statement-date-day"]').type("19");
+    cy.get('input[type="text"][name="reclassify-statement-date-day"]').type(
+      "19"
+    );
     cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("reclassify-error-summary")
@@ -1190,16 +1200,18 @@ describe("Feature Reclassify Document", () => {
       "have.text",
       "Statement number 3 already exist"
     );
-    cy.get("#statement-date-error").should(
+    cy.get("#reclassify-statement-date-error").should(
       "have.text",
       "Error: Statement date must be a real date"
     );
     cy.findByTestId("reclassify-statement-date-link").click();
-    cy.focused().should("have.id", "statement-month");
-    cy.get('input[type="text"][name="statement-date-month"]').type("10");
+    cy.focused().should("have.id", "reclassify-statement-month");
+    cy.get('input[type="text"][name="reclassify-statement-date-month"]').type(
+      "10"
+    );
     cy.findByTestId("reclassify-statement-number-link").click();
-    cy.focused().should("have.id", "statement-number");
-    cy.get("#statement-number-error").should(
+    cy.focused().should("have.id", "reclassify-statement-number");
+    cy.get("#reclassify-statement-number-error").should(
       "have.text",
       "Error: Statement number 3 already exist"
     );
@@ -1213,13 +1225,15 @@ describe("Feature Reclassify Document", () => {
       "have.text",
       "Statement date must be a real date"
     );
-    cy.get("#statement-date-error").should(
+    cy.get("#reclassify-statement-date-error").should(
       "have.text",
       "Error: Statement date must be a real date"
     );
     cy.findByTestId("reclassify-statement-date-link").click();
-    cy.focused().should("have.id", "statement-year");
-    cy.get('input[type="text"][name="statement-date-year"]').type("1980");
+    cy.focused().should("have.id", "reclassify-statement-year");
+    cy.get('input[type="text"][name="reclassify-statement-date-year"]').type(
+      "1980"
+    );
     cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("div-reclassify")
@@ -1248,7 +1262,7 @@ describe("Feature Reclassify Document", () => {
       .should("have.length", 1)
       .and("have.text", "Enter the exhibit details");
 
-    cy.findByTestId("exhibit-item-name").clear();
+    cy.findByTestId("reclassify-exhibit-item-name").clear();
     cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("reclassify-error-summary")
@@ -1263,19 +1277,19 @@ describe("Feature Reclassify Document", () => {
       "Exhibit reference should not be empty"
     );
     cy.findByTestId("reclassify-exhibit-reference-link").click();
-    cy.focused().should("have.id", "exhibit-reference");
-    cy.get("#exhibit-reference-error").should(
+    cy.focused().should("have.id", "reclassify-exhibit-reference");
+    cy.get("#reclassify-exhibit-reference-error").should(
       "have.text",
       "Error: Exhibit reference should not be empty"
     );
-    cy.findByTestId("exhibit-reference").type("test_ref");
+    cy.findByTestId("reclassify-exhibit-reference").type("test_ref");
     cy.findByTestId("reclassify-exhibit-item-name-link").click();
-    cy.focused().should("have.id", "exhibit-item-name");
-    cy.get("#exhibit-item-name-error").should(
+    cy.focused().should("have.id", "reclassify-exhibit-item-name");
+    cy.get("#reclassify-exhibit-item-name-error").should(
       "have.text",
       "Error: Exhibit item name should not be empty"
     );
-    cy.findByTestId("exhibit-item-name").type("tes{t>");
+    cy.findByTestId("reclassify-exhibit-item-name").type("tes{t>");
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("reclassify-error-summary")
       .find("li")
@@ -1285,12 +1299,12 @@ describe("Feature Reclassify Document", () => {
       "Exhibit item name should not contain invalid characters {>"
     );
     cy.findByTestId("reclassify-exhibit-item-name-link").click();
-    cy.focused().should("have.id", "exhibit-item-name");
-    cy.get("#exhibit-item-name-error").should(
+    cy.focused().should("have.id", "reclassify-exhibit-item-name");
+    cy.get("#reclassify-exhibit-item-name-error").should(
       "have.text",
       "Error: Exhibit item name should not contain invalid characters {>"
     );
-    cy.findByTestId("exhibit-item-name").clear().type(maxLengthText);
+    cy.findByTestId("reclassify-exhibit-item-name").clear().type(maxLengthText);
     cy.realPress(".");
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("reclassify-error-summary")
@@ -1301,13 +1315,13 @@ describe("Feature Reclassify Document", () => {
       "Exhibit item name must be 252 characters or less"
     );
     cy.findByTestId("reclassify-exhibit-item-name-link").click();
-    cy.focused().should("have.id", "exhibit-item-name");
-    cy.get("#exhibit-item-name-error").should(
+    cy.focused().should("have.id", "reclassify-exhibit-item-name");
+    cy.get("#reclassify-exhibit-item-name-error").should(
       "have.text",
       "Error: Exhibit item name must be 252 characters or less"
     );
-    cy.findByTestId("exhibit-item-name").clear().type("abc");
-    cy.findByTestId("exhibit-select-producer").select(
+    cy.findByTestId("reclassify-exhibit-item-name").clear().type("abc");
+    cy.findByTestId("reclassify-exhibit-producer").select(
       "Other producer or witness"
     );
     cy.findByTestId("reclassify-continue-btn").click();
@@ -1320,12 +1334,14 @@ describe("Feature Reclassify Document", () => {
       "Exhibit new producer or witness should not be empty"
     );
     cy.findByTestId("reclassify-exhibit-other-producer-name-link").click();
-    cy.focused().should("have.id", "exhibit-other-producer-name");
-    cy.get("#exhibit-other-producer-name-error").should(
+    cy.focused().should("have.id", "reclassify-exhibit-other-producer-name");
+    cy.get("#reclassify-exhibit-other-producer-name-error").should(
       "have.text",
       "Error: Exhibit new producer or witness should not be empty"
     );
-    cy.findByTestId("exhibit-other-producer-name").type("producer=@1");
+    cy.findByTestId("reclassify-exhibit-other-producer-name").type(
+      "producer=@1"
+    );
     cy.get(
       'input[type="radio"][name="radio-document-used-status"][value="NO"]'
     ).check();
@@ -1338,12 +1354,14 @@ describe("Feature Reclassify Document", () => {
       "Exhibit new producer or witness text should not contain invalid characters =@1"
     );
     cy.findByTestId("reclassify-exhibit-other-producer-name-link").click();
-    cy.focused().should("have.id", "exhibit-other-producer-name");
-    cy.get("#exhibit-other-producer-name-error").should(
+    cy.focused().should("have.id", "reclassify-exhibit-other-producer-name");
+    cy.get("#reclassify-exhibit-other-producer-name-error").should(
       "have.text",
       "Error: Exhibit new producer or witness text should not contain invalid characters =@1"
     );
-    cy.findByTestId("exhibit-other-producer-name").clear().type("producer");
+    cy.findByTestId("reclassify-exhibit-other-producer-name")
+      .clear()
+      .type("producer");
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-reclassify")
       .find("h1")
@@ -1388,8 +1406,8 @@ describe("Feature Reclassify Document", () => {
       .should("have.length", 1)
       .and("have.text", "Enter the exhibit details");
 
-    cy.findByTestId("exhibit-reference").type("test_ref");
-    cy.findByTestId("exhibit-select-producer").select("PC Blaynee");
+    cy.findByTestId("reclassify-exhibit-reference").type("test_ref");
+    cy.findByTestId("reclassify-exhibit-producer").select("PC Blaynee");
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-reclassify")
       .find("h1")
@@ -1413,8 +1431,10 @@ describe("Feature Reclassify Document", () => {
       .find("h1")
       .should("have.length", 1)
       .and("have.text", "Enter the exhibit details");
-    cy.findByTestId("exhibit-reference").clear().type("test_ref_changed");
-    cy.findByTestId("exhibit-select-producer").select("PC Lucy");
+    cy.findByTestId("reclassify-exhibit-reference")
+      .clear()
+      .type("test_ref_changed");
+    cy.findByTestId("reclassify-exhibit-producer").select("PC Lucy");
     cy.get(
       'input[type="radio"][name="radio-document-used-status"][value="NO"]'
     ).check();

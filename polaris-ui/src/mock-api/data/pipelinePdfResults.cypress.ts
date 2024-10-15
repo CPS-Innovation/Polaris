@@ -78,7 +78,7 @@ const pipelinePdfResult: PipelineResultsWithPdfBlobNames = {
       classification: null,
       isWitnessManagement: false,
       canReclassify: true,
-      canRename: false,
+      canRename: true,
       renameStatus: "CanRename",
       reference: null,
     },

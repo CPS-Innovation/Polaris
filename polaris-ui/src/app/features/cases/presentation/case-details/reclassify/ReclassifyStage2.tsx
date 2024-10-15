@@ -263,10 +263,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   const handleStatementDateChange = (event: any) => {
     let type: "day" | "month" | "year" = "day";
 
-    if (event.target.name === "statement-date-month") {
+    if (event.target.name === "reclassify-statement-date-month") {
       type = "month";
     }
-    if (event.target.name === "statement-date-year") {
+    if (event.target.name === "reclassify-statement-date-year") {
       type = "year";
     }
     if (type)
@@ -285,13 +285,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
   const getDateInputLink = useCallback(() => {
     if (formDataErrors.statementDayErrorText) {
-      return "#statement-day";
+      return "#reclassify-statement-day";
     }
     if (formDataErrors.statementMonthErrorText) {
-      return "#statement-month";
+      return "#reclassify-statement-month";
     }
 
-    return "#statement-year";
+    return "#reclassify-statement-year";
   }, [
     formDataErrors.statementDayErrorText,
     formDataErrors.statementMonthErrorText,
@@ -303,37 +303,37 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         case "documentNewNameErrorText":
           return {
             children: formDataErrors[inputName],
-            href: "#document-new-name",
+            href: "#reclassify-document-new-name",
             "data-testid": "reclassify-document-new-name-link",
           };
         case "exhibitItemNameErrorText":
           return {
             children: formDataErrors[inputName],
-            href: "#exhibit-item-name",
+            href: "#reclassify-exhibit-item-name",
             "data-testid": "reclassify-exhibit-item-name-link",
           };
         case "otherExhibitProducerErrorText":
           return {
             children: formDataErrors[inputName],
-            href: "#exhibit-other-producer-name",
+            href: "#reclassify-exhibit-other-producer-name",
             "data-testid": "reclassify-exhibit-other-producer-name-link",
           };
         case "exhibitReferenceErrorText":
           return {
             children: formDataErrors[inputName],
-            href: "#exhibit-reference",
+            href: "#reclassify-exhibit-reference",
             "data-testid": "reclassify-exhibit-reference-link",
           };
         case "statementWitnessErrorText":
           return {
             children: formDataErrors[inputName],
-            href: "#statement-witness",
+            href: "#reclassify-statement-witness",
             "data-testid": "reclassify-statement-witness-link",
           };
         case "statementNumberErrorText":
           return {
             children: formDataErrors[inputName],
-            href: "#statement-number",
+            href: "#reclassify-statement-number",
             "data-testid": "reclassify-statement-number-link",
           };
         case "statementDateErrorText":
@@ -433,19 +433,19 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 ? "govuk-form-group--error"
                 : ""
             }
-            key={"change-document-name"}
+            key={"reclassify-change-document-name"}
             onChange={handleDocumentRenameStatusChange}
             value={state.formData.documentRenameStatus}
-            name="change-document-name"
+            name="reclassify-change-document-name"
             items={[
               {
                 children: "Yes",
                 conditional: {
                   children: [
                     <Input
-                      key="document-new-name"
-                      id="document-new-name"
-                      data-testid="document-new-name"
+                      key="reclassify-document-new-name"
+                      id="reclassify-document-new-name"
+                      data-testid="reclassify-document-new-name"
                       className="govuk-input--width-20"
                       label={{
                         children: "Enter new document name",
@@ -457,7 +457,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                             }
                           : undefined
                       }
-                      name="document-new-name"
+                      name="reclassify-document-new-name"
                       type="text"
                       value={state.formData.documentNewName}
                       onChange={handleDocumentNewName}
@@ -478,8 +478,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       {state.reclassifyVariant === "Exhibit" && (
         <div>
           <Input
-            id="exhibit-item-name"
-            data-testid="exhibit-item-name"
+            id="reclassify-exhibit-item-name"
+            data-testid="reclassify-exhibit-item-name"
             className="govuk-input--width-20"
             errorMessage={
               formDataErrors.exhibitItemNameErrorText
@@ -491,14 +491,14 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             label={{
               children: "Item Name",
             }}
-            name="exhibit-item-name"
+            name="reclassify-exhibit-item-name"
             type="text"
             value={state.formData.exhibitItemName}
             onChange={handleUpdateExhibitItemName}
           />
           <Input
-            id="exhibit-reference"
-            data-testid="exhibit-reference"
+            id="reclassify-exhibit-reference"
+            data-testid="reclassify-exhibit-reference"
             errorMessage={
               formDataErrors.exhibitReferenceErrorText
                 ? {
@@ -510,7 +510,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             label={{
               children: "Exhibit Reference",
             }}
-            name="exhibit-reference"
+            name="reclassify-exhibit-reference"
             type="text"
             value={state.formData.exhibitReference}
             onChange={handleUpdateExhibitReference}
@@ -518,13 +518,13 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
           <div className={classes.producerSelectWrapper}>
             <Select
-              id="exhibit-select-producer"
-              data-testid="exhibit-select-producer"
+              id="reclassify-exhibit-producer"
+              data-testid="reclassify-exhibit-producer"
               items={exhibitProducersValues}
               label={{
                 children: "Select existing producer or witness",
               }}
-              name="exhibit-select-producer"
+              name="reclassify-exhibit-producer"
               value={state.formData.exhibitProducerId}
               onChange={(ev) => handleUpdateExhibitProducerId(ev.target.value)}
             />
@@ -538,8 +538,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 }`}
               >
                 <Input
-                  id="exhibit-other-producer-name"
-                  data-testid="exhibit-other-producer-name"
+                  id="reclassify-exhibit-other-producer-name"
+                  data-testid="reclassify-exhibit-other-producer-name"
                   className="govuk-input--width-20"
                   label={{
                     children: "Enter name",
@@ -553,7 +553,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                         }
                       : undefined
                   }
-                  name="exhibit-other-producer-name"
+                  name="reclassify-exhibit-other-producer-name"
                   type="text"
                   value={state.formData.exhibitOtherProducerValue}
                   onChange={handleUpdateOtherProducerName}
@@ -567,7 +567,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       {state.reclassifyVariant === "Statement" && (
         <div>
           <Select
-            id="statement-witness"
+            id="reclassify-statement-witness"
             data-testid="reclassify-statement-witness"
             errorMessage={
               formDataErrors.statementWitnessErrorText
@@ -580,7 +580,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             label={{
               children: "Select witness",
             }}
-            name="statement-witness"
+            name="reclassify-statement-witness"
             value={state.formData.statementWitnessId}
             onChange={(ev) => handleUpdateStatementWitnessId(ev.target.value)}
           />
@@ -600,10 +600,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
             hint={{
               children: <span>For example, 27 3 2024</span>,
             }}
-            id="statement-date"
+            id="reclassify-statement-date"
             items={[
               {
-                id: "statement-day",
+                id: "reclassify-statement-day",
                 className: `govuk-input--width-2 ${
                   formDataErrors.statementDayErrorText
                     ? "govuk-input--error"
@@ -613,7 +613,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 value: state.formData.statementDay,
               },
               {
-                id: "statement-month",
+                id: "reclassify-statement-month",
                 className: `govuk-input--width-2 ${
                   formDataErrors.statementMonthErrorText
                     ? "govuk-input--error"
@@ -623,7 +623,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 value: state.formData.statementMonth,
               },
               {
-                id: "statement-year",
+                id: "reclassify-statement-year",
                 className: `govuk-input--width-4 ${
                   formDataErrors.statementYearErrorText
                     ? "govuk-input--error"
@@ -633,12 +633,12 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 value: state.formData.statementYear,
               },
             ]}
-            namePrefix="statement-date"
+            namePrefix="reclassify-statement-date"
             onChange={handleStatementDateChange}
           />
 
           <Input
-            id="statement-number"
+            id="reclassify-statement-number"
             data-testid="reclassify-statement-number"
             errorMessage={
               formDataErrors.statementNumberErrorText
@@ -658,7 +658,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 ] ?? []
               ),
             }}
-            name="statement-number"
+            name="reclassify-statement-number"
             type="number"
             value={state.formData.statementNumber}
             onChange={handleUpdateStatementNumber}
