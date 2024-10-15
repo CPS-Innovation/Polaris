@@ -87,7 +87,7 @@ describe("Feature Reclassify Document", () => {
           "MG11",
           "MG15(SDN)",
           "Other Communication",
-          "MG12",
+          "MG16(ROTI)",
         ]);
       });
   });
@@ -1599,5 +1599,27 @@ describe("Feature Reclassify Document", () => {
     cy.get("body").contains(
       "Error: Failed to retrieve statement witness numbers"
     );
+  });
+
+  it("should disable all the exhibit types when reclassifying an exhibit type", () => {
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("div-reclassify").should("not.exist");
+    cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
+    cy.findByTestId("dropdown-panel").contains("Reclassify document").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "What type of document is this?");
+
+    cy.findByTestId("reclassify-document-type")
+      .find("option")
+      .should("have.length", 6);
+    cy.findByTestId("reclassify-document-type")
+      .contains("option", "MG15(SDN)")
+      .should("be.disabled");
+    cy.findByTestId("reclassify-document-type")
+      .contains("option", "MG16(ROTI)")
+      .should("be.disabled");
   });
 });

@@ -25,7 +25,7 @@ export const materialTypeList: MaterialType[] = [
   },
   {
     typeId: 1019,
-    description: "MG12",
+    description: "MG16(ROTI)",
     newClassificationVariant: "Exhibit",
   },
 ];
