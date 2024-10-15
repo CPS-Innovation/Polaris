@@ -27,6 +27,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_FEATURE_FLAG_RENAME_DOCUMENT"                       = var.feature_flag_rename_document
     "REACT_APP_FEATURE_FLAG_RECLASSIFY"                            = var.feature_flag_reclassify
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
+    "REACT_APP_FEATURE_FLAG_PAGE_ROTATE"                           = var.feature_flag_page_rotate
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT"                     = var.feature_flag_external_redirect
     "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
     "REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"            = tostring(var.background_pipeline_refresh_interval_ms)
@@ -42,9 +43,11 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"                   = var.private_beta.feature_user_group3
     "REACT_APP_CASE_REVIEW_APP_REDIRECT_URL"                       = var.case_review_app_redirect_url
     "REACT_APP_BULK_UM_REDIRECT_URL"                               = var.bulk_um_redirect_url
-    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"                       = var.polaris_ui_reauth_redirect_url.outbound_live
-    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"                   = var.polaris_ui_reauth_redirect_url.outbound_e2e
-    "REACT_APP_REAUTH_REDIRECT_URL_INBOUND"                        = var.polaris_ui_reauth_redirect_url.inbound
+    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"                       = var.polaris_ui_reauth.outbound_live_url
+    "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"                   = var.polaris_ui_reauth.outbound_e2e_url
+    "REACT_APP_REAUTH_REDIRECT_URL_INBOUND"                        = var.polaris_ui_reauth.inbound_url
+    "REACT_APP_REAUTH_IN_SITU_TERMINATION_URL"                     = var.polaris_ui_reauth.in_situ_termination_url
+    "REACT_APP_REAUTH_USE_IN_SITU_REFRESH"                         = var.polaris_ui_reauth.use_in_situ_refresh
     "REACT_APP_REDACTION_LOG_BASE_URL"                             = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
     "REACT_APP_REDACTION_LOG_SCOPE"                                = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_SURVEY_LINK"                                        = "https://www.smartsurvey.co.uk/s/DG5B6G/"

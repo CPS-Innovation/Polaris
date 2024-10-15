@@ -1,6 +1,6 @@
-import { getAccessToken } from "../../../auth";
-import { GATEWAY_SCOPE, REDACTION_LOG_SCOPE } from "../../../config";
-import { generateGuid } from "./generate-guid";
+import { getAccessToken } from "../../../../auth";
+import { GATEWAY_SCOPE, REDACTION_LOG_SCOPE } from "../../../../config";
+import { generateGuid } from "./../generate-guid";
 
 export const CORRELATION_ID = "Correlation-Id";
 

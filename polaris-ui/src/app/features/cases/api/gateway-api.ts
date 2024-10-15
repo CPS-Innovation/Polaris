@@ -3,9 +3,8 @@ import { CaseSearchResult } from "../domain/gateway/CaseSearchResult";
 import { PipelineResults } from "../domain/gateway/PipelineResults";
 import { ApiTextSearchResult } from "../domain/gateway/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
-import * as HEADERS from "./header-factory";
+import * as HEADERS from "./auth/header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
-import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 import {
@@ -22,11 +21,14 @@ import { StatementWitness } from "../presentation/case-details/reclassify/data/S
 import { StatementWitnessNumber } from "../presentation/case-details/reclassify/data/StatementWitnessNumber";
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
+import { fetchWithFullWindowReauth } from "./auth/fetch-with-full-window-reauth";
+import {
+  fetchWithInSituReauth,
+  fetchWithProactiveInSituReauth,
+} from "./auth/fetch-with-in-situ-reauth";
+import { fetchWithCookies } from "./auth/fetch-with-cookies";
+import { FetchArgs, PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
 import { RotationSaveRequest } from "../domain/IPageRotation";
-
-const FORBIDDEN_STATUS_CODE = 403;
-const GONE_STATUS_CODE = 410;
-const UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE = 451;
 
 const buildHeaders = async (
   ...args: (
@@ -64,11 +66,13 @@ export const resolvePdfUrl = (
 export const lookupUrn = async (caseId: number) => {
   const url = fullUrl(`/api/urn-lookup/${caseId}`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
-  const response = await internalReauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth", url, {
     headers,
   });
 
-  await handleGetCaseApiResponse(response, url, "Lookup URN failed");
+  if (!response.ok) {
+    throw caseCallErrorFactory(response, url, "Lookup URN failed");
+  }
 
   return (await response.json()) as UrnLookupResult;
 };
@@ -76,11 +80,13 @@ export const lookupUrn = async (caseId: number) => {
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
-  const response = await internalReauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth", url, {
     headers,
   });
 
-  await handleGetCaseApiResponse(response, url, "Search URN failed");
+  if (!response.ok) {
+    throw caseCallErrorFactory(response, url, "Search URN failed");
+  }
 
   return (await response.json()) as CaseSearchResult[];
 };
@@ -88,11 +94,13 @@ export const searchUrn = async (urn: string) => {
 export const getCaseDetails = async (urn: string, caseId: number) => {
   const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
-  const response = await internalReauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
-  await handleGetCaseApiResponse(response, url, "Get Case Details failed");
+  if (!response.ok) {
+    throw caseCallErrorFactory(response, url, "Get Case Details failed");
+  }
 
   return (await response.json()) as CaseDetails;
 };
@@ -105,7 +113,7 @@ export const initiatePipeline = async (
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
   const correlationIdHeader = HEADERS.correlationId(correlationId);
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
     method: "POST",
   });
@@ -132,7 +140,7 @@ export const getPipelinePdfResults = async (
     HEADERS.auth
   );
 
-  const response = await internalFetch(trackerUrl, {
+  const response = await fetchImplementation("reauth-if-in-situ", trackerUrl, {
     headers,
   });
   // we are ignoring the tracker status 404 as it is an expected one and continue polling
@@ -153,7 +161,7 @@ export const searchCase = async (
   const path = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
   );
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -173,7 +181,7 @@ export const checkoutDocument = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
-  const response = await internalFetch(url, {
+  const response = await fetchImplementation("reauth-if-in-situ", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
   });
@@ -196,7 +204,7 @@ export const cancelCheckoutDocument = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
-  const response = await internalFetch(url, {
+  const response = await fetchImplementation("reauth-if-in-situ", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "DELETE",
   });
@@ -218,7 +226,7 @@ export const saveRedactions = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
 
-  const response = await internalFetch(url, {
+  const response = await fetchImplementation("proactive-reauth", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify(redactionSaveRequest),
@@ -238,7 +246,7 @@ export const saveRotations = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/modify`
   );
 
-  const response = await internalFetch(url, {
+  const response = await fetchImplementation("reauth-if-in-situ", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
     body: JSON.stringify(rotationSaveRequest),
@@ -253,7 +261,7 @@ export const saveRedactionLog = async (
   redactionLogRequestData: RedactionLogRequestData
 ) => {
   const url = fullUrl(`/api/redactionLogs`, REDACTION_LOG_BASE_URL);
-  const response = await internalFetch(url, {
+  const response = await fetchImplementation("no-reauth", url, {
     headers: await buildHeaders(
       HEADERS.correlationId,
       HEADERS.authRedactionLog
@@ -273,7 +281,7 @@ export const getRedactionLogLookUpsData = async () => {
     HEADERS.correlationId,
     HEADERS.authRedactionLog
   );
-  const response = await internalFetch(url, {
+  const response = await fetchImplementation("no-reauth", url, {
     headers,
   });
   if (!response.ok) {
@@ -288,7 +296,7 @@ export const getRedactionLogMappingData = async () => {
     HEADERS.correlationId,
     HEADERS.authRedactionLog
   );
-  const response = await internalFetch(url, {
+  const response = await fetchImplementation("no-reauth", url, {
     headers,
   });
 
@@ -308,7 +316,7 @@ export const getNotesData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -330,7 +338,7 @@ export const addNoteData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
   );
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
     body: JSON.stringify({ documentId: docId, text: text }),
@@ -354,7 +362,7 @@ export const saveDocumentRename = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/rename`
   );
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify({ documentId: docId, documentName: name }),
@@ -376,7 +384,7 @@ export const getSearchPIIData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/pii`
   );
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -390,7 +398,7 @@ export const getSearchPIIData = async (
 export const getMaterialTypeList = async () => {
   const path = fullUrl(`/api/reference/reclassification`);
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("no-reauth", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -404,7 +412,7 @@ export const getMaterialTypeList = async () => {
 export const getExhibitProducers = async (urn: string, caseId: number) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/exhibit-producers`);
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -421,7 +429,7 @@ export const getStatementWitnessDetails = async (
 ) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/witnesses`);
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -441,7 +449,7 @@ export const getWitnessStatementNumbers = async (
     `/api/urns/${urn}/cases/${caseId}/witnesses/${witnessId}/statements`
   );
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -463,75 +471,69 @@ export const saveDocumentReclassify = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${docId}/reclassify`
   );
 
-  const response = await internalFetch(path, {
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    return false;
-  }
-
-  return true;
+  return response.ok;
 };
 
-const internalFetch = async (...args: Parameters<typeof fetch>) => {
-  return await fetch(args[0], {
-    ...args[1],
-    // We need cookies to be sent to the gateway, which is a third-party domain,
-    //  so need to set `credentials: "include"`
-    credentials: "include",
-  });
-};
-
-const internalReauthenticatingFetch = async (
-  ...args: Parameters<typeof fetch>
+const fetchImplementation = (
+  reauthBehaviour:
+    | "no-reauth"
+    | "reauth-if-in-situ"
+    | "reauth"
+    | "proactive-reauth",
+  ...args: FetchArgs
 ) => {
-  const response = await internalFetch(...args);
-
-  const headers = args[1]?.headers as Record<string, string> | undefined;
-  const correlationId = headers?.[HEADERS.CORRELATION_ID];
-
-  return reauthenticationFilter(response, window, correlationId || null);
+  switch (reauthBehaviour) {
+    case "reauth-if-in-situ": {
+      return PREFERRED_AUTH_MODE === "in-situ"
+        ? fetchWithInSituReauth(...args)
+        : fetchWithCookies(...args);
+    }
+    case "reauth": {
+      return PREFERRED_AUTH_MODE === "in-situ"
+        ? fetchWithInSituReauth(...args)
+        : fetchWithFullWindowReauth(...args);
+    }
+    case "proactive-reauth": {
+      return PREFERRED_AUTH_MODE === "in-situ"
+        ? fetchWithProactiveInSituReauth(...args)
+        : // there is not a proactive equivalent (yet, or ever?) in the full-page reauth flow.
+          fetchWithCookies(...args);
+    }
+    default: {
+      return fetchWithCookies(...args);
+    }
+  }
 };
 
-const handleGetCaseApiResponse = async (
+const caseCallErrorFactory = (
   response: Response,
   url: string,
   errorMessage: string
 ) => {
-  if (response.status === FORBIDDEN_STATUS_CODE) {
-    throw new ApiError(
+  const knownMessageMap: { [key: number]: [string, string] } = {
+    [STATUS_CODES.FORBIDDEN_STATUS_CODE]: [
       "You do not have access to this case.",
-      url,
-      response,
-      undefined,
-      "You do not have access to this case."
-    );
-  }
-
-  if (response.status === GONE_STATUS_CODE) {
-    throw new ApiError(
+      "You do not have access to this case.",
+    ],
+    [STATUS_CODES.GONE_STATUS_CODE]: [
       "This case no longer exists.",
-      url,
-      response,
-      undefined,
-      "This case no longer exists."
-    );
-  }
-
-  if (response.status === UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE) {
-    throw new ApiError(
+      "This case no longer exists.",
+    ],
+    [STATUS_CODES.UNAVAILABLE_FOR_LEGAL_REASONS_STATUS_CODE]: [
       "CMS Modern unauthorized.",
-      url,
-      response,
-      undefined,
-      "It looks like you do not have access to CMS Modern, please contact the service desk."
-    );
-  }
+      "It looks like you do not have access to CMS Modern, please contact the service desk.",
+    ],
+  };
 
-  if (!response.ok) {
-    throw new ApiError(errorMessage, url, response);
-  }
+  const knownMessage = knownMessageMap[response.status];
+
+  return knownMessage
+    ? new ApiError(knownMessage[0], url, response, undefined, knownMessage[1])
+    : new ApiError(errorMessage, url, response);
 };
