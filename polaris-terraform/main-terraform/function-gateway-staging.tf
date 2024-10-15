@@ -12,11 +12,17 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_gateway.primary_connection_string
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobUserDelegationKeyExpirySecs"                 = 3600
     "CallingAppValidAudience"                         = var.polaris_webapp_details.valid_audience
     "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
     "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
     "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
