@@ -108,7 +108,7 @@ namespace Common.Services.BlobStorageService
             await blobClient.SetMetadataAsync(metadata);
         }
 
-        public async Task<Stream> GetDocumentAsync(string blobName, IDictionary<string, string> metadata)
+        public async Task<Stream> GetDocumentAsync(string blobName, IDictionary<string, string> mustMatchMetadata)
         {
             var decodedBlobName = UrlDecodeString(blobName);
 
@@ -123,7 +123,7 @@ namespace Common.Services.BlobStorageService
             }
 
             var storedMetaData = (await blobClient.GetPropertiesAsync()).Value.Metadata;
-            var metadataMatch = metadata.All(kvp => storedMetaData.ContainsKey(kvp.Key) && storedMetaData[kvp.Key] == kvp.Value);
+            var metadataMatch = mustMatchMetadata.All(kvp => storedMetaData.ContainsKey(kvp.Key) && storedMetaData[kvp.Key] == kvp.Value);
             if (!metadataMatch)
             {
                 return null;
