@@ -33,6 +33,12 @@ export const REAUTH_REDIRECT_URL_OUTBOUND_E2E =
 export const REAUTH_REDIRECT_URL_INBOUND =
   process.env.REACT_APP_REAUTH_REDIRECT_URL_INBOUND!;
 
+export const REAUTH_USE_IN_SITU_REFRESH =
+  process.env.REACT_APP_REAUTH_USE_IN_SITU_REFRESH === "true";
+
+export const REAUTH_IN_SITU_TERMINATION_URL =
+  process.env.REACT_APP_REAUTH_IN_SITU_TERMINATION_URL!;
+
 export const PRIVATE_BETA_USER_GROUP =
   process.env.REACT_APP_PRIVATE_BETA_USER_GROUP!;
 
@@ -111,5 +117,12 @@ export const BULK_UM_REDIRECT_URL = process.env.REACT_APP_BULK_UM_REDIRECT_URL!;
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "test") {
-  console.log(JSON.stringify(process.env));
+  const objectToLog = Object.keys(process.env)
+    .sort()
+    .reduce((obj, key) => {
+      obj[key] = process.env[key];
+      return obj;
+    }, {} as Record<string, any>);
+
+  console.log(JSON.stringify(objectToLog, null, 2));
 }

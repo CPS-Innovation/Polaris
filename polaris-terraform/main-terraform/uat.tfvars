@@ -103,6 +103,7 @@ feature_flag_external_redirect                     = "true"
 feature_flag_background_pipeline_refresh           = "true"
 background_pipeline_refresh_interval_ms            = 0.5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "true"
+feature_flag_page_rotate                           = "true"
 local_storage_expiry_days                          = "30"
 
 private_beta = {
@@ -116,10 +117,12 @@ private_beta = {
 case_review_app_redirect_url = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
 bulk_um_redirect_url         = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
 
-polaris_ui_reauth_redirect_url = {
-  outbound_live = "/polaris"
-  outbound_e2e  = "/polaris"
-  inbound       = "/auth-refresh-inbound"
+polaris_ui_reauth = {
+  outbound_live_url   = "/polaris,https://cin3.cps.gov.uk/polaris"
+  outbound_e2e_url    = "/polaris"
+  inbound_url         = "/auth-refresh-inbound"
+  use_in_situ_refresh = "true"
+  in_situ_termination_url = "/auth-refresh-termination"
 }
 
 overnight_clear_down = {

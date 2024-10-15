@@ -86,28 +86,6 @@ namespace coordinator.Mappers
                 );
         }
 
-        // private static List<CmsDocumentEntity> GetDocumentEntities(CaseDurableEntity caseEntity)
-        // {
-        //     var documents = new List<CmsDocumentEntity>();
-
-        //     if (caseEntity.CmsDocuments?.Any() == true)
-        //         documents.AddRange(caseEntity.CmsDocuments);
-
-        //     if (caseEntity.DefendantsAndCharges != null && caseEntity.DefendantsAndCharges.HasMultipleDefendants)
-        //     {
-        //         var defendantsAndChargesDocument = ConvertToTrackerCmsDocumentDto(caseEntity.DefendantsAndCharges);
-        //         documents.AddRange(defendantsAndChargesDocument);
-        //     }
-
-        //     if (caseEntity.PcdRequests?.Any() == true)
-        //     {
-        //         var pcdRequestDocuments = caseEntity.PcdRequests.Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest));
-        //         documents.AddRange(pcdRequestDocuments);
-        //     }
-
-        //     return documents;
-        // }
-
         private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity) =>
             caseEntity.Retrieved.HasValue && caseEntity.Running.HasValue
                 ? caseEntity.Running.Value.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime()
@@ -118,46 +96,5 @@ namespace coordinator.Mappers
             caseEntity.Retrieved.HasValue && caseEntity.Completed.HasValue
                 ? caseEntity.Running.Value.AddSeconds(caseEntity.Completed.Value).ToUniversalTime()
                 : null;
-
-        // private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
-        // {
-        //     return new CmsDocumentEntity(pcdRequest.CmsDocumentId, pcdRequest.VersionId, pcdRequest.PresentationFlags)
-        //     {
-        //         //CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
-        //         //CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
-        //         //CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? $"(Pending) PCD.pdf",
-        //         // PresentationTitle = Path.GetFileNameWithoutExtension(pcdRequest.PdfBlobName)
-        //         //     // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
-        //         //     //  false-positive name update notifications being shown in the UI, we make sure the interim name
-        //         //     //  on th PCS request is the same as the eventual name derived from the blob name.
-        //         //     ?? $"CMS-{pcdRequest.DocumentId}",
-        //         //PdfBlobName = pcdRequest.PdfBlobName,
-        //         //Status = pcdRequest.Status
-        //     };
-        // }
-
-        // private static CmsDocumentEntity[] ConvertToTrackerCmsDocumentDto(DefendantsAndChargesEntity defendantsAndCharges)
-        // {
-        //     if (defendantsAndCharges == null)
-        //         return new CmsDocumentEntity[0];
-
-        //     return new CmsDocumentEntity[1]
-        //     {
-        //         new CmsDocumentEntity(defendantsAndCharges.CmsDocumentId, defendantsAndCharges.VersionId,defendantsAndCharges.PresentationFlags)
-        //         {
-        //             // CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
-        //             //CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
-        //             //CmsOriginalFileName = Path.GetFileName(defendantsAndCharges.PdfBlobName) ?? "(Pending) DAC.pdf",
-        //             // PresentationTitle = Path.GetFileNameWithoutExtension(defendantsAndCharges.PdfBlobName) 
-        //             //     // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
-        //             //     //  false-positive name update notifications being shown in the UI, we make sure the interim name
-        //             //     //  on th PCS request is the same as the eventual name derived from the blob name.
-        //             //     ?? "CMS-DAC",
-        //             //PdfBlobName = defendantsAndCharges.PdfBlobName,
-        //             //Status = defendantsAndCharges.Status
-        //         }
-        //     };
-        // }
-
     }
 }
