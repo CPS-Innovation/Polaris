@@ -139,7 +139,7 @@ internal static class Program
             RedactionDefinitions = redactionDefinitions
           };
 
-          var pdfStream = await redactionService.Redact(fileStream, "1234", "123", redactPdf, currentCorrelationId);
+          var pdfStream = await redactionService.Redact(fileStream, 1234, "123", redactPdf, currentCorrelationId);
 
           // Write the PDF stream to the file system
           byte[] pdfBytes;

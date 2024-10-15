@@ -12,6 +12,6 @@ namespace Common.Services.BlobStorageService
 
         Task UploadDocumentAsync(Stream stream, string blobName, int caseId, string documentId, long versionId, Guid correlationId);
 
-        Task DeleteBlobsByCaseAsync(string caseId);
+        Task DeleteBlobsByCaseAsync(int caseId);
     }
 }

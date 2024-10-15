@@ -63,10 +63,10 @@ namespace Common.Services.BlobStorageService
             await blobClient.SetMetadataAsync(metadata);
         }
 
-        public async Task DeleteBlobsByCaseAsync(string caseId)
+        public async Task DeleteBlobsByCaseAsync(int caseId)
         {
             var blobCount = 0;
-            var targetFolderPath = caseId;
+            var targetFolderPath = caseId.ToString();
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");

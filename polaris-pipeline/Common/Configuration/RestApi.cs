@@ -152,7 +152,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/search/count";
         }
 
-        public static string GetReclassifyDocumentPath(string caseUrn, string caseId, string documentId)
+        public static string GetReclassifyDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/reclassify";
         }

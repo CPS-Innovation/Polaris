@@ -62,7 +62,7 @@ namespace coordinator.tests.Functions
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 
-            mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<string>()))
+            mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
 
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
