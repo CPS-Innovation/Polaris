@@ -17,7 +17,7 @@ namespace coordinator.TelemetryEvents
 
         public RefreshedCaseEvent(
             Guid correlationId,
-            long caseId,
+            int caseId,
             int? versionId,
             DateTime startTime)
         {

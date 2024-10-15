@@ -9,7 +9,7 @@ using coordinator.Helpers;
 using Common.Configuration;
 using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Services;
+using Ddei;
 
 namespace coordinator.Functions
 {

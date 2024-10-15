@@ -3,7 +3,7 @@ namespace PolarisGateway.TelemetryEvents
     public class DocumentNoteRequestEvent : BaseRequestEvent
     {
         public DocumentNoteRequestEvent(
-            long caseId,
+            int caseId,
             string documentId)
         {
             CaseId = caseId;

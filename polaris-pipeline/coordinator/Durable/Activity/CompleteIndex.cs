@@ -20,10 +20,10 @@ namespace coordinator.Durable.Activity
         {
             var (payload, targetCount) = context.GetInput<(CaseDocumentOrchestrationPayload, int)>();
             var results = await _textExtractorClient.GetDocumentIndexCount(
-                payload.CmsCaseUrn,
-                payload.CmsCaseId,
-                payload.CmsDocumentId,
-                payload.CmsVersionId,
+                payload.Urn,
+                payload.CaseId,
+                payload.DocumentId,
+                payload.VersionId,
                 payload.CorrelationId);
 
             var isComplete = results.LineCount >= targetCount;

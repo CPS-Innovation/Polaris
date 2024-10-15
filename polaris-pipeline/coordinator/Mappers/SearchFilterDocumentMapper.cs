@@ -10,9 +10,8 @@ namespace coordinator.Mappers
         {
             return new SearchFilterDocument
             {
-                CmsDocumentId = baseDocumentEntity.CmsDocumentId,
-                CmsVersionId = baseDocumentEntity.CmsVersionId,
-                PolarisDocumentId = baseDocumentEntity.PolarisDocumentIdValue,
+                DocumentId = baseDocumentEntity.DocumentId,
+                VersionId = baseDocumentEntity.VersionId,
             };
         }
     }

@@ -1,11 +1,11 @@
-using Common.Dto.Document;
-using Common.Dto.Response;
+using Common.Dto.Response.Document;
+using Ddei.Domain.Response.Document;
 
 namespace Ddei.Mappers
 {
     public class CaseDocumentNoteMapper : ICaseDocumentNoteMapper
     {
-        public DocumentNoteDto Map(DdeiCaseDocumentNoteResponse ddeiResponse)
+        public DocumentNoteDto Map(DdeiDocumentNoteResponse ddeiResponse)
         {
             return new DocumentNoteDto
             {

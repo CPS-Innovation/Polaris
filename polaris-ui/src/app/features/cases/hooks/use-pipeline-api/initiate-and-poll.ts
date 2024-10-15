@@ -15,7 +15,7 @@ const delay = (delayMs: number) =>
 const hasAnyDocumentUpdated = (
   savedDocumentDetails: {
     documentId: string;
-    polarisDocumentVersionId: number;
+    versionId: number;
   }[],
   pipelineResult: PipelineResults
 ) => {

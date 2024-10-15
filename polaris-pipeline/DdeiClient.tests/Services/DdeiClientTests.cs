@@ -4,11 +4,10 @@ using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
 using Common.Dto.Response;
 using Common.Wrappers;
-using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Exceptions;
-using DdeiClient.Mappers;
+using Ddei.Exceptions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
@@ -16,8 +15,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using Ddei.Domain.Response.Document;
 
-namespace DdeiClient.tests.Services;
+namespace Ddei.tests.Services;
 
 public class DdeiClientTests
 {
@@ -27,9 +27,9 @@ public class DdeiClientTests
     private readonly string _cmsAuthValues;
     private readonly Guid _correlationId;
     private readonly HttpResponseMessage _httpResponseMessage;
-    private readonly List<DdeiCaseDocumentResponse> _content;
+    private readonly List<DdeiDocumentResponse> _content;
     private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapperMock;
-    private readonly Ddei.Services.DdeiClient _ddeiClient;
+    private readonly DdeiClient _ddeiClient;
 
     public DdeiClientTests()
     {
@@ -41,7 +41,7 @@ public class DdeiClientTests
         _cmsAuthValues = _fixture.Create<string>();
         _correlationId = _fixture.Create<Guid>();
 
-        _content = _fixture.CreateMany<DdeiCaseDocumentResponse>(5).ToList();
+        _content = _fixture.CreateMany<DdeiDocumentResponse>(5).ToList();
 
         var httpRequestMessage = new HttpRequestMessage();
         Stream documentStream = new MemoryStream();
@@ -51,10 +51,10 @@ public class DdeiClientTests
             Content = new StreamContent(documentStream)
         };
 
-        var loggerMock = new Mock<ILogger<Ddei.Services.DdeiClient>>();
+        var loggerMock = new Mock<ILogger<DdeiClient>>();
 
         _jsonConvertWrapperMock = new Mock<IJsonConvertWrapper>();
-        _jsonConvertWrapperMock.Setup(wrapper => wrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
+        _jsonConvertWrapperMock.Setup(wrapper => wrapper.DeserializeObject<List<DdeiDocumentResponse>>(It.IsAny<string>()))
             .Returns(_content);
 
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -66,7 +66,7 @@ public class DdeiClientTests
         var mockHttpRequestFactory = new Mock<IDdeiClientRequestFactory>();
 
         mockHttpRequestFactory
-            .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCmsCaseArgDto>()))
+            .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCaseIdentifiersArgDto>()))
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
@@ -80,7 +80,7 @@ public class DdeiClientTests
         var mockCmsMaterialTypeMapper = new Mock<ICmsMaterialTypeMapper>();
         var mockCaseWitnessStatementMapper = new Mock<ICaseWitnessStatementMapper>();
 
-        _ddeiClient = new Ddei.Services.DdeiClient
+        _ddeiClient = new DdeiClient
             (
                 httpClient,
                 mockHttpRequestFactory.Object,
@@ -158,7 +158,7 @@ public class DdeiClientTests
     public async Task ListDocumentsAsync_ReturnsValidResultsWhen_AllIsWell()
     {
         var searchResults = BuildRandomResults();
-        _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
+        _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
         var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
@@ -166,10 +166,10 @@ public class DdeiClientTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
+            result[0].DocumentId.Should().Be(searchResults[0].Id);
             result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
             result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
-            result[3].DocumentId.Should().Be(searchResults[3].Id.ToString());
+            result[3].DocumentId.Should().Be(searchResults[3].Id);
             result[3].FileName.Should().Be(searchResults[3].OriginalFileName);
             result[3].PresentationTitle.Should().Be(searchResults[3].PresentationTitle);
         }
@@ -183,7 +183,7 @@ public class DdeiClientTests
         searchResults[2].OriginalFileName = null;
         searchResults[2].PresentationTitle = null;
 
-        _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
+        _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
         var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
@@ -191,19 +191,19 @@ public class DdeiClientTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
+            result[0].DocumentId.Should().Be(searchResults[0].Id);
             result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
             result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
         }
     }
 
-    private List<DdeiCaseDocumentResponse> BuildRandomResults()
+    private List<DdeiDocumentResponse> BuildRandomResults()
     {
-        var results = new List<DdeiCaseDocumentResponse>();
+        var results = new List<DdeiDocumentResponse>();
 
         for (var i = 0; i <= 3; i++)
         {
-            var baseResponse = _fixture.Create<DdeiCaseDocumentResponse>();
+            var baseResponse = _fixture.Create<DdeiDocumentResponse>();
             baseResponse.Id = i + 1;
             results.Add(baseResponse);
         }

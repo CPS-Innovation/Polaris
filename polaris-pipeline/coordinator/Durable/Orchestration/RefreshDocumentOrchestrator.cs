@@ -4,7 +4,6 @@ using Common.Constants;
 using Common.Dto.Response;
 using Common.Logging;
 using Common.Telemetry;
-using Common.ValueObjects;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
@@ -32,9 +31,9 @@ namespace coordinator.Durable.Orchestration
             maxNumberOfAttempts: 3
         );
 
-        public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetKey(int caseId, string documentId)
         {
-            return $"[{caseId}]-{polarisDocumentId}";
+            return $"[{caseId}]-{documentId}";
         }
 
         public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log, ITelemetryClient telemetryClient)
@@ -48,7 +47,7 @@ namespace coordinator.Durable.Orchestration
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
             var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = CreateOrGetCaseDurableEntity(context, payload.CmsCaseId);
+            var caseEntity = CreateOrGetCaseDurableEntity(context, payload.CaseId);
 
             // 1. Get Pdf
             try
@@ -56,13 +55,13 @@ namespace coordinator.Durable.Orchestration
                 var pdfConversionStatus = await context.CallActivityAsync<PdfConversionStatus>(nameof(GeneratePdf), payload);
                 if (pdfConversionStatus != PdfConversionStatus.DocumentConverted)
                 {
-                    caseEntity.SetDocumentPdfConversionFailed((payload.PolarisDocumentId.ToString(), pdfConversionStatus));
+                    caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), pdfConversionStatus));
                     return;
                 }
             }
             catch (Exception exception)
             {
-                caseEntity.SetDocumentPdfConversionFailed((payload.PolarisDocumentId.ToString(), PdfConversionStatus.UnexpectedError));
+                caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), PdfConversionStatus.UnexpectedError));
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
                 return;
             }
@@ -77,17 +76,17 @@ namespace coordinator.Durable.Orchestration
                 return;
             }
 
-            caseEntity.SetDocumentPdfConversionSucceeded((payload.PolarisDocumentId.ToString(), payload.BlobName));
+            caseEntity.SetDocumentPdfConversionSucceeded((payload.DocumentId.ToString(), payload.BlobName));
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
-                CaseUrn = payload.CmsCaseUrn,
-                CaseId = payload.CmsCaseId,
-                DocumentId = payload.CmsDocumentId,
+                CaseUrn = payload.Urn,
+                CaseId = payload.CaseId,
+                DocumentId = payload.DocumentId,
                 DocumentTypeId = payload.DocumentTypeId,
                 DocumentType = payload.DocumentType,
                 DocumentCategory = payload.DocumentCategory,
-                VersionId = payload.CmsVersionId,
+                VersionId = payload.VersionId,
                 StartTime = context.CurrentUtcDateTime
             };
 
@@ -144,7 +143,7 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent.IndexSettleTargetCount = indexStoredResult.LineCount;
                 telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
-                caseEntity.SetDocumentIndexingSucceeded(payload.PolarisDocumentId.ToString());
+                caseEntity.SetDocumentIndexingSucceeded(payload.DocumentId.ToString());
 
                 // by this point we may be replaying, so good to keep a record
                 telemetryEvent.DidOrchestratorReplay = context.IsReplaying;
@@ -158,7 +157,7 @@ namespace coordinator.Durable.Orchestration
                 // todo: there is no durable replay protection here, and there is evidence of several failure event records for the same failure event in our analytics.
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                caseEntity.SetDocumentIndexingFailed(payload.PolarisDocumentId.ToString());
+                caseEntity.SetDocumentIndexingFailed(payload.DocumentId.ToString());
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 return;
             }

@@ -373,10 +373,10 @@ const saveVariablesHelper = ({
     previousProcessingCompleted: processingCompleted,
     peopleDocId: documents.find((doc) =>
       doc.cmsOriginalFileName.includes("people")
-    ).polarisDocumentId,
+    ).documentId,
     numbersDocId: documents.find((doc) =>
       doc.cmsOriginalFileName.includes("numbers")
-    ).polarisDocumentId,
+    ).documentId,
   };
 };
 
@@ -417,9 +417,9 @@ const assertSearchExpectation = (arg: SearchAssertionArg) => {
       // Lets wait for 4 cycles plus some wiggle room for the time it takes for the http calls
       timeout: 14 * 1000,
       errorMsg: () =>
-        `Expected ${"TERM_NOT_PRESENT" ? 0 : 1} results for "${
-          arg.term
-        }" in phase ${arg.phase}`,
+        `Expected ${
+          arg.expectation === "TERM_NOT_PRESENT" ? 0 : 1
+        } results for "${arg.term}" in phase ${arg.phase}`,
     }
   );
 };

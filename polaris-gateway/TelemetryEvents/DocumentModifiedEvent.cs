@@ -3,7 +3,7 @@ namespace PolarisGateway.TelemetryEvents
     public class DocumentModifiedEvent : BaseRequestEvent
     {
         public DocumentModifiedEvent(
-            long caseId,
+            int caseId,
             string documentId)
         {
             CaseId = caseId;

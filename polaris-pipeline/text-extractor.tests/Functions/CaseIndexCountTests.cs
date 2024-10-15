@@ -29,7 +29,7 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
-        private readonly long _caseId;
+        private readonly int _caseId;
         private readonly CaseIndexCount _caseIndexCount;
 
         public CaseIndexCountTests()
@@ -43,10 +43,10 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
             _mockLogger = new Mock<ILogger<CaseIndexCount>>();
-            _caseId = _fixture.Create<long>();
+            _caseId = _fixture.Create<int>();
 
             _mockSearchIndexService
-                .Setup(service => service.GetCaseIndexCount(It.IsAny<long>(), It.IsAny<Guid>()))
+                .Setup(service => service.GetCaseIndexCount(It.IsAny<int>(), It.IsAny<Guid>()))
                 .ReturnsAsync(new SearchIndexCountResult(100));
 
             _caseIndexCount = new CaseIndexCount(

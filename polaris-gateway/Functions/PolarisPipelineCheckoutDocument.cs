@@ -5,7 +5,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Clients.Coordinator;
-using Common.ValueObjects;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -31,7 +30,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineCheckoutDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try
@@ -40,7 +39,7 @@ namespace PolarisGateway.Functions
                 return await _coordinatorClient.CheckoutDocumentAsync(
                     caseUrn,
                     caseId,
-                    new PolarisDocumentId(polarisDocumentId),
+                    documentId,
                     context.CmsAuthValues,
                     context.CorrelationId);
             }

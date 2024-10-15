@@ -18,10 +18,8 @@ using coordinator.Helpers;
 using coordinator.Services.OcrResultsService;
 using coordinator.Services.PiiService;
 using Common.Configuration;
-using Common.Dto.Tracker;
 using Common.Extensions;
 using Common.Services.BlobStorageService;
-using Common.ValueObjects;
 using Newtonsoft.Json;
 
 namespace coordinator.Functions
@@ -52,7 +50,7 @@ namespace coordinator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.PiiResults)] HttpRequest req,
             string caseUrn,
             int caseId,
-            string polarisDocumentId,
+            string documentId,
             [DurableClient] IDurableEntityClient client
             )
         {
@@ -62,17 +60,17 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId.ToString(), new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(ExtractPii));
+                var response = await GetTrackerDocument(client, caseId.ToString(), documentId, _logger, currentCorrelationId, nameof(ExtractPii));
                 var document = response.CmsDocument;
 
-                var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
-                var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, polarisDocumentId, currentCorrelationId);
+                var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, documentId, currentCorrelationId);
+                var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, documentId, currentCorrelationId);
 
-                if (document.PiiCmsVersionId != null &&
-                    document.PiiCmsVersionId == document.CmsVersionId &&
+                if (document.PiiVersionId != null &&
+                    document.PiiVersionId == document.VersionId &&
                     ocrResults != null && piiResults != null)
                 {
-                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, CharacterLimit, currentCorrelationId);
+                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, CharacterLimit, currentCorrelationId);
                     var results = _piiService.ReconcilePiiResults(piiChunks, piiResults);
 
                     return new OkObjectResult(results);
@@ -81,7 +79,7 @@ namespace coordinator.Functions
                 {
                     if (ocrResults == null) return new EmptyResult(); // need to handle this
 
-                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, polarisDocumentId, CharacterLimit, currentCorrelationId);
+                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, CharacterLimit, currentCorrelationId);
                     var piiRequests = _piiService.CreatePiiRequests(piiChunks);
 
                     var calls = piiRequests.Select(async piiRequest => await _textAnalysisClient.CheckForPii(piiRequest));
@@ -90,7 +88,7 @@ namespace coordinator.Functions
                     var piiResultsWrapper = _piiService.MapPiiResults(piiRequestResults);
 
                     var jsonResults = JsonConvert.SerializeObject(piiResultsWrapper);
-                    var piiBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Pii);
+                    var piiBlobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Pii);
 
                     using (var piiStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
                     {
@@ -98,7 +96,7 @@ namespace coordinator.Functions
                             piiStream,
                             piiBlobName,
                             caseId.ToString(),
-                            polarisDocumentId,
+                            documentId,
                             versionId: "1",
                             currentCorrelationId
                         );
@@ -115,7 +113,7 @@ namespace coordinator.Functions
 
                     await client.SignalEntityAsync<ICaseDurableEntity>(
                         caseEntityId,
-                        x => x.SetPiiCmsVersionId(polarisDocumentId));
+                        x => x.SetPiiVersionId(documentId));
 
                     return new OkObjectResult(results);
                 }

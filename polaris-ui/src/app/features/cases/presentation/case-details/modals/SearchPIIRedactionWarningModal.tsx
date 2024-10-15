@@ -12,7 +12,7 @@ import classes from "./SearchPIIRedactionWarningModal.module.scss";
 type Props = {
   documentId: string;
   documentType: string;
-  polarisDocumentVersionId?: number;
+  versionId?: number;
   acceptedAllSearchPIIRedactionsCount: number;
   hideRedactionWarningModal: () => void;
   handleContinue: () => void;
@@ -21,7 +21,7 @@ type Props = {
 export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   documentId,
   documentType,
-  polarisDocumentVersionId,
+  versionId,
   acceptedAllSearchPIIRedactionsCount,
   hideRedactionWarningModal,
   handleContinue,
@@ -49,9 +49,9 @@ export const SearchPIIRedactionWarningModal: React.FC<Props> = ({
   };
   const handleClosePIIRedactionWarningModal = () => {
     trackEvent("Cancel Save Redaction Suggestion Warning", {
-      documentId: documentId,
-      documentType: documentType,
-      polarisDocumentVersionId: polarisDocumentVersionId,
+      documentId,
+      documentType,
+      versionId,
       acceptedAllRedactionsCount: acceptedAllSearchPIIRedactionsCount,
     });
     hideRedactionWarningModal();

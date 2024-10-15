@@ -1,7 +1,7 @@
 ﻿using Common.Constants;
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Document;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
 using Common.Dto.Tracker;
 using coordinator.Durable.Payloads.Domain;
 using System;
@@ -27,23 +27,20 @@ namespace coordinator.Durable.Entity
         Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
 
         [Obsolete]
-        void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
-
-        [Obsolete]
-        void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args);
+        void SetDocumentConversionStatus((string DocumentId, PdfConversionStatus Status) args);
 
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
 
         [Obsolete]
-        void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
+        void SetDocumentFlags((string DocumentId, bool IsOcrProcessed, bool IsDispatched) args);
 
-        void SetPiiCmsVersionId(string polarisDocumentId);
+        void SetPiiVersionId(string documentId);
 
         [Obsolete]
         Task<bool> AllDocumentsFailed();
 
         [Obsolete]
-        Task<string[]> GetPolarisDocumentIds();
+        Task<string[]> GetDocumentIds();
 
         [Obsolete]
         Task<DateTime> GetStartTime();
@@ -52,9 +49,9 @@ namespace coordinator.Durable.Entity
         Task<float> GetDurationToCompleted();
 
         // vNext stuff
-        void SetDocumentPdfConversionSucceeded((string polarisDocumentId, string pdfBlobName) arg);
-        void SetDocumentPdfConversionFailed((string PolarisDocumentId, PdfConversionStatus PdfConversionStatus) arg);
-        void SetDocumentIndexingSucceeded(string polarisDocumentId);
-        void SetDocumentIndexingFailed(string polarisDocumentId);
+        void SetDocumentPdfConversionSucceeded((string documentId, string pdfBlobName) arg);
+        void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg);
+        void SetDocumentIndexingSucceeded(string documentId);
+        void SetDocumentIndexingFailed(string documentId);
     }
 }

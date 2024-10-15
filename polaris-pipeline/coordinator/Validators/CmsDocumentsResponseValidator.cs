@@ -1,5 +1,5 @@
 using System.Linq;
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
 
 namespace coordinator.Validators;
 

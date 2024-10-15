@@ -1,5 +1,4 @@
 using Common.Configuration;
-using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -31,7 +30,7 @@ namespace PolarisGateway.Functions
         [FunctionName(nameof(PolarisPipelineGetPii))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PiiResults)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PiiResults)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try
@@ -40,7 +39,7 @@ namespace PolarisGateway.Functions
                 return await _coordinatorClient.GetPii(
                     caseUrn,
                     caseId,
-                    new PolarisDocumentId(polarisDocumentId),
+                    documentId,
                     context.CorrelationId);
             }
             catch (Exception ex)

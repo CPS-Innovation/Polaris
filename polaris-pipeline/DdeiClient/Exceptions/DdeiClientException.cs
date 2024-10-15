@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace DdeiClient.Exceptions
+namespace Ddei.Exceptions
 {
     public class DdeiClientException : Exception
     {

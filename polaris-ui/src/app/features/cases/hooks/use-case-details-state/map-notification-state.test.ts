@@ -137,13 +137,13 @@ const scenarios: Scenario[] = [
           data: [
             doc({
               documentId: "2",
-              cmsVersionId: 22,
+              versionId: 22,
               presentationTitle: "doc-2",
             }),
             doc({ documentId: "0" }),
             doc({
               documentId: "1",
-              cmsVersionId: 11,
+              versionId: 11,
               presentationTitle: "doc-1",
             }),
           ],
@@ -156,7 +156,7 @@ const scenarios: Scenario[] = [
           events: [
             evt({
               documentId: "1",
-              cmsVersionId: 11,
+              versionId: 11,
               reason: "New",
               presentationTitle: "doc-1",
               dateTime: incomingDateTime,
@@ -165,7 +165,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "2",
-              cmsVersionId: 22,
+              versionId: 22,
               reason: "New",
               presentationTitle: "doc-2",
               dateTime: incomingDateTime,
@@ -192,13 +192,13 @@ const scenarios: Scenario[] = [
           data: [
             doc({
               documentId: "2",
-              cmsVersionId: 22,
+              versionId: 22,
               presentationTitle: "doc-2",
             }),
             doc({ documentId: "0" }),
             doc({
               documentId: "1",
-              cmsVersionId: 11,
+              versionId: 11,
               presentationTitle: "doc-1",
             }),
           ],
@@ -214,7 +214,7 @@ const scenarios: Scenario[] = [
           events: [
             evt({
               documentId: "1",
-              cmsVersionId: 11,
+              versionId: 11,
               reason: "Discarded",
               presentationTitle: "doc-1",
               dateTime: incomingDateTime,
@@ -223,7 +223,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "2",
-              cmsVersionId: 22,
+              versionId: 22,
               reason: "Discarded",
               presentationTitle: "doc-2",
               dateTime: incomingDateTime,
@@ -250,13 +250,13 @@ const scenarios: Scenario[] = [
           data: [
             doc({
               documentId: "2",
-              cmsVersionId: 22,
+              versionId: 22,
               presentationTitle: "doc-2-22",
             }),
             doc({ documentId: "0" }),
             doc({
               documentId: "1",
-              cmsVersionId: 11,
+              versionId: 11,
               presentationTitle: "doc-1-11",
             }),
           ],
@@ -268,13 +268,13 @@ const scenarios: Scenario[] = [
           data: [
             doc({
               documentId: "2",
-              cmsVersionId: 222,
+              versionId: 222,
               presentationTitle: "doc-2-22",
             }),
             doc({ documentId: "0" }),
             doc({
               documentId: "1",
-              cmsVersionId: 111,
+              versionId: 111,
               presentationTitle: "doc-1-11",
             }),
           ],
@@ -287,7 +287,7 @@ const scenarios: Scenario[] = [
           events: [
             evt({
               documentId: "1",
-              cmsVersionId: 111,
+              versionId: 111,
               presentationTitle: "doc-1-11",
               reason: "New Version",
               dateTime: incomingDateTime,
@@ -296,7 +296,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "2",
-              cmsVersionId: 222,
+              versionId: 222,
               presentationTitle: "doc-2-22",
               reason: "New Version",
               dateTime: incomingDateTime,
@@ -463,7 +463,7 @@ const scenarios: Scenario[] = [
           data: [
             doc({
               documentId: "2",
-              cmsVersionId: 22,
+              versionId: 22,
               cmsDocType: {
                 documentTypeId: 22,
               },
@@ -472,7 +472,7 @@ const scenarios: Scenario[] = [
             doc({ documentId: "0" }),
             doc({
               documentId: "1",
-              cmsVersionId: 11,
+              versionId: 11,
               cmsDocType: {
                 documentTypeId: 11,
               },
@@ -487,7 +487,7 @@ const scenarios: Scenario[] = [
           data: [
             doc({
               documentId: "2",
-              cmsVersionId: 222,
+              versionId: 222,
               cmsDocType: {
                 documentTypeId: 222,
               },
@@ -496,7 +496,7 @@ const scenarios: Scenario[] = [
             doc({ documentId: "0" }),
             doc({
               documentId: "1",
-              cmsVersionId: 111,
+              versionId: 111,
               cmsDocType: {
                 documentTypeId: 111,
               },
@@ -512,7 +512,7 @@ const scenarios: Scenario[] = [
           events: [
             evt({
               documentId: "1",
-              cmsVersionId: 111,
+              versionId: 111,
               reason: "New Version",
               presentationTitle: "doc-1111",
               dateTime: incomingDateTime,
@@ -521,7 +521,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "1",
-              cmsVersionId: 111,
+              versionId: 111,
               reason: "Reclassified",
               presentationTitle: "doc-1111",
               dateTime: incomingDateTime,
@@ -530,7 +530,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "1",
-              cmsVersionId: 111,
+              versionId: 111,
               reason: "Updated",
               presentationTitle: "doc-1111",
               dateTime: incomingDateTime,
@@ -539,7 +539,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "2",
-              cmsVersionId: 222,
+              versionId: 222,
               reason: "New Version",
               presentationTitle: "doc-2222",
               dateTime: incomingDateTime,
@@ -548,7 +548,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "2",
-              cmsVersionId: 222,
+              versionId: 222,
               reason: "Reclassified",
               presentationTitle: "doc-2222",
               dateTime: incomingDateTime,
@@ -557,7 +557,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "2",
-              cmsVersionId: 222,
+              versionId: 222,
               reason: "Updated",
               presentationTitle: "doc-2222",
               dateTime: incomingDateTime,
@@ -595,7 +595,7 @@ const scenarios: Scenario[] = [
             doc({ documentId: "0" }),
             doc({
               documentId: "5",
-              cmsVersionId: 55,
+              versionId: 55,
               cmsDocType: {
                 documentTypeId: 5,
               },
@@ -610,7 +610,7 @@ const scenarios: Scenario[] = [
           data: [
             doc({
               documentId: "5",
-              cmsVersionId: 555,
+              versionId: 555,
               cmsDocType: {
                 documentTypeId: 55,
               },
@@ -618,7 +618,7 @@ const scenarios: Scenario[] = [
             }),
             doc({
               documentId: "4",
-              cmsVersionId: 44,
+              versionId: 44,
               presentationTitle: "doc-4",
             }),
             doc({ documentId: "0" }),
@@ -632,7 +632,7 @@ const scenarios: Scenario[] = [
           events: [
             evt({
               documentId: "4",
-              cmsVersionId: 44,
+              versionId: 44,
               reason: "New",
               presentationTitle: "doc-4",
               dateTime: incomingDateTime,
@@ -641,7 +641,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "5",
-              cmsVersionId: 555,
+              versionId: 555,
               reason: "New Version",
               presentationTitle: "doc-555",
               dateTime: incomingDateTime,
@@ -651,7 +651,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "5",
-              cmsVersionId: 555,
+              versionId: 555,
               reason: "Reclassified",
               presentationTitle: "doc-555",
               dateTime: incomingDateTime,
@@ -660,7 +660,7 @@ const scenarios: Scenario[] = [
             }),
             evt({
               documentId: "5",
-              cmsVersionId: 555,
+              versionId: 555,
               reason: "Updated",
               presentationTitle: "doc-555",
               dateTime: incomingDateTime,

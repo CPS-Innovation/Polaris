@@ -100,12 +100,7 @@ export const mapNotificationState = (
     oldDoc?: MappedCaseDocument;
   }): NotificationEvent => {
     const {
-      doc: {
-        documentId,
-        cmsVersionId,
-        presentationTitle,
-        presentationCategory,
-      },
+      doc: { documentId, versionId, presentationTitle, presentationCategory },
       reason,
     } = arg;
 
@@ -122,7 +117,7 @@ export const mapNotificationState = (
     return {
       id: generateNextId(),
       documentId,
-      cmsVersionId,
+      versionId,
       reason,
       presentationTitle,
       dateTime: incomingDateTime,
@@ -153,7 +148,7 @@ export const mapNotificationState = (
     incomingDocuments,
     existingDocuments,
     where("documentId", "is same"),
-    where("cmsVersionId", "is different")
+    where("versionId", "is different")
   ).map(([doc, oldDoc]) => buildEvent({ reason: "New Version", doc, oldDoc }));
 
   const reclassifiedNotifications = inLeftAndRight(

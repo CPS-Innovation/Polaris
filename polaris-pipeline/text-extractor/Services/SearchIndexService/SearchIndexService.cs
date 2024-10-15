@@ -10,7 +10,6 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Common.Domain.SearchIndex;
 using Common.Dto.Response;
-using Common.ValueObjects;
 using text_extractor.Mappers.Contracts;
 using text_extractor.Factories.Contracts;
 using Common.Logging;
@@ -43,7 +42,7 @@ namespace text_extractor.Services.CaseSearchService
             _logger = logger;
         }
 
-        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
+        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, string documentId, int caseId, long versionId, string blobPath, Guid correlationId)
         {
             var blobName = Path.GetFileName(blobPath);
             var lines = new List<SearchLine>();
@@ -54,9 +53,8 @@ namespace text_extractor.Services.CaseSearchService
                     (
                         (line, index) => _searchLineFactory.Create
                                             (
-                                                cmsCaseId,
-                                                cmsDocumentId,
-                                                polarisDocumentId,
+                                                caseId,
+                                                documentId,
                                                 versionId,
                                                 blobName,
                                                 readResult,
@@ -116,11 +114,11 @@ namespace text_extractor.Services.CaseSearchService
                 throw new RequestFailedException($"At least one indexing action failed. Status(es) = {string.Join(", ", statuses)}");
             }
 
-            _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), $"Case: {cmsCaseId}, Document: {cmsDocumentId}, Version: {versionId}, indexed {lines.Count} lines");
+            _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), $"Case: {caseId}, Document: {documentId}, Version: {versionId}, indexed {lines.Count} lines");
             return lines.Count;
         }
 
-        public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, string searchTerm)
+        public async Task<IList<StreamlinedSearchLine>> QueryAsync(int caseId, string searchTerm)
         {
             var filter = $"caseId eq {caseId}";
             var searchOptions = new SearchOptions
@@ -151,7 +149,7 @@ namespace text_extractor.Services.CaseSearchService
             return streamlinedResults;
         }
 
-        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId, Guid correlationId)
+        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(int caseId, Guid correlationId)
         {
             if (caseId == 0)
             {
@@ -198,7 +196,7 @@ namespace text_extractor.Services.CaseSearchService
             }
         }
 
-        public async Task<SearchIndexCountResult> GetCaseIndexCount(long caseId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(int caseId, Guid correlationId)
         {
             if (caseId == 0)
             {
@@ -220,7 +218,7 @@ namespace text_extractor.Services.CaseSearchService
             return new SearchIndexCountResult(indexTotal);
         }
 
-        public async Task<SearchIndexCountResult> GetDocumentIndexCount(long caseId, string documentId, long versionId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(int caseId, string documentId, long versionId, Guid correlationId)
         {
             if (caseId == 0)
             {
@@ -247,7 +245,7 @@ namespace text_extractor.Services.CaseSearchService
             return await _azureSearchClient.SearchAsync<ISearchable>(searchTerm, searchOptions);
         }
 
-        private async Task<IndexDocumentsDeletedResult> DeleteDocumentIndexes(long caseId, long indexCount)
+        private async Task<IndexDocumentsDeletedResult> DeleteDocumentIndexes(int caseId, long indexCount)
         {
             var searchOptions = new SearchOptions
             {

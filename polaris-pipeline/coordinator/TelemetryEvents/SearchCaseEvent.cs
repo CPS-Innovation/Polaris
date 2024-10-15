@@ -12,7 +12,7 @@ namespace coordinator.TelemetryEvents
         public string DocumentIds;
         public SearchCaseEvent(
             Guid correlationId,
-            long caseId,
+            int caseId,
             string documentIds)
         {
             CorrelationId = correlationId;

@@ -3,7 +3,6 @@ using System;
 using AutoFixture;
 using text_extractor.Factories;
 using text_extractor.Factories.Contracts;
-using Common.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -13,8 +12,7 @@ namespace text_extractor.tests.Factories
 {
 	public class SearchLineFactoryTests
 	{
-		private readonly PolarisDocumentId _polarisDocumentId;
-		private readonly long _caseId;
+		private readonly int _caseId;
 		private readonly string _documentId;
 		private readonly long _versionId;
 		private readonly string _blobName;
@@ -29,7 +27,6 @@ namespace text_extractor.tests.Factories
 		public SearchLineFactoryTests()
 		{
 			var fixture = new Fixture();
-			_polarisDocumentId = fixture.Create<PolarisDocumentId>();
 			_caseId = fixture.Create<int>();
 			_documentId = fixture.Create<string>();
 			_versionId = fixture.Create<long>();
@@ -52,10 +49,9 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedId()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
-			// SearchLineFactory => {cmsCaseId}-{polarisDocumentId}-{readResult.Page}-{index}
-			var id = $"{_caseId}:{_polarisDocumentId}:{_readResult.Page}:{_index}";
+			var id = $"{_caseId}:{_documentId}:{_readResult.Page}:{_index}";
 			var bytes = Encoding.UTF8.GetBytes(id);
 			var base64Id = Convert.ToBase64String(bytes);
 
@@ -65,7 +61,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedBlobName()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.FileName.Should().Be(_blobName);
 		}
@@ -73,7 +69,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedPageIndex()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.PageIndex.Should().Be(_readResult.Page);
 		}
@@ -81,7 +77,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedLineIndex()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.LineIndex.Should().Be(_index);
 		}
@@ -89,7 +85,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedLanguage()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.Language.Should().Be(_line.Language);
 		}
@@ -97,7 +93,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedBoundingBox()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.BoundingBox.Should().BeEquivalentTo(_line.BoundingBox);
 		}
@@ -105,7 +101,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedAppearance()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.Appearance.Should().Be(_line.Appearance);
 		}
@@ -113,7 +109,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedText()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.Text.Should().Be(_line.Text);
 		}
@@ -121,7 +117,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedWords()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			factory.Words.Should().BeEquivalentTo(_line.Words);
 		}
@@ -129,7 +125,7 @@ namespace text_extractor.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedHeightAndWidth()
 		{
-			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _versionId, _blobName, _readResult, _line, _index);
 
 			using (new AssertionScope())
 			{

@@ -10,18 +10,16 @@ public class StreamlinedSearchLine
     [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonProperty("polarisDocumentId")]
-    public string PolarisDocumentId
+    [JsonProperty("documentId")]
+    public string DocumentId
     {
         get
         {
             var base64EncodedBytes = Convert.FromBase64String(Id);
             var indexerId = Encoding.UTF8.GetString(base64EncodedBytes);
-
             try
             {
-                var polarisDocumentId = indexerId.Split(":")[1];
-                return polarisDocumentId;
+                return indexerId.Split(":")[1];
             }
             catch
             {

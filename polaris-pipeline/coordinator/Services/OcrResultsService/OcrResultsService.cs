@@ -22,13 +22,13 @@ namespace coordinator.Services.OcrResultsService
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<AnalyzeResults> GetOcrResultsFromBlob(int caseId, string polarisDocumentId, Guid correlationId)
+        public async Task<AnalyzeResults> GetOcrResultsFromBlob(int caseId, string documentId, Guid correlationId)
         {
             Stream jsonStream;
 
             try
             {
-                var ocrBlobName = BlobNameHelper.GetBlobName(caseId, polarisDocumentId, BlobNameHelper.BlobType.Ocr);
+                var ocrBlobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Ocr);
                 jsonStream = await _blobStorageService.GetDocumentAsync(ocrBlobName, correlationId);
             }
             catch (Exception)

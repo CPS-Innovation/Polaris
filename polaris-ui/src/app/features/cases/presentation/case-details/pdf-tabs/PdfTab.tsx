@@ -27,10 +27,10 @@ type PdfTabProps = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchPIIDataItem: SearchPIIData | undefined;
-  polarisDocumentVersionId: number;
+  versionId: number;
   savedDocumentDetails: {
     documentId: string;
-    polarisDocumentVersionId: number;
+    versionId: number;
   }[];
   contextData: {
     correlationId: string;
@@ -66,7 +66,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   redactionTypesData,
   activeTabId,
   tabId,
-  polarisDocumentVersionId,
+  versionId,
   showOverRedactionLog,
   caseDocumentViewModel,
   headers,
@@ -158,8 +158,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       const getData =
         searchPIIDataItem?.getSearchPIIStatus === "failure"
           ? true
-          : searchPIIDataItem?.polarisDocumentVersionId !==
-            polarisDocumentVersionId;
+          : searchPIIDataItem?.versionId !== versionId;
       handleShowHideRedactionSuggestions(
         documentId,
         showSuggestion,
@@ -167,11 +166,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         defaultOption
       );
     },
-    [
-      handleShowHideRedactionSuggestions,
-      searchPIIDataItem,
-      polarisDocumentVersionId,
-    ]
+    [handleShowHideRedactionSuggestions, searchPIIDataItem, versionId]
   );
 
   const saveAllRedactionsCustomEvent = () => {
@@ -352,7 +347,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             acceptedAllSearchPIIRedactionsCount
           }
           handleContinue={handleContinue}
-          polarisDocumentVersionId={polarisDocumentVersionId!}
+          versionId={versionId!}
           hideRedactionWarningModal={() => setShowRedactionWarning(false)}
         />
       )}

@@ -1,12 +1,10 @@
-﻿using System.Linq;
-using Xunit;
+﻿using Xunit;
 using FluentValidation.TestHelper;
 using AutoFixture;
 using FluentAssertions.Execution;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using Common.ValueObjects;
 
 namespace pdf_redactor.tests.Validators
 {

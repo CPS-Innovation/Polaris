@@ -2,7 +2,6 @@ using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Telemetry;
-using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -39,7 +38,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineRenameDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, int documentId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             var telemetryEvent = new RenameDocumentRequestEvent(caseId, documentId.ToString());
 

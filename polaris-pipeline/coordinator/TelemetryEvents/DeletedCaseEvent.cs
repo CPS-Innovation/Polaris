@@ -40,7 +40,7 @@ namespace coordinator.TelemetryEvents
 
         public DeletedCaseEvent(
             Guid correlationId,
-            long caseId,
+            int caseId,
             DateTime startTime
         )
         {

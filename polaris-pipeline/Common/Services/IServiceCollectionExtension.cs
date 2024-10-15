@@ -5,7 +5,6 @@ using System;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Common.Services.BlobStorageService;
-using Microsoft.Extensions.Logging;
 
 namespace Common.Services
 {

@@ -1,3 +1,4 @@
+import { CmsDocType } from "../../../domain/gateway/CmsDocType";
 import {
   RedactionLogMappingData,
   OuCodeMapping,
@@ -14,7 +15,7 @@ export const getDefaultValuesFromMappings = (
   mappingData: RedactionLogMappingData,
   ouCodeMapping: OuCodeMapping[],
   owningUnit: string,
-  docTypeId: number,
+  docTypeId: CmsDocType["documentTypeId"],
   caseUrn: string
 ) => {
   const manuallySelectDocumentTypeIds = [-1, 1029, 1200];
@@ -36,6 +37,7 @@ export const getDefaultValuesFromMappings = (
     (docType) => docType.cmsDocTypeId === `${docTypeId}`
   );
   if (
+    docTypeId !== null &&
     !manuallySelectDocumentTypeIds.includes(docTypeId) &&
     defaultDocType?.docTypeId
   ) {

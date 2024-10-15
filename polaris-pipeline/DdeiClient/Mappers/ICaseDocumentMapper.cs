@@ -1,6 +1,6 @@
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
 
-namespace DdeiClient.Mappers;
+namespace Ddei.Mappers;
 
 public interface ICaseDocumentMapper<T>
 {

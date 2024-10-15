@@ -1,6 +1,6 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
-using DdeiClient.Services;
+using Ddei;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;

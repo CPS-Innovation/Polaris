@@ -3,7 +3,6 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Common.Services.BlobStorageService;
-using Common.ValueObjects;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
@@ -19,7 +18,7 @@ namespace Common.tests.Services.BlobStorageService
         private readonly string _blobName;
         private readonly Guid _correlationId;
         private readonly long _caseId;
-        private readonly PolarisDocumentId _polarisDocumentId;
+        private readonly string _documentId;
         private readonly long _versionId;
 
         private readonly Mock<Response<bool>> _mockBlobContainerExistsResponse;
@@ -37,7 +36,7 @@ namespace Common.tests.Services.BlobStorageService
             _blobName = _fixture.Create<string>();
             _correlationId = _fixture.Create<Guid>();
             _caseId = _fixture.Create<long>();
-            _polarisDocumentId = _fixture.Create<PolarisDocumentId>();
+            _documentId = _fixture.Create<string>();
             _versionId = _fixture.Create<long>();
 
             var mockBlobServiceClient = new Mock<BlobServiceClient>();
@@ -106,14 +105,14 @@ namespace Common.tests.Services.BlobStorageService
         {
             _mockBlobContainerExistsResponse.Setup(response => response.Value).Returns(false);
 
-            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId.ToString(), _polarisDocumentId,
+            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId.ToString(), _documentId,
                 _versionId.ToString(), _correlationId));
         }
 
         [Fact]
         public async Task UploadDocumentAsync_UploadsDocument()
         {
-            await _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId.ToString(), _polarisDocumentId, _versionId.ToString(), _correlationId);
+            await _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId.ToString(), _documentId, _versionId.ToString(), _correlationId);
 
             _mockBlobClient.Verify(client => client.UploadAsync(_stream, true, It.IsAny<CancellationToken>()));
         }

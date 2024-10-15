@@ -2,6 +2,7 @@ import { ListItemWithoutChildren } from "./ListItem";
 import { ChargeStatus } from "./ChargeStatus";
 import { RedactionCategory } from "./RedactionCategory";
 import { RedactionTypeData } from "./RedactionLogData";
+import { CmsDocType } from "../gateway/CmsDocType";
 
 export type RedactionLogRequestData = {
   urn: string;
@@ -23,7 +24,7 @@ export type RedactionLogRequestData = {
   cmsValues: {
     documentId: number;
     originalFileName: string;
-    documentTypeId: number;
+    documentTypeId: CmsDocType["documentTypeId"];
     documentType: string;
     fileCreatedDate: string;
   };

@@ -7,7 +7,7 @@ namespace coordinator.Services.OcrResultsService
 {
     public interface IOcrResultsService
     {
-        Task<AnalyzeResults> GetOcrResultsFromBlob(int caseId, string polarisDocumentId, Guid correlationId);
+        Task<AnalyzeResults> GetOcrResultsFromBlob(int caseId, string documentId, Guid correlationId);
         List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit, Guid correlationId);
     }
 }

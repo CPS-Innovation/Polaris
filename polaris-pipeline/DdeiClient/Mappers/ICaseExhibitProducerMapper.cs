@@ -1,10 +1,11 @@
-using Common.Dto.Case;
-using Common.Dto.Response;
+using Common.Dto.Response.Case;
+using Ddei.Domain.Response.Document;
+
 
 namespace Ddei.Mappers
 {
     public interface ICaseExhibitProducerMapper
     {
-        ExhibitProducerDto Map(DdeiCaseDocumentExhibitProducerResponse ddeiResponse);
+        ExhibitProducerDto Map(DdeiDocumentExhibitProducerResponse ddeiResponse);
     }
 }

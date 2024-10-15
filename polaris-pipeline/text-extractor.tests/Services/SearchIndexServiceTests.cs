@@ -19,8 +19,8 @@ namespace text_extractor.tests.Services
     public class SearchIndexServiceTests
     {
         private const long SearchLineTotal = 100;
-        private const long ResultCaseId = 1234;
-        private const long NoResultCaseId = 9999;
+        private const int ResultCaseId = 1234;
+        private const int NoResultCaseId = 9999;
         private readonly Guid _correlationId;
         private readonly Fixture _fixture;
         private readonly Mock<IAzureSearchClientFactory> _searchClientFactory;
