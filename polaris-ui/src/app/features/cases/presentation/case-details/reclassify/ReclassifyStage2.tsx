@@ -25,6 +25,7 @@ type ReclassifyStage2Props = {
     witnessId: number
   ) => Promise<StatementWitnessNumber[]>;
   handleBackBtnClick: () => void;
+  handleLookUpDataError: (errorMessage: string) => void;
 };
 
 export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
@@ -34,9 +35,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
   handleBackBtnClick,
+  handleLookUpDataError,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [lookupError, setLookupDataError] = useState("");
   const reclassifyContext = useReClassifyContext();
 
   const { state, dispatch } = reclassifyContext!;
@@ -76,9 +77,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       } catch (error) {
         console.error("Error fetching data:", error);
         if (state.reclassifyVariant === "Exhibit")
-          setLookupDataError("Failed to retrieve exhibit producer data");
+          handleLookUpDataError("Failed to retrieve exhibit producer data");
         if (state.reclassifyVariant === "Statement")
-          setLookupDataError("Failed to retrieve statement witness details");
+          handleLookUpDataError("Failed to retrieve statement witness details");
       } finally {
         setLoading(false);
       }
@@ -255,7 +256,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         payload: { witnessId: +value, statementNumbers: numbers },
       });
     } catch (e) {
-      setLookupDataError("Failed to retrieve statement witness numbers");
+      handleLookUpDataError("Failed to retrieve statement witness numbers");
     }
   };
 
@@ -369,9 +370,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     }
   }, [errorSummaryList]);
 
-  if (lookupError) {
-    throw Error(lookupError);
-  }
   if (loading) {
     return <div>loading data</div>;
   }

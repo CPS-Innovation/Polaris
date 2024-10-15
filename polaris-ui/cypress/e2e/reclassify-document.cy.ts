@@ -194,19 +194,19 @@ describe("Feature Reclassify Document", () => {
       .find("tbody tr")
       .eq(0)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Type");
-        expect($cells.eq(1)).to.have.text("MG10");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Type");
+        expect(cells.eq(1)).to.have.text("MG10");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(1)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Name");
-        expect($cells.eq(1)).to.have.text("PortraitLandscape");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Name");
+        expect(cells.eq(1)).to.have.text("PortraitLandscape");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("div-notification-banner").should("not.exist");
     cy.findByTestId("reclassify-save-btn").click();
@@ -368,28 +368,28 @@ describe("Feature Reclassify Document", () => {
       .find("tbody tr")
       .eq(0)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Type");
-        expect($cells.eq(1)).to.have.text("Other Communication");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Type");
+        expect(cells.eq(1)).to.have.text("Other Communication");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(1)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Name");
-        expect($cells.eq(1)).to.have.text("PortraitLandscape");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Name");
+        expect(cells.eq(1)).to.have.text("PortraitLandscape");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(2)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Status");
-        expect($cells.eq(1)).to.have.text("Used");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Status");
+        expect(cells.eq(1)).to.have.text("Used");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("div-notification-banner").should("not.exist");
     cy.findByTestId("reclassify-save-btn").click();
@@ -604,47 +604,47 @@ describe("Feature Reclassify Document", () => {
       .find("tbody tr")
       .eq(0)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Type");
-        expect($cells.eq(1)).to.have.text("MG11");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Type");
+        expect(cells.eq(1)).to.have.text("MG11");
+        expect(cells.eq(2)).to.have.text("Change");
       });
 
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(1)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Statement Witness");
-        expect($cells.eq(1)).to.have.text("PC Blaynee_S");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Statement Witness");
+        expect(cells.eq(1)).to.have.text("PC Blaynee_S");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(2)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Statement Date");
-        expect($cells.eq(1)).to.have.text("01/10/1980");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Statement Date");
+        expect(cells.eq(1)).to.have.text("01/10/1980");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(3)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Statement Number");
-        expect($cells.eq(1)).to.have.text("5");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Statement Number");
+        expect(cells.eq(1)).to.have.text("5");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(4)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Status");
-        expect($cells.eq(1)).to.have.text("Used");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Status");
+        expect(cells.eq(1)).to.have.text("Used");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("div-notification-banner").should("not.exist");
     cy.findByTestId("reclassify-save-btn").click();
@@ -835,47 +835,47 @@ describe("Feature Reclassify Document", () => {
       .find("tbody tr")
       .eq(0)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Type");
-        expect($cells.eq(1)).to.have.text("MG15(SDN)");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Type");
+        expect(cells.eq(1)).to.have.text("MG15(SDN)");
+        expect(cells.eq(2)).to.have.text("Change");
       });
 
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(1)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Item Name");
-        expect($cells.eq(1)).to.have.text("MCLOVEMG3_1");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Item Name");
+        expect(cells.eq(1)).to.have.text("MCLOVEMG3_1");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(2)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Exhibit Reference");
-        expect($cells.eq(1)).to.have.text("test reference");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Exhibit Reference");
+        expect(cells.eq(1)).to.have.text("test reference");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(3)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Exhibit Producer");
-        expect($cells.eq(1)).to.have.text("PC Blaynee");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Exhibit Producer");
+        expect(cells.eq(1)).to.have.text("PC Blaynee");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("reclassify-summary")
       .find("tbody tr")
       .eq(4)
       .find("td")
-      .then(($cells) => {
-        expect($cells.eq(0)).to.have.text("Status");
-        expect($cells.eq(1)).to.have.text("Used");
-        expect($cells.eq(2)).to.have.text("Change");
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Status");
+        expect(cells.eq(1)).to.have.text("Used");
+        expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("div-notification-banner").should("not.exist");
     cy.findByTestId("reclassify-save-btn").click();
@@ -1004,6 +1004,26 @@ describe("Feature Reclassify Document", () => {
   });
 
   it("Should show all the reclassify UI validation errors", () => {
+    const saveReclassifyRequestObject = { body: "" };
+    cy.trackRequestBody(
+      saveReclassifyRequestObject,
+      "POST",
+      "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
+    );
+    const expectedSaveReclassifyPayload = {
+      documentId: 1,
+      documentTypeId: 1042,
+      immediate: null,
+      other: null,
+      statement: null,
+      exhibit: {
+        used: false,
+        existingProducerOrWitnessId: null,
+        newProducer: "producer",
+        item: "abc",
+        reference: "test_ref",
+      },
+    };
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -1030,7 +1050,7 @@ describe("Feature Reclassify Document", () => {
       "Error: New document type should not be empty"
     );
 
-    //stage 2 validation
+    //Immediate and Others type validation
     cy.findByTestId("reclassify-document-type").select("MG10");
     cy.findByTestId("reclassify-continue-btn").click();
 
@@ -1212,6 +1232,8 @@ describe("Feature Reclassify Document", () => {
       .click();
     cy.findByTestId("reclassify-cancel-btn").click();
     cy.findByTestId("div-reclassify").should("not.exist");
+
+    //Exhibit validation
     cy.findByTestId("document-housekeeping-actions-dropdown-1").click();
     cy.findByTestId("dropdown-panel").contains("Reclassify document").click();
     cy.findByTestId("div-reclassify")
@@ -1304,6 +1326,9 @@ describe("Feature Reclassify Document", () => {
       "Error: Exhibit new producer or witness should not be empty"
     );
     cy.findByTestId("exhibit-other-producer-name").type("producer=@1");
+    cy.get(
+      'input[type="radio"][name="radio-document-used-status"][value="NO"]'
+    ).check();
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("reclassify-error-summary")
       .find("li")
@@ -1324,5 +1349,235 @@ describe("Feature Reclassify Document", () => {
       .find("h1")
       .should("have.length", 1)
       .and("have.text", "Check your answers");
+    cy.findByTestId("reclassify-save-btn").click();
+    // all buttons should be disabled when saving reclassification
+    cy.findByTestId("div-reclassify")
+      .contains("button", "Back", { timeout: 10000 })
+      .should("be.visible")
+      .should("be.disabled");
+
+    for (let i = 0; i < 3; i++) {
+      cy.findByTestId("reclassify-summary")
+        .find("tbody tr")
+        .eq(i)
+        .contains("button", "Change")
+        .should("be.disabled");
+    }
+    cy.waitUntil(() => {
+      return saveReclassifyRequestObject.body;
+    }).then(() => {
+      expect(saveReclassifyRequestObject.body).to.deep.equal(
+        JSON.stringify(expectedSaveReclassifyPayload)
+      );
+    });
+  });
+
+  it("should be able to navigate to stage 2 from stage 3 and change any details", () => {
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("document-housekeeping-actions-dropdown-1").click();
+    cy.findByTestId("dropdown-panel").contains("Reclassify document").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "What type of document is this?");
+    cy.findByTestId("reclassify-document-type").select("MG15(SDN)");
+    cy.findByTestId("reclassify-continue-btn").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "Enter the exhibit details");
+
+    cy.findByTestId("exhibit-reference").type("test_ref");
+    cy.findByTestId("exhibit-select-producer").select("PC Blaynee");
+    cy.findByTestId("reclassify-continue-btn").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "Check your answers");
+    cy.findByTestId("reclassify-summary")
+      .find("tbody tr")
+      .eq(4)
+      .find("td")
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Status");
+        expect(cells.eq(1)).to.have.text("Used");
+        expect(cells.eq(2)).to.have.text("Change");
+      });
+    cy.findByTestId("reclassify-summary")
+      .find("tbody tr")
+      .eq(4)
+      .contains("button", "Change")
+      .click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "Enter the exhibit details");
+    cy.findByTestId("exhibit-reference").clear().type("test_ref_changed");
+    cy.findByTestId("exhibit-select-producer").select("PC Lucy");
+    cy.get(
+      'input[type="radio"][name="radio-document-used-status"][value="NO"]'
+    ).check();
+    cy.findByTestId("reclassify-continue-btn").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "Check your answers");
+    cy.findByTestId("reclassify-summary")
+      .find("tbody tr")
+      .eq(0)
+      .find("td")
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Type");
+        expect(cells.eq(1)).to.have.text("MG15(SDN)");
+        expect(cells.eq(2)).to.have.text("Change");
+      });
+    cy.findByTestId("reclassify-summary")
+      .find("tbody tr")
+      .eq(1)
+      .find("td")
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Item Name");
+        expect(cells.eq(1)).to.have.text("MCLOVEMG3");
+        expect(cells.eq(2)).to.have.text("Change");
+      });
+    cy.findByTestId("reclassify-summary")
+      .find("tbody tr")
+      .eq(2)
+      .find("td")
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Exhibit Reference");
+        expect(cells.eq(1)).to.have.text("test_ref_changed");
+        expect(cells.eq(2)).to.have.text("Change");
+      });
+    cy.findByTestId("reclassify-summary")
+      .find("tbody tr")
+      .eq(3)
+      .find("td")
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Exhibit Producer");
+        expect(cells.eq(1)).to.have.text("PC Lucy");
+        expect(cells.eq(2)).to.have.text("Change");
+      });
+    cy.findByTestId("reclassify-summary")
+      .find("tbody tr")
+      .eq(4)
+      .find("td")
+      .then((cells) => {
+        expect(cells.eq(0)).to.have.text("Status");
+        expect(cells.eq(1)).to.have.text("Unused");
+        expect(cells.eq(2)).to.have.text("Change");
+      });
+  });
+
+  it("should show error if it failed to retrieve materialList", () => {
+    cy.overrideRoute(
+      MATERIAL_TYPE_LIST,
+      {
+        type: "break",
+        httpStatusCode: 500,
+        timeMs: 500,
+      },
+      "get"
+    );
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("document-housekeeping-actions-dropdown-1").click();
+    cy.findByTestId("dropdown-panel").contains("Reclassify document").click();
+    cy.get("h1").should(
+      "have.text",
+      "Sorry, there is a problem with the service"
+    );
+    cy.get("body").contains("Error: Failed to retrieve material type list");
+  });
+
+  it("should show error if it failed to retrieve exhibit producers", () => {
+    cy.overrideRoute(
+      EXHIBIT_PRODUCERS,
+      {
+        type: "break",
+        httpStatusCode: 500,
+        timeMs: 500,
+      },
+      "get"
+    );
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("document-housekeeping-actions-dropdown-1").click();
+    cy.findByTestId("dropdown-panel").contains("Reclassify document").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "What type of document is this?");
+    cy.findByTestId("reclassify-document-type").select("MG15(SDN)");
+    cy.findByTestId("reclassify-continue-btn").click();
+    cy.get("h1").should(
+      "have.text",
+      "Sorry, there is a problem with the service"
+    );
+    cy.get("body").contains("Error: Failed to retrieve exhibit producer data");
+  });
+
+  it("should show error if it failed to retrieve statement witness", () => {
+    cy.overrideRoute(
+      STATEMENT_WITNESS,
+      {
+        type: "break",
+        httpStatusCode: 500,
+        timeMs: 500,
+      },
+      "get"
+    );
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("document-housekeeping-actions-dropdown-1").click();
+    cy.findByTestId("dropdown-panel").contains("Reclassify document").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "What type of document is this?");
+    cy.findByTestId("reclassify-document-type").select("MG11");
+    cy.findByTestId("reclassify-continue-btn").click();
+    cy.get("h1").should(
+      "have.text",
+      "Sorry, there is a problem with the service"
+    );
+    cy.get("body").contains(
+      "Error: Failed to retrieve statement witness details"
+    );
+  });
+
+  it("should show error if it failed to retrieve statement witness numbers", () => {
+    cy.overrideRoute(
+      STATEMENT_WITNESS_NUMBERS,
+      {
+        type: "break",
+        httpStatusCode: 500,
+        timeMs: 500,
+      },
+      "get"
+    );
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("document-housekeeping-actions-dropdown-1").click();
+    cy.findByTestId("dropdown-panel").contains("Reclassify document").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "What type of document is this?");
+    cy.findByTestId("reclassify-document-type").select("MG11");
+    cy.findByTestId("reclassify-continue-btn").click();
+    cy.findByTestId("div-reclassify")
+      .find("h1")
+      .should("have.length", 1)
+      .and("have.text", "Enter the statement details");
+    cy.findByTestId("reclassify-statement-witness").select("PC Blaynee_S");
+    cy.get("h1").should(
+      "have.text",
+      "Sorry, there is a problem with the service"
+    );
+    cy.get("body").contains(
+      "Error: Failed to retrieve statement witness numbers"
+    );
   });
 });

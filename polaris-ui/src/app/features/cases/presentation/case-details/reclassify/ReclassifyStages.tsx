@@ -3,8 +3,6 @@ import {
   LinkButton,
   Button,
   Modal,
-  NotificationBanner,
-  Spinner,
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
@@ -79,7 +77,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>(
     errorTextsInitialValue
   );
-
+  const [lookupError, setLookupDataError] = useState("");
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext()!;
 
@@ -387,6 +385,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       (acceptAndSaveButtonRef.current as HTMLButtonElement).focus();
   };
 
+  const handleLookUpDataError = (errorMessage: string) => {
+    setLookupDataError(errorMessage);
+  };
+
   const closeReclassify = useCallback(() => {
     handleCloseReclassify(documentId);
   }, [handleCloseReclassify, documentId]);
@@ -444,6 +446,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         });
       } catch (error) {
         console.error("Error fetching data:", error);
+        setLookupDataError("Failed to retrieve material type list");
       } finally {
         setLoading(false);
       }
@@ -460,6 +463,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
   }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
 
+  if (lookupError) {
+    throw Error(lookupError);
+  }
   if (loading) return <div>loading data</div>;
   return (
     <div
@@ -484,6 +490,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               getStatementWitnessDetails={getStatementWitnessDetails}
               getWitnessStatementNumbers={getWitnessStatementNumbers}
               handleBackBtnClick={handleBackBtnClick}
+              handleLookUpDataError={handleLookUpDataError}
             />
           )}
 
