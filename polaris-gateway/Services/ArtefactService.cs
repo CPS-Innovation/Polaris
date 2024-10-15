@@ -12,6 +12,16 @@ public class ArtefactService : IArtefactService
     private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
 
+    public ArtefactService(
+        IV2PolarisBlobStorageService blobStorageService,
+        IDdeiClient ddeiClient,
+        IDdeiArgFactory ddeiArgFactory)
+    {
+        _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
+        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
+        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+    }
+
     public async Task<Stream> GetPdf(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
         var blobName = BlobNameHelper.GetBlobName(caseId, documentId, versionId, BlobNameHelper.BlobType.Pdf);

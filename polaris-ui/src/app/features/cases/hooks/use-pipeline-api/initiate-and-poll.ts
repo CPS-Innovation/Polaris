@@ -126,16 +126,13 @@ export const initiateAndPoll = (
           break;
         }
 
-        const [pipelineResults, experimentalDocumentResults] =
-          await Promise.all([
-            getPipelinePdfResults(
-              trackerArgs.trackerUrl,
-              trackerArgs.correlationId
-            ),
-            [], //getDocuments(urn, caseId),
-          ]);
-
-        console.debug(experimentalDocumentResults);
+        const [pipelineResults] = await Promise.all([
+          getPipelinePdfResults(
+            trackerArgs.trackerUrl,
+            trackerArgs.correlationId
+          ),
+          [], //getDocuments(urn, caseId),
+        ]);
 
         if (pipelineResults) {
           handleApiCallSuccess(pipelineResults);

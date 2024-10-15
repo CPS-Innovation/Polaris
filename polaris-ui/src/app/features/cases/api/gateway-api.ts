@@ -110,11 +110,9 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
 export const getDocuments = async (urn: string, caseId: number) => {
   const url = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
 
-  const response = await internalReauthenticatingFetch(url, {
+  const response = await fetchImplementation("reauth", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
-
-  await handleGetCaseApiResponse(response, url, "Get Documents failed");
 
   return (await response.json()) as PresentationDocumentProperties[];
 };
