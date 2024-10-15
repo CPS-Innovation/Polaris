@@ -2,7 +2,7 @@
 using System.IO;
 using Common.Constants;
 
-namespace coordinator.Domain;
+namespace Common.Clients.PdfGeneratorDomain.Domain;
 
 public class ConvertToPdfResponse
 {

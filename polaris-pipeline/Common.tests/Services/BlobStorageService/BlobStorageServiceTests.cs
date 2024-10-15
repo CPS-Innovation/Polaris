@@ -17,7 +17,7 @@ namespace Common.tests.Services.BlobStorageService
         private readonly Stream _stream;
         private readonly string _blobName;
         private readonly Guid _correlationId;
-        private readonly long _caseId;
+        private readonly int _caseId;
         private readonly string _documentId;
         private readonly long _versionId;
 
@@ -35,7 +35,7 @@ namespace Common.tests.Services.BlobStorageService
             _stream = new MemoryStream();
             _blobName = _fixture.Create<string>();
             _correlationId = _fixture.Create<Guid>();
-            _caseId = _fixture.Create<long>();
+            _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
             _versionId = _fixture.Create<long>();
 
@@ -105,14 +105,14 @@ namespace Common.tests.Services.BlobStorageService
         {
             _mockBlobContainerExistsResponse.Setup(response => response.Value).Returns(false);
 
-            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId.ToString(), _documentId,
-                _versionId.ToString(), _correlationId));
+            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId, _documentId,
+                _versionId, _correlationId));
         }
 
         [Fact]
         public async Task UploadDocumentAsync_UploadsDocument()
         {
-            await _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId.ToString(), _documentId, _versionId.ToString(), _correlationId);
+            await _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId, _documentId, _versionId, _correlationId);
 
             _mockBlobClient.Verify(client => client.UploadAsync(_stream, true, It.IsAny<CancellationToken>()));
         }

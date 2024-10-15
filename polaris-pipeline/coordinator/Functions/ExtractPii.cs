@@ -61,7 +61,7 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId.ToString(), documentId, _logger, currentCorrelationId, nameof(ExtractPii));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ExtractPii));
                 var document = response.CmsDocument;
 
                 var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, documentId, currentCorrelationId);
@@ -96,9 +96,9 @@ namespace coordinator.Functions
                         await _blobStorageService.UploadDocumentAsync(
                             piiStream,
                             piiBlobName,
-                            caseId.ToString(),
+                            caseId,
                             documentId,
-                            versionId: "1",
+                            versionId: 1,
                             currentCorrelationId
                         );
                     }
@@ -109,7 +109,7 @@ namespace coordinator.Functions
 
                     var results = _piiService.ReconcilePiiResults(piiChunks, piiResultsWrapper);
 
-                    var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
+                    var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
                     var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
 
                     await client.SignalEntityAsync<ICaseDurableEntity>(

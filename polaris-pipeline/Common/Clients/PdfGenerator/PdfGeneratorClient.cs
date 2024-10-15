@@ -9,16 +9,16 @@ using Common.Constants;
 using Common.Domain.Document;
 using Common.Streaming;
 
-namespace coordinator.Clients.PdfGenerator
+namespace Common.Clients.PdfGenerator
 {
     public class PdfGeneratorClient : IPdfGeneratorClient
     {
         private const string FiletypeKey = "Filetype";
-        private readonly IRequestFactory _requestFactory;
+        private readonly IPdfGeneratorRequestFactory _requestFactory;
         private readonly HttpClient _httpClient;
         private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
 
-        public PdfGeneratorClient(IRequestFactory pipelineClientRequestFactory,
+        public PdfGeneratorClient(IPdfGeneratorRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
             IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory)
         {

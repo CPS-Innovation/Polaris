@@ -92,7 +92,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/notes";
         }
 
-        public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)
+        public static string GetConvertToPdfPath(string caseUrn, int caseId, string documentId, long versionId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         }
@@ -117,7 +117,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
-        public static string GetRedactPdfPath(string caseUrn, string caseId, string documentId)
+        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
@@ -142,7 +142,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/pii";
         }
 
-        public static string GetModifyDocumentPath(string caseUrn, string caseId, string documentId)
+        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/modify";
         }

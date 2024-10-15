@@ -34,7 +34,7 @@ namespace coordinator.Durable.Orchestration
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-        public static string GetKey(string caseId) => $"[{caseId}]";
+        public static string GetKey(int caseId) => $"[{caseId}]";
 
         public RefreshCaseOrchestrator(
             ILogger<RefreshCaseOrchestrator> log,

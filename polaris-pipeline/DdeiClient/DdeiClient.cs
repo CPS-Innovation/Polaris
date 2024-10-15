@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Common.Dto.Response.Case;
@@ -21,7 +22,7 @@ namespace Ddei
     {
         private readonly IDdeiArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
-        private readonly ICaseDocumentMapper<DdeiDocumentResponse> _caseDocumentMapper;
+        private readonly ICaseDocumentMapper<Domain.Response.Document.DdeiDocumentResponse> _caseDocumentMapper;
         private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
         private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
         private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
@@ -39,7 +40,7 @@ namespace Ddei
             IDdeiClientRequestFactory ddeiClientRequestFactory,
             IDdeiArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
-            ICaseDocumentMapper<DdeiDocumentResponse> caseDocumentMapper,
+            ICaseDocumentMapper<Domain.Response.Document.DdeiDocumentResponse> caseDocumentMapper,
             ICaseDocumentNoteMapper caseDocumentNoteMapper,
             ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
             ICaseExhibitProducerMapper caseExhibitProducerMapper,
@@ -116,7 +117,7 @@ namespace Ddei
 
         public async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(DdeiCaseIdentifiersArgDto arg)
         {
-            var ddeiResults = await CallDdei<List<DdeiDocumentResponse>>(
+            var ddeiResults = await CallDdei<List<Domain.Response.Document.DdeiDocumentResponse>>(
                 _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(arg)
             );
 
@@ -124,11 +125,16 @@ namespace Ddei
                 .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult));
         }
 
-        public async Task<Stream> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
+        public async Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
         {
             var response = await CallDdei(_ddeiClientRequestFactory.CreateGetDocumentRequest(arg));
+            var fileName = response.Content.Headers.GetValues("Content-Disposition").ToList()[0];
 
-            return await response.Content.ReadAsStreamAsync();
+            return new FileResult
+            {
+                Stream = await response.Content.ReadAsStreamAsync(),
+                FileName = fileName
+            };
         }
 
         public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)

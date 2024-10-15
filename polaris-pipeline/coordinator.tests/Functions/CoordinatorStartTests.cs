@@ -47,7 +47,7 @@ namespace coordinator.tests.Functions
 
             var cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
-            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId.ToString());
+            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId);
 
             _httpRequest = new DefaultHttpContext().Request;
             _httpRequest.Method = "POST";
@@ -69,7 +69,7 @@ namespace coordinator.tests.Functions
                .ReturnsAsync(default(DurableOrchestrationStatus));
 
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
                 .ReturnsAsync(true);
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseOrchestrationAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<int>()));
@@ -103,7 +103,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CaseOrchestrationPayload>()))
                 .Throws(new Exception());
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
                 .ReturnsAsync(false);
 
             var result = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
@@ -127,7 +127,7 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId.ToString(),
+                    _caseId,
                     It.IsAny<CaseOrchestrationPayload>(),
                     _httpRequest));
         }
@@ -147,7 +147,7 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId.ToString(),
+                    _caseId,
                     It.Is<CaseOrchestrationPayload>(p => p.CaseId == _caseId),
                     _httpRequest));
         }

@@ -89,11 +89,6 @@ namespace coordinator
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
-            services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>
-            {
-                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactPdfBaseUrl));
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            }).AddPolicyHandler(GetRetryPolicy());
             services.AddHttpClient<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactorPdfBaseUrl));

@@ -23,10 +23,10 @@ using Moq.Protected;
 using Xunit;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using coordinator.Domain;
 using Common.Constants;
 using FluentAssertions;
 using Ddei.Factories;
+using Common.Clients.PdfGeneratorDomain.Domain;
 
 namespace pdf_generator.tests.Functions
 {
@@ -113,9 +113,9 @@ namespace pdf_generator.tests.Functions
           .Setup(client => client.ConvertToPdfAsync(
               _generatePdfRequest.CorrelationId,
               _generatePdfRequest.Urn,
-              _generatePdfRequest.CaseId.ToString(),
+              _generatePdfRequest.CaseId,
               _generatePdfRequest.DocumentId,
-              _generatePdfRequest.VersionId.ToString(),
+              _generatePdfRequest.VersionId,
               _documentStream,
               FileType.DOC))
           .ReturnsAsync(new ConvertToPdfResponse() { PdfStream = _pdfStream, Status = PdfConversionStatus.DocumentConverted });
@@ -150,9 +150,9 @@ namespace pdf_generator.tests.Functions
           (
               _pdfStream,
               _generatePdfRequest.BlobName,
-              _generatePdfRequest.CaseId.ToString(),
+              _generatePdfRequest.CaseId,
               _generatePdfRequest.CmsDocumentTracker.DocumentId,
-              _generatePdfRequest.CmsDocumentTracker.VersionId.ToString(),
+              _generatePdfRequest.CmsDocumentTracker.VersionId,
               _generatePdfRequest.CorrelationId
           )
       );
@@ -169,9 +169,9 @@ namespace pdf_generator.tests.Functions
           (
               _pdfStream,
               _generatePdfRequest.BlobName,
-              _generatePdfRequest.CaseId.ToString(),
+              _generatePdfRequest.CaseId,
               _generatePdfRequest.CmsDocumentTracker.DocumentId,
-              _generatePdfRequest.CmsDocumentTracker.VersionId.ToString(),
+              _generatePdfRequest.CmsDocumentTracker.VersionId,
               _generatePdfRequest.CorrelationId
           )
       );

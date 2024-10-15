@@ -63,7 +63,7 @@ namespace coordinator.Functions
 
                 var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
-                var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
+                var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
                 var entityState = trackerState.EntityState;

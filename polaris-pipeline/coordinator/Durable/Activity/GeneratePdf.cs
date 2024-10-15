@@ -61,9 +61,9 @@ namespace coordinator.Durable.Activity
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(
                         payload.CorrelationId,
                         payload.Urn,
-                        payload.CaseId.ToString(),
+                        payload.CaseId,
                         payload.DocumentId,
-                        payload.VersionId.ToString(),
+                        payload.VersionId,
                         documentStream,
                         fileType);
 
@@ -76,9 +76,9 @@ namespace coordinator.Durable.Activity
             (
                 response.PdfStream,
                 payload.BlobName,
-                payload.CaseId.ToString(),
+                payload.CaseId,
                 payload.DocumentId,
-                payload.VersionId.ToString(),
+                payload.VersionId,
                 payload.CorrelationId
             );
 

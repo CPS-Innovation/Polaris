@@ -17,7 +17,7 @@ public interface IOrchestrationProvider
 
     Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client,
                                                Guid correlationId,
-                                               string caseId,
+                                               int caseId,
                                                CaseOrchestrationPayload casePayload,
                                                HttpRequest req);
 

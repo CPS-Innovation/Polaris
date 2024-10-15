@@ -17,10 +17,11 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Ddei.Extensions;
 using Common.Services.DocumentToggle;
-using Common.Services.BlobStorageService;
 using Common.Services;
 using Common.Services.OcrService;
 using Common.Factories.ComputerVisionClientFactory;
+using Common.Clients.PdfGenerator;
+//using Common.Clients.PdfGenerator;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -91,6 +92,11 @@ namespace PolarisGateway
             ));
             services.AddSingleton<IOcrService, OcrService>();
             services.AddSingleton<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+            services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
         }

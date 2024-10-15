@@ -175,7 +175,7 @@ namespace PolarisGateway.Clients.Coordinator
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
-                RestApi.GetModifyDocumentPath(caseUrn, caseId.ToString(), documentId),
+                RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));

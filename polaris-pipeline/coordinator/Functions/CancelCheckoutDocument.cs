@@ -34,7 +34,7 @@ namespace coordinator.Functions
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req,
             string caseUrn,
-            string caseId,
+            int caseId,
             string documentId,
             [DurableClient] IDurableEntityClient client)
         {
@@ -53,7 +53,7 @@ namespace coordinator.Functions
                     cmsAuthValues: cmsAuthValues,
                     correlationId: currentCorrelationId,
                     urn: caseUrn,
-                    caseId: int.Parse(caseId),
+                    caseId: caseId,
                     documentId: document.CmsDocumentId,
                     versionId: document.VersionId
                 );

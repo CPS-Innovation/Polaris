@@ -10,7 +10,7 @@ namespace Common.Services.BlobStorageService
 
         Task UploadDocumentAsync(Stream stream, string blobName);
 
-        Task UploadDocumentAsync(Stream stream, string blobName, string caseId, string documentId, string versionId, Guid correlationId);
+        Task UploadDocumentAsync(Stream stream, string blobName, int caseId, string documentId, long versionId, Guid correlationId);
 
         Task DeleteBlobsByCaseAsync(string caseId);
     }

@@ -49,15 +49,15 @@ namespace Common.Services.BlobStorageService
             await UploadDocumentInternal(stream, blobName);
         }
 
-        public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, string documentId, string versionId, Guid correlationId)
+        public async Task UploadDocumentAsync(Stream stream, string blobName, int caseId, string documentId, long versionId, Guid correlationId)
         {
             var blobClient = await UploadDocumentInternal(stream, blobName);
 
             var metadata = new Dictionary<string, string>
             {
-                {DocumentTags.CaseId, caseId},
+                {DocumentTags.CaseId, caseId.ToString()},
                 {DocumentTags.DocumentId, documentId},
-                {DocumentTags.VersionId, string.IsNullOrWhiteSpace(versionId) ? "1" : versionId}
+                {DocumentTags.VersionId, versionId.ToString()},
             };
 
             await blobClient.SetMetadataAsync(metadata);

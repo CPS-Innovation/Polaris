@@ -39,7 +39,7 @@ namespace coordinator.Functions
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req,
             string caseUrn,
-            string caseId,
+            int caseId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;

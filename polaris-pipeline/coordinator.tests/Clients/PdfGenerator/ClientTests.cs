@@ -25,9 +25,9 @@ namespace coordinator.Tests.Clients.PdfGenerator
     private readonly Fixture _fixture;
     private readonly Guid _correlationId;
     private readonly string _caseUrn;
-    private readonly string _caseId;
+    private readonly int _caseId;
     private readonly string _documentId;
-    private readonly string _versionId;
+    private readonly long _versionId;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
     private readonly Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
     private readonly HttpRequestMessage _httpRequestMessage;
@@ -41,9 +41,9 @@ namespace coordinator.Tests.Clients.PdfGenerator
       _mockRequestFactory = new Mock<IRequestFactory>();
       _correlationId = _fixture.Create<Guid>();
       _caseUrn = _fixture.Create<string>();
-      _caseId = _fixture.Create<string>();
+      _caseId = _fixture.Create<int>();
       _documentId = _fixture.Create<string>();
-      _versionId = _fixture.Create<string>();
+      _versionId = _fixture.Create<long>();
 
       var mockConfiguration = new Mock<IConfiguration>();
       _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();

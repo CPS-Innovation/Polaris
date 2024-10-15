@@ -21,7 +21,7 @@ namespace coordinator.Durable.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
-        public static string GetInstanceId(string caseId)
+        public static string GetInstanceId(int caseId)
         {
             return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
         }

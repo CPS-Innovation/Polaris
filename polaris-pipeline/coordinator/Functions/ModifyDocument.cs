@@ -63,7 +63,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)]
             HttpRequestMessage req,
             string caseUrn,
-            string caseId,
+            int caseId,
             string documentId,
             [DurableClient] IDurableEntityClient client)
         {
@@ -113,7 +113,7 @@ namespace coordinator.Functions
                     uploadFileName,
                     caseId,
                     documentId,
-                    modificationRequest.VersionId.ToString(),
+                    modificationRequest.VersionId,
                     currentCorrelationId);
 
                 using var pdfStream = await _blobStorageService.GetDocumentAsync(uploadFileName, currentCorrelationId);
@@ -124,7 +124,7 @@ namespace coordinator.Functions
                     cmsAuthValues: cmsAuthValues,
                     correlationId: currentCorrelationId,
                     urn: caseUrn,
-                    caseId: int.Parse(caseId),
+                    caseId: caseId,
                     documentId: document.CmsDocumentId,
                     versionId: document.VersionId
                 );
