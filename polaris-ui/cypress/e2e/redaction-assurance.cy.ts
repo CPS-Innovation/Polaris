@@ -6,22 +6,22 @@ describe("Redaction Assurance", () => {
     redactions: [
       {
         pageIndex: 1,
-        height: 1415.65,
-        width: 1001,
+        height: 1272.81,
+        width: 900,
         redactionCoordinates: [
-          { x1: 402.94, y1: 1391, x2: 620.98, y2: 1371.5 },
-          { x1: 168.27, y1: 1118.2, x2: 239.16, y2: 1098.7 },
-          { x1: 390.43, y1: 1085.31, x2: 426.77, y2: 1065.81 },
-          { x1: 206.81, y1: 337.74, x2: 264.6, y2: 318.24 },
+          { x1: 362.28, y1: 1250.66, x2: 562.65, y2: 1232.94 },
+          { x1: 151.29, y1: 1005.39, x2: 219.35, y2: 987.67 },
+          { x1: 351.04, y1: 975.82, x2: 388.08, y2: 958.09 },
+          { x1: 185.94, y1: 303.67, x2: 242.22, y2: 285.95 },
         ],
       },
       {
         pageIndex: 3,
-        height: 1415.65,
-        width: 1001,
+        height: 1272.81,
+        width: 900,
         redactionCoordinates: [
-          { x1: 56.7, y1: 749.97, x2: 653.07, y2: 730.47 },
-          { x1: 56.7, y1: 564.13, x2: 733.14, y2: 544.63 },
+          { x1: 50.97, y1: 674.31, x2: 595.85, y2: 656.58 },
+          { x1: 50.97, y1: 507.23, x2: 663.8, y2: 489.5 },
         ],
       },
     ],
@@ -74,7 +74,6 @@ describe("Redaction Assurance", () => {
       cy.findByTestId("btn-redact").click();
 
       cy.findByTestId("btn-save-redaction-0").click();
-
       //assertion on the redaction save request
       cy.waitUntil(() => {
         return saveRequestObject.body;
