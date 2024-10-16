@@ -1,7 +1,7 @@
 using Azure.AI.TextAnalytics;
-using coordinator.Domain;
+using Common.Services.PiiService.Domain;
 
-namespace coordinator.Functions.DurableEntity.Entity.Mapper
+namespace Common.Services.PiiService
 {
     public interface IPiiEntityMapper
     {

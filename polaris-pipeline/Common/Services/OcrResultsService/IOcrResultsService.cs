@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace coordinator.Services.OcrResultsService
+namespace Common.Services.OcrResultsService
 {
     public interface IOcrResultsService
     {

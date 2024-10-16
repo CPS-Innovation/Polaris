@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace coordinator.Services.PiiService
+namespace Common.Services.PiiService
 {
     public class PiiAllowedListService : IPiiAllowedListService
     {

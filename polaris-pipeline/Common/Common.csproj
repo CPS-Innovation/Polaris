@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
+    <PackageReference Include="Azure.AI.TextAnalytics" Version="5.3.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Azure.Storage.Common" Version="12.18.1" />
     <PackageReference Include="FluentValidation" Version="11.9.1" />

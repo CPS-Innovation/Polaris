@@ -7,21 +7,19 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using coordinator;
-using coordinator.Clients.TextAnalytics;
+using Common.Services.PiiService.TextAnalytics;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
 using Common.Factories.ComputerVisionClientFactory;
-using coordinator.Factories.TextAnalyticsClientFactory;
+using Common.Services.PiiService;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
 using coordinator.Services.CleardownService;
 using Common.Services.DocumentToggle;
-using coordinator.Services.OcrResultsService;
+using Common.Services.OcrResultsService;
 using Common.Services.OcrService;
-using coordinator.Services.PiiService;
-using coordinator.Services.TextSanitizationService;
 using coordinator.Services.RenderHtmlService;
 using coordinator.Validators;
 using Common.Domain.Validators;
@@ -117,10 +115,7 @@ namespace coordinator
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
-            services.AddSingleton<IOcrResultsService, OcrResultsService>();
-            services.AddSingleton<IPiiService, PiiService>();
-            services.AddSingleton<ITextAnalyticsClientFactory, TextAnalyticsClientFactory>();
-            services.AddSingleton<ITextAnalysisClient, TextAnalysisClient>();
+
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
@@ -131,6 +126,11 @@ namespace coordinator
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
+
+            services.AddSingleton<IOcrResultsService, OcrResultsService>();
+            services.AddSingleton<IPiiService, PiiService>();
+            services.AddSingleton<ITextAnalyticsClientFactory, TextAnalyticsClientFactory>();
+            services.AddSingleton<ITextAnalysisClient, TextAnalysisClient>();
             services.AddSingleton<IPiiEntityMapper, PiiEntityMapper>();
             services.AddSingleton<IPiiAllowedListService, PiiAllowedListService>();
             services.AddSingleton<IPiiAllowedList, PiiAllowedList>();

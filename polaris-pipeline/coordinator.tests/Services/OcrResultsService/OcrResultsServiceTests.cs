@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
-using coordinator.Services.OcrResultsService;
+using Common.Services.OcrResultsService;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Moq;

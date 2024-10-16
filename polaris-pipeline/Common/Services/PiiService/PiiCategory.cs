@@ -1,4 +1,4 @@
-namespace coordinator.Services.PiiService
+namespace Common.Services.PiiService
 {
     public static class PiiCategory
     {

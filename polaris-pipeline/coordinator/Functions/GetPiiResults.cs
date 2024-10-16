@@ -6,8 +6,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Helpers;
-using coordinator.Services.OcrResultsService;
-using coordinator.Services.PiiService;
+using Common.Services.OcrResultsService;
+using Common.Services.PiiService;
 using Common.Configuration;
 using Common.Extensions;
 

@@ -1,12 +1,16 @@
 using Azure;
 using Azure.AI.TextAnalytics;
-using coordinator.Constants;
+
 using Microsoft.Extensions.Configuration;
 
-namespace coordinator.Factories.TextAnalyticsClientFactory
+namespace Common.Services.PiiService.TextAnalytics
 {
     public class TextAnalyticsClientFactory : ITextAnalyticsClientFactory
     {
+        // todo: sort out where all of these keys should be
+        public const string LanguageServiceUrl = nameof(LanguageServiceUrl);
+        public const string LanguageServiceKey = nameof(LanguageServiceKey);
+
         private readonly IConfiguration _configuration;
 
         public TextAnalyticsClientFactory(IConfiguration configuration)
@@ -16,7 +20,7 @@ namespace coordinator.Factories.TextAnalyticsClientFactory
 
         public TextAnalyticsClient Create()
         {
-            return new TextAnalyticsClient(new System.Uri(_configuration[ConfigKeys.LanguageServiceUrl]), new AzureKeyCredential(_configuration[ConfigKeys.LanguageServiceKey]));
+            return new TextAnalyticsClient(new System.Uri(_configuration[LanguageServiceUrl]), new AzureKeyCredential(_configuration[LanguageServiceKey]));
         }
     }
 }

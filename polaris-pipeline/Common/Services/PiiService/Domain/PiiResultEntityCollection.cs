@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Azure.AI.TextAnalytics;
 
-namespace coordinator.Domain
+namespace Common.Services.PiiService.Domain
 {
     public class PiiResultEntityCollection : List<PiiResultEntity>
     {

@@ -137,10 +137,16 @@ public class ArtefactService : IArtefactService
             {
                 return _artefactServiceResponseFactory.CreateOcrResultsAvailableOcrResult(blobStream, true);
             }
+
+            var ocrResult = await GetOcr(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+            if (ocrResult.Status != JsonArtefactResult.ResultStatus.ArtefactAvailable)
+            {
+                return ocrResult;
+            }
+            // this shouldn't really be possible
+            ocrStream = ocrResult.Stream;
         }
 
-
-
-
+        throw new NotImplementedException();
     }
 }

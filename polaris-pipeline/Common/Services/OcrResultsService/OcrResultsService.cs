@@ -7,9 +7,8 @@ using Common.Services.BlobStorageService;
 using Common.Wrappers;
 using Common.Helpers;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Microsoft.IdentityModel.Tokens;
 
-namespace coordinator.Services.OcrResultsService
+namespace Common.Services.OcrResultsService
 {
     public class OcrResultsService : IOcrResultsService
     {
@@ -82,10 +81,10 @@ namespace coordinator.Services.OcrResultsService
         public int WordCount => Lines.Sum(x => x.WordCount);
         public string Text
         {
-            get { return _text.IsNullOrEmpty() ? null : _text.Trim(); }
+            get { return string.IsNullOrEmpty(_text) ? null : _text.Trim(); }
             set { _text = value; }
         }
-        public int TextLength => Text.IsNullOrEmpty() ? 0 : Text.Length;
+        public int TextLength => string.IsNullOrEmpty(Text) ? 0 : Text.Length;
 
         public void BuildChunk(AnalyzeResults analyzeResults, ref int processedCount)
         {

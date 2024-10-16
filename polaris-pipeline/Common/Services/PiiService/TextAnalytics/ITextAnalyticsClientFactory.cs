@@ -1,6 +1,6 @@
 using Azure.AI.TextAnalytics;
 
-namespace coordinator.Factories.TextAnalyticsClientFactory
+namespace Common.Services.PiiService.TextAnalytics
 {
     public interface ITextAnalyticsClientFactory
     {

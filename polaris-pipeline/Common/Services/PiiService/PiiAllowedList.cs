@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace coordinator.Services.PiiService
+namespace Common.Services.PiiService
 {
     public class PiiAllowedList : IPiiAllowedList
     {

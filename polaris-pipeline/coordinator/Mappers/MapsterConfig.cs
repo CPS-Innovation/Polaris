@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.AI.TextAnalytics;
-using coordinator.Domain;
+using Common.Services.PiiService.Domain;
 using coordinator.Durable.Entity;
 using Common.Dto.Tracker;
 using Mapster;

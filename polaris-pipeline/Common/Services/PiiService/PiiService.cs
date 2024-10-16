@@ -7,14 +7,13 @@ using Azure.AI.TextAnalytics;
 using Common.Domain.Pii;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
-using coordinator.Domain;
-using coordinator.Functions.DurableEntity.Entity.Mapper;
+using Common.Services.PiiService.Domain;
+using Common.Dto.Request;
 using Common.Helpers;
-using coordinator.Services.OcrResultsService;
-using coordinator.Services.TextSanitizationService;
+using Common.Services.OcrResultsService;
 using Microsoft.Extensions.Configuration;
 
-namespace coordinator.Services.PiiService
+namespace Common.Services.PiiService
 {
     public class PiiService : IPiiService
     {

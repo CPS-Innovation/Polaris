@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using coordinator.Services.OcrResultsService;
+using Common.Services.OcrResultsService;
 using Newtonsoft.Json;
 
-namespace coordinator.Domain
+namespace Common.Dto.Request
 {
     public class PiiRequestDto
     {
@@ -28,7 +28,7 @@ namespace coordinator.Domain
 
             foreach (var piiChunk in piiChunks)
             {
-                analysisInput.Documents.Add(new Document
+                analysisInput.Documents.Add(new AnalysisDocument
                 {
                     Id = documentId++.ToString(),
                     Text = piiChunk.Text
@@ -56,10 +56,10 @@ namespace coordinator.Domain
     public class AnalysisInput
     {
         [JsonProperty("documents")]
-        public List<Document> Documents { get; set; } = new List<Document>();
+        public List<AnalysisDocument> Documents { get; set; } = new List<AnalysisDocument>();
     }
 
-    public class Document
+    public class AnalysisDocument
     {
         [JsonProperty("id")]
         public string Id { get; set; }

@@ -1,4 +1,4 @@
-namespace coordinator.Domain
+namespace Common.Services.PiiService.Domain
 {
     public class PiiTextDocumentBatchStatistics
     {

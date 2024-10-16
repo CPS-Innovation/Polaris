@@ -1,6 +1,5 @@
-using System;
 using Xunit;
-using coordinator.Services.TextSanitizationService;
+using Common.Services.PiiService;
 
 namespace coordinator.tests.Services.TextSanitization
 {

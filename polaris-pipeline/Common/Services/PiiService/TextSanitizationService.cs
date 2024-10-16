@@ -1,4 +1,4 @@
-namespace coordinator.Services.TextSanitizationService
+namespace Common.Services.PiiService
 {
   public class TextSanitizationService : ITextSanitizationService
   {

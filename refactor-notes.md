@@ -19,6 +19,7 @@
 
 # Immediate
 
+- where config keys have ended up
 - DdeiClient methods to be suffixed Async
 - Test isOCR-ed?
 - Make sure analytics events are ok

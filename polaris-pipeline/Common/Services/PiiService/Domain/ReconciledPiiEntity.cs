@@ -1,7 +1,7 @@
 using System;
-using coordinator.Services.OcrResultsService;
+using Common.Services.OcrResultsService;
 
-namespace coordinator.Domain
+namespace Common.Services.PiiService.Domain
 {
     public class ReconciledPiiEntity
     {

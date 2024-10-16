@@ -1,5 +1,5 @@
 
-namespace coordinator.Services.TextSanitizationService
+namespace Common.Services.PiiService
 {
   public interface ITextSanitizationService
   {

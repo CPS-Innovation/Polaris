@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.AI.TextAnalytics;
+using Common.Dto.Request;
 using Common.Domain.Pii;
-using coordinator.Domain;
-using coordinator.Services.OcrResultsService;
+using Common.Services.PiiService.Domain;
+using Common.Services.OcrResultsService;
 
-namespace coordinator.Services.PiiService
+namespace Common.Services.PiiService
 {
     public interface IPiiService
     {

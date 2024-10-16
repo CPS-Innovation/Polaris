@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
 using Azure.AI.TextAnalytics;
-using coordinator.Domain;
+using Common.Dto.Request;
 
-namespace coordinator.Clients.TextAnalytics
+
+namespace Common.Services.PiiService.TextAnalytics
 {
     public interface ITextAnalysisClient
     {
