@@ -117,7 +117,7 @@ private_beta = {
 }
 
 case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/Redirect"
-bulk_um_redirect_url         = "https://fct-cps-hsk-uifn-dev.azurewebsites.net/api/init"
+bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
   outbound_live_url   = "/polaris,https://cin3.cps.gov.uk/polaris,https://cin4.cps.gov.uk/polaris,https://cin2.cps.gov.uk/polaris,https://cin5.cps.gov.uk/polaris"
