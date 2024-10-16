@@ -20,9 +20,10 @@ using Common.Services.DocumentToggle;
 using Common.Services.OcrService;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Clients.PdfGenerator;
-using PolarisGateway.Services;
 using Common.Services.BlobStorageService;
 using Common.Services.PiiService;
+using PolarisGateway.Services.Artefact;
+using PolarisGateway.Services.Artefact.Factories;
 
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
@@ -103,10 +104,8 @@ namespace PolarisGateway
             }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
-            services.AddPiiService(Configuration);
-
-            services.AddSingleton<IArtefactService, ArtefactService>();
-            services.AddSingleton<IArtefactServiceResponseFactory, ArtefactServiceResponseFactory>();
+            services.AddPiiService();
+            services.AddArtefactService();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

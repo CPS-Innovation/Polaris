@@ -19,6 +19,8 @@
 
 # Immediate
 
+- non-doc PDFs
+- update state on unsupportedmediatype
 - remove coordinator terraform entries
 - where config keys have ended up
 - DdeiClient methods to be suffixed Async

@@ -19,6 +19,7 @@ namespace Common.Services.PiiService
 {
     public class PiiService : IPiiService
     {
+        private readonly int PiiChunkCharacterLimit;
         private const int DocumentSize = 5;
         private readonly string[] _piiCategories;
         private readonly IPiiEntityMapper _piiEntityMapper;
@@ -41,11 +42,12 @@ namespace Common.Services.PiiService
             _textSanitizationService = textSanitizationService ?? throw new ArgumentNullException(nameof(textSanitizationService));
             _piiChunkingService = piiChunkingService ?? throw new ArgumentNullException(nameof(piiChunkingService));
             _textAnalysisClient = textAnalysisClient ?? throw new ArgumentNullException(nameof(textAnalysisClient));
+            PiiChunkCharacterLimit = int.Parse(configuration[nameof(PiiChunkCharacterLimit)]);
         }
 
-        public async Task<IEnumerable<PiiLine>> GetPiiResults(AnalyzeResults ocrResults, int caseId, string documentId, int characterLimit, Guid correlationId)
+        public async Task<IEnumerable<PiiLine>> GetPiiResultsAsync(AnalyzeResults ocrResults, int caseId, string documentId, Guid correlationId)
         {
-            var piiChunks = _piiChunkingService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, characterLimit, correlationId);
+            var piiChunks = _piiChunkingService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, PiiChunkCharacterLimit, correlationId);
             var piiRequests = CreatePiiRequests(piiChunks);
 
             var calls = piiRequests.Select(async piiRequest => await _textAnalysisClient.CheckForPii(piiRequest));

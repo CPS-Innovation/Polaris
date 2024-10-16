@@ -82,7 +82,7 @@ namespace coordinator
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
-            services.AddPiiService(Configuration);
+            services.AddPiiService();
 
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>

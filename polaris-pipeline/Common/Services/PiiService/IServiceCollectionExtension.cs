@@ -1,18 +1,18 @@
-﻿using OcrResults = Common.Services.PiiService.Chunking;
+﻿
 using Common.Services.PiiService.AllowedWords;
+using Common.Services.PiiService.Chunking;
 using Common.Services.PiiService.Mappers;
 using Common.Services.PiiService.TextAnalytics;
 using Common.Services.PiiService.TextSanitization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Common.Services.PiiService
 {
     public static class IServiceCollectionExtension
     {
-        public static void AddPiiService(this IServiceCollection services, IConfiguration configuration)
+        public static void AddPiiService(this IServiceCollection services)
         {
-            services.AddSingleton<OcrResults.IPiiChunkingService, OcrResults.PiiChunkingService>();
+            services.AddSingleton<IPiiChunkingService, PiiChunkingService>();
             services.AddSingleton<IPiiService, PiiService>();
             services.AddSingleton<ITextAnalyticsClientFactory, TextAnalyticsClientFactory>();
             services.AddSingleton<ITextAnalysisClient, TextAnalysisClient>();

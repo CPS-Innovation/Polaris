@@ -25,6 +25,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
@@ -123,6 +124,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["ClientSecret"],
       app_settings["ComputerVisionClientServiceKey"],
       app_settings["ComputerVisionClientServiceUrl"],
+      app_settings["PiiChunkCharacterLimit"],
       app_settings["DdeiAccessKey"],
       app_settings["DdeiBaseUrl"],
       app_settings["HostType"],

@@ -6,9 +6,10 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Handlers;
-using PolarisGateway.Services;
-using PolarisGateway.Services.Domain;
+
 using Microsoft.AspNetCore.Http.Extensions;
+using PolarisGateway.Services.Artefact;
+using PolarisGateway.Services.Artefact.Domain;
 
 
 namespace PolarisGateway.Functions
@@ -25,7 +26,7 @@ namespace PolarisGateway.Functions
 
         public GetOcr(
             ILogger<GetOcr> logger,
-            IArtefactService artefactService,
+            ICachingArtefactService artefactService,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
@@ -53,20 +54,19 @@ namespace PolarisGateway.Functions
                 var ocrResult = await _artefactService.GetOcr(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
                 return ocrResult.Status switch
                 {
-                    JsonArtefactResult.ResultStatus.ArtefactAvailable => new FileStreamResult(ocrResult.Stream, JsonContentType),
-                    JsonArtefactResult.ResultStatus.PollWithToken => new JsonResult(new
+                    ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),
+                    ResultStatus.PollWithToken => new JsonResult(new
                     {
-                        ocrResult.Token,
-                        NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.Token}"
+                        ocrResult.Result.Item1,
+                        NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.Result.Item1}"
                     })
                     {
-                        StatusCode = (int)HttpStatusCode.Accepted
+                        StatusCode = (int)HttpStatusCode.Accepted // the client will understand 202 as a signal to poll again
                     },
-                    JsonArtefactResult.ResultStatus.FailedOnPdfConversion
-                        => new JsonResult(ocrResult)
-                        {
-                            StatusCode = (int)HttpStatusCode.UnsupportedMediaType
-                        },
+                    ResultStatus.Failed => new JsonResult(ocrResult)
+                    {
+                        StatusCode = (int)HttpStatusCode.UnsupportedMediaType
+                    },
                     _ => new JsonResult(ocrResult) { StatusCode = (int)HttpStatusCode.InternalServerError },
                 };
             }
