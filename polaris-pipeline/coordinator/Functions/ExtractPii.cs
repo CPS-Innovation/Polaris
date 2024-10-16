@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,37 +7,31 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using coordinator.Clients.TextAnalytics;
 using coordinator.Constants;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Orchestration;
 using coordinator.Helpers;
-using coordinator.Services.OcrResultsService;
-using coordinator.Services.PiiService;
+using Common.Services.PiiService;
 using Common.Configuration;
 using Common.Extensions;
+using Common.Helpers;
 using Common.Services.BlobStorageService;
-using Newtonsoft.Json;
+using Common.Domain.Ocr;
+using System.Collections.Generic;
 
 namespace coordinator.Functions
 {
     public class ExtractPii : BaseClient
     {
-        private readonly int CharacterLimit;
         private readonly ILogger<ExtractPii> _logger;
         private readonly IPolarisBlobStorageService _blobStorageService;
-        private readonly IOcrResultsService _ocrResultsService;
         private readonly IPiiService _piiService;
-        private readonly ITextAnalysisClient _textAnalysisClient;
 
-        public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IOcrResultsService ocrResultsService, IPiiService piiService, ITextAnalysisClient textAnalysisClient, IConfiguration configuration)
+        public ExtractPii(ILogger<ExtractPii> logger, IPolarisBlobStorageService blobStorageService, IPiiService piiService, IConfiguration configuration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
-            _ocrResultsService = ocrResultsService ?? throw new ArgumentNullException(nameof(ocrResultsService));
             _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
-            _textAnalysisClient = textAnalysisClient ?? throw new ArgumentNullException(nameof(textAnalysisClient));
-            CharacterLimit = int.Parse(configuration[ConfigKeys.PiiChunkCharacterLimit]);
         }
 
         [FunctionName(nameof(ExtractPii))]
@@ -60,63 +51,31 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId.ToString(), documentId, _logger, currentCorrelationId, nameof(ExtractPii));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ExtractPii));
                 var document = response.CmsDocument;
 
-                var ocrResults = await _ocrResultsService.GetOcrResultsFromBlob(caseId, documentId, currentCorrelationId);
-                var piiResults = await _piiService.GetPiiResultsFromBlob(caseId, documentId, currentCorrelationId);
-
-                if (document.PiiVersionId != null &&
-                    document.PiiVersionId == document.VersionId &&
-                    ocrResults != null && piiResults != null)
+                var piiBlobName = BlobNameHelper.GetBlobName(caseId, documentId, document.VersionId, BlobNameHelper.BlobType.Pii);
+                var existingResults = await _blobStorageService.GetObjectAsync<IEnumerable<Common.Domain.Pii.PiiLine>>(piiBlobName);
+                if (existingResults != null)
                 {
-                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, CharacterLimit, currentCorrelationId);
-                    var results = _piiService.ReconcilePiiResults(piiChunks, piiResults);
-
-                    return new OkObjectResult(results);
+                    return new OkObjectResult(existingResults);
                 }
-                else
-                {
-                    if (ocrResults == null) return new EmptyResult(); // need to handle this
 
-                    var piiChunks = _ocrResultsService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, CharacterLimit, currentCorrelationId);
-                    var piiRequests = _piiService.CreatePiiRequests(piiChunks);
+                var ocrResults = await _blobStorageService.GetObjectAsync<AnalyzeResults>(
+                    BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Ocr));
+                if (ocrResults == null) return new EmptyResult(); // need to handle this
 
-                    var calls = piiRequests.Select(async piiRequest => await _textAnalysisClient.CheckForPii(piiRequest));
-                    var piiRequestResults = await Task.WhenAll(calls);
+                var piiResults = await _piiService.GetPiiResultsAsync(ocrResults, caseId, documentId, currentCorrelationId);
+                await _blobStorageService.UploadObjectAsync(piiResults, piiBlobName);
 
-                    var piiResultsWrapper = _piiService.MapPiiResults(piiRequestResults);
+                var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
+                var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
+                await client.SignalEntityAsync<ICaseDurableEntity>(
+                    caseEntityId,
+                    x => x.SetPiiVersionId(documentId));
 
-                    var jsonResults = JsonConvert.SerializeObject(piiResultsWrapper);
-                    var piiBlobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Pii);
+                return new OkObjectResult(piiResults);
 
-                    using (var piiStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults)))
-                    {
-                        await _blobStorageService.UploadDocumentAsync(
-                            piiStream,
-                            piiBlobName,
-                            caseId.ToString(),
-                            documentId,
-                            versionId: "1",
-                            currentCorrelationId
-                        );
-                    }
-
-                    //Telemetry stats for future use...
-                    // var piiEntityCount = piiResultsWrapper.PiiResultCollection.Sum(x => x.Items.Sum(resultCollection => resultCollection.Entities.Count));
-                    // var hasError = piiResultsWrapper.PiiResultCollection.Any(x => x.Items.Exists(resultCollection => resultCollection.HasError));
-
-                    var results = _piiService.ReconcilePiiResults(piiChunks, piiResultsWrapper);
-
-                    var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
-                    var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
-
-                    await client.SignalEntityAsync<ICaseDurableEntity>(
-                        caseEntityId,
-                        x => x.SetPiiVersionId(documentId));
-
-                    return new OkObjectResult(results);
-                }
             }
             catch (Exception ex)
             {

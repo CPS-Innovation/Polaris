@@ -23,7 +23,7 @@ namespace coordinator.Durable.Activity
         public async Task<StoreCaseIndexesResult> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
-            using var documentStream = await _blobStorageService.GetDocumentAsync(payload.OcrBlobName, payload.CorrelationId);
+            using var documentStream = await _blobStorageService.GetBlobOrThrowAsync(payload.OcrBlobName);
 
             return await _textExtractorClient.StoreCaseIndexesAsync(
                 payload.DocumentId,

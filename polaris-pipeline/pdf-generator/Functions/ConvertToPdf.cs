@@ -43,7 +43,7 @@ namespace pdf_generator.Functions
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [Function(nameof(ConvertToPdf))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
-            string caseUrn, string caseId, string documentId, string versionId)
+            string caseUrn, int caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
             ConvertedDocumentEvent telemetryEvent = default;
@@ -58,7 +58,7 @@ namespace pdf_generator.Functions
 
                 telemetryEvent.FileType = fileType.ToString();
 
-                telemetryEvent.CaseId = caseId;
+                telemetryEvent.CaseId = caseId.ToString();
                 telemetryEvent.CaseUrn = caseUrn;
 
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);

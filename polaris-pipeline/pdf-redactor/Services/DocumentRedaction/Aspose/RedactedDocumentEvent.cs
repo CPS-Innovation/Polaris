@@ -13,7 +13,7 @@ namespace pdf_redactor.TelemetryEvents
     protected const string annotationsDurationSeconds = nameof(annotationsDurationSeconds);
     protected const string finaliseAnnotationsDurationSeconds = nameof(finaliseAnnotationsDurationSeconds);
     public Guid CorrelationId;
-    public string CaseId;
+    public int CaseId;
     public string DocumentId;
     public Dictionary<int, int> RedactionPageCounts;
     public long OriginalBytes;
@@ -35,7 +35,7 @@ namespace pdf_redactor.TelemetryEvents
 
     public RedactedDocumentEvent(
         Guid correlationId,
-        string caseId,
+        int caseId,
         string documentId,
         Dictionary<int, int> redactionPageCounts,
         ProviderType providerType,
@@ -59,7 +59,7 @@ namespace pdf_redactor.TelemetryEvents
           new Dictionary<string, string>
           {
                     { nameof(CorrelationId), CorrelationId.ToString() },
-                    { nameof(CaseId), CaseId },
+                    { nameof(CaseId), CaseId.ToString() },
                     { nameof(DocumentId), EnsureNumericId(DocumentId) },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },

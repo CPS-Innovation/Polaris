@@ -7,27 +7,22 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using coordinator;
-using coordinator.Clients.TextAnalytics;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
-using coordinator.Factories.ComputerVisionClientFactory;
-using coordinator.Factories.TextAnalyticsClientFactory;
+using Common.Factories.ComputerVisionClientFactory;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
 using coordinator.Services.CleardownService;
-using coordinator.Services.DocumentToggle;
-using coordinator.Services.OcrResultsService;
-using coordinator.Services.OcrService;
-using coordinator.Services.PiiService;
-using coordinator.Services.TextSanitizationService;
+using Common.Services.DocumentToggle;
+using Common.Services.OcrService;
 using coordinator.Services.RenderHtmlService;
 using coordinator.Validators;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Services;
+using Common.Services.BlobStorageService;
 using Common.Streaming;
 using Common.Telemetry;
 using Common.Wrappers;
@@ -38,10 +33,10 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using System.Net;
 
-using PdfGenerator = coordinator.Clients.PdfGenerator;
+using PdfGenerator = Common.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
-
+using Common.Services.PiiService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -79,7 +74,7 @@ namespace coordinator
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<TextExtractor.IRequestFactory, TextExtractor.RequestFactory>();
-            services.AddTransient<PdfGenerator.IRequestFactory, PdfGenerator.RequestFactory>();
+            services.AddTransient<PdfGenerator.IPdfGeneratorRequestFactory, PdfGenerator.PdfGeneratorRequestFactory>();
             services.AddTransient<PdfRedactor.IRequestFactory, PdfRedactor.RequestFactory>();
             services.AddTransient<TextExtractor.ISearchDtoContentFactory, TextExtractor.SearchDtoContentFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
@@ -87,6 +82,7 @@ namespace coordinator
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
+            services.AddPiiService();
 
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>
@@ -117,24 +113,17 @@ namespace coordinator
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             services.AddSingleton<ICleardownService, CleardownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
-            services.AddSingleton<IOcrResultsService, OcrResultsService>();
-            services.AddSingleton<IPiiService, PiiService>();
-            services.AddSingleton<ITextAnalyticsClientFactory, TextAnalyticsClientFactory>();
-            services.AddSingleton<ITextAnalysisClient, TextAnalysisClient>();
+
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
-            services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+            // services.AddTransient<IDocumentToggleService, DocumentToggleService>();
             services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
               DocumentToggleService.ReadConfig()
             ));
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
-            services.AddSingleton<IPiiEntityMapper, PiiEntityMapper>();
-            services.AddSingleton<IPiiAllowedListService, PiiAllowedListService>();
-            services.AddSingleton<IPiiAllowedList, PiiAllowedList>();
-            services.AddSingleton<ITextSanitizationService, TextSanitizationService>();
 
             services.AddDurableClientFactory();
         }

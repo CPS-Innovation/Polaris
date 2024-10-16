@@ -41,10 +41,10 @@ namespace coordinator.Functions
             try
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
-                var response = await GetTrackerDocument(client, caseId.ToString(), documentId, _logger, currentCorrelationId, nameof(GetDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(GetDocument));
                 var blobName = response.GetBlobName();
 
-                var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
+                var blobStream = await _blobStorageService.GetBlobOrThrowAsync(blobName);
                 return new FileStreamResult(blobStream, PdfContentType);
             }
             catch (Exception ex)

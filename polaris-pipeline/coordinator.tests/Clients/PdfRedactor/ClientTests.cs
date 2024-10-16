@@ -25,7 +25,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
         private readonly Fixture _fixture;
         private readonly Guid _correlationId;
         private readonly string _caseUrn;
-        private readonly string _caseId;
+        private readonly int _caseId;
         private readonly string _documentId;
         private readonly IPdfRedactorClient _pdfRedactorClient;
 
@@ -37,7 +37,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
             _mockRequestFactory = new Mock<IRequestFactory>();
             _correlationId = _fixture.Create<Guid>();
             _caseUrn = _fixture.Create<string>();
-            _caseId = _fixture.Create<string>();
+            _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
 
             var mockConfiguration = new Mock<IConfiguration>();

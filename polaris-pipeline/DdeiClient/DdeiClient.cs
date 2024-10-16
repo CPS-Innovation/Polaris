@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Common.Dto.Response.Case;
@@ -114,22 +115,26 @@ namespace Ddei
             return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges);
         }
 
-        public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(DdeiCaseIdentifiersArgDto arg)
         {
-            var caseArg = new DdeiCaseIdentifiersArgDto
-            {
-                Urn = caseUrn,
-                CaseId = long.Parse(caseId),
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId
-            }; ;
-            var ddeiResults = await CallDdei<List<DdeiDocumentResponse>>(
-                _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg)
+            var ddeiResults = await CallDdei<List<Domain.Response.Document.DdeiDocumentResponse>>(
+                _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(arg)
             );
 
             return ddeiResults
-                .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
-                .ToArray();
+                .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult));
+        }
+
+        public async Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
+        {
+            var response = await CallDdei(_ddeiClientRequestFactory.CreateGetDocumentRequest(arg));
+            var fileName = response.Content.Headers.GetValues("Content-Disposition").ToList()[0];
+
+            return new FileResult
+            {
+                Stream = await response.Content.ReadAsStreamAsync(),
+                FileName = fileName
+            };
         }
 
         public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)

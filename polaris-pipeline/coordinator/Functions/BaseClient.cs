@@ -33,7 +33,7 @@ namespace coordinator.Functions
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
                 IDurableEntityClient client,
-                string caseId,
+                int caseId,
                 string documentId,
                 ILogger logger,
                 Guid currentCorrelationId,

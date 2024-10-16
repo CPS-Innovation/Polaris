@@ -1,4 +1,6 @@
-﻿namespace Common.Configuration
+﻿using System;
+
+namespace Common.Configuration
 {
     public static class RestApi
     {
@@ -15,7 +17,10 @@
         public const string CaseExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
         public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
         public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
-
+        public const string Documents = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
+        public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/pdf";
+        public const string Ocr = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/ocr";
+        public const string Pii = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/pii";
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/checkout";
@@ -42,6 +47,7 @@
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
+        [Obsolete]
         public const string PiiResults = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/pii";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
@@ -91,7 +97,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/notes";
         }
 
-        public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)
+        public static string GetConvertToPdfPath(string caseUrn, int caseId, string documentId, long versionId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         }
@@ -116,7 +122,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
-        public static string GetRedactPdfPath(string caseUrn, string caseId, string documentId)
+        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
@@ -141,7 +147,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/pii";
         }
 
-        public static string GetModifyDocumentPath(string caseUrn, string caseId, string documentId)
+        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/modify";
         }
@@ -151,7 +157,7 @@
             return $"urns/{caseUrn}/cases/{caseId}/search/count";
         }
 
-        public static string GetReclassifyDocumentPath(string caseUrn, string caseId, string documentId)
+        public static string GetReclassifyDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/reclassify";
         }

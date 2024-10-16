@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
-using coordinator.Clients.PdfGenerator;
+using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
 using Common.Dto.Response.Case;
@@ -61,9 +61,9 @@ namespace coordinator.Durable.Activity
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(
                         payload.CorrelationId,
                         payload.Urn,
-                        payload.CaseId.ToString(),
+                        payload.CaseId,
                         payload.DocumentId,
-                        payload.VersionId.ToString(),
+                        payload.VersionId,
                         documentStream,
                         fileType);
 
@@ -72,15 +72,7 @@ namespace coordinator.Durable.Activity
                 return response.Status;
             }
 
-            await _blobStorageService.UploadDocumentAsync
-            (
-                response.PdfStream,
-                payload.BlobName,
-                payload.CaseId.ToString(),
-                payload.DocumentId,
-                payload.VersionId.ToString(),
-                payload.CorrelationId
-            );
+            await _blobStorageService.UploadBlobAsync(response.PdfStream, payload.BlobName);
 
             response.PdfStream.Dispose();
             return response.Status;
@@ -118,7 +110,7 @@ namespace coordinator.Durable.Activity
             }
             else if (payload.DefendantAndChargesTracker != null)
             {
-                var arg = _ddeiArgFactory.CreateCaseArg(
+                var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
                     payload.CmsAuthValues,
                     payload.CorrelationId,
                     payload.Urn,

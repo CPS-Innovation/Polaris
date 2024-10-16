@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Common.Wrappers;
 using Microsoft.WindowsAzure.Storage;
 
 namespace Common.Services.BlobStorageService
@@ -14,14 +17,27 @@ namespace Common.Services.BlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public PolarisBlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName)
+        public PolarisBlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName, IJsonConvertWrapper jsonConvertWrapper)
         {
             _blobServiceClient = blobServiceClient;
             _blobServiceContainerName = blobServiceContainerName;
+            _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        public async Task<Stream> GetDocumentAsync(string blobName, Guid correlationId)
+        public async Task<Stream> GetBlobOrThrowAsync(string blobName)
+        {
+            var stream = await GetBlobAsync(blobName, null);
+            return stream ?? throw new StorageException("Blob not found");
+        }
+
+        public async Task<Stream> GetBlobAsync(string blobName)
+        {
+            return await GetBlobAsync(blobName, null);
+        }
+
+        public async Task<Stream> GetBlobAsync(string blobName, IDictionary<string, string> mustMatchMetadata)
         {
             var decodedBlobName = UrlDecodeString(blobName);
 
@@ -32,7 +48,17 @@ namespace Common.Services.BlobStorageService
             var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
             if (!await blobClient.ExistsAsync())
             {
-                throw new StorageException($"Blob '{decodedBlobName}' does not exist");
+                return null;
+            }
+
+            if (mustMatchMetadata != null)
+            {
+                var storedMetaData = (await blobClient.GetPropertiesAsync()).Value.Metadata;
+                var metadataMatch = mustMatchMetadata.All(kvp => storedMetaData.ContainsKey(kvp.Key) && storedMetaData[kvp.Key] == kvp.Value);
+                if (!metadataMatch)
+                {
+                    return null;
+                }
             }
 
             // We could use `DownloadStreamingAsync` as per https://github.com/Azure/azure-sdk-for-net/issues/22022#issuecomment-870054035
@@ -43,29 +69,38 @@ namespace Common.Services.BlobStorageService
             return result.Value.Content;
         }
 
-        public async Task UploadDocumentAsync(Stream stream, string blobName)
+        public async Task<T> GetObjectAsync<T>(string blobName)
         {
-            await UploadDocumentInternal(stream, blobName);
+            using var stream = await GetBlobAsync(blobName);
+            if (stream == null)
+            {
+                return default;
+            }
+            using var streamReader = new StreamReader(stream);
+            return _jsonConvertWrapper.DeserializeObject<T>(await streamReader.ReadToEndAsync());
         }
 
-        public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, string documentId, string versionId, Guid correlationId)
+        public async Task UploadBlobAsync(Stream stream, string blobName)
         {
-            var blobClient = await UploadDocumentInternal(stream, blobName);
-
-            var metadata = new Dictionary<string, string>
-            {
-                {DocumentTags.CaseId, caseId},
-                {DocumentTags.DocumentId, documentId},
-                {DocumentTags.VersionId, string.IsNullOrWhiteSpace(versionId) ? "1" : versionId}
-            };
-
+            await UploadBlobInternal(stream, blobName);
+        }
+        public async Task UploadBlobAsync(Stream stream, string blobName, IDictionary<string, string> metadata)
+        {
+            var blobClient = await UploadBlobInternal(stream, blobName);
             await blobClient.SetMetadataAsync(metadata);
         }
 
-        public async Task DeleteBlobsByCaseAsync(string caseId)
+        public async Task UploadObjectAsync<T>(T obj, string blobName)
+        {
+            var objectString = _jsonConvertWrapper.SerializeObject(obj);
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(objectString ?? ""));
+            await UploadBlobAsync(stream, blobName);
+        }
+
+        public async Task DeleteBlobsByCaseAsync(int caseId)
         {
             var blobCount = 0;
-            var targetFolderPath = caseId;
+            var targetFolderPath = caseId.ToString();
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
@@ -80,12 +115,7 @@ namespace Common.Services.BlobStorageService
             }
         }
 
-        private static string UrlDecodeString(string value)
-        {
-            return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
-        }
-
-        private async Task<BlobClient> UploadDocumentInternal(Stream stream, string blobName)
+        private async Task<BlobClient> UploadBlobInternal(Stream stream, string blobName)
         {
             var decodedBlobName = UrlDecodeString(blobName);
 
@@ -99,6 +129,11 @@ namespace Common.Services.BlobStorageService
             stream.Close();
 
             return blobClient;
+        }
+
+        private static string UrlDecodeString(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
         }
     }
 }

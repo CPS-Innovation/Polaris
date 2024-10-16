@@ -15,7 +15,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        public async Task<Stream> ModifyDocument(Stream stream, string caseId, string documentId, ModifyDocumentDto modifications, Guid correlationId)
+        public async Task<Stream> ModifyDocument(Stream stream, int caseId, string documentId, ModifyDocumentDto modifications, Guid correlationId)
         {
             DocumentModifiedEvent telemetryEvent = default;
             try

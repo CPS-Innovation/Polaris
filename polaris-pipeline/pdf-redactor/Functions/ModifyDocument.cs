@@ -42,7 +42,7 @@ namespace pdf_redactor.Functions
         }
 
         [Function(nameof(ModifyDocument))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest request, string caseUrn, string caseId, string documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest request, string caseUrn, int caseId, string documentId)
         {
             Guid currentCorrelationId = default;
 

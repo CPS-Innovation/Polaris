@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.Json;
-using coordinator.Helpers;
+using Common.Helpers;
 using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Durable.Payloads

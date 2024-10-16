@@ -37,7 +37,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly List<CmsDocumentEntity> _trackerCmsDocuments;
         private readonly List<PcdRequestEntity> _trackerPcdRequests;
         private readonly string _caseUrn;
-        private readonly long _caseId;
+        private readonly int _caseId;
         private readonly Guid _correlationId;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
@@ -64,7 +64,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _trackerPcdRequests = _fixture.Create<List<PcdRequestEntity>>();
             _caseUrn = _fixture.Create<string>();
-            _caseId = _fixture.Create<long>();
+            _caseId = _fixture.Create<int>();
             _caseEntity = _fixture.Create<CaseDurableEntity>();
 
             _pdfBlobName = _fixture.Create<string>();
@@ -201,7 +201,7 @@ namespace coordinator.tests.Domain.Tracker
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
 
             // Act
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableEntityClient.Object);
 
             // Assert
             response.Should().BeOfType<OkObjectResult>();
@@ -212,7 +212,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableEntityClient.Object);
 
             var okObjectResult = response as OkObjectResult;
 
@@ -238,7 +238,7 @@ namespace coordinator.tests.Domain.Tracker
 
             var message = new DefaultHttpContext().Request;
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableEntityClient.Object);
 
             response.Should().BeOfType<NotFoundObjectResult>();
         }
@@ -255,7 +255,7 @@ namespace coordinator.tests.Domain.Tracker
 
             var message = new DefaultHttpContext().Request;
             //message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableEntityClient.Object);
 
             response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(400);
         }

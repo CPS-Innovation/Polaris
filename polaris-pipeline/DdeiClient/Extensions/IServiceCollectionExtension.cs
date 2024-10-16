@@ -24,7 +24,7 @@ namespace Ddei.Extensions
         {
             services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
 
-            services.AddHttpClient<IDdeiClient, Ddei.DdeiClient>((service, client) =>
+            services.AddHttpClient<IDdeiClient, DdeiClient>((service, client) =>
             {
                 client.BaseAddress = new Uri(configuration[DdeiBaseUrlConfigKey]);
                 client.DefaultRequestHeaders.Add(FunctionKey, configuration[DdeiAccessKeyConfigKey]);

@@ -1,5 +1,10 @@
 #################### Variables ####################
 
+variable "blob_service_container_name" {
+  type    = string
+  default = "documents"
+}
+
 variable "resource_name_prefix" {
   type    = string
   default = "polaris"

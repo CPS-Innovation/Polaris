@@ -43,7 +43,7 @@ namespace coordinator.Services.CleardownService
         telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
 
 
-        await _blobStorageService.DeleteBlobsByCaseAsync(caseId.ToString());
+        await _blobStorageService.DeleteBlobsByCaseAsync(caseId);
         telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
 
         var orchestrationResult = await _orchestrationProvider.DeleteCaseOrchestrationAsync(client, caseId);
