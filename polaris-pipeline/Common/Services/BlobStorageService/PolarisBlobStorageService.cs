@@ -81,6 +81,54 @@ namespace Common.Services.BlobStorageService
             }
         }
 
+        public async Task UploadDocumentAsync(Stream stream, string blobName, IDictionary<string, string> metadata)
+        {
+            var blobClient = await UploadDocumentInternal(stream, blobName);
+            await blobClient.SetMetadataAsync(metadata);
+        }
+
+        public async Task<Stream> GetDocumentAsync(string blobName)
+        {
+            return await GetDocumentInternalAsync(blobName, null);
+        }
+
+        public async Task<Stream> GetDocumentAsync(string blobName, IDictionary<string, string> mustMatchMetadata)
+        {
+            return await GetDocumentInternalAsync(blobName, mustMatchMetadata);
+        }
+
+        public async Task<Stream> GetDocumentInternalAsync(string blobName, IDictionary<string, string> mustMatchMetadata)
+        {
+            var decodedBlobName = UrlDecodeString(blobName);
+
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
+            if (!await blobContainerClient.ExistsAsync())
+                throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
+
+            var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
+            if (!await blobClient.ExistsAsync())
+            {
+                return null;
+            }
+
+            if (mustMatchMetadata != null)
+            {
+                var storedMetaData = (await blobClient.GetPropertiesAsync()).Value.Metadata;
+                var metadataMatch = mustMatchMetadata.All(kvp => storedMetaData.ContainsKey(kvp.Key) && storedMetaData[kvp.Key] == kvp.Value);
+                if (!metadataMatch)
+                {
+                    return null;
+                }
+            }
+
+            // We could use `DownloadStreamingAsync` as per https://github.com/Azure/azure-sdk-for-net/issues/22022#issuecomment-870054035
+            //  as we are in Azure calling Azure so streaming should be no problem without having to do chunking.
+            // However https://github.com/Azure/azure-sdk-for-net/issues/38342#issue-1864138162 suggests that we could better use `OpenReadAsync`.
+            //  Azurite seems to have a problem with `OpenReadAsync` so we will use `DownloadStreamingAsync` for now.
+            var result = await blobClient.DownloadStreamingAsync();
+            return result.Value.Content;
+        }
+
         private static string UrlDecodeString(string value)
         {
             return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
@@ -100,41 +148,6 @@ namespace Common.Services.BlobStorageService
             stream.Close();
 
             return blobClient;
-        }
-
-        public async Task UploadDocumentAsync(Stream stream, string blobName, IDictionary<string, string> metadata)
-        {
-            var blobClient = await UploadDocumentInternal(stream, blobName);
-            await blobClient.SetMetadataAsync(metadata);
-        }
-
-        public async Task<Stream> GetDocumentAsync(string blobName, IDictionary<string, string> mustMatchMetadata)
-        {
-            var decodedBlobName = UrlDecodeString(blobName);
-
-            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
-            if (!await blobContainerClient.ExistsAsync())
-                throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-
-            var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
-            if (!await blobClient.ExistsAsync())
-            {
-                return null;
-            }
-
-            var storedMetaData = (await blobClient.GetPropertiesAsync()).Value.Metadata;
-            var metadataMatch = mustMatchMetadata.All(kvp => storedMetaData.ContainsKey(kvp.Key) && storedMetaData[kvp.Key] == kvp.Value);
-            if (!metadataMatch)
-            {
-                return null;
-            }
-
-            // We could use `DownloadStreamingAsync` as per https://github.com/Azure/azure-sdk-for-net/issues/22022#issuecomment-870054035
-            //  as we are in Azure calling Azure so streaming should be no problem without having to do chunking.
-            // However https://github.com/Azure/azure-sdk-for-net/issues/38342#issue-1864138162 suggests that we could better use `OpenReadAsync`.
-            //  Azurite seems to have a problem with `OpenReadAsync` so we will use `DownloadStreamingAsync` for now.
-            var result = await blobClient.DownloadStreamingAsync();
-            return result.Value.Content;
         }
     }
 }

@@ -21,7 +21,8 @@ using Common.Services;
 using Common.Services.OcrService;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Clients.PdfGenerator;
-//using Common.Clients.PdfGenerator;
+using PolarisGateway.Services;
+
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -92,6 +93,8 @@ namespace PolarisGateway
             ));
             services.AddSingleton<IOcrService, OcrService>();
             services.AddSingleton<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+
+            services.AddSingleton<IPdfGeneratorRequestFactory, PdfGeneratorRequestFactory>();
             services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
@@ -99,6 +102,9 @@ namespace PolarisGateway
             }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
+
+            services.AddSingleton<IArtefactService, ArtefactService>();
+            services.AddSingleton<IArtefactServiceResponseFactory, ArtefactServiceResponseFactory>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

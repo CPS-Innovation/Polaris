@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
-using coordinator.Clients.PdfGenerator;
+using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
 using Common.Dto.Response.Case;

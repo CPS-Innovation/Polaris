@@ -35,9 +35,27 @@ describe("Tabs", () => {
       title: "Tabs-title",
       activeTabId: "",
       items: [
-        { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-        { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-        { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+        {
+          id: "t1",
+          versionId: 1,
+          label: "tab-1",
+          panel: <></>,
+          isDirty: false,
+        },
+        {
+          id: "t2",
+          versionId: 1,
+          label: "tab-2",
+          panel: <></>,
+          isDirty: false,
+        },
+        {
+          id: "t3",
+          versionId: 1,
+          label: "tab-3",
+          panel: <></>,
+          isDirty: false,
+        },
       ],
       handleClosePdf: () => {},
       handleTabSelection: () => {},
@@ -54,9 +72,27 @@ describe("Tabs", () => {
       title: "Tabs-title",
       activeTabId: "",
       items: [
-        { id: "t1", label: "tab-1", panel: <>content-1</>, isDirty: false },
-        { id: "t2", label: "tab-2", panel: <>content-2</>, isDirty: false },
-        { id: "t3", label: "tab-3", panel: <>content-3</>, isDirty: false },
+        {
+          id: "t1",
+          versionId: 1,
+          label: "tab-1",
+          panel: <>content-1</>,
+          isDirty: false,
+        },
+        {
+          id: "t2",
+          versionId: 1,
+          label: "tab-2",
+          panel: <>content-2</>,
+          isDirty: false,
+        },
+        {
+          id: "t3",
+          versionId: 1,
+          label: "tab-3",
+          panel: <>content-3</>,
+          isDirty: false,
+        },
       ],
       handleClosePdf: () => {},
       handleTabSelection: () => {},
@@ -92,9 +128,27 @@ describe("Tabs", () => {
         activeTabId,
         title: "Tabs-title",
         items: [
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t3",
+            versionId: 1,
+            label: "tab-3",
+            panel: <></>,
+            isDirty: false,
+          },
         ],
         handleClosePdf: () => {},
         handleTabSelection: (id: string) => {
@@ -165,7 +219,15 @@ describe("Tabs", () => {
     rerender(
       <Tabs
         {...props}
-        items={[{ id: "t1", label: "tab-1", panel: <></>, isDirty: false }]}
+        items={[
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+        ]}
       />
     );
     expect(screen.queryAllByRole("tab")).toHaveLength(1);
@@ -175,8 +237,20 @@ describe("Tabs", () => {
       <Tabs
         {...props}
         items={[
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
         ]}
       />
     );
@@ -193,9 +267,27 @@ describe("Tabs", () => {
         title: "Tabs-title",
         activeTabId: "t2",
         items: [
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t3",
+            versionId: 1,
+            label: "tab-3",
+            panel: <></>,
+            isDirty: false,
+          },
         ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
@@ -228,9 +320,27 @@ describe("Tabs", () => {
         title: "Tabs-title",
         activeTabId: "t1",
         items: [
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t3",
+            versionId: 1,
+            label: "tab-3",
+            panel: <></>,
+            isDirty: false,
+          },
         ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
@@ -262,7 +372,15 @@ describe("Tabs", () => {
         idPrefix: "foo",
         title: "Tabs-title",
         activeTabId: "t1",
-        items: [{ id: "t1", label: "tab-1", panel: <></>, isDirty: false }],
+        items: [
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+        ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
         handleUnLockDocuments: () => {},

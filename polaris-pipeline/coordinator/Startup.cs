@@ -38,7 +38,7 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using System.Net;
 
-using PdfGenerator = coordinator.Clients.PdfGenerator;
+using PdfGenerator = Common.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 
@@ -79,7 +79,7 @@ namespace coordinator
             services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<TextExtractor.IRequestFactory, TextExtractor.RequestFactory>();
-            services.AddTransient<PdfGenerator.IRequestFactory, PdfGenerator.RequestFactory>();
+            services.AddTransient<PdfGenerator.IPdfGeneratorRequestFactory, PdfGenerator.PdfGeneratorRequestFactory>();
             services.AddTransient<PdfRedactor.IRequestFactory, PdfRedactor.RequestFactory>();
             services.AddTransient<TextExtractor.ISearchDtoContentFactory, TextExtractor.SearchDtoContentFactory>();
             services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
@@ -89,6 +89,11 @@ namespace coordinator
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
+            services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactPdfBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            }).AddPolicyHandler(GetRetryPolicy());
             services.AddHttpClient<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineRedactorPdfBaseUrl));

@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Handlers;
 using PolarisGateway.Services;
+using PolarisGateway.Services.Domain;
 
 
 namespace PolarisGateway.Functions
@@ -13,6 +15,7 @@ namespace PolarisGateway.Functions
     public class GetPdf
     {
         private const string PdfContentType = "application/pdf";
+        private const string isOcrProcessedParamName = "isOcrProcessed";
         private readonly ILogger<GetPdf> _logger;
         private readonly IArtefactService _artefactService;
         private readonly IInitializationHandler _initializationHandler;
@@ -40,14 +43,14 @@ namespace PolarisGateway.Functions
             {
                 context = await _initializationHandler.Initialize(req);
 
-                var isOcrProcessed = req.Query.ContainsKey("isOcrProcessed") && bool.Parse(req.Query["isOcrProcessed"]);
-                var pdfStream = await _artefactService.GetPdf(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed);
-                if (pdfStream != null)
-                {
-                    return new FileStreamResult(pdfStream, PdfContentType);
-                }
-
-                return new NotFoundResult();
+                var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
+                var getPdfResult = await _artefactService.GetPdf(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed);
+                return getPdfResult.Status == PdfResult.ResultStatus.PdfAvailable
+                    ? new FileStreamResult(getPdfResult.Stream, PdfContentType)
+                    : new JsonResult(getPdfResult)
+                    {
+                        StatusCode = (int)HttpStatusCode.UnsupportedMediaType
+                    };
             }
             catch (Exception ex)
             {

@@ -10,6 +10,7 @@ using Common.Streaming;
 using PolarisDomain = Common.Services.OcrService.Domain;
 using Mapster;
 using System.Threading;
+using Common.Services.OcrService.Domain;
 
 namespace Common.Services.OcrService
 {
@@ -64,7 +65,7 @@ namespace Common.Services.OcrService
             }
         }
 
-        public async Task<(bool, PolarisDomain.AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        public async Task<OcrOperationResult> GetOperationResultsAsync(Guid operationId, Guid correlationId)
         {
             try
             {
@@ -75,7 +76,10 @@ namespace Common.Services.OcrService
 
                 if (results.Status == OperationStatusCodes.Running || results.Status == OperationStatusCodes.NotStarted)
                 {
-                    return (false, null);
+                    return new OcrOperationResult
+                    {
+                        IsSuccess = false,
+                    };
                 }
 
                 var elapsedMs = (DateTime.Parse(results.LastUpdatedDateTime) - DateTime.Parse(results.CreatedDateTime)).TotalMilliseconds;
@@ -86,7 +90,11 @@ namespace Common.Services.OcrService
                     throw new Exception($"{nameof(GetOperationResultsAsync)} failed with status {results.Status}, operation id: {operationId}");
                 }
 
-                return (true, results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>());
+                return new OcrOperationResult
+                {
+                    IsSuccess = true,
+                    AnalyzeResults = results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>()
+                };
             }
             catch (Exception ex)
             {

@@ -26,7 +26,7 @@ namespace Common.Services.OcrService
             throw new NotImplementedException();
         }
 
-        public Task<(bool, AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId)
+        public Task<OcrOperationResult> GetOperationResultsAsync(Guid operationId, Guid correlationId)
         {
             throw new NotImplementedException();
         }

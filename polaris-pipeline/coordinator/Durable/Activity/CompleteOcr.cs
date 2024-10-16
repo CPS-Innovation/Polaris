@@ -30,21 +30,21 @@ namespace coordinator.Durable.Activity
             // var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
             // var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
             var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
-            var (isOperationComplete, analyzeResult) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
+            var ocrOperationResult = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
 
-            if (!isOperationComplete)
+            if (!ocrOperationResult.IsSuccess)
             {
                 return (false, null);
             }
 
-            var jsonResults = _jsonConvertWrapper.SerializeObject(analyzeResult);
+            var jsonResults = _jsonConvertWrapper.SerializeObject(ocrOperationResult.AnalyzeResults);
             using var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults));
 
             await _blobStorageService.UploadDocumentAsync(
                 ocrStream,
                 ocrBlobName);
 
-            return (true, analyzeResult);
+            return (true, ocrOperationResult.AnalyzeResults);
         }
     }
 }

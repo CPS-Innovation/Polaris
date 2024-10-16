@@ -9,6 +9,6 @@ namespace Common.Services.OcrService
     {
         Task<Guid> InitiateOperationAsync(Stream stream, Guid correlationId);
 
-        Task<(bool, AnalyzeResults)> GetOperationResultsAsync(Guid operationId, Guid correlationId);
+        Task<OcrOperationResult> GetOperationResultsAsync(Guid operationId, Guid correlationId);
     }
 }

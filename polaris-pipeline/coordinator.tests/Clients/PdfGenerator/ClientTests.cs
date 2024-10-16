@@ -15,13 +15,13 @@ using Common.Dto.Response;
 using Common.Configuration;
 using Common.Streaming;
 using System.IO;
-using coordinator.Clients.PdfGenerator;
+using Common.Clients.PdfGenerator;
 
 namespace coordinator.Tests.Clients.PdfGenerator
 {
   public class ClientTests
   {
-    private readonly Mock<IRequestFactory> _mockRequestFactory;
+    private readonly Mock<IPdfGeneratorRequestFactory> _mockRequestFactory;
     private readonly Fixture _fixture;
     private readonly Guid _correlationId;
     private readonly string _caseUrn;
@@ -38,7 +38,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
       _fixture = new Fixture();
 
       _fixture.Create<RedactPdfRequestDto>();
-      _mockRequestFactory = new Mock<IRequestFactory>();
+      _mockRequestFactory = new Mock<IPdfGeneratorRequestFactory>();
       _correlationId = _fixture.Create<Guid>();
       _caseUrn = _fixture.Create<string>();
       _caseId = _fixture.Create<int>();

@@ -60,8 +60,8 @@ export const resolvePdfUrl = (
 ) => {
   // the backend does not look at the v parameter
   return fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${versionId}`
-    //`api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}`
+    //`api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${versionId}`
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}`
   );
 };
 
@@ -387,10 +387,44 @@ export const saveDocumentRename = async (
   return true;
 };
 
+export const getOcrData = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  versionId: number
+) => {
+  const path = fullUrl(
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/ocr`
+  );
+
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Ocr data failed", path, response);
+  }
+
+  if (response.status !== 202) {
+    return await response.json();
+  }
+  // Accepted: results not there yet, so we follow the continuation url that we are given
+  const { nextUrl } = (await response.json()) as { nextUrl: string };
+
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+
+  const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  return await response2.json();
+};
+
 export const getSearchPIIData = async (
   urn: string,
   caseId: number,
-  documentId: string
+  documentId: string,
+  versionId: number
 ) => {
   const path = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/pii`

@@ -13,7 +13,7 @@ using pdf_generator.Services.PdfService;
 using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
-using coordinator.Clients.PdfGenerator;
+using Common.Clients.PdfGenerator;
 using Common.Constants;
 
 namespace pdf_generator.test_harness;
@@ -41,7 +41,7 @@ internal static class Program
       {
         client.BaseAddress = new Uri("http://localhost:7073/api/");
       });
-    builder.Services.AddTransient<IRequestFactory, RequestFactory>();
+    builder.Services.AddTransient<IPdfGeneratorRequestFactory, PdfGeneratorRequestFactory>();
     using var host = builder.Build();
 
     var mode = args[0];
@@ -188,7 +188,7 @@ internal static class Program
 
     static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
     {
-      var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IRequestFactory>();
+      var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IPdfGeneratorRequestFactory>();
       var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
 
       Console.WriteLine("Enter the input file path:");

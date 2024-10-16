@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using coordinator.Clients.PdfGenerator;
+using Common.Clients.PdfGenerator;
 using Common.Domain.Document;
 using Common.Dto.Tracker;
 using Common.Services.BlobStorageService;

@@ -22,7 +22,7 @@ namespace Ddei
     {
         private readonly IDdeiArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
-        private readonly ICaseDocumentMapper<Domain.Response.Document.DdeiDocumentResponse> _caseDocumentMapper;
+        private readonly ICaseDocumentMapper<DdeiDocumentResponse> _caseDocumentMapper;
         private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
         private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
         private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
@@ -40,7 +40,7 @@ namespace Ddei
             IDdeiClientRequestFactory ddeiClientRequestFactory,
             IDdeiArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
-            ICaseDocumentMapper<Domain.Response.Document.DdeiDocumentResponse> caseDocumentMapper,
+            ICaseDocumentMapper<DdeiDocumentResponse> caseDocumentMapper,
             ICaseDocumentNoteMapper caseDocumentNoteMapper,
             ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
             ICaseExhibitProducerMapper caseExhibitProducerMapper,

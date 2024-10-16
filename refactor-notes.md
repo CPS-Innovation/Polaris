@@ -19,7 +19,6 @@
 
 # Immediate
 
--
 - DdeiClient methods to be suffixed Async
 - Test isOCR-ed?
 - Make sure analytics events are ok
@@ -27,6 +26,12 @@
 - Should services return ienumerable
 - Need to do PCD and DAC in doc list
 - hack out old BlobStorageServiceStuff
+
+# Blue post-its
+
+- AddDocumentNote does not need documentId
+- check test file structure
+- check ReclassificationRequestObject
 
 ## Ids
 
