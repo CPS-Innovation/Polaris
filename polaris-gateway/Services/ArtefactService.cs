@@ -88,10 +88,7 @@ public class ArtefactService : IArtefactService
             var ocrResult = await _ocrService.GetOperationResultsAsync(operationId.Value, correlationId);
             if (ocrResult.IsSuccess)
             {
-                var ocrResultString = _jsonConvertWrapper.SerializeObject(ocrResult.AnalyzeResults);
-                using var stream = new MemoryStream(Encoding.UTF8.GetBytes(ocrResultString ?? ""));
-
-                await _blobStorageService.UploadBlobAsync(stream, blobName);
+                await _blobStorageService.UploadObjectAsync(ocrResult.AnalyzeResults, blobName);
                 var resultStream = await _blobStorageService.GetBlobAsync(blobName);
 
                 return _artefactServiceResponseFactory.CreateOcrResultsAvailableOcrResult(resultStream, false);

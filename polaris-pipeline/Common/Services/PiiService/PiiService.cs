@@ -10,6 +10,10 @@ using Common.Services.PiiService.Mappers;
 using Common.Services.PiiService.TextSanitization;
 using Common.Services.PiiService.AllowedWords;
 using Common.Services.PiiService.Domain.Chunking;
+using Common.Services.PiiService.Chunking;
+using Common.Services.PiiService.TextAnalytics;
+using Common.Domain.Ocr;
+using System.Threading.Tasks;
 
 namespace Common.Services.PiiService
 {
@@ -20,16 +24,38 @@ namespace Common.Services.PiiService
         private readonly IPiiEntityMapper _piiEntityMapper;
         private readonly IPiiAllowedListService _piiAllowedList;
         private readonly ITextSanitizationService _textSanitizationService;
+        private readonly IPiiChunkingService _piiChunkingService;
+        private readonly ITextAnalysisClient _textAnalysisClient;
 
-        public PiiService(IPiiEntityMapper piiEntityMapper, IConfiguration configuration, IPiiAllowedListService allowedList, ITextSanitizationService textSanitizationService)
+        public PiiService(
+            IPiiEntityMapper piiEntityMapper,
+            IConfiguration configuration,
+            IPiiAllowedListService allowedList,
+            ITextSanitizationService textSanitizationService,
+            IPiiChunkingService piiChunkingService,
+            ITextAnalysisClient textAnalysisClient)
         {
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
             _piiAllowedList = allowedList ?? throw new ArgumentNullException(nameof(allowedList));
             _piiCategories = configuration["PiiCategories"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             _textSanitizationService = textSanitizationService ?? throw new ArgumentNullException(nameof(textSanitizationService));
+            _piiChunkingService = piiChunkingService ?? throw new ArgumentNullException(nameof(piiChunkingService));
+            _textAnalysisClient = textAnalysisClient ?? throw new ArgumentNullException(nameof(textAnalysisClient));
         }
 
-        public IEnumerable<PiiRequestDto> CreatePiiRequests(List<PiiChunk> piiChunks)
+        public async Task<IEnumerable<PiiLine>> GetPiiResults(AnalyzeResults ocrResults, int caseId, string documentId, int characterLimit, Guid correlationId)
+        {
+            var piiChunks = _piiChunkingService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, characterLimit, correlationId);
+            var piiRequests = CreatePiiRequests(piiChunks);
+
+            var calls = piiRequests.Select(async piiRequest => await _textAnalysisClient.CheckForPii(piiRequest));
+            var piiRequestResults = await Task.WhenAll(calls);
+
+            var piiResultsWrapper = MapPiiResults(piiRequestResults);
+            return ReconcilePiiResults(piiChunks, piiResultsWrapper);
+        }
+
+        private IEnumerable<PiiRequestDto> CreatePiiRequests(List<PiiChunk> piiChunks)
         {
             var piiRequests = new List<PiiRequestDto>();
             var processedCount = 0;
@@ -49,7 +75,7 @@ namespace Common.Services.PiiService
             return piiRequests;
         }
 
-        public IEnumerable<PiiLine> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults)
+        private IEnumerable<PiiLine> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults)
         {
             if (piiChunks == null || piiResults == null) return new List<PiiLine>();
 
@@ -82,7 +108,7 @@ namespace Common.Services.PiiService
             return MapReconciledPiiToResponse(results);
         }
 
-        public PiiEntitiesWrapper MapPiiResults(RecognizePiiEntitiesResultCollection[] piiResults)
+        private PiiEntitiesWrapper MapPiiResults(RecognizePiiEntitiesResultCollection[] piiResults)
         {
             return new PiiEntitiesWrapper
             {
@@ -90,7 +116,7 @@ namespace Common.Services.PiiService
             };
         }
 
-        public IEnumerable<PiiLine> MapReconciledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
+        private IEnumerable<PiiLine> MapReconciledPiiToResponse(List<ReconciledPiiEntity> piiEntities)
         {
             var results = new List<PiiLine>();
 

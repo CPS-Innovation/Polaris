@@ -11,7 +11,8 @@ namespace Common.Services.BlobStorageService
         Task<Stream> GetBlobOrThrowAsync(string blobName);
         Task<Stream> GetBlobAsync(string blobName);
         Task<Stream> GetBlobAsync(string blobName, IDictionary<string, string> mustMatchMetadata);
-        Task<T> GetJsonBlobAsync<T>(string blobName);
+        Task<T> GetObjectAsync<T>(string blobName);
+        Task UploadObjectAsync<T>(T obj, string blobName);
         Task DeleteBlobsByCaseAsync(int caseId);
     }
 }

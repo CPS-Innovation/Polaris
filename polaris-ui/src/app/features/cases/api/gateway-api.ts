@@ -61,7 +61,7 @@ export const resolvePdfUrl = (
   // the backend does not look at the v parameter
   return fullUrl(
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${versionId}`
-    //`api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}`
+    //`api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pdf`
   );
 };
 

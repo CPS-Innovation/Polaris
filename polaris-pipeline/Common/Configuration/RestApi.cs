@@ -1,4 +1,6 @@
-﻿namespace Common.Configuration
+﻿using System;
+
+namespace Common.Configuration
 {
     public static class RestApi
     {
@@ -16,8 +18,9 @@
         public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
         public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
         public const string Documents = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
-        public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}";
+        public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/pdf";
         public const string Ocr = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/ocr";
+        public const string Pii = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/pii";
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/checkout";
@@ -44,6 +47,7 @@
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
+        [Obsolete]
         public const string PiiResults = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/pii";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";

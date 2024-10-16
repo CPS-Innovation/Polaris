@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
@@ -16,7 +17,7 @@ namespace Common.Services.BlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;
-        private IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         public PolarisBlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName, IJsonConvertWrapper jsonConvertWrapper)
         {
@@ -68,7 +69,7 @@ namespace Common.Services.BlobStorageService
             return result.Value.Content;
         }
 
-        public async Task<T> GetJsonBlobAsync<T>(string blobName)
+        public async Task<T> GetObjectAsync<T>(string blobName)
         {
             using var stream = await GetBlobAsync(blobName);
             if (stream == null)
@@ -87,6 +88,13 @@ namespace Common.Services.BlobStorageService
         {
             var blobClient = await UploadBlobInternal(stream, blobName);
             await blobClient.SetMetadataAsync(metadata);
+        }
+
+        public async Task UploadObjectAsync<T>(T obj, string blobName)
+        {
+            var objectString = _jsonConvertWrapper.SerializeObject(obj);
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(objectString ?? ""));
+            await UploadBlobAsync(stream, blobName);
         }
 
         public async Task DeleteBlobsByCaseAsync(int caseId)
