@@ -3,8 +3,6 @@ import {
   LinkButton,
   Button,
   Modal,
-  NotificationBanner,
-  Spinner,
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
@@ -79,7 +77,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>(
     errorTextsInitialValue
   );
-
+  const [lookupError, setLookupDataError] = useState("");
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext()!;
 
@@ -127,7 +125,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const exhibitItemNameValidation = () => {
       if (!exhibitItemName) {
         errorTexts.exhibitItemNameErrorText =
-          "Exhibit item should not be empty";
+          "Exhibit item name should not be empty";
         return;
       }
       const characterErrorText = handleTextValidation(
@@ -135,10 +133,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         EXHIBIT_TEXT_VALIDATION_REGEX
       );
       if (characterErrorText) {
-        errorTexts.exhibitItemNameErrorText = `Exhibit item should not contain ${characterErrorText}`;
+        errorTexts.exhibitItemNameErrorText = `Exhibit item name should not contain ${characterErrorText}`;
       }
       if (exhibitItemName.length > MAX_LENGTH) {
-        errorTexts.exhibitItemNameErrorText = `Exhibit item must be ${MAX_LENGTH} characters or less`;
+        errorTexts.exhibitItemNameErrorText = `Exhibit item name must be ${MAX_LENGTH} characters or less`;
       }
     };
 
@@ -387,6 +385,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       (acceptAndSaveButtonRef.current as HTMLButtonElement).focus();
   };
 
+  const handleLookUpDataError = (errorMessage: string) => {
+    setLookupDataError(errorMessage);
+  };
+
   const closeReclassify = useCallback(() => {
     handleCloseReclassify(documentId);
   }, [handleCloseReclassify, documentId]);
@@ -403,10 +405,15 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               state.reclassifyVariant === "Statement" &&
               !state.statementWitness?.length
             }
+            data-testid="reclassify-continue-btn"
           >
             Continue
           </Button>
-          <LinkButton className={classes.btnCancel} onClick={closeReclassify}>
+          <LinkButton
+            className={classes.btnCancel}
+            onClick={closeReclassify}
+            dataTestId="reclassify-cancel-btn"
+          >
             Cancel
           </LinkButton>
         </>
@@ -416,6 +423,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       <Button
         ref={acceptAndSaveButtonRef}
         onClick={handleAcceptAndSave}
+        data-testid="reclassify-save-btn"
         disabled={
           state.reClassifySaveStatus === "saving" ||
           state.reClassifySaveStatus === "success"
@@ -438,6 +446,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         });
       } catch (error) {
         console.error("Error fetching data:", error);
+        setLookupDataError("Failed to retrieve material type list");
       } finally {
         setLoading(false);
       }
@@ -454,33 +463,17 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
   }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
 
+  if (lookupError) {
+    throw Error(lookupError);
+  }
   if (loading) return <div>loading data</div>;
   return (
-    <div className={classes.reClassifyStages}>
+    <div
+      className={classes.reClassifyStages}
+      data-testid="div-reclassify-stages"
+    >
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
-          <div aria-live="polite" className={classes.visuallyHidden}>
-            {(state.reClassifySaveStatus === "saving" ||
-              (state.reClassifySaveStatus === "success" &&
-                !reclassifiedDocumentUpdate)) && (
-              <span>Saving to CMS. Please wait</span>
-            )}
-            {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
-          </div>
-          {(state.reClassifySaveStatus === "saving" ||
-            state.reClassifySaveStatus === "success") && (
-            <NotificationBanner className={classes.notificationBanner}>
-              <div className={classes.bannerContent}>
-                <div className={classes.spinnerWrapper}>
-                  <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
-                </div>
-                <p className={classes.notificationBannerText}>
-                  Saving to CMS. Please wait.
-                </p>
-              </div>
-            </NotificationBanner>
-          )}
-
           {state.reClassifyStage === "stage1" && (
             <ReclassifyStage1
               currentDocTypeId={currentDocTypeId}
@@ -497,12 +490,14 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               getStatementWitnessDetails={getStatementWitnessDetails}
               getWitnessStatementNumbers={getWitnessStatementNumbers}
               handleBackBtnClick={handleBackBtnClick}
+              handleLookUpDataError={handleLookUpDataError}
             />
           )}
 
           {state.reClassifyStage === "stage3" && (
             <ReclassifyStage3
               presentationTitle={presentationTitle}
+              reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
               handleBackBtnClick={handleBackBtnClick}
             />
           )}
@@ -518,17 +513,17 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           }}
           type="alert"
           ariaLabel="Save reclassification error modal"
-          ariaDescription="Something went wrong. Failed to save reclassification. Please try again later"
+          ariaDescription="Something went wrong. Failed to save reclassification. Please try again later."
         >
           <div className={classes.alertContent}>
             <h1 className="govuk-heading-l">Something went wrong!</h1>
-            <p>Failed to save reclassification. Please try again later</p>
+            <p>Failed to save reclassification. Please try again later.</p>
             <div className={classes.actionButtonsWrapper}>
               <Button
                 onClick={() => {
                   handleCloseErrorModal();
                 }}
-                data-testid="btn-reclassify-error-ok"
+                data-testid="btn-error-modal-ok"
               >
                 Ok
               </Button>
