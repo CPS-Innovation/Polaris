@@ -43,7 +43,7 @@ export const useCaseDetailsState = (
   );
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
-  usePipelineRefreshPolling(1000, dispatch, combinedState.featureFlags.notifications);
+  usePipelineRefreshPolling(dispatch, combinedState.featureFlags.notifications);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {

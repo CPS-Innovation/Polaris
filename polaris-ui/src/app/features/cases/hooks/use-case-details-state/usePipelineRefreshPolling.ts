@@ -3,7 +3,6 @@ import { DispatchType } from "./reducer";
 import { BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS } from "../../../../config";
 
 export const usePipelineRefreshPolling = (
-  intervalMs: number,
   dispatch: DispatchType,
   isFeatureFlagOn: boolean
 ) =>
@@ -19,4 +18,4 @@ export const usePipelineRefreshPolling = (
     return () => {
       interval && clearInterval(interval);
     };
-  }, [intervalMs, dispatch, isFeatureFlagOn]);
+  }, [dispatch, isFeatureFlagOn]);
