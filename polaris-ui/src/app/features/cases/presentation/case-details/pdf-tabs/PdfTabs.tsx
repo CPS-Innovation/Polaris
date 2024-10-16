@@ -5,6 +5,7 @@ import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseD
 import { PdfTab } from "./PdfTab";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 
 type PdfTabsProps = {
   redactionTypesData: RedactionTypeData[];
@@ -18,12 +19,7 @@ type PdfTabsProps = {
     documentId: string;
     polarisDocumentVersionId: number;
   }[];
-  contextData: {
-    correlationId: string;
-    showSearchPII: boolean;
-    showDeletePage: boolean;
-    showRotatePage: boolean;
-  };
+  featureFlags: FeatureFlagData;
   caseId: number;
   isOkToSave: boolean;
   showOverRedactionLog: boolean;
@@ -46,6 +42,7 @@ type PdfTabsProps = {
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
   handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
+  handleShowHidePageDeletion: CaseDetailsState["handleShowHidePageDeletion"];
   handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
@@ -56,7 +53,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   redactionTypesData,
   caseId,
   tabsState: { items, headers, activeTabId },
-  contextData,
+  featureFlags,
   savedDocumentDetails,
   showOverRedactionLog,
   searchPIIData,
@@ -76,6 +73,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleShowHideRedactionSuggestions,
   handleSearchPIIAction,
   handleShowHidePageRotation,
+  handleShowHidePageDeletion,
   handleAddPageRotation,
   handleRemovePageRotation,
   handleRemoveAllRotations,
@@ -128,11 +126,12 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               }
               handleSearchPIIAction={handleSearchPIIAction}
               handleShowHidePageRotation={handleShowHidePageRotation}
+              handleShowHidePageDeletion={handleShowHidePageDeletion}
               handleAddPageRotation={handleAddPageRotation}
               handleRemovePageRotation={handleRemovePageRotation}
-              contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}
+              featureFlags={featureFlags}
               polarisDocumentVersionId={item.polarisDocumentVersionId}
               handleRemoveAllRotations={handleRemoveAllRotations}
               handleSaveRotations={handleSaveRotations}

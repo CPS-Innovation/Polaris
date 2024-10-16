@@ -425,6 +425,19 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleShowHidePageDeletion = useCallback(
+    (documentId: string, deletePageMode: boolean) => {
+      dispatch({
+        type: "SHOW_HIDE_PAGE_DELETION",
+        payload: {
+          documentId: documentId,
+          deletePageMode: deletePageMode,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   const handleAddPageRotation = useCallback(
     (documentId: string, pageRotations: PageRotation[]) => {
       dispatch({
@@ -516,5 +529,6 @@ export const useCaseDetailsState = (
     handleRemoveAllRotations,
     handleClearAllNotifications,
     handleClearNotification,
+    handleShowHidePageDeletion,
   };
 };

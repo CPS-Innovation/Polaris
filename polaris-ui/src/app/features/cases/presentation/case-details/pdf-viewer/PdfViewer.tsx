@@ -49,6 +49,7 @@ type Props = {
     saveStatus: SaveStatus;
     caseId: number;
     showDeletePage: boolean;
+    showRotatePage: boolean;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -62,7 +63,6 @@ type Props = {
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
-  rotatePageMode: boolean;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
@@ -96,7 +96,6 @@ export const PdfViewer: React.FC<Props> = ({
   pageRotations,
   isOkToSave,
   areaOnlyRedactionMode,
-  rotatePageMode,
   handleAddPageRotation,
   handleRemovePageRotation,
   handleAddRedaction,
@@ -125,6 +124,13 @@ export const PdfViewer: React.FC<Props> = ({
   const unSavedRotation = useMemo(() => {
     return pageRotations.filter((rotation) => rotation.rotationAngle !== 0);
   }, [pageRotations]);
+
+  const showPagePortal = useMemo(
+    () =>
+      activeTabId === tabId &&
+      (contextData.showDeletePage || contextData.showRotatePage),
+    [contextData.showDeletePage, contextData.showRotatePage, activeTabId, tabId]
+  );
 
   useEffect(() => {
     scrollToFnRef.current &&
@@ -417,9 +423,9 @@ export const PdfViewer: React.FC<Props> = ({
                 }}
                 highlights={highlights}
               />
-              {activeTabId === tabId && contextData.showDeletePage && (
+              {showPagePortal && (
                 <PagePortal tabIndex={tabIndex}>
-                  {!rotatePageMode ? (
+                  {!contextData.showRotatePage ? (
                     <DeletePage
                       documentId={contextData.documentId}
                       pageNumber={0}

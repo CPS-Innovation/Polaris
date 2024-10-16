@@ -744,6 +744,7 @@ describe("useCaseDetailsState reducer", () => {
             pageDeleteRedactions: [],
             pageRotations: [],
             rotatePageMode: false,
+            deletePageMode: true,
             url: "baz",
             isDeleted: false,
             saveStatus: {
@@ -815,6 +816,7 @@ describe("useCaseDetailsState reducer", () => {
             pageDeleteRedactions: [],
             pageRotations: [],
             rotatePageMode: false,
+            deletePageMode: true,
             mode: "read",
           },
         ],
@@ -1021,6 +1023,7 @@ describe("useCaseDetailsState reducer", () => {
                 pageDeleteRedactions: [],
                 pageRotations: [],
                 rotatePageMode: false,
+                deletePageMode: true,
                 areaOnlyRedactionMode: false,
                 searchHighlights: [
                   {
@@ -1143,6 +1146,7 @@ describe("useCaseDetailsState reducer", () => {
                 pageDeleteRedactions: [],
                 pageRotations: [],
                 rotatePageMode: false,
+                deletePageMode: true,
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1298,6 +1302,7 @@ describe("useCaseDetailsState reducer", () => {
                 pageDeleteRedactions: [],
                 pageRotations: [],
                 rotatePageMode: false,
+                deletePageMode: true,
                 pageOccurrences: [
                   {
                     boundingBoxes: [[1, 2, 3]],
