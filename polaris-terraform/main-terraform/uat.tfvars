@@ -99,7 +99,8 @@ feature_flag_search_pii                            = "true"
 feature_flag_rename_document                       = "true"
 feature_flag_reclassify                            = "true"
 feature_flag_page_delete                           = "true"
-feature_flag_external_redirect                     = "true"
+feature_flag_external_redirect_case_review_app     = "true"
+feature_flag_external_redirect_bulk_um_app         = "true"
 feature_flag_background_pipeline_refresh           = "true"
 background_pipeline_refresh_interval_ms            = 0.5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "true"
@@ -112,10 +113,11 @@ private_beta = {
   feature_user_group  = "8fc75d71-3479-4a77-b33b-41fd26ec4960"
   feature_user_group2 = "1663cea9-062e-4f6e-a7ac-26f0942724f3"
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
+  feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
 }
 
 case_review_app_redirect_url = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
-bulk_um_redirect_url         = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
+bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
   outbound_live_url   = "/polaris,https://cin3.cps.gov.uk/polaris"
