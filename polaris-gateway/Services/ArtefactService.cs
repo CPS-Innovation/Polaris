@@ -16,7 +16,7 @@ namespace PolarisGateway.Services;
 public class ArtefactService : IArtefactService
 {
     private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory;
-    private readonly IV2PolarisBlobStorageService _blobStorageService;
+    private readonly IPolarisBlobStorageService _blobStorageService;
     private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
@@ -25,7 +25,7 @@ public class ArtefactService : IArtefactService
 
     public ArtefactService(
         IArtefactServiceResponseFactory artefactServiceResponseFactory,
-        IV2PolarisBlobStorageService blobStorageService,
+        IPolarisBlobStorageService blobStorageService,
         IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         IPdfGeneratorClient pdfGeneratorClient,
@@ -47,7 +47,7 @@ public class ArtefactService : IArtefactService
 
         var metaData = new Dictionary<string, string> { { "isOcrProcessed", isOcrProcessed.ToString() } };
 
-        var blobStream = await _blobStorageService.GetDocumentAsync(blobName, mustMatchMetadata: metaData);
+        var blobStream = await _blobStorageService.GetBlobAsync(blobName, mustMatchMetadata: metaData);
         if (blobStream != null)
         {
             return _artefactServiceResponseFactory.CreateOkGetPdfResult(blobStream, true);
@@ -73,8 +73,8 @@ public class ArtefactService : IArtefactService
             return _artefactServiceResponseFactory.CreateFailedGetPdfResult(pdfResult.Status);
         }
 
-        await _blobStorageService.UploadDocumentAsync(pdfResult.PdfStream, blobName, metaData);
-        var pdfStream = await _blobStorageService.GetDocumentAsync(blobName, metaData);
+        await _blobStorageService.UploadBlobAsync(pdfResult.PdfStream, blobName, metaData);
+        var pdfStream = await _blobStorageService.GetBlobAsync(blobName, metaData);
 
         return _artefactServiceResponseFactory.CreateOkGetPdfResult(pdfStream, false);
     }
@@ -91,8 +91,8 @@ public class ArtefactService : IArtefactService
                 var ocrResultString = _jsonConvertWrapper.SerializeObject(ocrResult.AnalyzeResults);
                 using var stream = new MemoryStream(Encoding.UTF8.GetBytes(ocrResultString ?? ""));
 
-                await _blobStorageService.UploadDocumentAsync(stream, blobName);
-                var resultStream = await _blobStorageService.GetDocumentAsync(blobName);
+                await _blobStorageService.UploadBlobAsync(stream, blobName);
+                var resultStream = await _blobStorageService.GetBlobAsync(blobName);
 
                 return _artefactServiceResponseFactory.CreateOcrResultsAvailableOcrResult(resultStream, false);
             }
@@ -100,7 +100,7 @@ public class ArtefactService : IArtefactService
             return _artefactServiceResponseFactory.CreatePollWithTokenInitiateOcrResult(operationId.Value);
         }
 
-        var blobStream = await _blobStorageService.GetDocumentAsync(blobName);
+        var blobStream = await _blobStorageService.GetBlobOrThrowAsync(blobName);
         if (blobStream != null)
         {
             return _artefactServiceResponseFactory.CreateOcrResultsAvailableOcrResult(blobStream, true);
@@ -132,7 +132,7 @@ public class ArtefactService : IArtefactService
         }
         else
         {
-            var blobStream = await _blobStorageService.GetDocumentAsync(blobName);
+            var blobStream = await _blobStorageService.GetBlobAsync(blobName);
             if (blobStream != null)
             {
                 return _artefactServiceResponseFactory.CreateOcrResultsAvailableOcrResult(blobStream, true);

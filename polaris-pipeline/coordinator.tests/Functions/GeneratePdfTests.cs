@@ -146,14 +146,10 @@ namespace pdf_generator.tests.Functions
 
       _mockBlobStorageService.Verify
       (
-          service => service.UploadDocumentAsync
+          service => service.UploadBlobAsync
           (
               _pdfStream,
-              _generatePdfRequest.BlobName,
-              _generatePdfRequest.CaseId,
-              _generatePdfRequest.CmsDocumentTracker.DocumentId,
-              _generatePdfRequest.CmsDocumentTracker.VersionId,
-              _generatePdfRequest.CorrelationId
+              _generatePdfRequest.BlobName
           )
       );
     }
@@ -165,14 +161,10 @@ namespace pdf_generator.tests.Functions
 
       _mockBlobStorageService.Verify
       (
-          service => service.UploadDocumentAsync
+          service => service.UploadBlobAsync
           (
               _pdfStream,
-              _generatePdfRequest.BlobName,
-              _generatePdfRequest.CaseId,
-              _generatePdfRequest.CmsDocumentTracker.DocumentId,
-              _generatePdfRequest.CmsDocumentTracker.VersionId,
-              _generatePdfRequest.CorrelationId
+              _generatePdfRequest.BlobName
           )
       );
     }

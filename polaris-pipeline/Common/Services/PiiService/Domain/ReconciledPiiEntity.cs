@@ -1,5 +1,6 @@
 using System;
-using Common.Services.OcrResultsService;
+using Common.Services.PiiService.Domain.Chunking;
+
 
 namespace Common.Services.PiiService.Domain
 {

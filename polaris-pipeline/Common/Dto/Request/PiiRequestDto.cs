@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Common.Services.OcrResultsService;
+using Common.Services.PiiService.Domain.Chunking;
 using Newtonsoft.Json;
 
 namespace Common.Dto.Request

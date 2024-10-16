@@ -19,6 +19,7 @@
 
 # Immediate
 
+- remove coordinator terraform entries
 - where config keys have ended up
 - DdeiClient methods to be suffixed Async
 - Test isOCR-ed?

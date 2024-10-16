@@ -7,25 +7,22 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using coordinator;
-using Common.Services.PiiService.TextAnalytics;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
 using Common.Factories.ComputerVisionClientFactory;
-using Common.Services.PiiService;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
 using coordinator.Services.CleardownService;
 using Common.Services.DocumentToggle;
-using Common.Services.OcrResultsService;
 using Common.Services.OcrService;
 using coordinator.Services.RenderHtmlService;
 using coordinator.Validators;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Services;
+using Common.Services.BlobStorageService;
 using Common.Streaming;
 using Common.Telemetry;
 using Common.Wrappers;
@@ -39,7 +36,7 @@ using System.Net;
 using PdfGenerator = Common.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
-
+using Common.Services.PiiService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -85,6 +82,7 @@ namespace coordinator
             services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
+            services.AddPiiService(Configuration);
 
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>
@@ -126,15 +124,6 @@ namespace coordinator
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
-
-            services.AddSingleton<IOcrResultsService, OcrResultsService>();
-            services.AddSingleton<IPiiService, PiiService>();
-            services.AddSingleton<ITextAnalyticsClientFactory, TextAnalyticsClientFactory>();
-            services.AddSingleton<ITextAnalysisClient, TextAnalysisClient>();
-            services.AddSingleton<IPiiEntityMapper, PiiEntityMapper>();
-            services.AddSingleton<IPiiAllowedListService, PiiAllowedListService>();
-            services.AddSingleton<IPiiAllowedList, PiiAllowedList>();
-            services.AddSingleton<ITextSanitizationService, TextSanitizationService>();
 
             services.AddDurableClientFactory();
         }

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Domain.Ocr;
 using Common.Dto.Response;
 using Common.Logging;
 using Common.Telemetry;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using Common.Services.OcrService.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;

@@ -5,7 +5,7 @@ using Common.Services.DocumentToggle;
 using FluentAssertions;
 using Xunit;
 
-namespace coordinator.tests.Services.DocumentToggle
+namespace Common.tests.Services.DocumentToggle
 {
   // todo: this suite ripe for a refactor!
   public class DocumentToggleServiceTests

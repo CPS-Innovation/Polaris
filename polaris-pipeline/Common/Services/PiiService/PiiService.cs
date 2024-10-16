@@ -1,17 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Azure.AI.TextAnalytics;
 using Common.Domain.Pii;
-using Common.Services.BlobStorageService;
-using Common.Wrappers;
 using Common.Services.PiiService.Domain;
 using Common.Dto.Request;
-using Common.Helpers;
-using Common.Services.OcrResultsService;
 using Microsoft.Extensions.Configuration;
+using Common.Services.PiiService.Mappers;
+using Common.Services.PiiService.TextSanitization;
+using Common.Services.PiiService.AllowedWords;
+using Common.Services.PiiService.Domain.Chunking;
 
 namespace Common.Services.PiiService
 {
@@ -20,16 +18,12 @@ namespace Common.Services.PiiService
         private const int DocumentSize = 5;
         private readonly string[] _piiCategories;
         private readonly IPiiEntityMapper _piiEntityMapper;
-        private readonly IPolarisBlobStorageService _blobStorageService;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IPiiAllowedListService _piiAllowedList;
         private readonly ITextSanitizationService _textSanitizationService;
 
-        public PiiService(IPiiEntityMapper piiEntityMapper, IPolarisBlobStorageService blobStorageService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration, IPiiAllowedListService allowedList, ITextSanitizationService textSanitizationService)
+        public PiiService(IPiiEntityMapper piiEntityMapper, IConfiguration configuration, IPiiAllowedListService allowedList, ITextSanitizationService textSanitizationService)
         {
             _piiEntityMapper = piiEntityMapper ?? throw new ArgumentNullException(nameof(piiEntityMapper));
-            _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
-            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _piiAllowedList = allowedList ?? throw new ArgumentNullException(nameof(allowedList));
             _piiCategories = configuration["PiiCategories"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             _textSanitizationService = textSanitizationService ?? throw new ArgumentNullException(nameof(textSanitizationService));
@@ -122,7 +116,7 @@ namespace Common.Services.PiiService
                     var lineWords = entity.LineText.Split(' ');
                     foreach (var lineWord in lineWords)
                     {
-                        piiLine.Words.Add(new PiiWord { Text = lineWord, SanitizedText = _textSanitizationService.SantitizeText(lineWord) });
+                        piiLine.Words.Add(new PiiWord { Text = lineWord, SanitizedText = _textSanitizationService.SanitizeText(lineWord) });
                     }
 
                     results.Add(piiLine);
@@ -141,32 +135,13 @@ namespace Common.Services.PiiService
                     PiiCategory = entity.PiiCategory,
                     PiiGroupId = entity.EntityGroupId,
                     RedactionType = entity.RedactionType,
-                    SanitizedText = _textSanitizationService.SantitizeText(entity.Word.Text)
+                    SanitizedText = _textSanitizationService.SanitizeText(entity.Word.Text)
                 };
                 if (wordIndex != -1)
                     piiLine.Words[wordIndex] = word;
             }
 
             return results;
-        }
-
-        public async Task<PiiEntitiesWrapper> GetPiiResultsFromBlob(int caseId, string documentId, Guid correlationId)
-        {
-            Stream piiStream;
-
-            try
-            {
-                var piiBlobName = BlobNameHelper.GetBlobName(caseId, documentId, BlobNameHelper.BlobType.Pii);
-                piiStream = await _blobStorageService.GetDocumentAsync(piiBlobName, correlationId);
-            }
-            catch (Exception)
-            {
-                return null; // return null for now;
-            }
-
-            var piiStreamReader = new StreamReader(piiStream);
-
-            return _jsonConvertWrapper.DeserializeObject<PiiEntitiesWrapper>(await piiStreamReader.ReadToEndAsync());
         }
 
         private static string GetRedactionTypeCategoryMapping(string piiCategory)

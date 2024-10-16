@@ -79,7 +79,7 @@ namespace coordinator.Functions
                 var content = await req.Content.ReadAsStringAsync();
                 var modifyDocumentRequest = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
 
-                using var documentStream = await _blobStorageService.GetDocumentAsync(document.PdfBlobName, currentCorrelationId);
+                using var documentStream = await _blobStorageService.GetBlobOrThrowAsync(document.PdfBlobName);
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
@@ -108,15 +108,9 @@ namespace coordinator.Functions
 
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(document.PdfBlobName);
 
-                await _blobStorageService.UploadDocumentAsync(
-                    modifiedDocumentStream,
-                    uploadFileName,
-                    caseId,
-                    documentId,
-                    modificationRequest.VersionId,
-                    currentCorrelationId);
+                await _blobStorageService.UploadBlobAsync(modifiedDocumentStream, uploadFileName);
 
-                using var pdfStream = await _blobStorageService.GetDocumentAsync(uploadFileName, currentCorrelationId);
+                using var pdfStream = await _blobStorageService.GetBlobOrThrowAsync(uploadFileName);
 
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
                 var arg = _ddeiArgFactory.CreateDocumentArgDto

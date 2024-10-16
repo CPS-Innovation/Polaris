@@ -72,15 +72,7 @@ namespace coordinator.Durable.Activity
                 return response.Status;
             }
 
-            await _blobStorageService.UploadDocumentAsync
-            (
-                response.PdfStream,
-                payload.BlobName,
-                payload.CaseId,
-                payload.DocumentId,
-                payload.VersionId,
-                payload.CorrelationId
-            );
+            await _blobStorageService.UploadBlobAsync(response.PdfStream, payload.BlobName);
 
             response.PdfStream.Dispose();
             return response.Status;

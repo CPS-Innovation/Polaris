@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Common.Services.BlobStorageService;
 using Common.Wrappers;
 using Common.Services.OcrService;
-using Common.Services.OcrService.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Common.Domain.Ocr;
 
 namespace coordinator.Durable.Activity
 {
@@ -40,7 +40,7 @@ namespace coordinator.Durable.Activity
             var jsonResults = _jsonConvertWrapper.SerializeObject(ocrOperationResult.AnalyzeResults);
             using var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults));
 
-            await _blobStorageService.UploadDocumentAsync(
+            await _blobStorageService.UploadBlobAsync(
                 ocrStream,
                 ocrBlobName);
 

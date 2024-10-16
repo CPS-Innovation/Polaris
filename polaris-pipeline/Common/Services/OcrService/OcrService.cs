@@ -7,10 +7,12 @@ using Microsoft.Extensions.Logging;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Logging;
 using Common.Streaming;
-using PolarisDomain = Common.Services.OcrService.Domain;
 using Mapster;
 using System.Threading;
-using Common.Services.OcrService.Domain;
+using PolarisOcrDomain = Common.Domain.Ocr;
+using Common.Domain.Ocr;
+
+
 
 namespace Common.Services.OcrService
 {
@@ -93,7 +95,7 @@ namespace Common.Services.OcrService
                 return new OcrOperationResult
                 {
                     IsSuccess = true,
-                    AnalyzeResults = results.AnalyzeResult.Adapt<PolarisDomain.AnalyzeResults>()
+                    AnalyzeResults = results.AnalyzeResult.Adapt<PolarisOcrDomain.AnalyzeResults>()
                 };
             }
             catch (Exception ex)

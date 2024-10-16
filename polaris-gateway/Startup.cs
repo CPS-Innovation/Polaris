@@ -17,11 +17,12 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Ddei.Extensions;
 using Common.Services.DocumentToggle;
-using Common.Services;
 using Common.Services.OcrService;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Clients.PdfGenerator;
 using PolarisGateway.Services;
+using Common.Services.BlobStorageService;
+using Common.Services.PiiService;
 
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
@@ -102,6 +103,7 @@ namespace PolarisGateway
             }).AddPolicyHandler(GetRetryPolicy());
 
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
+            services.AddPiiService(Configuration);
 
             services.AddSingleton<IArtefactService, ArtefactService>();
             services.AddSingleton<IArtefactServiceResponseFactory, ArtefactServiceResponseFactory>();

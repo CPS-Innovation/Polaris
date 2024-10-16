@@ -3,8 +3,8 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Common.Services.BlobStorageService;
+using Common.Wrappers;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Moq;
 using Xunit;
@@ -16,16 +16,12 @@ namespace Common.tests.Services.BlobStorageService
         private readonly Fixture _fixture;
         private readonly Stream _stream;
         private readonly string _blobName;
-        private readonly Guid _correlationId;
-        private readonly int _caseId;
-        private readonly string _documentId;
-        private readonly long _versionId;
 
         private readonly Mock<Response<bool>> _mockBlobContainerExistsResponse;
         private readonly Mock<BlobContainerClient> _mockBlobContainerClient;
         private readonly Mock<BlobClient> _mockBlobClient;
         private readonly Mock<Response> _responseMock;
-
+        private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapper;
         private readonly IPolarisBlobStorageService _blobStorageService;
 
         public BlobStorageServiceTests()
@@ -34,10 +30,6 @@ namespace Common.tests.Services.BlobStorageService
             var blobContainerName = _fixture.Create<string>();
             _stream = new MemoryStream();
             _blobName = _fixture.Create<string>();
-            _correlationId = _fixture.Create<Guid>();
-            _caseId = _fixture.Create<int>();
-            _documentId = _fixture.Create<string>();
-            _versionId = _fixture.Create<long>();
 
             var mockBlobServiceClient = new Mock<BlobServiceClient>();
             _mockBlobContainerClient = new Mock<BlobContainerClient>();
@@ -53,7 +45,8 @@ namespace Common.tests.Services.BlobStorageService
                 .ReturnsAsync(_mockBlobContainerExistsResponse.Object);
             _mockBlobContainerClient.Setup(client => client.GetBlobClient(_blobName)).Returns(_mockBlobClient.Object);
 
-            _blobStorageService = new Common.Services.BlobStorageService.PolarisBlobStorageService(mockBlobServiceClient.Object, blobContainerName);
+            _jsonConvertWrapper = new Mock<IJsonConvertWrapper>();
+            _blobStorageService = new PolarisBlobStorageService(mockBlobServiceClient.Object, blobContainerName, _jsonConvertWrapper.Object);
         }
 
         #region GetDocumentAsync
@@ -63,7 +56,7 @@ namespace Common.tests.Services.BlobStorageService
         {
             _mockBlobContainerExistsResponse.Setup(response => response.Value).Returns(false);
 
-            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.GetDocumentAsync(_blobName, _correlationId));
+            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.GetBlobOrThrowAsync(_blobName));
         }
 
         [Fact]
@@ -71,7 +64,7 @@ namespace Common.tests.Services.BlobStorageService
         {
             _mockBlobClient.Setup(s => s.ExistsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue(false, _responseMock.Object));
 
-            await Assert.ThrowsAsync<StorageException>(() => _blobStorageService.GetDocumentAsync(_blobName, _correlationId));
+            await Assert.ThrowsAsync<StorageException>(() => _blobStorageService.GetBlobOrThrowAsync(_blobName));
         }
 
         [Fact(Skip = "Not possible to adequately mock BlobDownloadStreamingResult")]
@@ -91,7 +84,7 @@ namespace Common.tests.Services.BlobStorageService
             _mockBlobClient.Setup(s => s.DownloadStreamingAsync(It.IsAny<HttpRange>(), It.IsAny<BlobRequestConditions>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponseOfBlobDownloadStreamingResult.Object);
 
-            var result = await _blobStorageService.GetDocumentAsync(_blobName, _correlationId);
+            var result = await _blobStorageService.GetBlobOrThrowAsync(_blobName);
 
             result.Should().BeSameAs(_stream);
         }
@@ -105,19 +98,15 @@ namespace Common.tests.Services.BlobStorageService
         {
             _mockBlobContainerExistsResponse.Setup(response => response.Value).Returns(false);
 
-            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId, _documentId,
-                _versionId, _correlationId));
-        }
-
-        [Fact]
-        public async Task UploadDocumentAsync_UploadsDocument()
-        {
-            await _blobStorageService.UploadDocumentAsync(_stream, _blobName, _caseId, _documentId, _versionId, _correlationId);
-
-            _mockBlobClient.Verify(client => client.UploadAsync(_stream, true, It.IsAny<CancellationToken>()));
+            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.UploadBlobAsync(_stream, _blobName));
         }
 
         #endregion
+    }
+
+    internal class TestClass
+    {
+
     }
 }
 

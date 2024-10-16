@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using Common.Services.OcrService.Domain;
+using Common.Domain.Ocr;
+
 
 namespace Common.Services.OcrService
 {
