@@ -23,6 +23,7 @@ type Props = {
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
+  handleShowHidePageDeletion: CaseDetailsState["handleShowHidePageDeletion"];
   handleShowHideRedactionSuggestions: (
     documentId: string,
     showSuggestion: boolean,
@@ -35,8 +36,10 @@ type Props = {
     isSearchPIIOn: boolean;
     isSearchPIIDefaultOptionOn: boolean;
     showSearchPII: boolean;
-    isRotatePageModeOn: boolean;
+    rotatePageMode: boolean;
+    deletePageMode: boolean;
     showRotatePage: boolean;
+    showDeletePage: boolean;
   };
 };
 
@@ -48,6 +51,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
   handleShowHidePageRotation,
+  handleShowHidePageDeletion,
   contextData,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -81,7 +85,13 @@ export const HeaderReadMode: React.FC<Props> = ({
       case "5":
         handleShowHidePageRotation(
           contextData.documentId,
-          !contextData.isRotatePageModeOn
+          !contextData.rotatePageMode
+        );
+        break;
+      case "6":
+        handleShowHidePageDeletion(
+          contextData.documentId,
+          !contextData.deletePageMode
         );
         break;
     }
@@ -145,10 +155,27 @@ export const HeaderReadMode: React.FC<Props> = ({
         ...items,
         {
           id: "5",
-          label: contextData.isRotatePageModeOn
+          label: contextData.rotatePageMode
             ? "Hide Rotate Page Options"
             : "Show Rotate Page Options",
-          ariaLabel: "Rotate document pages",
+          ariaLabel: contextData.rotatePageMode
+            ? "Hide Rotate Page Options"
+            : "Show Rotate Page Options",
+          disabled: false,
+        },
+      ];
+    }
+    if (contextData.showDeletePage) {
+      items = [
+        ...items,
+        {
+          id: "6",
+          label: contextData.deletePageMode
+            ? "Hide Delete Page Options"
+            : "Show Delete Page Options",
+          ariaLabel: contextData.deletePageMode
+            ? "Hide Delete Page Options"
+            : "Show Delete Page Options",
           disabled: false,
         },
       ];
@@ -161,7 +188,9 @@ export const HeaderReadMode: React.FC<Props> = ({
     contextData.showSearchPII,
     contextData.isSearchPIIDefaultOptionOn,
     contextData.showRotatePage,
-    contextData.isRotatePageModeOn,
+    contextData.rotatePageMode,
+    contextData.showDeletePage,
+    contextData.deletePageMode,
   ]);
 
   const handleRedactAreaToolButtonClick = useCallback(() => {
