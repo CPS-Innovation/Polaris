@@ -111,6 +111,10 @@ export const PdfViewer: React.FC<Props> = ({
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
+  const showRotatePageRef = useRef(contextData.showRotatePage);
+  useEffect(() => {
+    showRotatePageRef.current = contextData.showRotatePage;
+  }, [contextData.showRotatePage]);
 
   const highlights = useMemo(
     () => [
@@ -293,6 +297,13 @@ export const PdfViewer: React.FC<Props> = ({
                   content,
                   hideTipAndSelection
                 ) => {
+                  if (showRotatePageRef.current) {
+                    return (
+                      <RedactionWarning
+                        documentWriteStatus={"IsPageRotationModeOn"}
+                      />
+                    );
+                  }
                   // Danger: minification problem here (similar to PrivateBetaAuthorizationFilter)
                   //  `if(IS_REDACTION_SERVICE_OFFLINE)` just does not work in production. So work
                   //  by passing the original string around and comparing it here.
