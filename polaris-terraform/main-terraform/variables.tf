@@ -200,7 +200,12 @@ variable "feature_flag_page_rotate" {
   type = string
 }
 
-variable "feature_flag_external_redirect" {
+variable "feature_flag_external_redirect_case_review_app" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
+variable "feature_flag_external_redirect_bulk_um_app" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
@@ -233,6 +238,7 @@ variable "private_beta" {
     feature_user_group  = string
     feature_user_group2 = string
     feature_user_group3 = string
+    feature_user_group4 = string
   })
 }
 
