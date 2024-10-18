@@ -244,10 +244,10 @@ variable "private_beta" {
 
 variable "polaris_ui_reauth" {
   type = object({
-    outbound_live_url = string
-    outbound_e2e_url = string
-    inbound_url = string
-    use_in_situ_refresh = string
+    outbound_live_url       = string
+    outbound_e2e_url        = string
+    inbound_url             = string
+    use_in_situ_refresh     = string
     in_situ_termination_url = string
   })
 }
