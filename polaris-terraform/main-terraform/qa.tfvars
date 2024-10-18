@@ -82,7 +82,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps-tst.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/WorkManagementApp/,https://cps-tst.outsystemsenterprise.com/CaseReview/"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/WorkManagementApp/,https://cps-tst.outsystemsenterprise.com/CaseReview/,https://housekeeping-fn-staging.int.cps.gov.uk/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -116,7 +116,7 @@ private_beta = {
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
 }
 
-case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/Redirect"
+case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/LandingPage" 
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
