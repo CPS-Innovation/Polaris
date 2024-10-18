@@ -344,7 +344,7 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
     category = "AppServicePlatformLogs"
   }
 
-  enabled_log {
+  metric {
     category = "AllMetrics"
   }
 
