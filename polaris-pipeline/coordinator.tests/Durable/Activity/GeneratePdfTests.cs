@@ -1,23 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Clients.PdfGenerator;
 using Common.Domain.Document;
 using Common.Dto.Tracker;
-using Common.Services.BlobStorageService;
-using coordinator.Services.RenderHtmlService;
-using Common.Wrappers;
+using Common.Services.BlobStorage;
 using coordinator.Durable.Activity;
 using Ddei;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -27,61 +21,55 @@ using Common.Constants;
 using FluentAssertions;
 using Ddei.Factories;
 using Common.Clients.PdfGeneratorDomain.Domain;
+using Common.Dto.Response.Document;
 
-namespace pdf_generator.tests.Functions
+namespace pdf_generator.tests.Durable.Activity
 {
-  public class GeneratePdfTests
+  public class GeneratePdfFromDocumentTests
   {
     private readonly Fixture _fixture = new();
     private readonly string _serializedGeneratePdfRequest;
-    private readonly CaseDocumentOrchestrationPayload _generatePdfRequest;
+    private readonly DocumentPayload _generatePdfRequest;
     private readonly Stream _documentStream;
     private readonly Stream _pdfStream;
     private readonly string _serializedGeneratePdfResponse;
-    private readonly Mock<IConvertModelToHtmlService> _mockConvertPcdRequestToHtmlService;
     private readonly Mock<IDdeiClient> _mockDDeiClient;
     private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
-    private readonly Mock<ILogger<GeneratePdf>> _mockLogger;
-    private readonly Mock<IValidatorWrapper<CaseDocumentOrchestrationPayload>> _mockValidatorWrapper;
     private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
     private readonly Mock<IPdfGeneratorClient> _mockPdfGeneratorClient;
-    private readonly GeneratePdf _generatePdf;
+    private string _path = string.Empty;
 
-    public GeneratePdfTests()
+    public GeneratePdfFromDocumentTests()
     {
       _serializedGeneratePdfRequest = _fixture.Create<string>();
 
 
       var trackerCmsDocumentDto = _fixture.Create<DocumentDto>();
-      _generatePdfRequest = new CaseDocumentOrchestrationPayload
+      _generatePdfRequest = new DocumentPayload
           (
               _fixture.Create<string>(),
-              Guid.NewGuid(),
-              Guid.NewGuid(),
-              _fixture.Create<string>(),
               _fixture.Create<int>(),
-              JsonSerializer.Serialize(trackerCmsDocumentDto),
-              null,
-              null,
-              DocumentDeltaType.RequiresIndexing
+              _fixture.Create<string>(),
+              _fixture.Create<long>(),
+              _path,
+              _fixture.Create<DocumentTypeDto>(),
+              DocumentNature.Document,
+              DocumentDeltaType.RequiresIndexing,
+              _fixture.Create<string>(),
+              _fixture.Create<Guid>()
           );
-      _generatePdfRequest.CaseId = 123456;
-      _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test document";
-      _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
-      _generatePdfRequest.CmsDocumentTracker.VersionId = 654321;
+
 
       _documentStream = new MemoryStream();
       _pdfStream = new MemoryStream();
       _serializedGeneratePdfResponse = _fixture.Create<string>();
 
-      _mockConvertPcdRequestToHtmlService = new Mock<IConvertModelToHtmlService>();
 
-      _mockValidatorWrapper = new Mock<IValidatorWrapper<CaseDocumentOrchestrationPayload>>();
       _mockDDeiClient = new Mock<IDdeiClient>();
       _mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
       _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
-      _mockLogger = new Mock<ILogger<GeneratePdf>>();
+
       _mockDurableActivityContext = new Mock<IDurableActivityContext>();
 
       // https://carlpaton.github.io/2021/01/mocking-httpclient-sendasync/
@@ -93,18 +81,17 @@ namespace pdf_generator.tests.Functions
         .Setup<Task<HttpResponseMessage>>(nameof(HttpClient.SendAsync), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
         .ReturnsAsync(response);
 
-      _mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_generatePdfRequest)).Returns(new List<ValidationResult>());
       _mockDDeiClient
           .Setup(service => service.GetDocumentFromFileStoreAsync
           (
-              _generatePdfRequest.CmsDocumentTracker.Path,
+              _generatePdfRequest.Path,
               It.IsAny<string>(),
               It.IsAny<Guid>())
           )
           .ReturnsAsync(_documentStream);
 
       _mockDurableActivityContext
-          .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())
+          .Setup(context => context.GetInput<DocumentPayload>())
           .Returns(_generatePdfRequest);
 
       _mockPdfGeneratorClient = new Mock<IPdfGeneratorClient>();
@@ -119,37 +106,42 @@ namespace pdf_generator.tests.Functions
               _documentStream,
               FileType.DOC))
           .ReturnsAsync(new ConvertToPdfResponse() { PdfStream = _pdfStream, Status = PdfConversionStatus.DocumentConverted });
-
-      _generatePdf = new GeneratePdf(
-                          _mockConvertPcdRequestToHtmlService.Object,
-                          _mockPdfGeneratorClient.Object,
-                          _mockValidatorWrapper.Object,
-                          _mockDDeiClient.Object,
-                          _mockBlobStorageService.Object,
-                          _mockDdeiArgFactory.Object,
-                          _mockLogger.Object);
     }
 
     [Fact]
     public async Task Run_ReturnsUnsupportedWhenFileTypeIsUnrecognised()
     {
-      _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "foo.junk";
-      var result = await _generatePdf.Run(_mockDurableActivityContext.Object);
+      _path = "test.junk";
+      var generatePdf = new GeneratePdfFromDocument(
+                    _mockPdfGeneratorClient.Object,
+                    _mockDDeiClient.Object,
+                    _mockDdeiArgFactory.Object,
+                    _mockBlobStorageService.Object);
+
+
+      var result = await generatePdf.Run(_mockDurableActivityContext.Object);
       result.Should().Be(PdfConversionStatus.DocumentTypeUnsupported);
     }
 
     [Fact]
     public async Task Run_UploadsDocumentStreamWhenFileTypeIsPdf()
     {
-      _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test.pdf";
-      await _generatePdf.Run(_mockDurableActivityContext.Object);
+      _path = "test.pdf";
+      var generatePdf = new GeneratePdfFromDocument(
+                    _mockPdfGeneratorClient.Object,
+                    _mockDDeiClient.Object,
+                    _mockDdeiArgFactory.Object,
+                    _mockBlobStorageService.Object);
+
+
+      await generatePdf.Run(_mockDurableActivityContext.Object);
 
       _mockBlobStorageService.Verify
       (
           service => service.UploadBlobAsync
           (
               _pdfStream,
-              _generatePdfRequest.BlobName
+              It.IsAny<BlobIdType>()
           )
       );
     }
@@ -157,14 +149,20 @@ namespace pdf_generator.tests.Functions
     [Fact]
     public async Task Run_UploadsPdfStreamWhenFileTypeIsNotPdf()
     {
-      await _generatePdf.Run(_mockDurableActivityContext.Object);
+      _path = "test.docx";
+      var generatePdf = new GeneratePdfFromDocument(
+                    _mockPdfGeneratorClient.Object,
+                    _mockDDeiClient.Object,
+                    _mockDdeiArgFactory.Object,
+                    _mockBlobStorageService.Object);
+      await generatePdf.Run(_mockDurableActivityContext.Object);
 
       _mockBlobStorageService.Verify
       (
           service => service.UploadBlobAsync
           (
               _pdfStream,
-              _generatePdfRequest.BlobName
+              It.IsAny<BlobIdType>()
           )
       );
     }

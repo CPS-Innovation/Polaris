@@ -512,10 +512,9 @@ namespace coordinator.Durable.Entity
             return context.DispatchAsync<CaseDurableEntity>();
         }
 
-        public void SetDocumentPdfConversionSucceeded((string documentId, string pdfBlobName) arg)
+        public void SetDocumentPdfConversionSucceeded(string documentId)
         {
-            var document = GetDocument(arg.documentId);
-            document.PdfBlobName = arg.pdfBlobName;
+            var document = GetDocument(documentId);
             document.Status = DocumentStatus.PdfUploadedToBlob;
         }
 

@@ -19,11 +19,6 @@ namespace coordinator.Functions
         internal CmsDocumentEntity CmsDocument;
         internal PcdRequestEntity PcdRequest;
         internal DefendantsAndChargesEntity DefendantsAndCharges;
-
-        public string GetBlobName()
-        {
-            return CmsDocument?.PdfBlobName ?? PcdRequest?.PdfBlobName ?? DefendantsAndCharges.PdfBlobName;
-        }
     }
 
     public class BaseClient

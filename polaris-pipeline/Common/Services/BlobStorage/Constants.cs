@@ -1,4 +1,4 @@
-namespace Common.Services.BlobStorageService;
+namespace Common.Services.BlobStorage;
 public static class DocumentTags
 {
     public const string CaseId = "caseId";

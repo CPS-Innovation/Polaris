@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Services.RenderHtmlService
+namespace Common.Services.RenderHtmlService
 {
     public interface IConvertModelToHtmlService
     {

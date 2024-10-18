@@ -37,10 +37,30 @@ public class ArtefactService : IArtefactService
         _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
     }
 
-    public async Task<ArtefactResult<Stream>> GetPdf(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
+    {
+        return await GetPdfInternalAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+    }
+
+    public async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    {
+        Task<ArtefactResult<Stream>> pdfResult() => GetPdfAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+
+        return await GetOcrInternalAsync(pdfResult, correlationId, operationId);
+    }
+
+    public async Task<ArtefactResult<(Guid?, IEnumerable<PiiLine>)>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    {
+        Task<ArtefactResult<(Guid?, AnalyzeResults)>> getOcr() => GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId);
+
+        return await GetPiiInternalAsync(getOcr, correlationId, caseId, documentId);
+    }
+
+    protected async Task<ArtefactResult<Stream>> GetPdfInternalAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
         var documentIdWithoutPrefix = long.Parse(Regex.Match(documentId, @"\d+").Value);
         var ddeiArgs = _ddeiArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, documentIdWithoutPrefix, versionId);
+
         var fileResult = await _ddeiClient.GetDocumentAsync(ddeiArgs);
 
         if (!FiletypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType))
@@ -57,7 +77,7 @@ public class ArtefactService : IArtefactService
         return _artefactServiceResponseFactory.CreateFailedResult<Stream>(pdfResult.Status);
     }
 
-    public async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcr(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    protected async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcrInternalAsync(Func<Task<ArtefactResult<Stream>>> getPdf, Guid correlationId, Guid? operationId = null)
     {
         if (operationId.HasValue)
         {
@@ -70,7 +90,7 @@ public class ArtefactService : IArtefactService
             return _artefactServiceResponseFactory.CreateInterimResult<(Guid?, AnalyzeResults)>((operationId, null));
         }
 
-        var pdfResult = await GetPdf(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+        var pdfResult = await getPdf();
         if (pdfResult.Status == ResultStatus.ArtefactAvailable)
         {
             var newOperationId = await _ocrService.InitiateOperationAsync(pdfResult.Result, correlationId);
@@ -80,9 +100,9 @@ public class ArtefactService : IArtefactService
         return _artefactServiceResponseFactory.CreateFailedResult<(Guid?, AnalyzeResults)>(pdfResult.PdfConversionStatus);
     }
 
-    public async Task<ArtefactResult<(Guid?, IEnumerable<PiiLine>)>> GetPii(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    protected async Task<ArtefactResult<(Guid?, IEnumerable<PiiLine>)>> GetPiiInternalAsync(Func<Task<ArtefactResult<(Guid?, AnalyzeResults)>>> getOcr, Guid correlationId, int caseId, string documentId)
     {
-        var ocrResult = await GetOcr(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId);
+        var ocrResult = await getOcr();
         if (ocrResult.Status == ResultStatus.ArtefactAvailable)
         {
             var piiResult = await _piiService.GetPiiResultsAsync(ocrResult.Result.Item2, caseId, documentId, correlationId);

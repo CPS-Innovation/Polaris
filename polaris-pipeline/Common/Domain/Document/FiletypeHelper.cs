@@ -5,6 +5,7 @@ namespace Common.Domain.Document
 {
     public static class FiletypeHelper
     {
+        public static FileType PseudoDocumentFileType = FileType.HTML;
         public static bool TryGetSupportedFileType(string fileName, out FileType fileType)
         {
             var fileExtension = Path.GetExtension(fileName)

@@ -1,82 +1,95 @@
+using Common.Clients.PdfGenerator;
 using Common.Domain.Ocr;
 using Common.Domain.Pii;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
+using Common.Services.OcrService;
+using Common.Services.PiiService;
+using Ddei;
+using Ddei.Factories;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
-using static Common.Helpers.BlobNameHelper;
 
 namespace PolarisGateway.Services.Artefact;
-public class CachingArtefactService : ICachingArtefactService
+public class CachingArtefactService : ArtefactService, ICachingArtefactService
 {
     private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory;
-    private readonly IPolarisBlobStorageService _blobStorageService;
-    private readonly IArtefactService _artefactService;
+    private readonly IPolarisBlobStorageService _polarisBlobStorageService;
+
 
     public CachingArtefactService(
+        IPolarisBlobStorageService polarisBlobStorageService,
         IArtefactServiceResponseFactory artefactServiceResponseFactory,
-        IPolarisBlobStorageService blobStorageService,
-        IArtefactService artefactService)
+        IDdeiClient ddeiClient,
+        IDdeiArgFactory ddeiArgFactory,
+        IPdfGeneratorClient pdfGeneratorClient,
+        IOcrService ocrService,
+        IPiiService piiService
+        ) : base(artefactServiceResponseFactory, ddeiClient, ddeiArgFactory, pdfGeneratorClient, ocrService, piiService)
     {
         _artefactServiceResponseFactory = artefactServiceResponseFactory ?? throw new ArgumentNullException(nameof(artefactServiceResponseFactory));
-        _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
-        _artefactService = artefactService ?? throw new ArgumentNullException(nameof(artefactService));
+        _polarisBlobStorageService = polarisBlobStorageService ?? throw new ArgumentNullException(nameof(polarisBlobStorageService));
     }
 
-    public async Task<ArtefactResult<Stream>> GetPdf(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
+    public new async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
-        var blobName = GetBlobName(caseId, documentId, versionId, BlobType.Pdf);
-        var cachedBlobStream = await _blobStorageService.GetBlobAsync(blobName);
+        var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.Pdf);
+        var cachedBlobStream = await _polarisBlobStorageService.TryGetBlobAsync(blobId);
         if (cachedBlobStream != null)
         {
             return _artefactServiceResponseFactory.CreateOkfResult(cachedBlobStream, true);
         }
 
-        var result = await _artefactService.GetPdf(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+        var result = await GetPdfInternalAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+
         if (result.Status != ResultStatus.ArtefactAvailable)
         {
             return result;
         }
 
-        await _blobStorageService.UploadBlobAsync(result.Result, blobName);
-        var pdfStream = await _blobStorageService.GetBlobAsync(blobName);
+        await _polarisBlobStorageService.UploadBlobAsync(result.Result, blobId);
+        var pdfStream = await _polarisBlobStorageService.TryGetBlobAsync(blobId);
         return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, false);
     }
 
-    public async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcr(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    public new async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
     {
-        var blobName = GetBlobName(caseId, documentId, versionId, BlobType.Ocr);
-        var cachedResults = await _blobStorageService.GetObjectAsync<AnalyzeResults>(blobName);
+        var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.Pdf);
+        var cachedResults = await _polarisBlobStorageService.TryGetObjectAsync<AnalyzeResults>(blobId);
         if (cachedResults != null)
         {
             return _artefactServiceResponseFactory.CreateOkfResult(((Guid?)null, cachedResults), true);
         }
 
-        var result = await _artefactService.GetOcr(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId);
+        var getPdfAsync = () => GetPdfAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+
+        var result = await GetOcrInternalAsync(getPdfAsync, correlationId, operationId);
         if (result.Status != ResultStatus.ArtefactAvailable)
         {
             return result;
         }
 
-        await _blobStorageService.UploadObjectAsync(result.Result.Item2, blobName);
+        await _polarisBlobStorageService.UploadObjectAsync(result.Result.Item2, blobId);
         return _artefactServiceResponseFactory.CreateOkfResult(result.Result, false);
     }
 
-    public async Task<ArtefactResult<(Guid?, IEnumerable<PiiLine>)>> GetPii(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    public new async Task<ArtefactResult<(Guid?, IEnumerable<PiiLine>)>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
     {
-        var blobName = GetBlobName(caseId, documentId, versionId, BlobType.Pii);
-        var cachedResults = await _blobStorageService.GetObjectAsync<IEnumerable<PiiLine>>(blobName);
+        var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.Pii);
+        var cachedResults = await _polarisBlobStorageService.TryGetObjectAsync<IEnumerable<PiiLine>>(blobId);
         if (cachedResults != null)
         {
             return _artefactServiceResponseFactory.CreateOkfResult(((Guid?)null, cachedResults), true);
         }
 
-        var result = await _artefactService.GetPii(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId);
+        Task<ArtefactResult<(Guid?, AnalyzeResults)>> getOcrAsync() => GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId);
+
+        var result = await GetPiiInternalAsync(getOcrAsync, correlationId, caseId, documentId);
         if (result.Status != ResultStatus.ArtefactAvailable)
         {
             return result;
         }
 
-        await _blobStorageService.UploadObjectAsync(result.Result.Item2, blobName);
+        await _polarisBlobStorageService.UploadObjectAsync(result.Result.Item2, blobId);
         return _artefactServiceResponseFactory.CreateOkfResult(result.Result, false);
     }
 }

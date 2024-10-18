@@ -45,14 +45,20 @@ namespace coordinator.Durable.Orchestration
         [FunctionName(nameof(RefreshDocumentOrchestrator))]
         public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
+            var payload = context.GetInput<DocumentPayload>();
             var log = context.CreateReplaySafeLogger(_log);
             var caseEntity = CreateOrGetCaseDurableEntity(context, payload.CaseId);
 
-            // 1. Get Pdf
             try
             {
-                var pdfConversionStatus = await context.CallActivityAsync<PdfConversionStatus>(nameof(GeneratePdf), payload);
+                var activityName = payload.DocumentNature switch
+                {
+                    DocumentNature.PreChargeDecisionRequest => nameof(GeneratePdfFromPcdRequest),
+                    DocumentNature.DefendantsAndCharges => nameof(GeneratePdfFromDefendantsAndCharges),
+                    _ => nameof(GeneratePdfFromDocument)
+                };
+
+                var pdfConversionStatus = await context.CallActivityAsync<PdfConversionStatus>(activityName, payload);
                 if (pdfConversionStatus != PdfConversionStatus.DocumentConverted)
                 {
                     caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), pdfConversionStatus));
@@ -76,16 +82,16 @@ namespace coordinator.Durable.Orchestration
                 return;
             }
 
-            caseEntity.SetDocumentPdfConversionSucceeded((payload.DocumentId.ToString(), payload.BlobName));
+            caseEntity.SetDocumentPdfConversionSucceeded(payload.DocumentId);
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
                 CaseUrn = payload.Urn,
                 CaseId = payload.CaseId,
                 DocumentId = payload.DocumentId,
-                DocumentTypeId = payload.DocumentTypeId,
-                DocumentType = payload.DocumentType,
-                DocumentCategory = payload.DocumentCategory,
+                DocumentTypeId = payload.DocumentType.DocumentTypeId,
+                DocumentType = payload.DocumentType.DocumentType,
+                DocumentCategory = payload.DocumentType.DocumentCategory,
                 VersionId = payload.VersionId,
                 StartTime = context.CurrentUtcDateTime
             };
@@ -163,19 +169,19 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task<PollingResult<AnalyzeResults>> GetOcrResults(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload)
+        private async Task<PollingResult<AnalyzeResults>> GetOcrResults(IDurableOrchestrationContext context, DocumentPayload payload)
         {
             var ocrOperationId = await context.CallActivityWithRetryAsync<Guid>(
                 nameof(InitiateOcr),
                 _durableActivityRetryOptions,
-                (payload.BlobName, payload.CorrelationId, payload.SubCorrelationId)
+                payload
             );
 
             return await PollingHelper.PollActivityUntilComplete<AnalyzeResults>(
                 context,
                 PollingHelper.CreatePollingArgs(
                     activityName: nameof(CompleteOcr),
-                    activityInput: (ocrOperationId, payload.OcrBlobName, payload.CorrelationId, payload.SubCorrelationId),
+                    activityInput: (ocrOperationId, payload),
                     prePollingDelayMs: _prePollingDelayMs,
                     pollingIntervalMs: _pollingIntervalMs,
                     maxPollingAttempts: _maxPollingAttempts,

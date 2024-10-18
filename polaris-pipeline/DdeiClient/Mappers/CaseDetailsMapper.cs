@@ -38,7 +38,10 @@ namespace Ddei.Mappers
 
         public IEnumerable<DefendantAndChargesDto> MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants)
         {
-            return defendants.Select(defendant => MapDefendantAndCharges(defendant));
+            return defendants
+                .Select(defendant => MapDefendantAndCharges(defendant))
+                .OrderBy(dac => dac.ListOrder)
+                .ToList();
         }
 
         public PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)

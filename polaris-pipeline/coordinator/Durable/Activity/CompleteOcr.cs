@@ -1,48 +1,39 @@
 using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using Common.Wrappers;
 using Common.Services.OcrService;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Common.Domain.Ocr;
+using coordinator.Durable.Payloads;
 
 namespace coordinator.Durable.Activity
 {
     public class CompleteOcr
     {
-        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IOcrService _ocrService;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public CompleteOcr(IPolarisBlobStorageService blobStorageService, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper)
+        public CompleteOcr(IPolarisBlobStorageService polarisBlobStorageService, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper)
         {
-            _blobStorageService = blobStorageService;
+            _polarisBlobStorageService = polarisBlobStorageService;
             _ocrService = ocrService;
-            _jsonConvertWrapper = jsonConvertWrapper;
         }
 
         [FunctionName(nameof(CompleteOcr))]
         public async Task<(bool, AnalyzeResults)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            // var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
-            // var (isOperationComplete, operationResults) = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
-            var (operationId, ocrBlobName, correlationId, subCorrelationId) = context.GetInput<(Guid, string, Guid, Guid?)>();
-            var ocrOperationResult = await _ocrService.GetOperationResultsAsync(operationId, correlationId);
+            var (operationId, payload) = context.GetInput<(Guid, DocumentPayload)>();
+            var ocrOperationResult = await _ocrService.GetOperationResultsAsync(operationId, payload.CorrelationId);
 
             if (!ocrOperationResult.IsSuccess)
             {
                 return (false, null);
             }
 
-            var jsonResults = _jsonConvertWrapper.SerializeObject(ocrOperationResult.AnalyzeResults);
-            using var ocrStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResults));
-
-            await _blobStorageService.UploadBlobAsync(
-                ocrStream,
-                ocrBlobName);
+            var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
+            await _polarisBlobStorageService.UploadObjectAsync(ocrOperationResult.AnalyzeResults, blobId);
 
             return (true, ocrOperationResult.AnalyzeResults);
         }

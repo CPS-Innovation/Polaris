@@ -6,7 +6,7 @@ namespace pdf_redactor.integration.tests.Helpers
 {
     public class DocumentManipulationHelper
     {
-        public static ModifyDocumentWithDocumentDto LoadDocumentModificationDataForPdf(Stream pdfStream, string fileName, int[]? pagesToRemove, Dictionary<int, string>? pagesToRotate)
+        public static ModifyDocumentWithDocumentDto LoadDocumentModificationDataForPdf(Stream pdfStream, int[]? pagesToRemove, Dictionary<int, string>? pagesToRotate)
         {
             using var documentReader = new BinaryReader(pdfStream);
             var documentBytes = documentReader.ReadBytes((int)pdfStream.Length);
@@ -24,7 +24,6 @@ namespace pdf_redactor.integration.tests.Helpers
 
             return new ModifyDocumentWithDocumentDto
             {
-                FileName = fileName,
                 DocumentModifications = documentModifications,
                 Document = base64Document,
                 VersionId = 1

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using Common.Telemetry;
 using Common.Wrappers;
 using FluentValidation;

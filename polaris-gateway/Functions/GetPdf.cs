@@ -44,7 +44,7 @@ namespace PolarisGateway.Functions
                 context = await _initializationHandler.Initialize(req);
 
                 var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
-                var getPdfResult = await _artefactService.GetPdf(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed);
+                var getPdfResult = await _artefactService.GetPdfAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed);
                 return getPdfResult.Status == ResultStatus.ArtefactAvailable
                     ? new FileStreamResult(getPdfResult.Result, PdfContentType)
                     : new JsonResult(getPdfResult)

@@ -28,7 +28,6 @@ namespace pdf_redactor.Services.DocumentRedaction
                 {
                     RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
                     VersionId = redactPdfRequest.VersionId,
-                    FileName = redactPdfRequest.FileName
                 };
 
                 return await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);

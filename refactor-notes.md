@@ -19,23 +19,33 @@
 
 # Immediate
 
+- PIIService to take in versionId for its chunking
+
 - non-doc PDFs
-- update state on unsupportedmediatype
+- Need to do PCD and DAC in doc list
+
 - remove coordinator terraform entries
 - where config keys have ended up
-- DdeiClient methods to be suffixed Async
 - Test isOCR-ed?
 - Make sure analytics events are ok
 - Other coordinatorclientcalls that can die
 - Should services return ienumerable
-- Need to do PCD and DAC in doc list
+
 - hack out old BlobStorageServiceStuff
+
+- update state on unsupportedmediatype
+
+- dispose streams?
 
 # Blue post-its
 
 - AddDocumentNote does not need documentId
 - check test file structure
 - check ReclassificationRequestObject
+
+# Analytics
+
+GeneratePdf has changed - go with prefix
 
 ## Ids
 

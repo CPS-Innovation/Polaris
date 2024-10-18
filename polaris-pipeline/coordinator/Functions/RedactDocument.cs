@@ -17,7 +17,7 @@ using Common.Configuration;
 using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using Common.Wrappers;
 using Ddei.Factories;
 using Ddei;
@@ -30,7 +30,7 @@ namespace coordinator.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _redactionClient;
-        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
@@ -39,7 +39,7 @@ namespace coordinator.Functions
         public RedactDocument(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
                               IPdfRedactorClient redactionClient,
-                              IPolarisBlobStorageService blobStorageService,
+                              IPolarisBlobStorageService polarisBlobStorageService,
                               IUploadFileNameFactory uploadFileNameFactory,
                               IDdeiClient ddeiClient,
                               IDdeiArgFactory ddeiArgFactory,
@@ -48,7 +48,7 @@ namespace coordinator.Functions
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _redactionClient = redactionClient;
-            _blobStorageService = blobStorageService;
+            _polarisBlobStorageService = polarisBlobStorageService;
             _uploadFileNameFactory = uploadFileNameFactory;
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
@@ -79,7 +79,7 @@ namespace coordinator.Functions
                 var content = await req.Content.ReadAsStringAsync();
                 var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
-                using var documentStream = await _blobStorageService.GetBlobOrThrowAsync(document.PdfBlobName);
+                using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
@@ -93,7 +93,6 @@ namespace coordinator.Functions
 
                     var redactionRequest = new RedactPdfRequestWithDocumentDto
                     {
-                        FileName = document.PdfBlobName,
                         Document = base64Document,
                         RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
                         VersionId = redactPdfRequest.VersionId
@@ -133,7 +132,6 @@ namespace coordinator.Functions
                     var modificationRequest = new ModifyDocumentWithDocumentDto
                     {
                         Document = base64DocumentToModify,
-                        FileName = document.PdfBlobName,
                         DocumentModifications = redactPdfRequest.DocumentModifications,
                         VersionId = redactPdfRequest.VersionId
                     };
@@ -146,12 +144,6 @@ namespace coordinator.Functions
                     }
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(document.PdfBlobName);
-
-                await _blobStorageService.UploadBlobAsync(modifiedDocumentStream ?? redactedDocumentStream, uploadFileName);
-
-                using var pdfStream = await _blobStorageService.GetBlobOrThrowAsync(uploadFileName);
-
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
                 var arg = _ddeiArgFactory.CreateDocumentArgDto
                 (
@@ -163,7 +155,7 @@ namespace coordinator.Functions
                     versionId: document.VersionId
                 );
 
-                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
 
                 if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
                 {

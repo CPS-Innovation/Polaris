@@ -6,7 +6,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Common.Wrappers;
 
-namespace Common.Services.BlobStorageService
+namespace Common.Services.BlobStorage
 {
     public static class IServiceCollectionExtension
     {
@@ -32,13 +32,15 @@ namespace Common.Services.BlobStorageService
                 }
             });
 
-            services.AddTransient((Func<IServiceProvider, IPolarisBlobStorageService>)(serviceProvider =>
+            services.AddTransient((Func<IServiceProvider, IBlobStorageService>)(serviceProvider =>
             {
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 var blobServiceContainerName = GetValueFromConfig(configuration, BlobServiceContainerName);
                 var jsonConvertWrapper = serviceProvider.GetRequiredService<IJsonConvertWrapper>();
-                return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName, jsonConvertWrapper);
+                return new BlobStorageService(blobServiceClient, blobServiceContainerName, jsonConvertWrapper);
             }));
+
+            services.AddSingleton<IPolarisBlobStorageService, PolarisBlobStorageService>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

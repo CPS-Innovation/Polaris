@@ -64,7 +64,7 @@ public class OrchestrationProvider : IOrchestrationProvider
     }
 
     public async Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
-        int caseId, CaseOrchestrationPayload casePayload, HttpRequest req)
+        int caseId, CasePayload casePayload, HttpRequest req)
     {
         var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
         var existingInstance = await client.GetStatusAsync(instanceId);

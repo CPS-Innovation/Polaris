@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Handlers;
-
 using Microsoft.AspNetCore.Http.Extensions;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
@@ -51,7 +50,7 @@ namespace PolarisGateway.Functions
                     ? Guid.Parse(req.Query[tokenQueryParamName])
                     : (Guid?)null;
 
-                var ocrResult = await _artefactService.GetPii(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
+                var ocrResult = await _artefactService.GetPiiAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
                 return ocrResult.Status switch
                 {
                     ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),

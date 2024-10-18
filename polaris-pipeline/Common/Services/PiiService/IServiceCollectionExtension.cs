@@ -20,6 +20,7 @@ namespace Common.Services.PiiService
             services.AddSingleton<IPiiAllowedListService, PiiAllowedListService>();
             services.AddSingleton<IPiiAllowedList, PiiAllowedList>();
             services.AddSingleton<ITextSanitizationService, TextSanitizationService>();
+            services.RegisterPiiMapsterConfiguration();
         }
     }
 }

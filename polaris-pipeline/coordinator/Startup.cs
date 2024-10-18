@@ -17,12 +17,11 @@ using coordinator.Mappers;
 using coordinator.Services.CleardownService;
 using Common.Services.DocumentToggle;
 using Common.Services.OcrService;
-using coordinator.Services.RenderHtmlService;
 using coordinator.Validators;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using Common.Streaming;
 using Common.Telemetry;
 using Common.Wrappers;
@@ -37,6 +36,7 @@ using PdfGenerator = Common.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 using Common.Services.PiiService;
+using Common.Services.RenderHtmlService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -71,7 +71,7 @@ namespace coordinator
             BuildOcrService(services, Configuration);
 
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
+            services.AddTransient<IValidatorWrapper<DocumentPayload>, ValidatorWrapper<DocumentPayload>>();
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<TextExtractor.IRequestFactory, TextExtractor.RequestFactory>();
             services.AddTransient<PdfGenerator.IPdfGeneratorRequestFactory, PdfGenerator.PdfGeneratorRequestFactory>();
@@ -96,7 +96,6 @@ namespace coordinator
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-
             services.AddHttpClient<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigKeys.PipelineTextExtractorBaseUrl));
@@ -115,7 +114,7 @@ namespace coordinator
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
 
-            services.RegisterMapsterConfiguration();
+            services.RegisterCoordinatorMapsterConfiguration();
             services.AddDdeiClient(Configuration);
             // services.AddTransient<IDocumentToggleService, DocumentToggleService>();
             services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(

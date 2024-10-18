@@ -60,7 +60,6 @@ export const resolvePdfUrl = (
 ) => {
   // the backend does not look at the v parameter
   return fullUrl(
-    //`api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${versionId}`
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pdf`
   );
 };
@@ -427,8 +426,7 @@ export const getSearchPIIData = async (
   versionId: number
 ) => {
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/pii`
-    //`/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pii`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pii`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
@@ -445,7 +443,7 @@ export const getSearchPIIData = async (
   // Accepted: results not there yet, so we follow the continuation url that we are given
   const { nextUrl } = (await response.json()) as { nextUrl: string };
 
-  await new Promise((resolve) => setTimeout(resolve, 10000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),

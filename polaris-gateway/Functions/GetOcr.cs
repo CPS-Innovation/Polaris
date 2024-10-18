@@ -51,7 +51,7 @@ namespace PolarisGateway.Functions
                     ? Guid.Parse(req.Query[tokenQueryParamName])
                     : (Guid?)null;
 
-                var ocrResult = await _artefactService.GetOcr(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
+                var ocrResult = await _artefactService.GetOcrAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
                 return ocrResult.Status switch
                 {
                     ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),

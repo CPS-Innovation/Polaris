@@ -40,7 +40,7 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(GetCaseDocuments))]
         public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
+            var payload = context.GetInput<CasePayload>();
 
             if (string.IsNullOrWhiteSpace(payload.Urn))
                 throw new ArgumentException("CaseUrn cannot be empty");
@@ -58,8 +58,8 @@ namespace coordinator.Durable.Activity
                 payload.CaseId);
 
             var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
-            var getPcdRequestsTask = _ddeiClient.GetPcdRequests(arg);
-            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndCharges(arg);
+            var getPcdRequestsTask = _ddeiClient.GetPcdRequestsAsync(arg);
+            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 

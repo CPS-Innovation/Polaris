@@ -24,14 +24,11 @@ namespace Common.Configuration
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/checkout";
-        public const string AddNoteToDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
+        public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
         public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact";
         public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/modify";
         public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/rename";
         public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/reclassify";
-
-        // Documents (plural)
-        public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
 
         // Reference
         public const string MaterialTypeList = "reference/reclassification";
@@ -47,21 +44,10 @@ namespace Common.Configuration
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
-        [Obsolete]
-        public const string PiiResults = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/pii";
+
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/document-index-count";
-
-        public static string GetUrnLookupPath(int caseId)
-        {
-            return $"urn-lookup/{caseId}";
-        }
-
-        public static string GetCasesPath(string caseUrn)
-        {
-            return $"urns/{caseUrn}/cases";
-        }
 
         public static string GetCasePath(string caseUrn, int caseId)
         {
@@ -78,10 +64,6 @@ namespace Common.Configuration
             return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
         }
 
-        public static string GetDocumentPath(string caseUrn, int caseId, string documentId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}";
-        }
         public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact";
@@ -110,11 +92,6 @@ namespace Common.Configuration
         public static string GetRemoveCaseIndexesPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
-        }
-
-        public static string GetWaitForCaseEmptyResultsPath(string caseUrn, int caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
         }
 
         public static string GetSearchPath(string caseUrn, int caseId)

@@ -59,7 +59,7 @@ namespace pdf_redactor.integration.tests
             var redactionJsonStream = typeof(Program).Assembly.GetManifestResourceStream(redactionsResourceName) ?? throw new Exception($"{redactionsResourceName} not found");
             var documentStream = typeof(Program).Assembly.GetManifestResourceStream(pdfResourceName) ?? throw new Exception($"{pdfResourceName} not found");
 
-            var redactionData = RedactionHelper.LoadRedactionDataForPdf(redactionJsonStream, documentStream, pdfResourceName);
+            var redactionData = RedactionHelper.LoadRedactionDataForPdf(redactionJsonStream, documentStream);
             var redactedPdfStream = await redactorClient.RedactPdfAsync(redactionData);
 
             var fullStream = await redactedPdfStream.EnsureSeekableAsync();
@@ -92,7 +92,7 @@ namespace pdf_redactor.integration.tests
             var documentStream = typeof(Program).Assembly.GetManifestResourceStream(pdfResourceName) ?? throw new Exception($"{pdfResourceName} not found");
             var originalDocument = new Document(documentStream);
 
-            var modifications = DocumentManipulationHelper.LoadDocumentModificationDataForPdf(documentStream, pdfResourceName, pageIndexesToRemove, pageIndexsToRotate);
+            var modifications = DocumentManipulationHelper.LoadDocumentModificationDataForPdf(documentStream, pageIndexesToRemove, pageIndexsToRotate);
             var manipulatedDocumentStream = await redactorClient.RemoveOrRotateDocumentPagesAsync(modifications);
 
             var fullStream = await manipulatedDocumentStream.EnsureSeekableAsync();

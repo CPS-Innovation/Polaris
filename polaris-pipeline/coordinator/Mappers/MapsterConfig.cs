@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Azure.AI.TextAnalytics;
-using Common.Services.PiiService.Domain;
 using coordinator.Durable.Entity;
 using Common.Dto.Tracker;
 using Mapster;
@@ -13,7 +10,7 @@ namespace coordinator.Mappers
 {
     public static class MapsterConfig
     {
-        public static void RegisterMapsterConfiguration(this IServiceCollection services)
+        public static void RegisterCoordinatorMapsterConfiguration(this IServiceCollection services)
         {
             TypeAdapterConfig<CaseDurableEntity, TrackerDto>
                 .NewConfig()
@@ -45,44 +42,6 @@ namespace coordinator.Mappers
                             .Adapt<DocumentDto[]>()
                         )
                 //GetDocumentEntities(src)
-                );
-
-            TypeAdapterConfig<RecognizePiiEntitiesResultCollection, PiiEntitiesResultCollection>
-                .NewConfig()
-                .Map
-                (
-                    dest => dest.Items,
-                    src => src.Adapt<List<PiiEntitiesResult>>()
-                );
-
-            TypeAdapterConfig<RecognizePiiEntitiesResult, PiiEntitiesResult>
-                .NewConfig()
-                .Map
-                (
-                    dest => dest,
-                    src => src.Entities.Adapt<PiiResultEntityCollection>()
-                );
-
-            TypeAdapterConfig<PiiEntityCollection, PiiResultEntityCollection>
-                .NewConfig()
-                .Include<PiiEntityCollection, PiiResultEntityCollection>()
-                .Map
-                (
-                    dest => dest,
-                    src => src.Adapt<List<PiiResultEntity>>()
-                )
-                .Map
-                (
-                    dest => dest.Warnings,
-                    src => src.Warnings
-                );
-
-            TypeAdapterConfig<PiiEntity, PiiResultEntity>
-                .NewConfig()
-                .Map
-                (
-                    dest => dest.Category,
-                    src => src.Category.ToString()
                 );
         }
 

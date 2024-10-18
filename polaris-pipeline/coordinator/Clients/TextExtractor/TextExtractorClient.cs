@@ -32,12 +32,10 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string documentId, string urn, int caseId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string documentId, string urn, int caseId, long versionId, Guid correlationId, Stream ocrResults)
         {
             var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(urn, caseId, documentId, versionId), correlationId);
             request.Headers.Add(DocumentId, documentId);
-            // BlobName header is deprecated and will be removed in the future
-            request.Headers.Add("BlobName", blobName);
 
             using var requestContent = new StreamContent(ocrResults);
             request.Content = requestContent;

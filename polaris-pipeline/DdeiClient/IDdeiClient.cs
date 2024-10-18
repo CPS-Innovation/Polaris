@@ -13,21 +13,21 @@ namespace Ddei
 		Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg);
 		Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg);
 		Task<CaseDto> GetCaseAsync(DdeiCaseIdentifiersArgDto arg);
-		Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequests(DdeiCaseIdentifiersArgDto arg);
-		Task<PcdRequestDto> GetPcdRequest(DdeiPcdArgDto arg);
-		Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndCharges(DdeiCaseIdentifiersArgDto arg);
+		Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg);
+		Task<PcdRequestDto> GetPcdRequestAsync(DdeiPcdArgDto arg);
+		Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndChargesAsync(DdeiCaseIdentifiersArgDto arg);
 		Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(DdeiCaseIdentifiersArgDto arg);
 		Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg);
 		Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId);
 		Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg);
 		Task CancelCheckoutDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg);
 		Task<HttpResponseMessage> UploadPdfAsync(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream);
-		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiDocumentNotesArgDto arg);
-		Task<DocumentNoteResult> AddDocumentNote(DdeiAddDocumentNoteArgDto arg);
+		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentNotesArgDto arg);
+		Task<DocumentNoteResult> AddDocumentNoteAsync(DdeiAddDocumentNoteArgDto arg);
 		Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
 		Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);
-		Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCaseIdentifiersArgDto arg);
-		Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCaseIdentifiersArgDto arg);
+		Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg);
+		Task<IEnumerable<CaseWitnessDto>> GetWitnessesAsync(DdeiCaseIdentifiersArgDto arg);
 		Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiBaseArgDto arg);
 		Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiWitnessStatementsArgDto arg);
 	}

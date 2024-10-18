@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using coordinator.Durable.Payloads;
 using coordinator.Functions;
 using coordinator.Durable.Orchestration;
@@ -62,14 +62,14 @@ namespace coordinator.tests.Functions
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 
-            mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<int>()))
+            mockBlobStorageClient.Setup(s => s.DeleteBlobsByPrefixAsync(It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
 
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(default(DurableOrchestrationStatus));
 
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CasePayload>(), _httpRequest))
                 .ReturnsAsync(true);
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseOrchestrationAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<int>()));
@@ -100,10 +100,10 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledErrorOccurs()
         {
-            _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CaseOrchestrationPayload>()))
+            _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CasePayload>()))
                 .Throws(new Exception());
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CasePayload>(), _httpRequest))
                 .ReturnsAsync(false);
 
             var result = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
@@ -128,7 +128,7 @@ namespace coordinator.tests.Functions
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
                     _caseId,
-                    It.IsAny<CaseOrchestrationPayload>(),
+                    It.IsAny<CasePayload>(),
                     _httpRequest));
         }
 
@@ -148,7 +148,7 @@ namespace coordinator.tests.Functions
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
                     _caseId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CaseId == _caseId),
+                    It.Is<CasePayload>(p => p.CaseId == _caseId),
                     _httpRequest));
         }
 
@@ -176,7 +176,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
                     _caseId.ToString(),
-                    It.Is<CaseOrchestrationPayload>(p => p.CaseId == _caseId)),
+                    It.Is<CasePayload>(p => p.CaseId == _caseId)),
                 Times.Never);
         }
 

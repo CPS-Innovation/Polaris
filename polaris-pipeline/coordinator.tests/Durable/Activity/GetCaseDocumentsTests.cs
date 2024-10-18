@@ -24,7 +24,7 @@ namespace coordinator.tests.Durable.Activity
         private readonly CaseDto _case;
         private readonly CmsDocumentDto[] _caseDocuments;
         private readonly PresentationFlagsDto[] _presentationFlags;
-        private readonly GetCaseDocumentsActivityPayload _payload;
+        private readonly CasePayload _payload;
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
         private readonly GetCaseDocuments _getCaseDocuments;
         private readonly Mock<IConfiguration> _mockConfiguration;
@@ -32,7 +32,7 @@ namespace coordinator.tests.Durable.Activity
         public GetCaseDocumentsTests()
         {
             var fixture = new Fixture();
-            _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
+            _payload = fixture.Create<CasePayload>();
             _case = fixture.Create<CaseDto>();
             _caseDocuments = new[] {
               fixture.Create<CmsDocumentDto>(),
@@ -50,7 +50,7 @@ namespace coordinator.tests.Durable.Activity
             _mockConfiguration = new Mock<IConfiguration>();
 
             _mockDurableActivityContext
-                .Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
+                .Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
 
             mockDocumentExtractionService
@@ -90,7 +90,7 @@ namespace coordinator.tests.Durable.Activity
         public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
             _payload.CaseId = 0;
-            _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
@@ -103,7 +103,7 @@ namespace coordinator.tests.Durable.Activity
         public async Task Run_WhenAccessTokenIsNullOrWhitespace_ThrowsArgumentException(string cmsAuthValues)
         {
             _payload.CmsAuthValues = cmsAuthValues;
-            _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
@@ -116,7 +116,7 @@ namespace coordinator.tests.Durable.Activity
         public async Task Run_WhenCaseUrnIsNullOrWhitespace_ThrowsArgumentException(string caseUrn)
         {
             _payload.Urn = caseUrn;
-            _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
@@ -126,7 +126,7 @@ namespace coordinator.tests.Durable.Activity
         public async Task Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
         {
             _payload.CorrelationId = Guid.Empty;
-            _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));

@@ -40,7 +40,7 @@ namespace coordinator.Functions
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddNote(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentNotes)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
             long documentId
@@ -62,7 +62,7 @@ namespace coordinator.Functions
 
                 var arg = _ddeiArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, currentCorrelationId, caseUrn, caseId, documentId, note.Text);
 
-                var result = await _ddeiClient.AddDocumentNote(arg);
+                var result = await _ddeiClient.AddDocumentNoteAsync(arg);
 
                 return new OkObjectResult(result);
             }

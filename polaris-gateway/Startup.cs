@@ -20,7 +20,7 @@ using Common.Services.DocumentToggle;
 using Common.Services.OcrService;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Clients.PdfGenerator;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using Common.Services.PiiService;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Factories;

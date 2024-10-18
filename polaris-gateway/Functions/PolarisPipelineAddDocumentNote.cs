@@ -43,7 +43,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineAddDocumentNote))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.AddNoteToDocument)] HttpRequest req,
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentNotes)] HttpRequest req,
             string caseUrn,
             int caseId,
             string documentId)

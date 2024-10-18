@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace coordinator.Services.RenderHtmlService
+namespace Common.Services.RenderHtmlService
 {
     public class ConvertModelToHtmlService : IConvertModelToHtmlService
     {
@@ -21,7 +21,7 @@ namespace coordinator.Services.RenderHtmlService
         public async Task<Stream> ConvertAsync<T>(T data)
         {
             var name = $"{typeof(T).Name}".Replace("Dto", string.Empty);
-            var resourceName = $"coordinator.Services.RenderHtmlService.{name}.cshtml";
+            var resourceName = $"Common.Services.RenderHtmlService.{name}.cshtml";
             var assembly = Assembly.GetExecutingAssembly();
 
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))

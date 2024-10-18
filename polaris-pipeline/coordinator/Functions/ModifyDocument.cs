@@ -16,7 +16,7 @@ using Common.Configuration;
 using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using Common.Wrappers;
 using Ddei.Factories;
 using Ddei;
@@ -29,7 +29,7 @@ namespace coordinator.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _pdfRedactorClient;
-        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
@@ -39,7 +39,7 @@ namespace coordinator.Functions
             IJsonConvertWrapper jsonConvertWrapper,
             IValidator<ModifyDocumentWithDocumentDto> requestValidator,
             IPdfRedactorClient pdfRedactorClient,
-            IPolarisBlobStorageService blobStorageService,
+            IPolarisBlobStorageService polarisBlobStorageService,
             IUploadFileNameFactory uploadFileNameFactory,
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
@@ -48,7 +48,7 @@ namespace coordinator.Functions
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _pdfRedactorClient = pdfRedactorClient;
-            _blobStorageService = blobStorageService;
+            _polarisBlobStorageService = polarisBlobStorageService;
             _uploadFileNameFactory = uploadFileNameFactory;
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
@@ -79,7 +79,7 @@ namespace coordinator.Functions
                 var content = await req.Content.ReadAsStringAsync();
                 var modifyDocumentRequest = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
 
-                using var documentStream = await _blobStorageService.GetBlobOrThrowAsync(document.PdfBlobName);
+                using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
@@ -90,7 +90,6 @@ namespace coordinator.Functions
                 var modificationRequest = new ModifyDocumentWithDocumentDto
                 {
                     Document = base64Document,
-                    FileName = document.PdfBlobName,
                     DocumentModifications = modifyDocumentRequest.DocumentModifications,
                     VersionId = modifyDocumentRequest.VersionId
                 };
@@ -106,12 +105,6 @@ namespace coordinator.Functions
                     throw new Exception(error);
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(document.PdfBlobName);
-
-                await _blobStorageService.UploadBlobAsync(modifiedDocumentStream, uploadFileName);
-
-                using var pdfStream = await _blobStorageService.GetBlobOrThrowAsync(uploadFileName);
-
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
                 var arg = _ddeiArgFactory.CreateDocumentArgDto
                 (
@@ -123,7 +116,7 @@ namespace coordinator.Functions
                     versionId: document.VersionId
                 );
 
-                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
 
                 if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
                 {
