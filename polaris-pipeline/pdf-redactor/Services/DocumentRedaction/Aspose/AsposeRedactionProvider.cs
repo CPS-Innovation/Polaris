@@ -28,7 +28,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
             _telemetryClient = telemetryClient;
         }
 
-        public async Task<Stream> Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        public async Task<Stream> Redact(Stream stream, int caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             RedactedDocumentEvent telemetryEvent = default;
             try

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure;
@@ -42,9 +41,9 @@ namespace text_extractor.Services.CaseSearchService
             _logger = logger;
         }
 
-        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, string documentId, int caseId, long versionId, string blobPath, Guid correlationId)
+        public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, int caseId, string documentId, long versionId, Guid correlationId)
         {
-            var blobName = Path.GetFileName(blobPath);
+
             var lines = new List<SearchLine>();
 
             foreach (var readResult in analyzeResults.ReadResults)
@@ -56,7 +55,7 @@ namespace text_extractor.Services.CaseSearchService
                                                 caseId,
                                                 documentId,
                                                 versionId,
-                                                blobName,
+                                                "deprecated",
                                                 readResult,
                                                 _lineMapper.Map(line),
                                                 index

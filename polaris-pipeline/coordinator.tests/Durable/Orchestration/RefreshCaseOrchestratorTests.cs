@@ -31,11 +31,11 @@ namespace coordinator.tests.Durable.Orchestration
 {
     public class RefreshCaseOrchestratorTests
     {
-        private readonly CaseOrchestrationPayload _payload;
+        private readonly CasePayload _payload;
         private readonly string _cmsAuthValues;
         private readonly long _caseId;
         private readonly string _urn;
-        private readonly string _documentId;
+
         private readonly Guid _correlationId;
         private readonly (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _caseDocuments;
         private readonly string _transactionId;
@@ -55,18 +55,16 @@ namespace coordinator.tests.Durable.Orchestration
             _urn = fixture.Create<string>();
             _caseId = fixture.Create<long>();
             _correlationId = fixture.Create<Guid>();
-            _documentId = fixture.Create<string>();
+
             fixture.Create<Guid>();
             var durableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk"));
-            _payload = fixture.Build<CaseOrchestrationPayload>()
+            _payload = fixture.Build<CasePayload>()
                         .With(p => p.CmsAuthValues, _cmsAuthValues)
                         .With(p => p.CaseId, _caseId)
                         .With(p => p.Urn, _urn)
                         .With(p => p.CorrelationId, _correlationId)
-                        .With(p => p.DocumentId, _documentId)
                         .Create();
             _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
-
             _transactionId = $"[{_caseId}]";
 
             // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
@@ -119,7 +117,7 @@ namespace coordinator.tests.Durable.Orchestration
                 .ReturnsAsync(false);
 
             _mockDurableOrchestrationContext
-                .Setup(context => context.GetInput<CaseOrchestrationPayload>())
+                .Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
 
             _mockDurableOrchestrationContext
@@ -131,11 +129,11 @@ namespace coordinator.tests.Durable.Orchestration
                 .Returns(_mockCaseEntity.Object);
 
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
+                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
                 .ReturnsAsync(_caseDocuments);
 
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>(nameof(RefreshDocumentOrchestrator), It.IsAny<string>(), It.IsAny<CaseDocumentOrchestrationPayload>()))
+                .Setup(context => context.CallSubOrchestratorAsync<RefreshDocumentResult>(nameof(RefreshDocumentOrchestrator), It.IsAny<string>(), It.IsAny<DocumentPayload>()))
                 .Returns(Task.FromResult(fixture.Create<RefreshDocumentResult>()));
 
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: JsonConvert.SerializeObject(redactPdfResponse));
@@ -153,8 +151,8 @@ namespace coordinator.tests.Durable.Orchestration
         [Fact]
         public async Task Run_ThrowsWhenPayloadIsNull()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.GetInput<CaseOrchestrationPayload>())
-                .Returns(default(CaseOrchestrationPayload));
+            _mockDurableOrchestrationContext.Setup(context => context.GetInput<CasePayload>())
+                .Returns(default(CasePayload));
 
             await Assert.ThrowsAsync<ArgumentException>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
         }
@@ -171,7 +169,7 @@ namespace coordinator.tests.Durable.Orchestration
         public async Task Run_DoesntCallDocumentTasksWhenCaseDocumentsIsEmpty()
         {
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
+                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
                 .ReturnsAsync((new CmsDocumentDto[0], new PcdRequestDto[0], new DefendantsAndChargesListDto()));
 
             _mockCaseEntity
@@ -206,14 +204,7 @@ namespace coordinator.tests.Durable.Orchestration
                 (
                     It.IsIn<string>(new[] { nameof(RefreshDocumentOrchestrator), nameof(RefreshDocumentOrchestrator) }),
                     It.IsAny<string>(),
-                    It.Is<CaseDocumentOrchestrationPayload>
-                    (
-                        payload =>
-                            payload.CaseId == _payload.CaseId &&
-                            (
-                                (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.Item1.CmsDocumentId) ||
-                                (payload.DefendantAndChargesTracker != null && payload.DefendantAndChargesTracker.CmsDocumentId == document.Item1.CmsDocumentId)
-                            ))
+                    It.Is<DocumentPayload>(payload => payload.CaseId == _payload.CaseId && payload.DocumentId == document.Item1.DocumentId)
                 ));
             }
         }
@@ -222,7 +213,7 @@ namespace coordinator.tests.Durable.Orchestration
         public async Task Run_DoesNotThrowWhenSubOrchestratorCallFails()
         {
             _mockDurableOrchestrationContext.Setup(
-                context => context.CallSubOrchestratorAsync(nameof(RefreshDocumentOrchestrator), It.IsAny<GetCaseDocumentsActivityPayload>()))
+                context => context.CallSubOrchestratorAsync(nameof(RefreshDocumentOrchestrator), It.IsAny<CasePayload>()))
                     .ThrowsAsync(new Exception());
 
             try
@@ -260,7 +251,7 @@ namespace coordinator.tests.Durable.Orchestration
         public async Task Run_ThrowsExceptionWhenExceptionOccurs()
         {
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
+                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             await Assert.ThrowsAsync<Exception>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
@@ -271,7 +262,7 @@ namespace coordinator.tests.Durable.Orchestration
         {
             // Arrange
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
+                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             try

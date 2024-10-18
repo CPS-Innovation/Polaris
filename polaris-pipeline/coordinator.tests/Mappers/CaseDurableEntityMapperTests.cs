@@ -18,7 +18,7 @@ public class CaseDurableEntityMapperTests
 
     public CaseDurableEntityMapperTests()
     {
-        new ServiceCollection().RegisterMapsterConfiguration();
+        new ServiceCollection().RegisterCoordinatorMapsterConfiguration();
         _fixture = new Fixture();
         _caseDurableEntityMapper = new CaseDurableEntityMapper();
     }

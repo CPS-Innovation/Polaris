@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using Common.Constants;
 using Common.Dto.Response.Case;
@@ -29,16 +28,12 @@ namespace coordinator.Durable.Payloads.Domain
 
         public string PresentationTitle
         {
-            get => Path.GetFileNameWithoutExtension(PdfBlobName)
-                    // Temporary hack: we need to rationalise the way these are named.  In the meantime, to prevent
-                    //  false-positive name update notifications being shown in the UI, we make sure the interim name
-                    //  on th PCS request is the same as the eventual name derived from the blob name.
-                    ?? DocumentId;
+            get => DocumentId;
         }
 
         public string CmsOriginalFileName
         {
-            get => Path.GetFileName(PdfBlobName) ?? $"{DocumentId}.pdf";
+            get => $"{DocumentId}.pdf";
         }
 
         public static string CmsFileCreatedDate

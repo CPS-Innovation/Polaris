@@ -49,7 +49,7 @@ namespace coordinator.Durable.Entity
         Task<float> GetDurationToCompleted();
 
         // vNext stuff
-        void SetDocumentPdfConversionSucceeded((string documentId, string pdfBlobName) arg);
+        void SetDocumentPdfConversionSucceeded(string documentId);
         void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg);
         void SetDocumentIndexingSucceeded(string documentId);
         void SetDocumentIndexingFailed(string documentId);

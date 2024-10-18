@@ -4,7 +4,7 @@ namespace pdf_redactor.Services.DocumentRedaction
 {
     public interface IDocumentRedactionService
     {
-        public Task<Stream> RedactAsync(string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId);
+        public Task<Stream> RedactAsync(int caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId);
 
     }
 }

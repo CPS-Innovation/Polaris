@@ -11,8 +11,10 @@ import {
   FEATURE_FLAG_PAGE_ROTATE,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
-  FEATURE_FLAG_EXTERNAL_REDIRECT,
+  FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
+  FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
   PRIVATE_BETA_FEATURE_USER_GROUP3,
+  PRIVATE_BETA_FEATURE_USER_GROUP4,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
@@ -71,7 +73,8 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     searchPII,
     renameDocument,
     reclassify,
-    externalRedirect,
+    externalRedirectCaseReviewApp,
+    externalRedirectBulkUmApp,
     pageDelete,
     pageRotate,
     notifications,
@@ -104,11 +107,17 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         renameDocument
       ),
-      externalRedirect: showFeature(
-        FEATURE_FLAG_EXTERNAL_REDIRECT,
+      externalRedirectCaseReviewApp: showFeature(
+        FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
         userDetails?.username,
-        externalRedirect,
+        externalRedirectCaseReviewApp,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP3 }
+      ),
+      externalRedirectBulkUmApp: showFeature(
+        FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
+        userDetails?.username,
+        externalRedirectBulkUmApp,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP4 }
       ),
       reclassify: showFeature(
         FEATURE_FLAG_RECLASSIFY,

@@ -9,7 +9,7 @@ namespace Ddei.Factories
         DdeiBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId);
         DdeiCaseIdOnlyArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId);
         DdeiUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn);
-        DdeiCaseIdentifiersArgDto CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId);
+        DdeiCaseIdentifiersArgDto CreateCaseIdentifiersArg(string cmsAuthValues, Guid correlationId, string urn, int caseId);
         DdeiPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId);
         DdeiCaseIdentifiersArgDto CreateCaseArgFromUrnArg(DdeiUrnArgDto arg, int caseId);
         DdeiDocumentIdAndVersionIdArgDto CreateDocumentArgDto(

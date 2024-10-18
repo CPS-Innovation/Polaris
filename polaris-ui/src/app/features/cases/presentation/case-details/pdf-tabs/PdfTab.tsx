@@ -161,6 +161,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           : searchPIIDataItem?.versionId !== versionId;
       handleShowHideRedactionSuggestions(
         documentId,
+        versionId,
         showSuggestion,
         getData,
         defaultOption

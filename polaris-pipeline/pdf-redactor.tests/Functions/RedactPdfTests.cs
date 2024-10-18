@@ -7,7 +7,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using pdf_redactor.Services.DocumentRedaction;
 using Xunit;
-
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Wrappers;
 using Common.Dto.Request;
-using Common.Dto.Response;
 using Common.Handlers;
 using Common.Telemetry;
 
@@ -30,7 +28,7 @@ namespace pdf_redactor.tests.Functions
         private readonly Mock<IValidator<RedactPdfRequestWithDocumentDto>> _mockValidator;
         private readonly RedactPdf _pdfRedactor;
         private readonly string _caseUrn;
-        private readonly string _caseId;
+        private readonly int _caseId;
         private readonly string _documentId;
         private readonly string _serializedRedactPdfRequest;
 
@@ -46,7 +44,7 @@ namespace pdf_redactor.tests.Functions
 
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfRequestWithDocumentDto>(It.IsAny<string>())).Returns(request);
 
-            mockDocumentRedactionService.Setup(x => x.RedactAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RedactPdfRequestWithDocumentDto>(), It.IsAny<Guid>())).ReturnsAsync(new MemoryStream());
+            mockDocumentRedactionService.Setup(x => x.RedactAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<RedactPdfRequestWithDocumentDto>(), It.IsAny<Guid>())).ReturnsAsync(new MemoryStream());
 
             _loggerMock = new Mock<ILogger<RedactPdf>>();
 
@@ -56,7 +54,7 @@ namespace pdf_redactor.tests.Functions
                 .ReturnsAsync(new ValidationResult());
 
             _caseUrn = _fixture.Create<string>();
-            _caseId = _fixture.Create<string>();
+            _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
 
             var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();

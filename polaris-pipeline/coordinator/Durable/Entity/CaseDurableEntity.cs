@@ -21,7 +21,7 @@ namespace coordinator.Durable.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
-        public static string GetInstanceId(string caseId)
+        public static string GetInstanceId(int caseId)
         {
             return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
         }
@@ -512,10 +512,9 @@ namespace coordinator.Durable.Entity
             return context.DispatchAsync<CaseDurableEntity>();
         }
 
-        public void SetDocumentPdfConversionSucceeded((string documentId, string pdfBlobName) arg)
+        public void SetDocumentPdfConversionSucceeded(string documentId)
         {
-            var document = GetDocument(arg.documentId);
-            document.PdfBlobName = arg.pdfBlobName;
+            var document = GetDocument(documentId);
             document.Status = DocumentStatus.PdfUploadedToBlob;
         }
 

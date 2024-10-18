@@ -11,7 +11,7 @@ namespace coordinator.Durable.Orchestration
         [Obsolete]
         protected async Task<ICaseDurableEntity> CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, int caseId, bool newVersion, Guid correlationId, ILogger log)
         {
-            var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
+            var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
             var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(caseEntityId);
 
@@ -28,7 +28,7 @@ namespace coordinator.Durable.Orchestration
 
         protected ICaseDurableEntity CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, int caseId)
         {
-            var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId.ToString());
+            var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
             return context.CreateEntityProxy<ICaseDurableEntity>(caseEntityId);
         }

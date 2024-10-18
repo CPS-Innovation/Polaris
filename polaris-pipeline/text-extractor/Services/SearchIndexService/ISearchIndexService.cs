@@ -9,7 +9,7 @@ namespace text_extractor.Services.CaseSearchService
 {
     public interface ISearchIndexService
     {
-        Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, string documentId, int caseId, long versionId, string blobName, Guid correlationId);
+        Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, int caseId, string documentId, long versionId, Guid correlationId);
 
         Task<IList<StreamlinedSearchLine>> QueryAsync(int caseId, string searchTerm);
 

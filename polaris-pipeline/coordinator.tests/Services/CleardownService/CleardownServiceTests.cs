@@ -3,7 +3,7 @@ using AutoFixture;
 using Moq;
 using Xunit;
 using Common.Dto.Response;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;

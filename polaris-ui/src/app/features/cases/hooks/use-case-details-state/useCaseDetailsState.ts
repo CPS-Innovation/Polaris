@@ -43,7 +43,7 @@ export const useCaseDetailsState = (
   );
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
-  usePipelineRefreshPolling(1000, dispatch);
+  usePipelineRefreshPolling(dispatch, combinedState.featureFlags.notifications);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {
@@ -293,6 +293,7 @@ export const useCaseDetailsState = (
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
+      versionId: CaseDocumentViewModel["versionId"],
       showSuggestion: boolean,
       getData: boolean,
       defaultOption: boolean
@@ -311,6 +312,7 @@ export const useCaseDetailsState = (
           type: "GET_SEARCH_PII_DATA",
           payload: {
             documentId,
+            versionId,
           },
         });
     },
@@ -318,10 +320,10 @@ export const useCaseDetailsState = (
   );
 
   const handleGetSearchPIIData = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"]) =>
+    (documentId: CaseDocumentViewModel["documentId"], versionId: number) =>
       dispatch({
         type: "GET_SEARCH_PII_DATA",
-        payload: { documentId },
+        payload: { documentId, versionId },
       }),
     [dispatch]
   );

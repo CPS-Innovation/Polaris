@@ -18,7 +18,7 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(CompleteIndex))]
         public async Task<(bool, long)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var (payload, targetCount) = context.GetInput<(CaseDocumentOrchestrationPayload, int)>();
+            var (payload, targetCount) = context.GetInput<(DocumentPayload, int)>();
             var results = await _textExtractorClient.GetDocumentIndexCount(
                 payload.Urn,
                 payload.CaseId,

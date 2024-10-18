@@ -39,7 +39,7 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCaseIdentifiersArgDto CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
+        public DdeiCaseIdentifiersArgDto CreateCaseIdentifiersArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
         {
             return new DdeiCaseIdentifiersArgDto
             {

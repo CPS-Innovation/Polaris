@@ -28,7 +28,7 @@ namespace pdf_redactor.tests.Functions
         private readonly Mock<IValidator<ModifyDocumentWithDocumentDto>> _mockValidator;
         private readonly ModifyDocument _documentModifier;
         private readonly string _caseUrn;
-        private readonly string _caseId;
+        private readonly int _caseId;
         private readonly string _documentId;
         private readonly string _serializedModifyPdfRequest;
 
@@ -44,7 +44,7 @@ namespace pdf_redactor.tests.Functions
 
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ModifyDocumentWithDocumentDto>(It.IsAny<string>())).Returns(request);
 
-            mockDocumentManipulationService.Setup(x => x.RemoveOrRotatePagesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ModifyDocumentWithDocumentDto>(), It.IsAny<Guid>())).ReturnsAsync(new MemoryStream());
+            mockDocumentManipulationService.Setup(x => x.RemoveOrRotatePagesAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<ModifyDocumentWithDocumentDto>(), It.IsAny<Guid>())).ReturnsAsync(new MemoryStream());
 
             _loggerMock = new Mock<ILogger<ModifyDocument>>();
 
@@ -54,7 +54,7 @@ namespace pdf_redactor.tests.Functions
                 .ReturnsAsync(new ValidationResult());
 
             _caseUrn = _fixture.Create<string>();
-            _caseId = _fixture.Create<string>();
+            _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
 
             var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();

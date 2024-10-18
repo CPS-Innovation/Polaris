@@ -117,6 +117,7 @@ type AsyncActions =
       type: "GET_SEARCH_PII_DATA";
       payload: {
         documentId: string;
+        versionId: number;
       };
     }
   | {
@@ -751,11 +752,16 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId },
+        payload: { documentId, versionId },
       } = action;
       const { caseId, urn } = getState();
       try {
-        const searchPIIResult = await getSearchPIIData(urn, caseId, documentId);
+        const searchPIIResult = await getSearchPIIData(
+          urn,
+          caseId,
+          documentId,
+          versionId
+        );
         dispatch({
           type: "UPDATE_SEARCH_PII_DATA",
           payload: {
