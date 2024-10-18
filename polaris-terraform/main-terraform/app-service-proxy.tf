@@ -332,5 +332,21 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
     category = "AppServiceConsoleLogs"
   }
 
+  enabled_log {
+    category = "AppServiceHTTPLogs"
+  }
+
+  enabled_log {
+    category = "AppServiceAppLogs"
+  }
+
+  enabled_log {
+    category = "AppServicePlatformLogs"
+  }
+
+  enabled_log {
+    category = "AllMetrics"
+  }
+
   depends_on = [azurerm_linux_web_app.polaris_proxy]
 }

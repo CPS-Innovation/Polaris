@@ -118,10 +118,10 @@ case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/
 bulk_um_redirect_url         = ""
 
 polaris_ui_reauth = {
-  outbound_live_url   = "/auth-refresh-outbound"
-  outbound_e2e_url    = "/polaris"
-  inbound_url         = "/auth-refresh-inbound"
-  use_in_situ_refresh = "false"
+  outbound_live_url       = "/auth-refresh-outbound"
+  outbound_e2e_url        = "/polaris"
+  inbound_url             = "/auth-refresh-inbound"
+  use_in_situ_refresh     = "false"
   in_situ_termination_url = "/auth-refresh-termination"
 }
 
