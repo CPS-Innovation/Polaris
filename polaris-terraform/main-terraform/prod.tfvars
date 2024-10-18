@@ -102,7 +102,7 @@ feature_flag_external_redirect_bulk_um_app         = "true"
 feature_flag_background_pipeline_refresh           = "true"
 background_pipeline_refresh_interval_ms            = 5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "false"
-feature_flag_page_rotate                           = "true"
+feature_flag_page_rotate                           = "false"
 local_storage_expiry_days                          = "30"
 
 private_beta = {
@@ -114,7 +114,7 @@ private_beta = {
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
 }
 
-case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/Redirect"
+case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/LandingPage"
 bulk_um_redirect_url         = ""
 
 polaris_ui_reauth = {
