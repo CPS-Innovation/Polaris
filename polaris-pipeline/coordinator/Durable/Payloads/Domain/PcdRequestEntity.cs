@@ -1,5 +1,5 @@
-﻿using System.IO;
-using Common.Constants;
+﻿
+using Common.Domain.Document;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 
@@ -18,7 +18,7 @@ namespace coordinator.Durable.Payloads.Domain
 
         public override string DocumentId
         {
-            get => $"{PolarisDocumentTypePrefixes.PcdRequest}-{CmsDocumentId}";
+            get => $"{DocumentNature.PreChargeDecisionRequestPrefix}-{CmsDocumentId}";
         }
 
         public PcdRequestDto PcdRequest { get; set; }

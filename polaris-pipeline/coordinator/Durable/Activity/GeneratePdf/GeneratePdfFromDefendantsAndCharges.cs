@@ -28,7 +28,7 @@ namespace coordinator.Durable.Activity
         }
 
         [FunctionName(nameof(GeneratePdfFromDefendantsAndCharges))]
-        public new async Task<PdfConversionStatus> Run([ActivityTrigger] IDurableActivityContext context)
+        public new async Task<(bool, PdfConversionStatus)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             return await base.Run(context);
         }

@@ -5,15 +5,12 @@ namespace Common.Services.BlobStorage
 {
     public interface IPolarisBlobStorageService
     {
-        Task UploadBlobAsync(Stream stream, BlobIdType blobId);
-        Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool ocrFlag);
+        Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null);
         Task<Stream> GetBlobAsync(BlobIdType blobId);
-        Task<Stream> TryGetBlobAsync(BlobIdType blobId);
-        Task<Stream> TryGetBlobAsync(BlobIdType blobId, bool ocrFlagToMatch);
+        Task<Stream> TryGetBlobAsync(BlobIdType blobId, bool? mustBeOcred = null);
         Task<T> TryGetObjectAsync<T>(BlobIdType blobId);
         Task UploadObjectAsync<T>(T obj, BlobIdType blobId);
         Task DeleteBlobsByPrefixAsync(int prefix);
-        Task<bool> BlobExistsAsync(BlobIdType blobId);
-        Task<bool> BlobExistsAsync(BlobIdType blobId, bool ocrFlagToMatch);
+        Task<bool> BlobExistsAsync(BlobIdType blobId, bool? mustBeOcred = null);
     }
 }

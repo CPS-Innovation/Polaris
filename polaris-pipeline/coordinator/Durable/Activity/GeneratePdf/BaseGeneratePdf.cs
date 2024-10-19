@@ -29,12 +29,19 @@ namespace coordinator.Durable.Activity
             _polarisBlobStorageService = polarisBlobStorageService;
         }
 
-        protected async Task<PdfConversionStatus> Run(IDurableActivityContext context)
+        protected async Task<(bool, PdfConversionStatus)> Run(IDurableActivityContext context)
         {
             var payload = context.GetInput<DocumentPayload>();
+            var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
+
+            if (await _polarisBlobStorageService.BlobExistsAsync(blobId, payload.IsOcredProcessedPreference))
+            {
+                return (true, 0);
+            }
+
             if (payload.FileType == null)
             {
-                return PdfConversionStatus.DocumentTypeUnsupported;
+                return (false, PdfConversionStatus.DocumentTypeUnsupported);
             }
 
             using var documentStream = await GetDocumentStreamAsync(payload);
@@ -50,13 +57,13 @@ namespace coordinator.Durable.Activity
 
             if (response.Status != PdfConversionStatus.DocumentConverted)
             {
-                return response.Status;
+                return (false, response.Status);
             }
 
-            await _polarisBlobStorageService.UploadBlobAsync(response.PdfStream, new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf));
-
+            await _polarisBlobStorageService.UploadBlobAsync(response.PdfStream, blobId, payload.IsOcredProcessedPreference);
             response.PdfStream.Dispose();
-            return response.Status;
+
+            return (false, PdfConversionStatus.DocumentConverted);
         }
 
         protected abstract Task<Stream> GetDocumentStreamAsync(DocumentPayload payload);

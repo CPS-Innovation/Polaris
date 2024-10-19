@@ -21,13 +21,18 @@ namespace coordinator.Durable.Activity
 
         [FunctionName(nameof(InitiateOcr))]
 
-        public async Task<Guid> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(bool, Guid)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<DocumentPayload>();
-            var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
+            var ocrBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
+            if (await _polarisBlobStorageService.BlobExistsAsync(ocrBlobId))
+            {
+                return (true, Guid.Empty);
+            }
 
-            using var documentStream = await _polarisBlobStorageService.GetBlobAsync(blobId);
-            return await _ocrService.InitiateOperationAsync(documentStream, payload.CorrelationId);
+            var pdfBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
+            using var documentStream = await _polarisBlobStorageService.GetBlobAsync(pdfBlobId);
+            return (false, await _ocrService.InitiateOperationAsync(documentStream, payload.CorrelationId));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Common.Constants;
+using Common.Domain.Document;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 
@@ -19,7 +19,7 @@ namespace coordinator.Durable.Payloads.Domain
 
         public override string DocumentId
         {
-            get => $"{PolarisDocumentTypePrefixes.DefendantsAndCharges}-{CmsDocumentId}";
+            get => $"{DocumentNature.DefendantsAndChargesPrefix}-{CmsDocumentId}";
         }
 
         public DefendantsAndChargesListDto DefendantsAndCharges { get; set; }

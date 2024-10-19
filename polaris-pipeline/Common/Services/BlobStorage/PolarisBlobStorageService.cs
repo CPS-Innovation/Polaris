@@ -16,23 +16,22 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
         _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
     }
 
-    public Task<bool> BlobExistsAsync(BlobIdType blobId) => _blobStorageService.BlobExistsAsync(GetBlobName(blobId));
-
-    public Task<bool> BlobExistsAsync(BlobIdType blobId, bool ocrFlagToMatch) => _blobStorageService.BlobExistsAsync(GetBlobName(blobId), CreateMetaData(ocrFlagToMatch));
+    public Task<bool> BlobExistsAsync(BlobIdType blobId, bool? mustBeOcred = null)
+        => _blobStorageService.BlobExistsAsync(GetBlobName(blobId), CreateMetaData(mustBeOcred));
 
     public Task DeleteBlobsByPrefixAsync(int prefix) => _blobStorageService.DeleteBlobsByPrefix(GetSafePrefix(prefix));
 
     public Task<Stream> GetBlobAsync(BlobIdType blobId) => _blobStorageService.GetBlob(GetBlobName(blobId));
 
-    public Task<Stream> TryGetBlobAsync(BlobIdType blobId) => _blobStorageService.TryGetBlobAsync(GetBlobName(blobId));
-
-    public Task<Stream> TryGetBlobAsync(BlobIdType blobId, bool ocrFlagToMatch) => _blobStorageService.TryGetBlobAsync(GetBlobName(blobId), CreateMetaData(ocrFlagToMatch));
+    public Task<Stream> TryGetBlobAsync(BlobIdType blobId, bool? mustBeOcred = null)
+        => _blobStorageService.TryGetBlobAsync(GetBlobName(blobId), CreateMetaData(mustBeOcred));
 
     public Task<T> TryGetObjectAsync<T>(BlobIdType blobId) => _blobStorageService.TryGetObjectAsync<T>(GetBlobName(blobId));
 
     public Task UploadBlobAsync(Stream stream, BlobIdType blobId) => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId));
 
-    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool ocrFlag) => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId), CreateMetaData(ocrFlag));
+    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null)
+        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId), CreateMetaData(isOcred));
 
     public Task UploadObjectAsync<T>(T obj, BlobIdType blobId) => _blobStorageService.UploadObjectAsync(obj, GetBlobName(blobId));
 
@@ -41,7 +40,7 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
         var (caseId, documentId, versionId, blobType) = blobId;
         // Each case has only one defendants and charges (DAC) document.
         //  If the caseId is then the DocumentId for a DAC is DAC-12345
-        //  The PdfblobId has always been CMS-DAC.pdf.
+        //  The Pdf blobId has always been CMS-DAC.pdf.
         //  While we are doing the refactor we keep this, but this whole thing is to be reworked.
         if (long.TryParse(documentId, out _))
         {
@@ -63,11 +62,8 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
         return $"{caseId}/";
     }
 
-    private static Dictionary<string, string> CreateMetaData(bool ocrFlag)
-    {
-        return new Dictionary<string, string>
-        {
-            {IsOcrProcessedInCms, ocrFlag.ToString()}
-        };
-    }
+    private static Dictionary<string, string> CreateMetaData(bool? ocrFlag)
+        => ocrFlag == true
+            ? new Dictionary<string, string> { { IsOcrProcessedInCms, true.ToString() } }
+            : null;
 }

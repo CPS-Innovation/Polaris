@@ -56,11 +56,14 @@ export const resolvePdfUrl = (
   urn: string,
   caseId: number,
   documentId: string,
-  versionId: number
+  versionId: number,
+  isOcrProcessed: boolean
 ) => {
   // the backend does not look at the v parameter
   return fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pdf`
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pdf${
+      isOcrProcessed ? "?isOcrProcessed=true" : ""
+    }`
   );
 };
 

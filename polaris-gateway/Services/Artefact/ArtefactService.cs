@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using Common.Clients.PdfGenerator;
 using Common.Constants;
@@ -64,10 +65,11 @@ public class ArtefactService : IArtefactService
     protected async Task<ArtefactResult<Stream>> GetPdfInternalAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
         var prefix = documentId.Split('-')[0];
-        (PdfConversionStatus Status, Stream Stream) pdfResult = prefix switch
+        var documentNature = DocumentNature.GetType(prefix);
+        (PdfConversionStatus Status, Stream Stream) pdfResult = documentNature switch
         {
-            PolarisDocumentTypePrefixes.PcdRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId),
-            PolarisDocumentTypePrefixes.DefendantsAndCharges => await GetDefendantsAndChargesStreamAsync(cmsAuthValues, correlationId, urn, caseId),
+            DocumentNature.Types.PreChargeDecisionRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId),
+            DocumentNature.Types.DefendantsAndCharges => await GetDefendantsAndChargesStreamAsync(cmsAuthValues, correlationId, urn, caseId),
             _ => await GetDocumentStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId)
         };
 

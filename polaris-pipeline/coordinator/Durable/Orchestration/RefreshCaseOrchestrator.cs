@@ -18,11 +18,11 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.TelemetryEvents;
 using coordinator.Validators;
-
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Common.Domain.Document;
 
 namespace coordinator.Durable.Orchestration
 {
@@ -146,11 +146,11 @@ namespace coordinator.Durable.Orchestration
                             item.doc.VersionId,
                             item.doc.Path,
                             item.doc.CmsDocType,
-
-                            DocumentNature.Document,
+                            DocumentNature.Types.Document,
                             item.delta,
                             casePayload.CmsAuthValues,
-                            casePayload.CorrelationId)
+                            casePayload.CorrelationId,
+                            item.doc.IsOcrProcessed)
                     ).ToList();
 
             var pcdRequestsPayloads
@@ -162,7 +162,7 @@ namespace coordinator.Durable.Orchestration
                             pcd.VersionId,
                             null,
                             pcd.CmsDocType,
-                            DocumentNature.PreChargeDecisionRequest,
+                            DocumentNature.Types.PreChargeDecisionRequest,
                             DocumentDeltaType.RequiresIndexing,
                             casePayload.CmsAuthValues,
                             casePayload.CorrelationId)
@@ -179,7 +179,7 @@ namespace coordinator.Durable.Orchestration
                     createdOrUpdatedDefendantsAndCharges.VersionId,
                     null,
                     createdOrUpdatedDefendantsAndCharges.CmsDocType,
-                    DocumentNature.DefendantsAndCharges,
+                    DocumentNature.Types.DefendantsAndCharges,
                     DocumentDeltaType.RequiresIndexing,
                     casePayload.CmsAuthValues,
                     casePayload.CorrelationId

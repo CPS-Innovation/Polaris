@@ -35,7 +35,7 @@ public class CachingArtefactService : ArtefactService, ICachingArtefactService
     public new async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
         var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.Pdf);
-        var cachedBlobStream = await _polarisBlobStorageService.TryGetBlobAsync(blobId);
+        var cachedBlobStream = await _polarisBlobStorageService.TryGetBlobAsync(blobId, isOcrProcessed);
         if (cachedBlobStream != null)
         {
             return _artefactServiceResponseFactory.CreateOkfResult(cachedBlobStream, true);
@@ -48,14 +48,14 @@ public class CachingArtefactService : ArtefactService, ICachingArtefactService
             return result;
         }
 
-        await _polarisBlobStorageService.UploadBlobAsync(result.Result, blobId);
+        await _polarisBlobStorageService.UploadBlobAsync(result.Result, blobId, isOcrProcessed);
         var pdfStream = await _polarisBlobStorageService.TryGetBlobAsync(blobId);
         return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, false);
     }
 
     public new async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
     {
-        var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.Pdf);
+        var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.Ocr);
         var cachedResults = await _polarisBlobStorageService.TryGetObjectAsync<AnalyzeResults>(blobId);
         if (cachedResults != null)
         {

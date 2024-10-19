@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Common.Constants;
+using Common.Domain.Document;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
 using Newtonsoft.Json;
@@ -69,7 +69,7 @@ namespace coordinator.Durable.Payloads.Domain
         {
             get
             {
-                return $"{PolarisDocumentTypePrefixes.CmsDocument}-{CmsDocumentId}";
+                return $"{DocumentNature.DocumentPrefix}-{CmsDocumentId}";
             }
         }
 
@@ -103,7 +103,7 @@ namespace coordinator.Durable.Payloads.Domain
             {
                 return string.IsNullOrWhiteSpace(CmsParentDocumentId)
                     ? null
-                    : $"{PolarisDocumentTypePrefixes.CmsDocument}-{CmsParentDocumentId}";
+                    : $"{DocumentNature.DocumentPrefix}-{CmsParentDocumentId}";
             }
         }
 

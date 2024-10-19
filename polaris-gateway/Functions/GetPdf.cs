@@ -17,18 +17,18 @@ namespace PolarisGateway.Functions
         private const string PdfContentType = "application/pdf";
         private const string isOcrProcessedParamName = "isOcrProcessed";
         private readonly ILogger<GetPdf> _logger;
-        private readonly IArtefactService _artefactService;
+        private readonly IArtefactService _cachingArtefactService;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public GetPdf(
             ILogger<GetPdf> logger,
-            ICachingArtefactService artefactService,
+            ICachingArtefactService cachingArtefactService,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
             _logger = logger;
-            _artefactService = artefactService;
+            _cachingArtefactService = cachingArtefactService;
             _initializationHandler = initializationHandler;
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
@@ -44,7 +44,7 @@ namespace PolarisGateway.Functions
                 context = await _initializationHandler.Initialize(req);
 
                 var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
-                var getPdfResult = await _artefactService.GetPdfAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed);
+                var getPdfResult = await _cachingArtefactService.GetPdfAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed);
                 return getPdfResult.Status == ResultStatus.ArtefactAvailable
                     ? new FileStreamResult(getPdfResult.Result, PdfContentType)
                     : new JsonResult(getPdfResult)

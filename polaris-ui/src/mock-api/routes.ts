@@ -3,7 +3,8 @@ export const CASE_SEARCH_ROUTE = "api/urns/:urn/cases";
 export const CASE_ROUTE = "api/urns/:urn/cases/:caseId";
 export const INITIATE_PIPELINE_ROUTE = "api/urns/:urn/cases/:caseId";
 export const TRACKER_ROUTE = "api/urns/:urn/cases/:caseId/tracker";
-export const FILE_ROUTE = "api/urns/:urn/cases/:caseId/documents/:documentId";
+export const FILE_ROUTE =
+  "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId";
 export const TEXT_SEARCH_ROUTE = "api/urns/:urn/cases/:caseId/search?query=";
 export const DOCUMENT_CHECKOUT_ROUTE =
   "/api/urns/:urn/cases/:caseId/documents/:documentId/checkout";

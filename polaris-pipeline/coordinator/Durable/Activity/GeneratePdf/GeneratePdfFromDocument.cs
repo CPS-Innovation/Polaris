@@ -20,7 +20,7 @@ namespace coordinator.Durable.Activity
             : base(ddeiClient, ddeiArgFactory, polarisBlobStorageService, pdfGeneratorCLient) { }
 
         [FunctionName(nameof(GeneratePdfFromDocument))]
-        public new async Task<PdfConversionStatus> Run([ActivityTrigger] IDurableActivityContext context)
+        public new async Task<(bool, PdfConversionStatus)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             return await base.Run(context);
         }

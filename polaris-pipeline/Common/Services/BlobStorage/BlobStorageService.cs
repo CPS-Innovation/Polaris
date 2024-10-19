@@ -42,12 +42,8 @@ public class BlobStorageService : IBlobStorageService
         return stream ?? throw new StorageException("Blob not found");
     }
 
-    public async Task<Stream> TryGetBlobAsync(string blobName)
-    {
-        return await TryGetBlobAsync(blobName, null);
-    }
 
-    public async Task<Stream> TryGetBlobAsync(string blobName, IDictionary<string, string> mustMatchMetadata)
+    public async Task<Stream> TryGetBlobAsync(string blobName, IDictionary<string, string> mustMatchMetadata = null)
     {
         var blobContainerClient = await GetBlobContainerClientOrThrow();
         var blobClient = blobContainerClient.GetBlobClient(blobName);
@@ -73,12 +69,7 @@ public class BlobStorageService : IBlobStorageService
         return result.Value.Content;
     }
 
-    public async Task UploadBlobAsync(Stream stream, string blobName)
-    {
-        await UploadBlobInternal(stream, blobName);
-    }
-
-    public async Task UploadBlobAsync(Stream stream, string blobName, IDictionary<string, string> metadata)
+    public async Task UploadBlobAsync(Stream stream, string blobName, IDictionary<string, string> metadata = null)
     {
         var blobClient = await UploadBlobInternal(stream, blobName);
         await blobClient.SetMetadataAsync(metadata);
@@ -102,12 +93,7 @@ public class BlobStorageService : IBlobStorageService
         }
     }
 
-    public async Task<bool> BlobExistsAsync(string blobName)
-    {
-        return await BlobExistsAsync(blobName, null);
-    }
-
-    public async Task<bool> BlobExistsAsync(string blobName, IDictionary<string, string> mustMatchMetadata)
+    public async Task<bool> BlobExistsAsync(string blobName, IDictionary<string, string> mustMatchMetadata = null)
     {
         var blobContainerClient = await GetBlobContainerClientOrThrow();
         var blobClient = blobContainerClient.GetBlobClient(blobName);

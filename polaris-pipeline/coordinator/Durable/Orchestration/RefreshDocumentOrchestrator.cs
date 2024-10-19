@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Domain.Document;
 using Common.Domain.Ocr;
 using Common.Dto.Response;
 using Common.Logging;
@@ -52,34 +53,16 @@ namespace coordinator.Durable.Orchestration
                  CaseDurableEntity.GetEntityId(payload.CaseId)
             );
 
-            try
+            var shouldProceed = await EnsurePdfExists(payload, context, caseEntity, log);
+            if (!shouldProceed)
             {
-                var activityName = payload.DocumentNature switch
-                {
-                    DocumentNature.PreChargeDecisionRequest => nameof(GeneratePdfFromPcdRequest),
-                    DocumentNature.DefendantsAndCharges => nameof(GeneratePdfFromDefendantsAndCharges),
-                    _ => nameof(GeneratePdfFromDocument)
-                };
-
-                var pdfConversionStatus = await context.CallActivityAsync<PdfConversionStatus>(activityName, payload);
-                if (pdfConversionStatus != PdfConversionStatus.DocumentConverted)
-                {
-                    caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), pdfConversionStatus));
-                    return;
-                }
-            }
-            catch (Exception exception)
-            {
-                caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), PdfConversionStatus.UnexpectedError));
-                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
                 return;
             }
 
             // todo: this is temporary code until the coordinator refactor exercise is done.
-
             if (payload.DocumentDeltaType != DocumentDeltaType.RequiresIndexing)
             {
-                // return and DO NOT set to PdfUploadedToBlob.  If we are refreshing the PDF it is because thr OCR flag has changed.
+                // return and DO NOT call SetDocumentPdfConversionSucceeded.  If we are refreshing the PDF it is because thr OCR flag has changed.
                 //  The document will already either be at PdfUploadedToBlob or Indexed status.  If it is at Indexed status then we do not want to set the
                 //  the flag back to PdfUploadedToBlob as Indexed is still correct.  As per comment above, all of this is to be rebuilt in pipeline refresh.
                 return;
@@ -99,54 +82,19 @@ namespace coordinator.Durable.Orchestration
                 StartTime = context.CurrentUtcDateTime
             };
 
+            // 2 START
             try
             {
-                PollingResult<AnalyzeResultsStats> ocrPollingResult;
-                ocrPollingResult = await GetOcrResults(context, payload);
-                if (!ocrPollingResult.IsCompleted)
-                {
-                    // Several times a day we see "stuck" OCR operations at Microsoft.  The recommendation is to a) just ditch an operation
-                    //  if it has not come back within an appropriate time and b) kick off another OCR operation.  So if our first OCR operation
-                    //  has not succeeded within the polling timeout period then let's try again.
-                    // Note: there is an optimisation possible here whereby we keep a handle on the first operation because it still may work eventually.
-                    //  We would still kick off another operation after a timeout but keep the first alive.  We'd then have a two horse race.
-                    //  (It is most likely that the first operation is stuck if our timeout is long enough, but it may not be stuck and just slow).
-                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), "OCR operation did not complete within the polling timeout period, starting a fallback operation");
-                    ocrPollingResult = await GetOcrResults(context, payload);
-                }
-
-                if (!ocrPollingResult.IsCompleted)
-                {
-                    throw new Exception("OCR operation did not complete within the polling timeout period");
-                }
+                var (ocrBlobAlreadyExists, ocrPollingResult) = await EnsureOcrExists(payload, context, log);
 
                 telemetryEvent.OcrCompletedTime = context.CurrentUtcDateTime;
                 telemetryEvent.PageCount = ocrPollingResult.FinalResult.PageCount;
                 telemetryEvent.LineCount = ocrPollingResult.FinalResult.LineCount;
                 telemetryEvent.WordCount = ocrPollingResult.FinalResult.WordCount;
 
-                var indexStoredResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
-                telemetryEvent.IndexStoredTime = context.CurrentUtcDateTime;
+                var (indexStoredTime, indexStoredResult, indexPollingResult) = await IndexDocument(context, payload, log, telemetryEvent);
 
-                var indexPollingResult = await PollingHelper.PollActivityUntilComplete<long>(
-                    context,
-                    PollingHelper.CreatePollingArgs(
-                        activityName: nameof(CompleteIndex),
-                        activityInput: (payload, indexStoredResult.LineCount),
-                        prePollingDelayMs: _prePollingDelayMs,
-                        pollingIntervalMs: _pollingIntervalMs,
-                        maxPollingAttempts: _maxPollingAttempts,
-                        activityRetryOptions: _durableActivityRetryOptions
-                    )
-                );
-
-                if (!indexPollingResult.IsCompleted)
-                {
-                    // Aggressive option used here: if we haven't settled then carry on rather than throwing
-                    // todo: in the tracker we can record a flag to say that we do not have 100% confidence in the index for this document?
-                    log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), "Index operation did not complete within the polling timeout period - carrying on");
-                }
-
+                telemetryEvent.IndexStoredTime = indexStoredTime;
                 telemetryEvent.DidIndexSettle = indexPollingResult.IsCompleted;
                 telemetryEvent.WaitRecordCounts = indexPollingResult.Results;
                 telemetryEvent.IndexSettleTargetCount = indexStoredResult.LineCount;
@@ -172,15 +120,83 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task<PollingResult<AnalyzeResultsStats>> GetOcrResults(IDurableOrchestrationContext context, DocumentPayload payload)
+        private async Task<bool> EnsurePdfExists(DocumentPayload payload, IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, ILogger log)
         {
-            var ocrOperationId = await context.CallActivityWithRetryAsync<Guid>(
+            try
+            {
+                var activityName = payload.DocumentNatureType switch
+                {
+                    DocumentNature.Types.PreChargeDecisionRequest => nameof(GeneratePdfFromPcdRequest),
+                    DocumentNature.Types.DefendantsAndCharges => nameof(GeneratePdfFromDefendantsAndCharges),
+                    _ => nameof(GeneratePdfFromDocument)
+                };
+
+                var (blobAlreadyExists, pdfConversionStatus) = await context.CallActivityAsync<(bool, PdfConversionStatus)>(activityName, payload);
+                if (blobAlreadyExists)
+                {
+                    return true;
+                }
+
+                if (pdfConversionStatus != PdfConversionStatus.DocumentConverted)
+                {
+                    caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), pdfConversionStatus));
+                    return false;
+                }
+            }
+            catch (Exception exception)
+            {
+                caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), PdfConversionStatus.UnexpectedError));
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> EnsureOcrExists(DocumentPayload payload, IDurableOrchestrationContext context, ILogger log)
+        {
+            var (blobAlreadyExists, ocrPollingResult) = await GetOcrResults(context, payload);
+
+            if (blobAlreadyExists)
+            {
+                return (true, null);
+            }
+
+            if (!ocrPollingResult.IsCompleted)
+            {
+                // Several times a day we see "stuck" OCR operations at Microsoft.  The recommendation is to a) just ditch an operation
+                //  if it has not come back within an appropriate time and b) kick off another OCR operation.  So if our first OCR operation
+                //  has not succeeded within the polling timeout period then let's try again.
+                // Note: there is an optimisation possible here whereby we keep a handle on the first operation because it still may work eventually.
+                //  We would still kick off another operation after a timeout but keep the first alive.  We'd then have a two horse race.
+                //  (It is most likely that the first operation is stuck if our timeout is long enough, but it may not be stuck and just slow).
+                log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), "OCR operation did not complete within the polling timeout period, starting a fallback operation");
+                (_, ocrPollingResult) = await GetOcrResults(context, payload);
+
+                if (!ocrPollingResult.IsCompleted)
+                {
+                    // After second bit of the cherry, still no joy
+                    throw new Exception("OCR operation did not complete within the polling timeout period");
+                }
+            }
+
+            return (false, ocrPollingResult);
+        }
+
+        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> GetOcrResults(IDurableOrchestrationContext context, DocumentPayload payload)
+        {
+            var (blobAlreadyExists, ocrOperationId) = await context.CallActivityWithRetryAsync<(bool, Guid)>(
                 nameof(InitiateOcr),
                 _durableActivityRetryOptions,
                 payload
             );
 
-            return await PollingHelper.PollActivityUntilComplete<AnalyzeResultsStats>(
+            if (blobAlreadyExists)
+            {
+                return (true, null);
+            }
+
+            var pollingResult = await PollingHelper.PollActivityUntilComplete<AnalyzeResultsStats>(
                 context,
                 PollingHelper.CreatePollingArgs(
                     activityName: nameof(CompleteOcr),
@@ -191,6 +207,35 @@ namespace coordinator.Durable.Orchestration
                     activityRetryOptions: _durableActivityRetryOptions
                 )
            );
+
+            return (false, pollingResult);
+        }
+
+        private async Task<(DateTime IndexStoredTime, StoreCaseIndexesResult StoreCaseIndexesResult, PollingResult<long> PollingResult)> IndexDocument(IDurableOrchestrationContext context, DocumentPayload payload, ILogger log, IndexedDocumentEvent telemetryEvent)
+        {
+            var indexStoredResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
+            var indexStoredTime = context.CurrentUtcDateTime;
+
+            var indexPollingResult = await PollingHelper.PollActivityUntilComplete<long>(
+                context,
+                PollingHelper.CreatePollingArgs(
+                    activityName: nameof(CompleteIndex),
+                    activityInput: (payload, indexStoredResult.LineCount),
+                    prePollingDelayMs: _prePollingDelayMs,
+                    pollingIntervalMs: _pollingIntervalMs,
+                    maxPollingAttempts: _maxPollingAttempts,
+                    activityRetryOptions: _durableActivityRetryOptions
+                )
+            );
+
+            if (!indexPollingResult.IsCompleted)
+            {
+                // Aggressive option used here: if we haven't settled then carry on rather than throwing
+                // todo: in the tracker we can record a flag to say that we do not have 100% confidence in the index for this document?
+                log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), "Index operation did not complete within the polling timeout period - carrying on");
+            }
+
+            return (indexStoredTime, indexStoredResult, indexPollingResult);
         }
     }
 }

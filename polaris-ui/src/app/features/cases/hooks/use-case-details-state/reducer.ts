@@ -452,11 +452,14 @@ export const reducer = (
             (tabItem) => tabItem.documentId === item.documentId
           )
         )
-        .map(({ documentId, versionId, presentationTitle }) => ({
-          documentId,
-          versionId,
-          presentationTitle,
-        }));
+        .map(
+          ({ documentId, versionId, presentationTitle, isOcrProcessed }) => ({
+            documentId,
+            versionId,
+            presentationTitle,
+            isOcrProcessed,
+          })
+        );
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }
@@ -480,7 +483,8 @@ export const reducer = (
             state.urn,
             state.caseId,
             matchingFreshPdfRecord.documentId,
-            matchingFreshPdfRecord.versionId
+            matchingFreshPdfRecord.versionId,
+            matchingFreshPdfRecord.isOcrProcessed
           );
           return [
             ...prev,
@@ -599,7 +603,8 @@ export const reducer = (
           state.urn,
           state.caseId,
           pipelineDocument.documentId,
-          pipelineDocument.versionId
+          pipelineDocument.versionId,
+          pipelineDocument.isOcrProcessed
         );
 
       let item: CaseDocumentViewModel;

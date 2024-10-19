@@ -1,8 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Clients.PdfGenerator;
@@ -13,7 +10,6 @@ using coordinator.Durable.Activity;
 using Ddei;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Moq;
-using Moq.Protected;
 using Xunit;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
@@ -28,23 +24,17 @@ namespace pdf_generator.tests.Durable.Activity
     public class GeneratePdfFromDocumentTests
     {
         private readonly Fixture _fixture = new();
-        private readonly string _serializedGeneratePdfRequest;
         private readonly DocumentPayload _generatePdfRequest;
         private readonly Stream _pdfStream;
-        private readonly string _serializedGeneratePdfResponse;
         private readonly Mock<IDdeiClient> _mockDDeiClient;
         private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
         private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
-
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
         private readonly Mock<IPdfGeneratorClient> _mockPdfGeneratorClient;
         private readonly GeneratePdfFromDocument _generatePdf;
 
         public GeneratePdfFromDocumentTests()
         {
-            _serializedGeneratePdfRequest = _fixture.Create<string>();
-
-
             var trackerCmsDocumentDto = _fixture.Create<DocumentDto>();
             _generatePdfRequest = new DocumentPayload
                 (
@@ -54,7 +44,7 @@ namespace pdf_generator.tests.Durable.Activity
                     _fixture.Create<long>(),
                     _fixture.Create<string>(),
                     _fixture.Create<DocumentTypeDto>(),
-                    DocumentNature.Document,
+                    DocumentNature.Types.Document,
                     DocumentDeltaType.RequiresIndexing,
                     _fixture.Create<string>(),
                     _fixture.Create<Guid>()
@@ -65,8 +55,6 @@ namespace pdf_generator.tests.Durable.Activity
             var pdfStream = new MemoryStream();
 
             _pdfStream = new MemoryStream();
-            _serializedGeneratePdfResponse = _fixture.Create<string>();
-
 
             _mockDDeiClient = new Mock<IDdeiClient>();
             _mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
@@ -135,7 +123,7 @@ namespace pdf_generator.tests.Durable.Activity
                 .Setup(context => context.GetInput<DocumentPayload>())
                 .Returns(_generatePdfRequest);
             var result = await _generatePdf.Run(_mockDurableActivityContext.Object);
-            result.Should().Be(PdfConversionStatus.DocumentTypeUnsupported);
+            result.Should().Be((false, PdfConversionStatus.DocumentTypeUnsupported));
         }
 
         [Fact]
@@ -149,7 +137,8 @@ namespace pdf_generator.tests.Durable.Activity
                 service => service.UploadBlobAsync
                 (
                     _pdfStream,
-                    It.IsAny<BlobIdType>()
+                    It.IsAny<BlobIdType>(),
+                    null
                 )
             );
         }
@@ -165,7 +154,8 @@ namespace pdf_generator.tests.Durable.Activity
                 service => service.UploadBlobAsync
                 (
                     _pdfStream,
-                    It.IsAny<BlobIdType>()
+                    It.IsAny<BlobIdType>(),
+                    null
                 )
             );
         }
