@@ -15,6 +15,7 @@ namespace Ddei.Factories
         HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCaseIdentifiersArgDto arg);
         HttpRequestMessage CreateCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg);
         HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg);
+        HttpRequestMessage CreateGetDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg);
         HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiFileStoreArgDto arg);
         HttpRequestMessage CreateUploadPdfRequest(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream);
         HttpRequestMessage CreateStatusRequest();

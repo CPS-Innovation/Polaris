@@ -29,7 +29,7 @@
     <None Remove="Azure.Search.Documents" />
     <None Remove="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" />
     <None Remove="Microsoft.Azure.Core.NewtonsoftJson" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.22" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.29" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.60.3" />
@@ -54,5 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
+    <ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
 </Project>

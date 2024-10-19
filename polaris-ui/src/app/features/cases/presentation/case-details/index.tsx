@@ -435,6 +435,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+  const openInSameTab = (url: string) => {
+    window.open(url, "_self");
+  };
 
   return (
     <div>
@@ -610,39 +613,39 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   {!isMultipleDefendantsOrCharges && (
                     <Charges caseDetails={caseState.data} />
                   )}
-                  {featureFlags.externalRedirect && (
+                  {
                     <div className={classes.externalRedirectBtnWrapper}>
-                      <Button
-                        disabled={false}
-                        onClick={() => {
-                          openInNewTab(
-                            `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
-                          );
-                        }}
-                        data-testid="btn-case-review-app"
-                        id="btn-case-review-app"
-                        className={`${classes.newWindowBtn} govuk-button--secondary`}
-                        name="secondary"
-                      >
-                        Case Review App <NewWindow />
-                      </Button>
+                      {featureFlags.externalRedirectCaseReviewApp && (
+                        <Button
+                          onClick={() => {
+                            openInNewTab(
+                              `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
+                            );
+                          }}
+                          data-testid="btn-case-review-app"
+                          id="btn-case-review-app"
+                          className={`${classes.newWindowBtn} govuk-button--secondary`}
+                          name="secondary"
+                        >
+                          Case Review App <NewWindow />
+                        </Button>
+                      )}
 
-                      <Button
-                        disabled={false}
-                        onClick={() => {
-                          openInNewTab(
-                            `${BULK_UM_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
-                          );
-                        }}
-                        data-testid="btn-bulk-um-classification"
-                        id="btn-bulk-um-classification"
-                        className={`${classes.newWindowBtn} govuk-button--secondary`}
-                        name="secondary"
-                      >
-                        Bulk UM Classification <NewWindow />
-                      </Button>
+                      {featureFlags.externalRedirectBulkUmApp && (
+                        <Button
+                          onClick={() => {
+                            openInSameTab(`${BULK_UM_REDIRECT_URL}/${caseId}`);
+                          }}
+                          data-testid="btn-bulk-um-classification"
+                          id="btn-bulk-um-classification"
+                          className={`${classes.newWindowBtn} govuk-button--secondary`}
+                          name="secondary"
+                        >
+                          Bulk UM Classification <NewWindow />
+                        </Button>
+                      )}
                     </div>
-                  )}
+                  }
 
                   {context && isTaggedTriageContext(context) && (
                     <div className={classes.externalRedirectBtnWrapper}>

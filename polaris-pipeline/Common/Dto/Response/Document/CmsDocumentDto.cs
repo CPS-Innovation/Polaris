@@ -8,19 +8,19 @@ namespace Common.Dto.Response.Document
 
         public long VersionId { get; set; }
 
-        public string Path { get; set; }
+        public string Path { get; set; } /* DO NOT LEAK */
 
-        public string FileName { get; set; }
+        public string FileName { get; set; } /* CmsOriginalFileName */
 
         public string PresentationTitle { get; set; }
 
-        public string MimeType { get; set; }
+        public string MimeType { get; set; } /* not reqd */
 
-        public string FileExtension { get; set; }
+        public string FileExtension { get; set; } /* not reqd */
 
         public DocumentTypeDto CmsDocType { get; set; }
 
-        public string DocumentDate { get; set; }
+        public string DocumentDate { get; set; } /* CmsFileCreatedDate */
 
         public bool IsOcrProcessed { get; set; }
 

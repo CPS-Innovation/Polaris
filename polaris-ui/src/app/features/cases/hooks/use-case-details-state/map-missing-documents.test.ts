@@ -11,7 +11,6 @@ describe("mapMissingDocuments", () => {
   it("can return missing documents when pipeline is complete", () => {
     const pipelineResults = {
       status: "Completed",
-      transactionId: "",
       documents: [
         { documentId: "1", status: "OcrAndIndexFailure" },
         { documentId: "2", status: "Indexed" },
@@ -31,7 +30,6 @@ describe("mapMissingDocuments", () => {
   it("can cope with a failed document in the pipeline that is not present in the documents array", () => {
     const pipelineResults = {
       status: "Completed",
-      transactionId: "",
       documents: [
         { documentId: "3", status: "OcrAndIndexFailure" },
         { documentId: "1", status: "Indexed" },

@@ -41,8 +41,8 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var arg = _ddeiArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId);
-                var result = await _ddeiClient.GetExhibitProducers(arg);
+                var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId);
+                var result = await _ddeiClient.GetExhibitProducersAsync(arg);
 
                 return new OkObjectResult(result);
             }

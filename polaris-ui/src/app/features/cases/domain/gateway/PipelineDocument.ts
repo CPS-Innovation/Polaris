@@ -81,6 +81,7 @@ export type PresentationDocumentProperties = {
   hasFailedAttachments: boolean;
   hasNotes: boolean;
   conversionStatus: ConversionStatus;
+  isOcrProcessed: boolean;
   isUnused: boolean;
   isInbox: boolean;
   classification: Classification;

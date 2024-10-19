@@ -1,5 +1,10 @@
 #################### Variables ####################
 
+variable "blob_service_container_name" {
+  type    = string
+  default = "documents"
+}
+
 variable "resource_name_prefix" {
   type    = string
   default = "polaris"
@@ -195,7 +200,12 @@ variable "feature_flag_page_rotate" {
   type = string
 }
 
-variable "feature_flag_external_redirect" {
+variable "feature_flag_external_redirect_case_review_app" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
+variable "feature_flag_external_redirect_bulk_um_app" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
@@ -228,15 +238,16 @@ variable "private_beta" {
     feature_user_group  = string
     feature_user_group2 = string
     feature_user_group3 = string
+    feature_user_group4 = string
   })
 }
 
 variable "polaris_ui_reauth" {
   type = object({
-    outbound_live_url = string
-    outbound_e2e_url = string
-    inbound_url = string
-    use_in_situ_refresh = string
+    outbound_live_url       = string
+    outbound_e2e_url        = string
+    inbound_url             = string
+    use_in_situ_refresh     = string
     in_situ_termination_url = string
   })
 }

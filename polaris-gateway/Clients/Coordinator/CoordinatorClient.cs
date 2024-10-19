@@ -20,33 +20,6 @@ namespace PolarisGateway.Clients.Coordinator
             _httpClient = httpClient;
         }
 
-        public async Task<HttpResponseMessage> GetUrnFromCaseIdAsync(int caseId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetUrnLookupPath(caseId),
-                correlationId,
-                cmsAuthValues);
-        }
-
-        public async Task<HttpResponseMessage> GetCasesAsync(string caseUrn, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetCasesPath(caseUrn),
-                correlationId,
-                cmsAuthValues);
-        }
-
-        public async Task<HttpResponseMessage> GetCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetCasePath(caseUrn, caseId),
-                correlationId,
-                cmsAuthValues);
-        }
-
         public async Task<HttpResponseMessage> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
@@ -80,14 +53,6 @@ namespace PolarisGateway.Clients.Coordinator
             }
 
             return response;
-        }
-
-        public async Task<HttpResponseMessage> GetDocumentAsync(string caseUrn, int caseId, string documentId, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetDocumentPath(caseUrn, caseId, documentId),
-                correlationId);
         }
 
         public async Task<HttpResponseMessage> CheckoutDocumentAsync(string caseUrn, int caseId, string documentId, string cmsAuthValues, Guid correlationId)
@@ -175,7 +140,7 @@ namespace PolarisGateway.Clients.Coordinator
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
-                RestApi.GetModifyDocumentPath(caseUrn, caseId.ToString(), documentId),
+                RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
@@ -185,7 +150,7 @@ namespace PolarisGateway.Clients.Coordinator
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
-                RestApi.GetReclassifyDocumentPath(caseUrn, caseId.ToString(), documentId),
+                RestApi.GetReclassifyDocumentPath(caseUrn, caseId, documentId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(reclassifyDocumentDto), Encoding.UTF8, ContentType.Json));

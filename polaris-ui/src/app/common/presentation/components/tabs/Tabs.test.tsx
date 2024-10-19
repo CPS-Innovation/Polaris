@@ -8,12 +8,15 @@ jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
 
 describe("Tabs", () => {
   const scrollIntoView = Element.prototype.scrollIntoView;
+
   beforeAll(() => {
     Element.prototype.scrollIntoView = jest.fn();
   });
+
   afterAll(() => {
     Element.prototype.scrollIntoView = scrollIntoView;
   });
+
   it("can render empty tabs", async () => {
     const props: TabsProps = {
       idPrefix: "foo",
@@ -29,15 +32,34 @@ describe("Tabs", () => {
     await screen.findByTestId("tabs");
     expect(screen.queryAllByRole("tab")).toHaveLength(0);
   });
+
   it("can render tabs", async () => {
     const props: TabsProps = {
       idPrefix: "foo",
       title: "Tabs-title",
       activeTabId: "",
       items: [
-        { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-        { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-        { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+        {
+          id: "t1",
+          versionId: 1,
+          label: "tab-1",
+          panel: <></>,
+          isDirty: false,
+        },
+        {
+          id: "t2",
+          versionId: 1,
+          label: "tab-2",
+          panel: <></>,
+          isDirty: false,
+        },
+        {
+          id: "t3",
+          versionId: 1,
+          label: "tab-3",
+          panel: <></>,
+          isDirty: false,
+        },
       ],
       handleClosePdf: () => {},
       handleTabSelection: () => {},
@@ -48,15 +70,34 @@ describe("Tabs", () => {
     await screen.findByTestId("tabs");
     expect(screen.queryAllByRole("tab")).toHaveLength(3);
   });
+
   it("can highlight the active tab", async () => {
     const props: TabsProps = {
       idPrefix: "foo",
       title: "Tabs-title",
       activeTabId: "",
       items: [
-        { id: "t1", label: "tab-1", panel: <>content-1</>, isDirty: false },
-        { id: "t2", label: "tab-2", panel: <>content-2</>, isDirty: false },
-        { id: "t3", label: "tab-3", panel: <>content-3</>, isDirty: false },
+        {
+          id: "t1",
+          versionId: 1,
+          label: "tab-1",
+          panel: <>content-1</>,
+          isDirty: false,
+        },
+        {
+          id: "t2",
+          versionId: 1,
+          label: "tab-2",
+          panel: <>content-2</>,
+          isDirty: false,
+        },
+        {
+          id: "t3",
+          versionId: 1,
+          label: "tab-3",
+          panel: <>content-3</>,
+          isDirty: false,
+        },
       ],
       handleClosePdf: () => {},
       handleTabSelection: () => {},
@@ -84,6 +125,7 @@ describe("Tabs", () => {
       "govuk-tabs__panel--hidden"
     );
   });
+
   it("can navigate using keyboard", async () => {
     const TestComponent = () => {
       const [activeTabId, setActiveTabId] = useState("");
@@ -92,9 +134,27 @@ describe("Tabs", () => {
         activeTabId,
         title: "Tabs-title",
         items: [
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t3",
+            versionId: 1,
+            label: "tab-3",
+            panel: <></>,
+            isDirty: false,
+          },
         ],
         handleClosePdf: () => {},
         handleTabSelection: (id: string) => {
@@ -144,6 +204,7 @@ describe("Tabs", () => {
     });
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
   });
+
   // // Not strictly a testable feature as the tab code just renders what it gets given in terms of items.
   // //  However, (one of) the reasons we writing our own tabs is that adding new tabs dynamically
   // //  breaks standard GDS tabs (the keyboard navigation doesn't work for the newly added tabs).
@@ -165,7 +226,15 @@ describe("Tabs", () => {
     rerender(
       <Tabs
         {...props}
-        items={[{ id: "t1", label: "tab-1", panel: <></>, isDirty: false }]}
+        items={[
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+        ]}
       />
     );
     expect(screen.queryAllByRole("tab")).toHaveLength(1);
@@ -175,8 +244,20 @@ describe("Tabs", () => {
       <Tabs
         {...props}
         items={[
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
         ]}
       />
     );
@@ -184,6 +265,7 @@ describe("Tabs", () => {
     // going from some tabs to one more tab we expect the new tab NOT to get focus
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
   });
+
   describe("removing tabs", () => {
     it("can remove a tab and trigger navigation to the previous tab", async () => {
       const mockHandleClosePdf = jest.fn();
@@ -193,9 +275,27 @@ describe("Tabs", () => {
         title: "Tabs-title",
         activeTabId: "t2",
         items: [
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t3",
+            versionId: 1,
+            label: "tab-3",
+            panel: <></>,
+            isDirty: false,
+          },
         ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
@@ -216,10 +316,11 @@ describe("Tabs", () => {
         })
       );
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(1);
-      expect(mockHandleClosePdf).toHaveBeenCalledWith("t2");
+      expect(mockHandleClosePdf).toHaveBeenCalledWith("t2", 1);
       expect(mockHandleTabSelection).toHaveBeenCalledTimes(1);
       expect(mockHandleTabSelection).toHaveBeenCalledWith("t1");
     });
+
     it("can remove the first tab and trigger navigation to the next tab", async () => {
       const mockHandleClosePdf = jest.fn();
       const mockHandleTabSelection = jest.fn();
@@ -228,9 +329,27 @@ describe("Tabs", () => {
         title: "Tabs-title",
         activeTabId: "t1",
         items: [
-          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
-          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
-          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t2",
+            versionId: 1,
+            label: "tab-2",
+            panel: <></>,
+            isDirty: false,
+          },
+          {
+            id: "t3",
+            versionId: 1,
+            label: "tab-3",
+            panel: <></>,
+            isDirty: false,
+          },
         ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
@@ -251,10 +370,11 @@ describe("Tabs", () => {
         })
       );
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(1);
-      expect(mockHandleClosePdf).toHaveBeenCalledWith("t1");
+      expect(mockHandleClosePdf).toHaveBeenCalledWith("t1", 1);
       expect(mockHandleTabSelection).toHaveBeenCalledTimes(1);
       expect(mockHandleTabSelection).toHaveBeenCalledWith("t2");
     });
+
     it("can remove the only tab and trigger navigation to empty hash", async () => {
       const mockHandleClosePdf = jest.fn();
       const mockHandleTabSelection = jest.fn();
@@ -262,7 +382,15 @@ describe("Tabs", () => {
         idPrefix: "foo",
         title: "Tabs-title",
         activeTabId: "t1",
-        items: [{ id: "t1", label: "tab-1", panel: <></>, isDirty: false }],
+        items: [
+          {
+            id: "t1",
+            versionId: 1,
+            label: "tab-1",
+            panel: <></>,
+            isDirty: false,
+          },
+        ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
         handleUnLockDocuments: () => {},
@@ -282,7 +410,7 @@ describe("Tabs", () => {
         })
       );
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(1);
-      expect(mockHandleClosePdf).toHaveBeenCalledWith("t1");
+      expect(mockHandleClosePdf).toHaveBeenCalledWith("t1", 1);
       expect(mockHandleTabSelection).toHaveBeenCalledTimes(1);
       expect(mockHandleTabSelection).toHaveBeenCalledWith("");
     });

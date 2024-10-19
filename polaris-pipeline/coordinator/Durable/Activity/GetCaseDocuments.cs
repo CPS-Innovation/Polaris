@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
-using coordinator.Services.DocumentToggle;
+using Common.Services.DocumentToggle;
 using Ddei;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -40,7 +40,7 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(GetCaseDocuments))]
         public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
+            var payload = context.GetInput<CasePayload>();
 
             if (string.IsNullOrWhiteSpace(payload.Urn))
                 throw new ArgumentException("CaseUrn cannot be empty");
@@ -51,21 +51,15 @@ namespace coordinator.Durable.Activity
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
 
-            var getDocumentsTask = _ddeiClient.ListDocumentsAsync(
-                payload.Urn,
-                payload.CaseId.ToString(),
-                payload.CmsAuthValues,
-                payload.CorrelationId
-            );
-
-            var arg = _ddeiArgFactory.CreateCaseArg(
+            var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
                 payload.CmsAuthValues,
                 payload.CorrelationId,
                 payload.Urn,
                 payload.CaseId);
 
-            var getPcdRequestsTask = _ddeiClient.GetPcdRequests(arg);
-            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndCharges(arg);
+            var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
+            var getPcdRequestsTask = _ddeiClient.GetPcdRequestsAsync(arg);
+            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 

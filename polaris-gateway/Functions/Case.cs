@@ -1,10 +1,11 @@
 ﻿using Common.Configuration;
+using Ddei;
+using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
@@ -12,40 +13,43 @@ namespace PolarisGateway.Functions
     public class Case
     {
         private readonly ILogger<Case> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public Case(
             ILogger<Case> logger,
-            ICoordinatorClient coordinatorClient,
+            IDdeiClient ddeiClient,
+            IDdeiArgFactory ddeiArgFactory,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _logger = logger;
-            _coordinatorClient = coordinatorClient;
-            _initializationHandler = initializationHandler;
-            _unhandledExceptionHandler = unhandledExceptionHandler;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
+            _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
+            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
 
         [FunctionName(nameof(Case))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try
             {
                 context = await _initializationHandler.Initialize(req);
-                return await _coordinatorClient.GetCaseAsync(
-                    caseUrn,
-                    caseId,
-                    context.CmsAuthValues,
-                    context.CorrelationId);
+
+                var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId);
+                var result = await _ddeiClient.GetCaseAsync(arg);
+
+                return new OkObjectResult(result);
             }
             catch (Exception ex)
             {
-                return _unhandledExceptionHandler.HandleUnhandledException(
+                return _unhandledExceptionHandler.HandleUnhandledExceptionActionResult(
                   _logger,
                   nameof(Case),
                   context.CorrelationId,

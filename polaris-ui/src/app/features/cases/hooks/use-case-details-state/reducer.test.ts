@@ -87,7 +87,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               processingCompleted: "",
               documentsRetrieved: "",
@@ -118,7 +117,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Running",
               processingCompleted: "",
               documentsRetrieved: new Date().toISOString(),
@@ -156,7 +154,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               documentsRetrieved,
               documents: [],
@@ -198,7 +195,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               documentsRetrieved: new Date().toISOString(),
               documents: [],
@@ -245,7 +241,6 @@ describe("useCaseDetailsState reducer", () => {
               status: "incomplete",
               haveData: true,
               data: {
-                transactionId: "123",
                 status: "DocumentsRetrieved",
                 documents: mockNewPdfDocuments,
                 documentsRetrieved: new Date().toISOString(),
@@ -301,7 +296,6 @@ describe("useCaseDetailsState reducer", () => {
         status: "incomplete",
         haveData: true,
         data: {
-          transactionId: "123",
           status: "Running",
           documents: [{ documentId: "1" }],
         },
@@ -319,7 +313,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Running",
               documents: [{ documentId: "1" }],
             },
@@ -339,7 +332,6 @@ describe("useCaseDetailsState reducer", () => {
           status: "incomplete",
           haveData: true,
           data: {
-            transactionId: "123",
             status: "Completed",
             processingCompleted: "2023-04-05T15:02:17.601Z",
             documents: [{ documentId: "1", versionId: 2 }],
@@ -375,7 +367,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               processingCompleted: "2023-04-05T15:02:17.601Z",
               documents: [{ documentId: "1", versionId: 2 }],
@@ -394,7 +385,6 @@ describe("useCaseDetailsState reducer", () => {
 
         data: {
           documents: [{ documentId: "1" }],
-          transactionId: "123",
           status: "Completed",
         },
       } as AsyncPipelineResult<PipelineResults>;
@@ -424,7 +414,6 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               documents: [{ documentId: "1" }],
               status: "Completed",
-              transactionId: "123",
             },
           } as AsyncPipelineResult<PipelineResults>,
         }
@@ -687,7 +676,6 @@ describe("useCaseDetailsState reducer", () => {
         status: "complete",
         haveData: true,
         data: {
-          transactionId: "",
           documents: [{ documentId: "1" }],
         },
       } as CombinedState["pipelineState"];

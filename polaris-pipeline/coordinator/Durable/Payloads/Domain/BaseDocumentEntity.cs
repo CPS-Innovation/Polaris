@@ -37,10 +37,6 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("versionId")]
         public long VersionId { get; set; }
 
-        [Obsolete("This shouldn't really be a property as it can always be worked out buy convention")]
-        [JsonProperty("pdfBlobName")]
-        public string PdfBlobName { get; set; }
-
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]

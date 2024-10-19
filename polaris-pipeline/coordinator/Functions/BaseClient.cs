@@ -19,11 +19,6 @@ namespace coordinator.Functions
         internal CmsDocumentEntity CmsDocument;
         internal PcdRequestEntity PcdRequest;
         internal DefendantsAndChargesEntity DefendantsAndCharges;
-
-        public string GetBlobName()
-        {
-            return CmsDocument?.PdfBlobName ?? PcdRequest?.PdfBlobName ?? DefendantsAndCharges.PdfBlobName;
-        }
     }
 
     public class BaseClient
@@ -33,7 +28,7 @@ namespace coordinator.Functions
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
                 IDurableEntityClient client,
-                string caseId,
+                int caseId,
                 string documentId,
                 ILogger logger,
                 Guid currentCorrelationId,
@@ -43,7 +38,7 @@ namespace coordinator.Functions
             var response = new GetTrackerDocumentResponse { Success = false };
             CaseDurableEntity entityState;
 
-            var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
+            var entityId = CaseDurableEntity.GetEntityId(caseId);
 
             try
             {

@@ -79,8 +79,9 @@ namespace coordinator.Functions
                     _ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, currentCorrelationId)
                 );
 
-                var casePayload = new CaseOrchestrationPayload(caseUrn, caseId, cmsAuthValues, currentCorrelationId);
-                var isAccepted = await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId.ToString(), casePayload, req);
+                var casePayload = new CasePayload(caseUrn, caseId, cmsAuthValues, currentCorrelationId);
+
+                var isAccepted = await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
 
                 return new ObjectResult(new RefreshCaseResponse(caseUrn, caseId))
                 {

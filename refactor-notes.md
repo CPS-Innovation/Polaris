@@ -19,8 +19,33 @@
 
 # Immediate
 
-- WHAT TO DO ABOUT isOCR-ed?
+- PIIService to take in versionId for its chunking
+
+- non-doc PDFs
+- Need to do PCD and DAC in doc list
+
+- remove coordinator terraform entries
+- where config keys have ended up
+- Test isOCR-ed?
 - Make sure analytics events are ok
+- Other coordinatorclientcalls that can die
+- Should services return ienumerable
+
+- hack out old BlobStorageServiceStuff
+
+- update state on unsupportedmediatype
+
+- dispose streams?
+
+# Blue post-its
+
+- AddDocumentNote does not need documentId
+- check test file structure
+- check ReclassificationRequestObject
+
+# Analytics
+
+GeneratePdf has changed - go with prefix
 
 ## Ids
 

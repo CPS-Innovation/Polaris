@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Common.Dto.Response.Case;
@@ -96,40 +97,44 @@ namespace Ddei
             return _caseDetailsMapper.MapCaseDetails(@case);
         }
 
-        public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequests(DdeiCaseIdentifiersArgDto arg)
+        public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg)
         {
             var pcdRequests = await CallDdei<IEnumerable<DdeiPcdRequestCoreDto>>(_ddeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
             return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
         }
 
-        public async Task<PcdRequestDto> GetPcdRequest(DdeiPcdArgDto arg)
+        public async Task<PcdRequestDto> GetPcdRequestAsync(DdeiPcdArgDto arg)
         {
             var pcdRequest = await CallDdei<DdeiPcdRequestDto>(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
             return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
         }
 
-        public async Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndCharges(DdeiCaseIdentifiersArgDto arg)
+        public async Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndChargesAsync(DdeiCaseIdentifiersArgDto arg)
         {
             var defendantAndCharges = await CallDdei<IEnumerable<DdeiCaseDefendantDto>>(_ddeiClientRequestFactory.CreateGetDefendantAndChargesRequest(arg));
             return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges);
         }
 
-        public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(DdeiCaseIdentifiersArgDto arg)
         {
-            var caseArg = new DdeiCaseIdentifiersArgDto
-            {
-                Urn = caseUrn,
-                CaseId = long.Parse(caseId),
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId
-            }; ;
             var ddeiResults = await CallDdei<List<DdeiDocumentResponse>>(
-                _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg)
+                _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(arg)
             );
 
             return ddeiResults
-                .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
-                .ToArray();
+                .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult));
+        }
+
+        public async Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
+        {
+            var response = await CallDdei(_ddeiClientRequestFactory.CreateGetDocumentRequest(arg));
+            var fileName = response.Content.Headers.GetValues("Content-Disposition").ToList()[0];
+
+            return new FileResult
+            {
+                Stream = await response.Content.ReadAsStreamAsync(),
+                FileName = fileName
+            };
         }
 
         public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
@@ -178,14 +183,14 @@ namespace Ddei
             });
         }
 
-        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotes(DdeiDocumentNotesArgDto arg)
+        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentNotesArgDto arg)
         {
             var ddeiResults = await CallDdei<List<DdeiDocumentNoteResponse>>(_ddeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseDocumentNoteMapper.Map(ddeiResult)).ToArray();
         }
 
-        public async Task<DocumentNoteResult> AddDocumentNote(DdeiAddDocumentNoteArgDto arg)
+        public async Task<DocumentNoteResult> AddDocumentNoteAsync(DdeiAddDocumentNoteArgDto arg)
         {
             var response = await CallDdei<DdeiDocumentNoteAddedResponse>(_ddeiClientRequestFactory.CreateAddDocumentNoteRequest(arg));
 
@@ -214,14 +219,14 @@ namespace Ddei
             };
         }
 
-        public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducers(DdeiCaseIdentifiersArgDto arg)
+        public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg)
         {
             var ddeiResults = await CallDdei<List<DdeiDocumentExhibitProducerResponse>>(_ddeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
 
             return ddeiResults.Select(ddeiResult => _caseExhibitProducerMapper.Map(ddeiResult)).ToArray();
         }
 
-        public async Task<IEnumerable<CaseWitnessDto>> GetWitnesses(DdeiCaseIdentifiersArgDto arg)
+        public async Task<IEnumerable<CaseWitnessDto>> GetWitnessesAsync(DdeiCaseIdentifiersArgDto arg)
         {
             var ddeiResults = await CallDdei<List<DdeiCaseWitnessResponse>>(_ddeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
 

@@ -17,7 +17,7 @@ namespace pdf_redactor.Services.DocumentManipulation
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Stream> RemoveOrRotatePagesAsync(string caseId, string documentId, ModifyDocumentWithDocumentDto removeOrRotateDocumentPages, Guid correlationId)
+        public async Task<Stream> RemoveOrRotatePagesAsync(int caseId, string documentId, ModifyDocumentWithDocumentDto removeOrRotateDocumentPages, Guid correlationId)
         {
             try
             {

@@ -17,8 +17,8 @@ public interface IOrchestrationProvider
 
     Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client,
                                                Guid correlationId,
-                                               string caseId,
-                                               CaseOrchestrationPayload casePayload,
+                                               int caseId,
+                                               CasePayload casePayload,
                                                HttpRequest req);
 
     Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(IDurableOrchestrationClient client, int caseId);

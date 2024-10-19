@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using coordinator.Durable.Orchestration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -63,7 +62,7 @@ namespace coordinator.Functions
 
                 var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
-                var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
+                var entityId = CaseDurableEntity.GetEntityId(caseId);
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
                 var entityState = trackerState.EntityState;
