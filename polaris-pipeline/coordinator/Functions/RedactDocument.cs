@@ -155,7 +155,7 @@ namespace coordinator.Functions
                     versionId: document.VersionId
                 );
 
-                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
+                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
 
                 if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
                 {

@@ -1,5 +1,6 @@
 ﻿
 
+using Common.Services.RenderHtmlService;
 using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.Artefact.Factories;
 
@@ -12,6 +13,7 @@ namespace PolarisGateway.Services.Artefact
             services.AddSingleton<IArtefactService, ArtefactService>();
             services.AddSingleton<ICachingArtefactService, CachingArtefactService>();
             services.AddSingleton<IArtefactServiceResponseFactory, ArtefactServiceResponseFactory>();
+            services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
         }
     }
 }

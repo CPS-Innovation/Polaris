@@ -4,8 +4,10 @@ using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Ocr;
 using Common.Domain.Pii;
+using Common.Dto.Response.Case;
 using Common.Services.OcrService;
 using Common.Services.PiiService;
+using Common.Services.RenderHtmlService;
 using Ddei;
 using Ddei.Factories;
 using PolarisGateway.Services.Artefact.Domain;
@@ -18,6 +20,7 @@ public class ArtefactService : IArtefactService
     private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
+    private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
     private readonly IOcrService _ocrService;
     private readonly IPiiService _piiService;
 
@@ -26,6 +29,7 @@ public class ArtefactService : IArtefactService
         IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         IPdfGeneratorClient pdfGeneratorClient,
+        IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IOcrService ocrService,
         IPiiService piiService)
     {
@@ -33,6 +37,7 @@ public class ArtefactService : IArtefactService
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
         _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
         _pdfGeneratorClient = pdfGeneratorClient ?? throw new ArgumentNullException(nameof(pdfGeneratorClient));
+        _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService ?? throw new ArgumentNullException(nameof(convertPcdRequestToHtmlService));
         _ocrService = ocrService ?? throw new ArgumentNullException(nameof(ocrService));
         _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
     }
@@ -58,22 +63,18 @@ public class ArtefactService : IArtefactService
 
     protected async Task<ArtefactResult<Stream>> GetPdfInternalAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
-        var documentIdWithoutPrefix = long.Parse(Regex.Match(documentId, @"\d+").Value);
-        var ddeiArgs = _ddeiArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, documentIdWithoutPrefix, versionId);
-
-        var fileResult = await _ddeiClient.GetDocumentAsync(ddeiArgs);
-
-        if (!FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType))
+        var prefix = documentId.Split('-')[0];
+        (PdfConversionStatus Status, Stream Stream) pdfResult = prefix switch
         {
-            return _artefactServiceResponseFactory.CreateFailedResult<Stream>(PdfConversionStatus.DocumentTypeUnsupported);
-        }
+            PolarisDocumentTypePrefixes.PcdRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId),
+            PolarisDocumentTypePrefixes.DefendantsAndCharges => await GetDefendantsAndChargesStreamAsync(cmsAuthValues, correlationId, urn, caseId),
+            _ => await GetDocumentStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId)
+        };
 
-        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, fileResult.Stream, fileType);
         if (pdfResult.Status == PdfConversionStatus.DocumentConverted)
         {
-            return _artefactServiceResponseFactory.CreateOkfResult(pdfResult.PdfStream, null);
+            return _artefactServiceResponseFactory.CreateOkfResult(pdfResult.Stream, null);
         }
-
         return _artefactServiceResponseFactory.CreateFailedResult<Stream>(pdfResult.Status);
     }
 
@@ -114,5 +115,44 @@ public class ArtefactService : IArtefactService
         }
 
         return _artefactServiceResponseFactory.CreateFailedResult<(Guid?, IEnumerable<PiiLine>)>(ocrResult.PdfConversionStatus);
+    }
+
+    private async Task<(PdfConversionStatus, Stream)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+    {
+        var documentIdWithoutPrefix = long.Parse(Regex.Match(documentId, @"\d+").Value);
+        var ddeiArgs = _ddeiArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, documentIdWithoutPrefix, versionId);
+
+        var fileResult = await _ddeiClient.GetDocumentAsync(ddeiArgs);
+        if (!FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType))
+        {
+            return (PdfConversionStatus.DocumentTypeUnsupported, null);
+        }
+
+        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, fileResult.Stream, fileType);
+        return (pdfResult.Status, pdfResult.PdfStream);
+    }
+
+    private async Task<(PdfConversionStatus, Stream)> GetPcdRequestStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+    {
+        var docId = int.Parse(Regex.Match(documentId, @"\d+").Value);
+        var arg = _ddeiArgFactory.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, docId);
+        var pcdRequest = await _ddeiClient.GetPcdRequestAsync(arg);
+        return (PdfConversionStatus.DocumentConverted, await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest));
+    }
+
+    private async Task<(PdfConversionStatus, Stream)> GetDefendantsAndChargesStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId)
+    {
+        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
+                                    cmsAuthValues,
+                                    correlationId,
+                                    urn,
+                                    caseId);
+        var defendantsAndChargesResult = await _ddeiClient.GetDefendantAndChargesAsync(arg);
+        var defendantsAndCharges = new DefendantsAndChargesListDto
+        {
+            CaseId = caseId,
+            DefendantsAndCharges = defendantsAndChargesResult
+        };
+        return (PdfConversionStatus.DocumentConverted, await _convertPcdRequestToHtmlService.ConvertAsync(defendantsAndCharges));
     }
 }

@@ -4,6 +4,7 @@ using Common.Domain.Pii;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
 using Common.Services.PiiService;
+using Common.Services.RenderHtmlService;
 using Ddei;
 using Ddei.Factories;
 using PolarisGateway.Services.Artefact.Domain;
@@ -22,9 +23,10 @@ public class CachingArtefactService : ArtefactService, ICachingArtefactService
         IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         IPdfGeneratorClient pdfGeneratorClient,
+        IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IOcrService ocrService,
         IPiiService piiService
-        ) : base(artefactServiceResponseFactory, ddeiClient, ddeiArgFactory, pdfGeneratorClient, ocrService, piiService)
+        ) : base(artefactServiceResponseFactory, ddeiClient, ddeiArgFactory, pdfGeneratorClient, convertPcdRequestToHtmlService, ocrService, piiService)
     {
         _artefactServiceResponseFactory = artefactServiceResponseFactory ?? throw new ArgumentNullException(nameof(artefactServiceResponseFactory));
         _polarisBlobStorageService = polarisBlobStorageService ?? throw new ArgumentNullException(nameof(polarisBlobStorageService));

@@ -29,6 +29,8 @@ namespace Common.Clients.PdfGenerator
 
         public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string caseUrn, int caseId, string documentId, long versionId, Stream documentStream, FileType fileType)
         {
+            // note: it is useful for analytics to have our case and document ids etc in the url in the call to the pdf generator.  Not strictly necessary 
+            //  as all it is doing is converting one stream to another.
             var request = _requestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}", correlationId);
             request.Headers.Add(FiletypeKey, fileType.ToString());
 
