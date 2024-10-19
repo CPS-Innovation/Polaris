@@ -101,7 +101,9 @@ namespace coordinator.Durable.Payloads.Domain
         {
             get
             {
-                return $"{PolarisDocumentTypePrefixes.CmsDocument}-{CmsParentDocumentId}";
+                return string.IsNullOrWhiteSpace(CmsParentDocumentId)
+                    ? null
+                    : $"{PolarisDocumentTypePrefixes.CmsDocument}-{CmsParentDocumentId}";
             }
         }
 

@@ -179,7 +179,7 @@ namespace coordinator.Durable.Orchestration
                     createdOrUpdatedDefendantsAndCharges.VersionId,
                     null,
                     createdOrUpdatedDefendantsAndCharges.CmsDocType,
-                    DocumentNature.PreChargeDecisionRequest,
+                    DocumentNature.DefendantsAndCharges,
                     DocumentDeltaType.RequiresIndexing,
                     casePayload.CmsAuthValues,
                     casePayload.CorrelationId
