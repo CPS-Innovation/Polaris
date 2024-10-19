@@ -49,12 +49,11 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
                 // todo: temporary code
-                var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
-                var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
+                var entityId = CaseDurableEntity.GetEntityId(caseId);
                 EntityStateResponse<CaseDurableEntity> caseEntity = default;
                 try
                 {
-                    caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
+                    caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
                 }
                 catch (Exception ex)
                 {

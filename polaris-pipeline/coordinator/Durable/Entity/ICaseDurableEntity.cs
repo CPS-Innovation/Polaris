@@ -13,40 +13,11 @@ namespace coordinator.Durable.Entity
     // (A single tuple is acceptable)
     public interface ICaseDurableEntity
     {
-        [Obsolete]
-        Task<int?> GetVersion();
-
-        [Obsolete]
-        void SetVersion(int value);
-
-        [Obsolete]
-        void Reset(string TransactionId);
-
-        [Obsolete]
-        void SetValue(CaseDurableEntity tracker);
+        void Reset();
         Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
-
-        [Obsolete]
-        void SetDocumentConversionStatus((string DocumentId, PdfConversionStatus Status) args);
-
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
-
-        [Obsolete]
-        void SetDocumentFlags((string DocumentId, bool IsOcrProcessed, bool IsDispatched) args);
-
         void SetPiiVersionId(string documentId);
-
-        [Obsolete]
-        Task<bool> AllDocumentsFailed();
-
-        [Obsolete]
-        Task<string[]> GetDocumentIds();
-
-        [Obsolete]
         Task<DateTime> GetStartTime();
-
-        [Obsolete]
-        Task<float> GetDurationToCompleted();
 
         // vNext stuff
         void SetDocumentPdfConversionSucceeded(string documentId);

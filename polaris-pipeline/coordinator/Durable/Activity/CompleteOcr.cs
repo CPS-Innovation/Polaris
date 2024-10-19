@@ -22,7 +22,7 @@ namespace coordinator.Durable.Activity
         }
 
         [FunctionName(nameof(CompleteOcr))]
-        public async Task<(bool, AnalyzeResults)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(bool, AnalyzeResultsStats)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var (operationId, payload) = context.GetInput<(Guid, DocumentPayload)>();
             var ocrOperationResult = await _ocrService.GetOperationResultsAsync(operationId, payload.CorrelationId);
@@ -35,7 +35,7 @@ namespace coordinator.Durable.Activity
             var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
             await _polarisBlobStorageService.UploadObjectAsync(ocrOperationResult.AnalyzeResults, blobId);
 
-            return (true, ocrOperationResult.AnalyzeResults);
+            return (true, AnalyzeResultsStats.FromAnalyzeResults(ocrOperationResult.AnalyzeResults));
         }
     }
 }

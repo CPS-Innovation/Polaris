@@ -112,10 +112,6 @@ namespace coordinator.tests.Durable.Orchestration
                 .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
 
-            _mockCaseEntity
-                .Setup(t => t.AllDocumentsFailed())
-                .ReturnsAsync(false);
-
             _mockDurableOrchestrationContext
                 .Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
@@ -142,10 +138,10 @@ namespace coordinator.tests.Durable.Orchestration
             _mockCmsDocumentsResponseValidator.Setup(validator => validator.Validate(It.IsAny<CmsDocumentDto[]>())).Returns(true);
 
             _coordinatorOrchestrator = new RefreshCaseOrchestrator(
-            mockLogger.Object,
-            mockConfiguration.Object,
-            _mockCmsDocumentsResponseValidator.Object,
-            _mockTelemetryClient.Object);
+                mockLogger.Object,
+                mockConfiguration.Object,
+                _mockCmsDocumentsResponseValidator.Object,
+                _mockTelemetryClient.Object);
         }
 
         [Fact]
@@ -162,7 +158,7 @@ namespace coordinator.tests.Durable.Orchestration
         {
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            _mockCaseEntity.Verify(tracker => tracker.Reset(_transactionId));
+            _mockCaseEntity.Verify(tracker => tracker.Reset());
         }
 
         [Fact]
@@ -187,7 +183,7 @@ namespace coordinator.tests.Durable.Orchestration
                     IsDeletedDefendantsAndCharges = false
                 });
 
-            var tracker = await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
+            await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
             _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync(nameof(RefreshDocumentOrchestrator), It.IsAny<object>()), Times.Never());
         }
@@ -224,16 +220,6 @@ namespace coordinator.tests.Durable.Orchestration
             {
                 Assert.True(false);
             }
-        }
-
-        [Fact]
-        public async Task Run_ThrowsCoordinatorOrchestrationExceptionWhenAllDocumentsHaveFailed()
-        {
-            // Arrange
-            _mockCaseEntity.Setup(t => t.AllDocumentsFailed()).ReturnsAsync(true);
-
-            // Act + Assert
-            await Assert.ThrowsAsync<CaseOrchestrationException>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
         }
 
         [Fact]

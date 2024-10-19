@@ -6,6 +6,7 @@ using Common.Dto.Response;
 using Common.Logging;
 using Common.Telemetry;
 using coordinator.Durable.Activity;
+using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.Azure.WebJobs;
@@ -15,7 +16,7 @@ using text_extractor.coordinator;
 
 namespace coordinator.Durable.Orchestration
 {
-    public class RefreshDocumentOrchestrator : BaseOrchestrator
+    public class RefreshDocumentOrchestrator
     {
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
         private readonly ITelemetryClient _telemetryClient;
@@ -47,7 +48,9 @@ namespace coordinator.Durable.Orchestration
         {
             var payload = context.GetInput<DocumentPayload>();
             var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = CreateOrGetCaseDurableEntity(context, payload.CaseId);
+            var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(
+                 CaseDurableEntity.GetEntityId(payload.CaseId)
+            );
 
             try
             {
@@ -98,7 +101,7 @@ namespace coordinator.Durable.Orchestration
 
             try
             {
-                PollingResult<AnalyzeResults> ocrPollingResult;
+                PollingResult<AnalyzeResultsStats> ocrPollingResult;
                 ocrPollingResult = await GetOcrResults(context, payload);
                 if (!ocrPollingResult.IsCompleted)
                 {
@@ -169,7 +172,7 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task<PollingResult<AnalyzeResults>> GetOcrResults(IDurableOrchestrationContext context, DocumentPayload payload)
+        private async Task<PollingResult<AnalyzeResultsStats>> GetOcrResults(IDurableOrchestrationContext context, DocumentPayload payload)
         {
             var ocrOperationId = await context.CallActivityWithRetryAsync<Guid>(
                 nameof(InitiateOcr),
@@ -177,7 +180,7 @@ namespace coordinator.Durable.Orchestration
                 payload
             );
 
-            return await PollingHelper.PollActivityUntilComplete<AnalyzeResults>(
+            return await PollingHelper.PollActivityUntilComplete<AnalyzeResultsStats>(
                 context,
                 PollingHelper.CreatePollingArgs(
                     activityName: nameof(CompleteOcr),

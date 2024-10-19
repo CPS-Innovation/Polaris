@@ -33,10 +33,10 @@ namespace coordinator.Durable.Activity
             return await base.Run(context);
         }
 
-        protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload, string cmsAuthValues)
+        protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
         {
             var arg = DdeiArgFactory.CreateCaseIdentifiersArg(
-                            cmsAuthValues,
+                            payload.CmsAuthValues,
                             payload.CorrelationId,
                             payload.Urn,
                             payload.CaseId);

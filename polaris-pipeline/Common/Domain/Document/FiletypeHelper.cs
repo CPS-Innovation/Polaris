@@ -3,11 +3,17 @@ using System.IO;
 
 namespace Common.Domain.Document
 {
-    public static class FiletypeHelper
+    public static class FileTypeHelper
     {
-        public static FileType PseudoDocumentFileType = FileType.HTML;
+        public const FileType PseudoDocumentFileType = FileType.HTML;
         public static bool TryGetSupportedFileType(string fileName, out FileType fileType)
         {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                fileType = 0;
+                return false;
+            }
+
             var fileExtension = Path.GetExtension(fileName)
                 .Replace(".", string.Empty)
                 .ToUpperInvariant();

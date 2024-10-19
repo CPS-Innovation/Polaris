@@ -6,7 +6,6 @@ const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(5);
 export default dataSource;
 
 const pipelinePdfResult: PipelineResults = {
-  transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
   documentsRetrieved: new Date().toISOString(),

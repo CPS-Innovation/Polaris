@@ -2,7 +2,6 @@
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Tracker;
-using coordinator.Durable.Orchestration;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -21,30 +20,14 @@ namespace coordinator.Durable.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
-        public static string GetInstanceId(int caseId)
+        public static string GetKey(int caseId) => $"[{caseId}]";
+
+        public static EntityId GetEntityId(int caseId) => new EntityId(nameof(CaseDurableEntity), GetKey(caseId));
+
+        [FunctionName(nameof(CaseDurableEntity))]
+        public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
-            return $"@{nameof(CaseDurableEntity).ToLower()}@{RefreshCaseOrchestrator.GetKey(caseId)}";
-        }
-
-        [Obsolete]
-        [JsonProperty("transactionId")]
-        public string TransactionId { get; set; }
-
-
-        // Currently useful in analytics to e.g. determine if/when a case has been refreshed
-        [JsonProperty("versionId")]
-        public int? Version { get; set; }
-
-        [Obsolete]
-        public Task<int?> GetVersion()
-        {
-            return Task.FromResult(Version);
-        }
-
-        [Obsolete]
-        public void SetVersion(int value)
-        {
-            Version = value;
+            return context.DispatchAsync<CaseDurableEntity>();
         }
 
         [JsonConverter(typeof(StringEnumConverter))]
@@ -75,29 +58,24 @@ namespace coordinator.Durable.Entity
         [JsonProperty("defendantsAndCharges")]
         public DefendantsAndChargesEntity DefendantsAndCharges { get; set; } = null; // null is the default state (do not initialise to an empty object)
 
-        [Obsolete]
-        public void Reset(string transactionId)
+        public Task<DateTime> GetStartTime()
         {
-            TransactionId = transactionId;
+            return Task.FromResult(Running.GetValueOrDefault());
+        }
+
+        public void Reset()
+        {
             Status = CaseRefreshStatus.NotStarted;
             Running = null;
             Retrieved = null;
             Completed = null;
             Failed = null;
             FailedReason = null;
-            // todo: this initialisation should be done in a more constructor-like way, at least only once
-            CmsDocuments ??= new List<CmsDocumentEntity>();
-            PcdRequests ??= new List<PcdRequestEntity>();
-            DefendantsAndCharges ??= null;
         }
 
         public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
         {
             var (cmsDocuments, pcdRequests, defendantsAndCharges) = args;
-
-            CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
-            PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
-            DefendantsAndCharges = DefendantsAndCharges ?? null;
 
             var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(cmsDocuments.ToList());
             var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
@@ -117,19 +95,6 @@ namespace coordinator.Durable.Entity
             };
 
             return await Task.FromResult(deltas);
-        }
-
-        public Task<bool> AllDocumentsFailed()
-        {
-            var statuses =
-                CmsDocuments
-                    .Select(doc => doc.Status)
-                    .Concat(PcdRequests.Select(pcd => pcd.Status))
-                    .Append(DefendantsAndCharges.Status)
-                    .ToList();
-
-            return Task.FromResult(
-                statuses.All(s => s is DocumentStatus.UnableToConvertToPdf));
         }
 
         private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<long>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
@@ -448,68 +413,6 @@ namespace coordinator.Durable.Entity
                     }
                     break;
             }
-        }
-
-        [Obsolete]
-        public Task<string[]> GetDocumentIds()
-        {
-            var documentIds =
-                CmsDocuments?.Select(doc => doc.DocumentId)
-                    .Union(PcdRequests?.Select(pcd => pcd.DocumentId)
-                    .Union(new string[] { DefendantsAndCharges?.DocumentId }))
-                    .ToArray();
-
-            return Task.FromResult(documentIds);
-        }
-
-        [Obsolete]
-        public void SetDocumentFlags((string DocumentId, bool IsOcrProcessed, bool IsDispatched) args)
-        {
-            var (DocumentId, isOcrProcessed, isDispatched) = args;
-
-            var document = GetDocument(DocumentId) as CmsDocumentEntity;
-            document.IsOcrProcessed = isOcrProcessed;
-            document.IsDispatched = isDispatched;
-        }
-
-        public void SetDocumentConversionStatus((string DocumentId, PdfConversionStatus Status) args)
-        {
-            var (documentId, status) = args;
-
-            var document = GetDocument(documentId);
-            document.ConversionStatus = status;
-        }
-
-        // Only required when debugging to manually set the Tracker state
-        [Obsolete]
-        public void SetValue(CaseDurableEntity tracker)
-        {
-            Status = tracker.Status;
-            Running = tracker.Running;
-            Retrieved = tracker.Retrieved;
-            Completed = tracker.Completed;
-            Failed = tracker.Failed;
-            FailedReason = tracker.FailedReason;
-            CmsDocuments = tracker.CmsDocuments;
-            PcdRequests = tracker.PcdRequests;
-            DefendantsAndCharges = tracker.DefendantsAndCharges;
-        }
-
-        public Task<DateTime> GetStartTime()
-        {
-            return Task.FromResult(Running.GetValueOrDefault());
-        }
-
-        [Obsolete]
-        public Task<float> GetDurationToCompleted()
-        {
-            return Task.FromResult(Completed.GetValueOrDefault());
-        }
-
-        [FunctionName(nameof(CaseDurableEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext context)
-        {
-            return context.DispatchAsync<CaseDurableEntity>();
         }
 
         public void SetDocumentPdfConversionSucceeded(string documentId)

@@ -20,6 +20,7 @@ using Ddei.Factories;
 using Ddei;
 using Ddei.Exceptions;
 using Ddei.Domain.CaseData.Args.Core;
+using coordinator.Durable.Entity;
 
 namespace coordinator.tests.Functions
 {
@@ -47,7 +48,7 @@ namespace coordinator.tests.Functions
 
             var cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
-            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId);
+            _instanceId = CaseDurableEntity.GetKey(_caseId);
 
             _httpRequest = new DefaultHttpContext().Request;
             _httpRequest.Method = "POST";

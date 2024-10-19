@@ -7,7 +7,6 @@ const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
 export default dataSource;
 
 const pipelinePdfResult: PipelineResults = {
-  transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
   documentsRetrieved: new Date().toISOString(),
@@ -399,7 +398,6 @@ const getRefreshRenamedDocuments = (
 };
 
 export const missingDocsPipelinePdfResults: PipelineResults = {
-  transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
   documentsRetrieved: new Date().toISOString(),
@@ -594,7 +592,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
 };
 
 export const allMissingDocsPipelinePdfResults: PipelineResults = {
-  transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
   documentsRetrieved: new Date().toISOString(),

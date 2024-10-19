@@ -80,6 +80,7 @@ namespace coordinator.Functions
                 );
 
                 var casePayload = new CasePayload(caseUrn, caseId, cmsAuthValues, currentCorrelationId);
+
                 var isAccepted = await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
 
                 return new ObjectResult(new RefreshCaseResponse(caseUrn, caseId))

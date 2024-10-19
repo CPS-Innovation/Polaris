@@ -41,7 +41,6 @@ namespace coordinator.Mappers
                                     : Enumerable.Empty<DefendantsAndChargesEntity>())
                             .Adapt<DocumentDto[]>()
                         )
-                //GetDocumentEntities(src)
                 );
         }
 

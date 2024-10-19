@@ -38,7 +38,7 @@ namespace coordinator.Functions
             var response = new GetTrackerDocumentResponse { Success = false };
             CaseDurableEntity entityState;
 
-            var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
+            var entityId = CaseDurableEntity.GetEntityId(caseId);
 
             try
             {

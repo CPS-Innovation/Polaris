@@ -8,7 +8,6 @@ namespace coordinator.TelemetryEvents
     {
         public Guid CorrelationId;
         public long CaseId;
-        public int? VersionId;
         public DateTime StartTime;
         public DateTime EndTime;
         public int CmsDocsCount;
@@ -18,13 +17,10 @@ namespace coordinator.TelemetryEvents
         public RefreshedCaseEvent(
             Guid correlationId,
             int caseId,
-            int? versionId,
             DateTime startTime)
         {
             CorrelationId = correlationId;
             CaseId = caseId;
-            VersionId = versionId;
-            StartTime = startTime;
         }
 
         public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
@@ -34,7 +30,6 @@ namespace coordinator.TelemetryEvents
                 {
                     { nameof(CorrelationId), CorrelationId.ToString() },
                     { nameof(CaseId), CaseId.ToString() },
-                    { nameof(VersionId), VersionId.ToString() },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
                 },

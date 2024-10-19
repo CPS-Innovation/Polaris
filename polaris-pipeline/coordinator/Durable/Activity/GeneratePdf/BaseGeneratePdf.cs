@@ -31,13 +31,13 @@ namespace coordinator.Durable.Activity
 
         protected async Task<PdfConversionStatus> Run(IDurableActivityContext context)
         {
-            var (payload, cmsAuthValues) = context.GetInput<(DocumentPayload, string)>();
+            var payload = context.GetInput<DocumentPayload>();
             if (payload.FileType == null)
             {
                 return PdfConversionStatus.DocumentTypeUnsupported;
             }
 
-            using var documentStream = await GetDocumentStreamAsync(payload, cmsAuthValues);
+            using var documentStream = await GetDocumentStreamAsync(payload);
 
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(
                         payload.CorrelationId,
@@ -59,6 +59,6 @@ namespace coordinator.Durable.Activity
             return response.Status;
         }
 
-        protected abstract Task<Stream> GetDocumentStreamAsync(DocumentPayload payload, string cmsAuthValues);
+        protected abstract Task<Stream> GetDocumentStreamAsync(DocumentPayload payload);
     }
 }

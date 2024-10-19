@@ -28,7 +28,6 @@ namespace coordinator.tests.Domain.Tracker
     public class TrackerTests
     {
         private readonly Fixture _fixture;
-        private readonly string _transactionId;
         private readonly List<CmsDocumentDto> _cmsDocuments;
         private readonly List<PcdRequestDto> _pcdRequests;
         private readonly DefendantsAndChargesListDto _defendantsAndChargesList;
@@ -50,7 +49,6 @@ namespace coordinator.tests.Domain.Tracker
         public TrackerTests()
         {
             _fixture = new Fixture();
-            _transactionId = _fixture.Create<string>();
             _cmsDocuments = _fixture.CreateMany<CmsDocumentDto>(3).ToList();
             _pcdRequests = _fixture.CreateMany<PcdRequestDto>(2).ToList();
             _defendantsAndChargesList = _fixture.Create<DefendantsAndChargesListDto>();
@@ -91,7 +89,6 @@ namespace coordinator.tests.Domain.Tracker
                 .ReturnsAsync(_entityStateResponse);
 
             _caseEntity = new CaseDurableEntity();
-            _caseEntity.TransactionId = _transactionId;
             _caseEntity.CmsDocuments = _trackerCmsDocuments;
             _caseEntity.PcdRequests = _trackerPcdRequests;
             _trackerStatus = new GetTracker(_jsonConvertWrapper, new CaseDurableEntityMapper(), _mockLogger.Object);
@@ -100,9 +97,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public void Initialise_Initialises()
         {
-            _caseEntity.Reset(_transactionId);
-
-            _caseEntity.TransactionId.Should().Be(_transactionId);
+            _caseEntity.Reset();
             _caseEntity.CmsDocuments.Should().NotBeNull();
             _caseEntity.Status.Should().Be(CaseRefreshStatus.NotStarted);
         }
@@ -115,13 +110,11 @@ namespace coordinator.tests.Domain.Tracker
 
             _caseEntity.CmsDocuments[0].DocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].DocumentId);
             _caseEntity.PcdRequests[0].DocumentId.Should().Be(deserialisedTracker.PcdRequests[0].DocumentId);
-            deserialisedTracker.TransactionId.Should().Be(_transactionId);
         }
 
         [Fact]
         public async Task Initialisation_SetsDocumentStatusToNone()
         {
-            _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
@@ -131,7 +124,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public void RegisterCompleted_RegistersCompleted()
         {
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running, null));
             _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Completed, null));
 
@@ -143,7 +136,7 @@ namespace coordinator.tests.Domain.Tracker
         public void RegisterFailed_RegistersFailed()
         {
             // Arrange
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
 
             // Act
             _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running, null));
@@ -152,37 +145,6 @@ namespace coordinator.tests.Domain.Tracker
             // Assert
             _caseEntity.Status.Should().Be(CaseRefreshStatus.Failed);
             _caseEntity.FailedReason.Should().Be("exceptionMessage");
-        }
-
-        [Fact]
-        public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
-        {
-            _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<long>(),  _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<long>(),  _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf}
-            };
-            _caseEntity.PcdRequests = new List<PcdRequestEntity>();
-            _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.UnableToConvertToPdf };
-
-            var output = await _caseEntity.AllDocumentsFailed();
-
-            output.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
-        {
-            _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(), null,  _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<string>(), null, _fixture.Create<PresentationFlagsDto>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<bool>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
-            };
-            _caseEntity.PcdRequests = new List<PcdRequestEntity>();
-            _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.Indexed };
-
-            var output = await _caseEntity.AllDocumentsFailed();
-
-            output.Should().BeFalse();
         }
 
         [Fact]
@@ -267,7 +229,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             CaseDurableEntity tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
+            tracker.Reset();
 
             // Act
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
@@ -288,7 +250,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             CaseDurableEntity tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
+            tracker.Reset();
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
             tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.Indexed);
@@ -309,7 +271,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             CaseDurableEntity tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
+            tracker.Reset();
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
             tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.Indexed);
@@ -330,7 +292,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             CaseDurableEntity tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
+            tracker.Reset();
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
             tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.Indexed);
@@ -353,7 +315,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             var tracker = new CaseDurableEntity();
-            tracker.Reset(_transactionId);
+            tracker.Reset();
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
             tracker.PcdRequests.ForEach(doc => doc.Status = DocumentStatus.Indexed);
@@ -377,14 +339,14 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsTheSame_ReturnsNothingToEvaluate()
         {
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
 
             var newDaysDocuments = new CmsDocumentDto[3];
             _cmsDocuments.CopyTo(newDaysDocuments);
 
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             using (new AssertionScope())
@@ -396,7 +358,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsNotTheSame_ReturnsRecordsToEvaluate()
         {
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             _caseEntity.PcdRequests.Count.Should().Be(_pcdRequests.Count);
@@ -408,7 +370,7 @@ namespace coordinator.tests.Domain.Tracker
             (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
                 new(newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
 
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
@@ -420,7 +382,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsTheSameExceptForANewVersionOfOneDoc_ReturnsOneRecordToEvaluate()
         {
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
 
@@ -428,7 +390,7 @@ namespace coordinator.tests.Domain.Tracker
             _cmsDocuments.CopyTo(nextDocs);
             nextDocs[1].VersionId += 1;
 
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
 
             await _caseEntity.GetCaseDocumentChanges((nextDocs, Array.Empty<PcdRequestDto>(), null));
 
@@ -443,7 +405,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_OneDocumentRemovedAndOneANewVersion_ReturnsTwoRecordToEvaluate()
         {
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
 
@@ -465,7 +427,7 @@ namespace coordinator.tests.Domain.Tracker
             (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg
                 = new(newDaysDocuments.ToArray(), _pcdRequests.ToArray(), null);
 
-            _caseEntity.Reset(_transactionId);
+            _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);
 
             using (new AssertionScope())

@@ -18,7 +18,7 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.TelemetryEvents;
 using coordinator.Validators;
-using Mapster;
+
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -26,14 +26,13 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Durable.Orchestration
 {
-    public class RefreshCaseOrchestrator : BaseOrchestrator
+    public class RefreshCaseOrchestrator
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-        public static string GetKey(int caseId) => $"[{caseId}]";
 
         public RefreshCaseOrchestrator(
             ILogger<RefreshCaseOrchestrator> log,
@@ -49,14 +48,17 @@ namespace coordinator.Durable.Orchestration
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
-        public async Task<TrackerDto> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var payload = context.GetInput<CasePayload>()
                 ?? throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var log = context.CreateReplaySafeLogger(_log);
 
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CaseId, true, payload.CorrelationId, log);
+            var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(
+                CaseDurableEntity.GetEntityId(payload.CaseId)
+            );
+
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             RefreshedCaseEvent telemetryEvent = default;
@@ -65,7 +67,6 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent = new RefreshedCaseEvent(
                     correlationId: payload.CorrelationId,
                     caseId: payload.CaseId,
-                    versionId: await caseEntity.GetVersion(),
                     startTime: await caseEntity.GetStartTime()
                 );
 
@@ -81,7 +82,8 @@ namespace coordinator.Durable.Orchestration
                     // success case
                     cts.Cancel();
                     _telemetryClient.TrackEvent(telemetryEvent);
-                    return await orchestratorTask;
+                    await orchestratorTask;
+                    return;
                 }
 
                 throw new TimeoutException($"Orchestration with id '{context.InstanceId}' timed out.");
@@ -96,9 +98,9 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CasePayload payload, RefreshedCaseEvent telemetryEvent)
+        private async Task RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CasePayload payload, RefreshedCaseEvent telemetryEvent)
         {
-            caseEntity.Reset(context.InstanceId);
+            caseEntity.Reset();
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             var documents = await GetDocuments(context, payload);
@@ -111,14 +113,9 @@ namespace coordinator.Durable.Orchestration
             telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
             await Task.WhenAll(documentTasks.Select(BufferCall));
 
-            if (await caseEntity.AllDocumentsFailed())
-                throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
-
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
 
             telemetryEvent.EndTime = context.CurrentUtcDateTime;
-
-            return caseEntity.Adapt<TrackerDto>();
         }
 
         private async Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks
@@ -149,6 +146,7 @@ namespace coordinator.Durable.Orchestration
                             item.doc.VersionId,
                             item.doc.Path,
                             item.doc.CmsDocType,
+
                             DocumentNature.Document,
                             item.delta,
                             casePayload.CmsAuthValues,

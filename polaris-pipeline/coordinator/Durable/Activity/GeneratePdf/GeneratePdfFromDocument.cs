@@ -25,10 +25,10 @@ namespace coordinator.Durable.Activity
             return await base.Run(context);
         }
 
-        protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload, string cmsAuthValues)
+        protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
              => await DdeiClient.GetDocumentFromFileStoreAsync(
                     payload.Path,
-                    cmsAuthValues,
+                    payload.CmsAuthValues,
                     payload.CorrelationId);
     }
 }

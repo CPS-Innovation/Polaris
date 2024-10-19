@@ -45,8 +45,8 @@ namespace coordinator.Durable.Payloads
         public FileType? FileType
         {
             get => DocumentNature == DocumentNature.Document
-                ? FiletypeHelper.TryGetSupportedFileType(Path, out var fileType) ? fileType : null
-                : FiletypeHelper.PseudoDocumentFileType;
+                ? FileTypeHelper.TryGetSupportedFileType(Path, out var fileType) ? fileType : null
+                : FileTypeHelper.PseudoDocumentFileType;
         }
     }
 }

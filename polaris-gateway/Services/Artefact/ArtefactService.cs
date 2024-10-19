@@ -63,7 +63,7 @@ public class ArtefactService : IArtefactService
 
         var fileResult = await _ddeiClient.GetDocumentAsync(ddeiArgs);
 
-        if (!FiletypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType))
+        if (!FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType))
         {
             return _artefactServiceResponseFactory.CreateFailedResult<Stream>(PdfConversionStatus.DocumentTypeUnsupported);
         }
