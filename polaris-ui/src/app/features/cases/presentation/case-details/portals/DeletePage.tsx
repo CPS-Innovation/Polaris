@@ -95,7 +95,10 @@ export const DeletePage: React.FC<DeletePageProps> = ({
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
             <div className={classes.pageNumberWrapper}>
-              <p className={classes.pageNumberText}>
+              <p
+                className={classes.pageNumberText}
+                data-testId={`page-number-text-${pageNumber}`}
+              >
                 <span>Page:</span>
                 <span className={classes.pageNumber}>
                   {pageNumber}/{totalPages}
@@ -107,6 +110,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
                 className={classes.restoreBtn}
                 onClick={handleRestoreBtnClick}
                 data-pageNumber={pageNumber}
+                dataTestId={`btn-cancel-${pageNumber}`}
               >
                 Cancel
               </LinkButton>
@@ -120,6 +124,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
                   totalPages === 1 ||
                   pageDeleteRedactions.length === totalPages - 1
                 }
+                dataTestId={`btn-delete-${pageNumber}`}
               >
                 <DeleteIcon className={classes.deleteBtnIcon} />
                 Delete
@@ -130,8 +135,14 @@ export const DeletePage: React.FC<DeletePageProps> = ({
       }
       {isPageDeleted && (
         <div>
-          <div className={classes.overlay}></div>
-          <div className={classes.overlayContent}>
+          <div
+            className={classes.overlay}
+            data-testid={`delete-page-overlay-${pageNumber}`}
+          ></div>
+          <div
+            className={classes.overlayContent}
+            data-testid={`delete-page-content-${pageNumber}`}
+          >
             <DeleteIcon className={classes.overlayDeleteIcon} />
             <p className={classes.overlayMainText}>
               Page selected for deletion
