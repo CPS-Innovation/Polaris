@@ -18,6 +18,8 @@ export const RedactionWarning: React.FC<Props> = ({ documentWriteStatus }) => {
         return "Redaction is not supported for this file type.";
       case "IsDispatched":
         return "This is a dispatched document.";
+      case "IsPageRotationModeOn":
+        return "Redaction is unavailable in page rotation mode, please turn off page rotation to continue with redaction. ";
     }
   };
   return (

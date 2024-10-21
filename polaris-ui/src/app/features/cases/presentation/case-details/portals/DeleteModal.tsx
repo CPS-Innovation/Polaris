@@ -59,7 +59,12 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
     };
   }, []);
   return (
-    <div id="delete-modal" className={classes.deleteModal} ref={panelRef}>
+    <div
+      id="delete-modal"
+      data-testid="delete-modal"
+      className={classes.deleteModal}
+      ref={panelRef}
+    >
       <div className={classes.contentWrapper}>
         <div className="govuk-form-group">
           <Select
@@ -82,14 +87,15 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
           disabled={!deleteRedactionType}
           className={classes.redactButton}
           onClick={handleConfirmRedaction}
-          data-testid="btn-redact"
-          id="btn-redact"
+          data-testid="delete-modal-btn-redact"
+          id="delete-modal-btn-redact"
         >
           Redact
         </Button>
         <LinkButton
           className={classes.cancelBtn}
           onClick={handleCancelRedaction}
+          dataTestId="delete-modal-btn-cancel"
         >
           Cancel
         </LinkButton>
