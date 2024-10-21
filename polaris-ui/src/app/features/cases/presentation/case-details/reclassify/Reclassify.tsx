@@ -42,7 +42,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
   handleReclassifyTracking,
 }) => {
   return (
-    <div>
+    <div data-testid="div-reclassify">
       <ReClassifyProvider>
         <ReclassifyStages
           documentId={documentId}
