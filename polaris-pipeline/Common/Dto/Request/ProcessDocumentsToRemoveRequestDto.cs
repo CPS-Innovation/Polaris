@@ -18,7 +18,7 @@ public class ProcessDocumentsToRemoveRequestDto
     public string CaseUrn { get; set; }
 
     [RequiredLongGreaterThanZero]
-    public long CaseId { get; set; }
+    public int CaseId { get; set; }
 
     [Required]
     public List<DocumentVersionDto> DocumentsToRemove { get; set; }

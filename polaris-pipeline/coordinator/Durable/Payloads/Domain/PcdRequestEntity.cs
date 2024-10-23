@@ -10,18 +10,16 @@ namespace coordinator.Durable.Payloads.Domain
         public PcdRequestEntity()
         { }
 
-        public PcdRequestEntity(long cmsDocumentId, PcdRequestDto pcdRequest)
-            : base(cmsDocumentId, 1, pcdRequest.PresentationFlags)
+        public PcdRequestEntity(long cmsDocumentId, long versionId, PcdRequestCoreDto pcdRequest)
+            : base(cmsDocumentId, versionId, pcdRequest.PresentationFlags)
         {
-            PcdRequest = pcdRequest;
+            CmsFileCreatedDate = pcdRequest.DecisionRequested;
         }
 
         public override string DocumentId
         {
             get => $"{DocumentNature.PreChargeDecisionRequestPrefix}-{CmsDocumentId}";
         }
-
-        public PcdRequestDto PcdRequest { get; set; }
 
         public string PresentationTitle
         {
@@ -33,10 +31,8 @@ namespace coordinator.Durable.Payloads.Domain
             get => $"{DocumentId}.pdf";
         }
 
-        public string CmsFileCreatedDate
-        {
-            get => PcdRequest.DecisionRequested;
-        }
+        public string CmsFileCreatedDate { get; set; }
+
 
         public DocumentTypeDto CmsDocType { get; } = new DocumentTypeDto("PCD", null, "Review");
     }

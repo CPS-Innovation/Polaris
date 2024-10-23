@@ -15,7 +15,7 @@ namespace Ddei
 		Task<CaseDto> GetCaseAsync(DdeiCaseIdentifiersArgDto arg);
 		Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg);
 		Task<PcdRequestDto> GetPcdRequestAsync(DdeiPcdArgDto arg);
-		Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndChargesAsync(DdeiCaseIdentifiersArgDto arg);
+		Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(DdeiCaseIdentifiersArgDto arg);
 		Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(DdeiCaseIdentifiersArgDto arg);
 		Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg);
 		Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId);

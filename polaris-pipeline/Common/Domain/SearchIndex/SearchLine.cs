@@ -30,7 +30,7 @@ public class SearchLine : Line, ISearchable
     public string Id { get; set; }
 
     [JsonProperty("caseId")]
-    public long CaseId { get; set; }
+    public int CaseId { get; set; }
 
     [JsonProperty("documentId")]
     public string DocumentId { get; set; }

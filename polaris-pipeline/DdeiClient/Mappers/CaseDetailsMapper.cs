@@ -37,18 +37,23 @@ namespace Ddei.Mappers
             };
         }
 
-        public IEnumerable<DefendantAndChargesDto> MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, string etag)
+        public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, int caseId, string etag)
         {
-            return defendants
+            var defendantsAndCharges = defendants
                 .Select(defendant => MapDefendantAndCharges(defendant))
                 .OrderBy(dac => dac.ListOrder)
                 .ToList();
+
+            return new DefendantsAndChargesListDto
+            {
+                CaseId = caseId,
+                DefendantsAndCharges = defendantsAndCharges.OrderBy(dac => dac.ListOrder),
+                VersionId = GetVersionIdFromEtag(etag) ?? 1
+            };
         }
 
-        public PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr, string etag)
+        public PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)
         {
-            var versionId = GetVersionIdFromEtag(etag);
-
             return new PcdRequestDto
             {
                 Id = pcdr.Id,
@@ -57,7 +62,6 @@ namespace Ddei.Mappers
                 CaseOutline = pcdr.CaseOutline.Select(ol => MapPcdCaseOutlineLine(ol)).ToList(),
                 Comments = MapPreChargeDecisionComments(pcdr.Comments),
                 Suspects = pcdr.Suspects.Select(s => MapPcdSuspect(s)).ToList(),
-                VersionId = versionId
             };
         }
 
@@ -76,7 +80,7 @@ namespace Ddei.Mappers
             };
         }
 
-        private DefendantAndChargesDto MapDefendantAndCharges(DdeiCaseDefendantDto defendant, string etag)
+        private DefendantAndChargesDto MapDefendantAndCharges(DdeiCaseDefendantDto defendant)
         {
             return new DefendantAndChargesDto
             {
@@ -293,7 +297,7 @@ namespace Ddei.Mappers
 
         private IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> preChargeDecisionRequests)
         {
-            return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr, null));
+            return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
         }
 
         private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(DdeiPcdCaseOutlineLineDto ol)
@@ -353,7 +357,11 @@ namespace Ddei.Mappers
                 return null;
             }
 
-            return long.Parse(Regex.Match(etag, @"\d+").Value);
+            var match = Regex.Match(etag, @"\d+");
+
+            return match.Success
+                ? long.Parse(match.Value)
+                : null;
         }
     }
 }

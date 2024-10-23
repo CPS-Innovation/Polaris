@@ -11,10 +11,10 @@ namespace coordinator.Durable.Payloads.Domain
         public DefendantsAndChargesEntity()
         { }
 
-        public DefendantsAndChargesEntity(long cmsDocumentId, DefendantsAndChargesListDto defendantsAndCharges)
-            : base(cmsDocumentId, 1, defendantsAndCharges.PresentationFlags)
+        public DefendantsAndChargesEntity(long cmsDocumentId, long versionId, DefendantsAndChargesListDto defendantsAndCharges)
+            : base(cmsDocumentId, versionId, defendantsAndCharges.PresentationFlags)
         {
-            DefendantsAndCharges = defendantsAndCharges;
+            HasMultipleDefendants = defendantsAndCharges?.DefendantsAndCharges.Count() > 1;
         }
 
         public override string DocumentId
@@ -22,9 +22,7 @@ namespace coordinator.Durable.Payloads.Domain
             get => $"{DocumentNature.DefendantsAndChargesPrefix}-{CmsDocumentId}";
         }
 
-        public DefendantsAndChargesListDto DefendantsAndCharges { get; set; }
-
-        public bool HasMultipleDefendants => DefendantsAndCharges != null && DefendantsAndCharges.DefendantsAndCharges.Count() > 1;
+        public bool HasMultipleDefendants { get; set; }
 
         public string PresentationTitle
         {
@@ -38,7 +36,8 @@ namespace coordinator.Durable.Payloads.Domain
 
         public static string CmsFileCreatedDate
         {
-            get => DateTime.Today.ToString("yyyy-MM-dd");
+            // this date is never displayed, and is not used for any logic
+            get => new DateTime(1970, 1, 1).ToString("yyyy-MM-dd");
         }
 
         public DocumentTypeDto CmsDocType { get; } = new DocumentTypeDto("DAC", null, "Review");

@@ -9,6 +9,9 @@ namespace Common.Dto.Response.Case
         [JsonProperty("caseId")]
         public int CaseId { get; set; }
 
+        [JsonProperty("versionId")]
+        public long VersionId { get; set; }
+
         [JsonProperty("defendants")]
         public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; } = new List<DefendantAndChargesDto>();
 

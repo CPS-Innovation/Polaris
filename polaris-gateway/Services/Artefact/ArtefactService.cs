@@ -149,12 +149,7 @@ public class ArtefactService : IArtefactService
                                     correlationId,
                                     urn,
                                     caseId);
-        var defendantsAndChargesResult = await _ddeiClient.GetDefendantAndChargesAsync(arg);
-        var defendantsAndCharges = new DefendantsAndChargesListDto
-        {
-            CaseId = caseId,
-            DefendantsAndCharges = defendantsAndChargesResult
-        };
+        var defendantsAndCharges = await _ddeiClient.GetDefendantAndChargesAsync(arg);
         return (PdfConversionStatus.DocumentConverted, await _convertPcdRequestToHtmlService.ConvertAsync(defendantsAndCharges));
     }
 }

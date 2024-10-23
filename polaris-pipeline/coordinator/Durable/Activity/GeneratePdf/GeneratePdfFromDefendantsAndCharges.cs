@@ -41,12 +41,8 @@ namespace coordinator.Durable.Activity
                             payload.Urn,
                             payload.CaseId);
 
-            var defendantsAndChargesResult = await DdeiClient.GetDefendantAndChargesAsync(arg);
-            var defendantsAndCharges = new DefendantsAndChargesListDto
-            {
-                CaseId = payload.CaseId,
-                DefendantsAndCharges = defendantsAndChargesResult
-            };
+            var defendantsAndCharges = await DdeiClient.GetDefendantAndChargesAsync(arg);
+
             return await _convertPcdRequestToHtmlService.ConvertAsync(defendantsAndCharges);
         }
     }

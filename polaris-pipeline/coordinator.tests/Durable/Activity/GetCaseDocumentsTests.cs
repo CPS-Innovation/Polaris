@@ -44,7 +44,7 @@ namespace coordinator.tests.Durable.Activity
               fixture.Create<PresentationFlagsDto>()
             };
 
-            var mockDocumentExtractionService = new Mock<IDdeiClient>();
+            var mockDdeiClient = new Mock<IDdeiClient>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();
 
             _mockConfiguration = new Mock<IConfiguration>();
@@ -53,7 +53,7 @@ namespace coordinator.tests.Durable.Activity
                 .Setup(context => context.GetInput<CasePayload>())
                 .Returns(_payload);
 
-            mockDocumentExtractionService
+            mockDdeiClient
                 .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
                 .ReturnsAsync(_case);
 
@@ -64,7 +64,7 @@ namespace coordinator.tests.Durable.Activity
                 .Setup(factory => factory.CreateCaseIdentifiersArg(_payload.CmsAuthValues, _payload.CorrelationId, _payload.Urn, _payload.CaseId))
                 .Returns(mockDdeiCaseIdentifiersArgDto);
 
-            mockDocumentExtractionService
+            mockDdeiClient
                 .Setup(client => client.ListDocumentsAsync(mockDdeiCaseIdentifiersArgDto))
                 .ReturnsAsync(_caseDocuments);
 
@@ -79,7 +79,7 @@ namespace coordinator.tests.Durable.Activity
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
 
             _getCaseDocuments = new GetCaseDocuments(
-                mockDocumentExtractionService.Object,
+                mockDdeiClient.Object,
                 mockDdeiArgFactory.Object,
                 mockDocumentToggleService.Object,
                 mockLogger.Object,

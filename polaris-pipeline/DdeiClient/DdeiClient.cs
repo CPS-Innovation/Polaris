@@ -105,19 +105,18 @@ namespace Ddei
 
         public async Task<PcdRequestDto> GetPcdRequestAsync(DdeiPcdArgDto arg)
         {
-            var response = await CallDdei(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
-            var content = await response.Content.ReadAsStringAsync();
-            var pcdRequest = _jsonConvertWrapper.DeserializeObject<DdeiPcdRequestDto>(content);
-            var etag = response.Headers.ETag?.Tag;
-
-
+            var pcdRequest = await CallDdei<DdeiPcdRequestDto>(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
             return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
         }
 
-        public async Task<IEnumerable<DefendantAndChargesDto>> GetDefendantAndChargesAsync(DdeiCaseIdentifiersArgDto arg)
+        public async Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(DdeiCaseIdentifiersArgDto arg)
         {
-            var defendantAndCharges = await CallDdei<IEnumerable<DdeiCaseDefendantDto>>(_ddeiClientRequestFactory.CreateGetDefendantAndChargesRequest(arg));
-            return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges);
+            var response = await CallDdei(_ddeiClientRequestFactory.CreateGetDefendantAndChargesRequest(arg));
+            var content = await response.Content.ReadAsStringAsync();
+            var defendantAndCharges = _jsonConvertWrapper.DeserializeObject<IEnumerable<DdeiCaseDefendantDto>>(content);
+            var etag = response.Headers.ETag?.Tag;
+
+            return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges, arg.CaseId, etag);
         }
 
         public async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(DdeiCaseIdentifiersArgDto arg)
@@ -267,11 +266,6 @@ namespace Ddei
             using var response = await CallDdei(request);
             var content = await response.Content.ReadAsStringAsync();
             return _jsonConvertWrapper.DeserializeObject<T>(content);
-        }
-
-        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request)
-        {
-            return await _httpClient.SendAsync(request);
         }
 
         private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, params HttpStatusCode[] expectedUnhappyStatusCodes)

@@ -73,7 +73,7 @@ namespace coordinator.Durable.Entity
             FailedReason = null;
         }
 
-        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
         {
             var (cmsDocuments, pcdRequests, defendantsAndCharges) = args;
 
@@ -140,22 +140,22 @@ namespace coordinator.Durable.Entity
             return (newDocuments, updatedDocuments, deletedCmsDocumentIdsToRemove);
         }
 
-        private (List<PcdRequestDto> createdPcdRequests, List<PcdRequestDto> updatedPcdRequests, List<int> deletedPcdRequests) GetDeltaPcdRequests(List<PcdRequestDto> incomingPcdRequests)
+        private (List<PcdRequestCoreDto> createdPcdRequests, List<PcdRequestCoreDto> updatedPcdRequests, List<long> deletedPcdRequests) GetDeltaPcdRequests(List<PcdRequestCoreDto> incomingPcdRequests)
         {
             var newPcdRequests =
                 incomingPcdRequests
-                    .Where(incomingPcd => !PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id))
+                    .Where(incomingPcd => !PcdRequests.Any(pcd => pcd.CmsDocumentId == incomingPcd.Id))
                     .ToList();
 
             // Return empty list for updated pcds.  Before this we had the following:
             //     .Where(incomingPcd => PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id && pcd.Status != DocumentStatus.Indexed))
             // which did nothing.  We could be doing some sort of hash comparison here on pcd requests to see if they've changed, but this would
             // involve always having to request the full pcd request from DDEI on every refresh, which would be costly.
-            var updatedPcdRequests = Enumerable.Empty<PcdRequestDto>().ToList();
+            var updatedPcdRequests = Enumerable.Empty<PcdRequestCoreDto>().ToList();
 
             var deletedPcdRequestIds
-                = PcdRequests.Where(pcd => !incomingPcdRequests.Exists(incomingPcd => incomingPcd.Id == pcd.PcdRequest.Id))
-                    .Select(pcd => pcd.PcdRequest.Id)
+                = PcdRequests.Where(pcd => !incomingPcdRequests.Exists(incomingPcd => incomingPcd.Id == pcd.CmsDocumentId))
+                    .Select(pcd => pcd.CmsDocumentId)
                     .ToList();
 
             return (newPcdRequests, updatedPcdRequests, deletedPcdRequestIds);
@@ -170,7 +170,7 @@ namespace coordinator.Durable.Entity
 
             if (DefendantsAndCharges != null && incomingDefendantsAndCharges != null)
             {
-                if (JsonConvert.SerializeObject(DefendantsAndCharges.DefendantsAndCharges) != JsonConvert.SerializeObject(incomingDefendantsAndCharges))
+                if (DefendantsAndCharges.VersionId != incomingDefendantsAndCharges.VersionId)
                     updatedDefendantsAndCharges = incomingDefendantsAndCharges;
             }
 
@@ -284,14 +284,14 @@ namespace coordinator.Durable.Entity
             return deleteDocuments;
         }
 
-        private List<PcdRequestEntity> CreateTrackerPcdRequests(List<PcdRequestDto> createdPcdRequests)
+        private List<PcdRequestEntity> CreateTrackerPcdRequests(List<PcdRequestCoreDto> createdPcdRequests)
         {
             var newPcdRequests = new List<PcdRequestEntity>();
 
             foreach (var newPcdRequest in createdPcdRequests)
             {
-                var documentId = newPcdRequest.Id;
-                var trackerPcdRequest = new PcdRequestEntity(documentId, newPcdRequest);
+
+                var trackerPcdRequest = new PcdRequestEntity(newPcdRequest.Id, 1, newPcdRequest);
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
             }
@@ -299,13 +299,13 @@ namespace coordinator.Durable.Entity
             return newPcdRequests;
         }
 
-        private List<PcdRequestEntity> UpdateTrackerPcdRequests(List<PcdRequestDto> updatedPcdRequests)
+        private List<PcdRequestEntity> UpdateTrackerPcdRequests(List<PcdRequestCoreDto> updatedPcdRequests)
         {
             var changedPcdRequests = new List<PcdRequestEntity>();
 
             foreach (var updatedPcdRequest in updatedPcdRequests)
             {
-                var trackerPcdRequest = PcdRequests.Find(pcd => pcd.PcdRequest.Id == updatedPcdRequest.Id);
+                var trackerPcdRequest = PcdRequests.Find(pcd => pcd.CmsDocumentId == updatedPcdRequest.Id);
                 trackerPcdRequest.PresentationFlags = updatedPcdRequest.PresentationFlags;
 
                 changedPcdRequests.Add(trackerPcdRequest);
@@ -314,11 +314,11 @@ namespace coordinator.Durable.Entity
             return changedPcdRequests;
         }
 
-        private List<PcdRequestEntity> DeleteTrackerPcdRequests(List<int> deletedPcdRequestIds)
+        private List<PcdRequestEntity> DeleteTrackerPcdRequests(List<long> deletedPcdRequestIds)
         {
             var deletePcdRequests
                 = PcdRequests
-                    .Where(pcd => deletedPcdRequestIds.Contains(pcd.PcdRequest.Id))
+                    .Where(pcd => deletedPcdRequestIds.Contains(pcd.CmsDocumentId))
                     .ToList();
 
             foreach (var pcdRequest in deletePcdRequests)
@@ -333,8 +333,11 @@ namespace coordinator.Durable.Entity
         {
             if (createdDefendantsAndCharges != null)
             {
-                var documentId = createdDefendantsAndCharges.CaseId;
-                DefendantsAndCharges = new DefendantsAndChargesEntity(documentId, createdDefendantsAndCharges);
+
+                DefendantsAndCharges = new DefendantsAndChargesEntity(
+                    createdDefendantsAndCharges.CaseId,
+                    createdDefendantsAndCharges.VersionId,
+                    createdDefendantsAndCharges);
 
                 return DefendantsAndCharges;
             }
@@ -346,7 +349,8 @@ namespace coordinator.Durable.Entity
         {
             if (updatedDefendantsAndCharges != null)
             {
-                DefendantsAndCharges.DefendantsAndCharges = updatedDefendantsAndCharges;
+                // todo: encapsulate this logic into DefendantsAndChargesEntity
+                DefendantsAndCharges.HasMultipleDefendants = updatedDefendantsAndCharges?.DefendantsAndCharges.Count() > 1;
                 return DefendantsAndCharges;
             }
 

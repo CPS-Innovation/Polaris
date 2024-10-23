@@ -19,7 +19,7 @@ namespace Common.Dto.Request
         public string CaseUrn { get; set; }
 
         [RequiredLongGreaterThanZero]
-        public long CaseId { get; set; }
+        public int CaseId { get; set; }
 
         [Required]
         public string DocumentId { get; set; }

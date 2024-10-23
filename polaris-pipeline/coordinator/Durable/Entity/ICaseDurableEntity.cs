@@ -14,7 +14,7 @@ namespace coordinator.Durable.Entity
     public interface ICaseDurableEntity
     {
         void Reset();
-        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
+        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
         void SetPiiVersionId(string documentId);
         Task<DateTime> GetStartTime();

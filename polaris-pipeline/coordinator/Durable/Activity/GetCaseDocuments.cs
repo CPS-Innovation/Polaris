@@ -72,16 +72,8 @@ namespace coordinator.Durable.Activity
                 .Select(corePcd => MapPresentationFlags(corePcd))
                 .ToArray();
 
-            var defendantsAndChargesResult = getDefendantsAndChargesTask.Result;
-
-
-            var defendantsAndCharges = new DefendantsAndChargesListDto
-            {
-                CaseId = payload.CaseId,
-                DefendantsAndCharges = defendantsAndChargesResult.OrderBy(dac => dac.ListOrder)
-            };
-
-            defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
+            var defendantsAndCharges = getDefendantsAndChargesTask.Result;
+            MapPresentationFlags(defendantsAndCharges);
 
             return (cmsDocuments, pcdRequests, defendantsAndCharges);
         }
@@ -89,15 +81,24 @@ namespace coordinator.Durable.Activity
         private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)
         {
             document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
-
             return document;
         }
 
         private PcdRequestCoreDto MapPresentationFlags(PcdRequestCoreDto pcdRequest)
         {
             pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
-
             return pcdRequest;
+        }
+
+        private DefendantsAndChargesListDto MapPresentationFlags(DefendantsAndChargesListDto defendantsAndCharges)
+        {
+            if (defendantsAndCharges == null)
+            {
+                return null;
+            }
+
+            defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
+            return defendantsAndCharges;
         }
     }
 }
