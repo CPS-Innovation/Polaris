@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Ddei;
 using PolarisGateway.Handlers;
 using Ddei.Factories;
-using Common.Services.DocumentToggle;
 using PolarisGateway.Services.DdeiOrchestration;
 
 namespace PolarisGateway.Functions
@@ -43,6 +41,7 @@ namespace PolarisGateway.Functions
             try
             {
                 context = await _initializationHandler.Initialize(req);
+
                 var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId);
                 var result = await _ddeiOrchestrationService.GetCaseDocuments(arg);
 

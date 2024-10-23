@@ -40,6 +40,7 @@ namespace PolarisGateway.Functions
             try
             {
                 context = await _initializationHandler.Initialize(req);
+
                 var arg = _ddeiArgFactory.CreateUrnArg(context.CmsAuthValues, context.CorrelationId, caseUrn);
                 var result = await _ddeiClient.ListCasesAsync(arg);
 
