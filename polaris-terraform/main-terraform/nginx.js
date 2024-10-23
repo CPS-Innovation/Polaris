@@ -53,7 +53,7 @@ function appAuthRedirect(r) {
       r,
       `${redirectUrl}${
         redirectUrl.includes("?") ? "&" : "?"
-      }__cc=${encodeURIComponent(args["cookie"] ?? "")}`
+      }cc=${encodeURIComponent(args["cookie"] ?? "")}&__cc=${encodeURIComponent(args["cookie"] ?? "")}`
     )
   } else {
     r.return(
