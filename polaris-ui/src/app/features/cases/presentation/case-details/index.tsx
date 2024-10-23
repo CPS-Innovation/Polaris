@@ -188,7 +188,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   } = useNavigationAlert(tabsState.items);
 
   useSwitchContentArea();
-  useDocumentFocus(tabsState.activeTabId);
+  // useDocumentFocus(tabsState.activeTabId);
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {

@@ -37,7 +37,7 @@ export const PagePortal: React.FC<PagePortalProps> = ({
     // Attach new portal nodes to updated .page elements
     portalNodeRefs.current = updatedPages.map((pageDiv) => {
       const portalDiv = document.createElement("div");
-      pageDiv.appendChild(portalDiv);
+      pageDiv.prepend(portalDiv);
       return portalDiv;
     });
     setPageElements(updatedPages);

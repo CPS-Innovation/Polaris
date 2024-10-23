@@ -11,6 +11,7 @@ interface Props {
   type: "search" | "redaction" | "searchPII";
   isScrolledTo: boolean;
   highlight: T_ViewportHighlight<IPdfHighlight | ISearchPIIHighlight>;
+  onClick?: () => {};
 }
 
 export const PdfLinearHighlight: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const PdfLinearHighlight: React.FC<Props> = ({
   highlight,
   isScrolledTo,
   type,
+  onClick,
 }) => {
   const className = `${classes["Highlight"]} ${
     isScrolledTo ? classes["Highlight--scrolledTo"] : ""
@@ -45,13 +47,17 @@ export const PdfLinearHighlight: React.FC<Props> = ({
       >
         {rects.map((rect, index) =>
           type === "search" || type === "searchPII" ? (
-            <PdfLinearHighlightPartSearch key={index} rect={rect} />
+            <PdfLinearHighlightPartSearch
+              key={`${rect.left}-${rect.top}`}
+              rect={rect}
+            />
           ) : (
             <PdfLinearHighlightPartRedaction
-              key={index}
+              key={`${rect.left}-${rect.top}`}
               rect={rect}
               id={id}
               textContent={textContent}
+              onClick={onClick}
             />
           )
         )}

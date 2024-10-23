@@ -110,7 +110,7 @@ export const PdfViewer: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
-  useControlledRedactionFocus(tabId, activeTabId, tabIndex);
+  // useControlledRedactionFocus(tabId, activeTabId, tabIndex);
   const showRotatePageRef = useRef(contextData.showRotatePage);
   useEffect(() => {
     showRotatePageRef.current = contextData.showRotatePage;
