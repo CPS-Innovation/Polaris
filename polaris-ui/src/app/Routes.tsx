@@ -52,6 +52,14 @@ export const Routes: FC = () => {
     <Switch>
       <Route path={caseSearchPath}>
         <Layout>
+          <div
+            id="navatron"
+            className="nav-a-tron"
+            style={{
+              height: "5.3em",
+              background: "#f3f2f1",
+            }}
+          />
           <Helmet>
             {" "}
             <title>Casework App case search page</title>
@@ -72,11 +80,10 @@ export const Routes: FC = () => {
           <div
             id="navatron"
             className="nav-a-tron"
-            style={
-              {
-                //height: "5.3em",
-              }
-            }
+            style={{
+              height: "5.3em",
+              background: "#f3f2f1",
+            }}
           />
           <Helmet>
             <title>Casework App case details page</title>

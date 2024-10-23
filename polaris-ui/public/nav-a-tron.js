@@ -184,19 +184,19 @@ nav {
                 <div class="govuk-grid-column-full">
                     <div class="case-info" id="test-nav">
                         <h1 class="govuk-heading-s" style="margin:0; padding: 0.55em 0.5em 0.55em 0; background: #f3f2f1;">
-                            <span style="position: relative; z-index:2;">McLove, Eoin</span>
+                            <span style="position: relative; z-index:2;">TENTACLES, Squidward</span>
                         </h1>
                     </div>
                     <ul style="display:flex; margin:10px 0; width:30%; float:left; padding:0 0 0 1em; list-style: none;">
                         <li class="sub-overview"><a href="http://localhost:3000/polaris-ui/nav-a-tron-other-app.html?nav">Overview</a></li>
                         <li class="sub-case selected dropdown">
-                            <a href="http://localhost:3000/polaris-ui/case-details/45CV2911222/2149310?nav" class="third-level-trigger">Materials</a>
+                            <a href="http://localhost:3000/polaris-ui/case-details/93JD0005320/2145601?nav" class="third-level-trigger">Materials</a>
                             <ul class="dropdown-menu third-level" style="display: none;">
                                 <li><a href="./C-casefile-1" class="disabled" disabled="">Case materials</a></li>
                                 <li><a href="https://www.figma.com/proto/Oemk95xWfmYbNzgi6grtdO/CM?page-id=595%3A6946&amp;node-id=729-4169&amp;viewport=-1533%2C504%2C0.3&amp;t=y6f4KoKfmwqMAjwQ-1&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;starting-point-node-id=729%3A4169';">Bulk UM Classification</a></li>
                             </ul>
                         </li>
-                        <li class="sub-review"><a href="#">Review</a></li>
+                        <li class="sub-review"><a href="#" onclick="history.pushState({}, '', '/polaris-ui/case-search-results?urn=93JD0005320&nav')">Review</a></li>
                         <li><a href="#" onclick="launchTriage()">Triage</a></li>
                     </ul>
                   </div>
@@ -213,7 +213,7 @@ class NavATron extends HTMLElement {
     this.shadowRoot.appendChild(template.content.cloneNode(true));
 
     // fetch("http://localhost:7075/api/urns/45CV2911222/cases/2149310", {
-    //   credentials: "include",
+    //   credentials: "include",ƒ?nav
     // })
     //   .then((response) => response.json())
     //   .then((data) => console.log(data));
@@ -221,7 +221,8 @@ class NavATron extends HTMLElement {
 }
 
 const url = window.location.href;
-const inNavMode = true;
+console.log(url);
+const inNavMode = url.includes("nav");
 
 let navATron;
 if (inNavMode) {
