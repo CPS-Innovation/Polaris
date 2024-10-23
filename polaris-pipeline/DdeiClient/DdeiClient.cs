@@ -105,7 +105,12 @@ namespace Ddei
 
         public async Task<PcdRequestDto> GetPcdRequestAsync(DdeiPcdArgDto arg)
         {
-            var pcdRequest = await CallDdei<DdeiPcdRequestDto>(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
+            var response = await CallDdei(_ddeiClientRequestFactory.CreateGetPcdRequest(arg));
+            var content = await response.Content.ReadAsStringAsync();
+            var pcdRequest = _jsonConvertWrapper.DeserializeObject<DdeiPcdRequestDto>(content);
+            var etag = response.Headers.ETag?.Tag;
+
+
             return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
         }
 
@@ -262,6 +267,11 @@ namespace Ddei
             using var response = await CallDdei(request);
             var content = await response.Content.ReadAsStringAsync();
             return _jsonConvertWrapper.DeserializeObject<T>(content);
+        }
+
+        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request)
+        {
+            return await _httpClient.SendAsync(request);
         }
 
         private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, params HttpStatusCode[] expectedUnhappyStatusCodes)
