@@ -7,8 +7,8 @@ ui_component_service_plans = {
   gateway_service_plan_sku        = "EP1"
   gateway_always_ready_instances  = 1
   gateway_maximum_scale_out_limit = 10
-  spa_service_plan_sku            = "P1v2"
-  proxy_service_plan_sku          = "P1v2"
+  spa_service_plan_sku            = "P1v3"
+  proxy_service_plan_sku          = "P1v3"
   maintenance_service_plan_sku    = "B1"
 }
 
