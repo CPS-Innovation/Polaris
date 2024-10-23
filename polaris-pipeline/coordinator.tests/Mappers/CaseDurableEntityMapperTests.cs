@@ -6,7 +6,7 @@ using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Entity;
 using FluentAssertions;
 using System.Linq;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 
 namespace coordinator.tests.Mappers;
 

@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Common.Constants;
-using System;
 using Common.Dto.Response.Document.FeatureFlags;
 
 namespace coordinator.Durable.Payloads.Domain

@@ -1,7 +1,7 @@
 ﻿using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;

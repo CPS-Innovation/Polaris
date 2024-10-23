@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Clients.PdfGenerator;
 using Common.Domain.Document;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Common.Services.BlobStorage;
 using coordinator.Durable.Activity;
 using Ddei;

@@ -3,7 +3,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 
-namespace Common.Dto.Tracker
+namespace Common.Dto.Response.Documents
 {
     public class TrackerDto
     {

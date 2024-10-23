@@ -23,7 +23,7 @@ using Common.Clients.PdfGenerator;
 using Common.Services.BlobStorage;
 using Common.Services.PiiService;
 using PolarisGateway.Services.Artefact;
-using PolarisGateway.Services.Artefact.Factories;
+using PolarisGateway.Services.DdeiOrchestration;
 
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
@@ -106,6 +106,7 @@ namespace PolarisGateway
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
             services.AddPiiService();
             services.AddArtefactService();
+            services.AddDdeiOrchestrationService();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

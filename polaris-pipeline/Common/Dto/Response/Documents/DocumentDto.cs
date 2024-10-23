@@ -5,7 +5,7 @@ using Common.Dto.Response.Document.FeatureFlags;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Common.Dto.Tracker
+namespace Common.Dto.Response.Documents
 {
     public class DocumentDto
     {

@@ -4,7 +4,7 @@ export const CASE_ROUTE = "api/urns/:urn/cases/:caseId";
 export const INITIATE_PIPELINE_ROUTE = "api/urns/:urn/cases/:caseId";
 export const TRACKER_ROUTE = "api/urns/:urn/cases/:caseId/tracker";
 export const FILE_ROUTE =
-  "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId";
+  "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/pdf";
 export const TEXT_SEARCH_ROUTE = "api/urns/:urn/cases/:caseId/search?query=";
 export const DOCUMENT_CHECKOUT_ROUTE =
   "/api/urns/:urn/cases/:caseId/documents/:documentId/checkout";
@@ -22,7 +22,7 @@ export const NOTES_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/notes";
 
 export const SEARCH_PII_ROUTE =
-  "api/urns/:urn/cases/:caseId/documents/:documentId/pii";
+  "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/pii";
 
 export const RENAME_DOCUMENT_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/rename";

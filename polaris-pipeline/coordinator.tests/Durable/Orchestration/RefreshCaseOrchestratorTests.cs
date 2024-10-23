@@ -9,7 +9,7 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;

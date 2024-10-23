@@ -1,6 +1,6 @@
 using Common.Configuration;
 using Common.Dto.Response.Case;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using System.Net;
 using Newtonsoft.Json;
 using Common.Domain.SearchIndex;

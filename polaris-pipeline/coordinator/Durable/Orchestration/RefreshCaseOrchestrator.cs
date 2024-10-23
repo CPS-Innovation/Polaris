@@ -7,7 +7,7 @@ using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Common.Logging;
 using Common.Telemetry;
 using coordinator.Constants;
@@ -118,6 +118,17 @@ namespace coordinator.Durable.Orchestration
             telemetryEvent.EndTime = context.CurrentUtcDateTime;
         }
 
+        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
+        GetDocuments(IDurableOrchestrationContext context, CasePayload payload)
+        {
+            var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), payload);
+            if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
+            {
+                throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
+            }
+            return documents;
+        }
+
         private async Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks
             (
                 IDurableOrchestrationContext context,
@@ -128,10 +139,7 @@ namespace coordinator.Durable.Orchestration
             )
         {
             var now = context.CurrentUtcDateTime;
-
             var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
-            var deltaLogMessage = deltas.GetLogMessage();
-            log.LogMethodFlow(casePayload.CorrelationId, nameof(RefreshCaseOrchestrator), deltaLogMessage);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
             var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
@@ -211,17 +219,6 @@ namespace coordinator.Durable.Orchestration
             {
                 return default;
             }
-        }
-
-        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
-            GetDocuments(IDurableOrchestrationContext context, CasePayload payload)
-        {
-            var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), payload);
-            if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
-            {
-                throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
-            }
-            return documents;
         }
     }
 }

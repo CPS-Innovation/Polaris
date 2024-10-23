@@ -1,4 +1,4 @@
-﻿namespace Common.Dto.Tracker
+﻿namespace Common.Dto.Response.Documents
 {
     public enum CaseRefreshStatus
     {

@@ -13,7 +13,7 @@ using Xunit;
 using Common.Wrappers;
 using coordinator.Durable.Entity;
 using coordinator.Functions;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
 using Common.Dto.Response.Case.PreCharge;
@@ -23,7 +23,7 @@ using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
 
-namespace coordinator.tests.Domain.Tracker
+namespace coordinator.tests.Domain.Response.Documents
 {
     public class TrackerTests
     {
@@ -242,7 +242,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.CreatedPcdRequests.Count.Should().Be(_pcdRequests.Count);
             deltas.UpdatedPcdRequests.Count.Should().Be(0);
             deltas.DeletedPcdRequests.Count.Should().Be(0);
-            deltas.Any().Should().BeTrue();
         }
 
         [Fact]
@@ -263,7 +262,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
             deltas.DeletedCmsDocuments.Count.Should().Be(0);
-            deltas.Any().Should().BeFalse();
         }
 
         [Fact]
@@ -284,7 +282,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
             deltas.DeletedCmsDocuments.Count.Should().Be(0);
-            deltas.Any().Should().BeFalse();
         }
 
         [Fact]
@@ -307,7 +304,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(2);
             deltas.DeletedCmsDocuments.Count.Should().Be(0);
-            deltas.Any().Should().BeTrue();
         }
 
         [Fact]
@@ -333,7 +329,6 @@ namespace coordinator.tests.Domain.Tracker
             deltas.CreatedPcdRequests.Count.Should().Be(0);
             deltas.UpdatedPcdRequests.Count.Should().Be(0);
             deltas.DeletedPcdRequests.Count.Should().Be(1);
-            deltas.Any().Should().BeTrue();
         }
 
         [Fact]

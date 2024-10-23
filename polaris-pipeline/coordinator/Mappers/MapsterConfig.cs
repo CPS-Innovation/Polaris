@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using coordinator.Durable.Entity;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Mapster;
 using coordinator.Durable.Payloads.Domain;
 

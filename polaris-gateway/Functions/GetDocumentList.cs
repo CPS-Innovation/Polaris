@@ -8,30 +8,29 @@ using Ddei;
 using PolarisGateway.Handlers;
 using Ddei.Factories;
 using Common.Services.DocumentToggle;
+using PolarisGateway.Services.DdeiOrchestration;
 
 namespace PolarisGateway.Functions
 {
     public class GetDocumentList
     {
         private readonly ILogger<GetDocumentList> _logger;
-        private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiOrchestrationService _ddeiOrchestrationService;
         private readonly IDdeiArgFactory _ddeiArgFactory;
-        private readonly IDocumentToggleService _documentToggleService;
+
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public GetDocumentList(
             ILogger<GetDocumentList> logger,
-            IDdeiClient ddeiClient,
+            IDdeiOrchestrationService ddeiOrchestrationService,
             IDdeiArgFactory ddeiArgFactory,
-            IDocumentToggleService documentToggleService,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
+            _ddeiOrchestrationService = ddeiOrchestrationService ?? throw new ArgumentNullException(nameof(ddeiOrchestrationService));
             _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-            _documentToggleService = documentToggleService ?? throw new ArgumentNullException(nameof(documentToggleService));
             _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
@@ -45,11 +44,7 @@ namespace PolarisGateway.Functions
             {
                 context = await _initializationHandler.Initialize(req);
                 var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId);
-                var result = (await _ddeiClient.ListDocumentsAsync(arg)).ToList();
-                foreach (var document in result)
-                {
-                    document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
-                }
+                var result = await _ddeiOrchestrationService.GetCaseDocuments(arg);
 
                 return new OkObjectResult(result);
             }
