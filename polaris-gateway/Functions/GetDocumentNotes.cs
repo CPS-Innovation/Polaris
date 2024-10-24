@@ -1,4 +1,4 @@
-﻿using Common.Configuration;
+using Common.Configuration;
 using Ddei;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
@@ -10,16 +10,15 @@ using PolarisGateway.Handlers;
 
 namespace PolarisGateway.Functions
 {
-    public class Case
+    public class GetDocumentNotes
     {
-        private readonly ILogger<Case> _logger;
+        private readonly ILogger<GetDocumentNotes> _logger;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        public Case(
-            ILogger<Case> logger,
+        public GetDocumentNotes(ILogger<GetDocumentNotes> logger,
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
             IInitializationHandler initializationHandler,
@@ -32,31 +31,29 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
 
-        [FunctionName(nameof(Case))]
+        [FunctionName(nameof(GetDocumentNotes))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentNotes)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
+
             try
             {
                 context = await _initializationHandler.Initialize(req);
-
-                var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId);
-                var result = await _ddeiClient.GetCaseAsync(arg);
+                var arg = _ddeiArgFactory.CreateDocumentArgDto(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId);
+                var result = await _ddeiClient.GetDocumentNotesAsync(arg);
 
                 return new OkObjectResult(result);
             }
             catch (Exception ex)
             {
                 return _unhandledExceptionHandler.HandleUnhandledExceptionActionResult(
-                  _logger,
-                  nameof(Case),
-                  context.CorrelationId,
-                  ex
-                );
+                      _logger,
+                      nameof(GetDocumentNotes),
+                      context.CorrelationId,
+                      ex
+                    );
             }
         }
     }
 }
-

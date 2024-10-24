@@ -85,7 +85,6 @@ namespace PolarisGateway
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
             services.AddSingleton<IInitializationHandler, InitializationHandler>();
-            services.AddSingleton<IDocumentNoteRequestMapper, DocumentNoteRequestMapper>();
             services.AddSingleton<IModifyDocumentRequestMapper, ModifyDocumentRequestMapper>();
             services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
             services.AddTransient<IRequestFactory, RequestFactory>();

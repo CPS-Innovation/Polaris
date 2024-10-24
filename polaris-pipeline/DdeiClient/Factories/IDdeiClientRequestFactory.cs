@@ -19,7 +19,7 @@ namespace Ddei.Factories
         HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiFileStoreArgDto arg);
         HttpRequestMessage CreateUploadPdfRequest(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream);
         HttpRequestMessage CreateStatusRequest();
-        HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentNotesArgDto arg);
+        HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentArgDto arg);
         HttpRequestMessage CreateAddDocumentNoteRequest(DdeiAddDocumentNoteArgDto arg);
         HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg);
         HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg);

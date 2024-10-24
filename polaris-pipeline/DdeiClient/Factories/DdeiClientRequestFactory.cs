@@ -113,7 +113,7 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
-        public HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentNotesArgDto arg)
+        public HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/notes");
             AddAuthHeaders(request, arg);

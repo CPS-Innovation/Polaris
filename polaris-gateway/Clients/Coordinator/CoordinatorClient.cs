@@ -99,33 +99,6 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<HttpResponseMessage> GetDocumentNotes(string caseUrn, int caseId, string cmsAuthValues, string documentId, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues);
-        }
-
-        public async Task<HttpResponseMessage> AddDocumentNote(string caseUrn, int caseId, string cmsAuthValues, string documentId, AddDocumentNoteDto addDocumentNoteRequestDto, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Post,
-                RestApi.GetDocumentNotesPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues,
-                new StringContent(JsonConvert.SerializeObject(addDocumentNoteRequestDto), Encoding.UTF8, ContentType.Json));
-        }
-
-        public async Task<HttpResponseMessage> GetPii(string caseUrn, int caseId, string documentId, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Put,
-                RestApi.GetPiiPath(caseUrn, caseId, documentId),
-                correlationId);
-        }
-
         public async Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, string documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
         {
             return await SendRequestAsync(
@@ -154,24 +127,6 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(reclassifyDocumentDto), Encoding.UTF8, ContentType.Json));
-        }
-
-        public async Task<HttpResponseMessage> GetCaseExhibitProducers(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetCaseExhibitProducersPath(caseUrn, caseId),
-                correlationId,
-                cmsAuthValues);
-        }
-
-        public async Task<HttpResponseMessage> GetCaseWitnesses(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetCaseWitnessesPath(caseUrn, caseId),
-                correlationId,
-                cmsAuthValues);
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)

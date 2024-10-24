@@ -145,7 +145,7 @@ namespace coordinator.Functions
                 }
 
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
-                var arg = _ddeiArgFactory.CreateDocumentArgDto
+                var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
                 (
                     cmsAuthValues: cmsAuthValues,
                     correlationId: currentCorrelationId,

@@ -325,9 +325,8 @@ export const getNotesData = async (
   caseId: number,
   documentId: string
 ) => {
-  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/notes`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
@@ -347,15 +346,14 @@ export const addNoteData = async (
   documentId: string,
   text: string
 ) => {
-  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/notes`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
-    body: JSON.stringify({ documentId: docId, text: text }),
+    body: JSON.stringify({ text: text }),
   });
 
   if (!response.ok) {

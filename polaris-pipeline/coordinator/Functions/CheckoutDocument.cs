@@ -49,7 +49,7 @@ namespace coordinator.Functions
                 var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(CheckoutDocument));
                 var document = response.CmsDocument;
 
-                var arg = _ddeiArgFactory.CreateDocumentArgDto(
+                var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
                          cmsAuthValues: cmsAuthValues,
                          correlationId: currentCorrelationId,
                          urn: caseUrn,

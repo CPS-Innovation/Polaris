@@ -187,7 +187,7 @@ namespace Ddei
             });
         }
 
-        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentNotesArgDto arg)
+        public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentArgDto arg)
         {
             var ddeiResults = await CallDdei<List<DdeiDocumentNoteResponse>>(_ddeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
 

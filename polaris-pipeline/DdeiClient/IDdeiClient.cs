@@ -22,7 +22,7 @@ namespace Ddei
 		Task<CheckoutDocumentDto> CheckoutDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg);
 		Task CancelCheckoutDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg);
 		Task<HttpResponseMessage> UploadPdfAsync(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream);
-		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentNotesArgDto arg);
+		Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentArgDto arg);
 		Task<DocumentNoteResult> AddDocumentNoteAsync(DdeiAddDocumentNoteArgDto arg);
 		Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
 		Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);

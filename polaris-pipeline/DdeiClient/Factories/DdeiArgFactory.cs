@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
@@ -73,7 +75,22 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentArgDto(
+        public DdeiDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId)
+        {
+            return new DdeiDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentId = documentId
+            };
+        }
+
+        public DdeiDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
+            => CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId));
+
+        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(
             string cmsAuthValues,
             Guid correlationId,
             string urn,
@@ -92,18 +109,6 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId)
-        {
-            return new DdeiDocumentNotesArgDto
-            {
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId,
-                Urn = urn,
-                CaseId = caseId,
-                DocumentId = documentId
-            };
-        }
-
         public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string text)
         {
             return new DdeiAddDocumentNoteArgDto
@@ -116,6 +121,9 @@ namespace Ddei.Factories
                 Text = text
             };
         }
+
+        public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, string text)
+            => CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), text);
 
         public DdeiRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string documentName)
         {
@@ -157,6 +165,20 @@ namespace Ddei.Factories
                 CaseId = caseId,
                 WitnessId = witnessId
             };
+        }
+
+        private long ConvertToDdeiDocumentId(string documentId)
+        {
+            if (string.IsNullOrWhiteSpace(documentId))
+            {
+                throw new ArgumentNullException(nameof(documentId));
+            }
+
+            var match = Regex.Match(documentId, $@"{DocumentNature.DocumentPrefix}-(\d+)");
+
+            return match.Success
+                ? long.Parse(match.Groups[1].Value)
+                : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.DocumentPrefix}-123456'");
         }
     }
 }
