@@ -141,13 +141,13 @@ describe("Feature Delete Page", () => {
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.wait(1000);
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId("btn-cancel-1").should("not.exist");
     cy.findByTestId("btn-delete-1").click();
-    cy.findByTestId("delete-modal").should("exist");
-    cy.findByTestId("delete-modal-btn-redact").should("be.disabled");
-    cy.findByTestId("delete-modal-btn-cancel").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal").should("exist");
+    cy.findByTestId("delete-page-modal-btn-redact").should("be.disabled");
+    cy.findByTestId("delete-page-modal-btn-cancel").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId("btn-delete-1").click();
 
     cy.findByTestId("select-redaction-type")
@@ -165,10 +165,10 @@ describe("Feature Delete Page", () => {
       });
 
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId("btn-delete-1").should("not.exist");
     cy.findByTestId("btn-cancel-1").should("exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
@@ -189,10 +189,10 @@ describe("Feature Delete Page", () => {
 
     cy.findByTestId("btn-delete-1").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
@@ -204,10 +204,10 @@ describe("Feature Delete Page", () => {
 
     cy.findByTestId("btn-delete-2").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-2`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-2`).should("exist");
     cy.findByTestId(`delete-page-content-2`).contains(
       "Page selected for deletion"
@@ -295,10 +295,10 @@ describe("Feature Delete Page", () => {
     );
     cy.findByTestId("btn-delete-1").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
@@ -327,10 +327,10 @@ describe("Feature Delete Page", () => {
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
     cy.findByTestId("btn-delete-1").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
@@ -342,10 +342,10 @@ describe("Feature Delete Page", () => {
 
     cy.findByTestId("btn-delete-2").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-2`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-2`).should("exist");
     cy.findByTestId(`delete-page-content-2`).contains(
       "Page selected for deletion"
@@ -361,10 +361,10 @@ describe("Feature Delete Page", () => {
       .contains("Page1 Portrait");
     cy.findByTestId("btn-delete-1").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
@@ -410,10 +410,10 @@ describe("Feature Delete Page", () => {
     cy.findByTestId("btn-delete-2").should("not.be.disabled");
     cy.findByTestId("btn-delete-1").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
@@ -430,10 +430,10 @@ describe("Feature Delete Page", () => {
     cy.findByTestId("btn-delete-1").should("not.be.disabled");
     cy.findByTestId("btn-delete-2").click();
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
-    cy.findByTestId("delete-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-2`).should("not.exist");
-    cy.findByTestId("delete-modal-btn-redact").click();
-    cy.findByTestId("delete-modal").should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId(`delete-page-overlay-2`).should("exist");
     cy.findByTestId(`delete-page-content-2`).contains(
       "Page selected for deletion"

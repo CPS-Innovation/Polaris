@@ -27,7 +27,7 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
   handleRedactionTypeSelection,
 }) => {
   const panelRef = useRef<HTMLDivElement | null>(null);
-  useFocusTrap("#delete-modal");
+  useFocusTrap("#delete-page-modal");
   useLastFocus();
   const handleOutsideClick = useCallback((event: MouseEvent) => {
     if (
@@ -62,11 +62,25 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
   }, []);
   return (
     <div
-      id="delete-modal"
-      data-testid="delete-modal"
+      id="delete-page-modal"
+      data-testid="delete-page-modal"
       className={classes.deleteModal}
       ref={panelRef}
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-page-modal-label"
+      aria-describedby="delete-page-modal-description"
     >
+      <span id="delete-page-modal-label" className={classes.visuallyHidden}>
+        delete page modal
+      </span>
+      <span
+        id="delete-page-modal-description"
+        className={classes.visuallyHidden}
+      >
+        A modal with a delete reason selection and a redact button to help user
+        confirm the deletion of the page
+      </span>
       <div className={classes.contentWrapper}>
         <div className="govuk-form-group">
           <Select
@@ -89,15 +103,15 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
           disabled={!deleteRedactionType}
           className={classes.redactButton}
           onClick={handleConfirmRedaction}
-          data-testid="delete-modal-btn-redact"
-          id="delete-modal-btn-redact"
+          data-testid="delete-page-modal-btn-redact"
+          id="delete-page-modal-btn-redact"
         >
           Redact
         </Button>
         <LinkButton
           className={classes.cancelBtn}
           onClick={handleCancelRedaction}
-          dataTestId="delete-modal-btn-cancel"
+          dataTestId="delete-page-modal-btn-cancel"
         >
           Cancel
         </LinkButton>

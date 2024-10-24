@@ -71,7 +71,6 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     setShowModal(true);
   };
   const handleConfirmRedaction = () => {
-    setShowModal(false);
     const redactionType = redactionTypesData.find(
       (type) => type.id === deleteRedactionType
     )!;
@@ -81,6 +80,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
       pageNumber: pageNumber,
       reason: redactionType.name,
     });
+    setShowModal(false);
   };
   const handleRedactionTypeSelection = (value: string) => {
     setDeleteRedactionType(value);
@@ -109,12 +109,12 @@ export const DeletePage: React.FC<DeletePageProps> = ({
         <div aria-live="polite" className={classes.visuallyHidden}>
           {isPageDeleted && (
             <span>
-              Page selected for deletion. Click "save all redactions" to remove
-              the page from the document.
+              {`Page ${pageNumber} selected for deletion. Click "save all redactions" to remove
+              the page from the document.`}
             </span>
           )}
           {!isPageDeleted && (
-            <span>Page unselected selected for deletion.</span>
+            <span>{`Page ${pageNumber} unselected for deletion.`}</span>
           )}
         </div>
       }
