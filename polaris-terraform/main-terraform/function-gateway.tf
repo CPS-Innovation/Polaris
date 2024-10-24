@@ -25,6 +25,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "PiiCategories"                                   = var.pii.categories
     "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
@@ -34,6 +35,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
@@ -124,6 +126,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["ClientSecret"],
       app_settings["ComputerVisionClientServiceKey"],
       app_settings["ComputerVisionClientServiceUrl"],
+      app_settings["PiiCategories"],
       app_settings["PiiChunkCharacterLimit"],
       app_settings["DdeiAccessKey"],
       app_settings["DdeiBaseUrl"],
@@ -131,6 +134,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["LanguageServiceKey"],
       app_settings["LanguageServiceUrl"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
+      app_settings["PolarisPipelineRedactPdfBaseUrl"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["TenantId"],
       app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
