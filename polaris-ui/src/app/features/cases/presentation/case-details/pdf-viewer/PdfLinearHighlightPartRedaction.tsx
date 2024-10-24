@@ -29,7 +29,7 @@ export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({
     <>
       <button
         ref={buttonRef}
-        aria-label="unsaved redaction"
+        aria-label="remove unsaved redaction"
         aria-describedby={`redacted-text-${id}`}
         style={rect}
         className={classes[`Highlight__part__redaction`]}

@@ -106,6 +106,19 @@ export const DeletePage: React.FC<DeletePageProps> = ({
   return (
     <div>
       {
+        <div aria-live="polite" className={classes.visuallyHidden}>
+          {isPageDeleted && (
+            <span>
+              Page selected for deletion. Click "save all redactions" to remove
+              the page from the document.
+            </span>
+          )}
+          {!isPageDeleted && (
+            <span>Page unselected selected for deletion.</span>
+          )}
+        </div>
+      }
+      {
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
             <div className={classes.pageNumberWrapper}>
@@ -121,6 +134,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
             </div>
             {isPageDeleted ? (
               <LinkButton
+                ariaLabel={`cancel page ${pageNumber} delete`}
                 className={classes.restoreBtn}
                 onClick={handleRestoreBtnClick}
                 data-pageNumber={pageNumber}
@@ -130,6 +144,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
               </LinkButton>
             ) : (
               <LinkButton
+                ariaLabel={`delete page ${pageNumber} out of ${totalPages} pages`}
                 ref={deleteButtonRef}
                 className={classes.deleteBtn}
                 onClick={handleDelete}
@@ -162,7 +177,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
               Page selected for deletion
             </p>
             <p className={classes.overlaySubText}>
-              Click "save and submit" to remove the page from the document
+              Click "save all redactions" to remove the page from the document
             </p>
           </div>
         </div>
