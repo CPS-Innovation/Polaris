@@ -5,6 +5,7 @@ import {
   LinkButton,
   Select,
 } from "../../../../../common/presentation/components";
+import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import classes from "./DeleteModal.module.scss";
 export type DeleteModalProps = {
   deleteRedactionType: string;
@@ -27,6 +28,7 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
 }) => {
   const panelRef = useRef<HTMLDivElement | null>(null);
   useFocusTrap("#delete-modal");
+  useLastFocus();
   const handleOutsideClick = useCallback((event: MouseEvent) => {
     if (
       event.target === parentButtonRef.current ||
