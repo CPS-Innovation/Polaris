@@ -9,6 +9,7 @@ import {
   GATEWAY_BASE_URL,
   REDACTION_LOG_BASE_URL,
   API_LOCAL_POLLING_DELAY_MS,
+  API_LOCAL_POLLING_RETRY_COUNT,
 } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 import {
@@ -503,13 +504,24 @@ export const saveDocumentReclassify = async (
   return response.ok;
 };
 
-const artefactPollingHelper = async <T>(url: string): Promise<T> => {
+const artefactPollingHelper = async <T>(
+  url: string,
+  retriesLeft: number = API_LOCAL_POLLING_RETRY_COUNT - 1
+): Promise<T> => {
   const response = await fetchImplementation("reauth-if-in-situ", url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
     throw new ApiError("Getting artefact failed", url, response);
+  }
+
+  if (retriesLeft <= 0) {
+    throw new ApiError(
+      `Getting artefact failed: too many polling attempts (${API_LOCAL_POLLING_RETRY_COUNT})`,
+      url,
+      response
+    );
   }
 
   if (response.status !== 202) {
@@ -523,7 +535,7 @@ const artefactPollingHelper = async <T>(url: string): Promise<T> => {
     setTimeout(resolve, API_LOCAL_POLLING_DELAY_MS)
   );
 
-  return artefactPollingHelper<T>(nextUrl);
+  return artefactPollingHelper<T>(nextUrl, --retriesLeft);
 };
 
 const fetchImplementation = (
