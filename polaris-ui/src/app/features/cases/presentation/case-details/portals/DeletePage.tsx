@@ -109,7 +109,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
         <div aria-live="polite" className={classes.visuallyHidden}>
           {isPageDeleted && (
             <span>
-              {`Page ${pageNumber} selected for deletion. Click "save all redactions" to remove
+              {`Page ${pageNumber} selected for deletion. Click save all redactions to remove
               the page from the document.`}
             </span>
           )}
@@ -178,7 +178,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
               Page selected for deletion
             </p>
             <p className={classes.overlaySubText}>
-              Click save all redactions to remove the page from the document
+              Click "save all redactions" to remove the page from the document
             </p>
           </div>
         </div>

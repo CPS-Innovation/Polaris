@@ -9,7 +9,6 @@ type LinkButtonProps = {
   disabled?: boolean;
   ariaLabel?: string;
   ariaExpanded?: boolean;
-  ariaLive?: "assertive" | "polite";
   type?: "button" | "submit" | "reset";
   onClick: () => void;
   onFocus?: () => void;
@@ -25,7 +24,6 @@ export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
       onFocus,
       id,
       ariaLabel,
-      ariaLive,
       ariaExpanded,
       disabled = false,
       type,
@@ -37,7 +35,6 @@ export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
       <button
         ref={ref}
         aria-label={ariaLabel}
-        aria-live={ariaLive}
         aria-expanded={ariaExpanded}
         disabled={disabled}
         id={id}
