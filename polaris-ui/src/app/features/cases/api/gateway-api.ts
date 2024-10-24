@@ -5,7 +5,12 @@ import { ApiTextSearchResult } from "../domain/gateway/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
 import * as HEADERS from "./auth/header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
-import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
+import {
+  GATEWAY_BASE_URL,
+  REDACTION_LOG_BASE_URL,
+  API_LOCAL_POLLING_DELAY_MS,
+  API_LOCAL_POLLING_RETRY_COUNT,
+} from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 import {
   RedactionLogLookUpsData,
@@ -30,6 +35,7 @@ import { fetchWithCookies } from "./auth/fetch-with-cookies";
 import { FetchArgs, PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
 import { RotationSaveRequest } from "../domain/IPageRotation";
 import { PresentationDocumentProperties } from "../domain/gateway/PipelineDocument";
+import { OcrData } from "../domain/gateway/OcrData";
 
 const buildHeaders = async (
   ...args: (
@@ -397,27 +403,7 @@ export const getOcrData = async (
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/ocr`
   );
 
-  const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get Ocr data failed", path, response);
-  }
-
-  if (response.status !== 202) {
-    return await response.json();
-  }
-  // Accepted: results not there yet, so we follow the continuation url that we are given
-  const { nextUrl } = (await response.json()) as { nextUrl: string };
-
-  await new Promise((resolve) => setTimeout(resolve, 10000));
-
-  const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  return await response2.json();
+  return artefactPollingHelper<OcrData>(path);
 };
 
 export const getSearchPIIData = async (
@@ -430,27 +416,7 @@ export const getSearchPIIData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pii`
   );
 
-  const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get search PII data failed", path, response);
-  }
-
-  if (response.status !== 202) {
-    return (await response.json()) as SearchPIIResultItem[];
-  }
-  // Accepted: results not there yet, so we follow the continuation url that we are given
-  const { nextUrl } = (await response.json()) as { nextUrl: string };
-
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  return (await response2.json()) as SearchPIIResultItem[];
+  return artefactPollingHelper<SearchPIIResultItem[]>(path);
 };
 
 export const getMaterialTypeList = async () => {
@@ -536,6 +502,40 @@ export const saveDocumentReclassify = async (
   });
 
   return response.ok;
+};
+
+const artefactPollingHelper = async <T>(
+  url: string,
+  retriesLeft: number = API_LOCAL_POLLING_RETRY_COUNT - 1
+): Promise<T> => {
+  const response = await fetchImplementation("reauth-if-in-situ", url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Getting artefact failed", url, response);
+  }
+
+  if (retriesLeft <= 0) {
+    throw new ApiError(
+      `Getting artefact failed: too many polling attempts (${API_LOCAL_POLLING_RETRY_COUNT})`,
+      url,
+      response
+    );
+  }
+
+  if (response.status !== 202) {
+    return (await response.json()) as T;
+  }
+
+  // Accepted: results not there yet, so we follow the continuation url that we are given
+  const { nextUrl } = (await response.json()) as { nextUrl: string };
+
+  await new Promise((resolve) =>
+    setTimeout(resolve, API_LOCAL_POLLING_DELAY_MS)
+  );
+
+  return artefactPollingHelper<T>(nextUrl, --retriesLeft);
 };
 
 const fetchImplementation = (

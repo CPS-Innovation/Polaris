@@ -57,7 +57,6 @@ namespace PolarisGateway.Functions
                     ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),
                     ResultStatus.PollWithToken => new JsonResult(new
                     {
-                        ocrResult.Result.Item1,
                         NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.Result.Item1}"
                     })
                     {
