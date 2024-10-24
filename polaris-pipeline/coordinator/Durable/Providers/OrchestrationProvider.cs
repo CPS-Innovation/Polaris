@@ -102,7 +102,7 @@ public class OrchestrationProvider : IOrchestrationProvider
                  _queryConditionFactory.Create(_completedStatuses, CaseDurableEntity.GetKey(caseId))
             );
             var entityPurgeInstanceIds = await GetInstanceIdsAsync(client,
-                 _queryConditionFactory.Create(_entityStatuses, CaseDurableEntity.GetKey(caseId))
+                 _queryConditionFactory.Create(_entityStatuses, $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}")
             );
             result.GotPurgeInstancesDateTime = DateTime.UtcNow;
             var instancesToPurge = Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds);
