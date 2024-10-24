@@ -67,7 +67,7 @@ declare global {
       trackRequestCount(
         counter: { count: number },
         method: "POST" | "GET" | "PUT" | "DELETE",
-        pathname?: string
+        pathname?: string | RegExp
       ): void;
 
       trackRequestBody(

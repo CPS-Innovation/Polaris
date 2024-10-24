@@ -206,7 +206,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             },
           });
       };
-      const { clientLockedState } = items.find(
+      const { clientLockedState, versionId } = items.find(
         (item) => item.documentId === documentId
       )!;
 
@@ -223,7 +223,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "locking" },
       });
       try {
-        await checkoutDocument(urn, caseId, documentId);
+        await checkoutDocument(urn, caseId, documentId, versionId);
 
         pageRotations ? addRotation() : addRedaction();
         dispatch({
@@ -291,6 +291,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         clientLockedState: lockedState,
         pageDeleteRedactions,
         pageRotations,
+        versionId,
       } = document;
       if (redactionId) {
         const isRestorePage = pageDeleteRedactions.some(
@@ -333,7 +334,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(urn, caseId, documentId);
+      await cancelCheckoutDocument(urn, caseId, documentId, versionId);
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -358,7 +359,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { clientLockedState: lockedState } = document;
+      const { clientLockedState: lockedState, versionId } = document;
 
       const requiresCheckIn =
         LOCKED_STATES_REQUIRING_UNLOCK.includes(lockedState);
@@ -375,7 +376,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(urn, caseId, documentId);
+      await cancelCheckoutDocument(urn, caseId, documentId, versionId);
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -521,10 +522,18 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentIds },
       } = action;
 
-      const { caseId, urn } = getState();
+      const {
+        caseId,
+        urn,
+        tabsState: { items },
+      } = getState();
 
-      const requests = documentIds.map((documentId) =>
-        cancelCheckoutDocument(urn, caseId, documentId)
+      const caseIdentifiers = items
+        .filter((item) => documentIds.includes(item.documentId))
+        .map(({ documentId, versionId }) => ({ documentId, versionId }));
+
+      const requests = caseIdentifiers.map(({ documentId, versionId }) =>
+        cancelCheckoutDocument(urn, caseId, documentId, versionId)
       );
 
       Promise.allSettled(requests);

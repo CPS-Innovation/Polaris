@@ -1,6 +1,6 @@
 describe("Search PII", () => {
   describe("Feature flag 'ON'", () => {
-    it.only("Should show turn on/off redaction suggestions menu correctly and should not call the pii request if the versionId is not changed", () => {
+    it("Should show turn on/off redaction suggestions menu correctly and should not call the pii request if the versionId is not changed", () => {
       const piiRequestCounter = { count: 0 };
       cy.trackRequestCount(
         piiRequestCounter,

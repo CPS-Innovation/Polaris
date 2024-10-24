@@ -55,24 +55,6 @@ namespace PolarisGateway.Clients.Coordinator
             return response;
         }
 
-        public async Task<HttpResponseMessage> CheckoutDocumentAsync(string caseUrn, int caseId, string documentId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Post,
-                RestApi.GetDocumentCheckoutPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues);
-        }
-
-        public async Task<HttpResponseMessage> CancelCheckoutDocumentAsync(string caseUrn, int caseId, string documentId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Delete,
-                RestApi.GetDocumentCheckoutPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues);
-        }
-
         public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string documentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(

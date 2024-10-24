@@ -88,7 +88,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", clientLockedState },
+              { documentId: "1", versionId: 11, clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -118,7 +118,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1", 11);
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -161,7 +161,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", clientLockedState },
+              { documentId: "1", versionId: 11, clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -191,7 +191,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1", 11);
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -232,7 +232,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", clientLockedState },
+              { documentId: "1", versionId: 11, clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -267,7 +267,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1", 11);
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -466,6 +466,7 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
+                versionId: 11,
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [] as any,
@@ -500,7 +501,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkInSpy).toBeCalledWith("foo", 2, "1");
+        expect(checkInSpy).toBeCalledWith("foo", 2, "1", 11);
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -584,6 +585,7 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
+                versionId: 11,
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [{}],
@@ -616,7 +618,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkInSpy).toBeCalledWith("foo", 2, "1");
+        expect(checkInSpy).toBeCalledWith("foo", 2, "1", 11);
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -707,9 +709,9 @@ describe("reducerAsyncActionHandlers", () => {
         caseId: 99,
         tabsState: {
           items: [
-            { documentId: "1" },
-            { documentId: "2" },
-            { documentId: "3" },
+            { documentId: "1", versionId: 11 },
+            { documentId: "2", versionId: 22 },
+            { documentId: "3", versionId: 33 },
           ] as CaseDocumentViewModel[],
         },
       } as CombinedState;
@@ -730,9 +732,9 @@ describe("reducerAsyncActionHandlers", () => {
 
       // assert
       expect(cancelCheckoutSpy).toBeCalledTimes(3);
-      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "1");
-      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "2");
-      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "3");
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "1", 11);
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "2", 22);
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "3", 33);
     });
     it("it shouldn't make api call to unlock if no documentIds passed in", async () => {
       // arrange

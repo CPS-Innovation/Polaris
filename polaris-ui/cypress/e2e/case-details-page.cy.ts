@@ -369,7 +369,7 @@ describe("case details page", () => {
       cy.trackRequestCount(
         doc1CheckInCounter,
         "DELETE",
-        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/checkout"
       );
       // click on ignore btn
       cy.findByTestId("btn-nav-ignore").click();
@@ -489,7 +489,7 @@ describe("case details page", () => {
       cy.trackRequestCount(
         doc1CheckInCounter,
         "DELETE",
-        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/checkout"
       );
       cy.findByTestId("btn-nav-ignore").click();
       cy.findByTestId("div-modal").should("not.exist");

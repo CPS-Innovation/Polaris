@@ -189,10 +189,11 @@ export const searchCase = async (
 export const checkoutDocument = async (
   urn: string,
   caseId: number,
-  documentId: string
+  documentId: string,
+  versionId: number
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/checkout`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", url, {
@@ -212,10 +213,11 @@ export const checkoutDocument = async (
 export const cancelCheckoutDocument = async (
   urn: string,
   caseId: number,
-  documentId: string
+  documentId: string,
+  versionId: number
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/checkout`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", url, {

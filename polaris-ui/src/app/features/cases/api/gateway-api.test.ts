@@ -180,7 +180,12 @@ describe("gateway-apis", () => {
       mockOutReauthResponse("no-reauth", "success", {
         status: 200,
       });
-      const response = await checkoutDocument("urn_123", 123, "documentID_1");
+      const response = await checkoutDocument(
+        "urn_123",
+        123,
+        "documentID_1",
+        1
+      );
 
       expect(response).toEqual(true);
     });
@@ -190,7 +195,7 @@ describe("gateway-apis", () => {
         status: 500,
       });
       expect(async () => {
-        await checkoutDocument("urn_123", 123, "documentID_1");
+        await checkoutDocument("urn_123", 123, "documentID_1", 1);
       }).rejects.toThrow();
     });
   });
@@ -203,7 +208,8 @@ describe("gateway-apis", () => {
       const response = await cancelCheckoutDocument(
         "urn_123",
         123,
-        "documentID_1"
+        "documentID_1",
+        1
       );
 
       expect(response).toEqual(true);
@@ -214,7 +220,7 @@ describe("gateway-apis", () => {
         status: 500,
       });
       expect(async () => {
-        await cancelCheckoutDocument("urn_123", 123, "documentID_1");
+        await cancelCheckoutDocument("urn_123", 123, "documentID_1", 1);
       }).rejects.toThrow();
     });
   });

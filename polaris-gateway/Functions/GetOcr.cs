@@ -30,10 +30,10 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _logger = logger;
-            _artefactService = artefactService;
-            _initializationHandler = initializationHandler;
-            _unhandledExceptionHandler = unhandledExceptionHandler;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _artefactService = artefactService ?? throw new ArgumentNullException(nameof(artefactService));
+            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
+            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
 
         [FunctionName(nameof(GetOcr))]
