@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { LinkButton } from "../../../../../common/presentation/components";
 import { DeleteModal } from "./DeleteModal";
 import { ReactComponent as DeleteIcon } from "../../../../../common/presentation/svgs/deleteIcon.svg";
@@ -36,6 +36,20 @@ export const DeletePage: React.FC<DeletePageProps> = ({
       (redaction) => redaction.pageNumber === pageNumber
     );
   }, [pageDeleteRedactions, pageNumber]);
+
+  //adding/removing any anchor links in the unsaved deleted page as tabbable, for accessibility
+  useEffect(() => {
+    const pages = document.querySelectorAll(".page");
+    const links = pages[pageNumber - 1]?.querySelectorAll("a");
+
+    links.forEach((link) => {
+      if (isPageDeleted) {
+        link.setAttribute("tabindex", "-1");
+        return;
+      }
+      link.setAttribute("tabindex", "0");
+    });
+  }, [isPageDeleted, pageNumber]);
 
   const mappedRedactionTypeValues = useMemo(() => {
     const defaultOption = {
