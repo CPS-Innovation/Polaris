@@ -1,6 +1,10 @@
 import { ApiError } from "../../../../common/errors/ApiError";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
-import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
+import {
+  getDocuments,
+  getPipelinePdfResults,
+  initiatePipeline,
+} from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { getPipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
@@ -15,7 +19,7 @@ const delay = (delayMs: number) =>
 const hasAnyDocumentUpdated = (
   savedDocumentDetails: {
     documentId: string;
-    polarisDocumentVersionId: number;
+    versionId: number;
   }[],
   pipelineResult: PipelineResults
 ) => {
@@ -122,12 +126,16 @@ export const initiateAndPoll = (
           break;
         }
 
-        const pipelineResult = await getPipelinePdfResults(
-          trackerArgs.trackerUrl,
-          trackerArgs.correlationId
-        );
-        if (pipelineResult) {
-          handleApiCallSuccess(pipelineResult);
+        const [pipelineResults] = await Promise.all([
+          getPipelinePdfResults(
+            trackerArgs.trackerUrl,
+            trackerArgs.correlationId
+          ),
+          //getDocuments(urn, caseId),
+        ]);
+
+        if (pipelineResults) {
+          handleApiCallSuccess(pipelineResults);
         }
       } catch (error) {
         handleApiCallError(error);

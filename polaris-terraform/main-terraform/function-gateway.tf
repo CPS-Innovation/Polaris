@@ -15,11 +15,21 @@ resource "azurerm_linux_function_app" "fa_polaris" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_gateway.primary_connection_string
+    "BlobServiceContainerName"                        = var.blob_service_container_name
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"    
+    "BlobUserDelegationKeyExpirySecs"                 = 3600
     "CallingAppValidAudience"                         = var.polaris_webapp_details.valid_audience
     "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
     "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
     "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
+    "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Production"
@@ -104,6 +114,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["AzureWebJobsStorage"],
       app_settings["BlobContainerName"],
       app_settings["BlobExpirySecs"],
+      app_settings["BlobServiceContainerName"],
       app_settings["BlobServiceUrl"],
       app_settings["BlobUserDelegationKeyExpirySecs"],
       app_settings["CallingAppValidAudience"],
@@ -111,9 +122,14 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["CallingAppValidScopes"],
       app_settings["ClientId"],
       app_settings["ClientSecret"],
+      app_settings["ComputerVisionClientServiceKey"],
+      app_settings["ComputerVisionClientServiceUrl"],
+      app_settings["PiiChunkCharacterLimit"],
       app_settings["DdeiAccessKey"],
       app_settings["DdeiBaseUrl"],
       app_settings["HostType"],
+      app_settings["LanguageServiceKey"],
+      app_settings["LanguageServiceUrl"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
       app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["TenantId"],

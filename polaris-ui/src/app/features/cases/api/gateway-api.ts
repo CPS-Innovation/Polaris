@@ -29,6 +29,7 @@ import {
 import { fetchWithCookies } from "./auth/fetch-with-cookies";
 import { FetchArgs, PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
 import { RotationSaveRequest } from "../domain/IPageRotation";
+import { PresentationDocumentProperties } from "../domain/gateway/PipelineDocument";
 
 const buildHeaders = async (
   ...args: (
@@ -51,28 +52,18 @@ const fullUrl = (path: string, baseUrl: string = GATEWAY_BASE_URL) => {
   return new URL(path, origin).toString();
 };
 
-// hack
-const temporaryApiModelMapping = (arr: any[]) =>
-  arr.forEach((item) => {
-    if (item.polarisDocumentId) {
-      item.documentId = item.polarisDocumentId;
-      if (item.cmsDocType?.documentTypeId) {
-        item.cmsDocType.documentTypeId = parseInt(
-          item.cmsDocType.documentTypeId,
-          10
-        );
-      }
-    }
-  });
-
 export const resolvePdfUrl = (
   urn: string,
   caseId: number,
   documentId: string,
-  polarisDocumentVersionId: number
+  versionId: number,
+  isOcrProcessed: boolean
 ) => {
+  // the backend does not look at the v parameter
   return fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pdf${
+      isOcrProcessed ? "?isOcrProcessed=true" : ""
+    }`
   );
 };
 
@@ -116,6 +107,16 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   }
 
   return (await response.json()) as CaseDetails;
+};
+
+export const getDocuments = async (urn: string, caseId: number) => {
+  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
+
+  const response = await fetchImplementation("reauth", url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  return (await response.json()) as PresentationDocumentProperties[];
 };
 
 export const initiatePipeline = async (
@@ -163,15 +164,8 @@ export const getPipelinePdfResults = async (
   if (!response.ok) {
     throw new ApiError("Get Pipeline pdf results failed", trackerUrl, response);
   }
-  const rawResponse: { documents: any[] } = await response.json();
-  const { documents } = rawResponse;
-  temporaryApiModelMapping(documents);
 
-  // temporary hack for #24313 before feature flag comes in
-  // return rawResponse as PipelineResults;
-  var typedRawResponse = rawResponse as PipelineResults;
-
-  return typedRawResponse;
+  return (await response.json()) as PipelineResults;
 };
 export const searchCase = async (
   urn: string,
@@ -189,10 +183,7 @@ export const searchCase = async (
     throw new ApiError("Search Case Text failed", path, response);
   }
 
-  const rawResponse = await response.json();
-  temporaryApiModelMapping(rawResponse);
-
-  return rawResponse as ApiTextSearchResult[];
+  return (await response.json()) as ApiTextSearchResult[];
 };
 
 export const checkoutDocument = async (
@@ -334,9 +325,8 @@ export const getNotesData = async (
   caseId: number,
   documentId: string
 ) => {
-  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/notes`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
@@ -356,15 +346,14 @@ export const addNoteData = async (
   documentId: string,
   text: string
 ) => {
-  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/notes`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/notes`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
-    body: JSON.stringify({ documentId: docId, text: text }),
+    body: JSON.stringify({ text: text }),
   });
 
   if (!response.ok) {
@@ -398,13 +387,47 @@ export const saveDocumentRename = async (
   return true;
 };
 
+export const getOcrData = async (
+  urn: string,
+  caseId: number,
+  documentId: string,
+  versionId: number
+) => {
+  const path = fullUrl(
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/ocr`
+  );
+
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Ocr data failed", path, response);
+  }
+
+  if (response.status !== 202) {
+    return await response.json();
+  }
+  // Accepted: results not there yet, so we follow the continuation url that we are given
+  const { nextUrl } = (await response.json()) as { nextUrl: string };
+
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+
+  const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  return await response2.json();
+};
+
 export const getSearchPIIData = async (
   urn: string,
   caseId: number,
-  documentId: string
+  documentId: string,
+  versionId: number
 ) => {
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/pii`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pii`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
@@ -415,7 +438,19 @@ export const getSearchPIIData = async (
     throw new ApiError("Get search PII data failed", path, response);
   }
 
-  return (await response.json()) as SearchPIIResultItem[];
+  if (response.status !== 202) {
+    return (await response.json()) as SearchPIIResultItem[];
+  }
+  // Accepted: results not there yet, so we follow the continuation url that we are given
+  const { nextUrl } = (await response.json()) as { nextUrl: string };
+
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  return (await response2.json()) as SearchPIIResultItem[];
 };
 
 export const getMaterialTypeList = async () => {

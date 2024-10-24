@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
-using coordinator.Durable.Orchestration;
 using coordinator.Durable.Entity;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
@@ -39,7 +38,7 @@ namespace coordinator.Functions
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req,
             string caseUrn,
-            string caseId,
+            int caseId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -49,12 +48,11 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
                 // todo: temporary code
-                var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
-                var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
+                var entityId = CaseDurableEntity.GetEntityId(caseId);
                 EntityStateResponse<CaseDurableEntity> caseEntity = default;
                 try
                 {
-                    caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
+                    caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
                 }
                 catch (Exception ex)
                 {

@@ -3,8 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using coordinator.Clients.TextExtractor;
-using Common.Dto.Document;
-using Common.ValueObjects;
+using Common.Dto.Response.Document;
 using TextExtractor.TestHarness.Constants;
 using TextExtractor.TestHarness.Extensions;
 using coordinator.Durable.Payloads;
@@ -28,22 +27,22 @@ namespace TextExtractor.TestHarness.Services
             var fileExtension = Path.GetExtension(filePath);
 
             var cmsDocumentEntity = SerializedCmsDocumentDto(
-                new PolarisDocumentId(PolarisDocumentType.CmsDocument, documentRef),
-                    documentRef, fileExtension, filename);
+                $"CMS-{documentRef}",
+                documentRef, fileExtension, filename);
 
             var payload = new CaseDocumentOrchestrationPayload(null, Guid.NewGuid(), TestProperties.CaseUrn, TestProperties.CmsCaseId, cmsDocumentEntity, null, null, DocumentDeltaType.RequiresIndexing);
 
             try
             {
-                using (var documentStream = File.Open(filePath, FileMode.Open))
-                    await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
-                        payload.CmsCaseUrn,
-                        payload.CmsCaseId,
-                        payload.CmsDocumentId,
-                        payload.CmsVersionId,
-                        payload.BlobName,
-                        payload.CorrelationId,
-                        documentStream);
+                // using (var documentStream = File.Open(filePath, FileMode.Open))
+                //     await _textExtractorClient.ExtractTextAsync(payload.DocumentId,
+                //         payload.CmsCaseUrn,
+                //         payload.CmsCaseId,
+                //         payload.DocumentId,
+                //         payload.VersionId,
+                //         payload.BlobName,
+                //         payload.CorrelationId,
+                //         documentStream);
             }
             catch (Exception ex)
             {
@@ -52,26 +51,23 @@ namespace TextExtractor.TestHarness.Services
         }
 
         private string SerializedCmsDocumentDto(
-            PolarisDocumentId polarisDocumentId,
+            string documentId,
             string cmsDocumentId,
             string fileExtension,
             string cmsOriginalFileName)
         {
             var cmsDocumentEntity = new CmsDocumentEntity(
-                polarisDocumentId: polarisDocumentId,
-                polarisDocumentVersionId: 1,
-                cmsDocumentId: cmsDocumentId,
-                cmsVersionId: 1,
+                cmsDocumentId: documentId,
+                versionId: 1,
                 cmsDocType: new DocumentTypeDto(),
                 path: null,
-                fileExtension: fileExtension,
                 cmsFileCreatedDate: DateTime.Now.ToString(),
                 cmsOriginalFileName: cmsOriginalFileName,
                 presentationTitle: TestProperties.PresentationTitle,
                 isOcrProcessed: false,
                 isDispatched: false,
                 categoryListOrder: null,
-                polarisParentDocumentId: null,
+                cmsParentDocumentId: null,
                 cmsParentDocumentId: null,
                 witnessId: null,
                 presentationFlags: new Common.Dto.FeatureFlags.PresentationFlagsDto(),

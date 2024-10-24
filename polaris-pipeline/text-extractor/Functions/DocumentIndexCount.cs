@@ -34,7 +34,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(DocumentIndexCount))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentIndexCount)] HttpRequestMessage request, long caseId, string documentId, long versionId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentIndexCount)] HttpRequestMessage request, int caseId, string documentId, long versionId)
         {
             Guid correlationId = Guid.Empty;
 

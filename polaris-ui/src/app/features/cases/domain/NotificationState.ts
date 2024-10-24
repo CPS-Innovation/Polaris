@@ -24,7 +24,7 @@ export type NotificationEventCore = {
 
 export type NotificationEvent = NotificationEventCore & {
   id: number;
-  cmsVersionId: number;
+  versionId: number;
   presentationTitle: string;
   dateTime: string;
   narrative: string;

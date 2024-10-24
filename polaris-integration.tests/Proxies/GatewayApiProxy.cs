@@ -1,6 +1,6 @@
 using Common.Configuration;
-using Common.Dto.Case;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Documents;
 using System.Net;
 using Newtonsoft.Json;
 using Common.Domain.SearchIndex;
@@ -123,26 +123,26 @@ namespace polaris_gateway.integration.tests.Proxies
             return searchResults;
         }
 
-        protected async Task DocumentCheckout(string caseUrn, int caseId, string polarisDocumentId, string correlationId)
+        protected async Task DocumentCheckout(string caseUrn, int caseId, string documentId, string correlationId)
         {
             string url = MakeUrl(RestApi.DocumentCheckout, new Dictionary<string, string>()
                             {
                                 { "caseUrn", caseUrn },
                                 { "caseId", $"{caseId}" },
-                                { "polarisDocumentId", $"{polarisDocumentId}" }
+                                { "documentId", $"{documentId}" }
                             });
 
             var response = await MakeHttpCall(url, HttpMethod.Post, correlationId);
             response.EnsureSuccessStatusCode();
         }
 
-        protected async Task RedactDocument(string caseUrn, int caseId, string polarisDocumentId, DocumentRedactionSaveRequestDto redaction, string correlationId)
+        protected async Task RedactDocument(string caseUrn, int caseId, string documentId, DocumentRedactionSaveRequestDto redaction, string correlationId)
         {
             string url = MakeUrl(RestApi.Document, new Dictionary<string, string>()
                             {
                                 { "caseUrn", caseUrn },
                                 { "caseId", $"{caseId}" },
-                                { "polarisDocumentId", $"{polarisDocumentId}" }
+                                { "documentId", $"{documentId}" }
                             });
 
             var response = await MakeHttpCall(url, HttpMethod.Put, correlationId, redaction);

@@ -1,3 +1,4 @@
+import { CmsDocType } from "../../domain/gateway/CmsDocType";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 import { CommunicationSubCategory } from "./document-category-definitions";
 
@@ -113,7 +114,7 @@ const unusedCommRegexes = [
 
 export const isUnusedCommunicationMaterial = (
   filename: string,
-  documentTypeId: number
+  documentTypeId: CmsDocType["documentTypeId"]
 ) =>
   !!filename &&
   documentTypeId === 1029 &&
@@ -137,7 +138,7 @@ export const getDocumentAttachments = <
 ) =>
   item.cmsOriginalFileName?.endsWith(".hte")
     ? docs
-        .filter((doc) => doc.polarisParentDocumentId === item.documentId)
+        .filter((doc) => doc.parentDocumentId === item.documentId)
         .map(({ documentId, presentationTitle }) => ({
           documentId: documentId,
           name: presentationTitle,

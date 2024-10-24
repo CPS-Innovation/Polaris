@@ -25,12 +25,7 @@ import searchPIIData from "./data/searchPII.dev";
 import cypressSearchPIIData from "./data/searchPII.cypress";
 import { NotesDataSource } from "./data/types/NotesDataSource";
 import { SearchPIIDataSource } from "./data/types/SearchPIIDataSource";
-
-import {
-  DocumentWithPdfBlobName,
-  PipelinePdfResultsDataSource,
-  removePdfBlobName,
-} from "./data/types/PipelinePdfResultsDataSource";
+import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
 import * as routes from "./routes";
 import { MockApiConfig } from "./MockApiConfig";
@@ -151,10 +146,7 @@ export const setupHandlers = ({
       callStack["TRACKER_ROUTE"]++;
       const result = pipelinePdfResultsDataSources[sourceName]();
       if (callStack["TRACKER_ROUTE"] > result.length) {
-        return res(
-          ctx.delay(sanitisedMaxDelay),
-          ctx.json(removePdfBlobName(result[0]))
-        );
+        return res(ctx.delay(sanitisedMaxDelay), ctx.json(result[0]));
       }
       return res(
         ctx.delay(sanitisedMaxDelay),
@@ -172,12 +164,9 @@ export const setupHandlers = ({
     rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
       const { documentId } = req.params;
 
-      const docs = pipelinePdfResultsDataSources[sourceName]()[0]
-        .documents as DocumentWithPdfBlobName[];
-
-      const blobName = docs.find(
-        (document) => document.documentId === documentId
-      )?.pdfBlobName;
+      const blobName = pipelinePdfResultsDataSources[sourceName]()[0]
+        .documents.find((document) => document.documentId === documentId)
+        ?.cmsOriginalFileName.split(".")[0];
 
       const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];
 

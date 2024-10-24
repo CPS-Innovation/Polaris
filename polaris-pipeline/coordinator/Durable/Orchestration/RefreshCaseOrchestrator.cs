@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Document;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
 using Common.Dto.Response;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Common.Logging;
 using Common.Telemetry;
-using Common.ValueObjects;
 using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
@@ -20,22 +18,21 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.TelemetryEvents;
 using coordinator.Validators;
-using Mapster;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Common.Domain.Document;
 
 namespace coordinator.Durable.Orchestration
 {
-    public class RefreshCaseOrchestrator : BaseOrchestrator
+    public class RefreshCaseOrchestrator
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-        public static string GetKey(string caseId) => $"[{caseId}]";
 
         public RefreshCaseOrchestrator(
             ILogger<RefreshCaseOrchestrator> log,
@@ -51,14 +48,17 @@ namespace coordinator.Durable.Orchestration
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
-        public async Task<TrackerDto> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var payload = context.GetInput<CaseOrchestrationPayload>()
+            var payload = context.GetInput<CasePayload>()
                 ?? throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var log = context.CreateReplaySafeLogger(_log);
 
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
+            var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(
+                CaseDurableEntity.GetEntityId(payload.CaseId)
+            );
+
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             RefreshedCaseEvent telemetryEvent = default;
@@ -66,8 +66,7 @@ namespace coordinator.Durable.Orchestration
             {
                 telemetryEvent = new RefreshedCaseEvent(
                     correlationId: payload.CorrelationId,
-                    caseId: payload.CmsCaseId,
-                    versionId: await caseEntity.GetVersion(),
+                    caseId: payload.CaseId,
                     startTime: await caseEntity.GetStartTime()
                 );
 
@@ -83,7 +82,8 @@ namespace coordinator.Durable.Orchestration
                     // success case
                     cts.Cancel();
                     _telemetryClient.TrackEvent(telemetryEvent);
-                    return await orchestratorTask;
+                    await orchestratorTask;
+                    return;
                 }
 
                 throw new TimeoutException($"Orchestration with id '{context.InstanceId}' timed out.");
@@ -98,9 +98,9 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CaseOrchestrationPayload payload, RefreshedCaseEvent telemetryEvent)
+        private async Task RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CasePayload payload, RefreshedCaseEvent telemetryEvent)
         {
-            caseEntity.Reset(context.InstanceId);
+            caseEntity.Reset();
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             var documents = await GetDocuments(context, payload);
@@ -113,30 +113,33 @@ namespace coordinator.Durable.Orchestration
             telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
             await Task.WhenAll(documentTasks.Select(BufferCall));
 
-            if (await caseEntity.AllDocumentsFailed())
-                throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
-
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
 
             telemetryEvent.EndTime = context.CurrentUtcDateTime;
+        }
 
-            return caseEntity.Adapt<TrackerDto>();
+        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
+        GetDocuments(IDurableOrchestrationContext context, CasePayload payload)
+        {
+            var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), payload);
+            if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
+            {
+                throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
+            }
+            return documents;
         }
 
         private async Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks
             (
                 IDurableOrchestrationContext context,
                 ICaseDurableEntity caseTracker,
-                CaseOrchestrationPayload caseDocumentPayload,
-                (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
+                CasePayload casePayload,
+                (CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
                 ILogger log
             )
         {
             var now = context.CurrentUtcDateTime;
-
             var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
-            var deltaLogMessage = deltas.GetLogMessage();
-            log.LogMethodFlow(caseDocumentPayload.CorrelationId, nameof(RefreshCaseOrchestrator), deltaLogMessage);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
             var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
@@ -144,65 +147,51 @@ namespace coordinator.Durable.Orchestration
 
             var cmsDocumentPayloads
                 = createdOrUpdatedDocuments
-                    .Select
-                    (
-                        trackerCmsDocument =>
-                        {
-                            return new CaseDocumentOrchestrationPayload
-                            (
-                                cmsAuthValues: caseDocumentPayload.CmsAuthValues,
-                                correlationId: caseDocumentPayload.CorrelationId,
-                                subCorrelationId: context.NewGuid(),
-                                cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
-                                cmsCaseId: caseDocumentPayload.CmsCaseId,
-                                serializedTrackerCmsDocumentDto: JsonSerializer.Serialize(trackerCmsDocument.Item1),
-                                serializedTrackerPcdRequestDto: null,
-                                serializedTrackerDefendantAndChargesDto: null,
-                                documentDeltaType: trackerCmsDocument.Item2
-                            );
-                        }
-                    )
-                    .ToList();
+                    .Select(((CmsDocumentEntity doc, DocumentDeltaType delta) item) => new DocumentPayload(
+                            casePayload.Urn,
+                            casePayload.CaseId,
+                            item.doc.DocumentId,
+                            item.doc.VersionId,
+                            item.doc.Path,
+                            item.doc.CmsDocType,
+                            DocumentNature.Types.Document,
+                            item.delta,
+                            casePayload.CmsAuthValues,
+                            casePayload.CorrelationId,
+                            item.doc.IsOcrProcessed)
+                    ).ToList();
 
             var pcdRequestsPayloads
                 = createdOrUpdatedPcdRequests
-                    .Select
-                    (
-                        trackerPcdRequest =>
-                        {
-                            return new CaseDocumentOrchestrationPayload
-                            (
-                                cmsAuthValues: caseDocumentPayload.CmsAuthValues,
-                                correlationId: caseDocumentPayload.CorrelationId,
-                                subCorrelationId: context.NewGuid(),
-                                cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
-                                cmsCaseId: caseDocumentPayload.CmsCaseId,
-                                serializedTrackerCmsDocumentDto: null,
-                                serializedTrackerPcdRequestDto: JsonSerializer.Serialize(trackerPcdRequest),
-                                serializedTrackerDefendantAndChargesDto: null,
-                                documentDeltaType: DocumentDeltaType.RequiresIndexing
-                            );
-                        }
-                    ).
-                    ToList();
+                    .Select(pcd => new DocumentPayload(
+                            casePayload.Urn,
+                            casePayload.CaseId,
+                            pcd.DocumentId,
+                            pcd.VersionId,
+                            null,
+                            pcd.CmsDocType,
+                            DocumentNature.Types.PreChargeDecisionRequest,
+                            DocumentDeltaType.RequiresIndexing,
+                            casePayload.CmsAuthValues,
+                            casePayload.CorrelationId)
+                    ).ToList();
 
-            var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
+            var defendantsAndChargesPayloads = new List<DocumentPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
-                PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, caseDocumentPayload.CmsCaseId.ToString());
-                var payload = new CaseDocumentOrchestrationPayload
+                defendantsAndChargesPayloads.Add(new DocumentPayload
                 (
-                    cmsAuthValues: caseDocumentPayload.CmsAuthValues,
-                    correlationId: caseDocumentPayload.CorrelationId,
-                    subCorrelationId: context.NewGuid(),
-                    cmsCaseUrn: caseDocumentPayload.CmsCaseUrn,
-                    cmsCaseId: caseDocumentPayload.CmsCaseId,
-                    serializedTrackerCmsDocumentDto: null,
-                    serializedTrackerPcdRequestDto: null,
-                    serializedTrackerDefendantAndChargesDto: JsonSerializer.Serialize(new DefendantsAndChargesEntity(polarisDocumentId, 1, new DefendantsAndChargesListDto { })),
-                    documentDeltaType: DocumentDeltaType.RequiresIndexing
-                );
-                defendantsAndChargesPayloads.Add(payload);
+                    casePayload.Urn,
+                    casePayload.CaseId,
+                    createdOrUpdatedDefendantsAndCharges.DocumentId,
+                    createdOrUpdatedDefendantsAndCharges.VersionId,
+                    null,
+                    createdOrUpdatedDefendantsAndCharges.CmsDocType,
+                    DocumentNature.Types.DefendantsAndCharges,
+                    DocumentDeltaType.RequiresIndexing,
+                    casePayload.CmsAuthValues,
+                    casePayload.CorrelationId
+                ));
             }
 
             var allPayloads = cmsDocumentPayloads.Concat(pcdRequestsPayloads).Concat(defendantsAndChargesPayloads);
@@ -212,7 +201,7 @@ namespace coordinator.Durable.Orchestration
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
                             nameof(RefreshDocumentOrchestrator),
-                            RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
+                            RefreshDocumentOrchestrator.GetKey(payload.CaseId, payload.DocumentId),
                             payload
                         )
                     );
@@ -230,18 +219,6 @@ namespace coordinator.Durable.Orchestration
             {
                 return default;
             }
-        }
-
-        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
-            GetDocuments(IDurableOrchestrationContext context, CaseOrchestrationPayload payload)
-        {
-            var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
-            var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
-            if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
-            {
-                throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
-            }
-            return documents;
         }
     }
 }

@@ -1,7 +1,7 @@
 #if INTEGRATION_TESTS
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using FluentAssertions;
 using polaris_gateway.integration.tests.Proxies;
 using System.Net;

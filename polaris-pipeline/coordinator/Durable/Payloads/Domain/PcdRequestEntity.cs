@@ -1,5 +1,7 @@
-﻿using Common.Dto.Case.PreCharge;
-using Common.ValueObjects;
+﻿
+using Common.Domain.Document;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -8,12 +10,30 @@ namespace coordinator.Durable.Payloads.Domain
         public PcdRequestEntity()
         { }
 
-        public PcdRequestEntity(PolarisDocumentId polarisDocumentId, int polarisDocumentVersionId, PcdRequestDto pcdRequest)
-            : base(polarisDocumentId, polarisDocumentVersionId, $"PCD-{pcdRequest.Id}", 1, pcdRequest.PresentationFlags)
+        public PcdRequestEntity(long cmsDocumentId, long versionId, PcdRequestCoreDto pcdRequest)
+            : base(cmsDocumentId, versionId, pcdRequest.PresentationFlags)
         {
-            PcdRequest = pcdRequest;
+            CmsFileCreatedDate = pcdRequest.DecisionRequested;
         }
 
-        public PcdRequestDto PcdRequest { get; set; }
+        public override string DocumentId
+        {
+            get => $"{DocumentNature.PreChargeDecisionRequestPrefix}-{CmsDocumentId}";
+        }
+
+        public string PresentationTitle
+        {
+            get => DocumentId;
+        }
+
+        public string CmsOriginalFileName
+        {
+            get => $"{DocumentId}.pdf";
+        }
+
+        public string CmsFileCreatedDate { get; set; }
+
+
+        public DocumentTypeDto CmsDocType { get; } = new DocumentTypeDto("PCD", null, "Review");
     }
 }

@@ -3,7 +3,7 @@ namespace PolarisGateway.TelemetryEvents
     public class DocumentReclassifiedEvent : BaseRequestEvent
     {
         public DocumentReclassifiedEvent(
-            long caseId,
+            int caseId,
             string documentId)
         {
             CaseId = caseId;

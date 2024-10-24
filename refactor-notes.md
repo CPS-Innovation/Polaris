@@ -2,9 +2,10 @@
 
 - hack model back
 
-  - remove cmsOriginalFileExtension, pdfBlobName, presentationFileName
-  - e2e tests for reclassify and rename
-  - sort out ids (numeric) and requesting for document via id, docType -> int, remove hack from gateway-api
+  - :white_check_mark: remove isPdfAvailable
+  - :white_check_mark: remove cmsOriginalFileExtension, pdfBlobName, presentationFileName
+  - :white_check_mark: sort out ids (numeric) and requesting for document via id, docType -> int, remove hack from gateway-api
+  - e2e tests for reclassify
   - e2e test type files copied across
 
 - read case and docs via gateway
@@ -14,10 +15,49 @@
 - how search knits in?
 
 - rationalise reducer state (with a view to serialization)
+  q
 
 # Immediate
 
-gateway-api.ts hack
+- PIIService to take in versionId for its chunking
+
+- non-doc PDFs
+- Need to do PCD and DAC in doc list
+
+- remove coordinator terraform entries
+- where config keys have ended up
+- Test isOCR-ed?
+- Make sure analytics events are ok
+- Other coordinatorclientcalls that can die
+- Should services return ienumerable
+
+- hack out old BlobStorageServiceStuff
+
+- update state on unsupportedmediatype
+
+- dispose streams?
+
+# Blue post-its
+
+- AddDocumentNote does not need documentId
+- check test file structure
+- check ReclassificationRequestObject
+
+# Analytics
+
+GeneratePdf has changed - go with prefix
+
+## Ids
+
+| Name                     | Current                                                     | To be                      |                    |
+| ------------------------ | ----------------------------------------------------------- | -------------------------- | ------------------ |
+| polarisDocumentId        | Exists over wire but the ignored, string prefixed "CMS-..." | Rename -> documentId       | :white_check_mark: |
+| cmsVersionId             | Numeric versionId of document                               | Rename -> versionId        | :white_check_mark: |
+| polarisDocumentVersionId | Incrementing artificial number                              | Remove                     | :white_check_mark: |
+| polarisParentDocumentId  | Incrementing artificial number                              | Rename -> parentDocumentId | :white_check_mark: |
+| cmsDocumentId            | Appears to be null all the time                             | Remove                     | :white_check_mark: |
+
+:white_check_mark: gateway-api.ts hack
 
 ```
 export type PresentationDocumentProperties = {
@@ -103,12 +143,17 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
   );
 ```
 
+- MapsterConfig and the coercion of non-doc entities to doc entities
 - lift lookups etc above case
 - get rid of the CMS-12344
 - get document based on version - check all of this
 - UX for XLSX may be slow
 - pre-emptive pdf generation from UI (pre convert the most likely/popular docs)
-- get rid of PdfBlobName from backend
+- get rid of PdfBlobName from backend and from mock as the mechanism for blob retrieval
+- sort out CmsVersionId and PolarisDocumentId in backend/tracker
+- polarisDocumentVersionId -> does this ever get employed for PCDs/DACs? How should we "store by version" for PCDs in blob storage
+- PiiCmsVersionId???
+- ids and routes could go to pdfs/{pdfId} and materials/{materialId}/versions/{versionId}
 
 # Done
 

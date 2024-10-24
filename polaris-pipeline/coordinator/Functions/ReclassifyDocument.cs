@@ -12,7 +12,7 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient.Services;
+using Ddei;
 using FluentValidation;
 using Common.Exceptions;
 
@@ -49,7 +49,7 @@ namespace coordinator.Functions
             HttpRequestMessage req,
             string caseUrn,
             int caseId,
-            int documentId)
+            long documentId)
         {
             Guid currentCorrelationId = default;
 

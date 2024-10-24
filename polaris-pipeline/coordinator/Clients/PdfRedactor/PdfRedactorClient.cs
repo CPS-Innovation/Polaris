@@ -25,7 +25,7 @@ namespace coordinator.Clients.PdfRedactor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<Stream> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+        public async Task<Stream> RedactPdfAsync(string caseUrn, int caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace coordinator.Clients.PdfRedactor
             }
         }
 
-        public async Task<Stream> ModifyDocument(string caseUrn, string caseId, string documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId)
+        public async Task<Stream> ModifyDocument(string caseUrn, int caseId, string documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId)
         {
             try
             {
