@@ -132,10 +132,9 @@ export const DeletePage: React.FC<DeletePageProps> = ({
                 </span>
               </p>
             </div>
-            {isPageDeleted ? (
+            {isPageDeleted && (
               <LinkButton
                 ariaLabel={`cancel page ${pageNumber} delete`}
-                ariaLive="assertive"
                 className={classes.restoreBtn}
                 onClick={handleRestoreBtnClick}
                 data-pageNumber={pageNumber}
@@ -143,10 +142,10 @@ export const DeletePage: React.FC<DeletePageProps> = ({
               >
                 Cancel
               </LinkButton>
-            ) : (
+            )}
+            {!isPageDeleted && (
               <LinkButton
                 ariaLabel={`delete page ${pageNumber} out of ${totalPages} pages`}
-                ariaLive="assertive"
                 ref={deleteButtonRef}
                 className={classes.deleteBtn}
                 onClick={handleDelete}
