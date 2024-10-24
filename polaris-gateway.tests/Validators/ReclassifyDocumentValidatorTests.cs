@@ -22,7 +22,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenDocumentIdIsEmpty_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = 0
             };
@@ -35,7 +35,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenDocumentTypeIdIsEmpty_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = 0
@@ -49,7 +49,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenExhibitType_AndItemIsEmpty_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -67,7 +67,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenExhibitType_AndReferenceIsEmpty_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -86,7 +86,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenExhbitType_AndStatementIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -112,7 +112,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenExhbitType_AndOtherIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -136,7 +136,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenExhbitType_AndImmediateIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -157,7 +157,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenStatementType_AndWitnessIdIsEmpty_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -172,7 +172,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenStatementType_AndStatementNoIsEmpty_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -191,7 +191,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenStatementType_AndStatementDateIsInvalid_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -211,7 +211,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenStatementType_AndExhibitIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -237,7 +237,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenStatementType_AndOtherIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -261,7 +261,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenStatementType_AndImmediateIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -282,7 +282,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenOtherType_AndStatementIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -306,7 +306,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenOtherType_AndExhibitIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -330,7 +330,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenOtherType_AndImmediateIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -349,7 +349,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenOtherType_AndDocumentNameIsNotNull_AndValueExceedsMaximumLength_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -368,7 +368,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenImmediateType_AndDocumentNameIsNotNull_AndValueExceedsMaximumLength_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -386,7 +386,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenImmediateType_AndExhibitIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -407,7 +407,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenImmediateType_AndStatementIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
@@ -428,7 +428,7 @@ namespace PolarisGateway.Validators.Tests
         [Fact]
         public async Task ReclassifyDocument_WhenImmediateType_AndOtherIsNotNull_ReturnsValidationError()
         {
-            var saveRequest = new DocumentReclassificationRequestDto
+            var saveRequest = new ReclassifyDocumentDto
             {
                 DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),

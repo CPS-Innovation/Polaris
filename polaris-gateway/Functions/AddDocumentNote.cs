@@ -59,6 +59,7 @@ namespace PolarisGateway.Functions
 
                 telemetryEvent.IsRequestValid = true;
                 telemetryEvent.CorrelationId = context.CorrelationId;
+
                 var body = await GetJsonBody<AddDocumentNoteRequestDto, AddDocumentNoteValidator>(req);
                 telemetryEvent.IsRequestJsonValid = body.IsValid;
                 telemetryEvent.RequestJson = body.RequestJson;

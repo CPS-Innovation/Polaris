@@ -138,6 +138,9 @@ namespace Ddei.Factories
             };
         }
 
+        public DdeiRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, string documentName)
+            => CreateRenameDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), documentName);
+
         public DdeiReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, ReclassifyDocumentDto dto)
         {
             return new DdeiReclassifyDocumentArgDto
@@ -154,6 +157,9 @@ namespace Ddei.Factories
                 Immediate = dto.Immediate
             };
         }
+
+        public DdeiReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, ReclassifyDocumentDto dto)
+            => CreateReclassifyDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), dto);
 
         public DdeiWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
         {

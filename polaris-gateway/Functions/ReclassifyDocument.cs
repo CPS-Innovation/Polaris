@@ -2,6 +2,8 @@ using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Telemetry;
+using Ddei;
+using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -15,44 +17,41 @@ using PolarisGateway.Validators;
 
 namespace PolarisGateway.Functions
 {
-    public class PolarisPipelineReclassifyDocument
+    public class ReclassifyDocument
     {
-        private readonly ILogger<PolarisPipelineReclassifyDocument> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
+        private readonly ILogger<ReclassifyDocument> _logger;
+        private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IReclassifyDocumentRequestMapper _reclassifyDocumentRequestMapper;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
         private readonly ITelemetryClient _telemetryClient;
 
-        public PolarisPipelineReclassifyDocument(
-            ILogger<PolarisPipelineReclassifyDocument> logger,
-            ICoordinatorClient coordinatorClient,
+        public ReclassifyDocument(
+            ILogger<ReclassifyDocument> logger,
+            IDdeiClient ddeiClient,
+            IDdeiArgFactory ddeiArgFactory,
             IReclassifyDocumentRequestMapper reclassifyDocumentRequestMapper,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler,
             ITelemetryClient telemetryClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
+            _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
+            _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
             _reclassifyDocumentRequestMapper = reclassifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(reclassifyDocumentRequestMapper));
             _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        [FunctionName(nameof(PolarisPipelineReclassifyDocument))]
+        [FunctionName(nameof(ReclassifyDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ReclassifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ReclassifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             var telemetryEvent = new DocumentReclassifiedEvent(caseId, documentId);
-
-            HttpResponseMessage SendTelemetryAndReturn(HttpResponseMessage result)
-            {
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return result;
-            }
 
             (Guid CorrelationId, string CmsAuthValues) context = default;
 
@@ -62,38 +61,39 @@ namespace PolarisGateway.Functions
                 telemetryEvent.IsRequestValid = true;
                 telemetryEvent.CorrelationId = context.CorrelationId;
 
-                var documentReclassification = await ValidatorHelper.GetJsonBody<DocumentReclassificationRequestDto, ReclassifyDocumentValidator>(req);
-                var isRequestJsonValid = documentReclassification.IsValid;
-                telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
-                telemetryEvent.RequestJson = documentReclassification.RequestJson;
+                var body = await ValidatorHelper.GetJsonBody<ReclassifyDocumentDto, ReclassifyDocumentValidator>(req);
+                telemetryEvent.IsRequestJsonValid = body.IsValid;
+                telemetryEvent.RequestJson = body.RequestJson;
 
-                if (!isRequestJsonValid)
+                if (!body.IsValid)
                 {
-                    return SendTelemetryAndReturn(new HttpResponseMessage()
-                    {
-                        StatusCode = HttpStatusCode.BadRequest
-                    });
+                    _telemetryClient.TrackEvent(telemetryEvent);
+                    return new StatusCodeResult((int)HttpStatusCode.BadRequest);
                 }
 
-                var reclassifyDocumentDto = _reclassifyDocumentRequestMapper.Map(documentReclassification.Value);
-                var response = await _coordinatorClient.ReclassifyDocument(
-                    caseUrn,
-                    caseId,
-                    documentId,
-                    reclassifyDocumentDto,
-                    context.CmsAuthValues,
-                    context.CorrelationId);
+                var arg = _ddeiArgFactory.CreateReclassifyDocumentArgDto
+                (
+                    cmsAuthValues: context.CmsAuthValues,
+                    correlationId: context.CorrelationId,
+                    urn: caseUrn,
+                    caseId: caseId,
+                    documentId: documentId,
+                    dto: body.Value
+                );
 
-                telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
+                var result = await _ddeiClient.ReclassifyDocumentAsync(arg);
 
-                return SendTelemetryAndReturn(response);
+                telemetryEvent.IsSuccess = true;
+                _telemetryClient.TrackEvent(telemetryEvent);
+
+                return new ObjectResult(result);
             }
             catch (Exception ex)
             {
                 _telemetryClient.TrackEventFailure(telemetryEvent);
-                return _unhandledExceptionHandler.HandleUnhandledException(
+                return _unhandledExceptionHandler.HandleUnhandledExceptionActionResult(
                   _logger,
-                  nameof(PolarisPipelineReclassifyDocument),
+                  nameof(ReclassifyDocument),
                   context.CorrelationId,
                   ex
                 );

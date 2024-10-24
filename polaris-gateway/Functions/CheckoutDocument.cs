@@ -34,7 +34,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(CheckoutDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string urn, int caseId, string documentId, long versionId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
             try
@@ -43,7 +43,7 @@ namespace PolarisGateway.Functions
                 var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
                          cmsAuthValues: context.CmsAuthValues,
                          correlationId: context.CorrelationId,
-                         urn: urn,
+                         urn: caseUrn,
                          caseId: caseId,
                          documentId: documentId,
                          versionId: versionId
