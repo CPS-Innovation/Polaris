@@ -121,8 +121,7 @@ public class ArtefactService : IArtefactService
 
     private async Task<(PdfConversionStatus, Stream)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
     {
-        var documentIdWithoutPrefix = long.Parse(Regex.Match(documentId, @"\d+").Value);
-        var ddeiArgs = _ddeiArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, documentIdWithoutPrefix, versionId);
+        var ddeiArgs = _ddeiArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
 
         var fileResult = await _ddeiClient.GetDocumentAsync(ddeiArgs);
         if (!FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType))
@@ -136,8 +135,7 @@ public class ArtefactService : IArtefactService
 
     private async Task<(PdfConversionStatus, Stream)> GetPcdRequestStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
     {
-        var docId = int.Parse(Regex.Match(documentId, @"\d+").Value);
-        var arg = _ddeiArgFactory.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, docId);
+        var arg = _ddeiArgFactory.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId);
         var pcdRequest = await _ddeiClient.GetPcdRequestAsync(arg);
         return (PdfConversionStatus.DocumentConverted, await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest));
     }

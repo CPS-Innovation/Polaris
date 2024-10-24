@@ -176,7 +176,7 @@ namespace Ddei.Factories
 
             var match = Regex.Match(
                 documentId,
-                $@"(?:a|b){DocumentNature.DocumentPrefix}-(\d+)",
+                $@"{DocumentNature.DocumentPrefix}-(\d+)",
                 RegexOptions.None,
                 TimeSpan.FromSeconds(1));
 
@@ -194,13 +194,13 @@ namespace Ddei.Factories
 
             var match = Regex.Match(
                 documentId,
-                $@"(?:a|b){DocumentNature.PreChargeDecisionRequestPrefix}-(\d+)",
+                $@"{DocumentNature.PreChargeDecisionRequestPrefix}-(\d+)",
                 RegexOptions.None,
                 TimeSpan.FromSeconds(1));
 
             return match.Success
                 ? int.Parse(match.Groups[1].Value)
-                : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.DocumentPrefix}-123456'");
+                : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.PreChargeDecisionRequestPrefix}-123456'");
         }
     }
 }
