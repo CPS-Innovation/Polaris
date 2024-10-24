@@ -9,7 +9,6 @@ using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
 using Common.Services.RenderHtmlService;
-using System.Text.RegularExpressions;
 namespace coordinator.Durable.Activity
 {
     public class GeneratePdfFromPcdRequest : BaseGeneratePdf
@@ -35,13 +34,12 @@ namespace coordinator.Durable.Activity
 
         protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
         {
-            var documentIdWithoutPrefix = int.Parse(Regex.Match(payload.DocumentId, @"\d+").Value);
             var arg = DdeiArgFactory.CreatePcdArg(
                     payload.CmsAuthValues,
                     payload.CorrelationId,
                     payload.Urn,
                     payload.CaseId,
-                    documentIdWithoutPrefix);
+                    payload.DocumentId);
             var pcdRequest = await DdeiClient.GetPcdRequestAsync(arg);
             return await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);
         }

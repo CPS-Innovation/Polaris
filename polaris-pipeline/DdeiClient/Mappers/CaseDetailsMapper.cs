@@ -357,7 +357,7 @@ namespace Ddei.Mappers
                 return null;
             }
 
-            var match = Regex.Match(etag, @"\d+");
+            var match = Regex.Match(etag, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1));
 
             return match.Success
                 ? long.Parse(match.Value)

@@ -64,6 +64,9 @@ namespace Ddei.Factories
             };
         }
 
+        public DdeiPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, string pcdId)
+            => CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiPcdId(pcdId));
+
         public DdeiCaseIdentifiersArgDto CreateCaseArgFromUrnArg(DdeiUrnArgDto arg, int caseId)
         {
             return new DdeiCaseIdentifiersArgDto
@@ -90,13 +93,7 @@ namespace Ddei.Factories
         public DdeiDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
             => CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId));
 
-        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(
-            string cmsAuthValues,
-            Guid correlationId,
-            string urn,
-            int caseId,
-            long documentId,
-            long versionId)
+        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, long versionId)
         {
             return new DdeiDocumentIdAndVersionIdArgDto
             {
@@ -108,6 +105,9 @@ namespace Ddei.Factories
                 VersionId = versionId
             };
         }
+
+        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+            => CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), versionId);
 
         public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string text)
         {
@@ -167,17 +167,39 @@ namespace Ddei.Factories
             };
         }
 
-        private long ConvertToDdeiDocumentId(string documentId)
+        private static long ConvertToDdeiDocumentId(string documentId)
         {
             if (string.IsNullOrWhiteSpace(documentId))
             {
                 throw new ArgumentNullException(nameof(documentId));
             }
 
-            var match = Regex.Match(documentId, $@"{DocumentNature.DocumentPrefix}-(\d+)");
+            var match = Regex.Match(
+                documentId,
+                $@"(?:a|b){DocumentNature.DocumentPrefix}-(\d+)",
+                RegexOptions.None,
+                TimeSpan.FromSeconds(1));
 
             return match.Success
                 ? long.Parse(match.Groups[1].Value)
+                : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.DocumentPrefix}-123456'");
+        }
+
+        private static int ConvertToDdeiPcdId(string documentId)
+        {
+            if (string.IsNullOrWhiteSpace(documentId))
+            {
+                throw new ArgumentNullException(nameof(documentId));
+            }
+
+            var match = Regex.Match(
+                documentId,
+                $@"(?:a|b){DocumentNature.PreChargeDecisionRequestPrefix}-(\d+)",
+                RegexOptions.None,
+                TimeSpan.FromSeconds(1));
+
+            return match.Success
+                ? int.Parse(match.Groups[1].Value)
                 : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.DocumentPrefix}-123456'");
         }
     }
