@@ -23,33 +23,112 @@
     <style>
         body {
             font-size: 130%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 0.5em;
+
         }
+
+        header {
+            height: 1.1em;
+            display: flex;
+            align-items: center;
+            font-size: 150%;
+        }
+
+        header>div {
+            height: 0.75em;
+            margin-top: -1.5em;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        p {}
     </style>
 </head>
 
 <body class="govuk-template__body js-enabled">
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <header className="govuk-header " role="banner" data-module="govuk-header" across the whole screen, not just the
-        container style="border-bottom: 10px solid #1d70b8">
-        <div className={`govuk-header__container ${containerCssClass}`}>
-            <div className={`govuk-header__logo ${classes.logo}`}>
+    <div class="container">
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <header className="govuk-header " role="banner" data-module="govuk-header" across the whole screen, not just the
+            container style="border-bottom: 10px solid #1d70b8">
+            <div className={`govuk-header__container ${containerCssClass}`}>
                 <a href="/" className="govuk-header__link govuk-header__link--homepage" data-testid="link-homepage">
                     <span className="govuk-header__logotype">
-                        <span className="govuk-header__logotype-text">
-                            Crown Prosecution Service
+                        <span className="govuk-header__logotype-text top-bit">
+                            Another application
                         </span>
                     </span>
                 </a>
-                <span className="govuk-header__link--homepage">Overview</span>
             </div>
-        </div>
-    </header>
-    <div class="nav-a-tron" style="height: 5.3em; background: #f3f2f1"></div>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nulla purus, malesuada et enim et, condimentum
-        vehicula
-        mauris. Curabitur tempor feugiat malesuada.</p>
-    <!-- <img src="https://cataas.com/cat" style="margin-top: 3em;" /> -->
-    <!--
+        </header>
+        <div class="nav-a-tron" style="height: 5.3em; background: #f3f2f1"></div>
+
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis magna ex, iaculis non commodo sit amet,
+            fermentum
+            id
+            sapien. Nulla vel dui tristique, placerat velit a, tempor sapien. Pellentesque habitant morbi tristique
+            senectus
+            et
+            netus et malesuada fames ac turpis egestas. Proin ac purus pellentesque erat egestas suscipit. Morbi ante
+            metus,
+            imperdiet sodales lorem sed, eleifend vehicula erat. Nunc tempus eleifend risus ac ultrices. Quisque ut nibh
+            aliquet,
+            suscipit sapien vel, sodales quam.
+        </p>
+
+        <p>
+            Fusce non ex ac enim vulputate tristique in eu ante. Nullam faucibus lorem augue, pellentesque egestas
+            ligula
+            cursus
+            nec. Morbi mollis nisi ornare euismod posuere. Orci varius natoque penatibus et magnis dis parturient
+            montes,
+            nascetur
+            ridiculus mus. Suspendisse hendrerit aliquet leo sit amet efficitur. Proin ut finibus enim. Donec molestie
+            sapien nisl,
+            sed maximus magna varius sit amet. Etiam suscipit eros in arcu tristique, in pharetra risus aliquam. Mauris
+            lectus
+            nulla, ornare sit amet varius sed, feugiat vitae nisi. Vivamus ullamcorper, diam nec imperdiet vehicula,
+            lorem
+            nunc
+            pharetra metus, eu convallis diam dolor et augue. Mauris nec tortor ac ligula hendrerit accumsan.
+        </p>
+        <p>
+            Phasellus non ipsum tempus, suscipit elit eu, mattis quam. Proin eu congue tortor, sit amet sagittis purus.
+            Donec mattis
+            ex at urna tristique laoreet. Mauris mollis interdum nisl, sed facilisis urna tincidunt ac. Vestibulum
+            placerat
+            molestie
+            dui, vitae tincidunt nisi feugiat nec. Cras euismod, quam eget sodales maximus, lectus leo ullamcorper urna,
+            vel
+            malesuada est est sed nunc. Nulla id est ullamcorper, laoreet nisi a, euismod lacus. Aliquam erat volutpat.
+            Phasellus in
+            orci iaculis lorem blandit tempus. Fusce id sagittis augue, eget luctus ante. Nunc ac turpis sit amet massa
+            semper
+            faucibus sed sed purus.
+        </p>
+        <p>
+            Nulla volutpat aliquet felis mollis semper. Quisque eget tellus feugiat, efficitur dolor sollicitudin,
+            pellentesque
+            purus. Mauris congue fringilla malesuada. Sed rutrum sit amet ante sed eleifend. Nulla et luctus ex. Donec
+            sodales
+            fringilla arcu id ornare. Maecenas porta venenatis turpis, vitae lobortis enim ultricies ac. Suspendisse ut
+            pharetra
+            leo, finibus sollicitudin metus. Aliquam facilisis, lacus vel egestas tincidunt, erat lectus interdum augue,
+            eget
+            feugiat ligula lacus sit amet velit. Donec vitae nulla enim. Sed et turpis a nibh pretium interdum eget sit
+            amet
+            lectus.
+            Nunc pretium libero sapien, ac tempor velit fermentum sit amet. Orci varius natoque penatibus et magnis dis
+            parturient
+            montes, nascetur ridiculus mus. Vestibulum sed pharetra dui. Cras sagittis tellus commodo, posuere eros id,
+            tempus ante.
+        </p>
+        <!-- <img src="https://cataas.com/cat" style="margin-top: 3em;" /> -->
+        <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -59,6 +138,7 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    </div>
 </body>
 <script src="./nav-a-tron.js"></script>
 
