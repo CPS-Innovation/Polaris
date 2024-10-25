@@ -5,12 +5,7 @@ import { ApiTextSearchResult } from "../domain/gateway/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
 import * as HEADERS from "./auth/header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
-import {
-  GATEWAY_BASE_URL,
-  REDACTION_LOG_BASE_URL,
-  API_LOCAL_POLLING_DELAY_MS,
-  API_LOCAL_POLLING_RETRY_COUNT,
-} from "../../../config";
+import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 import {
   RedactionLogLookUpsData,
@@ -36,6 +31,7 @@ import { FetchArgs, PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
 import { RotationSaveRequest } from "../domain/IPageRotation";
 import { PresentationDocumentProperties } from "../domain/gateway/PipelineDocument";
 import { OcrData } from "../domain/gateway/OcrData";
+import { artefactPollingHelper } from "./artefact-polling-helper";
 
 const buildHeaders = async (
   ...args: (
@@ -403,7 +399,13 @@ export const getOcrData = async (
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/ocr`
   );
 
-  return artefactPollingHelper<OcrData>(path);
+  return artefactPollingHelper<OcrData>(
+    async (url: string) =>
+      fetchImplementation("reauth-if-in-situ", url, {
+        headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+      }),
+    path
+  );
 };
 
 export const getSearchPIIData = async (
@@ -416,7 +418,13 @@ export const getSearchPIIData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pii`
   );
 
-  return artefactPollingHelper<SearchPIIResultItem[]>(path);
+  return artefactPollingHelper<SearchPIIResultItem[]>(
+    async (url: string) =>
+      fetchImplementation("reauth-if-in-situ", url, {
+        headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+      }),
+    path
+  );
 };
 
 export const getMaterialTypeList = async () => {
@@ -502,40 +510,6 @@ export const saveDocumentReclassify = async (
   });
 
   return response.ok;
-};
-
-const artefactPollingHelper = async <T>(
-  url: string,
-  retriesLeft: number = API_LOCAL_POLLING_RETRY_COUNT - 1
-): Promise<T> => {
-  const response = await fetchImplementation("reauth-if-in-situ", url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Getting artefact failed", url, response);
-  }
-
-  if (retriesLeft <= 0) {
-    throw new ApiError(
-      `Getting artefact failed: too many polling attempts (${API_LOCAL_POLLING_RETRY_COUNT})`,
-      url,
-      response
-    );
-  }
-
-  if (response.status !== 202) {
-    return (await response.json()) as T;
-  }
-
-  // Accepted: results not there yet, so we follow the continuation url that we are given
-  const { nextUrl } = (await response.json()) as { nextUrl: string };
-
-  await new Promise((resolve) =>
-    setTimeout(resolve, API_LOCAL_POLLING_DELAY_MS)
-  );
-
-  return artefactPollingHelper<T>(nextUrl, --retriesLeft);
 };
 
 const fetchImplementation = (
