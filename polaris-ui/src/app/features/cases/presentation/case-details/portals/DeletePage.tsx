@@ -138,7 +138,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
                 className={classes.restoreBtn}
                 onClick={handleRestoreBtnClick}
                 data-pageNumber={pageNumber}
-                dataTestId={`btn-cancel-${pageNumber}`}
+                dataTestId={`btn-cancel-delete-${pageNumber}`}
               >
                 Cancel
               </LinkButton>

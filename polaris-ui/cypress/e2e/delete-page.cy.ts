@@ -14,7 +14,7 @@ describe("Feature Delete Page", () => {
           .findByTestId(`btn-delete-${pageNumber}`)
           .should("have.text", `Delete`);
         cy.wrap(pageDiv)
-          .findByTestId(`btn-cancel-${pageNumber}`)
+          .findByTestId(`btn-cancel-delete-${pageNumber}`)
           .should("not.exist");
       });
     });
@@ -38,7 +38,7 @@ describe("Feature Delete Page", () => {
           .should("not.exist");
 
         cy.wrap(pageDiv)
-          .findByTestId(`btn-cancel-${pageNumber}`)
+          .findByTestId(`btn-cancel-delete-${pageNumber}`)
           .should("not.exist");
       });
     });
@@ -56,7 +56,7 @@ describe("Feature Delete Page", () => {
           .should("exist");
 
         cy.wrap(pageDiv)
-          .findByTestId(`btn-cancel-${pageNumber}`)
+          .findByTestId(`btn-cancel-delete-${pageNumber}`)
           .should("not.exist");
       });
     });
@@ -142,7 +142,7 @@ describe("Feature Delete Page", () => {
     cy.findByTestId("link-document-1").click();
     cy.wait(1000);
     cy.findByTestId("delete-page-modal").should("not.exist");
-    cy.findByTestId("btn-cancel-1").should("not.exist");
+    cy.findByTestId("btn-cancel-delete-1").should("not.exist");
     cy.findByTestId("btn-delete-1").click();
     cy.findByTestId("delete-page-modal").should("exist");
     cy.findByTestId("delete-page-modal-btn-redact").should("be.disabled");
@@ -170,19 +170,19 @@ describe("Feature Delete Page", () => {
     cy.findByTestId("delete-page-modal-btn-redact").click();
     cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId("btn-delete-1").should("not.exist");
-    cy.findByTestId("btn-cancel-1").should("exist");
+    cy.findByTestId("btn-cancel-delete-1").should("exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
     );
     cy.findByTestId(`delete-page-content-1`).contains(
-      `Click "save and submit" to remove the page from the document`
+      `Click "save all redactions" to remove the page from the document`
     );
     cy.findByTestId(`redaction-count-text-0`).should(
       "have.text",
       "There is 1 redaction"
     );
-    cy.findByTestId("btn-cancel-1").click();
+    cy.findByTestId("btn-cancel-delete-1").click();
     cy.findByTestId(`redaction-count-text-0`).should("not.exist");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
     cy.findByTestId(`delete-page-content-1`).should("not.exist");
@@ -375,12 +375,12 @@ describe("Feature Delete Page", () => {
     );
     cy.findByTestId("btn-tab-0").click();
 
-    cy.findByTestId("btn-cancel-1").should("exist");
+    cy.findByTestId("btn-cancel-delete-1").should("exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
     );
-    cy.findByTestId("btn-cancel-2").should("exist");
+    cy.findByTestId("btn-cancel-delete-2").should("exist");
     cy.findByTestId(`delete-page-overlay-2`).should("exist");
     cy.findByTestId(`delete-page-content-2`).contains(
       "Page selected for deletion"
@@ -390,7 +390,7 @@ describe("Feature Delete Page", () => {
       "There are 2 redactions"
     );
     cy.findByTestId("btn-tab-1").click();
-    cy.findByTestId("btn-cancel-1").should("exist");
+    cy.findByTestId("btn-cancel-delete-1").should("exist");
     cy.findByTestId(`delete-page-overlay-1`).should("exist");
     cy.findByTestId(`delete-page-content-1`).contains(
       "Page selected for deletion"
@@ -424,7 +424,7 @@ describe("Feature Delete Page", () => {
     );
 
     cy.findByTestId("btn-delete-2").should("be.disabled");
-    cy.findByTestId("btn-cancel-1").click();
+    cy.findByTestId("btn-cancel-delete-1").click();
 
     cy.findByTestId("btn-delete-2").should("not.be.disabled");
     cy.findByTestId("btn-delete-1").should("not.be.disabled");
