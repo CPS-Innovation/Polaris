@@ -26,7 +26,7 @@ const hasAnyDocumentUpdated = (
   return (
     !savedDocumentDetails.length ||
     savedDocumentDetails.some((document) =>
-      hasDocumentUpdated(document, pipelineResult)
+      hasDocumentUpdated(document, pipelineResult.documents)
     )
   );
 };

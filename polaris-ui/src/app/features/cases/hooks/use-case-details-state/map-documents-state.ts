@@ -23,7 +23,7 @@ export const mapDocumentsState = (
       presentationSubCategory: subCategory,
       attachments: getDocumentAttachments(item, result),
       witnessIndicators: mapWitnessIndicators(witnessForDoc),
-      tags: [],
+      tags: [], //todo: r: really?
     } as MappedCaseDocument;
   });
 

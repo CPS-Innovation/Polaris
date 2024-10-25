@@ -58,6 +58,7 @@ import {
 } from "../../domain/IPageDeleteRedaction";
 import { PageRotation, IPageRotation } from "../../domain/IPageRotation";
 import { mapNotificationToDocumentsState } from "./map-notification-to-documents-state";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -67,6 +68,10 @@ export const reducer = (
     | {
         type: "UPDATE_CASE_DETAILS";
         payload: ApiResult<CaseDetails>;
+      }
+    | {
+        type: "UPDATE_DOCUMENTS";
+        payload: ApiResult<PresentationDocumentProperties[]>;
       }
     | {
         type: "UPDATE_PIPELINE";
@@ -361,92 +366,66 @@ export const reducer = (
         },
       };
 
-    case "UPDATE_PIPELINE": {
-      if (action.payload.status === "failed") {
-        throw action.payload.error;
+    case "UPDATE_DOCUMENTS": {
+      const { payload } = action;
+      if (payload.status === "failed") {
+        throw payload.error;
       }
 
-      if (action.payload.status === "initiating") {
+      if (payload.status === "loading") {
         return state;
       }
 
+      const { data } = payload;
       let nextState = { ...state };
 
-      if (action.payload.data.status === "Completed") {
-        const newPipelineData = action.payload.data;
-
-        nextState = {
-          ...nextState,
-          pipelineRefreshData: {
-            ...nextState.pipelineRefreshData,
-            // If a document that is lined up to be saved and has been updated
-            //  then we need to drop it - no sense in updating it.
-            savedDocumentDetails:
-              nextState.pipelineRefreshData.savedDocumentDetails.filter(
-                (document) => !hasDocumentUpdated(document, newPipelineData)
-              ),
-            lastProcessingCompleted: newPipelineData.processingCompleted,
-          },
-        };
-      }
-
-      const shouldBuildDocumentsState =
-        isDocumentsPresentStatus(action.payload.data.status) &&
-        isNewTime(
-          action.payload.data.documentsRetrieved,
-          (state.pipelineState.haveData &&
-            state.pipelineState.data.documentsRetrieved) ||
-            ""
-        );
-
-      if (shouldBuildDocumentsState) {
-        const coreDocumentsState = mapDocumentsState(
-          action.payload.data.documents,
-          (state.caseState &&
-            state.caseState.status === "succeeded" &&
-            state.caseState.data.witnesses) ||
-            []
-        );
-
-        const notificationState = mapNotificationState(
-          state.notificationState,
-          state.documentsState,
-          coreDocumentsState,
-          action.payload.data.documentsRetrieved
-        );
-
-        const documentsState = mapNotificationToDocumentsState(
-          notificationState,
-          coreDocumentsState
-        );
-
-        const accordionState = mapAccordionState(documentsState);
-
-        nextState = {
-          ...nextState,
-          notificationState,
-          documentsState,
-          accordionState,
-        };
-      }
-
-      const newPipelineResults = action.payload;
-
-      const coreNextPipelineState = {
+      nextState = {
         ...nextState,
-        pipelineState: {
-          ...newPipelineResults,
+        pipelineRefreshData: {
+          ...nextState.pipelineRefreshData,
+          // If a document that is lined up to be saved and has been updated
+          //  then we need to drop it - no sense in updating it.
+          savedDocumentDetails:
+            nextState.pipelineRefreshData.savedDocumentDetails.filter(
+              (document) => !hasDocumentUpdated(document, data)
+            ),
         },
+      };
+
+      const coreDocumentsState = mapDocumentsState(
+        data,
+        (state.caseState?.status === "succeeded" &&
+          state.caseState.data.witnesses) ||
+          []
+      );
+
+      const notificationState = mapNotificationState(
+        state.notificationState,
+        state.documentsState,
+        coreDocumentsState,
+        new Date().toISOString()
+      );
+
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        coreDocumentsState
+      );
+
+      const accordionState = mapAccordionState(documentsState);
+
+      nextState = {
+        ...nextState,
+        notificationState,
+        documentsState,
+        accordionState,
       };
 
       const deletedOpenPDfsTabs = state.tabsState.items.filter(
         (item) =>
-          !newPipelineResults.data.documents.some(
-            (document) => document.documentId === item.documentId
-          )
+          !data.some((document) => document.documentId === item.documentId)
       );
 
-      const openPdfsWeNeedToUpdate = newPipelineResults.data.documents
+      const openPdfsWeNeedToUpdate = data
         .filter((item) =>
           state.tabsState.items.some(
             (tabItem) => tabItem.documentId === item.documentId
@@ -461,17 +440,15 @@ export const reducer = (
           })
         );
       if (!openPdfsWeNeedToUpdate.length) {
-        return coreNextPipelineState;
+        return nextState;
       }
 
-      /*
-        Note: if we are looking for open tabs that do not yet know their url (i.e. the
-          user has opened a document from the accordion before the pipeline has given us
-          the blob name for that document), it can only be after the document has been
-          launched from the accordion.  This means we don't have to worry about search
-          highlighting from this point on, only setting the URL (i.e. the document will be in 
-          "read" mode, not "search" mode)
-      */
+      // Note: if we are looking for open tabs that do not yet know their url (i.e. the
+      // user has opened a document from the accordion before the pipeline has given us
+      // the blob name for that document), it can only be after the document has been
+      // launched from the accordion.  This means we don't have to worry about search
+      // highlighting from this point on, only setting the URL (i.e. the document will be in
+      // "read" mode, not "search" mode)
 
       const nextOpenTabs = state.tabsState.items.reduce((prev, curr) => {
         const matchingFreshPdfRecord = openPdfsWeNeedToUpdate.find(
@@ -509,8 +486,29 @@ export const reducer = (
       }, [] as CaseDocumentViewModel[]);
 
       return {
-        ...coreNextPipelineState,
+        ...state,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
+      };
+    }
+
+    case "UPDATE_PIPELINE": {
+      if (action.payload.status === "failed") {
+        throw action.payload.error;
+      }
+
+      if (action.payload.status === "initiating") {
+        return state;
+      }
+
+      return {
+        ...state,
+        pipelineState: {
+          ...(action.payload as AsyncPipelineResult<PipelineResults>),
+        },
+        pipelineRefreshData: {
+          ...state.pipelineRefreshData,
+          lastProcessingCompleted: action.payload.data.processingCompleted,
+        },
       };
     }
 
@@ -591,20 +589,20 @@ export const reducer = (
         (item) => item.documentId === documentId
       )!;
 
-      const pipelineDocument = state.pipelineState.haveData
-        ? state.pipelineState.data.documents.find(
+      const document = !!state.documentsState.data
+        ? state.documentsState.data.find(
             (item) => item.documentId === documentId
           )
         : undefined;
 
       const url =
-        pipelineDocument &&
+        document &&
         resolvePdfUrl(
           state.urn,
           state.caseId,
-          pipelineDocument.documentId,
-          pipelineDocument.versionId,
-          pipelineDocument.isOcrProcessed
+          document.documentId,
+          document.versionId,
+          document.isOcrProcessed
         );
 
       let item: CaseDocumentViewModel;

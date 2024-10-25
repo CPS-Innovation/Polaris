@@ -25,6 +25,10 @@ import {
   buildDefaultNotificationState,
   NotificationState,
 } from "./NotificationState";
+import {
+  ConversionStatus,
+  PresentationDocumentProperties,
+} from "./gateway/PipelineDocument";
 
 export type CombinedState = {
   urn: string;
@@ -33,6 +37,13 @@ export type CombinedState = {
   caseState: AsyncResult<CaseDetails>;
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
+  localDocumentState: {
+    [key: PresentationDocumentProperties["documentId"]]: {
+      [key: PresentationDocumentProperties["versionId"]]: {
+        conversionStatus: ConversionStatus;
+      };
+    };
+  };
   pipelineRefreshData: {
     startRefresh: boolean;
     savedDocumentDetails: {
@@ -95,6 +106,7 @@ export const initialState = {
   caseState: { status: "loading" },
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false, correlationId: "" },
+  localDocumentState: {},
   pipelineRefreshData: {
     startRefresh: false,
     savedDocumentDetails: [],
@@ -148,6 +160,7 @@ export const initialState = {
     pageDelete: false,
     pageRotate: false,
     notifications: false,
+    experimentalSync: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

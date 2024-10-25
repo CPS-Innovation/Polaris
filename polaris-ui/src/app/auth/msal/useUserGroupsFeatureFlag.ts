@@ -16,6 +16,7 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
+  FEATURE_FLAG_EXPERIMENTAL_SYNC,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -41,28 +42,30 @@ const isUIIntegrationTestUser = (username: string) => {
   );
 };
 
-const showFeature = (
-  featureFlag: boolean,
+const shouldShowFeature = (
+  isFeatureFlagOnInApp: boolean,
   username: string,
   queryParam: string,
   groupClaims?: { groupKey: string; groups: string[] }
 ) => {
-  if (!featureFlag) return false;
-  const isTestUser =
-    window.Cypress &&
-    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
-
-  if (isTestUser && queryParam === "false") return false;
-  //bypassing group claims for cypress test users, if the featureFlag is true
-  if (isTestUser && queryParam === "true") return true;
-
-  if (groupClaims?.groups) {
-    const isInPrivateBetaGroup = groupClaims?.groups.includes(
-      groupClaims.groupKey
-    );
-    if (!isInPrivateBetaGroup) return false;
+  if (!isFeatureFlagOnInApp) {
+    return false;
   }
-  return true;
+
+  const isTestUserWithQueryParam =
+    !!window.Cypress &&
+    (isAutomationTestUser(username) || isUIIntegrationTestUser(username)) &&
+    (queryParam === "true" || queryParam === "false");
+
+  if (isTestUserWithQueryParam) {
+    return queryParam === "true";
+  }
+
+  const shouldConsiderGroupClaims = !!groupClaims;
+
+  return shouldConsiderGroupClaims
+    ? groupClaims.groups.includes(groupClaims.groupKey)
+    : true;
 };
 
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
@@ -78,6 +81,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
+    experimentalSync,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -85,63 +89,73 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
 
   const getFeatureFlags = useCallback(
     () => ({
-      redactionLog: showFeature(
+      redactionLog: shouldShowFeature(
         FEATURE_FLAG_REDACTION_LOG,
         userDetails?.username,
         redactionLog
       ),
-      fullScreen: showFeature(
+      fullScreen: shouldShowFeature(
         FEATURE_FLAG_FULL_SCREEN,
         userDetails?.username,
         fullScreen
       ),
-      notes: showFeature(FEATURE_FLAG_NOTES, userDetails?.username, notes),
-      searchPII: showFeature(
+      notes: shouldShowFeature(
+        FEATURE_FLAG_NOTES,
+        userDetails?.username,
+        notes
+      ),
+      searchPII: shouldShowFeature(
         FEATURE_FLAG_SEARCH_PII,
         userDetails?.username,
         searchPII,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP }
       ),
-      renameDocument: showFeature(
+      renameDocument: shouldShowFeature(
         FEATURE_FLAG_RENAME_DOCUMENT,
         userDetails?.username,
         renameDocument
       ),
-      externalRedirectCaseReviewApp: showFeature(
+      externalRedirectCaseReviewApp: shouldShowFeature(
         FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
         userDetails?.username,
         externalRedirectCaseReviewApp,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP3 }
       ),
-      externalRedirectBulkUmApp: showFeature(
+      externalRedirectBulkUmApp: shouldShowFeature(
         FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
         userDetails?.username,
         externalRedirectBulkUmApp,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP4 }
       ),
-      reclassify: showFeature(
+      reclassify: shouldShowFeature(
         FEATURE_FLAG_RECLASSIFY,
         userDetails?.username,
         reclassify,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
-      pageDelete: showFeature(
+      pageDelete: shouldShowFeature(
         FEATURE_FLAG_PAGE_DELETE,
         userDetails?.username,
         pageDelete,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
-      pageRotate: showFeature(
+      pageRotate: shouldShowFeature(
         FEATURE_FLAG_PAGE_ROTATE,
         userDetails?.username,
         pageRotate,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
-      notifications: showFeature(
+      notifications: shouldShowFeature(
         FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
         userDetails?.username,
         notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      experimentalSync: shouldShowFeature(
+        FEATURE_FLAG_EXPERIMENTAL_SYNC,
+        userDetails?.username,
+        experimentalSync
+        // { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
     []

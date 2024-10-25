@@ -2,6 +2,7 @@ import { CmsDocType } from "./CmsDocType";
 
 export type PipelineDocumentProperties = {
   documentId: string;
+  //conversionStatus: ConversionStatus;
   status:
     | "New"
     | "PdfUploadedToBlob"

@@ -3,7 +3,6 @@ import { CaseDocumentViewModel } from "../domain/CaseDocumentViewModel";
 import { useNavigationAlert } from "./useNavigationAlert";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-import { ConversionStatus } from "../domain/gateway/PipelineDocument";
 
 describe("useNavigationAlert hook", () => {
   const history = createMemoryHistory();

@@ -1,5 +1,6 @@
 import { isNewTime, hasDocumentUpdated } from "./refreshUtils";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 describe("refreshUtils", () => {
   describe("isNewTime", () => {
     it("it should return true if the lasttime is empty and currentime is non empty", () => {
@@ -41,9 +42,9 @@ describe("refreshUtils", () => {
     it.each([1, 3])(
       "it should return true if there is matching updated document ",
       (nextVersionId) => {
-        const newData = {
-          documents: [{ documentId: "1", versionId: nextVersionId }],
-        } as PipelineResults;
+        const newData = [
+          { documentId: "1", versionId: nextVersionId },
+        ] as PresentationDocumentProperties[];
         const result = hasDocumentUpdated(
           { documentId: "1", versionId: 2 },
           newData
@@ -52,9 +53,9 @@ describe("refreshUtils", () => {
       }
     );
     it("it should return false if there is matching document doesn't have version updated", () => {
-      const newData = {
-        documents: [{ documentId: "1", versionId: 1 }],
-      } as PipelineResults;
+      const newData = [
+        { documentId: "1", versionId: 1 },
+      ] as PresentationDocumentProperties[];
       const result = hasDocumentUpdated(
         { documentId: "1", versionId: 1 },
         newData
@@ -63,9 +64,10 @@ describe("refreshUtils", () => {
     });
 
     it("it should return false if there is no matching document found", () => {
-      const newData = {
-        documents: [{ documentId: "1", versionId: 1 }],
-      } as PipelineResults;
+      const newData = [
+        { documentId: "1", versionId: 1 },
+      ] as PresentationDocumentProperties[];
+
       const result = hasDocumentUpdated(
         { documentId: "2", versionId: 1 },
         newData
