@@ -249,13 +249,25 @@ resource "azurerm_private_endpoint" "polaris_gateway_pe" {
 }
 
 # Storage Account Permissions
-resource "azurerm_role_assignment" "gateway_blob_data_contributor" {
-  scope                = azurerm_storage_container.container.resource_manager_id
-  role_definition_name = "Storage Blob Data Reader"
+resource "azurerm_role_assignment" "ra_blob_delegator_polaris" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Delegator"
   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
 
   depends_on = [
-    azurerm_linux_function_app.fa_polaris,
-    azurerm_storage_container.container
+    azurerm_storage_account.sa,
+    azurerm_linux_function_app.fa_polaris
+  ]
+}
+
+resource "azurerm_role_assignment" "coordinator_blob_data_polaris" {
+  scope                = azurerm_storage_container.container.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.sa,
+    azurerm_storage_container.container,
+    azurerm_linux_function_app.fa_polaris
   ]
 }

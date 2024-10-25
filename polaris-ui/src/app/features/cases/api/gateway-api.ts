@@ -30,6 +30,8 @@ import { fetchWithCookies } from "./auth/fetch-with-cookies";
 import { FetchArgs, PREFERRED_AUTH_MODE, STATUS_CODES } from "./auth/core";
 import { RotationSaveRequest } from "../domain/IPageRotation";
 import { PresentationDocumentProperties } from "../domain/gateway/PipelineDocument";
+import { OcrData } from "../domain/gateway/OcrData";
+import { artefactPollingHelper } from "./artefact-polling-helper";
 
 const buildHeaders = async (
   ...args: (
@@ -397,27 +399,13 @@ export const getOcrData = async (
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/ocr`
   );
 
-  const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get Ocr data failed", path, response);
-  }
-
-  if (response.status !== 202) {
-    return await response.json();
-  }
-  // Accepted: results not there yet, so we follow the continuation url that we are given
-  const { nextUrl } = (await response.json()) as { nextUrl: string };
-
-  await new Promise((resolve) => setTimeout(resolve, 10000));
-
-  const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  return await response2.json();
+  return artefactPollingHelper<OcrData>(
+    async (url: string) =>
+      fetchImplementation("reauth-if-in-situ", url, {
+        headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+      }),
+    path
+  );
 };
 
 export const getSearchPIIData = async (
@@ -430,27 +418,13 @@ export const getSearchPIIData = async (
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pii`
   );
 
-  const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get search PII data failed", path, response);
-  }
-
-  if (response.status !== 202) {
-    return (await response.json()) as SearchPIIResultItem[];
-  }
-  // Accepted: results not there yet, so we follow the continuation url that we are given
-  const { nextUrl } = (await response.json()) as { nextUrl: string };
-
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  const response2 = await fetchImplementation("reauth-if-in-situ", nextUrl, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  return (await response2.json()) as SearchPIIResultItem[];
+  return artefactPollingHelper<SearchPIIResultItem[]>(
+    async (url: string) =>
+      fetchImplementation("reauth-if-in-situ", url, {
+        headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+      }),
+    path
+  );
 };
 
 export const getMaterialTypeList = async () => {

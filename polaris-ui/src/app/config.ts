@@ -24,6 +24,15 @@ export const REPORT_ISSUE = process.env.REACT_APP_REPORT_ISSUE === "true";
 export const PIPELINE_POLLING_DELAY = Number(
   process.env.REACT_APP_PIPELINE_POLLING_DELAY || 2000
 );
+
+export const API_LOCAL_POLLING_DELAY_MS = Number(
+  process.env.REACT_APP_API_LOCAL_POLLING_DELAY_MS || 2500
+);
+
+export const API_LOCAL_POLLING_RETRY_COUNT = Number(
+  process.env.REACT_APP_API_LOCAL_POLLING_RETRY_COUNT || 10
+);
+
 export const REAUTH_REDIRECT_URL_OUTBOUND =
   process.env.REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND!;
 
