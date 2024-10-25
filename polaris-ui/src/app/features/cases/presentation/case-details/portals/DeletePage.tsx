@@ -168,7 +168,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
           <div
             className={classes.overlay}
             data-testid={`delete-page-overlay-${pageNumber}`}
-          ></div>
+          />
           <div
             className={classes.overlayContent}
             data-testid={`delete-page-content-${pageNumber}`}
