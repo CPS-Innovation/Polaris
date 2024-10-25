@@ -114,7 +114,7 @@ private_beta = {
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
 }
 
-case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/LandingPage"
+case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/RedirectCW"
 bulk_um_redirect_url         = ""
 
 polaris_ui_reauth = {
