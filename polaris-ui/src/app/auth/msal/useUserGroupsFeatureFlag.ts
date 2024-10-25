@@ -122,8 +122,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       reclassify: showFeature(
         FEATURE_FLAG_RECLASSIFY,
         userDetails?.username,
-        reclassify,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        reclassify
       ),
       pageDelete: showFeature(
         FEATURE_FLAG_PAGE_DELETE,
