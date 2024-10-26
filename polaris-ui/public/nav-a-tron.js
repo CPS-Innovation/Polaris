@@ -1,7 +1,7 @@
 const template = document.createElement("template");
 template.innerHTML = `
   <style>
-  @import "https://as-web-rumpole-ux-dev.azurewebsites.net/public/stylesheets/application.css";
+  /*@import "https://as-web-rumpole-ux-dev.azurewebsites.net/public/stylesheets/application.css";*/
 
  main.case-files {padding-top:0 !important}
 

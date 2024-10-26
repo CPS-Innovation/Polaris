@@ -28,6 +28,12 @@ import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UnsavedRedactionModal } from "../../../../../features/cases/presentation/case-details/modals/UnsavedRedactionModal";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+import { IPageDeleteRedaction } from "../../../domain/IPageDeleteRedaction";
+import { DeletePage } from "../portals/DeletePage";
+import { PagePortal } from "../portals/PagePortal";
+import { RotatePage } from "../portals/RotatePage";
+import { IPageRotation } from "../../../domain/IPageRotation";
+import { RotationFooter } from "./RotationFooter";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -42,6 +48,7 @@ type Props = {
     documentId: string;
     saveStatus: SaveStatus;
     caseId: number;
+    showDeletePage: boolean;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -50,14 +57,21 @@ type Props = {
   isSearchPIIDefaultOptionOn: boolean;
   activeSearchPIIHighlights: ISearchPIIHighlight[];
   redactionHighlights: IPdfHighlight[];
+  pageDeleteRedactions: IPageDeleteRedaction[];
+  pageRotations: IPageRotation[];
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
-  handleAddRedaction: (newRedaction: NewPdfHighlight[]) => void;
+  rotatePageMode: boolean;
+  handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
+  handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
+  handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
+  handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
+  handleSaveRotations: CaseDetailsState["handleSaveRotations"];
 };
 
 const ensureAllPdfInView = () =>
@@ -78,14 +92,21 @@ export const PdfViewer: React.FC<Props> = ({
   isSearchPIIDefaultOptionOn,
   activeSearchPIIHighlights,
   redactionHighlights,
+  pageDeleteRedactions,
+  pageRotations,
   isOkToSave,
   areaOnlyRedactionMode,
+  rotatePageMode,
+  handleAddPageRotation,
+  handleRemovePageRotation,
   handleAddRedaction,
   handleRemoveRedaction,
   handleRemoveAllRedactions,
   handleSavedRedactions,
   focussedHighlightIndex,
   handleSearchPIIAction,
+  handleRemoveAllRotations,
+  handleSaveRotations,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
@@ -100,6 +121,10 @@ export const PdfViewer: React.FC<Props> = ({
     ],
     [searchHighlights, redactionHighlights, activeSearchPIIHighlights]
   );
+
+  const unSavedRotation = useMemo(() => {
+    return pageRotations.filter((rotation) => rotation.rotationAngle !== 0);
+  }, [pageRotations]);
 
   useEffect(() => {
     scrollToFnRef.current &&
@@ -145,10 +170,10 @@ export const PdfViewer: React.FC<Props> = ({
         redactionType: redactionType,
       };
 
-      handleAddRedaction([newRedaction]);
+      handleAddRedaction(contextData.documentId, [newRedaction]);
       window.getSelection()?.removeAllRanges();
     },
-    [handleAddRedaction]
+    [handleAddRedaction, contextData.documentId]
   );
 
   const addSearchPIIRedaction = useCallback(
@@ -181,9 +206,14 @@ export const PdfViewer: React.FC<Props> = ({
         }));
       }
 
-      handleAddRedaction(newRedactions);
+      handleAddRedaction(contextData.documentId, newRedactions);
     },
-    [handleAddRedaction, getPIISuggestionsWithSameText, getSelectedPIIHighlight]
+    [
+      handleAddRedaction,
+      contextData.documentId,
+      getPIISuggestionsWithSameText,
+      getSelectedPIIHighlight,
+    ]
   );
 
   const removeRedaction = (id: string) => {
@@ -222,18 +252,12 @@ export const PdfViewer: React.FC<Props> = ({
   };
 
   return (
-    <>
+    <div>
       <div
         className={getWrapperClassName()}
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
-        {contextData.saveStatus === "saving" && (
-          <div className={classes.spinner}>
-            <Wait ariaLabel="Saving redaction, please wait" />
-          </div>
-        )}
-
         <PdfLoader
           url={url}
           headers={headers}
@@ -393,17 +417,53 @@ export const PdfViewer: React.FC<Props> = ({
                 }}
                 highlights={highlights}
               />
+              {activeTabId === tabId && contextData.showDeletePage && (
+                <PagePortal tabIndex={tabIndex}>
+                  {!rotatePageMode ? (
+                    <DeletePage
+                      documentId={contextData.documentId}
+                      pageNumber={0}
+                      redactionTypesData={redactionTypesData}
+                      handleAddRedaction={handleAddRedaction}
+                      handleRemoveRedaction={handleRemoveRedaction}
+                      pageDeleteRedactions={pageDeleteRedactions}
+                      totalPages={0}
+                    />
+                  ) : (
+                    <RotatePage
+                      documentId={contextData.documentId}
+                      pageNumber={0}
+                      handleAddPageRotation={handleAddPageRotation}
+                      handleRemovePageRotation={handleRemovePageRotation}
+                      pageRotations={pageRotations}
+                      totalPages={0}
+                    />
+                  )}
+                </PagePortal>
+              )}
             </>
           )}
         </PdfLoader>
-        {redactionHighlights.length && (
+        {!!(redactionHighlights.length + pageDeleteRedactions.length) && (
           <Footer
             contextData={contextData}
             tabIndex={tabIndex}
-            totalRedactionsCount={redactionHighlights.length}
+            totalRedactionsCount={
+              redactionHighlights.length + pageDeleteRedactions.length
+            }
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
+          />
+        )}
+        {!!unSavedRotation.length && (
+          <RotationFooter
+            contextData={contextData}
+            tabIndex={tabIndex}
+            totalRotationsCount={unSavedRotation.length}
+            isOkToSave={isOkToSave}
+            handleRemoveAllRotations={handleRemoveAllRotations}
+            handleSaveRotations={handleSaveRotations}
           />
         )}
         <UnsavedRedactionModal
@@ -412,6 +472,6 @@ export const PdfViewer: React.FC<Props> = ({
           handleAddRedaction={handleAddRedaction}
         />
       </div>
-    </>
+    </div>
   );
 };

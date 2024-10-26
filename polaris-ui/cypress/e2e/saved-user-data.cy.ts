@@ -14,9 +14,11 @@ describe("Save User Data", () => {
         .closest("li")
         .should("have.attr", "data-read", "false");
       cy.findByTestId("link-document-10").click();
+
       cy.findByTestId("link-document-10")
         .closest("li")
         .should("have.attr", "data-read", "true");
+
       cy.findByTestId("link-document-2")
         .closest("li")
         .should("have.attr", "data-read", "false");
@@ -287,6 +289,7 @@ describe("Save User Data", () => {
             ],
           },
         ],
+        documentModifications: [],
       };
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(

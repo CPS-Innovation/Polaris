@@ -1,4 +1,4 @@
-import { useCaseDetailsState, initialState } from "./useCaseDetailsState";
+import { useCaseDetailsState } from "./useCaseDetailsState";
 import * as api from "../../api/gateway-api";
 import * as pipelineApi from "../use-pipeline-api/usePipelineApi";
 
@@ -17,6 +17,7 @@ import {
   RedactionLogMappingData,
 } from "../../domain/redactionLog/RedactionLogData";
 import { MemoryRouter } from "react-router-dom";
+import { initialState } from "../../domain/CombinedState";
 
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
@@ -147,6 +148,13 @@ describe("useCaseDetailsState", () => {
         handleSaveRename,
         handleReclassifySuccess,
         handleResetReclassifyData,
+        handleAddPageRotation,
+        handleRemovePageRotation,
+        handleShowHidePageRotation,
+        handleRemoveAllRotations,
+        handleSaveRotations,
+        handleClearAllNotifications,
+        handleClearNotification,
         ...stateProperties
       } = result.current;
 
@@ -387,7 +395,10 @@ describe("useCaseDetailsState", () => {
       const mockHandler = jest.fn();
 
       jest
-        .spyOn(reducerAsyncActionHandlers, "ADD_REDACTION_AND_POTENTIALLY_LOCK")
+        .spyOn(
+          reducerAsyncActionHandlers,
+          "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK"
+        )
         .mockImplementation(() => mockHandler);
 
       const {
@@ -404,7 +415,7 @@ describe("useCaseDetailsState", () => {
       handleAddRedaction("2", [{ type: "redaction" }] as NewPdfHighlight[]);
 
       expect(mockHandler).toBeCalledWith({
-        type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+        type: "ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK",
         payload: { documentId: "2", redactions: [{ type: "redaction" }] },
       });
     });
@@ -415,7 +426,7 @@ describe("useCaseDetailsState", () => {
       jest
         .spyOn(
           reducerAsyncActionHandlers,
-          "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK"
+          "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK"
         )
         .mockImplementation(() => mockHandler);
 
@@ -433,7 +444,7 @@ describe("useCaseDetailsState", () => {
       handleRemoveRedaction("2", "baz");
 
       expect(mockHandler).toBeCalledWith({
-        type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
+        type: "REMOVE_REDACTION_OR_ROTATION_AND_POTENTIALLY_UNLOCK",
         payload: { documentId: "2", redactionId: "baz" },
       });
     });
@@ -460,7 +471,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
-        payload: { documentId: "2" },
+        payload: { documentId: "2", type: "redaction" },
       });
     });
 

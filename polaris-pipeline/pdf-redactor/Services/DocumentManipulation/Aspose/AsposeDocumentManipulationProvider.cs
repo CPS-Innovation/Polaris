@@ -15,7 +15,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        public async Task<Stream> ModifyDocument(Stream stream, string caseId, string documentId, ModifyDocumentDto modifications, Guid correlationId)
+        public async Task<Stream> ModifyDocument(Stream stream, int caseId, string documentId, ModifyDocumentDto modifications, Guid correlationId)
         {
             DocumentModifiedEvent telemetryEvent = default;
             try
@@ -48,7 +48,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
                             document.Pages.Delete(change.PageIndex);
                             break;
                         case DocumentManipulationOperation.RotatePage:
-                            document.Pages[change.PageIndex].Rotate = GetRotation(change.Arg.ToString());
+                            document.Pages[change.PageIndex].Rotate = SetRotation(document.Pages[change.PageIndex].Rotate, change.Arg.ToString());
                             break;
                     }
                 }
@@ -72,11 +72,27 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
             }
         }
 
-        private static Rotation GetRotation(string value) => value switch
+        private static Rotation SetRotation(Rotation rotation, string value)
         {
-            "90" => Rotation.on90,
-            "180" => Rotation.on180,
-            "270" => Rotation.on270,
+            var rotationString = rotation == Rotation.None ? "0" : rotation.ToString().Remove(0, 2);
+            var currentRotation = int.Parse(rotationString);
+            var rotationAngle = int.Parse(value);
+
+            var newAngle = (currentRotation + rotationAngle) % 360;
+
+            return GetRotation(newAngle);
+        }
+
+        private static Rotation GetRotation(int value) => value switch
+        {
+            0 => Rotation.None,
+            90 => Rotation.on90,
+            -90 => Rotation.on270,
+            180 => Rotation.on180,
+            -180 => Rotation.on180,
+            270 => Rotation.on270,
+            -270 => Rotation.on90,
+            360 => Rotation.None,
             _ => throw new Exception("Rotation input value not recognised.")
         };
     }

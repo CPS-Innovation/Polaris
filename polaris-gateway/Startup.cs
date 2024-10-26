@@ -15,6 +15,16 @@ using PolarisGateway.Mappers;
 using PolarisGateway.Validators;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
+using Ddei.Extensions;
+using Common.Services.DocumentToggle;
+using Common.Services.OcrService;
+using Common.Factories.ComputerVisionClientFactory;
+using Common.Clients.PdfGenerator;
+using Common.Services.BlobStorage;
+using Common.Services.PiiService;
+using PolarisGateway.Services.Artefact;
+using PolarisGateway.Services.DdeiOrchestration;
+
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -68,15 +78,34 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             }).AddPolicyHandler(GetRetryPolicy());
 
+            services.AddDdeiClient(Configuration);
+
             services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             services.AddSingleton<IUnhandledExceptionHandler, UnhandledExceptionHandler>();
             services.AddSingleton<IInitializationHandler, InitializationHandler>();
-            services.AddSingleton<IDocumentNoteRequestMapper, DocumentNoteRequestMapper>();
             services.AddSingleton<IModifyDocumentRequestMapper, ModifyDocumentRequestMapper>();
             services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
             services.AddTransient<IRequestFactory, RequestFactory>();
+
+            services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
+            services.AddSingleton<IOcrService, OcrService>();
+            services.AddSingleton<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+
+            services.AddSingleton<IPdfGeneratorRequestFactory, PdfGeneratorRequestFactory>();
+            services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            services.AddBlobStorageWithDefaultAzureCredential(Configuration);
+            services.AddPiiService();
+            services.AddArtefactService();
+            services.AddDdeiOrchestrationService();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

@@ -7,10 +7,15 @@ import {
   FEATURE_FLAG_SEARCH_PII,
   FEATURE_FLAG_RENAME_DOCUMENT,
   FEATURE_FLAG_RECLASSIFY,
+  FEATURE_FLAG_PAGE_DELETE,
+  FEATURE_FLAG_PAGE_ROTATE,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
-  FEATURE_FLAG_EXTERNAL_REDIRECT,
+  FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
+  FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
   PRIVATE_BETA_FEATURE_USER_GROUP3,
+  PRIVATE_BETA_FEATURE_USER_GROUP4,
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -68,7 +73,11 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     searchPII,
     renameDocument,
     reclassify,
-    externalRedirect,
+    externalRedirectCaseReviewApp,
+    externalRedirectBulkUmApp,
+    pageDelete,
+    pageRotate,
+    notifications,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -98,16 +107,40 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         renameDocument
       ),
-      externalRedirect: showFeature(
-        FEATURE_FLAG_EXTERNAL_REDIRECT,
+      externalRedirectCaseReviewApp: showFeature(
+        FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
         userDetails?.username,
-        externalRedirect,
+        externalRedirectCaseReviewApp,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP3 }
+      ),
+      externalRedirectBulkUmApp: showFeature(
+        FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
+        userDetails?.username,
+        externalRedirectBulkUmApp,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP4 }
       ),
       reclassify: showFeature(
         FEATURE_FLAG_RECLASSIFY,
         userDetails?.username,
         reclassify,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      pageDelete: showFeature(
+        FEATURE_FLAG_PAGE_DELETE,
+        userDetails?.username,
+        pageDelete,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      pageRotate: showFeature(
+        FEATURE_FLAG_PAGE_ROTATE,
+        userDetails?.username,
+        pageRotate,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      notifications: showFeature(
+        FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
+        userDetails?.username,
+        notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),

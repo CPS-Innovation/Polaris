@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Services.BlobStorageService;
+using Common.Services.BlobStorage;
 using coordinator.Durable.Payloads;
 using coordinator.Functions;
 using coordinator.Durable.Orchestration;
@@ -17,6 +16,11 @@ using Moq;
 using Xunit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Ddei.Factories;
+using Ddei;
+using Ddei.Exceptions;
+using Ddei.Domain.CaseData.Args.Core;
+using coordinator.Durable.Entity;
 
 namespace coordinator.tests.Functions
 {
@@ -28,9 +32,12 @@ namespace coordinator.tests.Functions
         private readonly Guid _correlationId;
         private readonly HttpRequest _httpRequest;
         private readonly IHeaderDictionary _httpRequestHeaders;
+        private readonly DdeiBaseArgDto _mockVerifyArg;
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
         private readonly Mock<ICleardownService> _mockCleardownService;
+        private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
+        private readonly Mock<IDdeiClient> _mockDdeiClient;
         private readonly RefreshCase _coordinatorStart;
 
         public CoordinatorStartTests()
@@ -41,7 +48,7 @@ namespace coordinator.tests.Functions
 
             var cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
-            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId.ToString());
+            _instanceId = CaseDurableEntity.GetKey(_caseId);
 
             _httpRequest = new DefaultHttpContext().Request;
             _httpRequest.Method = "POST";
@@ -56,21 +63,29 @@ namespace coordinator.tests.Functions
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 
-            mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<string>()))
+            mockBlobStorageClient.Setup(s => s.DeleteBlobsByPrefixAsync(It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
 
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(default(DurableOrchestrationStatus));
 
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CasePayload>(), _httpRequest))
                 .ReturnsAsync(true);
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseOrchestrationAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<int>()));
 
             _mockCleardownService.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>()));
-            _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object);
+
+            _mockVerifyArg = fixture.Create<DdeiBaseArgDto>();
+            _mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
+            _mockDdeiArgFactory.Setup(factory => factory.CreateCmsCaseDataArgDto(cmsAuthValues, _correlationId))
+                .Returns(_mockVerifyArg);
+            _mockDdeiClient = new Mock<IDdeiClient>();
+            _mockDdeiClient.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg));
+
+            _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockCleardownService.Object, _mockDdeiArgFactory.Object, _mockDdeiClient.Object);
         }
 
         [Fact]
@@ -86,10 +101,10 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledErrorOccurs()
         {
-            _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CaseOrchestrationPayload>()))
+            _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CasePayload>()))
                 .Throws(new Exception());
             _mockOrchestrationProvider.Setup(s => s.RefreshCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequest))
+                    It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CasePayload>(), _httpRequest))
                 .ReturnsAsync(false);
 
             var result = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
@@ -113,8 +128,8 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId.ToString(),
-                    It.IsAny<CaseOrchestrationPayload>(),
+                    _caseId,
+                    It.IsAny<CasePayload>(),
                     _httpRequest));
         }
 
@@ -133,8 +148,8 @@ namespace coordinator.tests.Functions
                 client => client.RefreshCaseAsync(
                     _mockDurableOrchestrationClient.Object,
                     _correlationId,
-                    _caseId.ToString(),
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId),
+                    _caseId,
+                    It.Is<CasePayload>(p => p.CaseId == _caseId),
                     _httpRequest));
         }
 
@@ -162,7 +177,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
                     _caseId.ToString(),
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseId)),
+                    It.Is<CasePayload>(p => p.CaseId == _caseId)),
                 Times.Never);
         }
 
@@ -174,6 +189,17 @@ namespace coordinator.tests.Functions
 
             // Assert
             httpResponseMessage.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be((int)HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Run_Returns401HttpResponseMessage_WhenCmsAuthIsNotValid()
+        {
+            _mockDdeiClient.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg)).ThrowsAsync(new DdeiClientException(HttpStatusCode.Unauthorized, null));
+            // Act
+            var httpResponseMessage = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+
+            // Assert
+            httpResponseMessage.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be((int)HttpStatusCode.Unauthorized);
         }
     }
 }

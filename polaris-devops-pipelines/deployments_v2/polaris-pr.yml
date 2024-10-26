@@ -7,10 +7,7 @@ pr:
       - main
   paths:
     include:
-      - polaris-terraform/pipeline-terraform/*
-      - polaris-terraform/pipeline-events-terraform/*
-      - polaris-terraform/ui-terraform/*
-      - polaris-terraform/ui-events-terraform/*
+      - polaris-terraform/main-terraform/*
       - polaris-gateway/*
       - polaris-maintenance/*
       - polaris-pipeline/*
@@ -23,14 +20,8 @@ variables:
   - group: terraform-containers
   - name: buildConfiguration
     value: "Release"
-  - name: pipelineTerraformWorkingDir
-    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-terraform"
-  - name: pipelineEventsTerraformWorkingDir
-    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-events-terraform"
-  - name: uiTerraformWorkingDir
-    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform"
-  - name: uiEventsTerraformWorkingDir
-    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-events-terraform"
+  - name: terraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/main-terraform"
     
 stages:
   - stage: Determine_Changes
@@ -53,27 +44,10 @@ stages:
                 {
                   $name=$temp[$i]
                   echo "this is $name file"
-                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  if ($name -like 'polaris-terraform/main-terraform/*')
                   {
-                    echo "run pipeline terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
-                  {
-                    echo "run pipeline events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                  if ($name -like 'polaris-terraform/ui-terraform/*')
-                  {
-                    echo "run ui terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
-                  {
-                    echo "run ui events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                    echo "run main terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_MAIN_TERRAFORM;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*' -Or $name -like 'polaris-pipeline/coordinator.tests/*')
                   {
@@ -138,10 +112,7 @@ stages:
     displayName: Validate Changes
     dependsOn: Determine_Changes
     variables:
-      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
-      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
-      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
-      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
+      runTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_MAIN_TERRAFORM']]
       runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
       runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_COORDINATOR']]
       runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PDF_GENERATOR']]
@@ -152,8 +123,9 @@ stages:
       runPipelineCommon: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COMMON']]
       runDDEIClient: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_DDEI_CLIENT']]
     jobs:
-      - job: Validate_Pipeline_Terraform
-        condition: eq(variables.runPipelineTerraform, 'true')
+      - job: Validate_Main_Terraform
+        condition: eq(variables.runTerraform, 'true')
+        displayName: Validate Main Terraform
         pool:
           name: $(dev-build-agent)
         steps:
@@ -170,10 +142,10 @@ stages:
                 -backend-config="key=$TF_STATE_KEY" \
                 -backend-config="access_key=$TF_STATE_ACCESS_KEY"
             displayName: Terraform > Init
-            workingDirectory: $(pipelineTerraformWorkingDir)
+            workingDirectory: $(terraformWorkingDir)
             env:
               TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_CONTAINER_NAME: $(main-terraform-container-name)
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
@@ -181,14 +153,14 @@ stages:
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
-            workingDirectory: $(pipelineTerraformWorkingDir)
+            workingDirectory: $(terraformWorkingDir)
 
-      - job: Check_Pipeline_Plan
+      - job: Check_Main_Plan
         pool:
           name: $(dev-build-agent)
-        dependsOn: Validate_Pipeline_Terraform
-        condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
-        displayName: Check Pipeline Terraform
+        dependsOn: Validate_Main_Terraform
+        condition: and(succeeded(), eq(variables.runTerraform, 'true'))
+        displayName: Check Main Terraform
         steps:
           - template: stages/jobs/tasks/task_get-credentials.yml
             parameters:
@@ -207,10 +179,10 @@ stages:
                 -backend-config="key=$TF_STATE_KEY" \
                 -backend-config="access_key=$TF_STATE_ACCESS_KEY"
             displayName: Terraform > Init
-            workingDirectory: $(pipelineTerraformWorkingDir)
+            workingDirectory: $(terraformWorkingDir)
             env:
               TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_CONTAINER_NAME: $(main-terraform-container-name)
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
@@ -219,7 +191,7 @@ stages:
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
             displayName: "Terraform > Write Pipeline Plan"
-            workingDirectory: $(pipelineTerraformWorkingDir)
+            workingDirectory: $(terraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(clientId)
               ARM_CLIENT_SECRET: $(clientSecret)
@@ -227,231 +199,6 @@ stages:
               ARM_SUBSCRIPTION_ID: $(subscriptionId)
               TF_LOG: $(dev-log-level)
 
-      - job: Validate_Pipeline_Events_Terraform
-        condition: eq(variables.runPipelineEventsTerraform, 'true')
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: latest
-              
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(pipelineEventsTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Validate
-          - bash: terraform validate
-            displayName: Terraform > Validate Config
-            workingDirectory: $(pipelineEventsTerraformWorkingDir)
-    
-      - job: Check_Pipeline_Events_Plan
-        condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
-        pool:
-          name: $(dev-build-agent)
-        dependsOn: Validate_Pipeline_Events_Terraform
-        displayName: Check Pipeline Events Terraform
-        steps:
-          - template: stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(dev-azure-subscription)
-              
-          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: latest
-              
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(pipelineEventsTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Terraform Plan
-          - bash: |
-              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: "Terraform > Write Pipeline Events Plan"
-            workingDirectory: $(pipelineEventsTerraformWorkingDir)
-            env:
-              ARM_CLIENT_ID: $(clientId)
-              ARM_CLIENT_SECRET: $(clientSecret)
-              ARM_TENANT_ID: $(tenantId)
-              ARM_SUBSCRIPTION_ID: $(subscriptionId)
-              TF_LOG: $(dev-log-level)
-    
-      - job: Validate_UI_Terraform
-        condition: eq(variables.runUITerraform, 'true')
-        pool:
-            name: $(dev-build-agent)
-        steps:
-          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: latest
-              
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(uiTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Validate
-          - bash: terraform validate
-            displayName: Terraform > Validate Config
-            workingDirectory: $(uiTerraformWorkingDir)
-      
-      - job: Check_UI_Plan
-        condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
-        pool:
-          name: $(dev-build-agent)
-        dependsOn: Validate_UI_Terraform
-        displayName: Check UI Terraform
-        steps:
-          - template: stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(dev-azure-subscription)
-              
-          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: latest
-              
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(uiTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Terraform Plan
-          - bash: |
-              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: "Terraform > Write UI Plan"
-            workingDirectory: $(uiTerraformWorkingDir)
-            env:
-              ARM_CLIENT_ID: $(clientId)
-              ARM_CLIENT_SECRET: $(clientSecret)
-              ARM_TENANT_ID: $(tenantId)
-              ARM_SUBSCRIPTION_ID: $(subscriptionId)
-              TF_LOG: $(dev-log-level)
-    
-      - job: Validate_UI_Events_Terraform
-        condition: eq(variables.runUIEventsTerraform, 'true')
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: latest
-              
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(uiEventsTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Validate
-          - bash: terraform validate
-            displayName: Terraform > Validate Config
-            workingDirectory: $(uiEventsTerraformWorkingDir)
-    
-      - job: Check_UI_Events_Plan
-        condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
-        pool:
-          name: $(dev-build-agent)
-        dependsOn: Validate_UI_Events_Terraform
-        displayName: Check UI Events Terraform
-        steps:
-          - template: stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(dev-azure-subscription)
-              
-          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: latest
-              
-          # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(uiEventsTerraformWorkingDir)
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-              TF_LOG: $(dev-log-level)
-    
-          # Terraform Plan
-          - bash: |
-              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: "Terraform > Write UI Events Plan"
-            workingDirectory: $(uiEventsTerraformWorkingDir)
-            env:
-              ARM_CLIENT_ID: $(clientId)
-              ARM_CLIENT_SECRET: $(clientSecret)
-              ARM_TENANT_ID: $(tenantId)
-              ARM_SUBSCRIPTION_ID: $(subscriptionId)
-              TF_LOG: $(dev-log-level)
-    
       - job: Validate_Gateway_Codebase
         condition: eq(variables.runGateway, 'true')
         displayName: Test - Gateway

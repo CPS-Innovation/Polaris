@@ -64,9 +64,9 @@ public class OrchestrationProvider : IOrchestrationProvider
     }
 
     public async Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
-        string caseId, CaseOrchestrationPayload casePayload, HttpRequest req)
+        int caseId, CasePayload casePayload, HttpRequest req)
     {
-        var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
+        var instanceId = CaseDurableEntity.GetKey(caseId);
         var existingInstance = await client.GetStatusAsync(instanceId);
 
         if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
@@ -84,7 +84,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         try
         {
             var terminateInstanceIds = await GetInstanceIdsAsync(client,
-                _queryConditionFactory.Create(_inProgressStatuses, RefreshCaseOrchestrator.GetKey(caseId.ToString()))
+                _queryConditionFactory.Create(_inProgressStatuses, CaseDurableEntity.GetKey(caseId))
              );
             result.TerminatedInstancesCount = terminateInstanceIds.Count;
             result.GotTerminateInstancesDateTime = DateTime.UtcNow;
@@ -99,10 +99,10 @@ public class OrchestrationProvider : IOrchestrationProvider
             result.TerminatedInstancesSettledDateTime = DateTime.UtcNow;
 
             var orchestratorPurgeInstanceIds = await GetInstanceIdsAsync(client,
-                 _queryConditionFactory.Create(_completedStatuses, RefreshCaseOrchestrator.GetKey(caseId.ToString()))
+                 _queryConditionFactory.Create(_completedStatuses, CaseDurableEntity.GetKey(caseId))
             );
             var entityPurgeInstanceIds = await GetInstanceIdsAsync(client,
-                 _queryConditionFactory.Create(_entityStatuses, CaseDurableEntity.GetInstanceId(caseId.ToString()))
+                 _queryConditionFactory.Create(_entityStatuses, $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}")
             );
             result.GotPurgeInstancesDateTime = DateTime.UtcNow;
             var instancesToPurge = Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds);

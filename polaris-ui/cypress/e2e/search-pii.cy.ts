@@ -1,11 +1,11 @@
 describe("Search PII", () => {
   describe("Feature flag 'ON'", () => {
-    it("Should show turn on/off redaction suggestions menu correctly and should not call the pii request if the polarisdocumentversionId is not changed", () => {
+    it("Should show turn on/off redaction suggestions menu correctly and should not call the pii request if the versionId is not changed", () => {
       const piiRequestCounter = { count: 0 };
       cy.trackRequestCount(
         piiRequestCounter,
         "GET",
-        "/api/urns/12AB1111111/cases/13401/documents/12/pii"
+        "/api/urns/12AB1111111/cases/13401/documents/12/versions/12/pii"
       );
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -311,6 +311,7 @@ describe("Search PII", () => {
             ],
           },
         ],
+        documentModifications: [],
         pii: {
           categories: [
             {

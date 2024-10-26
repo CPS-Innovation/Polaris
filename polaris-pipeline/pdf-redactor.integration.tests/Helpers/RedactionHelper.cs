@@ -5,7 +5,7 @@ using System.Text.Json;
 
 public class RedactionHelper
 {
-  public static RedactPdfRequestWithDocumentDto LoadRedactionDataForPdf(Stream redactionJsonStream, Stream pdfStream, string fileName)
+  public static RedactPdfRequestWithDocumentDto LoadRedactionDataForPdf(Stream redactionJsonStream, Stream pdfStream)
   {
 
     using var streamReader = new StreamReader(redactionJsonStream);
@@ -38,7 +38,6 @@ public class RedactionHelper
 
     return new RedactPdfRequestWithDocumentDto
     {
-      FileName = fileName,
       Document = base64Document,
       VersionId = 1,
       RedactionDefinitions = redactionDefinitions

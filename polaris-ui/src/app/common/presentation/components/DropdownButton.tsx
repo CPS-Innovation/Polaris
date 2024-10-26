@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { ReactComponent as DownArrow } from "../svgs/down.svg";
 import { LinkButton } from "../components/LinkButton";
-import { useFocusTrap } from "../../hooks/useFocusTrap";
+
 import classes from "./DropdownButton.module.scss";
+import { useGlobalDropdownClose } from "../../hooks/useGlobalDropdownClose";
 
 export type DropdownButtonItem = {
   id: string;
@@ -34,46 +35,18 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   const dropDownBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [buttonOpen, setButtonOpen] = useState(false);
-  useFocusTrap("#dropdown-panel");
+
+  useGlobalDropdownClose(
+    dropDownBtnRef,
+    panelRef,
+    setButtonOpen,
+    "#dropdown-panel"
+  );
 
   const handleBtnClick = (id: string) => {
     setButtonOpen(false);
     callBackFn(id);
   };
-
-  const handleOutsideClick = useCallback((event: MouseEvent) => {
-    if (
-      event.target === dropDownBtnRef.current ||
-      dropDownBtnRef.current?.contains(event.target as Node)
-    ) {
-      return;
-    }
-
-    if (
-      panelRef.current &&
-      event.target &&
-      !panelRef.current?.contains(event.target as Node)
-    ) {
-      setButtonOpen(false);
-      event.stopPropagation();
-    }
-  }, []);
-
-  const keyDownHandler = useCallback((event: KeyboardEvent) => {
-    if (event.code === "Escape" && panelRef.current) {
-      setButtonOpen(false);
-      dropDownBtnRef.current?.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("keydown", keyDownHandler);
-    document.addEventListener("click", handleOutsideClick);
-    return () => {
-      window.removeEventListener("keydown", keyDownHandler);
-      document.removeEventListener("click", handleOutsideClick);
-    };
-  }, []);
 
   return (
     <div className={classes.dropDownButtonWrapper}>

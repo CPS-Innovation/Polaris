@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Durable.Entity;
-using Common.ValueObjects;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.Extensions.Logging;
@@ -20,11 +19,6 @@ namespace coordinator.Functions
         internal CmsDocumentEntity CmsDocument;
         internal PcdRequestEntity PcdRequest;
         internal DefendantsAndChargesEntity DefendantsAndCharges;
-
-        public string GetBlobName()
-        {
-            return CmsDocument?.PdfBlobName ?? PcdRequest?.PdfBlobName ?? DefendantsAndCharges.PdfBlobName;
-        }
     }
 
     public class BaseClient
@@ -34,8 +28,8 @@ namespace coordinator.Functions
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
                 IDurableEntityClient client,
-                string caseId,
-                PolarisDocumentId polarisDocumentId,
+                int caseId,
+                string documentId,
                 ILogger logger,
                 Guid currentCorrelationId,
                 string loggerSource
@@ -44,7 +38,7 @@ namespace coordinator.Functions
             var response = new GetTrackerDocumentResponse { Success = false };
             CaseDurableEntity entityState;
 
-            var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
+            var entityId = CaseDurableEntity.GetEntityId(caseId);
 
             try
             {
@@ -65,20 +59,20 @@ namespace coordinator.Functions
                 return response;
             }
 
-            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
+            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.DocumentId.Equals(documentId));
             if (response.CmsDocument == null)
             {
-                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId.Equals(polarisDocumentId));
+                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.DocumentId.Equals(documentId));
 
                 if (response.PcdRequest == null)
                 {
-                    if (polarisDocumentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
+                    if (documentId.Equals(entityState.DefendantsAndCharges.DocumentId))
                     {
                         response.DefendantsAndCharges = entityState.DefendantsAndCharges;
                     }
                     else
                     {
-                        var baseMessage = $"No Document found with id '{polarisDocumentId}'";
+                        var baseMessage = $"No Document found with id '{documentId}'";
                         response.Error = new NotFoundObjectResult(baseMessage);
                         return response;
                     }

@@ -24,6 +24,15 @@ export const REPORT_ISSUE = process.env.REACT_APP_REPORT_ISSUE === "true";
 export const PIPELINE_POLLING_DELAY = Number(
   process.env.REACT_APP_PIPELINE_POLLING_DELAY || 2000
 );
+
+export const API_LOCAL_POLLING_DELAY_MS = Number(
+  process.env.REACT_APP_API_LOCAL_POLLING_DELAY_MS || 2500
+);
+
+export const API_LOCAL_POLLING_RETRY_COUNT = Number(
+  process.env.REACT_APP_API_LOCAL_POLLING_RETRY_COUNT || 10
+);
+
 export const REAUTH_REDIRECT_URL_OUTBOUND =
   process.env.REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND!;
 
@@ -32,6 +41,12 @@ export const REAUTH_REDIRECT_URL_OUTBOUND_E2E =
 
 export const REAUTH_REDIRECT_URL_INBOUND =
   process.env.REACT_APP_REAUTH_REDIRECT_URL_INBOUND!;
+
+export const REAUTH_USE_IN_SITU_REFRESH =
+  process.env.REACT_APP_REAUTH_USE_IN_SITU_REFRESH === "true";
+
+export const REAUTH_IN_SITU_TERMINATION_URL =
+  process.env.REACT_APP_REAUTH_IN_SITU_TERMINATION_URL!;
 
 export const PRIVATE_BETA_USER_GROUP =
   process.env.REACT_APP_PRIVATE_BETA_USER_GROUP!;
@@ -68,8 +83,32 @@ export const FEATURE_FLAG_RENAME_DOCUMENT =
 
 export const FEATURE_FLAG_RECLASSIFY =
   `${process.env.REACT_APP_FEATURE_FLAG_RECLASSIFY}` === "true";
-export const FEATURE_FLAG_EXTERNAL_REDIRECT =
-  `${process.env.REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT}` === "true";
+
+export const FEATURE_FLAG_PAGE_DELETE =
+  `${process.env.REACT_APP_FEATURE_FLAG_PAGE_DELETE}` === "true";
+
+export const FEATURE_FLAG_PAGE_ROTATE =
+  `${process.env.REACT_APP_FEATURE_FLAG_PAGE_ROTATE}` === "true";
+
+export const FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP =
+  `${process.env.REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP}` ===
+  "true";
+
+export const FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP =
+  `${process.env.REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP}` ===
+  "true";
+
+export const FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH =
+  `${process.env.REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH}` ===
+  "true";
+
+export const BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS = parseInt(
+  process.env.REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS!
+);
+
+export const BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS =
+  `${process.env.REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS}` ===
+  "true";
 
 export const LOCAL_STORAGE_EXPIRY_DAYS = process.env
   .REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS
@@ -85,6 +124,9 @@ export const PRIVATE_BETA_FEATURE_USER_GROUP2 =
 export const PRIVATE_BETA_FEATURE_USER_GROUP3 =
   process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3 ?? "";
 
+export const PRIVATE_BETA_FEATURE_USER_GROUP4 =
+  process.env.REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP4 ?? "";
+
 export const CASE_REVIEW_APP_REDIRECT_URL =
   process.env.REACT_APP_CASE_REVIEW_APP_REDIRECT_URL!;
 export const BULK_UM_REDIRECT_URL = process.env.REACT_APP_BULK_UM_REDIRECT_URL!;
@@ -92,5 +134,12 @@ export const BULK_UM_REDIRECT_URL = process.env.REACT_APP_BULK_UM_REDIRECT_URL!;
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "test") {
-  console.log(JSON.stringify(process.env));
+  const objectToLog = Object.keys(process.env)
+    .sort()
+    .reduce((obj, key) => {
+      obj[key] = process.env[key];
+      return obj;
+    }, {} as Record<string, any>);
+
+  console.log(JSON.stringify(objectToLog, null, 2));
 }

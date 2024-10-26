@@ -157,7 +157,7 @@ describe("documentCategoryDefinitions", () => {
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: " CM01 Typea 4 a",
-      cmsOriginalFileExtension: ".hte",
+      cmsOriginalFileName: "foo.hte",
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Communications");
@@ -177,7 +177,7 @@ describe("documentCategoryDefinitions", () => {
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1059, documentCategory: "Statement" },
       presentationTitle: " CM01 Typea 4 a",
-      cmsOriginalFileExtension: ".hte",
+      cmsOriginalFileName: "foo.hte",
       isUnused: true,
     } as PresentationDocumentProperties);
 
@@ -196,7 +196,7 @@ describe("documentCategoryDefinitions", () => {
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1059, documentCategory: "MGForm" },
       presentationTitle: " CM01 Typea 4 a",
-      cmsOriginalFileExtension: ".hte",
+      cmsOriginalFileName: "foo.hte",
       isUnused: true,
     } as PresentationDocumentProperties);
 
@@ -204,10 +204,10 @@ describe("documentCategoryDefinitions", () => {
     expect(result2.category).toBe("Unused material");
   });
 
-  it("can resolve document with cmsOriginalFileExtension equal to .hte into 'Communication' category and subCategory 'Emails'", () => {
+  it("can resolve document with cmsOriginalFileName ending .hte into 'Communication' category and subCategory 'Emails'", () => {
     const result1 = getCategory({
       cmsDocType: { documentTypeId: -1 },
-      cmsOriginalFileExtension: ".hte",
+      cmsOriginalFileName: "foo.hte",
     } as PresentationDocumentProperties);
     expect(result1.category).toBe("Communications");
     expect(result1.subCategory).toBe("Emails");

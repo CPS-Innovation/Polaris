@@ -17,11 +17,10 @@ using Common.Configuration;
 using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
-using Common.Services.BlobStorageService;
-using Common.ValueObjects;
+using Common.Services.BlobStorage;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient.Services;
+using Ddei;
 using FluentValidation;
 
 namespace coordinator.Functions
@@ -31,7 +30,7 @@ namespace coordinator.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _redactionClient;
-        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
@@ -40,7 +39,7 @@ namespace coordinator.Functions
         public RedactDocument(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
                               IPdfRedactorClient redactionClient,
-                              IPolarisBlobStorageService blobStorageService,
+                              IPolarisBlobStorageService polarisBlobStorageService,
                               IUploadFileNameFactory uploadFileNameFactory,
                               IDdeiClient ddeiClient,
                               IDdeiArgFactory ddeiArgFactory,
@@ -49,7 +48,7 @@ namespace coordinator.Functions
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _redactionClient = redactionClient;
-            _blobStorageService = blobStorageService;
+            _polarisBlobStorageService = polarisBlobStorageService;
             _uploadFileNameFactory = uploadFileNameFactory;
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
@@ -64,8 +63,8 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)]
             HttpRequestMessage req,
             string caseUrn,
-            string caseId,
-            string polarisDocumentId,
+            int caseId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -74,89 +73,89 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(RedactDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(RedactDocument));
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
                 var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
-                using var documentStream = await _blobStorageService.GetDocumentAsync(document.PdfBlobName, currentCorrelationId);
+                using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
                 var bytes = memoryStream.ToArray();
 
-                var base64Document = Convert.ToBase64String(bytes);
+                Stream redactedDocumentStream = null;
 
-                var redactionRequest = new RedactPdfRequestWithDocumentDto
+                if (redactPdfRequest.RedactionDefinitions.Any())
                 {
-                    FileName = document.PdfBlobName,
-                    Document = base64Document,
-                    RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
-                    VersionId = redactPdfRequest.VersionId
-                };
+                    var base64Document = Convert.ToBase64String(bytes);
 
-                var validationResult = await _requestValidator.ValidateAsync(redactionRequest);
-                if (!validationResult.IsValid)
-                    throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
+                    var redactionRequest = new RedactPdfRequestWithDocumentDto
+                    {
+                        Document = base64Document,
+                        RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
+                        VersionId = redactPdfRequest.VersionId
+                    };
 
-                using var redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactionRequest, currentCorrelationId);
-                if (redactedDocumentStream == null)
-                {
-                    string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
-                    throw new Exception(error);
+                    var validationResult = await _requestValidator.ValidateAsync(redactionRequest);
+                    if (!validationResult.IsValid)
+                        throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
+
+                    redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, documentId, redactionRequest, currentCorrelationId);
+                    if (redactedDocumentStream == null)
+                    {
+                        string error = $"Error Saving redaction details to the document for {caseId}, documentId {documentId}";
+                        throw new Exception(error);
+                    }
                 }
 
                 Stream modifiedDocumentStream = null;
 
                 if (redactPdfRequest.DocumentModifications.Any())
                 {
-                    using var redactedMemoryStream = new MemoryStream();
-                    await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
-                    var redactedBytes = redactedMemoryStream.ToArray();
+                    byte[] bytesToModify = null;
 
-                    var base64RedactedDocument = Convert.ToBase64String(redactedBytes);
+                    if (redactedDocumentStream != null)
+                    {
+                        using var redactedMemoryStream = new MemoryStream();
+                        await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
+                        bytesToModify = redactedMemoryStream.ToArray();
+                    }
+                    else
+                    {
+                        bytesToModify = bytes;
+                    }
+
+                    var base64DocumentToModify = Convert.ToBase64String(bytesToModify);
 
                     var modificationRequest = new ModifyDocumentWithDocumentDto
                     {
-                        Document = base64RedactedDocument,
-                        FileName = document.PdfBlobName,
+                        Document = base64DocumentToModify,
                         DocumentModifications = redactPdfRequest.DocumentModifications,
                         VersionId = redactPdfRequest.VersionId
                     };
 
-                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, polarisDocumentId, modificationRequest, currentCorrelationId);
+                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
                     if (modifiedDocumentStream == null)
                     {
-                        string error = $"Error modifying document for {caseId}, polarisDocumentId {polarisDocumentId}";
+                        string error = $"Error modifying document for {caseId}, documentId {documentId}";
                         throw new Exception(error);
                     }
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactionRequest.FileName);
-
-                await _blobStorageService.UploadDocumentAsync(
-                    modifiedDocumentStream ?? redactedDocumentStream,
-                    uploadFileName,
-                    caseId,
-                    polarisDocumentId,
-                    redactPdfRequest.VersionId.ToString(),
-                    currentCorrelationId);
-
-                using var pdfStream = await _blobStorageService.GetDocumentAsync(uploadFileName, currentCorrelationId);
-
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
-                var arg = _ddeiArgFactory.CreateDocumentArgDto
+                var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
                 (
                     cmsAuthValues: cmsAuthValues,
                     correlationId: currentCorrelationId,
                     urn: caseUrn,
-                    caseId: int.Parse(caseId),
-                    documentId: int.Parse(document.CmsDocumentId),
-                    versionId: document.CmsVersionId
+                    caseId: caseId,
+                    documentId: document.CmsDocumentId,
+                    versionId: document.VersionId
                 );
 
-                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
 
                 if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
                 {

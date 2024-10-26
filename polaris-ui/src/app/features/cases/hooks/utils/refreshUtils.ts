@@ -6,11 +6,11 @@ export const isNewTime = (incomingIsoTime: string, existingIsoTime: string) =>
   incomingIsoTime > existingIsoTime;
 
 export const hasDocumentUpdated = (
-  document: { documentId: string; polarisDocumentVersionId: number },
+  document: { documentId: string; versionId: number },
   newData: PipelineResults
 ) =>
   newData.documents.some(
     (newDocument) =>
       newDocument.documentId === document.documentId &&
-      newDocument.polarisDocumentVersionId > document.polarisDocumentVersionId
+      newDocument.versionId !== document.versionId
   );

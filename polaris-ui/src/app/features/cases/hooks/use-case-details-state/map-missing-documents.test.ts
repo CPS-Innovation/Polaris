@@ -3,15 +3,14 @@ import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { mapMissingDocuments } from "./map-missing-documents";
 
 const CASE_DOCUMENTS = [
-  { documentId: "1", presentationFileName: "file-name-1" },
-  { documentId: "2", presentationFileName: "file-name-2" },
+  { documentId: "1", presentationTitle: "file-name-1" },
+  { documentId: "2", presentationTitle: "file-name-2" },
 ] as MappedCaseDocument[];
 
 describe("mapMissingDocuments", () => {
   it("can return missing documents when pipeline is complete", () => {
     const pipelineResults = {
       status: "Completed",
-      transactionId: "",
       documents: [
         { documentId: "1", status: "OcrAndIndexFailure" },
         { documentId: "2", status: "Indexed" },
@@ -31,7 +30,6 @@ describe("mapMissingDocuments", () => {
   it("can cope with a failed document in the pipeline that is not present in the documents array", () => {
     const pipelineResults = {
       status: "Completed",
-      transactionId: "",
       documents: [
         { documentId: "3", status: "OcrAndIndexFailure" },
         { documentId: "1", status: "Indexed" },

@@ -10,13 +10,14 @@ import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogType
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { useCallback } from "react";
+import { CmsDocType } from "../../../domain/gateway/CmsDocType";
 
 type Props = {
   caseUrn: string;
   isCaseCharged: boolean;
   owningUnit: string;
   documentName: string;
-  cmsDocumentTypeId: number;
+  cmsDocumentTypeId: CmsDocType["documentTypeId"];
   redactionLogType: RedactionLogTypes;
   additionalData: {
     documentId: string;

@@ -8,5 +8,10 @@ export type BackLinkProps = {
 };
 
 export const BackLink: React.FC<BackLinkProps> = (props) => {
-  return <GDS.BackLink data-testid="link-back-link" {...props} />;
+  return (
+    // span to keep the :before arrow glyph and the text of the link vertically aligned together
+    <span>
+      <GDS.BackLink data-testid="link-back-link" {...props} />
+    </span>
+  );
 };

@@ -1,4 +1,5 @@
-using Common.Services.BlobStorageService;
+using Common.Helpers;
+using Common.Services.BlobStorage;
 using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
@@ -11,17 +12,17 @@ namespace coordinator.Services.CleardownService
 {
   public class CleardownService : ICleardownService
   {
-    private readonly IPolarisBlobStorageService _blobStorageService;
+    private readonly IPolarisBlobStorageService _polarisBlobStorageService;
     private readonly ITextExtractorClient _textExtractorClient;
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly ITelemetryClient _telemetryClient;
 
-    public CleardownService(IPolarisBlobStorageService blobStorageService,
+    public CleardownService(IPolarisBlobStorageService polarisStorageService,
       ITextExtractorClient textExtractorClient,
       IOrchestrationProvider orchestrationProvider,
       ITelemetryClient telemetryClient)
     {
-      _blobStorageService = blobStorageService;
+      _polarisBlobStorageService = polarisStorageService;
       _textExtractorClient = textExtractorClient;
       _orchestrationProvider = orchestrationProvider;
       _telemetryClient = telemetryClient;
@@ -43,7 +44,7 @@ namespace coordinator.Services.CleardownService
         telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
 
 
-        await _blobStorageService.DeleteBlobsByCaseAsync(caseId.ToString());
+        await _polarisBlobStorageService.DeleteBlobsByPrefixAsync(caseId);
         telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
 
         var orchestrationResult = await _orchestrationProvider.DeleteCaseOrchestrationAsync(client, caseId);

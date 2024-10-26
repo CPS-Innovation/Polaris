@@ -1,10 +1,7 @@
 import { CmsDocType } from "./CmsDocType";
 
 export type PipelineDocumentProperties = {
-  polarisDocumentId?: string;
   documentId: string;
-  pdfBlobName: string;
-  isPdfAvailable?: boolean;
   status:
     | "New"
     | "PdfUploadedToBlob"
@@ -71,22 +68,20 @@ export type Classification =
 
 export type PresentationDocumentProperties = {
   documentId: string;
-  cmsDocumentId: string;
-  cmsVersionId: number;
   cmsOriginalFileName: string;
   presentationTitle: string;
-  polarisDocumentVersionId: number;
-  cmsOriginalFileExtension: string | null;
+  versionId: number;
   cmsFileCreatedDate: string;
   categoryListOrder: number | null;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
-  polarisParentDocumentId: string | null;
+  parentDocumentId: string | null;
   witnessId: number | null;
   hasFailedAttachments: boolean;
   hasNotes: boolean;
   conversionStatus: ConversionStatus;
+  isOcrProcessed: boolean;
   isUnused: boolean;
   isInbox: boolean;
   classification: Classification;

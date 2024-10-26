@@ -124,7 +124,7 @@ export const Modal: React.FC<Props> = ({
               )}
             </div>
           )}
-          <div className={classes.contentContainer}>{children}</div>
+          <div>{children}</div>
         </div>
       </div>
     </>

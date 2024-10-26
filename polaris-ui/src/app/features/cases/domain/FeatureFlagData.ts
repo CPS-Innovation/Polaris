@@ -11,7 +11,11 @@ export type FeatureFlagData = {
   searchPII: boolean;
   renameDocument: boolean;
   reclassify: boolean;
-  externalRedirect: boolean;
+  externalRedirectCaseReviewApp: boolean;
+  externalRedirectBulkUmApp: boolean;
+  pageDelete: boolean;
+  pageRotate: boolean;
+  notifications: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -21,5 +25,9 @@ export type FeatureFlagQueryParams = {
   searchPII: string;
   renameDocument: string;
   reclassify: string;
-  externalRedirect: string;
+  externalRedirectCaseReviewApp: string;
+  externalRedirectBulkUmApp: string;
+  pageDelete: string;
+  pageRotate: string;
+  notifications: string;
 };

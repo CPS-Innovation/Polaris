@@ -40,8 +40,7 @@ stages:
     displayName: Apply Terraform
     condition: succeeded()
     variables:
-      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
-      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
+      mainTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.MAIN_TERRAFORM_COUNT']]
       networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
@@ -94,8 +93,7 @@ stages:
               stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
-              pipelineTerraformCount: $(pipelineTerraformCount)
-              uiTerraformCount: $(uiTerraformCount)
+              mainTerraformCount: $(mainTerraformCount)
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
@@ -111,10 +109,10 @@ stages:
               buildResultsTitle: "View Progress"
               buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
 
-      - deployment: Apply_Pipeline_Terraform
+      - deployment: Apply_Main_Terraform
         condition: succeeded()
         dependsOn: Log_Start_Terraform
-        displayName: Apply Pipeline Terraform
+        displayName: Apply Main Terraform
         environment: "Prod"
         workspace:
           clean: all
@@ -126,112 +124,16 @@ stages:
                   parameters:
                     azureSubscription: $(prod-azure-subscription)
                     
-                - template: stages/jobs/tasks/task_apply-terraform.yml
+                - template: stages/jobs/tasks/task_apply-and-record-terraform.yml
                   parameters:
                     targetBuild: PolarisBuild
-                    targetTerraformArtifact: "pipeline-terraform-files"
+                    targetTerraformArtifact: "main-terraform-files"
                     targetLabel: "PROD"
-                    targetName: "Pipeline Terraform CI Deployment"
+                    targetName: "Main Terraform CI Deployment"
                     targetPlanName: "prod"
                     appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
                     terraformStorageAccount: $(prod-terraform-storage-account)
-                    terraformContainerName: $(pipeline-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
-
-      - deployment: Apply_Pipeline_Events_Terraform
-        condition: succeeded()
-        dependsOn: Apply_Pipeline_Terraform
-        displayName: Apply Pipeline Events Terraform
-        environment: "Prod"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: stages/jobs/tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscription: $(prod-azure-subscription)
-                    
-                - template: stages/jobs/tasks/task_apply-terraform.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetTerraformArtifact: "pipeline-events-terraform-files"
-                    targetLabel: "PROD"
-                    targetName: "Pipeline Events Terraform CI Deployment"
-                    targetPlanName: "prod"
-                    appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-                    terraformStorageAccount: $(prod-terraform-storage-account)
-                    terraformContainerName: $(pipeline-events-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
-
-      - deployment: Apply_UI_Terraform
-        condition: succeeded()
-        dependsOn: Apply_Pipeline_Terraform
-        displayName: Apply UI Terraform
-        environment: "Prod"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: stages/jobs/tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscription: $(prod-azure-subscription)
-                    
-                - template: stages/jobs/tasks/task_apply-terraform.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetTerraformArtifact: "ui-terraform-files"
-                    targetLabel: "PROD"
-                    targetName: "UI Terraform CI Deployment"
-                    targetPlanName: "prod"
-                    appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-                    terraformStorageAccount: $(prod-terraform-storage-account)
-                    terraformContainerName: $(ui-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
-
-      - deployment: Apply_UI_Events_Terraform
-        condition: succeeded()
-        dependsOn: Apply_UI_Terraform
-        displayName: Apply UI Events Terraform
-        environment: "Prod"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: stages/jobs/tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscription: $(prod-azure-subscription)
-                    
-                - template: stages/jobs/tasks/task_apply-terraform.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetTerraformArtifact: "ui-events-terraform-files"
-                    targetLabel: "PROD"
-                    targetName: "UI Events Terraform CI Deployment"
-                    targetPlanName: "prod"
-                    appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-                    terraformStorageAccount: $(prod-terraform-storage-account)
-                    terraformContainerName: $(ui-events-terraform-container-name)
+                    terraformContainerName: $(main-terraform-container-name)
                     terraformStateKey: $(terraform-key)
                     terraformStateAccessKey: $(cpsprodstorageterraform-key1)
                     armClientId: $(clientId)
@@ -241,7 +143,7 @@ stages:
 
       - deployment: Set_Log_Analytics_Archival_Periods
         condition: succeeded()
-        dependsOn: Apply_UI_Events_Terraform
+        dependsOn: Apply_Main_Terraform
         displayName: Update Analytics Archival Periods
         environment: "Prod"
         strategy:
@@ -270,10 +172,7 @@ stages:
         condition: succeeded()
         displayName: Log End
         dependsOn:
-          - Apply_Pipeline_Terraform
-          - Apply_Pipeline_Events_Terraform
-          - Apply_UI_Terraform
-          - Apply_UI_Events_Terraform
+          - Apply_Main_Terraform
           - Set_Log_Analytics_Archival_Periods
         environment: "Prod"
         strategy:
@@ -343,9 +242,7 @@ stages:
       - Determine_Changes
       - Run_e2e_Tests
     variables:
-      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
-      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
-      networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
+      mainTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.MAIN_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
       pdfRedactorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_REDACTOR_COUNT']]
@@ -368,8 +265,7 @@ stages:
               stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
-              pipelineTerraformCount: $(pipelineTerraformCount)
-              uiTerraformCount: $(uiTerraformCount)
+              mainTerraformCount: $(mainTerraformCount)
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)
@@ -391,8 +287,7 @@ stages:
       - Determine_Changes
       - Run_e2e_Tests
     variables:
-      pipelineTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PIPELINE_TERRAFORM_COUNT']]
-      uiTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.UI_TERRAFORM_COUNT']]
+      mainTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.MAIN_TERRAFORM_COUNT']]
       networkingTerraformCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.NETWORKING_TERRAFORM_COUNT']]
       coordinatorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.COORDINATOR_COUNT']]
       pdfGeneratorCount: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.PDF_GENERATOR_COUNT']]
@@ -416,8 +311,7 @@ stages:
               stageName: "Deploy"
               commitId: $(resources.pipeline.PolarisBuild.sourceCommit)
               buildVersion: $(resources.pipeline.PolarisBuild.runName)
-              pipelineTerraformCount: $(pipelineTerraformCount)
-              uiTerraformCount: $(uiTerraformCount)
+              mainTerraformCount: $(mainTerraformCount)
               networkingTerraformCount: $(networkingTerraformCount)
               coordinatorCount: $(coordinatorCount)
               pdfGeneratorCount: $(pdfGeneratorCount)

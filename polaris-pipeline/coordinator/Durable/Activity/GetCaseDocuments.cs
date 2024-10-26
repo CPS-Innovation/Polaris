@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Document;
-using coordinator.Services.DocumentToggle;
-using DdeiClient.Services;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
+using Common.Services.DocumentToggle;
+using Ddei;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -40,32 +40,26 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(GetCaseDocuments))]
         public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
+            var payload = context.GetInput<CasePayload>();
 
-            if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
+            if (string.IsNullOrWhiteSpace(payload.Urn))
                 throw new ArgumentException("CaseUrn cannot be empty");
-            if (payload.CmsCaseId == 0)
+            if (payload.CaseId == 0)
                 throw new ArgumentException("CaseId cannot be zero");
             if (string.IsNullOrWhiteSpace(payload.CmsAuthValues))
                 throw new ArgumentException("Cms Auth Token cannot be null");
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
 
-            var getDocumentsTask = _ddeiClient.ListDocumentsAsync(
-                payload.CmsCaseUrn,
-                payload.CmsCaseId.ToString(),
-                payload.CmsAuthValues,
-                payload.CorrelationId
-            );
-
-            var arg = _ddeiArgFactory.CreateCaseArg(
+            var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
                 payload.CmsAuthValues,
                 payload.CorrelationId,
-                payload.CmsCaseUrn,
-                payload.CmsCaseId);
+                payload.Urn,
+                payload.CaseId);
 
-            var getPcdRequestsTask = _ddeiClient.GetPcdRequests(arg);
-            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndCharges(arg);
+            var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
+            var getPcdRequestsTask = _ddeiClient.GetPcdRequestsAsync(arg);
+            var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
@@ -78,16 +72,8 @@ namespace coordinator.Durable.Activity
                 .Select(corePcd => MapPresentationFlags(corePcd))
                 .ToArray();
 
-            var defendantsAndChargesResult = getDefendantsAndChargesTask.Result;
-
-
-            var defendantsAndCharges = new DefendantsAndChargesListDto
-            {
-                CaseId = payload.CmsCaseId,
-                DefendantsAndCharges = defendantsAndChargesResult.OrderBy(dac => dac.ListOrder)
-            };
-
-            defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
+            var defendantsAndCharges = getDefendantsAndChargesTask.Result;
+            MapPresentationFlags(defendantsAndCharges);
 
             return (cmsDocuments, pcdRequests, defendantsAndCharges);
         }
@@ -95,15 +81,24 @@ namespace coordinator.Durable.Activity
         private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)
         {
             document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
-
             return document;
         }
 
         private PcdRequestCoreDto MapPresentationFlags(PcdRequestCoreDto pcdRequest)
         {
             pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
-
             return pcdRequest;
+        }
+
+        private DefendantsAndChargesListDto MapPresentationFlags(DefendantsAndChargesListDto defendantsAndCharges)
+        {
+            if (defendantsAndCharges == null)
+            {
+                return null;
+            }
+
+            defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
+            return defendantsAndCharges;
         }
     }
 }

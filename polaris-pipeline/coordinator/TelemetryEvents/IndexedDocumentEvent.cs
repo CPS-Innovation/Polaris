@@ -13,9 +13,9 @@ namespace text_extractor.coordinator
 
         public Guid CorrelationId { get; set; }
         public string CaseUrn { get; set; }
-        public long CaseId { get; set; }
+        public int CaseId { get; set; }
         public string DocumentId { get; set; }
-        public string DocumentTypeId { get; set; }
+        public int? DocumentTypeId { get; set; }
         public string DocumentType { get; set; }
         public string DocumentCategory { get; set; }
         public long VersionId { get; set; }

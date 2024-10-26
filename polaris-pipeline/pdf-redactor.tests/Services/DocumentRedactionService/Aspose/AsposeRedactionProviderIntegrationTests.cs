@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Aspose.Pdf;
 using AutoFixture;
 using Common.Dto.Request;
@@ -20,7 +17,7 @@ namespace pdf_redactor.tests.Services.DocumentRedaction.Aspose;
 public class AsposeRedactionProviderIntegrationTests
 {
   private readonly Guid _correlationId;
-  private readonly string _caseId;
+  private readonly int _caseId;
   private readonly string _documentId;
   private readonly AsposeRedactionProvider _asposeRedactionProvider;
   private readonly Mock<ILogger<ImageConversionImplementation>> _loggerMock;
@@ -30,7 +27,7 @@ public class AsposeRedactionProviderIntegrationTests
   {
     var fixture = new Fixture();
     _correlationId = fixture.Create<Guid>();
-    _caseId = fixture.Create<string>();
+    _caseId = fixture.Create<int>();
     _documentId = fixture.Create<string>();
 
     _loggerMock = new Mock<ILogger<ImageConversionImplementation>>();
