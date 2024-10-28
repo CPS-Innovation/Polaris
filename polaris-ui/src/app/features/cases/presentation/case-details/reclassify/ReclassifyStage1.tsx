@@ -89,13 +89,14 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
           className={classes.errorSummaryWrapper}
         >
           <ErrorSummary
-            data-testid={"doctypeId-error-summary"}
+            data-testid={"reclassify-doctypeId-error-summary"}
             className={classes.errorSummary}
             errorList={[
               {
                 reactListKey: "1",
                 children: formDataErrors.documentTypeErrorText,
                 href: "#reclassify-document-type",
+                "data-testid": "reclassify-document-type-link",
               },
             ]}
           />
