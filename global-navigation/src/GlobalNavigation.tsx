@@ -1,5 +1,37 @@
-const template = document.createElement("template");
-template.innerHTML = `
+import gdsStyles from "./gds-styles";
+
+const styles = `
+    nav {
+        background: #dddddd;
+        margin: 0;
+    }
+    nav ul {
+        display: flex;
+
+    }
+    nav ul li {
+        display: inline-block;
+    }
+`;
+
+export const GlobalNavigation: React.FC = () => {
+  return (
+    <>
+      <style
+        dangerouslySetInnerHTML={{ __html: `${gdsStyles} ${styles}` }}
+      ></style>
+      <nav>
+        <ul>
+          <li>A</li>
+          <li>B</li>
+          <li>C</li>
+        </ul>
+      </nav>
+    </>
+  );
+};
+
+/*
   <style>
   @import "https://as-web-rumpole-ux-dev.azurewebsites.net/public/stylesheets/application.css";
 
@@ -94,7 +126,7 @@ template.innerHTML = `
     border-top: 22px solid transparent;    
 }
 
-/* Hide the dropdown menu by default */
+// Hide the dropdown menu by default 
 .dropdown-menu {
     display: none;
     position: absolute !important;
@@ -124,20 +156,20 @@ template.innerHTML = `
     transform: rotate(180deg);
 }
 
-/* Show the dropdown menu when the parent has the .show class */
+// Show the dropdown menu when the parent has the .show class 
 .menu-item.show .dropdown-menu {
     display: flex;
     flex-direction: column;
 }
 
-:host {
-  display: none;
-  font-size:80%;
-}
+// :host {
+//   display: none;
+//   font-size:80%;
+// }
 
-:host([open]) {
-  display: block;
-}
+// :host([open]) {
+//   display: block;
+// }
 
 :host .govuk-width-container {
   margin-left: 10px !important;
@@ -162,9 +194,8 @@ nav {
 }
 
   </style>
-  <div class="nav-a-tron-container">
 
-    <nav class="cps-bar-wrapper" id="global-navigation" style="margin-bottom:0">
+<nav class="cps-bar-wrapper" id="global-navigation" style="margin-bottom:0">
         <div class="govuk-width-container">
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
@@ -203,89 +234,5 @@ nav {
               </div>
           </div>
       </nav>
-      <hr />
-  </div>
 `;
-
-const uuidv4 = () =>
-  "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) =>
-    (
-      +c ^
-      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))
-    ).toString(16)
-  );
-
-const getCaseIdentifiers = () => {
-  const url = window.location.pathname;
-  const urlSegments = url.split("/");
-  const caseId = urlSegments[urlSegments.length - 1];
-  const urn = urlSegments[urlSegments.length - 2];
-  return { urn, caseId };
-};
-
-const getLeadDefendantName = ({ urn, caseId }) => {
-  fetch(`http://localhost:7075/api/urns/${urn}/cases/${caseId}`, {
-    credentials: "include",
-    headers: {
-      "Correlation-Id": uuidv4(),
-    },
-  })
-    .then((response) => response.json())
-    .then(
-      (data) =>
-        `${data?.leadDefendantDetails?.surname}, ${data?.leadDefendantDetails?.firstNames}`
-    );
-};
-class NavATron extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-    const { urn, caseId } = getCaseIdentifiers();
-
-    this.shadowRoot.getElementById("lead-defendant").innerText = "";
-  }
-}
-
-const url = window.location.href;
-console.log(url);
-const inNavMode = url.includes("nav");
-
-let navATron;
-if (inNavMode) {
-  customElements.define("nav-a-tron", NavATron);
-
-  navATron = document.createElement("nav-a-tron");
-
-  const script = document.scripts[document.scripts.length - 1];
-  script.parentElement.insertBefore(
-    document.createElement("nav-a-tron"),
-    script
-  );
-}
-
-const observer = new MutationObserver((mutationList, o) => {
-  for (const mutation of mutationList) {
-    if (mutation.type === "childList") {
-      const navATronRoot = document.getElementsByClassName("nav-a-tron")[0];
-      if (inNavMode) {
-        if (
-          navATronRoot &&
-          !navATronRoot.getElementsByTagName("nav-a-tron").length // already built
-        ) {
-          setTimeout(() => {
-            navATron.setAttribute("open", "true");
-          }, 50);
-          navATronRoot.append(navATron);
-        }
-      } else {
-        navATronRoot && navATronRoot.remove();
-      }
-    }
-  }
-});
-
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+*/
