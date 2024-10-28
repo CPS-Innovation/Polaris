@@ -20,7 +20,7 @@ namespace PolarisGateway.Functions
         private const string tokenQueryParamName = "token";
         private const string isOcrProcessedParamName = "isOcrProcessed";
         private readonly ILogger<GetOcr> _logger;
-        private readonly IArtefactService _artefactService;
+        private readonly ICachingArtefactService _cachingArtefactService;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
@@ -30,10 +30,10 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _logger = logger;
-            _artefactService = artefactService;
-            _initializationHandler = initializationHandler;
-            _unhandledExceptionHandler = unhandledExceptionHandler;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _cachingArtefactService = artefactService ?? throw new ArgumentNullException(nameof(artefactService));
+            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
+            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
 
         [FunctionName(nameof(GetOcr))]
@@ -51,10 +51,15 @@ namespace PolarisGateway.Functions
                     ? Guid.Parse(req.Query[tokenQueryParamName])
                     : (Guid?)null;
 
-                var ocrResult = await _artefactService.GetOcrAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
+                var ocrResult = await _cachingArtefactService.GetOcrAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
                 return ocrResult.Status switch
                 {
-                    ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),
+                    ResultStatus.ArtefactAvailable => new JsonResult(
+                        ocrResult.Result.Item2
+                    )
+                    {
+                        StatusCode = (int)HttpStatusCode.OK
+                    },
                     ResultStatus.PollWithToken => new JsonResult(new
                     {
                         NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.Result.Item1}"

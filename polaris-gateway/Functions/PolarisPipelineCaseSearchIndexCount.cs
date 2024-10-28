@@ -28,7 +28,6 @@ namespace PolarisGateway.Functions
             _unhandledExceptionHandler = unhandledExceptionHandler;
         }
 
-
         [FunctionName(nameof(PolarisPipelineCaseSearchIndexCount))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

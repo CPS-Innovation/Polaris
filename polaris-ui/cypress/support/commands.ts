@@ -97,8 +97,22 @@ Cypress.Commands.add(
           requestCounter.count++;
           return;
         }
-        if (req.method === method && req.url.pathname === pathname) {
+        if (
+          req.method === method &&
+          typeof pathname === "string" &&
+          req.url.pathname === pathname
+        ) {
           requestCounter.count++;
+          return;
+        }
+        if (
+          req.method === method &&
+          pathname instanceof RegExp &&
+          typeof req.url.pathname === "string" &&
+          String(req.url.pathname).match(pathname)
+        ) {
+          requestCounter.count++;
+          return;
         }
       });
     });

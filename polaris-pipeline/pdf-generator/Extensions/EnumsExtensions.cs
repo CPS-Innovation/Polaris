@@ -13,6 +13,6 @@ public static class EnumsExtensions
         // Return the first if there was a match
         return fieldInfo != null && fieldInfo.GetCustomAttributes(
             typeof(EnumValueAttribute), false) is EnumValueAttribute[] { Length: > 0 } attribs
-            ? attribs[0].EnumValue : null;
+            ? attribs[0].EnumValue : string.Empty;
     }
 }
