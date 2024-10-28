@@ -130,8 +130,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       reclassify: shouldShowFeature(
         FEATURE_FLAG_RECLASSIFY,
         userDetails?.username,
-        reclassify,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        reclassify
       ),
       pageDelete: shouldShowFeature(
         FEATURE_FLAG_PAGE_DELETE,
