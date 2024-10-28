@@ -1,10 +1,8 @@
 import { useEffect, useRef } from "react";
 export const useLastFocus = (defaultFocusId?: string) => {
-  const lastFocusElementRef = useRef<Element | null>(null);
+  const lastFocusElementRef = useRef<Element>(document.activeElement);
   useEffect(() => {
-    if (!lastFocusElementRef.current) {
-      lastFocusElementRef.current = document.activeElement;
-    }
+    const lastFocusElement = lastFocusElementRef.current;
     return () => {
       //only add last focus if the active element is set back to body element
       if (
@@ -13,11 +11,8 @@ export const useLastFocus = (defaultFocusId?: string) => {
       ) {
         return;
       }
-      if (
-        lastFocusElementRef.current &&
-        document.contains(lastFocusElementRef.current)
-      )
-        (lastFocusElementRef.current as HTMLElement).focus();
+      if (lastFocusElement && document.contains(lastFocusElement))
+        (lastFocusElement as HTMLElement).focus();
       else {
         if (defaultFocusId) {
           const defaultElement = document.querySelector(

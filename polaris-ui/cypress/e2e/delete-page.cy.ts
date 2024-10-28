@@ -1,3 +1,4 @@
+import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
 describe("Feature Delete Page", () => {
   it("Should show page delete button and page number correctly in each page", () => {
     cy.visit("/case-details/12AB1111111/13401?pageDelete=true");
@@ -76,8 +77,8 @@ describe("Feature Delete Page", () => {
         },
       ],
       documentModifications: [
-        { pageIndex: 1, operation: "delete" },
-        { pageIndex: 2, operation: "delete" },
+        { pageIndex: 1, operation: "delete" as const },
+        { pageIndex: 2, operation: "delete" as const },
       ],
     };
     const saveRequestObject = { body: "" };
@@ -230,8 +231,9 @@ describe("Feature Delete Page", () => {
     cy.waitUntil(() => {
       return saveRequestObject.body;
     }).then(() => {
-      expect(saveRequestObject.body).to.deep.equal(
-        JSON.stringify(expectedSaveRequest)
+      redactionRequestAssertionValidator(
+        expectedSaveRequest,
+        JSON.parse(saveRequestObject.body)
       );
     });
 
@@ -261,7 +263,7 @@ describe("Feature Delete Page", () => {
     const expectedSaveRequest = {
       documentId: "1",
       redactions: [],
-      documentModifications: [{ pageIndex: 1, operation: "delete" }],
+      documentModifications: [{ pageIndex: 1, operation: "delete" as const }],
     };
     const saveRequestObject = { body: "" };
     cy.trackRequestBody(
@@ -311,8 +313,9 @@ describe("Feature Delete Page", () => {
     cy.waitUntil(() => {
       return saveRequestObject.body;
     }).then(() => {
-      expect(saveRequestObject.body).to.deep.equal(
-        JSON.stringify(expectedSaveRequest)
+      redactionRequestAssertionValidator(
+        expectedSaveRequest,
+        JSON.parse(saveRequestObject.body)
       );
     });
   });
