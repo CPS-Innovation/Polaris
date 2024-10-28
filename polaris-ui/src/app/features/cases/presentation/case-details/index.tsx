@@ -641,7 +641,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                           className={`${classes.newWindowBtn} govuk-button--secondary`}
                           name="secondary"
                         >
-                          Bulk UM Classification <NewWindow />
+                          Bulk UM Classification
                         </Button>
                       )}
                     </div>
