@@ -1,4 +1,4 @@
-﻿using Common.Dto.Tracker;
+﻿using Common.Dto.Response.Documents;
 using coordinator.Durable.Entity;
 
 namespace coordinator.Functions.DurableEntity.Entity.Mapper

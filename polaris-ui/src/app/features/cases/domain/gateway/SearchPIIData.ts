@@ -8,7 +8,6 @@ export type SearchPIIResultItem = {
   pageHeight: number;
   pageIndex: number;
   pageWidth: number;
-  polarisDocumentId: string;
   words: {
     boundingBox: number[] | null;
     matchType: "None" | "Exact" | "Fuzzy";
@@ -24,7 +23,7 @@ export type SearchPIIData = {
   show: boolean;
   defaultOption: boolean;
   documentId: string;
-  polarisDocumentVersionId: number;
+  versionId: number;
   searchPIIHighlights: ISearchPIIHighlight[];
   getSearchPIIStatus: "failure" | "success" | "loading" | "initial";
 };

@@ -1,8 +1,8 @@
 ﻿using Common.Constants;
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Common.Dto.Document;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Documents;
 using coordinator.Durable.Payloads.Domain;
 using System;
 using System.Threading.Tasks;
@@ -13,48 +13,16 @@ namespace coordinator.Durable.Entity
     // (A single tuple is acceptable)
     public interface ICaseDurableEntity
     {
-        [Obsolete]
-        Task<int?> GetVersion();
-
-        [Obsolete]
-        void SetVersion(int value);
-
-        [Obsolete]
-        void Reset(string TransactionId);
-
-        [Obsolete]
-        void SetValue(CaseDurableEntity tracker);
-        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
-
-        [Obsolete]
-        void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
-
-        [Obsolete]
-        void SetDocumentConversionStatus((string PolarisDocumentId, PdfConversionStatus Status) args);
-
+        void Reset();
+        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
-
-        [Obsolete]
-        void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args);
-
-        void SetPiiCmsVersionId(string polarisDocumentId);
-
-        [Obsolete]
-        Task<bool> AllDocumentsFailed();
-
-        [Obsolete]
-        Task<string[]> GetPolarisDocumentIds();
-
-        [Obsolete]
+        void SetPiiVersionId(string documentId);
         Task<DateTime> GetStartTime();
 
-        [Obsolete]
-        Task<float> GetDurationToCompleted();
-
         // vNext stuff
-        void SetDocumentPdfConversionSucceeded((string polarisDocumentId, string pdfBlobName) arg);
-        void SetDocumentPdfConversionFailed((string PolarisDocumentId, PdfConversionStatus PdfConversionStatus) arg);
-        void SetDocumentIndexingSucceeded(string polarisDocumentId);
-        void SetDocumentIndexingFailed(string polarisDocumentId);
+        void SetDocumentPdfConversionSucceeded(string documentId);
+        void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg);
+        void SetDocumentIndexingSucceeded(string documentId);
+        void SetDocumentIndexingFailed(string documentId);
     }
 }

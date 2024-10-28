@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Domain.SearchIndex;
 using Common.Dto.Response;
-using Common.ValueObjects;
 using Common.Wrappers;
 using Common.Handlers;
 
@@ -14,7 +13,7 @@ namespace coordinator.Clients.TextExtractor
 {
     public class TextExtractorClient : ITextExtractorClient
     {
-        private const string PolarisDocumentId = nameof(PolarisDocumentId);
+        private const string DocumentId = nameof(DocumentId);
         private readonly HttpClient _httpClient;
         private readonly IRequestFactory _requestFactory;
         private readonly ISearchDtoContentFactory _searchDtoContentFactory;
@@ -33,12 +32,10 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream ocrResults)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string documentId, string urn, int caseId, long versionId, Guid correlationId, Stream ocrResults)
         {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
-            request.Headers.Add(PolarisDocumentId, polarisDocumentId.ToString());
-            // BlobName header is deprecated and will be removed in the future
-            request.Headers.Add("BlobName", blobName);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(urn, caseId, documentId, versionId), correlationId);
+            request.Headers.Add(DocumentId, documentId);
 
             using var requestContent = new StreamContent(ocrResults);
             request.Content = requestContent;
@@ -62,13 +59,13 @@ namespace coordinator.Clients.TextExtractor
         }
 
         public async Task<IList<StreamlinedSearchLine>> SearchTextAsync(
-            string caseUrn,
-            long cmsCaseId,
+            string urn,
+            int caseId,
             string searchTerm,
             Guid correlationId
         )
         {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetSearchPath(caseUrn, cmsCaseId), correlationId);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetSearchPath(urn, caseId), correlationId);
             request.Content = _searchDtoContentFactory.Create(searchTerm);
 
             using (var response = await _httpClient.SendAsync(request))
@@ -79,9 +76,9 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string caseUrn, long cmsCaseId, Guid correlationId)
+        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string urn, int caseId, Guid correlationId)
         {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetRemoveCaseIndexesPath(caseUrn, cmsCaseId), correlationId);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetRemoveCaseIndexesPath(urn, caseId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -91,9 +88,9 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<SearchIndexCountResult> GetCaseIndexCount(string caseUrn, long cmsCaseId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(string urn, int caseId, Guid correlationId)
         {
-            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetCaseIndexCountResultsPath(caseUrn, cmsCaseId), correlationId);
+            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetCaseIndexCountResultsPath(urn, caseId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -103,9 +100,9 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string caseUrn, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string documentId, long versionId, Guid correlationId)
         {
-            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetDocumentIndexCountResultsPath(caseUrn, cmsCaseId, cmsDocumentId, versionId), correlationId);
+            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetDocumentIndexCountResultsPath(urn, caseId, documentId, versionId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {

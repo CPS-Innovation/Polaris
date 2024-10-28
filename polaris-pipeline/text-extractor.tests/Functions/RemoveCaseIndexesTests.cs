@@ -31,7 +31,7 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
-        private readonly long _caseId;
+        private readonly int _caseId;
         private readonly RemoveCaseIndexes _removeCaseIndexes;
 
         public RemoveCaseIndexesTests()
@@ -47,11 +47,11 @@ namespace text_extractor.tests.Functions
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
-            _caseId = _fixture.Create<long>();
+            _caseId = _fixture.Create<int>();
             _mockLogger = new Mock<ILogger<RemoveCaseIndexes>>();
 
             _mockSearchIndexService
-                .Setup(service => service.RemoveCaseIndexEntriesAsync(It.IsAny<long>(), It.IsAny<Guid>()))
+                .Setup(service => service.RemoveCaseIndexEntriesAsync(It.IsAny<int>(), It.IsAny<Guid>()))
                 .ReturnsAsync(new IndexDocumentsDeletedResult
                 {
                     DocumentCount = 1,

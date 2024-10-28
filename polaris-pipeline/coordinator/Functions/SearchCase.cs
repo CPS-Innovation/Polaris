@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using coordinator.Durable.Orchestration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -63,7 +62,7 @@ namespace coordinator.Functions
 
                 var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
-                var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId.ToString()));
+                var entityId = CaseDurableEntity.GetEntityId(caseId);
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
                 var entityState = trackerState.EntityState;
@@ -76,11 +75,11 @@ namespace coordinator.Functions
                         .ToList();
 
                 var filteredSearchResults = searchResults
-                    .Where(result => documents.Any(doc => doc.PolarisDocumentId == result.PolarisDocumentId && doc.CmsVersionId == result.VersionId))
+                    .Where(result => documents.Any(doc => doc.DocumentId == result.DocumentId && doc.VersionId == result.VersionId))
                     .ToList();
 
                 var documentIds = filteredSearchResults
-                    .Select(result => result.PolarisDocumentId)
+                    .Select(result => result.DocumentId)
                     .Distinct()
                     .ToList();
 

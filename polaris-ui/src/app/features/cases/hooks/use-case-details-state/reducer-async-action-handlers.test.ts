@@ -466,7 +466,6 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
-                cmsDocumentId: "a",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [] as any,
@@ -585,7 +584,6 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
-                cmsDocumentId: "a",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [{}],
@@ -647,7 +645,6 @@ describe("reducerAsyncActionHandlers", () => {
           items: [
             {
               documentId: "1",
-              cmsDocumentId: "a",
               redactionHighlights,
               pageDeleteRedactions: [{}],
               pageRotations: [{}],

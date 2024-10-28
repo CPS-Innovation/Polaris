@@ -5,7 +5,7 @@ namespace Common.Dto.Request
 {
     public class GeneratePdfRequestDto
     {
-        public GeneratePdfRequestDto(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId)
+        public GeneratePdfRequestDto(string caseUrn, int caseId, string documentCategory, string documentId, string fileName, long versionId)
         {
             CaseUrn = caseUrn;
             CaseId = caseId;
@@ -19,7 +19,7 @@ namespace Common.Dto.Request
         public string CaseUrn { get; set; }
 
         [RequiredLongGreaterThanZero]
-        public long CaseId { get; set; }
+        public int CaseId { get; set; }
 
         [Required]
         public string DocumentId { get; set; }

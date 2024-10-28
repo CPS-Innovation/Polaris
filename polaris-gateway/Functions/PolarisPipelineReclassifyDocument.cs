@@ -2,7 +2,6 @@ using System.Net;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Telemetry;
-using Common.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -80,7 +79,7 @@ namespace PolarisGateway.Functions
                 var response = await _coordinatorClient.ReclassifyDocument(
                     caseUrn,
                     caseId,
-                    new PolarisDocumentId(documentId),
+                    documentId,
                     reclassifyDocumentDto,
                     context.CmsAuthValues,
                     context.CorrelationId);

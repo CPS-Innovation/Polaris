@@ -37,7 +37,7 @@ export type CombinedState = {
     startRefresh: boolean;
     savedDocumentDetails: {
       documentId: string;
-      polarisDocumentVersionId: number;
+      versionId: number;
     }[];
     lastProcessingCompleted: string;
   };
@@ -143,7 +143,8 @@ export const initialState = {
     searchPII: false,
     renameDocument: false,
     reclassify: false,
-    externalRedirect: false,
+    externalRedirectCaseReviewApp: false,
+    externalRedirectBulkUmApp: false,
     pageDelete: false,
     pageRotate: false,
     notifications: false,

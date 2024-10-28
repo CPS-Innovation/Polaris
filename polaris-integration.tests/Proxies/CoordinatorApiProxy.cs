@@ -1,5 +1,5 @@
 using Common.Configuration;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using System.Net;
 using Newtonsoft.Json;
 using System.Text;
@@ -30,7 +30,7 @@ namespace polaris_gateway.integration.tests.Proxies
 
                 return;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e);
             }
@@ -51,11 +51,11 @@ namespace polaris_gateway.integration.tests.Proxies
         {
             TrackerDto tracker;
 
-            while(true)
+            while (true)
             {
                 tracker = await GetTrackerAsync(urn, caseId, correlationId);
 
-                switch(tracker?.Status)
+                switch (tracker?.Status)
                 {
                     case CaseRefreshStatus.Completed:
                         return tracker;

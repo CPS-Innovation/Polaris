@@ -96,6 +96,9 @@ export const AccordionDocument: React.FC<Props> = ({
   }, [caseDocument.hasNotes, caseDocument.presentationTitle, isNotesDisabled]);
 
   const notesHoverOverCallback = () => {
+    if (isNotesDisabled()) {
+      return;
+    }
     const documentNote = notesData.find(
       (note) => note.documentId === caseDocument.documentId
     );

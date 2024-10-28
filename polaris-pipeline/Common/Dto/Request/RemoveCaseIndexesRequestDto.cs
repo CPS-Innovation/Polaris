@@ -5,6 +5,6 @@ namespace Common.Dto.Request
     public class RemoveCaseIndexesRequestDto
     {
         [RequiredLongGreaterThanZero]
-        public long CaseId { get; set; }
+        public int CaseId { get; set; }
     }
 }

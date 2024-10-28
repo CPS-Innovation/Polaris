@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using AutoFixture;
-using coordinator.Clients.PdfGenerator;
+using Common.Clients.PdfGenerator;
+
 using FluentAssertions;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
         private readonly string _accessToken;
         private readonly Guid _correlationId;
 
-        private readonly IRequestFactory _requestFactory;
+        private readonly IPdfGeneratorRequestFactory _requestFactory;
 
         public RequestFactoryTests()
         {
@@ -22,7 +23,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
             _accessToken = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
 
-            _requestFactory = new RequestFactory();
+            _requestFactory = new PdfGeneratorRequestFactory();
         }
 
         [Fact]

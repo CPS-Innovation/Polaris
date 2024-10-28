@@ -116,7 +116,6 @@ describe("initiateAndPoll", () => {
       .spyOn(api, "getPipelinePdfResults")
       .mockImplementation((caseId) =>
         Promise.resolve({
-          transactionId: "",
           status: "Failed",
           documents: [{ status: "PdfUploadedToBlob" }],
         } as PipelineResults)
@@ -171,7 +170,6 @@ describe("initiateAndPoll", () => {
       });
     const mockCallback = jest.fn();
     const expectedResults = {
-      transactionId: "",
       status: "Completed",
       processingCompleted: new Date().toISOString(),
       documents: [{}],
@@ -231,14 +229,12 @@ describe("initiateAndPoll", () => {
       );
 
     const expectedInterimResults = {
-      transactionId: "",
       status: "Running",
       processingCompleted: "",
       documents: [{ status: "PdfUploadedToBlob" }, { status: "None" }],
     } as PipelineResults;
 
     const expectedFinalResults = {
-      transactionId: "",
       status: "Completed",
       processingCompleted: new Date().toISOString(),
       documents: [

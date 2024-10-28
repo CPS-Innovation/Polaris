@@ -56,7 +56,7 @@ describe("Feature Notes", () => {
     cy.focused().should("have.id", "btn-notes-10");
   });
   it("Should be able to add new note to the document", () => {
-    const expectedAddNotePayload = { documentId: 10, text: "note_1" };
+    const expectedAddNotePayload = { text: "note_1" };
     const addNoteRequestObject = { body: "" };
     cy.trackRequestBody(
       addNoteRequestObject,
