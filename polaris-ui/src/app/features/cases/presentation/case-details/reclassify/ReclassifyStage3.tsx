@@ -2,17 +2,21 @@ import { useMemo, useEffect, useRef } from "react";
 import {
   Table,
   LinkButton,
+  NotificationBanner,
+  Spinner,
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import classes from "./Reclassify.module.scss";
 
 type ReclassifyStage3Props = {
   presentationTitle: string;
+  reclassifiedDocumentUpdate?: boolean;
   handleBackBtnClick: () => void;
 };
 
 export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   presentationTitle,
+  reclassifiedDocumentUpdate,
   handleBackBtnClick,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
@@ -138,9 +142,33 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
       >
         Back
       </LinkButton>
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {(state.reClassifySaveStatus === "saving" ||
+          (state.reClassifySaveStatus === "success" &&
+            !reclassifiedDocumentUpdate)) && (
+          <span>Saving to CMS. Please wait</span>
+        )}
+        {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
+      </div>
+      {(state.reClassifySaveStatus === "saving" ||
+        state.reClassifySaveStatus === "success") && (
+        <NotificationBanner className={classes.notificationBanner}>
+          <div
+            className={classes.bannerContent}
+            data-testid="div-notification-banner"
+          >
+            <div className={classes.spinnerWrapper}>
+              <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+            </div>
+            <p className={classes.notificationBannerText}>
+              Saving to CMS. Please wait.
+            </p>
+          </div>
+        </NotificationBanner>
+      )}
       <h1 id="main-description">Check your answers</h1>
       <h2>Document details</h2>
-      <Table rows={getTableRows()} />
+      <Table rows={getTableRows()} data-testid="reclassify-summary" />
     </div>
   );
 };
