@@ -46,7 +46,7 @@ namespace pdf_generator.Functions
             string caseUrn, int caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
-            ConvertedDocumentEvent telemetryEvent = default;
+            ConvertedDocumentEvent telemetryEvent;
             try
             {
                 currentCorrelationId = request.Headers.GetCorrelationId();

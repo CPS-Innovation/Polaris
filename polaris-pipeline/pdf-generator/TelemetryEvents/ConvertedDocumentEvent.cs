@@ -7,17 +7,17 @@ namespace pdf_generator.TelemetryEvents
     public class ConvertedDocumentEvent : BaseTelemetryEvent
     {
         public Guid CorrelationId { get; set; }
-        public string CaseUrn { get; set; }
-        public string CaseId { get; set; }
-        public string DocumentId { get; set; }
-        public string VersionId { get; set; }
-        public string FileType { get; set; }
-        public long OriginalBytes { get; set; }
-        public long Bytes { get; set; }
+        public string CaseUrn { get; set; } = string.Empty;
+        public string CaseId { get; set; } = string.Empty;
+        public string DocumentId { get; set; } = string.Empty;
+        public string VersionId { get; set; } = string.Empty;
+        public string FileType { get; set; } = string.Empty;
+        public long OriginalBytes { get; set; } = 0;
+        public long Bytes { get; set; } = 0;
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string ConversionHandler { get; set; }
-        public string FailureReason { get; set; }
+        public string ConversionHandler { get; set; } = string.Empty;
+        public string FailureReason { get; set; } = string.Empty;
 
         public ConvertedDocumentEvent(Guid correlationId)
         {
