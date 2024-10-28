@@ -14,13 +14,13 @@ public class PdfConversionResult
 
     public string DocumentId { get; set; }
 
-    public Stream ConvertedDocument { get; set; }
+    public Stream ConvertedDocument { get; set; } = Stream.Null;
 
     public PdfConverterType ConversionHandler { get; set; }
 
     public PdfConversionStatus ConversionStatus { get; set; }
 
-    public string Feedback { get; set; }
+    public string Feedback { get; set; } = string.Empty;
 
     public void RecordConversionSuccess(Stream convertedDocument)
     {

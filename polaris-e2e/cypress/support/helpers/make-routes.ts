@@ -1,20 +1,20 @@
-import { RedactionSaveRequest } from "../../../gateway/RedactionSaveRequest"
-import { CorrelationId, correlationIds } from "../correlation-ids"
+import { RedactionSaveRequest } from "../../../gateway/RedactionSaveRequest";
+import { CorrelationId, correlationIds } from "../correlation-ids";
 
-const { API_ROOT_DOMAIN } = Cypress.env()
+const { API_ROOT_DOMAIN } = Cypress.env();
 
-export type ApiRoutes = ReturnType<typeof makeApiRoutes>
+export type ApiRoutes = ReturnType<typeof makeApiRoutes>;
 
 const makeHeaders = (headers: any, correlationId: CorrelationId) => ({
   ...headers,
   "correlation-id": correlationIds[correlationId],
-})
+});
 
 export const makeApiRoutes = (headers: any) => {
   const LIST_CASES = (urn: string, correlationId: CorrelationId = "BLANK") => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases`,
     headers: makeHeaders(headers, correlationId),
-  })
+  });
 
   const GET_CASE = (
     urn: string,
@@ -23,7 +23,7 @@ export const makeApiRoutes = (headers: any) => {
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
     headers: makeHeaders(headers, correlationId),
-  })
+  });
 
   const TRACKER_START = (
     urn: string,
@@ -33,7 +33,7 @@ export const makeApiRoutes = (headers: any) => {
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
     headers: makeHeaders(headers, correlationId),
     method: "POST",
-  })
+  });
 
   const GET_TRACKER = (
     urn: string,
@@ -42,7 +42,7 @@ export const makeApiRoutes = (headers: any) => {
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
     headers: makeHeaders(headers, correlationId),
-  })
+  });
 
   const GET_SEARCH = (
     urn: string,
@@ -52,40 +52,53 @@ export const makeApiRoutes = (headers: any) => {
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/search?query=${query}`,
     headers: makeHeaders(headers, correlationId),
-  })
+  });
+
+  const GET_DOCUMENTS = (
+    urn: string,
+    caseId: number,
+    correlationId: CorrelationId = "BLANK"
+  ) => ({
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents`,
+    headers: makeHeaders(headers, correlationId),
+    method: "GET",
+  });
 
   const GET_DOCUMENT = (
     urn: string,
     caseId: number,
     documentId: string,
+    versionId: number,
     correlationId: CorrelationId = "BLANK"
   ) => ({
-    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}`,
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pdf`,
     headers: makeHeaders(headers, correlationId),
     method: "GET",
-  })
+  });
 
   const CHECKOUT_DOCUMENT = (
     urn: string,
     caseId: number,
     documentId: string,
+    versionId: number,
     correlationId: CorrelationId = "BLANK"
   ) => ({
-    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`,
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/checkout`,
     headers: makeHeaders(headers, correlationId),
     method: "POST",
-  })
+  });
 
   const CANCEL_CHECKOUT_DOCUMENT = (
     urn: string,
     caseId: number,
     documentId: string,
+    versionId: number,
     correlationId: CorrelationId = "BLANK"
   ) => ({
-    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`,
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/checkout`,
     headers: makeHeaders(headers, correlationId),
     method: "DELETE",
-  })
+  });
 
   const SAVE_DOCUMENT = (
     urn: string,
@@ -107,7 +120,7 @@ export const makeApiRoutes = (headers: any) => {
         },
       ],
     } as RedactionSaveRequest,
-  })
+  });
 
   return {
     LIST_CASES,
@@ -116,9 +129,10 @@ export const makeApiRoutes = (headers: any) => {
     TRACKER_START,
     GET_TRACKER,
     GET_SEARCH,
+    GET_DOCUMENTS,
     GET_DOCUMENT,
     CHECKOUT_DOCUMENT,
     CANCEL_CHECKOUT_DOCUMENT,
     SAVE_DOCUMENT,
-  }
-}
+  };
+};
