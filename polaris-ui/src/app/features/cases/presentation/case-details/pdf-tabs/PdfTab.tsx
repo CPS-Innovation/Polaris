@@ -119,6 +119,11 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     [featureFlags.pageDelete, documentType]
   );
 
+  const showRotatePage = useMemo(
+    () => featureFlags.pageRotate && documentType !== "DAC",
+    [featureFlags.pageRotate, documentType]
+  );
+
   const searchHighlights =
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
 
@@ -272,7 +277,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             showSearchPII: featureFlags.searchPII,
             rotatePageMode: rotatePageMode,
             deletePageMode: deletePageMode,
-            showRotatePage: featureFlags.pageRotate,
+            showRotatePage: showRotatePage,
             showDeletePage: showDeletePage,
           }}
         />
@@ -319,7 +324,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             saveStatus: saveStatus,
             caseId,
             showDeletePage: showDeletePage && deletePageMode,
-            showRotatePage: featureFlags.pageRotate && rotatePageMode,
+            showRotatePage: showRotatePage && rotatePageMode,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
