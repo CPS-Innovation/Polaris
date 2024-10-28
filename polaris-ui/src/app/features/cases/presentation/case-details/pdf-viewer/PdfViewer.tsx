@@ -20,7 +20,6 @@ import {
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
-import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
@@ -110,7 +109,6 @@ export const PdfViewer: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
-  // useControlledRedactionFocus(tabId, activeTabId, tabIndex);
   const showRotatePageRef = useRef(contextData.showRotatePage);
   useEffect(() => {
     showRotatePageRef.current = contextData.showRotatePage;
