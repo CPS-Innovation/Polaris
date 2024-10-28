@@ -38,22 +38,25 @@ describe("refreshUtils", () => {
   });
 
   describe("hasDocumentUpdated", () => {
-    it("it should return true if there is matching updated document ", () => {
-      const newData = {
-        documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
-      } as PipelineResults;
-      const result = hasDocumentUpdated(
-        { documentId: "1", polarisDocumentVersionId: 1 },
-        newData
-      );
-      expect(result).toEqual(true);
-    });
+    it.each([1, 3])(
+      "it should return true if there is matching updated document ",
+      (nextVersionId) => {
+        const newData = {
+          documents: [{ documentId: "1", versionId: nextVersionId }],
+        } as PipelineResults;
+        const result = hasDocumentUpdated(
+          { documentId: "1", versionId: 2 },
+          newData
+        );
+        expect(result).toEqual(true);
+      }
+    );
     it("it should return false if there is matching document doesn't have version updated", () => {
       const newData = {
-        documents: [{ documentId: "1", polarisDocumentVersionId: 1 }],
+        documents: [{ documentId: "1", versionId: 1 }],
       } as PipelineResults;
       const result = hasDocumentUpdated(
-        { documentId: "1", polarisDocumentVersionId: 1 },
+        { documentId: "1", versionId: 1 },
         newData
       );
       expect(result).toEqual(false);
@@ -61,21 +64,10 @@ describe("refreshUtils", () => {
 
     it("it should return false if there is no matching document found", () => {
       const newData = {
-        documents: [{ documentId: "1", polarisDocumentVersionId: 1 }],
+        documents: [{ documentId: "1", versionId: 1 }],
       } as PipelineResults;
       const result = hasDocumentUpdated(
-        { documentId: "2", polarisDocumentVersionId: 1 },
-        newData
-      );
-      expect(result).toEqual(false);
-    });
-
-    it("it should return false if there is no matching document found", () => {
-      const newData = {
-        documents: [{ documentId: "1", polarisDocumentVersionId: 1 }],
-      } as PipelineResults;
-      const result = hasDocumentUpdated(
-        { documentId: "1", polarisDocumentVersionId: 3 },
+        { documentId: "2", versionId: 1 },
         newData
       );
       expect(result).toEqual(false);

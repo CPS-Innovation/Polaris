@@ -1,6 +1,5 @@
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { AsyncResult } from "../../../../common/types/AsyncResult";
-
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { AccordionDocumentSection } from "../../presentation/case-details/accordion/types";
 import {

@@ -1,8 +1,9 @@
-using Common.Dto.Case;
-using Common.Dto.Case.PreCharge;
-using Ddei.Domain;
-using Ddei.Domain.PreCharge;
-using DdeiClient.Mappers;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Ddei.Domain.Response;
+using Ddei.Domain.Response.PreCharge;
+using Ddei.Domain.Response.Defendant;
+using System.Text.RegularExpressions;
 
 namespace Ddei.Mappers
 {
@@ -36,9 +37,19 @@ namespace Ddei.Mappers
             };
         }
 
-        public IEnumerable<DefendantAndChargesDto> MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants)
+        public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, int caseId, string etag)
         {
-            return defendants.Select(defendant => MapDefendantAndCharges(defendant));
+            var defendantsAndCharges = defendants
+                .Select(defendant => MapDefendantAndCharges(defendant))
+                .OrderBy(dac => dac.ListOrder)
+                .ToList();
+
+            return new DefendantsAndChargesListDto
+            {
+                CaseId = caseId,
+                DefendantsAndCharges = defendantsAndCharges.OrderBy(dac => dac.ListOrder),
+                VersionId = GetVersionIdFromEtag(etag) ?? 1
+            };
         }
 
         public PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)
@@ -50,7 +61,7 @@ namespace Ddei.Mappers
                 DecisionRequested = pcdr.DecisionRequested,
                 CaseOutline = pcdr.CaseOutline.Select(ol => MapPcdCaseOutlineLine(ol)).ToList(),
                 Comments = MapPreChargeDecisionComments(pcdr.Comments),
-                Suspects = pcdr.Suspects.Select(s => MapPcdSuspect(s)).ToList()
+                Suspects = pcdr.Suspects.Select(s => MapPcdSuspect(s)).ToList(),
             };
         }
 
@@ -333,10 +344,24 @@ namespace Ddei.Mappers
             };
         }
 
-        private bool AreStringsEqual(string a, string b) =>
+        private static bool AreStringsEqual(string a, string b) =>
         (
             string.IsNullOrEmpty(a) && string.IsNullOrEmpty(b))
             || string.Equals(a, b, StringComparison.CurrentCultureIgnoreCase
         );
+
+        private static long? GetVersionIdFromEtag(string etag)
+        {
+            if (string.IsNullOrEmpty(etag))
+            {
+                return null;
+            }
+
+            var match = Regex.Match(etag, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1));
+
+            return match.Success
+                ? long.Parse(match.Value)
+                : null;
+        }
     }
 }

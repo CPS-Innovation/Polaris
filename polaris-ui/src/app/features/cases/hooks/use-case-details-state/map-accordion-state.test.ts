@@ -1,10 +1,7 @@
 import { mapAccordionState } from "./map-accordion-state";
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import {
-  ConversionStatus,
-  PresentationDocumentProperties,
-} from "../../domain/gateway/PipelineDocument";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 const mapUnSortedDocsToCategory = (
   categories: string[],
@@ -442,15 +439,11 @@ describe("mapAccordionState", () => {
       data: [
         {
           documentId: "1",
-          cmsDocumentId: "1",
-          cmsVersionId: 1,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
-          cmsOriginalFileName: "foo",
+          cmsOriginalFileName: "foo.pdf",
           presentationTitle: "foo!",
-          cmsOriginalFileExtension: ".pdf",
-          presentationFileName: "foo!",
-          polarisDocumentVersionId: 1,
+          versionId: 1,
           categoryListOrder: null,
           attachments: [],
           cmsDocType: {
@@ -463,7 +456,7 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
-          polarisParentDocumentId: null,
+          parentDocumentId: null,
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
@@ -471,24 +464,22 @@ describe("mapAccordionState", () => {
           conversionStatus: "DocumentConverted",
           isUnused: false,
           isInbox: false,
+          isOcrProcessed: false,
           classification: null,
           isWitnessManagement: false,
           canReclassify: false,
           canRename: false,
           renameStatus: "CanRename",
           reference: null,
+          tags: [],
         },
         {
           documentId: "2",
-          cmsDocumentId: "2",
-          cmsVersionId: 2,
           presentationCategory: "Reviews",
           presentationSubCategory: null,
-          cmsOriginalFileName: "bar",
+          cmsOriginalFileName: "bar.pdf",
           presentationTitle: "bar!",
-          cmsOriginalFileExtension: ".pdf",
-          presentationFileName: "bar!",
-          polarisDocumentVersionId: 1,
+          versionId: 2,
           categoryListOrder: null,
           attachments: [],
           cmsDocType: {
@@ -501,7 +492,7 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
-          polarisParentDocumentId: null,
+          parentDocumentId: null,
           witnessId: null,
           witnessIndicators: [],
           hasFailedAttachments: false,
@@ -509,12 +500,14 @@ describe("mapAccordionState", () => {
           conversionStatus: "DocumentConverted",
           isUnused: false,
           isInbox: false,
+          isOcrProcessed: false,
           classification: null,
           isWitnessManagement: false,
           canReclassify: false,
           canRename: false,
           renameStatus: "CanRename",
           reference: null,
+          tags: [],
         },
       ],
     };
@@ -530,15 +523,11 @@ describe("mapAccordionState", () => {
           docs: [
             {
               documentId: "2",
-              cmsDocumentId: "2",
-              cmsVersionId: 2,
               presentationCategory: "Reviews",
               presentationSubCategory: null,
-              cmsOriginalFileName: "bar",
+              cmsOriginalFileName: "bar.pdf",
               presentationTitle: "bar!",
-              cmsOriginalFileExtension: ".pdf",
-              presentationFileName: "bar!",
-              polarisDocumentVersionId: 1,
+              versionId: 2,
               categoryListOrder: null,
               attachments: [],
               cmsDocType: {
@@ -551,7 +540,7 @@ describe("mapAccordionState", () => {
                 read: "Ok",
                 write: "Ok",
               },
-              polarisParentDocumentId: null,
+              parentDocumentId: null,
               witnessId: null,
               witnessIndicators: [],
               hasFailedAttachments: false,
@@ -559,12 +548,14 @@ describe("mapAccordionState", () => {
               conversionStatus: "DocumentConverted",
               isUnused: false,
               isInbox: false,
+              isOcrProcessed: false,
               classification: null,
               isWitnessManagement: false,
               canReclassify: false,
               canRename: false,
               renameStatus: "CanRename",
               reference: null,
+              tags: [],
             },
           ],
         },

@@ -1,4 +1,4 @@
-﻿using Common.Dto.Attributes;
+﻿using Common.Attributes;
 
 namespace Common.Constants;
 

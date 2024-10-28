@@ -1,4 +1,4 @@
-import { CombinedState } from "../../domain/CombinedState";
+import { CombinedState, initialState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import * as accordionMapper from "./map-accordion-state";
 import * as documentsMapper from "./map-documents-state";
@@ -20,9 +20,20 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
 import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
-import { NotificationState } from "../../domain/NotificationState";
+import {
+  buildDefaultNotificationState,
+  NotificationState,
+} from "../../domain/NotificationState";
+import * as notificationsMappingFunctions from "./map-notification-state";
+import * as mapNotificationToDocumentsState from "./map-notification-to-documents-state";
+import { AsyncResult } from "../../../../common/types/AsyncResult";
+import { AccordionDocumentSection } from "../../presentation/case-details/accordion/types";
 
 const ERROR = new Error();
+
+jest.mock("../../../../config", () => ({
+  FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH: true,
+}));
 
 describe("useCaseDetailsState reducer", () => {
   afterEach(() => {
@@ -76,7 +87,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               processingCompleted: "",
               documentsRetrieved: "",
@@ -107,7 +117,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Running",
               processingCompleted: "",
               documentsRetrieved: new Date().toISOString(),
@@ -145,7 +154,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               documentsRetrieved,
               documents: [],
@@ -171,7 +179,14 @@ describe("useCaseDetailsState reducer", () => {
           },
           documentsState: {
             status: "succeeded",
+            data: [],
           },
+          notificationState: {
+            ignoreNextEvents: [],
+            events: [],
+            liveNotificationCount: 0,
+            usersEvents: [],
+          } as NotificationState,
         } as unknown as CombinedState;
 
         const nextState = reducer(existingState, {
@@ -180,7 +195,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               documentsRetrieved: new Date().toISOString(),
               documents: [],
@@ -227,7 +241,6 @@ describe("useCaseDetailsState reducer", () => {
               status: "incomplete",
               haveData: true,
               data: {
-                transactionId: "123",
                 status: "DocumentsRetrieved",
                 documents: mockNewPdfDocuments,
                 documentsRetrieved: new Date().toISOString(),
@@ -283,7 +296,6 @@ describe("useCaseDetailsState reducer", () => {
         status: "incomplete",
         haveData: true,
         data: {
-          transactionId: "123",
           status: "Running",
           documents: [{ documentId: "1" }],
         },
@@ -301,7 +313,6 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Running",
               documents: [{ documentId: "1" }],
             },
@@ -321,18 +332,15 @@ describe("useCaseDetailsState reducer", () => {
           status: "incomplete",
           haveData: true,
           data: {
-            transactionId: "123",
             status: "Completed",
             processingCompleted: "2023-04-05T15:02:17.601Z",
-            documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
+            documents: [{ documentId: "1", versionId: 2 }],
           },
         },
         tabsState: { items: [] },
         pipelineRefreshData: {
           startRefresh: false,
-          savedDocumentDetails: [
-            { documentId: "2", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "2", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       } as unknown as CombinedState;
@@ -347,8 +355,8 @@ describe("useCaseDetailsState reducer", () => {
           pipelineRefreshData: {
             startRefresh: false,
             savedDocumentDetails: [
-              { documentId: "1", polarisDocumentVersionId: 1 },
-              { documentId: "2", polarisDocumentVersionId: 1 },
+              { documentId: "1", versionId: 1 },
+              { documentId: "2", versionId: 1 },
             ],
             lastProcessingCompleted: "2023-04-05T15:01:17.601Z",
           },
@@ -359,10 +367,9 @@ describe("useCaseDetailsState reducer", () => {
             status: "incomplete",
             haveData: true,
             data: {
-              transactionId: "123",
               status: "Completed",
               processingCompleted: "2023-04-05T15:02:17.601Z",
-              documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
+              documents: [{ documentId: "1", versionId: 2 }],
             },
           } as AsyncPipelineResult<PipelineResults>,
         }
@@ -377,8 +384,7 @@ describe("useCaseDetailsState reducer", () => {
         haveData: true,
 
         data: {
-          documents: [{ documentId: "1", pdfBlobName: "foo" }],
-          transactionId: "123",
+          documents: [{ documentId: "1" }],
           status: "Completed",
         },
       } as AsyncPipelineResult<PipelineResults>;
@@ -395,7 +401,7 @@ describe("useCaseDetailsState reducer", () => {
             savedDocumentDetails: [
               {
                 documentId: "1",
-                polarisDocumentVersionId: 1,
+                versionId: 1,
               },
             ],
           },
@@ -406,9 +412,8 @@ describe("useCaseDetailsState reducer", () => {
             status: "complete",
             haveData: true,
             data: {
-              documents: [{ documentId: "1", pdfBlobName: "foo" }],
+              documents: [{ documentId: "1" }],
               status: "Completed",
-              transactionId: "123",
             },
           } as AsyncPipelineResult<PipelineResults>,
         }
@@ -425,7 +430,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -438,7 +442,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "1",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -473,18 +476,15 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "1",
-              pdfBlobName: "foo",
-              polarisDocumentVersionId: 1,
+              versionId: 1,
             },
             {
               documentId: "2",
-              pdfBlobName: "foo",
-              polarisDocumentVersionId: 2,
+              versionId: 2,
             },
             {
               documentId: "3",
-              pdfBlobName: "foo",
-              polarisDocumentVersionId: 1,
+              versionId: 1,
             },
           ],
         },
@@ -496,7 +496,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -536,20 +535,17 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "1",
             url: "baz",
-            pdfBlobName: "foo",
-            polarisDocumentVersionId: 1,
+            versionId: 1,
           },
           {
             documentId: "2",
             url: "baz",
-            pdfBlobName: "foo",
-            polarisDocumentVersionId: 2,
+            versionId: 2,
           },
           {
             documentId: "3",
             url: "baz",
-            pdfBlobName: "foo",
-            polarisDocumentVersionId: 1,
+            versionId: 1,
           },
         ],
       });
@@ -563,8 +559,8 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
-              polarisDocumentVersionId: 2,
+
+              versionId: 2,
             },
           ],
         },
@@ -576,7 +572,6 @@ describe("useCaseDetailsState reducer", () => {
           documents: [
             {
               documentId: "2",
-              pdfBlobName: "foo",
             },
           ],
         },
@@ -619,8 +614,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: "2",
             url: "baz",
-            pdfBlobName: "foo",
-            polarisDocumentVersionId: 2,
+            versionId: 2,
           },
         ],
       });
@@ -682,8 +676,7 @@ describe("useCaseDetailsState reducer", () => {
         status: "complete",
         haveData: true,
         data: {
-          transactionId: "",
-          documents: [{ documentId: "1", pdfBlobName: "foo" }],
+          documents: [{ documentId: "1" }],
         },
       } as CombinedState["pipelineState"];
 
@@ -700,6 +693,7 @@ describe("useCaseDetailsState reducer", () => {
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
+          notificationState: buildDefaultNotificationState(),
           urn: "bar",
           caseId: 99,
         } as CombinedState,
@@ -727,12 +721,17 @@ describe("useCaseDetailsState reducer", () => {
             clientLockedState: "unlocked",
             areaOnlyRedactionMode: false,
             mode: "read",
-            pdfBlobName: "foo",
+
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             url: "baz",
             isDeleted: false,
-            saveStatus: "initial",
+            saveStatus: {
+              status: "initial",
+              type: "none",
+            },
           },
         ],
         activeTabId: "",
@@ -763,6 +762,7 @@ describe("useCaseDetailsState reducer", () => {
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
+          notificationState: buildDefaultNotificationState(),
         } as CombinedState,
         {
           type: "OPEN_PDF",
@@ -789,9 +789,14 @@ describe("useCaseDetailsState reducer", () => {
             areaOnlyRedactionMode: false,
             url: undefined,
             isDeleted: false,
-            saveStatus: "initial",
+            saveStatus: {
+              status: "initial",
+              type: "none",
+            },
             redactionHighlights: [],
             pageDeleteRedactions: [],
+            pageRotations: [],
+            rotatePageMode: false,
             mode: "read",
           },
         ],
@@ -930,12 +935,15 @@ describe("useCaseDetailsState reducer", () => {
 
         const existingPipelineState = {} as CombinedState["pipelineState"];
 
+        const existingNotificationState = buildDefaultNotificationState();
+
         const nextState = reducer(
           {
             searchState: existingSearchState,
             documentsState: existingDocumentsState,
             tabsState: existingTabsState,
             pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
           } as CombinedState,
           {
             type: "OPEN_PDF",
@@ -993,6 +1001,8 @@ describe("useCaseDetailsState reducer", () => {
                 searchTerm: "foo",
                 occurrencesInDocumentCount: 3,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 areaOnlyRedactionMode: false,
                 searchHighlights: [
                   {
@@ -1023,7 +1033,10 @@ describe("useCaseDetailsState reducer", () => {
                   },
                 ],
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
               },
               {
                 documentId: "2",
@@ -1032,6 +1045,7 @@ describe("useCaseDetailsState reducer", () => {
             ],
           },
           pipelineState: {},
+          notificationState: existingNotificationState,
         });
       });
 
@@ -1062,12 +1076,15 @@ describe("useCaseDetailsState reducer", () => {
 
         const existingPipelineState = {} as CombinedState["pipelineState"];
 
+        const existingNotificationState = buildDefaultNotificationState();
+
         const nextState = reducer(
           {
             searchState: existingSearchState,
             documentsState: existingDocumentsState,
             tabsState: existingTabsState,
             pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
           } as CombinedState,
           {
             type: "OPEN_PDF",
@@ -1086,6 +1103,7 @@ describe("useCaseDetailsState reducer", () => {
           documentsState: existingDocumentsState,
           searchState: { ...existingSearchState, isResultsVisible: false },
           pipelineState: existingPipelineState,
+          notificationState: existingNotificationState,
           tabsState: {
             headers: {
               Authorization: "bar",
@@ -1100,8 +1118,13 @@ describe("useCaseDetailsState reducer", () => {
                 mode: "read",
                 url: undefined,
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1176,6 +1199,7 @@ describe("useCaseDetailsState reducer", () => {
         } as CombinedState["searchState"];
 
         const existingPipelineState = {} as CombinedState["pipelineState"];
+        const existingNotificationState = buildDefaultNotificationState();
 
         const nextState = reducer(
           {
@@ -1183,6 +1207,7 @@ describe("useCaseDetailsState reducer", () => {
             documentsState: existingDocumentsState,
             tabsState: existingTabsState,
             pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
           } as CombinedState,
           {
             type: "OPEN_PDF",
@@ -1246,10 +1271,15 @@ describe("useCaseDetailsState reducer", () => {
                 mode: "search",
                 searchTerm: "bar",
                 isDeleted: false,
-                saveStatus: "initial",
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
                 areaOnlyRedactionMode: false,
                 occurrencesInDocumentCount: 4,
                 pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
                 pageOccurrences: [
                   {
                     boundingBoxes: [[1, 2, 3]],
@@ -1344,6 +1374,7 @@ describe("useCaseDetailsState reducer", () => {
             ],
           },
           pipelineState: {},
+          notificationState: existingNotificationState,
         });
       });
     });
@@ -2175,9 +2206,7 @@ describe("useCaseDetailsState reducer", () => {
       const existingState = {
         pipelineRefreshData: {
           startRefresh: false,
-          savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       } as unknown as CombinedState;
@@ -2188,7 +2217,7 @@ describe("useCaseDetailsState reducer", () => {
           startRefresh: true,
           savedDocumentDetails: {
             documentId: "2",
-            polarisDocumentVersionId: 1,
+            versionId: 1,
           },
         },
       });
@@ -2197,8 +2226,8 @@ describe("useCaseDetailsState reducer", () => {
         pipelineRefreshData: {
           startRefresh: true,
           savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-            { documentId: "2", polarisDocumentVersionId: 1 },
+            { documentId: "1", versionId: 1 },
+            { documentId: "2", versionId: 1 },
           ],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
@@ -2208,9 +2237,7 @@ describe("useCaseDetailsState reducer", () => {
       const existingState = {
         pipelineRefreshData: {
           startRefresh: false,
-          savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       } as unknown as CombinedState;
@@ -2225,9 +2252,7 @@ describe("useCaseDetailsState reducer", () => {
       expect(result).toEqual({
         pipelineRefreshData: {
           startRefresh: true,
-          savedDocumentDetails: [
-            { documentId: "1", polarisDocumentVersionId: 1 },
-          ],
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       });
@@ -2294,19 +2319,152 @@ describe("useCaseDetailsState reducer", () => {
         notificationState: {
           ignoreNextEvents: [],
           events: [],
-        },
+        } as NotificationState,
       } as unknown as CombinedState;
 
       const result = reducer(existingState, {
         type: "REGISTER_NOTIFIABLE_EVENT",
-        payload: { documentId: "1", notificationType: "New" },
+        payload: { documentId: "1", reason: "New" },
       });
 
       expect(result).toEqual({
         notificationState: {
-          ignoreNextEvents: [{ documentId: "1", notificationType: "New" }],
+          ignoreNextEvents: [{ documentId: "1", reason: "New" }],
           events: [],
         } as NotificationState,
+      });
+    });
+
+    describe("notification action handlers", () => {
+      const priorNotificationState: NotificationState = {
+        ignoreNextEvents: [],
+        events: [],
+      };
+
+      const priorDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const priorExistingState = {
+        notificationState: priorNotificationState,
+        documentsState: priorDocumentsState,
+      } as unknown as CombinedState;
+
+      const expectedNotificationState: NotificationState = {
+        ignoreNextEvents: [],
+        events: [],
+      };
+
+      const expectedDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const expectedAccordionState: AsyncResult<AccordionDocumentSection[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const badNotificationState: NotificationState = {
+        ignoreNextEvents: [],
+        events: [],
+      };
+
+      const badDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+
+      const badAccordionState: AsyncResult<AccordionDocumentSection[]> = {
+        status: "succeeded",
+        data: [],
+      };
+      beforeEach(() => {
+        jest
+          .spyOn(
+            mapNotificationToDocumentsState,
+            "mapNotificationToDocumentsState"
+          )
+          .mockImplementation(
+            (incomingNotificationsState, incomingDocumentsState) =>
+              incomingNotificationsState === expectedNotificationState &&
+              incomingDocumentsState === priorDocumentsState
+                ? expectedDocumentsState
+                : badDocumentsState
+          );
+
+        jest
+          .spyOn(accordionMapper, "mapAccordionState")
+          .mockImplementation((incomingDocumentsState) =>
+            incomingDocumentsState === expectedDocumentsState
+              ? expectedAccordionState
+              : badAccordionState
+          );
+      });
+
+      it("should delegate clearing all notifications to a function owned by the notifications code", () => {
+        jest
+          .spyOn(notificationsMappingFunctions, "clearAllNotifications")
+          .mockImplementation((incomingNotificationsState) =>
+            incomingNotificationsState === priorNotificationState
+              ? expectedNotificationState
+              : badNotificationState
+          );
+
+        const result = reducer(priorExistingState, {
+          type: "CLEAR_ALL_NOTIFICATIONS",
+        });
+
+        expect(result.notificationState).toBe(expectedNotificationState);
+        expect(result.documentsState).toBe(expectedDocumentsState);
+        expect(result.accordionState).toBe(expectedAccordionState);
+      });
+
+      it("should delegate clearing a notification to a function owned by the notifications code", () => {
+        const notificationId = 1;
+
+        jest
+          .spyOn(notificationsMappingFunctions, "clearNotification")
+          .mockImplementation(
+            (incomingNotificationsState, incomingNotificationId) =>
+              incomingNotificationsState === priorNotificationState &&
+              incomingNotificationId === notificationId
+                ? expectedNotificationState
+                : badNotificationState
+          );
+
+        const result = reducer(priorExistingState, {
+          type: "CLEAR_NOTIFICATION",
+          payload: { notificationId: notificationId },
+        });
+
+        expect(result.notificationState).toBe(expectedNotificationState);
+        expect(result.documentsState).toBe(expectedDocumentsState);
+        expect(result.accordionState).toBe(expectedAccordionState);
+      });
+
+      it("should delegate clearing a documents notifications to a function owned by the notifications code", () => {
+        const documentId = "1";
+
+        jest
+          .spyOn(notificationsMappingFunctions, "clearDocumentNotifications")
+          .mockImplementation(
+            (incomingNotificationsState, incomingDocumentIdId) =>
+              incomingNotificationsState === priorNotificationState &&
+              incomingDocumentIdId === documentId
+                ? expectedNotificationState
+                : badNotificationState
+          );
+
+        const result = reducer(priorExistingState, {
+          type: "CLEAR_DOCUMENT_NOTIFICATIONS",
+          payload: { documentId },
+        });
+
+        expect(result.notificationState).toBe(expectedNotificationState);
+        expect(result.documentsState).toBe(expectedDocumentsState);
+        expect(result.accordionState).toBe(expectedAccordionState);
       });
     });
   });

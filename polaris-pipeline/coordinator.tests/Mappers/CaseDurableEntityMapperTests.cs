@@ -6,7 +6,7 @@ using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Entity;
 using FluentAssertions;
 using System.Linq;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 
 namespace coordinator.tests.Mappers;
 
@@ -18,7 +18,7 @@ public class CaseDurableEntityMapperTests
 
     public CaseDurableEntityMapperTests()
     {
-        new ServiceCollection().RegisterMapsterConfiguration();
+        new ServiceCollection().RegisterCoordinatorMapsterConfiguration();
         _fixture = new Fixture();
         _caseDurableEntityMapper = new CaseDurableEntityMapper();
     }
@@ -29,10 +29,9 @@ public class CaseDurableEntityMapperTests
         // Arrange
         var caseEntity = _fixture.Create<CaseDurableEntity>();
         caseEntity.CmsDocuments[0].CategoryListOrder = 1;
-
+        caseEntity.DefendantsAndCharges.HasMultipleDefendants = true;
         // Act
         var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity);
-
 
         // Assert
         trackerDto.Documents.Count.Should().Be(caseEntity.CmsDocuments.Count + caseEntity.PcdRequests.Count + 1);

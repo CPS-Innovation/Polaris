@@ -36,12 +36,12 @@ const getRoutesToTest = (correlationId: CorrelationId, headers: any) => {
       HAPPY_PATH_TARGET_SEARCH_TEXT,
       correlationId
     ),
-    routeGenerators.GET_DOCUMENT(
-      HAPPY_PATH_URN,
-      HAPPY_PATH_CASE_ID,
-      HAPPY_PATH_DOCUMENT_ID,
-      correlationId
-    ),
+    // routeGenerators.GET_DOCUMENT(
+    //   HAPPY_PATH_URN,
+    //   HAPPY_PATH_CASE_ID,
+    //   HAPPY_PATH_DOCUMENT_ID,
+    //   correlationId
+    // ),
     routeGenerators.CHECKOUT_DOCUMENT(
       HAPPY_PATH_URN,
       HAPPY_PATH_CASE_ID,

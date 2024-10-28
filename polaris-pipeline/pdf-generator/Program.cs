@@ -1,7 +1,7 @@
 using System.IO;
 using System.Linq;
 using Common.Handlers;
-using Common.Services;
+using Common.Services.BlobStorage;
 using Common.Telemetry;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;

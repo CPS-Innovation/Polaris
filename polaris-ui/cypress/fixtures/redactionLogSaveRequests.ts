@@ -23,7 +23,7 @@ export const expectedUnderRedactionType1Payload = {
   notes: "hello notes",
   chargeStatus: 2,
   cmsValues: {
-    originalFileName: "M*******3",
+    originalFileName: "MCLOVEMG3.pdf",
     documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",
@@ -56,7 +56,7 @@ export const expectedUnderRedactionType2Payload = {
   notes: "hello",
   chargeStatus: 2,
   cmsValues: {
-    originalFileName: "M*******3",
+    originalFileName: "MCLOVEMG3.pdf",
     documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",
@@ -89,7 +89,7 @@ export const expectedOverRedactionLogPayload = {
   notes: "hello notes",
   chargeStatus: 2,
   cmsValues: {
-    originalFileName: "M*******3",
+    originalFileName: "MCLOVEMG3.pdf",
     documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",
@@ -131,7 +131,7 @@ export const expectedOverUnderRedactionLogPayload = {
   notes: null,
   chargeStatus: 2,
   cmsValues: {
-    originalFileName: "M*******3",
+    originalFileName: "MCLOVEMG3.pdf",
     documentId: 1,
     documentType: "MG11",
     fileCreatedDate: "2020-06-01",

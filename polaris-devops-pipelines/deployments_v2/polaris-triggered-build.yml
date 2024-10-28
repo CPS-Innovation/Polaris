@@ -8,8 +8,7 @@ trigger:
       - main
   paths:
     include:
-      - polaris-terraform/pipeline-terraform/*
-      - polaris-terraform/ui-terraform/*
+      - polaris-terraform/main-terraform/*
       - polaris-gateway/*
       - polaris-maintenance/*
       - polaris-pipeline/*

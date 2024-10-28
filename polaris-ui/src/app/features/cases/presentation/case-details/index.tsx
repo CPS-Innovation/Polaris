@@ -59,6 +59,7 @@ import {
 } from "../../api/gateway-api";
 import { ReclassifySaveData } from "../case-details/reclassify/data/ReclassifySaveData";
 import { ReactComponent as NewWindow } from "../../../../common/presentation/svgs/new-window.svg";
+import { Notifications } from "./notifications/Notifications";
 import {
   isTaggedTriageContext,
   TaggedContext,
@@ -73,13 +74,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const [reclassifyDetails, setInReclassifyDetails] = useState<{
     open: boolean;
     documentId: string;
-    presentationFileName: string;
+    presentationTitle: string;
     docTypeId: number | null;
     isUnused: boolean;
   }>({
     open: false,
     documentId: "",
-    presentationFileName: "",
+    presentationTitle: "",
     docTypeId: null,
     isUnused: false,
   });
@@ -90,7 +91,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     documentId: string;
     documentCategory: string;
     documentType: string;
-    presentationFileName: string;
+    presentationTitle: string;
     classification: Classification;
   }>({
     open: false,
@@ -98,11 +99,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     documentId: "",
     documentCategory: "",
     documentType: "",
-    presentationFileName: "",
+    presentationTitle: "",
     classification: null,
   });
 
-  const unMounting = useRef(false);
   const accordionRef = useRef<AccordionRef>(null);
 
   const [accordionOldState, setAccordionOldState] =
@@ -114,6 +114,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
+  const unMounting = useRef(false);
+  useEffect(() => {
+    return () => {
+      unMounting.current = true;
+    };
+  }, []);
   const unMountingCallback = useCallback(() => {
     return unMounting.current;
   }, []);
@@ -135,6 +141,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     searchPII,
     renameDocuments,
     reclassifyDocuments,
+    notificationState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -162,6 +169,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleResetRenameData,
     handleReclassifySuccess,
     handleResetReclassifyData,
+    handleShowHidePageRotation,
+    handleAddPageRotation,
+    handleRemovePageRotation,
+    handleRemoveAllRotations,
+    handleSaveRotations,
+    handleClearAllNotifications,
+    handleClearNotification,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -195,10 +209,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       if (unCategorisedDocs) {
         unCategorisedDocs.docs.forEach((doc: MappedCaseDocument) => {
           trackEvent("Uncategorised Document", {
-            documentId: doc.cmsDocumentId,
+            documentId: doc.documentId,
             documentTypeId: doc.cmsDocType.documentTypeId,
             documentDocumentType: doc.cmsDocType.documentType,
-            fileName: doc.presentationFileName,
+            fileName: doc.presentationTitle,
           });
         });
       }
@@ -221,12 +235,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       (actionsSidePanelRef.current as HTMLElement).focus();
     }
   }, [actionsSidePanel.open]);
-
-  useEffect(() => {
-    return () => {
-      unMounting.current = true;
-    };
-  }, []);
 
   const getActiveTabDocument = useMemo(() => {
     return tabsState.items.find(
@@ -258,7 +266,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       documentId: "",
       documentCategory: "",
       documentType: "",
-      presentationFileName: "",
+      presentationTitle: "",
     });
   }, [actionsSidePanel]);
 
@@ -277,7 +285,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const handleOpenPanel = (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
+    presentationTitle: string,
     type: "notes" | "rename",
     documentType: string,
     classification: Classification
@@ -288,7 +296,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       documentId: documentId,
       documentCategory: documentCategory,
       documentType: documentType,
-      presentationFileName: presentationFileName,
+      presentationTitle,
       classification: classification,
     });
   };
@@ -305,7 +313,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       setInReclassifyDetails({
         open: true,
         documentId,
-        presentationFileName: selectedDocument.presentationTitle,
+        presentationTitle: selectedDocument.presentationTitle,
         docTypeId: selectedDocument.cmsDocType.documentTypeId,
         isUnused: selectedDocument.isUnused,
       });
@@ -322,19 +330,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     setInReclassifyDetails({
       open: false,
       documentId: "",
-      presentationFileName: "",
+      presentationTitle: "",
       docTypeId: null,
       isUnused: false,
     });
-
+    handleOpenAccordion(documentId);
     setTimeout(() => {
-      handleOpenAccordion(documentId);
       (
         document.querySelector(
           `#document-housekeeping-actions-dropdown-${reclassifyDetails.documentId}`
         ) as HTMLElement
       ).focus();
-    }, 100);
+    }, 500);
   };
 
   const handleGetMaterialTypeList = () => {
@@ -362,7 +369,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       data
     );
     if (response) {
-      handleReclassifySuccess(documentId, data.documentTypeId);
+      const wasDocumentRenamed = !!(
+        data.exhibit ||
+        data.statement ||
+        data?.immediate?.documentName ||
+        data?.other?.documentName
+      );
+
+      handleReclassifySuccess(
+        documentId,
+        data.documentTypeId,
+        wasDocumentRenamed
+      );
     }
     return response;
   };
@@ -384,7 +402,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       }
       if (
         properties.exhibit &&
-        properties.exhibit.item !== reclassifyDetails.presentationFileName
+        properties.exhibit.item !== reclassifyDetails.presentationTitle
       ) {
         return true;
       }
@@ -416,6 +434,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+  const openInSameTab = (url: string) => {
+    window.open(url, "_self");
   };
 
   return (
@@ -481,9 +502,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             documentTypeId={getActiveTabDocument?.cmsDocType?.documentTypeId}
             documentId={getActiveTabDocument?.documentId!}
             presentationTitle={getActiveTabDocument?.presentationTitle!}
-            polarisDocumentVersionId={
-              getActiveTabDocument?.polarisDocumentVersionId!
-            }
+            versionId={getActiveTabDocument?.versionId!}
             correlationId={pipelineState?.correlationId}
             handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
           />
@@ -514,7 +533,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               caseUrn={caseState.data.uniqueReferenceNumber}
               isCaseCharged={caseState.data.isCaseCharged}
               owningUnit={caseState.data.owningUnit}
-              documentName={getActiveTabDocument.presentationFileName}
+              documentName={getActiveTabDocument.presentationTitle}
               cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
               additionalData={{
                 originalFileName: getActiveTabDocument.cmsOriginalFileName,
@@ -543,9 +562,23 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
+          {featureFlags.notifications && (
+            <Notifications
+              state={notificationState}
+              handleOpenPdf={handleOpenPdf}
+              handleClearAllNotifications={handleClearAllNotifications}
+              handleClearNotification={handleClearNotification}
+            ></Notifications>
+          )}
         </nav>
         <PageContentWrapper>
-          <div className={`govuk-grid-row ${classes.mainContent}`}>
+          <div
+            className={`govuk-grid-row ${classes.mainContent} ${
+              featureFlags.notifications
+                ? classes.mainContentWithNotifications
+                : ""
+            }`}
+          >
             {!inFullScreen && !actionsSidePanel.open && (
               <div
                 role="region"
@@ -580,39 +613,39 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   {!isMultipleDefendantsOrCharges && (
                     <Charges caseDetails={caseState.data} />
                   )}
-                  {featureFlags.externalRedirect && (
+                  {
                     <div className={classes.externalRedirectBtnWrapper}>
-                      <Button
-                        disabled={false}
-                        onClick={() => {
-                          openInNewTab(
-                            `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
-                          );
-                        }}
-                        data-testid="btn-case-review-app"
-                        id="btn-case-review-app"
-                        className={`${classes.newWindowBtn} govuk-button--secondary`}
-                        name="secondary"
-                      >
-                        Case Review App <NewWindow />
-                      </Button>
+                      {featureFlags.externalRedirectCaseReviewApp && (
+                        <Button
+                          onClick={() => {
+                            openInNewTab(
+                              `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
+                            );
+                          }}
+                          data-testid="btn-case-review-app"
+                          id="btn-case-review-app"
+                          className={`${classes.newWindowBtn} govuk-button--secondary`}
+                          name="secondary"
+                        >
+                          Case Review App <NewWindow />
+                        </Button>
+                      )}
 
-                      <Button
-                        disabled={false}
-                        onClick={() => {
-                          openInNewTab(
-                            `${BULK_UM_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
-                          );
-                        }}
-                        data-testid="btn-bulk-um-classification"
-                        id="btn-bulk-um-classification"
-                        className={`${classes.newWindowBtn} govuk-button--secondary`}
-                        name="secondary"
-                      >
-                        Bulk UM Classification <NewWindow />
-                      </Button>
+                      {featureFlags.externalRedirectBulkUmApp && (
+                        <Button
+                          onClick={() => {
+                            openInSameTab(`${BULK_UM_REDIRECT_URL}/${caseId}`);
+                          }}
+                          data-testid="btn-bulk-um-classification"
+                          id="btn-bulk-um-classification"
+                          className={`${classes.newWindowBtn} govuk-button--secondary`}
+                          name="secondary"
+                        >
+                          Bulk UM Classification <NewWindow />
+                        </Button>
+                      )}
                     </div>
-                  )}
+                  }
 
                   {context && isTaggedTriageContext(context) && (
                     <div className={classes.externalRedirectBtnWrapper}>
@@ -667,7 +700,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
-                      reclassifyData={reclassifyDocuments}
                     />
                   )}
                 </div>
@@ -691,11 +723,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         id="actions-panel-region-label"
                         className={classes.sidePanelLabel}
                       >
-                        {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationFileName}.`}
+                        {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationTitle}.`}
                       </span>
                       <NotesPanel
                         activeDocumentId={getActiveTabDocument?.documentId}
-                        documentName={actionsSidePanel.presentationFileName}
+                        documentName={actionsSidePanel.presentationTitle}
                         documentCategory={actionsSidePanel.documentCategory}
                         documentId={actionsSidePanel.documentId}
                         notesData={notes}
@@ -711,10 +743,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         id="actions-panel-region-label"
                         className={classes.sidePanelLabel}
                       >
-                        {`Rename document panel, you can rename document ${actionsSidePanel.presentationFileName}.`}
+                        {`Rename document panel, you can rename document ${actionsSidePanel.presentationTitle}.`}
                       </span>
                       <RenamePanel
-                        documentName={actionsSidePanel.presentationFileName}
+                        documentName={actionsSidePanel.presentationTitle}
                         documentType={actionsSidePanel.documentType}
                         documentId={actionsSidePanel.documentId}
                         classification={actionsSidePanel.classification}
@@ -810,6 +842,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     correlationId: pipelineState?.correlationId,
                     showSearchPII: featureFlags.searchPII,
                     showDeletePage: featureFlags.pageDelete,
+                    showRotatePage: featureFlags.pageRotate,
                   }}
                   caseId={+caseId}
                   showOverRedactionLog={
@@ -818,6 +851,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       : false
                   }
                   handleAreaOnlyRedaction={handleAreaOnlyRedaction}
+                  handleShowHidePageRotation={handleShowHidePageRotation}
+                  handleAddPageRotation={handleAddPageRotation}
+                  handleRemovePageRotation={handleRemovePageRotation}
+                  handleRemoveAllRotations={handleRemoveAllRotations}
+                  handleSaveRotations={handleSaveRotations}
                 />
               )}
             </div>
@@ -830,7 +868,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           <Reclassify
             documentId={reclassifyDetails.documentId}
             currentDocTypeId={reclassifyDetails.docTypeId}
-            presentationTitle={reclassifyDetails.presentationFileName}
+            presentationTitle={reclassifyDetails.presentationTitle}
             reclassifiedDocumentUpdate={activeReclassifyDocumentUpdated(
               reclassifyDetails.documentId
             )}

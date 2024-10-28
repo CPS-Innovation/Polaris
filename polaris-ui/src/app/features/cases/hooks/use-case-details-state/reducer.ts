@@ -44,9 +44,23 @@ import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { SearchPIIResultItem } from "../../domain/gateway/SearchPIIData";
 import { mapSearchPIIHighlights } from "../use-case-details-state/map-searchPII-highlights";
-import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
-import { mapNotificationState } from "./map-notification-state";
-import { NotificationType } from "../../domain/NotificationState";
+import {
+  mapNotificationState,
+  clearAllNotifications,
+  clearNotification,
+  registerNotifiableEvent,
+  clearDocumentNotifications,
+} from "./map-notification-state";
+import { NotificationReason } from "../../domain/NotificationState";
+import {
+  PageDeleteRedaction,
+  IPageDeleteRedaction,
+} from "../../domain/IPageDeleteRedaction";
+import { PageRotation, IPageRotation } from "../../domain/IPageRotation";
+import { mapNotificationToDocumentsState } from "./map-notification-to-documents-state";
+
+export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
+
 export const reducer = (
   state: CombinedState,
   action:
@@ -64,7 +78,7 @@ export const reducer = (
           startRefresh: boolean;
           savedDocumentDetails?: {
             documentId: string;
-            polarisDocumentVersionId: number;
+            versionId: number;
           };
         };
       }
@@ -127,7 +141,7 @@ export const reducer = (
         };
       }
     | {
-        type: "SAVING_REDACTION";
+        type: "SAVING_DOCUMENT";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           saveStatus: SaveStatus;
@@ -280,7 +294,39 @@ export const reducer = (
       }
     | {
         type: "REGISTER_NOTIFIABLE_EVENT";
-        payload: { documentId: string; notificationType: NotificationType };
+        payload: { documentId: string; reason: NotificationReason };
+      }
+    | {
+        type: "CLEAR_ALL_NOTIFICATIONS";
+      }
+    | {
+        type: "CLEAR_NOTIFICATION";
+        payload: { notificationId: number };
+      }
+    | {
+        type: "CLEAR_DOCUMENT_NOTIFICATIONS";
+        payload: { documentId: string };
+      }
+    | {
+        type: "SHOW_HIDE_PAGE_ROTATION";
+        payload: { documentId: string; rotatePageMode: boolean };
+      }
+    | {
+        type: "ADD_PAGE_ROTATION";
+        payload: { documentId: string; pageRotations: PageRotation[] };
+      }
+    | {
+        type: "REMOVE_PAGE_ROTATION";
+        payload: {
+          documentId: string;
+          rotationId: string;
+        };
+      }
+    | {
+        type: "REMOVE_ALL_ROTATIONS";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+        };
       }
 ): CombinedState => {
   switch (action.type) {
@@ -354,35 +400,34 @@ export const reducer = (
         );
 
       if (shouldBuildDocumentsState) {
-        const documentsState = mapDocumentsState(
+        const coreDocumentsState = mapDocumentsState(
           action.payload.data.documents,
           (state.caseState &&
             state.caseState.status === "succeeded" &&
             state.caseState.data.witnesses) ||
             []
         );
+
+        const notificationState = mapNotificationState(
+          state.notificationState,
+          state.documentsState,
+          coreDocumentsState,
+          action.payload.data.documentsRetrieved
+        );
+
+        const documentsState = mapNotificationToDocumentsState(
+          notificationState,
+          coreDocumentsState
+        );
+
         const accordionState = mapAccordionState(documentsState);
+
         nextState = {
           ...nextState,
+          notificationState,
           documentsState,
           accordionState,
         };
-
-        if (
-          documentsState.status === "succeeded" &&
-          state.documentsState.status === "succeeded"
-        ) {
-          const notificationState = mapNotificationState(
-            state.notificationState,
-            state.documentsState.data,
-            documentsState.data,
-            action.payload.data.documentsRetrieved
-          );
-          nextState = {
-            ...nextState,
-            notificationState,
-          };
-        }
       }
 
       const newPipelineResults = action.payload;
@@ -402,24 +447,17 @@ export const reducer = (
       );
 
       const openPdfsWeNeedToUpdate = newPipelineResults.data.documents
-        .filter(
-          (item) =>
-            item.pdfBlobName &&
-            state.tabsState.items.some(
-              (tabItem) => tabItem.documentId === item.documentId
-            )
+        .filter((item) =>
+          state.tabsState.items.some(
+            (tabItem) => tabItem.documentId === item.documentId
+          )
         )
         .map(
-          ({
+          ({ documentId, versionId, presentationTitle, isOcrProcessed }) => ({
             documentId,
-            pdfBlobName,
-            polarisDocumentVersionId,
+            versionId,
             presentationTitle,
-          }) => ({
-            documentId,
-            pdfBlobName,
-            polarisDocumentVersionId,
-            presentationTitle,
+            isOcrProcessed,
           })
         );
       if (!openPdfsWeNeedToUpdate.length) {
@@ -445,17 +483,16 @@ export const reducer = (
             state.urn,
             state.caseId,
             matchingFreshPdfRecord.documentId,
-            matchingFreshPdfRecord.polarisDocumentVersionId
+            matchingFreshPdfRecord.versionId,
+            matchingFreshPdfRecord.isOcrProcessed
           );
           return [
             ...prev,
             {
               ...curr,
               url,
-              pdfBlobName: matchingFreshPdfRecord.pdfBlobName,
-              polarisDocumentVersionId:
-                matchingFreshPdfRecord.polarisDocumentVersionId,
-              presentationFileName: matchingFreshPdfRecord.presentationTitle,
+              versionId: matchingFreshPdfRecord.versionId,
+              presentationTitle: matchingFreshPdfRecord.presentationTitle,
             },
           ];
         }
@@ -478,23 +515,28 @@ export const reducer = (
     }
 
     case "UPDATE_REFRESH_PIPELINE": {
-      let newSavedDocumentDetails =
-        state.pipelineRefreshData.savedDocumentDetails;
-      if (action.payload.savedDocumentDetails) {
-        newSavedDocumentDetails = [
-          ...newSavedDocumentDetails,
-          action.payload.savedDocumentDetails,
-        ];
-      }
+      const {
+        savedDocumentDetails: payloadSavedDocumentDetails,
+        startRefresh,
+      } = action.payload;
+
+      const savedDocumentDetails = payloadSavedDocumentDetails
+        ? [
+            ...state.pipelineRefreshData.savedDocumentDetails,
+            payloadSavedDocumentDetails,
+          ]
+        : state.pipelineRefreshData.savedDocumentDetails;
+
       return {
         ...state,
         pipelineRefreshData: {
           ...state.pipelineRefreshData,
-          startRefresh: action.payload.startRefresh,
-          savedDocumentDetails: newSavedDocumentDetails,
+          startRefresh,
+          savedDocumentDetails,
         },
       };
     }
+
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
 
@@ -555,15 +597,14 @@ export const reducer = (
           )
         : undefined;
 
-      const blobName = pipelineDocument?.pdfBlobName;
-
       const url =
-        blobName &&
+        pipelineDocument &&
         resolvePdfUrl(
           state.urn,
           state.caseId,
           pipelineDocument.documentId,
-          pipelineDocument.polarisDocumentVersionId
+          pipelineDocument.versionId,
+          pipelineDocument.isOcrProcessed
         );
 
       let item: CaseDocumentViewModel;
@@ -572,11 +613,12 @@ export const reducer = (
         ...foundDocument,
         clientLockedState: "unlocked" as const,
         url,
-        pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
         pageDeleteRedactions: [],
+        pageRotations: [],
+        rotatePageMode: false,
         isDeleted: false,
-        saveStatus: "initial" as const,
+        saveStatus: { type: "none", status: "initial" } as SaveStatus,
       };
 
       if (mode === "read") {
@@ -928,6 +970,21 @@ export const reducer = (
         id: String(`${+new Date()}-${index}`),
       }));
 
+      //Bug:28212 - This is a fix for bug which we could not reproduce, by filtering out any duplicate page delete entries
+      const filterDuplicates = (
+        pageDeleteRedactions: IPageDeleteRedaction[]
+      ) => {
+        const deletedPages = new Set();
+
+        return pageDeleteRedactions.filter((redaction) => {
+          if (!deletedPages.has(redaction.pageNumber)) {
+            deletedPages.add(redaction.pageNumber);
+            return true;
+          }
+          return false;
+        });
+      };
+
       //This is applicable only when the user deletes a page with unsaved redactions
       const clearPageUnsavedRedactions = (
         redactionHighlights: IPdfHighlight[]
@@ -948,10 +1005,10 @@ export const reducer = (
             item.documentId === documentId
               ? {
                   ...item,
-                  pageDeleteRedactions: [
+                  pageDeleteRedactions: filterDuplicates([
                     ...item.pageDeleteRedactions,
                     ...newRedactions,
-                  ],
+                  ]),
                   redactionHighlights: [
                     ...clearPageUnsavedRedactions(item.redactionHighlights),
                   ],
@@ -971,7 +1028,7 @@ export const reducer = (
       }
       return newState;
     }
-    case "SAVING_REDACTION": {
+    case "SAVING_DOCUMENT": {
       const { documentId, saveStatus } = action.payload;
 
       return {
@@ -1287,9 +1344,9 @@ export const reducer = (
         getData,
         defaultOption = true,
       } = action.payload;
-      const polarisDocumentVersionId = state.tabsState.items.find(
+      const versionId = state.tabsState.items.find(
         (data) => data.documentId === documentId
-      )?.polarisDocumentVersionId!;
+      )?.versionId!;
       const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );
@@ -1309,15 +1366,13 @@ export const reducer = (
             show: show,
             defaultOption: defaultOption,
             searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
-            polarisDocumentVersionId: getData
-              ? polarisDocumentVersionId
-              : availablePIIData.polarisDocumentVersionId,
+            versionId: getData ? versionId : availablePIIData.versionId,
           }
         : {
             show: show,
             defaultOption: defaultOption,
             documentId: documentId,
-            polarisDocumentVersionId: polarisDocumentVersionId,
+            versionId,
             searchPIIHighlights: [],
             getSearchPIIStatus: "initial" as const,
           };
@@ -1438,14 +1493,167 @@ export const reducer = (
     case "REGISTER_NOTIFIABLE_EVENT": {
       return {
         ...state,
-        notificationState: {
-          ...state.notificationState,
-          ignoreNextEvents: [
-            ...state.notificationState.ignoreNextEvents,
-            action.payload,
-          ],
+        notificationState: registerNotifiableEvent(
+          state.notificationState,
+          action.payload
+        ),
+      };
+    }
+
+    case "CLEAR_ALL_NOTIFICATIONS": {
+      const notificationState = clearAllNotifications(state.notificationState);
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        state.documentsState
+      );
+      const accordionState = mapAccordionState(documentsState);
+
+      return {
+        ...state,
+        notificationState,
+        documentsState,
+        accordionState,
+      };
+    }
+
+    case "CLEAR_NOTIFICATION": {
+      const notificationState = clearNotification(
+        state.notificationState,
+        action.payload.notificationId
+      );
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        state.documentsState
+      );
+      const accordionState = mapAccordionState(documentsState);
+
+      return {
+        ...state,
+        notificationState,
+        documentsState,
+        accordionState,
+      };
+    }
+    case "CLEAR_DOCUMENT_NOTIFICATIONS": {
+      const notificationState = clearDocumentNotifications(
+        state.notificationState,
+        action.payload.documentId
+      );
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        state.documentsState
+      );
+      const accordionState = mapAccordionState(documentsState);
+
+      return {
+        ...state,
+        notificationState,
+        documentsState,
+        accordionState,
+      };
+    }
+
+    case "SHOW_HIDE_PAGE_ROTATION": {
+      const { documentId, rotatePageMode } = action.payload;
+
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  rotatePageMode: rotatePageMode,
+                }
+              : item
+          ),
         },
       };
+      return newState;
+    }
+
+    case "ADD_PAGE_ROTATION": {
+      const { documentId, pageRotations } = action.payload;
+
+      const newRotations: IPageRotation[] = pageRotations.map(
+        (pageRotation, index) => ({
+          ...pageRotation,
+          id: String(`${+new Date()}-${index}`),
+        })
+      );
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) => {
+            if (item.documentId !== documentId) return item;
+            const rotationExists = item.pageRotations.some(
+              (rotation) => rotation.pageNumber === pageRotations[0].pageNumber
+            );
+            if (rotationExists) {
+              return {
+                ...item,
+                pageRotations: item.pageRotations.map((rotation) =>
+                  rotation.pageNumber === pageRotations[0].pageNumber
+                    ? {
+                        ...rotation,
+                        rotationAngle: pageRotations[0].rotationAngle,
+                      }
+                    : rotation
+                ),
+              };
+            }
+            return {
+              ...item,
+              pageRotations: [...item.pageRotations, ...newRotations],
+            };
+          }),
+        },
+      };
+      return newState;
+    }
+
+    case "REMOVE_PAGE_ROTATION": {
+      const { rotationId, documentId } = action.payload;
+
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageRotations: item.pageRotations.filter(
+                    (rotation) => rotation.id !== rotationId
+                  ),
+                }
+              : item
+          ),
+        },
+      };
+
+      return newState;
+    }
+    case "REMOVE_ALL_ROTATIONS": {
+      const { documentId } = action.payload;
+      const newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  pageRotations: [],
+                }
+              : item
+          ),
+        },
+      };
+
+      return newState;
     }
     default:
       throw new Error("Unknown action passed to case details reducer");

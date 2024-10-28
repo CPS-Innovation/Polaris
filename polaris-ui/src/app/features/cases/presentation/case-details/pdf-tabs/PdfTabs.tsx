@@ -16,12 +16,13 @@ type PdfTabsProps = {
 
   savedDocumentDetails: {
     documentId: string;
-    polarisDocumentVersionId: number;
+    versionId: number;
   }[];
   contextData: {
     correlationId: string;
     showSearchPII: boolean;
     showDeletePage: boolean;
+    showRotatePage: boolean;
   };
   caseId: number;
   isOkToSave: boolean;
@@ -44,6 +45,11 @@ type PdfTabsProps = {
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
+  handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
+  handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
+  handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
+  handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
+  handleSaveRotations: CaseDetailsState["handleSaveRotations"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -69,11 +75,22 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
   handleSearchPIIAction,
+  handleShowHidePageRotation,
+  handleAddPageRotation,
+  handleRemovePageRotation,
+  handleRemoveAllRotations,
+  handleSaveRotations,
 }) => {
   const localHandleClosePdf = useCallback(
-    (documentId: string) => {
+    (documentId: string, versionId: number) => {
       handleClosePdf(documentId);
-      handleShowHideRedactionSuggestions(documentId, false, false, true);
+      handleShowHideRedactionSuggestions(
+        documentId,
+        versionId,
+        false,
+        false,
+        true
+      );
     },
     [handleClosePdf, handleShowHideRedactionSuggestions]
   );
@@ -85,7 +102,8 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           item.redactionHighlights.length + item.pageDeleteRedactions.length >
           0,
         id: item.documentId,
-        label: item.presentationFileName,
+        versionId: item.versionId,
+        label: item.presentationTitle,
         panel: {
           children: (
             <PdfTab
@@ -116,10 +134,15 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
                 handleShowHideRedactionSuggestions
               }
               handleSearchPIIAction={handleSearchPIIAction}
+              handleShowHidePageRotation={handleShowHidePageRotation}
+              handleAddPageRotation={handleAddPageRotation}
+              handleRemovePageRotation={handleRemovePageRotation}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}
-              polarisDocumentVersionId={item.polarisDocumentVersionId}
+              versionId={item.versionId}
+              handleRemoveAllRotations={handleRemoveAllRotations}
+              handleSaveRotations={handleSaveRotations}
             />
           ),
         },

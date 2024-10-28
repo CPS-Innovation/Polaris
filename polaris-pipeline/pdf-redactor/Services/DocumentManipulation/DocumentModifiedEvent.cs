@@ -7,7 +7,7 @@ namespace pdf_redactor.Services.DocumentManipulation
     {
         public DocumentModifiedEvent(
             Guid correlationId,
-            string caseId,
+            int caseId,
             string documentId,
             int[] pageNumbersRemoved,
             int[] pageNumbersRotated,
@@ -24,7 +24,7 @@ namespace pdf_redactor.Services.DocumentManipulation
         }
 
         public Guid CorrelationId;
-        public string CaseId;
+        public int CaseId;
         public string DocumentId;
         public int[] PageNumbersRemoved;
         public int[] PageNumbersRotated;
@@ -45,7 +45,7 @@ namespace pdf_redactor.Services.DocumentManipulation
                 new Dictionary<string, string>
                 {
                     { nameof(CorrelationId), CorrelationId.ToString() },
-                    { nameof(CaseId), CaseId },
+                    { nameof(CaseId), CaseId.ToString() },
                     { nameof(DocumentId), EnsureNumericId(DocumentId) },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },

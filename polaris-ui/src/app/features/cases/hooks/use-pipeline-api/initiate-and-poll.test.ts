@@ -116,9 +116,8 @@ describe("initiateAndPoll", () => {
       .spyOn(api, "getPipelinePdfResults")
       .mockImplementation((caseId) =>
         Promise.resolve({
-          transactionId: "",
           status: "Failed",
-          documents: [{ pdfBlobName: "foo", status: "PdfUploadedToBlob" }],
+          documents: [{ status: "PdfUploadedToBlob" }],
         } as PipelineResults)
       );
 
@@ -171,10 +170,9 @@ describe("initiateAndPoll", () => {
       });
     const mockCallback = jest.fn();
     const expectedResults = {
-      transactionId: "",
       status: "Completed",
       processingCompleted: new Date().toISOString(),
-      documents: [{ pdfBlobName: "foo" }],
+      documents: [{}],
     } as PipelineResults;
 
     const getPipelinePdfResultsSpy = jest
@@ -231,22 +229,17 @@ describe("initiateAndPoll", () => {
       );
 
     const expectedInterimResults = {
-      transactionId: "",
       status: "Running",
       processingCompleted: "",
-      documents: [
-        { pdfBlobName: "foo", status: "PdfUploadedToBlob" },
-        { status: "None" },
-      ],
+      documents: [{ status: "PdfUploadedToBlob" }, { status: "None" }],
     } as PipelineResults;
 
     const expectedFinalResults = {
-      transactionId: "",
       status: "Completed",
       processingCompleted: new Date().toISOString(),
       documents: [
-        { pdfBlobName: "foo", status: "PdfUploadedToBlob" },
-        { pdfBlobName: "bar", status: "PdfUploadedToBlob" },
+        { status: "PdfUploadedToBlob" },
+        { status: "PdfUploadedToBlob" },
       ],
     } as PipelineResults;
 

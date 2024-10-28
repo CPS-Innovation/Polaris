@@ -57,6 +57,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     setShowModal(true);
   };
   const handleConfirmRedaction = () => {
+    setShowModal(false);
     const redactionType = redactionTypesData.find(
       (type) => type.id === deleteRedactionType
     )!;
@@ -66,8 +67,6 @@ export const DeletePage: React.FC<DeletePageProps> = ({
       pageNumber: pageNumber,
       reason: redactionType.name,
     });
-
-    setShowModal(false);
   };
   const handleRedactionTypeSelection = (value: string) => {
     setDeleteRedactionType(value);
@@ -122,7 +121,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
                   pageDeleteRedactions.length === totalPages - 1
                 }
               >
-                <DeleteIcon className={classes.deleteBtnIcon} width={"15px"} />
+                <DeleteIcon className={classes.deleteBtnIcon} />
                 Delete
               </LinkButton>
             )}
@@ -133,7 +132,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
         <div>
           <div className={classes.overlay}></div>
           <div className={classes.overlayContent}>
-            <DeleteIcon className={classes.overlayDeleteIcon} width={"15px"} />
+            <DeleteIcon className={classes.overlayDeleteIcon} />
             <p className={classes.overlayMainText}>
               Page selected for deletion
             </p>

@@ -27,13 +27,15 @@ namespace text_extractor.Mappers
                 return new SearchTermResult(true, StreamlinedMatchType.Exact);
 
             var partialWeighting = Fuzz.PartialRatio(tidiedText.ToLowerInvariant(), searchTerm.ToLowerInvariant());
-            if (partialWeighting < 95) return new SearchTermResult(false, StreamlinedMatchType.None);
-            
-            var safeSearchTerm = Regex.Escape(searchTerm);
-            return Regex.IsMatch(wordText, @"\b" + safeSearchTerm + @"\b", RegexOptions.IgnoreCase)
-                ? new SearchTermResult(true, StreamlinedMatchType.Exact)
-                //: new SearchTermResult(true, StreamlinedMatchType.Fuzzy); commented out fuzzy matches for now until we support them when searching the index
-                : new SearchTermResult(false, StreamlinedMatchType.None);
+            if (partialWeighting >= 95)
+            {
+                return Regex.IsMatch(wordText, @"\b" + searchTerm + @"\b", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1))
+                    ? new SearchTermResult(true, StreamlinedMatchType.Exact)
+                    //: new SearchTermResult(true, StreamlinedMatchType.Fuzzy); commented out fuzzy matches for now until we support them when searching the index
+                    : new SearchTermResult(false, StreamlinedMatchType.None);
+            }
+
+            return new SearchTermResult(false, StreamlinedMatchType.None);
         }
     }
 }

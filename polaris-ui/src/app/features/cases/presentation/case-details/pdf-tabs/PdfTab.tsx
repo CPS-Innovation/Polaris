@@ -13,6 +13,8 @@ import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData
 import { SearchPIIRedactionWarningModal } from "../modals/SearchPIIRedactionWarningModal";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { SaveRotationModal } from "../modals/SaveRotationModal";
+import { PageRotationWarningModal } from "../modals/PageRotationWarningModal";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   caseId: number;
@@ -25,15 +27,16 @@ type PdfTabProps = {
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
   searchPIIDataItem: SearchPIIData | undefined;
-  polarisDocumentVersionId: number;
+  versionId: number;
   savedDocumentDetails: {
     documentId: string;
-    polarisDocumentVersionId: number;
+    versionId: number;
   }[];
   contextData: {
     correlationId: string;
     showSearchPII: boolean;
     showDeletePage: boolean;
+    showRotatePage: boolean;
   };
   isOkToSave: boolean;
   handleOpenPdf: (caseDocument: {
@@ -50,6 +53,11 @@ type PdfTabProps = {
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
+  handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
+  handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
+  handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
+  handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
+  handleSaveRotations: CaseDetailsState["handleSaveRotations"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -58,7 +66,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   redactionTypesData,
   activeTabId,
   tabId,
-  polarisDocumentVersionId,
+  versionId,
   showOverRedactionLog,
   caseDocumentViewModel,
   headers,
@@ -78,17 +86,24 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
   handleSearchPIIAction,
+  handleShowHidePageRotation,
+  handleAddPageRotation,
+  handleRemovePageRotation,
+  handleRemoveAllRotations,
+  handleSaveRotations,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
 
   const [showRedactionWarning, setShowRedactionWarning] = useState(false);
+  const [showPageRotationWarning, setShowPageRotationWarning] = useState(false);
   const {
     url,
     mode,
     redactionHighlights,
     pageDeleteRedactions,
+    pageRotations,
     documentId,
     areaOnlyRedactionMode,
     isDeleted,
@@ -96,6 +111,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     cmsDocType: { documentType },
     attachments,
     hasFailedAttachments,
+    rotatePageMode,
   } = caseDocumentViewModel;
 
   const searchHighlights =
@@ -142,20 +158,16 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       const getData =
         searchPIIDataItem?.getSearchPIIStatus === "failure"
           ? true
-          : searchPIIDataItem?.polarisDocumentVersionId !==
-            polarisDocumentVersionId;
+          : searchPIIDataItem?.versionId !== versionId;
       handleShowHideRedactionSuggestions(
         documentId,
+        versionId,
         showSuggestion,
         getData,
         defaultOption
       );
     },
-    [
-      handleShowHideRedactionSuggestions,
-      searchPIIDataItem,
-      polarisDocumentVersionId,
-    ]
+    [handleShowHideRedactionSuggestions, searchPIIDataItem, versionId]
   );
 
   const saveAllRedactionsCustomEvent = () => {
@@ -177,6 +189,18 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     }
     handleSavedRedactions(documentId, isSearchPIIOn);
     saveAllRedactionsCustomEvent();
+  };
+
+  const localHandleShowHidePageRotation = (
+    documentId: string,
+    rotatePageMode: boolean
+  ) => {
+    if (redactionHighlights?.length + pageDeleteRedactions?.length) {
+      setShowPageRotationWarning(true);
+      return;
+    }
+
+    handleShowHidePageRotation(documentId, rotatePageMode);
   };
 
   const isDocumentRefreshing = () => {
@@ -232,6 +256,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleShowHideRedactionSuggestions={
             localHandleShowHideRedactionSuggestions
           }
+          handleShowHidePageRotation={localHandleShowHidePageRotation}
           contextData={{
             documentId: documentId,
             tabIndex: tabIndex,
@@ -239,6 +264,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             isSearchPIIOn: isSearchPIIOn,
             isSearchPIIDefaultOptionOn: !!searchPIIDataItem?.defaultOption,
             showSearchPII: contextData.showSearchPII,
+            isRotatePageModeOn: rotatePageMode,
+            showRotatePage: contextData.showRotatePage,
           }}
         />
       )}
@@ -283,24 +310,34 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentType,
             saveStatus: saveStatus,
             caseId,
-            showDeletePage: contextData.showDeletePage,
+            showDeletePage:
+              contextData.showDeletePage && documentType !== "DAC",
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
           pageDeleteRedactions={pageDeleteRedactions}
+          pageRotations={pageRotations}
           focussedHighlightIndex={focussedHighlightIndex}
           areaOnlyRedactionMode={areaOnlyRedactionMode}
+          rotatePageMode={rotatePageMode}
           handleAddRedaction={handleAddRedaction}
           handleRemoveRedaction={localHandleRemoveRedaction}
+          handleAddPageRotation={handleAddPageRotation}
+          handleRemovePageRotation={handleRemovePageRotation}
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
           handleSearchPIIAction={handleSearchPIIAction}
+          handleRemoveAllRotations={handleRemoveAllRotations}
+          handleSaveRotations={handleSaveRotations}
         />
       ) : (
         <Wait
           dataTestId={`pdfTab-spinner-${tabIndex}`}
           ariaLabel="Refreshing document, please wait"
         />
+      )}
+      {saveStatus.type === "rotation" && saveStatus.status !== "error" && (
+        <SaveRotationModal saveStatus={saveStatus.status} />
       )}
 
       {showRedactionWarning && (
@@ -311,8 +348,13 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             acceptedAllSearchPIIRedactionsCount
           }
           handleContinue={handleContinue}
-          polarisDocumentVersionId={polarisDocumentVersionId!}
+          versionId={versionId!}
           hideRedactionWarningModal={() => setShowRedactionWarning(false)}
+        />
+      )}
+      {showPageRotationWarning && (
+        <PageRotationWarningModal
+          hidePageRotationWarningModal={() => setShowPageRotationWarning(false)}
         />
       )}
     </>

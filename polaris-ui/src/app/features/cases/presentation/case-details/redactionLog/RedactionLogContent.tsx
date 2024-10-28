@@ -25,7 +25,6 @@ import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategor
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 import {
   getDefaultValuesFromMappings,
-  redactString,
   removeNonDigits,
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
@@ -34,6 +33,7 @@ import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentat
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 import classes from "./RedactionLogContent.module.scss";
+import { CmsDocType } from "../../../domain/gateway/CmsDocType";
 
 export type ErrorState = {
   cpsArea: boolean;
@@ -52,7 +52,7 @@ type RedactionLogContentProps = {
   isCaseCharged: boolean;
   owningUnit: string;
   documentName: string;
-  cmsDocumentTypeId: number;
+  cmsDocumentTypeId: CmsDocType["documentTypeId"];
   additionalData: {
     documentId: string;
     documentType: string;
@@ -388,7 +388,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         ...additionalData,
         documentId: parseInt(removeNonDigits(additionalData.documentId)),
         documentTypeId: cmsDocumentTypeId,
-        originalFileName: redactString(additionalData.originalFileName),
+        originalFileName: additionalData.originalFileName,
       },
     };
 
@@ -522,7 +522,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           : "rl-under-redaction-content"
       }
     >
-      {saveStatus === "saving" && (
+      {saveStatus.type === "redaction" && saveStatus.status === "saving" && (
         <div
           className={classes.savingBanner}
           data-testid="rl-saving-redactions"
@@ -534,7 +534,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         </div>
       )}
 
-      {saveStatus === "saved" && (
+      {saveStatus.type === "redaction" && saveStatus.status === "saved" && (
         <div className={classes.savedBanner} data-testid="rl-saved-redactions">
           <WhiteTickIcon className={classes.whiteTickIcon} />
           <h2 className={classes.bannerText}>Redactions successfully saved</h2>
@@ -886,7 +886,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
         <div className={classes.btnWrapper}>
           <Button
-            disabled={saveStatus === "saving" || savingRedactionLog}
+            disabled={
+              (saveStatus.type === "redaction" &&
+                saveStatus.status === "saving") ||
+              savingRedactionLog
+            }
             type="submit"
             className={classes.saveBtn}
             data-testid="btn-save-redaction-log"

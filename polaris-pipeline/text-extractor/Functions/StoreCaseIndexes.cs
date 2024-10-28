@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Extensions;
@@ -22,27 +21,23 @@ namespace text_extractor.Functions
 {
     public class StoreCaseIndexes : BaseFunction
     {
-        private readonly IValidatorWrapper<StoreCaseIndexesRequestDto> _validatorWrapper;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
-        private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
+
         private readonly ILogger<StoreCaseIndexes> _log;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private const string LoggingName = "StoreCaseIndexes - Run";
 
-        public StoreCaseIndexes(IValidatorWrapper<StoreCaseIndexesRequestDto> validatorWrapper,
-                           ISearchIndexService searchIndexService,
-                           IExceptionHandler exceptionHandler,
-                           IDtoHttpRequestHeadersMapper dtoHttpRequestHeadersMapper,
-                           ILogger<StoreCaseIndexes> logger,
-                           ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
-                           IJsonConvertWrapper jsonConvertWrapper)
+        public StoreCaseIndexes(
+               ISearchIndexService searchIndexService,
+               IExceptionHandler exceptionHandler,
+               ILogger<StoreCaseIndexes> logger,
+               ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
+               IJsonConvertWrapper jsonConvertWrapper)
         {
-            _validatorWrapper = validatorWrapper;
             _searchIndexService = searchIndexService;
             _exceptionHandler = exceptionHandler;
-            _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper;
             _log = logger;
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
             _jsonConvertWrapper = jsonConvertWrapper;
@@ -63,11 +58,6 @@ namespace text_extractor.Functions
                     throw new BadRequestException("Request body has no content", nameof(request));
                 }
 
-                // map our request headers to our dto so that we can make use of the validator rules against the dto.
-                var extractTextRequest = _dtoHttpRequestHeadersMapper.Map<StoreCaseIndexesRequestDto>(request.Headers);
-                var results = _validatorWrapper.Validate(extractTextRequest);
-                if (results.Count != 0)
-                    throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
@@ -78,11 +68,9 @@ namespace text_extractor.Functions
                 var storedLinesCount = await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
-                        extractTextRequest.PolarisDocumentId,
                         caseId,
                         documentId,
                         versionId,
-                        extractTextRequest.BlobName,
                         currentCorrelationId
                     );
 

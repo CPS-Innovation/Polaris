@@ -1,7 +1,6 @@
 import { useReducer, useEffect, forwardRef, useImperativeHandle } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
-import { ReclassifyDocumentData } from "../../../domain/gateway/ReclassifyDocumentData";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
@@ -23,7 +22,7 @@ type Props = {
   handleOpenPanel: (
     documentId: string,
     documentCategory: string,
-    presentationFileName: string,
+    presentationTitle: string,
     type: "notes" | "rename",
     documentType: string,
     classification: Classification
@@ -34,7 +33,6 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
-  reclassifyData: ReclassifyDocumentData[];
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -54,7 +52,6 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       accordionStateChangeCallback,
       handleReclassifyDocument,
       handleGetNotes,
-      reclassifyData,
     },
     ref
   ) => {
@@ -127,7 +124,6 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             handleGetNotes={handleGetNotes}
             handleReclassifyDocument={handleReclassifyDocument}
             notesData={notesData}
-            reclassifyData={reclassifyData}
           />
         ))}
       </div>

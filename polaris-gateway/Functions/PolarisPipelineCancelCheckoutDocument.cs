@@ -1,5 +1,4 @@
 ﻿using Common.Configuration;
-using Common.ValueObjects;
 using PolarisGateway.Clients.Coordinator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +32,7 @@ namespace PolarisGateway.Functions
         [FunctionName(nameof(PolarisPipelineCancelCheckoutDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string documentId)
         {
             (Guid CorrelationId, string CmsAuthValues) context = default;
 
@@ -43,7 +42,7 @@ namespace PolarisGateway.Functions
                 return await _coordinatorClient.CancelCheckoutDocumentAsync(
                     caseUrn,
                     caseId,
-                    new PolarisDocumentId(polarisDocumentId),
+                    documentId,
                     context.CmsAuthValues,
                     context.CorrelationId);
             }

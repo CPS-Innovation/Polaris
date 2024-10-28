@@ -1,30 +1,23 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Common.Dto.FeatureFlags;
-using Mapster;
-using Common.ValueObjects;
-using Common.Dto.Tracker;
+using Common.Dto.Response.Documents;
 using Common.Constants;
-using System;
+using Common.Dto.Response.Document.FeatureFlags;
 
 namespace coordinator.Durable.Payloads.Domain
 {
-    public class BaseDocumentEntity
+    public abstract class BaseDocumentEntity
     {
         public BaseDocumentEntity()
         { }
 
-        public BaseDocumentEntity(
-            PolarisDocumentId polarisDocumentId,
-            int polarisDocumentVersionId,
-            string cmsDocumentId,
-            long cmsVersionId,
+        protected BaseDocumentEntity(
+            long cmsDocumentId,
+            long versionId,
             PresentationFlagsDto presentationFlags)
         {
-            PolarisDocumentId = polarisDocumentId;
-            PolarisDocumentVersionId = polarisDocumentVersionId;
             CmsDocumentId = cmsDocumentId;
-            CmsVersionId = cmsVersionId;
+            VersionId = versionId;
             PresentationFlags = presentationFlags;
             Status = DocumentStatus.New;
         }
@@ -33,38 +26,15 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
 
+        [JsonProperty("documentId")]
+        public abstract string DocumentId { get; }
+
         [JsonProperty("cmsDocumentId")]
-        [AdaptIgnore]
-        public string CmsDocumentId { get; set; }
+        //[AdaptIgnore]
+        public long CmsDocumentId { get; set; }
 
-        [JsonProperty("cmsVersionId")]
-        public long CmsVersionId { get; set; }
-
-        [JsonIgnore]
-        public PolarisDocumentId PolarisDocumentId { get; set; }
-
-        [JsonProperty("polarisDocumentId")]
-        public string PolarisDocumentIdValue
-        {
-            get
-            {
-                return PolarisDocumentId.ToString();
-            }
-            set
-            {
-                PolarisDocumentId = new PolarisDocumentId(value);
-            }
-        }
-
-        [JsonProperty("polarisDocumentVersionId")]
-        public int PolarisDocumentVersionId { get; set; }
-
-        [JsonProperty("isPdfAvailable")]
-        public bool IsPdfAvailable { get; set; }
-
-        [Obsolete("This shouldn't really be a property as it can always be worked out buy convention")]
-        [JsonProperty("pdfBlobName")]
-        public string PdfBlobName { get; set; }
+        [JsonProperty("versionId")]
+        public long VersionId { get; set; }
 
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
@@ -72,7 +42,7 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
-        [JsonProperty("piiCmsVersionId")]
-        public long? PiiCmsVersionId { get; set; }
+        [JsonProperty("piiVersionId")]
+        public long? PiiVersionId { get; set; }
     }
 }

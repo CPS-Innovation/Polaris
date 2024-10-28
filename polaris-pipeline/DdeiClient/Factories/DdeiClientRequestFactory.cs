@@ -5,6 +5,7 @@ using System.Text.Json;
 using Common.Constants;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
 
 namespace Ddei.Factories.Contracts
 {
@@ -12,70 +13,84 @@ namespace Ddei.Factories.Contracts
     {
         private const string CorrelationId = "Correlation-Id";
 
-        public HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg)
+        public HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiBaseArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/verify-cms-auth");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateUrnLookupRequest(DdeiCaseIdOnlyArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urn-lookup/{arg.CaseId}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg)
+        public HttpRequestMessage CreateListCasesRequest(DdeiUrnArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg)
+        public HttpRequestMessage CreateGetCaseRequest(DdeiCaseIdentifiersArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateGetPcdRequestsRequest(DdeiCmsCaseArgDto arg)
+        public HttpRequestMessage CreateGetPcdRequestsRequest(DdeiCaseIdentifiersArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/pcd-requests");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateGetPcdRequest(DdeiCmsPcdArgDto arg)
+        public HttpRequestMessage CreateGetPcdRequest(DdeiPcdArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/pcd-requests/{arg.PcdId}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateGetDefendantAndChargesRequest(DdeiCmsCaseArgDto arg)
+        public HttpRequestMessage CreateGetDefendantAndChargesRequest(DdeiCaseIdentifiersArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/defendants");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCmsCaseArgDto arg)
+        public HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCaseIdentifiersArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg)
+        public HttpRequestMessage CreateCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/{arg.VersionId}/checkout");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}/checkout");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg)
+        public HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/{arg.VersionId}/checkout");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}/checkout");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiCmsFileStoreArgDto arg)
+        public HttpRequestMessage CreateGetDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiFileStoreArgDto arg)
         {
             // note that `arg.Path` is already prefixed with a slash
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/file-store{arg.Path}");
@@ -83,9 +98,9 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
-        public HttpRequestMessage CreateUploadPdfRequest(DdeiCmsDocumentArgDto arg, Stream stream)
+        public HttpRequestMessage CreateUploadPdfRequest(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream)
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/{arg.VersionId}");
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}");
             AddAuthHeaders(request, arg);
             request.Content = new StreamContent(stream);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
@@ -98,14 +113,14 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
-        public HttpRequestMessage CreateGetDocumentNotesRequest(DdeiCmsDocumentNotesArgDto arg)
+        public HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/notes");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateAddDocumentNoteRequest(DdeiCmsAddDocumentNoteArgDto arg)
+        public HttpRequestMessage CreateAddDocumentNoteRequest(DdeiAddDocumentNoteArgDto arg)
         {
             var content = JsonSerializer.Serialize(new AddDocumentNoteDto
             {
@@ -118,7 +133,7 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
-        public HttpRequestMessage CreateRenameDocumentRequest(DdeiCmsRenameDocumentArgDto arg)
+        public HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg)
         {
             var content = JsonSerializer.Serialize(new RenameDocumentDto
             {
@@ -131,7 +146,7 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
-        public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiCmsReclassifyDocumentArgDto arg)
+        public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
         {
             var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
             {
@@ -148,35 +163,35 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
-        public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCmsCaseArgDto arg)
+        public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/exhibit-producers");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateCaseWitnessesRequest(DdeiCmsCaseArgDto arg)
+        public HttpRequestMessage CreateCaseWitnessesRequest(DdeiCaseIdentifiersArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/witnesses");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiCmsCaseDataArgDto arg)
+        public HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiBaseArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiCmsWitnessStatementsArgDto arg)
+        public HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiWitnessStatementsArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/witnesses/{arg.WitnessId}/statements");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        private void AddAuthHeaders(HttpRequestMessage request, DdeiCmsCaseDataArgDto arg)
+        private void AddAuthHeaders(HttpRequestMessage request, DdeiBaseArgDto arg)
         {
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);
             request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());

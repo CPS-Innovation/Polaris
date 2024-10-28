@@ -48,6 +48,16 @@ export const ErrorModalContent: React.FC<ErrorModalContentProps> = ({
           documentId: contextData?.documentId,
         });
         break;
+      case "saveredaction":
+        trackEvent("Save Redaction Error", {
+          documentId: contextData?.documentId,
+        });
+        break;
+      case "saverotation":
+        trackEvent("Save Rotation Error", {
+          documentId: contextData?.documentId,
+        });
+        break;
     }
   }, []);
   const messageParagraphs = message

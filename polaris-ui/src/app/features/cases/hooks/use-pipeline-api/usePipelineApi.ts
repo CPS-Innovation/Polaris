@@ -26,7 +26,12 @@ export const usePipelineApi = (
   const [pipelineBusy, setPipelineBusy] = useState(false);
 
   useEffect(() => {
-    if (pipelineRefreshData.startRefresh && !pipelineBusy) {
+    if (
+      // the outside world is calling for a refresh...
+      pipelineRefreshData.startRefresh &&
+      // ... and we are not already doing a refresh
+      !pipelineBusy
+    ) {
       const correlationId = generateGuid();
       //get correlationID here and add it to the setPipelineResults and remove it from gateway
       initiateAndPoll(

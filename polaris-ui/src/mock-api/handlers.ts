@@ -25,7 +25,6 @@ import searchPIIData from "./data/searchPII.dev";
 import cypressSearchPIIData from "./data/searchPII.cypress";
 import { NotesDataSource } from "./data/types/NotesDataSource";
 import { SearchPIIDataSource } from "./data/types/SearchPIIDataSource";
-
 import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
 import * as routes from "./routes";
@@ -165,11 +164,9 @@ export const setupHandlers = ({
     rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
       const { documentId } = req.params;
 
-      const blobName = pipelinePdfResultsDataSources[
-        sourceName
-      ]()[0].documents.find(
-        (document) => document.documentId === documentId
-      )?.pdfBlobName;
+      const blobName = pipelinePdfResultsDataSources[sourceName]()[0]
+        .documents.find((document) => document.documentId === documentId)
+        ?.cmsOriginalFileName.split(".")[0];
 
       const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];
 
@@ -249,6 +246,10 @@ export const setupHandlers = ({
     }),
 
     rest.post(makeApiPath(routes.SAVE_RECLASSIFY), (req, res, ctx) => {
+      return res(delay(ctx), ctx.json({}));
+    }),
+
+    rest.post(makeApiPath(routes.SAVE_ROTATION_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
     }),
   ];
