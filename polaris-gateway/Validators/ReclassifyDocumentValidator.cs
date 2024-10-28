@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace PolarisGateway.Validators
 {
-    public class ReclassifyDocumentValidator : AbstractValidator<DocumentReclassificationRequestDto>
+    public class ReclassifyDocumentValidator : AbstractValidator<ReclassifyDocumentDto>
     {
         public ReclassifyDocumentValidator()
         {

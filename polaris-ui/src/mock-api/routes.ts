@@ -7,9 +7,9 @@ export const FILE_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/pdf";
 export const TEXT_SEARCH_ROUTE = "api/urns/:urn/cases/:caseId/search?query=";
 export const DOCUMENT_CHECKOUT_ROUTE =
-  "/api/urns/:urn/cases/:caseId/documents/:documentId/checkout";
+  "/api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/checkout";
 export const DOCUMENT_CHECKIN_ROUTE =
-  "/api/urns/:urn/cases/:caseId/documents/:documentId/checkout";
+  "/api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/checkout";
 export const SAVE_REDACTION_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId";
 

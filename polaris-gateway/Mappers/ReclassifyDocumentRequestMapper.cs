@@ -4,7 +4,7 @@ namespace PolarisGateway.Mappers
 {
     public class ReclassifyDocumentRequestMapper : IReclassifyDocumentRequestMapper
     {
-        public ReclassifyDocumentDto Map(DocumentReclassificationRequestDto documentReclassificationRequest)
+        public ReclassifyDocumentDto Map(ReclassifyDocumentDto documentReclassificationRequest)
         {
             return new ReclassifyDocumentDto
             {

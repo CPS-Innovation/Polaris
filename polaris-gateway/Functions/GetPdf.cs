@@ -27,10 +27,10 @@ namespace PolarisGateway.Functions
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
-            _logger = logger;
-            _cachingArtefactService = cachingArtefactService;
-            _initializationHandler = initializationHandler;
-            _unhandledExceptionHandler = unhandledExceptionHandler;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _cachingArtefactService = cachingArtefactService ?? throw new ArgumentNullException(nameof(cachingArtefactService));
+            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
+            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
 
         [FunctionName(nameof(GetPdf))]
