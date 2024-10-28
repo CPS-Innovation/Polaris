@@ -72,7 +72,7 @@ describe("Feature Delete Page", () => {
           height: 1415.65,
           width: 1001,
           redactionCoordinates: [
-            { x1: 56.33, y1: 1038.7, x2: 240.21, y2: 1015.52 },
+            { x1: 56.33, y1: 1038.7, x2: 245.83, y2: 1015.52 },
           ],
         },
       ],
