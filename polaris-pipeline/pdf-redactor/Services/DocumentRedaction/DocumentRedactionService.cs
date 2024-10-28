@@ -17,7 +17,7 @@ namespace pdf_redactor.Services.DocumentRedaction
             _logger = logger;
         }
 
-        public async Task<Stream> RedactAsync(string caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+        public async Task<Stream> RedactAsync(int caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
         {
             try
             {
@@ -28,7 +28,6 @@ namespace pdf_redactor.Services.DocumentRedaction
                 {
                     RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
                     VersionId = redactPdfRequest.VersionId,
-                    FileName = redactPdfRequest.FileName
                 };
 
                 return await _redactionProvider.Redact(documentStream, caseId, documentId, pdfRedact, correlationId);

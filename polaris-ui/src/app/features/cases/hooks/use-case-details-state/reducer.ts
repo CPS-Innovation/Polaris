@@ -78,7 +78,7 @@ export const reducer = (
           startRefresh: boolean;
           savedDocumentDetails?: {
             documentId: string;
-            polarisDocumentVersionId: number;
+            versionId: number;
           };
         };
       }
@@ -456,11 +456,14 @@ export const reducer = (
             (tabItem) => tabItem.documentId === item.documentId
           )
         )
-        .map(({ documentId, polarisDocumentVersionId, presentationTitle }) => ({
-          documentId,
-          polarisDocumentVersionId,
-          presentationTitle,
-        }));
+        .map(
+          ({ documentId, versionId, presentationTitle, isOcrProcessed }) => ({
+            documentId,
+            versionId,
+            presentationTitle,
+            isOcrProcessed,
+          })
+        );
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }
@@ -484,15 +487,15 @@ export const reducer = (
             state.urn,
             state.caseId,
             matchingFreshPdfRecord.documentId,
-            matchingFreshPdfRecord.polarisDocumentVersionId
+            matchingFreshPdfRecord.versionId,
+            matchingFreshPdfRecord.isOcrProcessed
           );
           return [
             ...prev,
             {
               ...curr,
               url,
-              polarisDocumentVersionId:
-                matchingFreshPdfRecord.polarisDocumentVersionId,
+              versionId: matchingFreshPdfRecord.versionId,
               presentationTitle: matchingFreshPdfRecord.presentationTitle,
             },
           ];
@@ -604,7 +607,8 @@ export const reducer = (
           state.urn,
           state.caseId,
           pipelineDocument.documentId,
-          pipelineDocument.polarisDocumentVersionId
+          pipelineDocument.versionId,
+          pipelineDocument.isOcrProcessed
         );
 
       let item: CaseDocumentViewModel;
@@ -1345,9 +1349,9 @@ export const reducer = (
         getData,
         defaultOption = true,
       } = action.payload;
-      const polarisDocumentVersionId = state.tabsState.items.find(
+      const versionId = state.tabsState.items.find(
         (data) => data.documentId === documentId
-      )?.polarisDocumentVersionId!;
+      )?.versionId!;
       const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );
@@ -1367,15 +1371,13 @@ export const reducer = (
             show: show,
             defaultOption: defaultOption,
             searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
-            polarisDocumentVersionId: getData
-              ? polarisDocumentVersionId
-              : availablePIIData.polarisDocumentVersionId,
+            versionId: getData ? versionId : availablePIIData.versionId,
           }
         : {
             show: show,
             defaultOption: defaultOption,
             documentId: documentId,
-            polarisDocumentVersionId: polarisDocumentVersionId,
+            versionId,
             searchPIIHighlights: [],
             getSearchPIIStatus: "initial" as const,
           };

@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
-using Common.ValueObjects;
 using coordinator.Helpers;
 using Ddei.Factories;
-using DdeiClient.Services;
+using Ddei;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -36,8 +35,8 @@ namespace coordinator.Functions
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req,
             string caseUrn,
-            string caseId,
-            string polarisDocumentId,
+            int caseId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -47,16 +46,16 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(CheckoutDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(CheckoutDocument));
                 var document = response.CmsDocument;
 
-                var arg = _ddeiArgFactory.CreateDocumentArgDto(
+                var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
                          cmsAuthValues: cmsAuthValues,
                          correlationId: currentCorrelationId,
                          urn: caseUrn,
-                         caseId: int.Parse(caseId),
-                         documentId: int.Parse(document.CmsDocumentId),
-                         versionId: document.CmsVersionId
+                         caseId: caseId,
+                         documentId: document.CmsDocumentId,
+                         versionId: document.VersionId
                  );
 
                 var result = await _ddeiClient.CheckoutDocumentAsync(arg);

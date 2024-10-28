@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Common.Dto.Document;
-using Common.Dto.FeatureFlags;
-using Common.ValueObjects;
+using Common.Domain.Document;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Document.FeatureFlags;
 using Newtonsoft.Json;
 
 namespace coordinator.Durable.Payloads.Domain
@@ -13,10 +13,14 @@ namespace coordinator.Durable.Payloads.Domain
         { }
 
         public CmsDocumentEntity(
-            PolarisDocumentId polarisDocumentId,
-            int polarisDocumentVersionId,
-            string cmsDocumentId,
-            long cmsVersionId,
+           long cmsDocumentId,
+           long versionId,
+           PresentationFlagsDto presentationFlags)
+       : base(cmsDocumentId, versionId, presentationFlags) { }
+
+        public CmsDocumentEntity(
+            long cmsDocumentId,
+            long versionId,
             DocumentTypeDto cmsDocType,
             string path,
             string cmsFileCreatedDate,
@@ -25,7 +29,6 @@ namespace coordinator.Durable.Payloads.Domain
             bool isOcrProcessed,
             bool isDispatched,
             int? categoryListOrder,
-            PolarisDocumentId polarisParentDocumentId,
             string cmsParentDocumentId,
             int? witnessId,
             PresentationFlagsDto presentationFlags,
@@ -39,7 +42,7 @@ namespace coordinator.Durable.Payloads.Domain
             bool canRename,
             string renameStatus,
             string reference)
-            : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
+            : base(cmsDocumentId, versionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             Path = path;
@@ -49,7 +52,6 @@ namespace coordinator.Durable.Payloads.Domain
             IsOcrProcessed = isOcrProcessed;
             IsDispatched = isDispatched;
             CategoryListOrder = categoryListOrder;
-            PolarisParentDocumentId = polarisParentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
             WitnessId = witnessId;
             HasFailedAttachments = hasFailedAttachments;
@@ -63,6 +65,13 @@ namespace coordinator.Durable.Payloads.Domain
             RenameStatus = renameStatus;
             Reference = reference;
         }
+        public override string DocumentId
+        {
+            get
+            {
+                return $"{DocumentNature.DocumentPrefix}-{CmsDocumentId}";
+            }
+        }
 
         [JsonProperty("path")]
         public string Path { get; set; }
@@ -74,9 +83,6 @@ namespace coordinator.Durable.Payloads.Domain
         [Required]
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
-
-        [JsonProperty("presentationTitle")]
-        public string PresentationTitle { get; set; }
 
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
@@ -90,24 +96,22 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
 
-        [JsonIgnore]
-        public PolarisDocumentId PolarisParentDocumentId { get; set; }
-
-        [JsonProperty("polarisParentDocumentId")]
-        public string PolarisParentDocumentIdValue
+        [JsonProperty("parentDocumentId")]
+        public string ParentDocumentId
         {
             get
             {
-                return PolarisParentDocumentId?.ToString();
-            }
-            set
-            {
-                PolarisParentDocumentId = new PolarisDocumentId(value);
+                return string.IsNullOrWhiteSpace(CmsParentDocumentId)
+                    ? null
+                    : $"{DocumentNature.DocumentPrefix}-{CmsParentDocumentId}";
             }
         }
 
         [JsonProperty("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }
+
+        [JsonProperty("presentationTitle")]
+        public string PresentationTitle { get; set; }
 
         [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }
@@ -141,5 +145,6 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("reference")]
         public string Reference { get; set; }
+
     }
 }

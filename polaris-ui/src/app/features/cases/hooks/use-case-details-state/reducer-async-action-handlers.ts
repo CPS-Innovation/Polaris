@@ -117,6 +117,7 @@ type AsyncActions =
       type: "GET_SEARCH_PII_DATA";
       payload: {
         documentId: string;
+        versionId: number;
       };
     }
   | {
@@ -399,11 +400,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const {
-        redactionHighlights,
-        polarisDocumentVersionId,
-        pageDeleteRedactions,
-      } = document;
+      const { redactionHighlights, versionId, pageDeleteRedactions } = document;
       let piiData: any = {};
       if (searchPIIOn) {
         const suggestedHighlights =
@@ -472,8 +469,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             startRefresh: true,
             savedDocumentDetails: {
-              documentId: documentId,
-              polarisDocumentVersionId: polarisDocumentVersionId,
+              documentId,
+              versionId,
             },
           },
         });
@@ -755,11 +752,16 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { documentId },
+        payload: { documentId, versionId },
       } = action;
       const { caseId, urn } = getState();
       try {
-        const searchPIIResult = await getSearchPIIData(urn, caseId, documentId);
+        const searchPIIResult = await getSearchPIIData(
+          urn,
+          caseId,
+          documentId,
+          versionId
+        );
         dispatch({
           type: "UPDATE_SEARCH_PII_DATA",
           payload: {
@@ -805,7 +807,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const { polarisDocumentVersionId, pageRotations } = document;
+      const { versionId, pageRotations } = document;
 
       const rotationRequestData: RotationSaveRequest = {
         documentModifications: pageRotations
@@ -847,8 +849,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: {
             startRefresh: true,
             savedDocumentDetails: {
-              documentId: documentId,
-              polarisDocumentVersionId: polarisDocumentVersionId,
+              documentId,
+              versionId,
             },
           },
         });

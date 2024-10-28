@@ -1,4 +1,4 @@
-﻿using Common.Dto.Tracker;
+﻿using Common.Dto.Response.Documents;
 using Mapster;
 using coordinator.Durable.Entity;
 using System.Collections.Generic;

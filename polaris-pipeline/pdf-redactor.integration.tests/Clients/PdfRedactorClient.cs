@@ -24,7 +24,7 @@ namespace pdf_redactor.integration.tests.Clients
 
             var requestMessage = new StringContent(JsonSerializer.Serialize(redactPdfRequest), Encoding.UTF8, ContentType.Json);
 
-            var redactRequest = _requestFactory.Create(HttpMethod.Put, $"/api/{RestApi.GetRedactPdfPath("pdf-redactor-integration-tests-urn", "1234", "pdf-redactor-integration-tests-documentId")}", currentCorrelationId);
+            var redactRequest = _requestFactory.Create(HttpMethod.Put, $"/api/{RestApi.GetRedactPdfPath("pdf-redactor-integration-tests-urn", 1234, "pdf-redactor-integration-tests-documentId")}", currentCorrelationId);
             redactRequest.Content = requestMessage;
 
             var pdfStream = new MemoryStream();
@@ -43,7 +43,7 @@ namespace pdf_redactor.integration.tests.Clients
 
             var requestMessage = new StringContent(JsonSerializer.Serialize(removeDocumentPagesWithDocument), Encoding.UTF8, ContentType.Json);
 
-            var redactRequest = _requestFactory.Create(HttpMethod.Post, $"/api/{RestApi.GetModifyDocumentPath("pdf-redactor-integration-tests-urn", "1234", "pdf-redactor-integration-tests-documentId")}", currentCorrelationId);
+            var redactRequest = _requestFactory.Create(HttpMethod.Post, $"/api/{RestApi.GetModifyDocumentPath("pdf-redactor-integration-tests-urn", 1234, "pdf-redactor-integration-tests-documentId")}", currentCorrelationId);
             redactRequest.Content = requestMessage;
 
             var pdfStream = new MemoryStream();

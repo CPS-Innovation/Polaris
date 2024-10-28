@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.ValueObjects;
 using Ddei.Factories;
-using DdeiClient.Services;
+using Ddei;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -35,8 +34,8 @@ namespace coordinator.Functions
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req,
             string caseUrn,
-            string caseId,
-            string polarisDocumentId,
+            int caseId,
+            string documentId,
             [DurableClient] IDurableEntityClient client)
         {
             Guid currentCorrelationId = default;
@@ -46,17 +45,17 @@ namespace coordinator.Functions
                 currentCorrelationId = req.Headers.GetCorrelationId();
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(polarisDocumentId), _logger, currentCorrelationId, nameof(CancelCheckoutDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(CancelCheckoutDocument));
                 var document = response.CmsDocument;
 
-                var arg = _ddeiArgFactory.CreateDocumentArgDto(
+                var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
 
                     cmsAuthValues: cmsAuthValues,
                     correlationId: currentCorrelationId,
                     urn: caseUrn,
-                    caseId: int.Parse(caseId),
-                    documentId: int.Parse(document.CmsDocumentId),
-                    versionId: document.CmsVersionId
+                    caseId: caseId,
+                    documentId: document.CmsDocumentId,
+                    versionId: document.VersionId
                 );
                 await _ddeiClient.CancelCheckoutDocumentAsync(arg);
 

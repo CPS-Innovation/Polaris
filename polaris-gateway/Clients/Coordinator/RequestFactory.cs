@@ -1,5 +1,4 @@
 ﻿using Common.Constants;
-using Microsoft.Extensions.Configuration;
 
 namespace PolarisGateway.Clients.Coordinator
 {

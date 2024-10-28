@@ -1,47 +1,68 @@
-const materialTypeList = [
+import { MaterialType } from "../../app/features/cases/presentation/case-details/reclassify/data/MaterialType";
+import { ExhibitProducer } from "../../app/features/cases/presentation/case-details/reclassify/data/ExhibitProducer";
+import { StatementWitness } from "../../app/features/cases/presentation/case-details/reclassify/data/StatementWitness";
+import { StatementWitnessNumber } from "../../app/features/cases/presentation/case-details/reclassify/data/StatementWitnessNumber";
+export const materialTypeList: MaterialType[] = [
   {
-    code: "1015",
+    typeId: 1015,
     description: "MG10",
-    longDescription: "Witness Non-Availability",
-    classification: "OTHER",
-    isCaseMaterial: "IN-Y",
-    listOrder: 280,
-    addAsUsedOrUnused: "Y",
-    sectionWhenCreated: "MG Forms",
+    newClassificationVariant: "Immediate",
   },
   {
-    code: "1031",
+    typeId: 1031,
     description: "MG11",
-    longDescription: "Witness Statement",
-    classification: "STATEMENT",
-    isCaseMaterial: "IN-Y",
-    listOrder: 290,
-    addAsUsedOrUnused: "Y",
-    sectionWhenCreated: "Witnesses",
+    newClassificationVariant: "Statement",
   },
   {
-    code: "1042",
+    typeId: 1042,
     description: "MG15(SDN)",
-    longDescription: "Short Descriptive Note",
-    classification: "EXHIBIT",
-    isCaseMaterial: "IN-Y",
-    listOrder: 340,
-    addAsUsedOrUnused: "Y",
-    sectionWhenCreated: "Exhibits",
+    newClassificationVariant: "Exhibit",
   },
   {
-    code: "1029",
+    typeId: 1029,
     description: "Other Communication",
-    longDescription: "Other Communication",
-    classification: "OTHER",
-    isCaseMaterial: "N",
-    canBeAdded: "N",
-    listOrder: 500,
-    addAsUsedOrUnused: "N",
-    isCommunicationItem: "Y",
+    newClassificationVariant: "Other",
+  },
+  {
+    typeId: 1019,
+    description: "MG16(ROTI)",
+    newClassificationVariant: "Exhibit",
+  },
+];
+const exhibitProducers: ExhibitProducer[] = [
+  { id: 1, exhibitProducer: "PC Blaynee" },
+  { id: 2, exhibitProducer: "PC Jones" },
+  { id: 3, exhibitProducer: "PC Lucy" },
+];
+
+const statementWitness: StatementWitness[] = [
+  { id: 1, name: "PC Blaynee_S" },
+  { id: 2, name: "PC Jones_S" },
+  { id: 3, name: "PC Lucy_S" },
+];
+
+const statementWitnessNumbers: StatementWitnessNumber[] = [
+  {
+    documentId: 1,
+    statementNumber: 2,
+  },
+  {
+    documentId: 2,
+    statementNumber: 3,
+  },
+  {
+    documentId: 3,
+    statementNumber: 4,
+  },
+  {
+    documentId: 4,
+    statementNumber: 7,
   },
 ];
 const dataSource = {
   materialTypeList,
+  exhibitProducers,
+  statementWitness,
+  statementWitnessNumbers,
 };
 export default dataSource;

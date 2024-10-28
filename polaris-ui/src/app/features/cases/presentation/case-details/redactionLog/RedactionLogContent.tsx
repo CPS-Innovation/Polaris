@@ -33,6 +33,7 @@ import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentat
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 import classes from "./RedactionLogContent.module.scss";
+import { CmsDocType } from "../../../domain/gateway/CmsDocType";
 
 export type ErrorState = {
   cpsArea: boolean;
@@ -51,7 +52,7 @@ type RedactionLogContentProps = {
   isCaseCharged: boolean;
   owningUnit: string;
   documentName: string;
-  cmsDocumentTypeId: number;
+  cmsDocumentTypeId: CmsDocType["documentTypeId"];
   additionalData: {
     documentId: string;
     documentType: string;

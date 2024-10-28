@@ -8,8 +8,8 @@ namespace Common.Domain.Pii
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("polarisDocumentId")]
-        public string PolarisDocumentId { get; set; }
+        [JsonProperty("documentId")]
+        public string DocumentId { get; set; }
 
         [JsonProperty("fileName")]
         public string FileName { get; set; }

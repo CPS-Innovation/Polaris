@@ -1,7 +1,7 @@
-using Common.Dto.Case;
-using Ddei.Domain;
+using Common.Dto.Response.Case;
+using Ddei.Domain.Response;
 
-namespace DdeiClient.Mappers
+namespace Ddei.Mappers
 {
     public interface ICaseIdentifiersMapper
     {

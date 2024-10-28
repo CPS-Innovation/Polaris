@@ -1,5 +1,8 @@
+using System.Text.RegularExpressions;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
 
 namespace Ddei.Factories
 {
@@ -9,18 +12,18 @@ namespace Ddei.Factories
         {
         }
 
-        public DdeiCmsCaseDataArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId)
+        public DdeiBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId)
         {
-            return new DdeiCmsCaseDataArgDto
+            return new DdeiBaseArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId
             };
         }
 
-        public DdeiCmsCaseIdArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId)
+        public DdeiCaseIdOnlyArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId)
         {
-            return new DdeiCmsCaseIdArgDto
+            return new DdeiCaseIdOnlyArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -28,9 +31,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
+        public DdeiUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
         {
-            return new DdeiCmsUrnArgDto
+            return new DdeiUrnArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -38,9 +41,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsCaseArgDto CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
+        public DdeiCaseIdentifiersArgDto CreateCaseIdentifiersArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
         {
-            return new DdeiCmsCaseArgDto
+            return new DdeiCaseIdentifiersArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -49,9 +52,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId)
+        public DdeiPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId)
         {
-            return new DdeiCmsPcdArgDto
+            return new DdeiPcdArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -61,9 +64,12 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsCaseArgDto CreateCaseArgFromUrnArg(DdeiCmsUrnArgDto arg, int caseId)
+        public DdeiPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, string pcdId)
+            => CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiPcdId(pcdId));
+
+        public DdeiCaseIdentifiersArgDto CreateCaseArgFromUrnArg(DdeiUrnArgDto arg, int caseId)
         {
-            return new DdeiCmsCaseArgDto
+            return new DdeiCaseIdentifiersArgDto
             {
                 CmsAuthValues = arg.CmsAuthValues,
                 CorrelationId = arg.CorrelationId,
@@ -72,15 +78,24 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsDocumentArgDto CreateDocumentArgDto(
-            string cmsAuthValues,
-            Guid correlationId,
-            string urn,
-            int caseId,
-            int documentId,
-            long versionId)
+        public DdeiDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId)
         {
-            return new DdeiCmsDocumentArgDto
+            return new DdeiDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = urn,
+                CaseId = caseId,
+                DocumentId = documentId
+            };
+        }
+
+        public DdeiDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
+            => CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId));
+
+        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, long versionId)
+        {
+            return new DdeiDocumentIdAndVersionIdArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -91,21 +106,12 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsDocumentNotesArgDto CreateDocumentNotesArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
-        {
-            return new DdeiCmsDocumentNotesArgDto
-            {
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId,
-                Urn = urn,
-                CaseId = caseId,
-                DocumentId = documentId
-            };
-        }
+        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+            => CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), versionId);
 
-        public DdeiCmsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string text)
+        public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string text)
         {
-            return new DdeiCmsAddDocumentNoteArgDto
+            return new DdeiAddDocumentNoteArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -116,9 +122,12 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, string documentName)
+        public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, string text)
+            => CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), text);
+
+        public DdeiRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string documentName)
         {
-            return new DdeiCmsRenameDocumentArgDto
+            return new DdeiRenameDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -129,9 +138,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int documentId, ReclassifyDocumentDto dto)
+        public DdeiReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, ReclassifyDocumentDto dto)
         {
-            return new DdeiCmsReclassifyDocumentArgDto
+            return new DdeiReclassifyDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -146,9 +155,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCmsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
+        public DdeiWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
         {
-            return new DdeiCmsWitnessStatementsArgDto
+            return new DdeiWitnessStatementsArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -156,6 +165,42 @@ namespace Ddei.Factories
                 CaseId = caseId,
                 WitnessId = witnessId
             };
+        }
+
+        private static long ConvertToDdeiDocumentId(string documentId)
+        {
+            if (string.IsNullOrWhiteSpace(documentId))
+            {
+                throw new ArgumentNullException(nameof(documentId));
+            }
+
+            var match = Regex.Match(
+                documentId,
+                $@"{DocumentNature.DocumentPrefix}-(\d+)",
+                RegexOptions.None,
+                TimeSpan.FromSeconds(1));
+
+            return match.Success
+                ? long.Parse(match.Groups[1].Value)
+                : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.DocumentPrefix}-123456'");
+        }
+
+        private static int ConvertToDdeiPcdId(string documentId)
+        {
+            if (string.IsNullOrWhiteSpace(documentId))
+            {
+                throw new ArgumentNullException(nameof(documentId));
+            }
+
+            var match = Regex.Match(
+                documentId,
+                $@"{DocumentNature.PreChargeDecisionRequestPrefix}-(\d+)",
+                RegexOptions.None,
+                TimeSpan.FromSeconds(1));
+
+            return match.Success
+                ? int.Parse(match.Groups[1].Value)
+                : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.PreChargeDecisionRequestPrefix}-123456'");
         }
     }
 }

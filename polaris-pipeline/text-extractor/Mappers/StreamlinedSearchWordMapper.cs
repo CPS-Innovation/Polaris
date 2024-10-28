@@ -30,7 +30,7 @@ namespace text_extractor.Mappers
             var partialWeighting = Fuzz.PartialRatio(tidiedText.ToLowerInvariant(), searchTerm.ToLowerInvariant());
             if (partialWeighting >= 95)
             {
-                return Regex.IsMatch(wordText, @"\b" + searchTerm + @"\b", RegexOptions.IgnoreCase)
+                return Regex.IsMatch(wordText, @"\b" + searchTerm + @"\b", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1))
                     ? new SearchTermResult(true, StreamlinedMatchType.Exact)
                     //: new SearchTermResult(true, StreamlinedMatchType.Fuzzy); commented out fuzzy matches for now until we support them when searching the index
                     : new SearchTermResult(false, StreamlinedMatchType.None);

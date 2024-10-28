@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Common.Dto.Document;
+using Common.Dto.Response.Document;
 using Common.Validators;
 
 namespace Common.Dto.Request;
 
 public class ProcessDocumentsToRemoveRequestDto
 {
-    public ProcessDocumentsToRemoveRequestDto(string caseUrn, long caseId, List<DocumentVersionDto> documentsToRemove)
+    public ProcessDocumentsToRemoveRequestDto(string caseUrn, int caseId, List<DocumentVersionDto> documentsToRemove)
     {
         CaseUrn = caseUrn;
         CaseId = caseId;
@@ -18,7 +18,7 @@ public class ProcessDocumentsToRemoveRequestDto
     public string CaseUrn { get; set; }
 
     [RequiredLongGreaterThanZero]
-    public long CaseId { get; set; }
+    public int CaseId { get; set; }
 
     [Required]
     public List<DocumentVersionDto> DocumentsToRemove { get; set; }

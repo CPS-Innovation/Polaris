@@ -72,7 +72,7 @@ resource "azurerm_storage_account" "sa" {
 
 resource "azurerm_storage_container" "container" {
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
-  name                  = "documents"
+  name                  = var.blob_service_container_name
   storage_account_name  = azurerm_storage_account.sa.name
   container_access_type = "private"
   depends_on            = [azurerm_storage_account.sa]

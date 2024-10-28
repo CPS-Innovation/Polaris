@@ -16,11 +16,10 @@ using Common.Configuration;
 using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
-using Common.Services.BlobStorageService;
-using Common.ValueObjects;
+using Common.Services.BlobStorage;
 using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient.Services;
+using Ddei;
 using FluentValidation;
 
 namespace coordinator.Functions
@@ -30,7 +29,7 @@ namespace coordinator.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _pdfRedactorClient;
-        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
@@ -40,7 +39,7 @@ namespace coordinator.Functions
             IJsonConvertWrapper jsonConvertWrapper,
             IValidator<ModifyDocumentWithDocumentDto> requestValidator,
             IPdfRedactorClient pdfRedactorClient,
-            IPolarisBlobStorageService blobStorageService,
+            IPolarisBlobStorageService polarisBlobStorageService,
             IUploadFileNameFactory uploadFileNameFactory,
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
@@ -49,7 +48,7 @@ namespace coordinator.Functions
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _pdfRedactorClient = pdfRedactorClient;
-            _blobStorageService = blobStorageService;
+            _polarisBlobStorageService = polarisBlobStorageService;
             _uploadFileNameFactory = uploadFileNameFactory;
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
@@ -64,7 +63,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)]
             HttpRequestMessage req,
             string caseUrn,
-            string caseId,
+            int caseId,
             string documentId,
             [DurableClient] IDurableEntityClient client)
         {
@@ -74,13 +73,13 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, new PolarisDocumentId(documentId), _logger, currentCorrelationId, nameof(ModifyDocument));
+                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ModifyDocument));
                 var document = response.CmsDocument;
 
                 var content = await req.Content.ReadAsStringAsync();
                 var modifyDocumentRequest = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
 
-                using var documentStream = await _blobStorageService.GetDocumentAsync(document.PdfBlobName, currentCorrelationId);
+                using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
@@ -91,7 +90,6 @@ namespace coordinator.Functions
                 var modificationRequest = new ModifyDocumentWithDocumentDto
                 {
                     Document = base64Document,
-                    FileName = document.PdfBlobName,
                     DocumentModifications = modifyDocumentRequest.DocumentModifications,
                     VersionId = modifyDocumentRequest.VersionId
                 };
@@ -103,34 +101,22 @@ namespace coordinator.Functions
                 using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
                 if (modifiedDocumentStream == null)
                 {
-                    string error = $"Error modifying document for {caseId}, polarisDocumentId {documentId}";
+                    string error = $"Error modifying document for {caseId}, documentId {documentId}";
                     throw new Exception(error);
                 }
 
-                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(document.PdfBlobName);
-
-                await _blobStorageService.UploadDocumentAsync(
-                    modifiedDocumentStream,
-                    uploadFileName,
-                    caseId,
-                    documentId,
-                    modificationRequest.VersionId.ToString(),
-                    currentCorrelationId);
-
-                using var pdfStream = await _blobStorageService.GetDocumentAsync(uploadFileName, currentCorrelationId);
-
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
-                var arg = _ddeiArgFactory.CreateDocumentArgDto
+                var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
                 (
                     cmsAuthValues: cmsAuthValues,
                     correlationId: currentCorrelationId,
                     urn: caseUrn,
-                    caseId: int.Parse(caseId),
-                    documentId: int.Parse(document.CmsDocumentId),
-                    versionId: document.CmsVersionId
+                    caseId: caseId,
+                    documentId: document.CmsDocumentId,
+                    versionId: document.VersionId
                 );
 
-                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, pdfStream);
+                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
 
                 if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
                 {

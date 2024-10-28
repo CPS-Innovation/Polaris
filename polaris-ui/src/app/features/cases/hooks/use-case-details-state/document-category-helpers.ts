@@ -82,44 +82,6 @@ export const customSortByDocumentType = (a: string, b: string): number => {
   }
 };
 
-const unusedCommRegexes = [
-  //UM, must be standalone word
-  /(?<=^|\s)UM(?=\s|$)/gi,
-  //UM+digit, must be standalone word,
-  /(?<=^|\s)UM\d+(?=\s|$)/gi,
-  //UNUSED, standalone word,
-  /(?<=^|\s)UNUSED(?=\s|$)/gi,
-  //UNUSED+digit, standalone word,
-  /(?<=^|\s)UNUSED\d+(?=\s|$)/gi,
-  //-UM, as an ending/suffix to a word
-  /(?<=^|\s)\S+-UM(?=\s|$)/gi,
-  //-UM+digits, as an ending/suffix to a word
-  /(?<=^|\s)\S+-UM\d+(?=\s|$)/gi,
-  //MG6C, standalone word
-  /(?<=^|\s)MG6C(?=\s|$)/gi,
-  //MG6D, standalone word
-  /(?<=^|\s)MG6D(?=\s|$)/gi,
-  //MG6E, standalone word
-  /(?<=^|\s)MG6E(?=\s|$)/gi,
-  //MG06C, standalone word
-  /(?<=^|\s)MG06C(?=\s|$)/gi,
-  //MG06D, standalone word
-  /(?<=^|\s)MG06D(?=\s|$)/gi,
-  //MG06E, standalone word
-  /(?<=^|\s)MG06E(?=\s|$)/gi,
-  //SDC, standalone word
-  /(?<=^|\s)SDC(?=\s|$)/gi,
-];
-
-export const isUnusedCommunicationMaterial = (
-  filename: string,
-  documentTypeId: number
-) =>
-  !!filename &&
-  documentTypeId === 1029 &&
-  !filename.includes("UM/") &&
-  unusedCommRegexes.some((regex) => filename.match(regex));
-
 export const getCommunicationsSubCategory = <
   T extends PresentationDocumentProperties
 >(
@@ -137,7 +99,7 @@ export const getDocumentAttachments = <
 ) =>
   item.cmsOriginalFileName?.endsWith(".hte")
     ? docs
-        .filter((doc) => doc.polarisParentDocumentId === item.documentId)
+        .filter((doc) => doc.parentDocumentId === item.documentId)
         .map(({ documentId, presentationTitle }) => ({
           documentId: documentId,
           name: presentationTitle,

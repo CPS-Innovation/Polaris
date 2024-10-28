@@ -18,12 +18,12 @@ namespace coordinator.Durable.Activity
         [FunctionName(nameof(CompleteIndex))]
         public async Task<(bool, long)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            var (payload, targetCount) = context.GetInput<(CaseDocumentOrchestrationPayload, int)>();
+            var (payload, targetCount) = context.GetInput<(DocumentPayload, int)>();
             var results = await _textExtractorClient.GetDocumentIndexCount(
-                payload.CmsCaseUrn,
-                payload.CmsCaseId,
-                payload.CmsDocumentId,
-                payload.CmsVersionId,
+                payload.Urn,
+                payload.CaseId,
+                payload.DocumentId,
+                payload.VersionId,
                 payload.CorrelationId);
 
             var isComplete = results.LineCount >= targetCount;
