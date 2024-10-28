@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+﻿using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using Common.Dto.Response;
@@ -14,7 +10,6 @@ using Common.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using text_extractor.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService;
 
 namespace text_extractor.Functions
@@ -45,7 +40,7 @@ namespace text_extractor.Functions
 
         [Function(nameof(StoreCaseIndexes))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequest request,
-            string caseUrn, long caseId, string documentId, long versionId)
+            string caseUrn, int caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
             try

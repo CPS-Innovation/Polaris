@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Azure;
+﻿using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Microsoft.Extensions.Logging;
 using Common.Domain.SearchIndex;
 using Common.Dto.Response;
-using text_extractor.Mappers.Contracts;
-using text_extractor.Factories.Contracts;
 using Common.Logging;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Microsoft.Extensions.Logging;
+using text_extractor.Factories.Contracts;
+using text_extractor.Mappers.Contracts;
+using text_extractor.Services.CaseSearchService;
 
-namespace text_extractor.Services.CaseSearchService
+namespace text_extractor.Services.SearchIndexService
 {
     public class SearchIndexService : ISearchIndexService
     {
@@ -74,17 +71,14 @@ namespace text_extractor.Services.CaseSearchService
             var indexTaskCompletionSource = new TaskCompletionSource<bool>();
             var statuses = new HashSet<int?>();
 
-            var failureCount = 0;
             indexer.ActionFailed += error =>
             {
-                if (error.Exception is RequestFailedException)
+                if (error.Exception is RequestFailedException exception)
                 {
-                    var status = ((RequestFailedException)error.Exception)?.Status;
-                    if (status != null)
-                        statuses.Add(status);
+                    var status = exception.Status; 
+                    statuses.Add(status);
                 }
 
-                failureCount++;
                 if (!indexTaskCompletionSource.Task.IsCompleted)
                 {
                     indexTaskCompletionSource.SetResult(false);
@@ -165,34 +159,31 @@ namespace text_extractor.Services.CaseSearchService
             };
 
             var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
+            if (countResult.Value.TotalCount == null) return IndexDocumentsDeletedResult.Empty();
+
             var indexTotal = countResult.Value.TotalCount.Value;
-
             if (indexTotal == 0)
-            {
                 return IndexDocumentsDeletedResult.Empty();
-            }
-            else
+                
+            var result = new IndexDocumentsDeletedResult();
+            var indexesToProcess = indexTotal;
+
+            while (indexesToProcess > 0)
             {
-                var result = new IndexDocumentsDeletedResult();
-                long indexesToProcess = indexTotal;
+                var indexSize = indexesToProcess;
 
-                while (indexesToProcess > 0)
-                {
-                    var indexSize = indexesToProcess;
+                if (indexSize > MaximumIndexRetrievalSize) indexSize = MaximumIndexRetrievalSize;
 
-                    if (indexSize > MaximumIndexRetrievalSize) indexSize = MaximumIndexRetrievalSize;
+                var deletionResult = await DeleteDocumentIndexes(caseId, indexSize);
 
-                    var deletionResult = await DeleteDocumentIndexes(caseId, indexSize);
+                result.DocumentCount = indexTotal;
+                result.SuccessCount += deletionResult.SuccessCount;
+                result.FailureCount += deletionResult.FailureCount;
 
-                    result.DocumentCount = indexTotal;
-                    result.SuccessCount += deletionResult.SuccessCount;
-                    result.FailureCount += deletionResult.FailureCount;
-
-                    indexesToProcess -= indexSize;
-                }
-                _logger.LogMethodFlow(correlationId, nameof(RemoveCaseIndexEntriesAsync), $"Case: {caseId}, removed {indexTotal} lines");
-                return result;
+                indexesToProcess -= indexSize;
             }
+            _logger.LogMethodFlow(correlationId, nameof(RemoveCaseIndexEntriesAsync), $"Case: {caseId}, removed {indexTotal} lines");
+            return result;
         }
 
         public async Task<SearchIndexCountResult> GetCaseIndexCount(int caseId, Guid correlationId)
@@ -211,6 +202,8 @@ namespace text_extractor.Services.CaseSearchService
             };
 
             var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
+            if (countResult.Value.TotalCount == null) return new SearchIndexCountResult(0);
+
             var indexTotal = countResult.Value.TotalCount.Value;
 
             _logger.LogMethodFlow(correlationId, nameof(GetCaseIndexCount), $"Case: {caseId}, counted {indexTotal} lines");
@@ -233,15 +226,17 @@ namespace text_extractor.Services.CaseSearchService
             };
 
             var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
+            if (countResult.Value.TotalCount == null) return new SearchIndexCountResult(0);
+
             var indexTotal = countResult.Value.TotalCount.Value;
 
             _logger.LogMethodFlow(correlationId, nameof(GetDocumentIndexCount), $"Case: {caseId}, Document: {documentId}, Version: {versionId},  counted {indexTotal} lines");
             return new SearchIndexCountResult(indexTotal);
         }
 
-        private async Task<Response<SearchResults<ISearchable>>> GetSearchResults<ISearchable>(SearchOptions searchOptions, string searchTerm = "*")
+        private async Task<Response<SearchResults<TSearchable>>> GetSearchResults<TSearchable>(SearchOptions searchOptions, string searchTerm = "*")
         {
-            return await _azureSearchClient.SearchAsync<ISearchable>(searchTerm, searchOptions);
+            return await _azureSearchClient.SearchAsync<TSearchable>(searchTerm, searchOptions);
         }
 
         private async Task<IndexDocumentsDeletedResult> DeleteDocumentIndexes(int caseId, long indexCount)

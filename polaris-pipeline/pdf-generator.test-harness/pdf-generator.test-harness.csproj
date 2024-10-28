@@ -5,6 +5,7 @@
     <RootNamespace>pdf_generator.test_harness</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\pdf-generator\pdf-generator.csproj" />

@@ -137,7 +137,7 @@ namespace text_extractor.tests.Functions
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.InternalServerError };
             _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorResult);
-            _mockSearchIndexService.Setup(s => s.GetDocumentIndexCount(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
+            _mockSearchIndexService.Setup(s => s.GetDocumentIndexCount(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception("Test exception"));
 
             var response = await _documentIndexCount.Run(mockRequest.Object, _caseId, _documentId, _versionId);

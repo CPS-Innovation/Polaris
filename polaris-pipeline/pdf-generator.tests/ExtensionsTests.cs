@@ -1,5 +1,4 @@
 ﻿using Common.Domain.Document;
-using Common.Exceptions;
 using FluentAssertions;
 using pdf_generator.Domain.Extensions;
 using Xunit;

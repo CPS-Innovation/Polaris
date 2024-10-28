@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using pdf_redactor.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
-using pdf_generator.Domain.Document;
 using AppInsights = Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using Common.Clients.PdfGenerator;

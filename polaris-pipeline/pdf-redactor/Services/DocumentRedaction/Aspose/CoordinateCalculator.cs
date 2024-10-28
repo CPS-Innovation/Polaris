@@ -1,5 +1,4 @@
-﻿using System;
-using Aspose.Pdf.Facades;
+﻿using Aspose.Pdf.Facades;
 using Common.Dto.Request.Redaction;
 using Common.Logging;
 using Microsoft.Extensions.Logging;

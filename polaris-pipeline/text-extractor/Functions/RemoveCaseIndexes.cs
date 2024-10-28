@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
 using Common.Handlers;
@@ -29,7 +27,7 @@ namespace text_extractor.Functions
         }
 
         [Function(nameof(RemoveCaseIndexes))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequest request, long caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequest request, int caseId)
         {
             Guid correlationId = default;
 

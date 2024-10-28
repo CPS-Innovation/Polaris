@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Common.Configuration
+﻿namespace Common.Configuration
 {
     public static class RestApi
     {

@@ -17,7 +17,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
 
         public async Task<Stream> ModifyDocument(Stream stream, int caseId, string documentId, ModifyDocumentDto modifications, Guid correlationId)
         {
-            DocumentModifiedEvent telemetryEvent = default;
+            DocumentModifiedEvent? telemetryEvent = default;
             try
             {
                 var inputStream = await stream.EnsureSeekableAsync();
@@ -72,7 +72,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
             }
         }
 
-        private static Rotation SetRotation(Rotation rotation, string value)
+        private static Rotation SetRotation(Rotation rotation, string? value)
         {
             var rotationString = rotation == Rotation.None ? "0" : rotation.ToString().Remove(0, 2);
             var currentRotation = int.Parse(rotationString);

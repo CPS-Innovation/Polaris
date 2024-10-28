@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Common.Dto.Response;
 using coordinator.Durable.Payloads;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 namespace coordinator.Durable.Providers;

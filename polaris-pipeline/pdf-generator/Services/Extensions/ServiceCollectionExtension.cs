@@ -1,5 +1,4 @@
 ﻿using Common.Wrappers;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories;

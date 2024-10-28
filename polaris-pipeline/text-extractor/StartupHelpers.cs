@@ -6,6 +6,7 @@ using text_extractor.Factories.Contracts;
 using text_extractor.Mappers;
 using text_extractor.Mappers.Contracts;
 using text_extractor.Services.CaseSearchService;
+using text_extractor.Services.SearchIndexService;
 
 namespace text_extractor;
 
