@@ -132,12 +132,16 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     });
 
     cy.get<SavedVariables>("@phase1Vars").then(
-      ({ numbersDocId, previousProcessingCompleted }) => {
+      ({
+        numbersDoc: { documentId, versionId },
+        previousProcessingCompleted,
+      }) => {
         cy.api(
           routes.CHECKOUT_DOCUMENT(
             REFRESH_TARGET_URN,
             REFRESH_TARGET_CASE_ID,
-            numbersDocId,
+            documentId,
+            versionId,
             "PHASE_2"
           )
         )
@@ -145,7 +149,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
             routes.SAVE_DOCUMENT(
               REFRESH_TARGET_URN,
               REFRESH_TARGET_CASE_ID,
-              numbersDocId,
+              documentId,
               "PHASE_2"
             )
           )
@@ -265,12 +269,16 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     });
 
     cy.get<SavedVariables>("@phase2Vars").then(
-      ({ peopleDocId, previousProcessingCompleted }) => {
+      ({
+        peopleDoc: { documentId, versionId },
+        previousProcessingCompleted,
+      }) => {
         cy.api(
           routes.CHECKOUT_DOCUMENT(
             REFRESH_TARGET_URN,
             REFRESH_TARGET_CASE_ID,
-            peopleDocId,
+            documentId,
+            versionId,
             "PHASE_3"
           )
         )
@@ -278,7 +286,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
             routes.SAVE_DOCUMENT(
               REFRESH_TARGET_URN,
               REFRESH_TARGET_CASE_ID,
-              peopleDocId,
+              documentId,
               "PHASE_3"
             )
           )
@@ -369,14 +377,16 @@ const saveVariablesHelper = ({
   documents,
   processingCompleted,
 }: Pick<PipelineResults, "documents" | "processingCompleted">) => {
+  const peopleDoc = documents.find((doc) =>
+    doc.cmsOriginalFileName.includes("people")
+  );
+  const numbersDoc = documents.find((doc) =>
+    doc.cmsOriginalFileName.includes("numbers")
+  );
   return {
     previousProcessingCompleted: processingCompleted,
-    peopleDocId: documents.find((doc) =>
-      doc.cmsOriginalFileName.includes("people")
-    ).documentId,
-    numbersDocId: documents.find((doc) =>
-      doc.cmsOriginalFileName.includes("numbers")
-    ).documentId,
+    peopleDoc,
+    numbersDoc,
   };
 };
 
