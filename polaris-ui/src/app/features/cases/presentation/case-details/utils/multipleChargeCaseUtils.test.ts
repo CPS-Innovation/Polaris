@@ -3,7 +3,7 @@ import {
   getDACDocumentId,
 } from "./multipleChargeCaseUtils";
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";
-import { PipelineDocument } from "../../../domain/gateway/PipelineDocument";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 describe("multipleChargeCaseUtils", () => {
   describe("isMultipleChargeCase util", () => {
     it("Should return true if there are more than one defendants in caseDetails", () => {
@@ -87,7 +87,7 @@ describe("multipleChargeCaseUtils", () => {
         { documentId: "1", cmsDocType: { documentType: "DAC" } },
         { documentId: "2", cmsDocType: { documentType: "MG3" } },
       ];
-      const result = getDACDocumentId(documents as PipelineDocument[]);
+      const result = getDACDocumentId(documents as MappedCaseDocument[]);
       expect(result).toEqual("1");
     });
     it("Should  return  empty string if no matching document with documentType DAC is found", () => {
@@ -95,7 +95,7 @@ describe("multipleChargeCaseUtils", () => {
         { documentId: "1", cmsDocType: { documentType: "DAC1" } },
         { documentId: "2", cmsDocType: { documentType: "MG3" } },
       ];
-      const result = getDACDocumentId(documents as PipelineDocument[]);
+      const result = getDACDocumentId(documents as MappedCaseDocument[]);
       expect(result).toEqual("");
     });
   });

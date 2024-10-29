@@ -131,6 +131,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     searchState,
     searchTerm,
     pipelineState,
+    documentsState,
     pipelineRefreshData,
     errorModal,
     documentIssueModal,
@@ -279,7 +280,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const isMultipleDefendantsOrCharges = isMultipleChargeCase(caseState.data);
 
   const dacDocumentId = getDACDocumentId(
-    pipelineState?.haveData ? pipelineState.data.documents : []
+    documentsState?.status === "succeeded" ? documentsState.data : []
   );
 
   const handleOpenPanel = (
@@ -303,10 +304,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const handleReclassifyDocument = (documentId: string) => {
     const selectedDocument =
-      pipelineState.haveData &&
-      (pipelineState.data.documents.find(
+      documentsState?.status === "succeeded" &&
+      (documentsState.data.find(
         (doc) => doc.documentId === documentId
-      ) as PipelineDocument);
+      ) as MappedCaseDocument);
     if (selectedDocument) {
       handleResetReclassifyData(documentId);
 

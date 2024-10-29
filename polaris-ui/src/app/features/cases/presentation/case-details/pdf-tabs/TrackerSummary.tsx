@@ -84,25 +84,17 @@ const renderDocResults = (
     </div>
   );
 };
-export const TrackerSummary: React.FC<Props> = ({
-  pipelineState,
-  isMultipleDefendantsOrCharges,
-}) => {
-  // remove the filter out of DAC logic(validDocs) when the BUG 27712 is resolved
-  const validDocs = useMemo(() => {
-    if (!pipelineState.haveData) {
-      return [];
-    }
-    return isMultipleDefendantsOrCharges
-      ? pipelineState.data.documents
-      : pipelineState.data.documents.filter(
-          (doc) => doc.cmsDocType.documentType !== "DAC"
-        );
-  }, [pipelineState, isMultipleDefendantsOrCharges]);
-
-  if (!pipelineState.haveData || !validDocs.length) {
+export const TrackerSummary: React.FC<Props> = ({ pipelineState }) => {
+  if (!pipelineState.haveData) {
     return null;
   }
 
-  return <div>{renderDocResults(pipelineState.data.status, validDocs)}</div>;
+  return (
+    <div>
+      {renderDocResults(
+        pipelineState.data.status,
+        pipelineState.data.documents
+      )}
+    </div>
+  );
 };

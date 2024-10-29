@@ -1,35 +1,12 @@
 import { ApiError } from "../../../../common/errors/ApiError";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
-import {
-  getDocuments,
-  getPipelinePdfResults,
-  initiatePipeline,
-} from "../../api/gateway-api";
+import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { getPipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
-import {
-  isNewTime,
-  hasDocumentUpdated,
-  LOCKED_STATUS_CODE,
-} from "../utils/refreshUtils";
+import { isNewTime, LOCKED_STATUS_CODE } from "../utils/refreshUtils";
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
-
-const hasAnyDocumentUpdated = (
-  savedDocumentDetails: {
-    documentId: string;
-    versionId: number;
-  }[],
-  pipelineResult: PipelineResults
-) => {
-  return (
-    !savedDocumentDetails.length ||
-    savedDocumentDetails.some((document) =>
-      hasDocumentUpdated(document, pipelineResult.documents)
-    )
-  );
-};
 
 export const initiateAndPoll = (
   urn: string,
@@ -51,9 +28,7 @@ export const initiateAndPoll = (
     const completionStatus = getPipelineCompletionStatus(pipelineResult.status);
     if (
       completionStatus === "Completed" &&
-      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted) &&
-      // todo: not sure about this
-      hasAnyDocumentUpdated(savedDocumentDetails, pipelineResult)
+      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted)
     ) {
       del({
         status: "complete",

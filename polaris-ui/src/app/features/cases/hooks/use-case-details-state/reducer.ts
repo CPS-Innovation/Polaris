@@ -22,7 +22,7 @@ import {
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
-import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
+import { isNewTime } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
 import { SaveStatus } from "../../domain/gateway/SaveStatus";
 import {
@@ -379,19 +379,6 @@ export const reducer = (
       const { data } = payload;
       let nextState = { ...state };
 
-      nextState = {
-        ...nextState,
-        pipelineRefreshData: {
-          ...nextState.pipelineRefreshData,
-          // If a document that is lined up to be saved and has been updated
-          //  then we need to drop it - no sense in updating it.
-          savedDocumentDetails:
-            nextState.pipelineRefreshData.savedDocumentDetails.filter(
-              (document) => !hasDocumentUpdated(document, data)
-            ),
-        },
-      };
-
       const coreDocumentsState = mapDocumentsState(
         data,
         (state.caseState?.status === "succeeded" &&
@@ -501,17 +488,22 @@ export const reducer = (
       }
       let mappedData = {};
       if (action.payload.haveData) {
+        //temporary mapping until the mock data is cleaned
         mappedData = {
-          ...action.payload.data,
-          documents: action.payload.data.documents.map((doc) => ({
-            documentId: doc.documentId,
-            status: doc.status,
-          })),
+          ...action.payload,
+          data: {
+            ...action.payload.data,
+            documents: action.payload.data.documents.map((doc) => ({
+              documentId: doc.documentId,
+              status: doc.status,
+            })),
+          },
         };
       }
       return {
         ...state,
         pipelineState: {
+          ...state.pipelineState,
           ...(mappedData as AsyncPipelineResult<PipelineResults>),
         },
         pipelineRefreshData: {

@@ -20,21 +20,12 @@ describe("TrackerSummary", () => {
         documents: [
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -66,21 +57,12 @@ describe("TrackerSummary", () => {
         documents: [
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "OcrAndIndexFailure",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -112,27 +94,15 @@ describe("TrackerSummary", () => {
         documents: [
           {
             status: "UnexpectedFailure",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "UnableToConvertToPdf",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "New",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -164,21 +134,12 @@ describe("TrackerSummary", () => {
         documents: [
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -210,21 +171,12 @@ describe("TrackerSummary", () => {
         documents: [
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "UnexpectedFailure",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
