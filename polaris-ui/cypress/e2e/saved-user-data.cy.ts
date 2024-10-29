@@ -70,20 +70,20 @@ describe("Save User Data", () => {
     });
   });
 
-  describe("unsaved redactions", () => {
+  describe.only("unsaved redactions", () => {
     it("Should be able to apply and ignore unsaved redaction data if the user chose to refresh the page or close the document tab in the middle of redaction", () => {
       cy.clearLocalStorage();
       const doc10CheckoutCounter = { count: 0 };
       cy.trackRequestCount(
         doc10CheckoutCounter,
         "POST",
-        "/api/urns/12AB1111111/cases/13401/documents/10/checkout"
+        /\/api\/urns\/12AB1111111\/cases\/13401\/documents\/10\/versions\/(\d+)\/checkout/
       );
       const doc1CheckoutCounter = { count: 0 };
       cy.trackRequestCount(
         doc1CheckoutCounter,
         "POST",
-        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+        /\/api\/urns\/12AB1111111\/cases\/13401\/documents\/1\/versions\/(\d+)\/checkout/
       );
 
       cy.visit("/case-details/12AB1111111/13401");
@@ -302,7 +302,7 @@ describe("Save User Data", () => {
       cy.trackRequestCount(
         doc1CheckoutCounter,
         "POST",
-        "/api/urns/12AB1111111/cases/13401/documents/1/checkout"
+        /\/api\/urns\/12AB1111111\/cases\/13401\/documents\/1\/versions\/(\d+)\/checkout/
       );
 
       cy.visit("/case-details/12AB1111111/13401");

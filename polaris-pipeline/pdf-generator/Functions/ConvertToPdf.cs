@@ -46,14 +46,12 @@ namespace pdf_generator.Functions
             string caseUrn, int caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
-            ConvertedDocumentEvent? telemetryEvent = default;
+            currentCorrelationId = request.Headers.GetCorrelationId();
+            _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
+
+            var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
             try
             {
-                currentCorrelationId = request.Headers.GetCorrelationId();
-                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
-
-                telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
-
                 var fileType = ConvertToPdfHelper.GetFileType(request.Headers);
 
                 telemetryEvent.FileType = fileType.ToString();
@@ -117,12 +115,6 @@ namespace pdf_generator.Functions
             catch (Exception exception)
             {
                 _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
-
-                if (telemetryEvent == null)
-                    return new ObjectResult(exception.ToFormattedString())
-                    {
-                        StatusCode = (int)HttpStatusCode.InternalServerError
-                    };
 
                 telemetryEvent.FailureReason = exception.Message;
                 _telemetryClient.TrackEventFailure(telemetryEvent);

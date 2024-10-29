@@ -28,7 +28,7 @@ namespace text_extractor.Functions
         }
 
         [Function(nameof(SearchText))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Search)] HttpRequest request, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CaseSearch)] HttpRequest request, string caseUrn, int caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);

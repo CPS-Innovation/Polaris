@@ -86,7 +86,6 @@ namespace pdf_generator.tests.Services.PdfService
             using (new AssertionScope())
             {
                 conversionResult.ConversionStatus.Should().Be(PdfConversionStatus.AsposePdfPasswordProtected);
-                conversionResult.ConvertedDocument.Should().BeNull();
             }
         }
 

@@ -7,7 +7,6 @@ namespace PolarisGateway.Validators
     {
         public RenameDocumentRequestValidator()
         {
-            RuleFor(x => x.DocumentId).NotEmpty();
             RuleFor(x => x.DocumentName).NotEmpty().WithMessage("A document name is required").MaximumLength(255);
         }
     }

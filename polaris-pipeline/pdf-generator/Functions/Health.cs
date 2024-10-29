@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Common.Configuration;
@@ -18,14 +19,14 @@ namespace pdf_generator.Functions
         {
             _pdfOrchestratorService = pdfOrchestratorService;
         }
-        
+
         [Function("Health")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Health)] HttpRequest req)
         {
             const string targetMessage = "The namespace declaration attribute has an incorrect 'namespaceURI': 'http://www.w3.org/2000/xmlns/'";
-            await using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.HealthCheckResources.TestPdf.pdf");
+            await using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.HealthCheckResources.TestPdf.pdf") ?? Stream.Null;
             var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, FileType.PDF, "12345", Guid.NewGuid());
-        
+
             if (conversionResult.HasFailureReason() && conversionResult.Feedback.Contains(targetMessage))
             {
                 return new ObjectResult(conversionResult.GetFailureReason())

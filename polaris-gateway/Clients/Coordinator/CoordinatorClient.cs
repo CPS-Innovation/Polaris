@@ -55,24 +55,6 @@ namespace PolarisGateway.Clients.Coordinator
             return response;
         }
 
-        public async Task<HttpResponseMessage> CheckoutDocumentAsync(string caseUrn, int caseId, string documentId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Post,
-                RestApi.GetDocumentCheckoutPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues);
-        }
-
-        public async Task<HttpResponseMessage> CancelCheckoutDocumentAsync(string caseUrn, int caseId, string documentId, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Delete,
-                RestApi.GetDocumentCheckoutPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues);
-        }
-
         public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string documentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
@@ -99,16 +81,6 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<HttpResponseMessage> RenameDocumentAsync(string caseUrn, int caseId, string cmsAuthValues, string documentId, RenameDocumentRequestDto renameDocumentRequestDto, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Put,
-                RestApi.GetRenameDocumentPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues,
-                new StringContent(JsonConvert.SerializeObject(renameDocumentRequestDto), Encoding.UTF8, ContentType.Json));
-        }
-
         public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string documentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
@@ -117,16 +89,6 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
-        }
-
-        public async Task<HttpResponseMessage> ReclassifyDocument(string caseUrn, int caseId, string documentId, ReclassifyDocumentDto reclassifyDocumentDto, string cmsAuthValues, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Post,
-                RestApi.GetReclassifyDocumentPath(caseUrn, caseId, documentId),
-                correlationId,
-                cmsAuthValues,
-                new StringContent(JsonConvert.SerializeObject(reclassifyDocumentDto), Encoding.UTF8, ContentType.Json));
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
