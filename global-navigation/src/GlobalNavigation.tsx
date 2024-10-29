@@ -1,40 +1,15 @@
-import gdsStyles from "./gds-styles";
-
 const styles = `
-    nav {
-        background: #dddddd;
-        margin: 0;
-    }
-    nav ul {
-        display: flex;
+nav {
+    background: #dddddd;
+    margin: 0;
+}
+nav ul {
+    display: flex;
 
-    }
-    nav ul li {
-        display: inline-block;
-    }
-`;
-
-export const GlobalNavigation: React.FC = () => {
-  return (
-    <>
-      <style
-        dangerouslySetInnerHTML={{ __html: `${gdsStyles} ${styles}` }}
-      ></style>
-      <nav>
-        <ul>
-          <li>A</li>
-          <li>B</li>
-          <li>C</li>
-        </ul>
-      </nav>
-    </>
-  );
-};
-
-/*
-  <style>
-  @import "https://as-web-rumpole-ux-dev.azurewebsites.net/public/stylesheets/application.css";
-
+}
+nav ul li {
+    display: inline-block;
+}
  main.case-files {padding-top:0 !important}
 
  #secondary-navigation {
@@ -91,7 +66,7 @@ export const GlobalNavigation: React.FC = () => {
     border-right: 8px solid transparent;
     border-top: 8px solid #1d70b8;
     position: absolute;
-    //left: 135px;
+    /*left: 135px;*/
     top: 21px;
 }
 
@@ -126,7 +101,6 @@ export const GlobalNavigation: React.FC = () => {
     border-top: 22px solid transparent;    
 }
 
-// Hide the dropdown menu by default 
 .dropdown-menu {
     display: none;
     position: absolute !important;
@@ -156,20 +130,10 @@ export const GlobalNavigation: React.FC = () => {
     transform: rotate(180deg);
 }
 
-// Show the dropdown menu when the parent has the .show class 
 .menu-item.show .dropdown-menu {
     display: flex;
     flex-direction: column;
 }
-
-// :host {
-//   display: none;
-//   font-size:80%;
-// }
-
-// :host([open]) {
-//   display: block;
-// }
 
 :host .govuk-width-container {
   margin-left: 10px !important;
@@ -193,7 +157,117 @@ nav {
   border-bottom: 0 !important;
 }
 
-  </style>
+`;
+
+export const GlobalNavigation: React.FC = () => {
+  return (
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html:
+            '@import "https://as-web-rumpole-ux-dev.azurewebsites.net/public/stylesheets/application.css"; ' +
+            styles,
+        }}
+      ></style>
+      <nav
+        className="cps-bar-wrapper"
+        id="global-navigation"
+        style={{ marginBottom: 0 }}
+      >
+        <div className="govuk-width-container">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-full">
+              <ul>
+                <li className="dashboard">
+                  <a href="A-dashboard">Home</a>
+                </li>
+                <li className="my-tasks selected">
+                  <a href="#">Tasks</a>
+                </li>
+                <li className="my-cases">
+                  <a href="#">Cases</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <nav
+        className="cps-bar-wrapper"
+        id="secondary-navigation"
+        style={{ background: "#fff", zIndex: 9, marginBottom: 0 }}
+      >
+        <div className="govuk-width-container">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-full">
+              <div className="case-info" id="test-nav">
+                <h1
+                  className="govuk-heading-s"
+                  style={{
+                    margin: 0,
+                    padding: "0.55em 0.5em 0.55em 0",
+                    background: "#f3f2f1",
+                  }}
+                >
+                  <span
+                    style={{ position: "relative", zIndex: 2 }}
+                    id="lead-defendant"
+                  >
+                    McLove, Eoin
+                  </span>
+                </h1>
+              </div>
+              <ul
+                style={{
+                  display: "flex",
+                  margin: "10px 0; width:30%",
+                  float: "left",
+                  padding: "0 0 0 1em",
+                  listStyle: "none",
+                }}
+              >
+                <li className="sub-overview">
+                  <a href="http://localhost:3000/polaris-ui/nav-a-tron-other-app.html?nav">
+                    Overview
+                  </a>
+                </li>
+                <li className="sub-case selected dropdown">
+                  <a
+                    href="http://localhost:3000/polaris-ui/case-details/93JD0005320/2145601?nav"
+                    className="third-level-trigger"
+                  >
+                    Materials
+                  </a>
+                  <ul
+                    className="dropdown-menu third-level"
+                    style={{ display: "none" }}
+                  >
+                    <li>
+                      <a href="#" className="disabled">
+                        Case materials
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">Bulk UM Classification</a>
+                    </li>
+                  </ul>
+                </li>
+                <li className="sub-review">
+                  <a href="#">Review</a>
+                </li>
+                <li>
+                  <a href="#">Triage</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+};
+
+/*</style>
 
 <nav class="cps-bar-wrapper" id="global-navigation" style="margin-bottom:0">
         <div class="govuk-width-container">
