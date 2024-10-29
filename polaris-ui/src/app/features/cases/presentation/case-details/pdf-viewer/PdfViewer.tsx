@@ -20,7 +20,6 @@ import {
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
-import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
@@ -49,6 +48,7 @@ type Props = {
     saveStatus: SaveStatus;
     caseId: number;
     showDeletePage: boolean;
+    showRotatePage: boolean;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -62,7 +62,6 @@ type Props = {
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
-  rotatePageMode: boolean;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
@@ -96,7 +95,6 @@ export const PdfViewer: React.FC<Props> = ({
   pageRotations,
   isOkToSave,
   areaOnlyRedactionMode,
-  rotatePageMode,
   handleAddPageRotation,
   handleRemovePageRotation,
   handleAddRedaction,
@@ -111,7 +109,10 @@ export const PdfViewer: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
-  useControlledRedactionFocus(tabId, activeTabId, tabIndex);
+  const showRotatePageRef = useRef(contextData.showRotatePage);
+  useEffect(() => {
+    showRotatePageRef.current = contextData.showRotatePage;
+  }, [contextData.showRotatePage]);
 
   const highlights = useMemo(
     () => [
@@ -125,6 +126,13 @@ export const PdfViewer: React.FC<Props> = ({
   const unSavedRotation = useMemo(() => {
     return pageRotations.filter((rotation) => rotation.rotationAngle !== 0);
   }, [pageRotations]);
+
+  const showPagePortal = useMemo(
+    () =>
+      activeTabId === tabId &&
+      (contextData.showDeletePage || contextData.showRotatePage),
+    [contextData.showDeletePage, contextData.showRotatePage, activeTabId, tabId]
+  );
 
   useEffect(() => {
     scrollToFnRef.current &&
@@ -287,6 +295,13 @@ export const PdfViewer: React.FC<Props> = ({
                   content,
                   hideTipAndSelection
                 ) => {
+                  if (showRotatePageRef.current) {
+                    return (
+                      <RedactionWarning
+                        documentWriteStatus={"IsPageRotationModeOn"}
+                      />
+                    );
+                  }
                   // Danger: minification problem here (similar to PrivateBetaAuthorizationFilter)
                   //  `if(IS_REDACTION_SERVICE_OFFLINE)` just does not work in production. So work
                   //  by passing the original string around and comparing it here.
@@ -417,9 +432,9 @@ export const PdfViewer: React.FC<Props> = ({
                 }}
                 highlights={highlights}
               />
-              {activeTabId === tabId && contextData.showDeletePage && (
+              {showPagePortal && (
                 <PagePortal tabIndex={tabIndex}>
-                  {!rotatePageMode ? (
+                  {!contextData.showRotatePage ? (
                     <DeletePage
                       documentId={contextData.documentId}
                       pageNumber={0}

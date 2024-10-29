@@ -19,7 +19,8 @@ export type PresentationFlags = {
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
     | "IsDispatched"
-    | "IsRedactionServiceOffline";
+    | "IsRedactionServiceOffline"
+    | "IsPageRotationModeOn";
 };
 
 export type ConversionStatus =

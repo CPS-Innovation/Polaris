@@ -85,26 +85,32 @@ export const RotatePage: React.FC<RotatePageProps> = ({
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
             <div className={classes.pageNumberWrapper}>
-              <p className={classes.pageNumberText}>
+              <p
+                className={classes.pageNumberText}
+                data-testId={`page-number-text-${pageNumber}`}
+              >
                 <span>Page:</span>
                 <span className={classes.pageNumber}>
                   {pageNumber}/{totalPages}
                 </span>
               </p>
             </div>
-            {pageRotateData ? (
+            {pageRotateData && (
               <LinkButton
                 className={classes.cancelBtn}
                 onClick={handleCancelBtnClick}
                 data-pageNumber={pageNumber}
+                dataTestId={`btn-cancel-rotate-${pageNumber}`}
               >
                 Cancel
               </LinkButton>
-            ) : (
+            )}
+            {!pageRotateData && (
               <LinkButton
                 className={classes.rotateBtn}
                 onClick={handleRotateBtnClick}
                 data-pageNumber={pageNumber}
+                dataTestId={`btn-rotate-${pageNumber}`}
               >
                 <RotateIcon className={classes.rotateBtnIcon} />
                 Rotate page
@@ -115,13 +121,20 @@ export const RotatePage: React.FC<RotatePageProps> = ({
       }
       {pageRotateData && (
         <div>
-          <div className={classes.overlay}></div>
-          <div className={classes.overlayContent}>
+          <div
+            className={classes.overlay}
+            data-testid={`rotate-page-overlay-${pageNumber}`}
+          />
+          <div
+            className={classes.overlayContent}
+            data-testid={`rotate-page-content-${pageNumber}`}
+          >
             <div className={classes.rotateControlWrapper}>
               <LinkButton
                 className={classes.rotateLeftBtn}
                 onClick={handleRotateLeft}
                 data-pageNumber={pageNumber}
+                dataTestId={`rotate-page-left-btn-${pageNumber}`}
               >
                 <div className={classes.rotateIconWrapper}>
                   <RotateIcon className={classes.rotateLeftIcon} />
@@ -138,6 +151,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
                 className={classes.rotateRightBtn}
                 onClick={handleRotateRight}
                 data-pageNumber={pageNumber}
+                dataTestId={`rotate-page-right-btn-${pageNumber}`}
               >
                 <span className={classes.rotateBtnText}>Rotate page right</span>
                 <div className={classes.rotateIconWrapper}>
@@ -148,13 +162,19 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             <p className={classes.overlayMainText}>
               {`Rotate page ${pageRotateData?.rotationAngle}°`}
             </p>
-            <p className={classes.overlaySubText}>
-              Click <b>"save and submit"</b> to submit changes to CMS
-            </p>
+            {pageRotateData?.rotationAngle && (
+              <p
+                className={classes.overlaySubText}
+                data-testid="rotation-overlay-save-content"
+              >
+                Click <b>"Save all rotations"</b> to submit changes to CMS
+              </p>
+            )}
             <LinkButton
               className={classes.cancelBtn}
               onClick={handleCancelBtnClick}
               data-pageNumber={pageNumber}
+              dataTestId="rotation-overlay-cancel-btn"
             >
               Cancel
             </LinkButton>

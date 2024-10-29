@@ -176,6 +176,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleSaveRotations,
     handleClearAllNotifications,
     handleClearNotification,
+    handleShowHidePageDeletion,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -838,12 +839,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     handleShowHideRedactionSuggestions
                   }
                   handleSearchPIIAction={handleSearchPIIAction}
-                  contextData={{
-                    correlationId: pipelineState?.correlationId,
-                    showSearchPII: featureFlags.searchPII,
-                    showDeletePage: featureFlags.pageDelete,
-                    showRotatePage: featureFlags.pageRotate,
-                  }}
+                  featureFlags={featureFlags}
                   caseId={+caseId}
                   showOverRedactionLog={
                     redactionLog.redactionLogLookUpsData.status === "succeeded"
@@ -856,6 +852,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   handleRemovePageRotation={handleRemovePageRotation}
                   handleRemoveAllRotations={handleRemoveAllRotations}
                   handleSaveRotations={handleSaveRotations}
+                  handleShowHidePageDeletion={handleShowHidePageDeletion}
                 />
               )}
             </div>

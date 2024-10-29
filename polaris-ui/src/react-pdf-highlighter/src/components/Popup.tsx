@@ -8,7 +8,7 @@ interface Props {
   onMouseOver: (content: JSX.Element) => void;
   popupContent: JSX.Element;
   onMouseOut: () => void;
-  onFocus: (content: JSX.Element) => void;
+  onClick: (content: JSX.Element) => void;
   children: JSX.Element;
 }
 
@@ -22,7 +22,8 @@ export class Popup extends Component<Props, State> {
   };
 
   render() {
-    const { onMouseOver, popupContent, onMouseOut, onFocus } = this.props;
+    const { onMouseOver, popupContent, onMouseOut, onClick } = this.props;
+    const newProp = { onClick: () => onClick(popupContent) };
 
     return (
       <div
@@ -47,9 +48,12 @@ export class Popup extends Component<Props, State> {
         onMouseOut={() => {
           this.setState({ mouseIn: false });
         }}
-        onFocus={() => onFocus(popupContent)}
       >
-        {this.props.children}
+        {/* {this.props.children} */}
+        {React.Children.map(this.props.children, (child) => {
+          // Clone each child and add new props to it
+          return React.cloneElement(child, { ...newProp });
+        })}
       </div>
     );
   }

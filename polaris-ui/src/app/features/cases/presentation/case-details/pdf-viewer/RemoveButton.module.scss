@@ -24,3 +24,13 @@
   /* The points are: (left top: x y, right top: x y, center bottom: x y) */
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
+
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

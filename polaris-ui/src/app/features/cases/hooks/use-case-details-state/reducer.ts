@@ -312,6 +312,10 @@ export const reducer = (
         payload: { documentId: string; rotatePageMode: boolean };
       }
     | {
+        type: "SHOW_HIDE_PAGE_DELETION";
+        payload: { documentId: string; deletePageMode: boolean };
+      }
+    | {
         type: "ADD_PAGE_ROTATION";
         payload: { documentId: string; pageRotations: PageRotation[] };
       }
@@ -617,6 +621,7 @@ export const reducer = (
         pageDeleteRedactions: [],
         pageRotations: [],
         rotatePageMode: false,
+        deletePageMode: true,
         isDeleted: false,
         saveStatus: { type: "none", status: "initial" } as SaveStatus,
       };
@@ -1551,6 +1556,27 @@ export const reducer = (
         documentsState,
         accordionState,
       };
+    }
+
+    case "SHOW_HIDE_PAGE_DELETION": {
+      const { documentId, deletePageMode } = action.payload;
+
+      let newState = {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  deletePageMode: deletePageMode,
+                  rotatePageMode: deletePageMode ? false : item.rotatePageMode,
+                }
+              : item
+          ),
+        },
+      };
+      return newState;
     }
 
     case "SHOW_HIDE_PAGE_ROTATION": {

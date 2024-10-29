@@ -78,7 +78,8 @@ export const RedactButton: React.FC<Props> = ({
         Redaction modal
       </span>
       <span id="redact-modal-description" className={classes.modalDescription}>
-        A modal with a redact button to help user to redact selected text
+        A modal with a redaction type selection and a redact button to help user
+        confirm the redaction of selected text
       </span>
       {searchPIIData && (
         <div className={classes.piiHeader}>
