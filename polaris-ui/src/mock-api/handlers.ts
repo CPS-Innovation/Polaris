@@ -26,6 +26,7 @@ import cypressSearchPIIData from "./data/searchPII.cypress";
 import { NotesDataSource } from "./data/types/NotesDataSource";
 import { SearchPIIDataSource } from "./data/types/SearchPIIDataSource";
 import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
+import { DocumentsListDataSource } from "./data/types/DocumentsListDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
 import * as routes from "./routes";
 import { MockApiConfig } from "./MockApiConfig";
@@ -33,6 +34,7 @@ import { MockApiConfig } from "./MockApiConfig";
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import pdfStrings from "./data/pdfs/pdf-strings.json";
 import { UrnLookupDataSource } from "./data/types/UrnLookupDataSource";
+import devDocumentsListDataSource from "./data/getDocumentsList.dev";
 
 const urnLookupDataSources: { [key: string]: UrnLookupDataSource } = {
   dev: devUrnLookupDataSource,
@@ -64,6 +66,13 @@ const pipelinePdfResultsDataSources: {
 } = {
   dev: devpipelinePdfResultsDataSource,
   cypress: cypresspipelinePdfResultsDataSource,
+};
+
+const documentListDataSources: {
+  [key: string]: DocumentsListDataSource;
+} = {
+  dev: devDocumentsListDataSource,
+  cypress: devDocumentsListDataSource,
 };
 
 const searchCaseDataSources: { [key: string]: SearchCaseDataSource } = {
@@ -251,6 +260,11 @@ export const setupHandlers = ({
 
     rest.post(makeApiPath(routes.SAVE_ROTATION_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
+    }),
+
+    rest.get(makeApiPath(routes.GET_DOCUMENTS_LIST_ROUTE), (req, res, ctx) => {
+      const results = documentListDataSources[sourceName]()[0];
+      return res(delay(ctx), ctx.json(results));
     }),
   ];
 };

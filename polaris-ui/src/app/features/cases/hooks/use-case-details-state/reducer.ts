@@ -420,11 +420,6 @@ export const reducer = (
         accordionState,
       };
 
-      const deletedOpenPDfsTabs = state.tabsState.items.filter(
-        (item) =>
-          !data.some((document) => document.documentId === item.documentId)
-      );
-
       const openPdfsWeNeedToUpdate = data
         .filter((item) =>
           state.tabsState.items.some(
@@ -442,6 +437,11 @@ export const reducer = (
       if (!openPdfsWeNeedToUpdate.length) {
         return nextState;
       }
+
+      const deletedOpenPDfsTabs = state.tabsState.items.filter(
+        (item) =>
+          !data.some((document) => document.documentId === item.documentId)
+      );
 
       // Note: if we are looking for open tabs that do not yet know their url (i.e. the
       // user has opened a document from the accordion before the pipeline has given us
@@ -486,7 +486,7 @@ export const reducer = (
       }, [] as CaseDocumentViewModel[]);
 
       return {
-        ...state,
+        ...nextState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
       };
     }
@@ -499,11 +499,20 @@ export const reducer = (
       if (action.payload.status === "initiating") {
         return state;
       }
-
+      let mappedData = {};
+      if (action.payload.haveData) {
+        mappedData = {
+          ...action.payload.data,
+          documents: action.payload.data.documents.map((doc) => ({
+            documentId: doc.documentId,
+            status: doc.status,
+          })),
+        };
+      }
       return {
         ...state,
         pipelineState: {
-          ...(action.payload as AsyncPipelineResult<PipelineResults>),
+          ...(mappedData as AsyncPipelineResult<PipelineResults>),
         },
         pipelineRefreshData: {
           ...state.pipelineRefreshData,

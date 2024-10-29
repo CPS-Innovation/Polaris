@@ -514,6 +514,20 @@ export const saveDocumentReclassify = async (
   return response.ok;
 };
 
+export const getDocumentsList = async (urn: string, caseId: number) => {
+  const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents/`);
+
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Notes failed", path, response);
+  }
+
+  return (await response.json()) as PresentationDocumentProperties[];
+};
+
 const fetchImplementation = (
   reauthBehaviour:
     | "no-reauth"

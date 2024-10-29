@@ -3,11 +3,8 @@ import { useApi } from "../../../../common/hooks/useApi";
 import { getCaseDetails } from "../../api/gateway-api";
 import { DispatchType } from "./reducer";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
-import {
-  handleReclassifyUpdateConfirmation,
-  handleRenameUpdateConfirmation,
-} from "../utils/refreshCycleDataUpdate";
 import { CombinedState } from "../../domain/CombinedState";
+import { useGetDocumentsListApi } from "./useGetDocumentsListApi";
 
 export const useGetCaseData = (
   urn: string,
@@ -22,6 +19,15 @@ export const useGetCaseData = (
     if (caseState.status !== "initial")
       dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
   }, [caseState, dispatch]);
+
+  useGetDocumentsListApi(
+    urn,
+    caseId,
+    true,
+    combinedState.renameDocuments,
+    combinedState.reclassifyDocuments,
+    dispatch
+  );
 
   // Load the accordion on first load and also if a startRefresh flag is passed
   const pipelineState = usePipelineApi(
@@ -40,66 +46,66 @@ export const useGetCaseData = (
   }, [pipelineState.pipelineResults, dispatch]);
 
   // On a pipeline update, deal with renamed docs
-  useEffect(() => {
-    if (!pipelineState.pipelineResults?.haveData) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!pipelineState.pipelineResults?.haveData) {
+  //     return;
+  //   }
 
-    const activeRenameDoc = combinedState.renameDocuments.find(
-      (doc) => doc.saveRenameRefreshStatus === "updating"
-    );
+  //   const activeRenameDoc = combinedState.renameDocuments.find(
+  //     (doc) => doc.saveRenameRefreshStatus === "updating"
+  //   );
 
-    if (activeRenameDoc) {
-      const isUpdated = handleRenameUpdateConfirmation(
-        pipelineState.pipelineResults.data,
-        activeRenameDoc
-      );
-      if (isUpdated) {
-        dispatch({
-          type: "UPDATE_RENAME_DATA",
-          payload: {
-            properties: {
-              documentId: activeRenameDoc.documentId,
-              saveRenameRefreshStatus: "updated",
-            },
-          },
-        });
-      }
-    }
-  }, [pipelineState.pipelineResults, combinedState.renameDocuments, dispatch]);
+  //   if (activeRenameDoc) {
+  //     const isUpdated = handleRenameUpdateConfirmation(
+  //       documentsState,
+  //       activeRenameDoc
+  //     );
+  //     if (isUpdated) {
+  //       dispatch({
+  //         type: "UPDATE_RENAME_DATA",
+  //         payload: {
+  //           properties: {
+  //             documentId: activeRenameDoc.documentId,
+  //             saveRenameRefreshStatus: "updated",
+  //           },
+  //         },
+  //       });
+  //     }
+  //   }
+  // }, [pipelineState.pipelineResults, combinedState.renameDocuments, dispatch]);
 
   // On a pipeline update, deal with reclassified docs
-  useEffect(() => {
-    if (!pipelineState.pipelineResults?.haveData) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!pipelineState.pipelineResults?.haveData) {
+  //     return;
+  //   }
 
-    const activeReclassifyDoc = combinedState.reclassifyDocuments.find(
-      (doc) => doc.saveReclassifyRefreshStatus === "updating"
-    );
+  //   const activeReclassifyDoc = combinedState.reclassifyDocuments.find(
+  //     (doc) => doc.saveReclassifyRefreshStatus === "updating"
+  //   );
 
-    if (activeReclassifyDoc) {
-      const isUpdated = handleReclassifyUpdateConfirmation(
-        pipelineState.pipelineResults.data,
-        activeReclassifyDoc
-      );
-      if (isUpdated) {
-        dispatch({
-          type: "UPDATE_RECLASSIFY_DATA",
-          payload: {
-            properties: {
-              documentId: activeReclassifyDoc.documentId,
-              saveReclassifyRefreshStatus: "updated",
-            },
-          },
-        });
-      }
-    }
-  }, [
-    pipelineState.pipelineResults,
-    combinedState.reclassifyDocuments,
-    dispatch,
-  ]);
+  //   if (activeReclassifyDoc) {
+  //     const isUpdated = handleReclassifyUpdateConfirmation(
+  //       pipelineState.pipelineResults.data,
+  //       activeReclassifyDoc
+  //     );
+  //     if (isUpdated) {
+  //       dispatch({
+  //         type: "UPDATE_RECLASSIFY_DATA",
+  //         payload: {
+  //           properties: {
+  //             documentId: activeReclassifyDoc.documentId,
+  //             saveReclassifyRefreshStatus: "updated",
+  //           },
+  //         },
+  //       });
+  //     }
+  //   }
+  // }, [
+  //   pipelineState.pipelineResults,
+  //   combinedState.reclassifyDocuments,
+  //   dispatch,
+  // ]);
 
   // This triggers the first ever load of the pipeline
   useEffect(() => {

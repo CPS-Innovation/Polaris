@@ -8,7 +8,7 @@ import {
   WaitPage,
   Button,
 } from "../../../../common/presentation/components";
-import { Wait as AccordionWait } from "./accordion/Wait";
+import { Wait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
 import { Accordion, AccordionRef } from "./accordion/Accordion";
 import { KeyDetails } from "./KeyDetails";
@@ -677,7 +677,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   />
 
                   {accordionState.status === "loading" ? (
-                    <AccordionWait />
+                    <Wait />
                   ) : (
                     <Accordion
                       ref={accordionRef}
