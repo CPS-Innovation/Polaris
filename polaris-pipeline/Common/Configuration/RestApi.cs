@@ -38,6 +38,7 @@ namespace Common.Configuration
         public const string Status = "status";
         public const string Health = "health";
         public const string GetHostName = "gethostname";
+
         public static string GetCasePath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}";
@@ -105,7 +106,6 @@ namespace Common.Configuration
         public static string GetThumbnailPath(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
-
         }
     }
 }
