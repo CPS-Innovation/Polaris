@@ -4,5 +4,6 @@ public enum BlobType
 {
     Pdf,
     Ocr,
-    Pii
+    Pii,
+    Thumbnail
 }

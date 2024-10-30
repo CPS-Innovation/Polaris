@@ -33,6 +33,8 @@ namespace Common.Configuration
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/document-index-count";
+        public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
+        public const string Thumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
         public const string Status = "status";
         public const string Health = "health";
         public const string GetHostName = "gethostname";
@@ -99,6 +101,11 @@ namespace Common.Configuration
         public static string CaseSearchCountPath(string caseUrn, int caseId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/search/count";
+        }
+        public static string GetThumbnailPath(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
+
         }
     }
 }

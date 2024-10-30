@@ -17,7 +17,7 @@ resource "azurerm_windows_function_app" "fa_pdf_redactor" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_redactor.primary_connection_string
-    "BlobServiceContainerName"                        = var.blob_service_container_name
+    "BlobServiceContainerNameDocuments"               = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
@@ -30,7 +30,7 @@ resource "azurerm_windows_function_app" "fa_pdf_redactor" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_pdf_redactor.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_pdf_redactor_file_share.name
-    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
@@ -79,7 +79,7 @@ resource "azurerm_windows_function_app" "fa_pdf_redactor" {
   lifecycle {
     ignore_changes = [
       app_settings["AzureWebJobsStorage"],
-      app_settings["BlobServiceContainerName"],
+      app_settings["BlobServiceContainerNameDocuments"],
       app_settings["BlobServiceUrl"],
       app_settings["HteFeatureFlag"],
       app_settings["HostType"],

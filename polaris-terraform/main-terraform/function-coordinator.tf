@@ -25,7 +25,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     # Bug 27315 - compiled coordinator builds arbitrarily stopped working unless a new "Storage" setting exists
     "Storage"                                         = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
-    "BlobServiceContainerName"                        = var.blob_service_container_name
+    "BlobServiceContainerNameDocuments"               = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobUserDelegationKeyExpirySecs"                 = 3600
     "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
@@ -54,7 +54,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_coordinator_file_share.name
-    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
@@ -102,7 +102,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["AzureWebJobs.SlidingCaseClearDown.Disabled"],
       app_settings["AzureWebJobsStorage"],
       app_settings["BlobExpirySecs"],
-      app_settings["BlobServiceContainerName"],
+      app_settings["BlobServiceContainerNameDocuments"],
       app_settings["BlobServiceUrl"],
       app_settings["BlobUserDelegationKeyExpirySecs"],
       app_settings["ComputerVisionClientServiceKey"],

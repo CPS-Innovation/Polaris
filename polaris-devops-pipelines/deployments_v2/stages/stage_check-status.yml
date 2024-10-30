@@ -93,6 +93,25 @@ stages:
               statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
               successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
+      - job: Check_PDF_Thumbnail_Generator
+        dependsOn: Get_Status_URIs
+        condition: succeeded()
+        displayName: Check PDF Thumbnail Generator
+        variables:
+          uri: $[dependencies.Get_Status_URIs.outputs['uris.pdfThumbnailGeneratorUri']]
+        steps:
+          - template: jobs/tasks/task_call-status-endpoint.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetAppName: "PDF Thumbnail Generator"
+              targetScript: "InvokeRequestWithRetry.ps1"
+              endpointUri: "$(uri)/api/status"
+              statusCheckMethod: ${{ parameters.statusCheckMethod }}
+              statusCheckRetries: ${{ parameters.statusCheckRetries }}
+              statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
+              statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
+              successTextContent: $(resources.pipeline.PolarisBuild.runName)
 
       - job: Check_PDF_Redactor
         dependsOn: Get_Status_URIs
@@ -202,6 +221,7 @@ stages:
           - Get_Status_URIs
           - Check_Coordinator
           - Check_PDF_Generator
+          - Check_PDF_Thumbnail_Generator
           - Check_PDF_Redactor
           - Check_Text_Extractor
           - Check_Gateway
