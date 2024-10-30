@@ -17,7 +17,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_connection_string
-    "BlobServiceContainerNameDocuments"               = var.blob_service_container_name
+    "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "SlidingClearDownBatchSize"                       = var.thumbnail_generator_sliding_clear_down.batch_size
     "SlidingClearDownSchedule"                        = var.thumbnail_generator_sliding_clear_down.schedule
@@ -80,7 +80,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
   lifecycle {
     ignore_changes = [
       app_settings["AzureWebJobsStorage"],
-      app_settings["BlobServiceContainerNameDocuments"],
+      app_settings["BlobServiceContainerName"],
       app_settings["BlobServiceUrl"],
       app_settings["SlidingClearDownBatchSize"],
       app_settings["SlidingClearDownSchedule"],

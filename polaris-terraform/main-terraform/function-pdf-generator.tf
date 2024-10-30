@@ -17,7 +17,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_generator.primary_connection_string
-    "BlobServiceContainerNameDocuments"               = var.blob_service_container_name
+    "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
@@ -79,7 +79,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   lifecycle {
     ignore_changes = [
       app_settings["AzureWebJobsStorage"],
-      app_settings["BlobServiceContainerNameDocuments"],
+      app_settings["BlobServiceContainerName"],
       app_settings["BlobServiceUrl"],
       app_settings["HteFeatureFlag"],
       app_settings["HostType"],

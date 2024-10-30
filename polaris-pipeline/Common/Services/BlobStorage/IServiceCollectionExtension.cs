@@ -10,7 +10,7 @@ namespace Common.Services.BlobStorage
 {
     public static class IServiceCollectionExtension
     {
-        private const string BlobServiceContainerNameDocuments = "BlobServiceContainerNameDocuments";
+        private const string BlobServiceContainerNameDocuments = "BlobServiceContainerName";
         private const string BlobServiceContainerNameThumbnails = "BlobServiceContainerNameThumbnails";
         public const string BlobServiceUrl = nameof(BlobServiceUrl);
 

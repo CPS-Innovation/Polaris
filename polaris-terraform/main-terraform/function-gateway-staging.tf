@@ -12,7 +12,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_gateway.primary_connection_string
-    "BlobServiceContainerNameDocuments"               = var.blob_service_container_name
+    "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobUserDelegationKeyExpirySecs"                 = 3600
     "CallingAppValidAudience"                         = var.polaris_webapp_details.valid_audience
