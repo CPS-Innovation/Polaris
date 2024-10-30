@@ -9,7 +9,7 @@ import {
 import { refreshPipelineReclassifyDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 
 describe("Feature Reclassify Document", () => {
-  it("Should show reclassify document option if the document 'canReclassify' is true and should not show if it is not ", () => {
+  it("Should show reclassify document option if the document 'canReclassify' is true and presentationFlags, write property is not 'isDispatched' and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click(); //12;
     cy.findByTestId("document-housekeeping-actions-dropdown-1").should("exist");
@@ -29,6 +29,11 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("dropdown-panel")
       .contains("Reclassify document")
       .should("not.exist");
+    cy.realPress("Escape");
+    //dispatched document
+    cy.findByTestId("document-housekeeping-actions-dropdown-9").should(
+      "not.exist"
+    );
   });
 
   it("Should show the re-classification content and be able to close reclassification if the user click back or cancel button and but back the focus correctly", () => {

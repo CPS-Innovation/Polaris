@@ -265,7 +265,7 @@ const pipelinePdfResult: PipelineResults = {
       isOcrProcessed: false,
       classification: null,
       isWitnessManagement: false,
-      canReclassify: false,
+      canReclassify: true,
       canRename: true,
       renameStatus: "CanRename",
       reference: null,

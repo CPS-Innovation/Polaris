@@ -131,7 +131,11 @@ export const AccordionDocument: React.FC<Props> = ({
 
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
-    if (featureFlags.renameDocument && caseDocument.canRename) {
+    if (
+      featureFlags.renameDocument &&
+      caseDocument.canRename &&
+      caseDocument.presentationFlags.write !== "IsDispatched"
+    ) {
       items = [
         ...items,
         {
@@ -142,7 +146,11 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
-    if (featureFlags.reclassify && caseDocument.canReclassify) {
+    if (
+      featureFlags.reclassify &&
+      caseDocument.canReclassify &&
+      caseDocument.presentationFlags.write !== "IsDispatched"
+    ) {
       items = [
         ...items,
         {
@@ -160,6 +168,7 @@ export const AccordionDocument: React.FC<Props> = ({
     caseDocument.canRename,
     featureFlags.renameDocument,
     featureFlags.reclassify,
+    caseDocument.presentationFlags.write,
   ]);
 
   const handleDocumentAction = (id: string) => {
