@@ -231,12 +231,15 @@ describe("Feature Reclassify Document", () => {
     });
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
+
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -417,14 +420,15 @@ describe("Feature Reclassify Document", () => {
         body: trackerResults[1],
       });
     });
-
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -676,12 +680,14 @@ describe("Feature Reclassify Document", () => {
     });
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -906,12 +912,14 @@ describe("Feature Reclassify Document", () => {
     });
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-1");
   });
 
@@ -995,9 +1003,6 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
     });
 
     cy.findByTestId("div-modal")

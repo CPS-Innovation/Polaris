@@ -439,7 +439,7 @@ const getRefreshReclassifyDocuments = (
           },
         ],
 
-        status: "DocumentsRetrieved" as const,
+        status: "Completed" as const,
       };
     }
     return {
