@@ -6,6 +6,7 @@ import { PipelineResults } from "./gateway/PipelineResults";
 import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
+import { LocalDocumentState } from "./LocalDocumentState";
 import { FeatureFlagData } from "./FeatureFlagData";
 import { FilterOption } from "./FilterOption";
 import {
@@ -37,13 +38,7 @@ export type CombinedState = {
   caseState: AsyncResult<CaseDetails>;
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
-  localDocumentState: {
-    [key: PresentationDocumentProperties["documentId"]]: {
-      [key: PresentationDocumentProperties["versionId"]]: {
-        conversionStatus: ConversionStatus;
-      };
-    };
-  };
+  localDocumentState: LocalDocumentState;
   pipelineRefreshData: {
     startRefresh: boolean;
     savedDocumentDetails: {

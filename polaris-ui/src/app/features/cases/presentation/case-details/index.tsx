@@ -143,6 +143,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     renameDocuments,
     reclassifyDocuments,
     notificationState,
+    localDocumentState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -701,6 +702,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
+                      localDocumentState={localDocumentState}
                     />
                   )}
                 </div>

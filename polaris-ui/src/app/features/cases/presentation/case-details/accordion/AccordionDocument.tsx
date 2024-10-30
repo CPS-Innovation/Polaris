@@ -24,6 +24,7 @@ import { NotesData } from "../../../domain/gateway/NotesData";
 import {
   mapConversionStatusToMessage,
   Classification,
+  ConversionStatus,
 } from "../../../domain/gateway/PipelineDocument";
 import {
   DropdownButton,
@@ -50,6 +51,7 @@ type Props = {
   handleReclassifyDocument: (documentId: string) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
+  conversionStatus?: ConversionStatus;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -58,6 +60,7 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   featureFlags,
   notesData,
+  conversionStatus,
   handleOpenPdf,
   handleOpenPanel,
   handleGetNotes,
@@ -67,7 +70,7 @@ export const AccordionDocument: React.FC<Props> = ({
 
   const canViewDocument =
     caseDocument.presentationFlags?.read === "Ok" &&
-    caseDocument.conversionStatus === "DocumentConverted";
+    conversionStatus === "DocumentConverted";
 
   const getAttachmentText = () =>
     caseDocument.attachments.length === 1
@@ -385,10 +388,8 @@ export const AccordionDocument: React.FC<Props> = ({
             data-testid={`view-warning-document-${caseDocument.documentId}`}
           >
             Document only available on CMS
-            {caseDocument.conversionStatus !== "DocumentConverted"
-              ? `: ${mapConversionStatusToMessage(
-                  caseDocument.conversionStatus
-                )}`
+            {conversionStatus && conversionStatus !== "DocumentConverted"
+              ? `: ${mapConversionStatusToMessage(conversionStatus)}`
               : ""}
           </span>
         )}

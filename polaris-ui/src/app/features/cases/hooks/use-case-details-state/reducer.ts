@@ -500,6 +500,15 @@ export const reducer = (
           },
         };
       }
+      const newLocalDocumentState = action.payload.data.documents.reduce(
+        (acc, curr) => {
+          acc[`${curr.documentId}`] = {
+            conversionStatus: curr.conversionStatus,
+          };
+          return acc;
+        },
+        {} as any
+      );
       return {
         ...state,
         pipelineState: {
@@ -510,6 +519,7 @@ export const reducer = (
           ...state.pipelineRefreshData,
           lastProcessingCompleted: action.payload.data.processingCompleted,
         },
+        localDocumentState: newLocalDocumentState,
       };
     }
 
