@@ -57,7 +57,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       presentationFlags: {
         read: "Ok",
-        write: "Ok",
+        write: "IsDispatched",
       },
       parentDocumentId: "4",
       witnessId: null,
