@@ -54,7 +54,6 @@ describe("Feature Rename Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveRenamePayload = {
-      documentId: "10",
       documentName: "PortraitLandscape_1",
     };
     const saveRenameRequestObject = { body: "" };

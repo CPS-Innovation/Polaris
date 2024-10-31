@@ -104,7 +104,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1015,
       immediate: { documentName: null },
       other: null,
@@ -255,7 +254,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1029,
       immediate: null,
       other: { documentName: null, used: true },
@@ -456,7 +454,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1031,
       immediate: null,
       other: null,
@@ -710,7 +707,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 1,
       documentTypeId: 1042,
       immediate: null,
       other: null,
@@ -944,7 +940,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1015,
       immediate: { documentName: null },
       other: null,
@@ -1024,7 +1019,6 @@ describe("Feature Reclassify Document", () => {
       "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
     );
     const expectedSaveReclassifyPayload = {
-      documentId: 1,
       documentTypeId: 1042,
       immediate: null,
       other: null,
