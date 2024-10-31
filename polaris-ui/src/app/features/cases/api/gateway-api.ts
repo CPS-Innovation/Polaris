@@ -14,7 +14,6 @@ import {
 import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
 import { Note } from "../domain/gateway/NotesData";
 import { SearchPIIResultItem } from "../domain/gateway/SearchPIIData";
-import { removeNonDigits } from "../presentation/case-details/utils/redactionLogUtils";
 import { MaterialType } from "../presentation/case-details/reclassify/data/MaterialType";
 import { ExhibitProducer } from "../presentation/case-details/reclassify/data/ExhibitProducer";
 import { StatementWitness } from "../presentation/case-details/reclassify/data/StatementWitness";
@@ -373,15 +372,14 @@ export const saveDocumentRename = async (
   documentId: string,
   name: string
 ) => {
-  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/rename`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/rename`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
-    body: JSON.stringify({ documentId: docId, documentName: name }),
+    body: JSON.stringify({ documentId: documentId, documentName: name }),
   });
 
   if (!response.ok) {
@@ -500,9 +498,8 @@ export const saveDocumentReclassify = async (
   documentId: string,
   data: ReclassifySaveData
 ) => {
-  const docId = parseInt(removeNonDigits(documentId));
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${docId}/reclassify`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/reclassify`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
