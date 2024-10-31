@@ -4,14 +4,13 @@ using Microsoft.Extensions.Azure;
 using System;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using Common.Configuration;
 using Common.Wrappers;
 
 namespace Common.Services.BlobStorage
 {
     public static class IServiceCollectionExtension
     {
-        private const string BlobServiceContainerNameDocuments = "BlobServiceContainerName";
-        private const string BlobServiceContainerNameThumbnails = "BlobServiceContainerNameThumbnails";
         public const string BlobServiceUrl = nameof(BlobServiceUrl);
 
         public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfiguration configuration)
@@ -40,8 +39,8 @@ namespace Common.Services.BlobStorage
               
                 return key switch
                 {
-                    "Documents" => new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, BlobServiceContainerNameDocuments), jsonConvertWrapper),
-                    "Thumbnails" => new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, BlobServiceContainerNameThumbnails), jsonConvertWrapper),
+                    "Documents" => new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameDocuments), jsonConvertWrapper),
+                    "Thumbnails" => new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameThumbnails), jsonConvertWrapper),
                     _ => throw new ArgumentException($"Unknown key: {key}")
                 };
             });
