@@ -1,7 +1,6 @@
 import { RedactionSavePage } from "./RedactionSavePage";
 
 export type RedactionSaveData = {
-  documentId: string;
   redactions: RedactionSavePage[];
   documentModifications: {
     pageIndex: number;

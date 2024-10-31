@@ -248,7 +248,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const used = formData.documentUsedStatus === "YES";
 
     const saveData = {
-      documentId: parseInt(documentId.replace(/\D/g, "")),
       documentTypeId: +newDocTypeId!,
       immediate:
         state.reclassifyVariant === "Immediate"

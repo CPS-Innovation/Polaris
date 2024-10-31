@@ -1,5 +1,4 @@
 export type ReclassifySaveData = {
-  documentId: number;
   documentTypeId: number;
   immediate: {
     documentName: string | null;

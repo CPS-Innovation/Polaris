@@ -109,7 +109,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1015,
       immediate: { documentName: null },
       other: null,
@@ -236,12 +235,15 @@ describe("Feature Reclassify Document", () => {
     });
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
+
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -257,7 +259,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1029,
       immediate: null,
       other: { documentName: null, used: true },
@@ -422,14 +423,15 @@ describe("Feature Reclassify Document", () => {
         body: trackerResults[1],
       });
     });
-
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -457,7 +459,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1031,
       immediate: null,
       other: null,
@@ -681,12 +682,14 @@ describe("Feature Reclassify Document", () => {
     });
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -709,7 +712,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 1,
       documentTypeId: 1042,
       immediate: null,
       other: null,
@@ -911,12 +913,14 @@ describe("Feature Reclassify Document", () => {
     });
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return cy
+        .findByTestId("div-reclassify")
+        .should("not.exist")
+        .then(() => true);
     }).then(() => {
       expect(trackerCounter.count).to.equal(2);
       expect(refreshPipelineCounter.count).to.equal(2);
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-1");
   });
 
@@ -941,7 +945,6 @@ describe("Feature Reclassify Document", () => {
       body: trackerResults[0],
     });
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1015,
       immediate: { documentName: null },
       other: null,
@@ -1000,9 +1003,6 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
     });
 
     cy.findByTestId("div-modal")
@@ -1024,7 +1024,6 @@ describe("Feature Reclassify Document", () => {
       "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
     );
     const expectedSaveReclassifyPayload = {
-      documentId: 1,
       documentTypeId: 1042,
       immediate: null,
       other: null,

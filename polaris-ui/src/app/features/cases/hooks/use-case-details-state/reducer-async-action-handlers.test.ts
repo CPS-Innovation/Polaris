@@ -665,8 +665,8 @@ describe("reducerAsyncActionHandlers", () => {
 
       jest
         .spyOn(mapRedactionSaveRequest, "mapRedactionSaveRequest")
-        .mockImplementation((documentId, redactions) => {
-          if (documentId === "1" && redactions === redactionHighlights) {
+        .mockImplementation((redactions) => {
+          if (redactions === redactionHighlights) {
             return mockRedactionSaveRequest;
           }
           throw new Error(

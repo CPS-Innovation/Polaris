@@ -8,7 +8,6 @@ import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 describe("map-redaction-save-request", () => {
   it("maps a redaction highlights to a RedactionSaveRequestObject and transposes y coordinates", () => {
     const result = mapRedactionSaveRequest(
-      "1",
       [
         {
           id: "1",
@@ -81,7 +80,6 @@ describe("map-redaction-save-request", () => {
     );
 
     expect(result).toEqual({
-      documentId: "1",
       redactions: [
         {
           pageIndex: 2,
@@ -108,7 +106,6 @@ describe("map-redaction-save-request", () => {
 
   it("rounds decimal places", () => {
     const result = mapRedactionSaveRequest(
-      "1",
       [
         {
           id: "1",
@@ -132,7 +129,6 @@ describe("map-redaction-save-request", () => {
     );
 
     expect(result).toEqual({
-      documentId: "1",
       redactions: [
         {
           pageIndex: 2,
@@ -147,7 +143,6 @@ describe("map-redaction-save-request", () => {
 
   it("converts negative y values to 0 before transposing", () => {
     const result = mapRedactionSaveRequest(
-      "1",
       [
         {
           id: "1",
@@ -171,7 +166,6 @@ describe("map-redaction-save-request", () => {
     );
 
     expect(result).toEqual({
-      documentId: "1",
       redactions: [
         {
           pageIndex: 2,
@@ -186,7 +180,6 @@ describe("map-redaction-save-request", () => {
 
   it("converts y values larger than page height to page height before transposing", () => {
     const result = mapRedactionSaveRequest(
-      "1",
       [
         {
           id: "1",
@@ -210,7 +203,6 @@ describe("map-redaction-save-request", () => {
     );
 
     expect(result).toEqual({
-      documentId: "1",
       redactions: [
         {
           pageIndex: 2,

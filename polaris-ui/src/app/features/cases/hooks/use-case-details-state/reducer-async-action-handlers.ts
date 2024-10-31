@@ -414,7 +414,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       }
 
       const redactionRequestData = mapRedactionSaveRequest(
-        documentId,
         redactionHighlights,
         pageDeleteRedactions
       );
