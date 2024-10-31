@@ -2,6 +2,7 @@ env             = "uat"
 location        = "UK South"
 environment_tag = "uat"
 dns_server      = "10.7.200.68"
+dns_alt_server  = "168.63.129.16"
 
 ui_component_service_plans = {
   gateway_service_plan_sku        = "EP1"
