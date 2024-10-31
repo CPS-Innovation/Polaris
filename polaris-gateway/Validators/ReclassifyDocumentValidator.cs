@@ -7,7 +7,6 @@ namespace PolarisGateway.Validators
     {
         public ReclassifyDocumentValidator()
         {
-            RuleFor(x => x.DocumentId).NotEmpty();
             RuleFor(x => x.DocumentTypeId).NotEmpty();
             When(x => x.Exhibit != null, () =>
             {

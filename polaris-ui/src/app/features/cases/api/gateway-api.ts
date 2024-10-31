@@ -370,7 +370,7 @@ export const saveDocumentRename = async (
   urn: string,
   caseId: number,
   documentId: string,
-  name: string
+  documentName: string
 ) => {
   const path = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/rename`
@@ -379,7 +379,7 @@ export const saveDocumentRename = async (
   const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
-    body: JSON.stringify({ documentId: documentId, documentName: name }),
+    body: JSON.stringify({ documentName }),
   });
 
   if (!response.ok) {

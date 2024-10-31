@@ -21,20 +21,11 @@ namespace coordinator.tests.Validators
         }
 
         [Fact]
-        public async Task Should_Throw_Exception_When_DocumentId_Is_Empty()
-        {
-            var request = new ReclassifyDocumentDto();
-            var result = await _validator.TestValidateAsync(request);
-
-            result.ShouldHaveValidationErrorFor(x => x.DocumentId);
-        }
-
-        [Fact]
         public async Task Should_Throw_Exception_When_DocumentTypeId_Is_Empty()
         {
             var request = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
+
             };
             var result = await _validator.TestValidateAsync(request);
 
@@ -302,7 +293,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
