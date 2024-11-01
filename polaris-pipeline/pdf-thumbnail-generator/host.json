@@ -23,6 +23,7 @@
   },
   "extensions": {
     "durableTask": {
+      "hubName": "%ThumbnailGeneratorTaskHub%",
       "storageProvider": {
         "type": "AzureStorage"
       }

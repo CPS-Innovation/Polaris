@@ -22,6 +22,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
     "SlidingClearDownBatchSize"                       = var.thumbnail_generator_sliding_clear_down.batch_size
     "SlidingClearDownSchedule"                        = var.thumbnail_generator_sliding_clear_down.schedule
     "SlidingClearDownInputHours"                      = var.thumbnail_generator_sliding_clear_down.input_hours
+    "ThumbnailGeneratorTaskHub"                       = "fa${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator"
     "BlobServiceContainerNameThumbnails"              = var.blob_thumbnails_container_name
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
@@ -46,7 +47,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
   }
 
   sticky_settings {
-    app_setting_names = ["HostType"]
+    app_setting_names = ["ThumbnailGeneratorTaskHub", "HostType"]
   }
 
   site_config {
