@@ -522,22 +522,39 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           : "rl-under-redaction-content"
       }
     >
-      {saveStatus.type === "redaction" && saveStatus.status === "saving" && (
-        <div
-          className={classes.savingBanner}
-          data-testid="rl-saving-redactions"
-        >
-          <div className={classes.spinnerWrapper}>
-            <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
+      {redactionLogType === RedactionLogTypes.UNDER && (
+        <div>
+          <div aria-live="polite" className={classes.visuallyHidden}>
+            {saveStatus.status === "saving" && (
+              <span>Saving redactions...</span>
+            )}
+            {saveStatus.status === "saved" && (
+              <span>Redactions successfully saved</span>
+            )}
           </div>
-          <h2 className={classes.bannerText}>Saving redactions...</h2>
-        </div>
-      )}
+          {saveStatus.status === "saving" && (
+            <div
+              className={classes.savingBanner}
+              data-testid="rl-saving-redactions"
+            >
+              <div className={classes.spinnerWrapper}>
+                <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
+              </div>
+              <h2 className={classes.bannerText}>Saving redactions...</h2>
+            </div>
+          )}
 
-      {saveStatus.type === "redaction" && saveStatus.status === "saved" && (
-        <div className={classes.savedBanner} data-testid="rl-saved-redactions">
-          <WhiteTickIcon className={classes.whiteTickIcon} />
-          <h2 className={classes.bannerText}>Redactions successfully saved</h2>
+          {saveStatus.status === "saved" && (
+            <div
+              className={classes.savedBanner}
+              data-testid="rl-saved-redactions"
+            >
+              <WhiteTickIcon className={classes.whiteTickIcon} />
+              <h2 className={classes.bannerText}>
+                Redactions successfully saved
+              </h2>
+            </div>
+          )}
         </div>
       )}
       <div className={classes.modalHeadWrapper}>
