@@ -18,7 +18,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_thumbnail_generator_staging
     "SlidingClearDownSchedule"                        = var.thumbnail_generator_sliding_clear_down.schedule
     "SlidingClearDownInputHours"                      = var.thumbnail_generator_sliding_clear_down.input_hours
     "BlobServiceContainerNameThumbnails"              = var.blob_thumbnails_container_name
-    "ThumbnailGeneratorTaskHub"                       = "fa${var.env != "prod" ? var.env : ""}pdfthumbnailgeneratorstaging1"
+    "ThumbnailGeneratorTaskHub"                       = "fapolaris${var.env != "prod" ? var.env : ""}pdfthumbnailgeneratorstaging1"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Staging1"
