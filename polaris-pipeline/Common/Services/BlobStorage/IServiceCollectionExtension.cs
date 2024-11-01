@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
 using System;
+using System.Globalization;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Common.Configuration;
@@ -37,10 +38,10 @@ namespace Common.Services.BlobStorage
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 var jsonConvertWrapper = serviceProvider.GetRequiredService<IJsonConvertWrapper>();
               
-                return key switch
+                return key.ToLower(CultureInfo.InvariantCulture) switch
                 {
-                    "Documents" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameDocuments), jsonConvertWrapper)),
-                    "Thumbnails" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameThumbnails), jsonConvertWrapper)),
+                    "documents" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameDocuments), jsonConvertWrapper)),
+                    "thumbnails" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameThumbnails), jsonConvertWrapper)),
                     _ => throw new ArgumentException($"Unknown key: {key}")
                 };
             });
