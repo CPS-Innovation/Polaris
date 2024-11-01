@@ -11,6 +11,7 @@ using pdf_thumbnail_generator;
 using Common.Telemetry;
 using pdf_thumbnail_generator.Services.ClearDownService;
 using pdf_thumbnail_generator.Services.ThumbnailGenerationService;
+using Common.Wrappers;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -37,6 +38,7 @@ var host = new HostBuilder()
 
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
+        services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
 
     })
