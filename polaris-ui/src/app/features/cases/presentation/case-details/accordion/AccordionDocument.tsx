@@ -25,6 +25,7 @@ import {
   mapConversionStatusToMessage,
   Classification,
   ConversionStatus,
+  GroupedConversionStatus,
 } from "../../../domain/gateway/PipelineDocument";
 import {
   DropdownButton,
@@ -51,7 +52,7 @@ type Props = {
   handleReclassifyDocument: (documentId: string) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
-  conversionStatus?: ConversionStatus;
+  conversionStatus?: ConversionStatus | GroupedConversionStatus;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -68,9 +69,10 @@ export const AccordionDocument: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
 
-  const canViewDocument =
-    caseDocument.presentationFlags?.read === "Ok" &&
-    conversionStatus === "DocumentConverted";
+  const canViewDocument = conversionStatus
+    ? caseDocument.presentationFlags?.read === "Ok" &&
+      conversionStatus === "DocumentConverted"
+    : caseDocument.presentationFlags?.read === "Ok";
 
   const getAttachmentText = () =>
     caseDocument.attachments.length === 1

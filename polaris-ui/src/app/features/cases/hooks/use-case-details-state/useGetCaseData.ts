@@ -23,7 +23,7 @@ export const useGetCaseData = (
   useGetDocumentsListApi(
     urn,
     caseId,
-    true,
+    combinedState.pipelineRefreshData?.startRefresh,
     combinedState.renameDocuments,
     combinedState.reclassifyDocuments,
     dispatch

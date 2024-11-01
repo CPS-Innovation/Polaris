@@ -19,6 +19,10 @@ import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
 import { usePipelineRefreshPolling } from "./usePipelineRefreshPolling";
 import { useHydrateFromLocalStorage } from "./useHydrateFromLocalStorage";
 import { PageRotation } from "../../domain/IPageRotation";
+import {
+  PresentationDocumentProperties,
+  GroupedConversionStatus,
+} from "../../domain/gateway/PipelineDocument";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -480,6 +484,18 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleUpdateConversionStatus = useCallback(
+    (
+      documentId: PresentationDocumentProperties["documentId"],
+      status: GroupedConversionStatus
+    ) =>
+      dispatch({
+        type: "UPDATE_CONVERSION_STATUS",
+        payload: { documentId, status },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -518,5 +534,6 @@ export const useCaseDetailsState = (
     handleRemoveAllRotations,
     handleClearAllNotifications,
     handleClearNotification,
+    handleUpdateConversionStatus,
   };
 };

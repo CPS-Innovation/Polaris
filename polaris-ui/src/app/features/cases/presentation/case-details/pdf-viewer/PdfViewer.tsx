@@ -34,6 +34,7 @@ import { PagePortal } from "../portals/PagePortal";
 import { RotatePage } from "../portals/RotatePage";
 import { IPageRotation } from "../../../domain/IPageRotation";
 import { RotationFooter } from "./RotationFooter";
+import { GroupedConversionStatus } from "../../../domain/gateway/PipelineDocument";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -72,6 +73,7 @@ type Props = {
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
+  handleUpdateConversionStatus: CaseDetailsState["handleUpdateConversionStatus"];
 };
 
 const ensureAllPdfInView = () =>
@@ -107,6 +109,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleSearchPIIAction,
   handleRemoveAllRotations,
   handleSaveRotations,
+  handleUpdateConversionStatus,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
@@ -251,6 +254,14 @@ export const PdfViewer: React.FC<Props> = ({
     return className;
   };
 
+  const handlePdfLoaderError = (error: any) => {
+    console.log("errorr>>>>rrrr", error);
+    let status: GroupedConversionStatus = "OtherReasons";
+    if (error.status === 403) status = "EncryptionOrPasswordProtection";
+    if (error.status === 415) status = "UnsupportedFileTypeOrContent";
+    handleUpdateConversionStatus(contextData.documentId, status);
+  };
+
   return (
     <div>
       <div
@@ -265,6 +276,7 @@ export const PdfViewer: React.FC<Props> = ({
           // To avoid reaching out to an internet-hosted asset we have taken a local copy
           //  of the library that PdfHighlighter links to and put that in our `public` folder.
           workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.11.338.js`}
+          onError={handlePdfLoaderError}
         >
           {(pdfDocument) => (
             <>

@@ -58,7 +58,10 @@ import {
 } from "../../domain/IPageDeleteRedaction";
 import { PageRotation, IPageRotation } from "../../domain/IPageRotation";
 import { mapNotificationToDocumentsState } from "./map-notification-to-documents-state";
-import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import {
+  PresentationDocumentProperties,
+  GroupedConversionStatus,
+} from "../../domain/gateway/PipelineDocument";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -331,6 +334,13 @@ export const reducer = (
         type: "REMOVE_ALL_ROTATIONS";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
+        };
+      }
+    | {
+        type: "UPDATE_CONVERSION_STATUS";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          status: GroupedConversionStatus;
         };
       }
 ): CombinedState => {
@@ -1662,6 +1672,19 @@ export const reducer = (
         },
       };
 
+      return newState;
+    }
+    case "UPDATE_CONVERSION_STATUS": {
+      const { documentId, status } = action.payload;
+      const newState = {
+        ...state,
+        localDocumentState: {
+          ...state.localDocumentState,
+          [`${documentId}`]: {
+            conversionStatus: status,
+          },
+        },
+      };
       return newState;
     }
     default:

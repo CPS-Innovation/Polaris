@@ -37,8 +37,13 @@ export type ConversionStatus =
   | "AsposeImagingCannotLoad"
   | "UnexpectedError";
 
+export type GroupedConversionStatus =
+  | "EncryptionOrPasswordProtection"
+  | "UnsupportedFileTypeOrContent"
+  | "OtherReasons";
+
 export const mapConversionStatusToMessage = (
-  status: ConversionStatus
+  status: ConversionStatus | GroupedConversionStatus
 ): string => {
   switch (status) {
     case "DocumentConverted":
@@ -52,10 +57,7 @@ export const mapConversionStatusToMessage = (
     case "AsposeWordsUnsupportedFileFormat":
     case "AsposePdfInvalidFileFormat":
       return "document type unsupported";
-    case "AsposeCellsGeneralError":
-    case "AsposeImagingCannotLoad":
-    case "UnexpectedError":
-    case "AsposePdfException":
+    default:
       return "";
   }
 };

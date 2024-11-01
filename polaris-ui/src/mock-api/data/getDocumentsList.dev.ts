@@ -26,7 +26,7 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: true,
     hasNotes: true,
-    conversionStatus: "DocumentConverted",
+    conversionStatus: "PdfEncrypted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,

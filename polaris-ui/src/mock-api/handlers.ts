@@ -179,7 +179,11 @@ export const setupHandlers = ({
 
       const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];
 
-      return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
+      // return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
+      return res(
+        ctx.status(403),
+        ctx.body(JSON.stringify({ pdfConversionStatus: "abc" }))
+      );
     }),
 
     rest.get(

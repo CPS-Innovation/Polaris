@@ -26,10 +26,6 @@ import {
   buildDefaultNotificationState,
   NotificationState,
 } from "./NotificationState";
-import {
-  ConversionStatus,
-  PresentationDocumentProperties,
-} from "./gateway/PipelineDocument";
 
 export type CombinedState = {
   urn: string;
