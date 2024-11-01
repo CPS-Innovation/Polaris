@@ -51,16 +51,22 @@ describe("Feature Rotate Page", () => {
     cy.get("div.page").then((pages) => {
       const totalPages = pages.length;
       cy.wrap(pages).each((pageDiv) => {
+        cy.wait(100);
         const pageNumber = pageDiv.attr("data-page-number");
-        cy.wrap(pageDiv)
-          .findByTestId(`page-number-text-${pageNumber}`)
-          .should("contain.text", `Page:${pageNumber}/${totalPages}`);
-        cy.wrap(pageDiv)
-          .findByTestId(`btn-rotate-${pageNumber}`)
-          .should("have.text", "Rotate page");
-        cy.wrap(pageDiv)
-          .findByTestId(`btn-rotate-cancel-${pageNumber}`)
-          .should("not.exist");
+
+        cy.waitUntil(() => {
+          return cy.wrap(pageDiv).scrollIntoView();
+        }).then(() => {
+          cy.wrap(pageDiv)
+            .findByTestId(`page-number-text-${pageNumber}`)
+            .should("contain.text", `Page:${pageNumber}/${totalPages}`);
+          cy.wrap(pageDiv)
+            .findByTestId(`btn-rotate-${pageNumber}`)
+            .should("have.text", "Rotate page");
+          cy.wrap(pageDiv)
+            .findByTestId(`btn-rotate-cancel-${pageNumber}`)
+            .should("not.exist");
+        });
       });
     });
   });
