@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Common.Constants;
 using Common.Helpers;
 using Common.Services.BlobStorage;
+using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 
 namespace pdf_thumbnail_generator.Functions
@@ -19,11 +20,11 @@ namespace pdf_thumbnail_generator.Functions
         private readonly IExceptionHandler _exceptionHandler; 
         private readonly IPolarisBlobStorageService _blobStorageServiceContainerThumbnails;
 
-        public GetThumbnail(ILogger<GetThumbnail> logger, IExceptionHandler exceptionHandler, Func<string, IPolarisBlobStorageService> blobStorageServiceFactory) 
+        public GetThumbnail(ILogger<GetThumbnail> logger, IExceptionHandler exceptionHandler, Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IConfiguration configuration) 
         { 
             _logger = logger; 
             _exceptionHandler = exceptionHandler; 
-            _blobStorageServiceContainerThumbnails = blobStorageServiceFactory("Thumbnails");
+            _blobStorageServiceContainerThumbnails = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameThumbnails] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         }
 
         [Function(nameof(GetThumbnail))]

@@ -1,8 +1,10 @@
 
 using System.Text.RegularExpressions;
+using Common.Configuration;
 using Common.Services.BlobStorage;
 using Common.Telemetry;
 using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Configuration;
 using pdf_thumbnail_generator.Durable.Providers;
 using pdf_thumbnail_generator.TelemetryEvents;
 
@@ -14,9 +16,9 @@ public class ClearDownService : IClearDownService
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly ITelemetryClient _telemetryClient;
     
-    public ClearDownService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, ITelemetryClient telemetryClient) 
+    public ClearDownService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, ITelemetryClient telemetryClient, IConfiguration configuration) 
     { 
-        _blobStorageServiceContainerThumbnails = blobStorageServiceFactory("Thumbnails");
+        _blobStorageServiceContainerThumbnails = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameThumbnails] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         _orchestrationProvider = orchestrationProvider;
         _telemetryClient = telemetryClient;
     }

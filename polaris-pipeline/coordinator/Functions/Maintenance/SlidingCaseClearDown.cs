@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Common.Logging;
 using coordinator.Constants;
 using coordinator.Durable.Providers;
-using coordinator.Services.CleardownService;
+using coordinator.Services.ClearDownService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -18,14 +18,14 @@ public class SlidingCaseClearDown
     private readonly ILogger<SlidingCaseClearDown> _logger;
     private readonly IConfiguration _configuration;
     private readonly IOrchestrationProvider _orchestrationProvider;
-    private readonly ICleardownService _cleardownService;
+    private readonly IClearDownService _clearDownService;
 
-    public SlidingCaseClearDown(ILogger<SlidingCaseClearDown> logger, IConfiguration configuration, IOrchestrationProvider orchestrationProvider, ICleardownService cleardownService)
+    public SlidingCaseClearDown(ILogger<SlidingCaseClearDown> logger, IConfiguration configuration, IOrchestrationProvider orchestrationProvider, IClearDownService clearDownService)
     {
         _logger = logger;
         _configuration = configuration;
         _orchestrationProvider = orchestrationProvider;
-        _cleardownService = cleardownService;
+        _clearDownService = clearDownService;
     }
 
     [FunctionName(nameof(SlidingCaseClearDown))]
@@ -45,7 +45,7 @@ public class SlidingCaseClearDown
             foreach (var caseId in caseIds)
             {
                 // pass an explicit string for the caseUrn for logging purposes as we don't have access to the caseUrn here
-                await _cleardownService.DeleteCaseAsync(client,
+                await _clearDownService.DeleteCaseAsync(client,
                  "sliding-clear-down",
                  caseId,
                  correlationId);

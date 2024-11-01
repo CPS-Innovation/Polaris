@@ -11,14 +11,14 @@ namespace pdf_thumbnail_generator.Durable.Activity
 {
   public class InitiateGenerateThumbnail
   {
-      private readonly IPolarisBlobStorageService _blobStorageServiceContainerDocuments;
-      private readonly IPolarisBlobStorageService _blobStorageServiceContainerThumbnails;
+      private readonly IPolarisBlobStorageService _blobStorageServiceDocuments;
+      private readonly IPolarisBlobStorageService _blobStorageServiceThumbnails;
       private readonly IThumbnailGenerationService _thumbnailGenerationService;
 
       public InitiateGenerateThumbnail(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IThumbnailGenerationService thumbnailGenerationService, IConfiguration configuration)
       {
-          _blobStorageServiceContainerDocuments = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty);
-          _blobStorageServiceContainerThumbnails = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameThumbnails] ?? string.Empty);
+          _blobStorageServiceDocuments = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
+          _blobStorageServiceThumbnails = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameThumbnails] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
           _thumbnailGenerationService = thumbnailGenerationService;
       }
 
@@ -26,7 +26,7 @@ namespace pdf_thumbnail_generator.Durable.Activity
       public async Task Run([ActivityTrigger] ThumbnailOrchestrationPayload payload) 
       { 
           var targetBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf); 
-          var blobStream = await _blobStorageServiceContainerDocuments.GetBlobAsync(targetBlobId);
+          var blobStream = await _blobStorageServiceDocuments.GetBlobAsync(targetBlobId);
           var stream = await blobStream.EnsureSeekableAsync();
           var document = new Document(stream);
           
@@ -56,7 +56,7 @@ namespace pdf_thumbnail_generator.Durable.Activity
               stream.Position = 0;
 
               var thumbnailBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Thumbnail);
-              await _blobStorageServiceContainerThumbnails.UploadBlobAsync(stream, thumbnailBlobId, pageIndex, payload.MaxDimensionPixel);
+              await _blobStorageServiceThumbnails.UploadBlobAsync(stream, thumbnailBlobId, pageIndex, payload.MaxDimensionPixel);
           }
       }
   }

@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.PdfRedactor;
-using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Helpers;
 using Common.Configuration;
 using Common.Dto.Request;
@@ -21,6 +20,7 @@ using Common.Wrappers;
 using Ddei.Factories;
 using Ddei;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Functions
 {
@@ -30,7 +30,6 @@ namespace coordinator.Functions
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _pdfRedactorClient;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly ILogger<ModifyDocument> _logger;
@@ -39,17 +38,16 @@ namespace coordinator.Functions
             IJsonConvertWrapper jsonConvertWrapper,
             IValidator<ModifyDocumentWithDocumentDto> requestValidator,
             IPdfRedactorClient pdfRedactorClient,
-            IPolarisBlobStorageService polarisBlobStorageService,
-            IUploadFileNameFactory uploadFileNameFactory,
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
-            ILogger<ModifyDocument> logger)
+            ILogger<ModifyDocument> logger,
+            IConfiguration configuration)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _pdfRedactorClient = pdfRedactorClient;
-            _polarisBlobStorageService = polarisBlobStorageService;
-            _uploadFileNameFactory = uploadFileNameFactory;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
             _logger = logger;
@@ -79,7 +77,7 @@ namespace coordinator.Functions
                 var content = await req.Content.ReadAsStringAsync();
                 var modifyDocumentRequest = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
 
-                using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
+                await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
@@ -98,10 +96,10 @@ namespace coordinator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
 
-                using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
+                await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
                 if (modifiedDocumentStream == null)
                 {
-                    string error = $"Error modifying document for {caseId}, documentId {documentId}";
+                    var error = $"Error modifying document for {caseId}, documentId {documentId}";
                     throw new Exception(error);
                 }
 

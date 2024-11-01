@@ -8,7 +8,7 @@ using coordinator.Durable.Payloads;
 using coordinator.Functions;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Providers;
-using coordinator.Services.CleardownService;
+using coordinator.Services.ClearDownService;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -21,6 +21,8 @@ using Ddei;
 using Ddei.Exceptions;
 using Ddei.Domain.CaseData.Args.Core;
 using coordinator.Durable.Entity;
+using Common.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.tests.Functions
 {
@@ -35,7 +37,7 @@ namespace coordinator.tests.Functions
         private readonly DdeiBaseArgDto _mockVerifyArg;
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
-        private readonly Mock<ICleardownService> _mockCleardownService;
+        private readonly Mock<IClearDownService> _mockCleardownService;
         private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
         private readonly Mock<IDdeiClient> _mockDdeiClient;
         private readonly RefreshCase _coordinatorStart;
@@ -56,9 +58,16 @@ namespace coordinator.tests.Functions
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
             var mockLogger = new Mock<ILogger<RefreshCase>>();
+
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(x => x[StorageKeys.BlobServiceContainerNameDocuments]).Returns("Documents");
+
             var mockBlobStorageClient = new Mock<IPolarisBlobStorageService>();
+            var mockStorageDelegate = new Mock<Func<string, IPolarisBlobStorageService>>();
+            mockStorageDelegate.Setup(s => s("Documents")).Returns(mockBlobStorageClient.Object);
+
             _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
-            _mockCleardownService = new Mock<ICleardownService>();
+            _mockCleardownService = new Mock<IClearDownService>();
 
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);

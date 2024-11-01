@@ -32,20 +32,18 @@ namespace Common.Services.BlobStorage
                 }
             });
 
-            services.AddTransient<Func<string, IBlobStorageService>>(serviceProvider => key =>
+            services.AddTransient<Func<string, IPolarisBlobStorageService>>(serviceProvider => key =>
             {
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 var jsonConvertWrapper = serviceProvider.GetRequiredService<IJsonConvertWrapper>();
               
                 return key switch
                 {
-                    "Documents" => new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameDocuments), jsonConvertWrapper),
-                    "Thumbnails" => new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameThumbnails), jsonConvertWrapper),
+                    "Documents" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameDocuments), jsonConvertWrapper)),
+                    "Thumbnails" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameThumbnails), jsonConvertWrapper)),
                     _ => throw new ArgumentException($"Unknown key: {key}")
                 };
             });
-
-            services.AddSingleton<IPolarisBlobStorageService, PolarisBlobStorageService>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

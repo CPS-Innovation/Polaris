@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using coordinator.Durable.Providers;
-using coordinator.Services.CleardownService;
+using coordinator.Services.ClearDownService;
 using coordinator.Durable.Payloads;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
@@ -22,20 +22,20 @@ namespace coordinator.Functions
     {
         private readonly ILogger<RefreshCase> _logger;
         private readonly IOrchestrationProvider _orchestrationProvider;
-        private readonly ICleardownService _cleardownService;
+        private readonly IClearDownService _clearDownService;
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IDdeiClient _ddeiClient;
 
         public RefreshCase(
             ILogger<RefreshCase> logger,
             IOrchestrationProvider orchestrationProvider,
-            ICleardownService cleardownService,
+            IClearDownService clearDownService,
             IDdeiArgFactory ddeiArgFactory,
             IDdeiClient ddeiClient)
         {
             _logger = logger;
             _orchestrationProvider = orchestrationProvider;
-            _cleardownService = cleardownService;
+            _clearDownService = clearDownService;
             _ddeiArgFactory = ddeiArgFactory;
             _ddeiClient = ddeiClient;
         }
