@@ -56,6 +56,7 @@ namespace PolarisGateway
 #if DEBUG
             // https://stackoverflow.com/questions/54435551/invalidoperationexception-idx20803-unable-to-obtain-configuration-from-pii
             IdentityModelEventSource.ShowPII = true;
+            IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 #endif
             var services = builder.Services;
 
