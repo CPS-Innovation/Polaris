@@ -328,4 +328,64 @@ describe("Feature Rotate Page", () => {
     cy.findByTestId("btn-modal-close").click();
     cy.findByTestId("div-modal").should("not.exist");
   });
+
+  it("should ignore and show warning message if a user try to hide rotate page option or show delete page option, when there is an unsaved page rotation", () => {
+    cy.visit("/case-details/12AB1111111/13401?pageDelete=true&pageRotate=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-10").click();
+    cy.wait(1000);
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Hide Delete Page Options").click();
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Show Rotate Page Options").click();
+    cy.findByTestId("btn-rotate-1").click();
+    cy.findByTestId("btn-cancel-rotate-1").should("exist");
+    cy.findByTestId("rotate-page-overlay-1").should("exist");
+    cy.findByTestId("rotate-page-content-1").contains("Rotate page 0°");
+    cy.findByTestId("rotate-page-left-btn-1").click();
+    cy.findByTestId("rotate-page-content-1").contains("Rotate page -90°");
+    cy.findByTestId("rotation-count-text-0").should(
+      "have.text",
+      "There is 1 rotation"
+    );
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Hide Rotate Page Options").click();
+    cy.findByTestId("div-modal").contains("h2", "Save your rotations");
+    cy.findByTestId("div-modal")
+      .should("exist")
+      .contains(
+        "You cannot turn off rotation feature as you have unsaved rotations and these will be lost."
+      );
+    cy.findByTestId("div-modal").contains(
+      "Remove or save your rotations and you will be able to continue."
+    );
+    cy.findByTestId("btn-modal-close").click();
+    cy.findByTestId("div-modal").should("not.exist");
+    cy.findByTestId("rotate-page-overlay-1").should("exist");
+    cy.findByTestId("rotate-page-content-1").contains("Rotate page -90°");
+    cy.findByTestId("rotation-count-text-0").should(
+      "have.text",
+      "There is 1 rotation"
+    );
+
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Show Delete Page Options").click();
+    cy.findByTestId("div-modal").contains("h2", "Save your rotations");
+    cy.findByTestId("div-modal")
+      .should("exist")
+      .contains(
+        "You cannot delete pages as you have unsaved rotations and these will be lost."
+      );
+    cy.findByTestId("div-modal").contains(
+      "Remove or save your rotations and you will be able to continue."
+    );
+    cy.findByTestId("btn-modal-close").click();
+    cy.findByTestId("div-modal").should("not.exist");
+    cy.findByTestId("rotate-page-overlay-1").should("exist");
+    cy.findByTestId("rotate-page-content-1").contains("Rotate page -90°");
+    cy.findByTestId("rotation-count-text-0").should(
+      "have.text",
+      "There is 1 rotation"
+    );
+  });
 });
