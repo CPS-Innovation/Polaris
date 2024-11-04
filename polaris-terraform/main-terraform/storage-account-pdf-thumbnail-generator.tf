@@ -162,9 +162,3 @@ resource "azapi_resource" "pipeline_sa_pdf_thumbnail_generator_file_share_stagin
   name      = "pipeline-pdf-thumbnail-generator-content-share-1"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris_pipeline.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_thumbnail_generator.name}/fileServices/default"
 }
-
-resource "azapi_resource" "pipeline_sa_pdf_thumbnail_generator_file_share_staging" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-pdf-thumbnail-generator-content-share-2"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris_pipeline.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_thumbnail_generator.name}/fileServices/default"
-}

@@ -100,7 +100,7 @@ jobs:
         displayName: Swap slot
         inputs:
           action: "Swap Slots"
-          sourceSlot: "staging"
+          sourceSlot: "deploy"
           azureSubscription: ${{ parameters.azureSubscription }}
           resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)

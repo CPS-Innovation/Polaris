@@ -41,7 +41,7 @@ steps:
       package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
       deployToSlotOrASE: true
       resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-      slotName: "staging"
+      slotName: "deploy"
 
   # send custom event to AppInsights
   - template: task_send-to-app-insights.yml
