@@ -41,7 +41,8 @@ stages:
         dependsOn:
           - Swap_Coordinator_Slot
           - Swap_Pipeline_Slots
-          - Swap_UI_Slots
+          - Swap_UI_Slot
+          - Swap_Gateway_Slot
           - Swap_Proxy_Slot
         steps:
           - template: jobs/tasks/task_log-result.yml
