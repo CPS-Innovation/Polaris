@@ -99,7 +99,7 @@ resource "azurerm_private_endpoint" "pipeline_pdf_thumbnail_generator_staging1_p
 
 #### alternative slot
 resource "azurerm_windows_function_app_slot" "fa_pdf_thumbnail_generator_staging" {
-  name                          = "staging1"
+  name                          = "staging"
   function_app_id               = azurerm_windows_function_app.fa_pdf_thumbnail_generator.id
   storage_account_name          = azurerm_storage_account.sa_pdf_thumbnail_generator.name
   storage_account_access_key    = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_access_key
