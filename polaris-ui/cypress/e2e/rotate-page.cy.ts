@@ -8,36 +8,46 @@ describe("Feature Rotate Page", () => {
     cy.contains("button", "Show Rotate Page Options").click();
     cy.get("div.page").then((pages) => {
       cy.wrap(pages).each((pageDiv) => {
+        cy.wait(100);
         const pageNumber = pageDiv.attr("data-page-number");
-        cy.wrap(pageDiv)
-          .findByTestId(`page-number-text-${pageNumber}`)
-          .should("exist");
+        cy.waitUntil(() => {
+          return cy.wrap(pageDiv).scrollIntoView();
+        }).then(() => {
+          cy.wrap(pageDiv)
+            .findByTestId(`page-number-text-${pageNumber}`)
+            .should("exist");
 
-        cy.wrap(pageDiv)
-          .findByTestId(`btn-rotate-${pageNumber}`)
-          .should("exist");
+          cy.wrap(pageDiv)
+            .findByTestId(`btn-rotate-${pageNumber}`)
+            .should("exist");
 
-        cy.wrap(pageDiv)
-          .findByTestId(`btn-rotate-cancel-${pageNumber}`)
-          .should("not.exist");
+          cy.wrap(pageDiv)
+            .findByTestId(`btn-rotate-cancel-${pageNumber}`)
+            .should("not.exist");
+        });
       });
     });
     cy.findByTestId("document-actions-dropdown-0").click();
     cy.contains("button", "Hide Rotate Page Options").click();
     cy.get("div.page").then((pages) => {
       cy.wrap(pages).each((pageDiv) => {
+        cy.wait(100);
         const pageNumber = pageDiv.attr("data-page-number");
-        cy.wrap(pageDiv)
-          .findByTestId(`page-number-text-${pageNumber}`)
-          .should("not.exist");
+        cy.waitUntil(() => {
+          return cy.wrap(pageDiv).scrollIntoView();
+        }).then(() => {
+          cy.wrap(pageDiv)
+            .findByTestId(`page-number-text-${pageNumber}`)
+            .should("not.exist");
 
-        cy.wrap(pageDiv)
-          .findByTestId(`btn-rotate-${pageNumber}`)
-          .should("not.exist");
+          cy.wrap(pageDiv)
+            .findByTestId(`btn-rotate-${pageNumber}`)
+            .should("not.exist");
 
-        cy.wrap(pageDiv)
-          .findByTestId(`btn-rotate-cancel-${pageNumber}`)
-          .should("not.exist");
+          cy.wrap(pageDiv)
+            .findByTestId(`btn-rotate-cancel-${pageNumber}`)
+            .should("not.exist");
+        });
       });
     });
   });
