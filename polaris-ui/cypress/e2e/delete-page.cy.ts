@@ -447,4 +447,79 @@ describe("Feature Delete Page", () => {
     );
     cy.findByTestId("btn-delete-1").should("be.disabled");
   });
+
+  it("should ignore and show warning message if a user try to hide deletion option or show rotate page option, when there is an unsaved page deletion", () => {
+    cy.visit("/case-details/12AB1111111/13401?pageDelete=true&pageRotate=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-10").click();
+    cy.wait(1000);
+    cy.findByTestId("btn-delete-1").should("not.be.disabled");
+    cy.findByTestId("btn-delete-1").click();
+    cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
+    cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
+    cy.findByTestId(`delete-page-overlay-1`).should("not.exist");
+    cy.findByTestId("delete-page-modal-btn-redact").click();
+    cy.findByTestId(`delete-page-overlay-1`).should("exist");
+    cy.findByTestId(`delete-page-content-1`).contains(
+      "Page selected for deletion"
+    );
+    cy.findByTestId(`redaction-count-text-0`).should(
+      "have.text",
+      "There is 1 redaction"
+    );
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Hide Delete Page Options").click();
+    cy.findByTestId("div-modal").contains("h2", "Save your redactions");
+    cy.findByTestId("div-modal")
+      .should("exist")
+      .contains(
+        "You cannot turn off deletion feature as you have unsaved redactions and these will be lost."
+      );
+    cy.findByTestId("div-modal").contains(
+      "Remove or save your redactions and you will be able to continue."
+    );
+    cy.findByTestId("btn-modal-close").click();
+    cy.findByTestId("div-modal").should("not.exist");
+
+    cy.findByTestId(`delete-page-overlay-1`).should("exist");
+    cy.findByTestId(`delete-page-content-1`).contains(
+      "Page selected for deletion"
+    );
+    cy.findByTestId(`redaction-count-text-0`).should(
+      "have.text",
+      "There is 1 redaction"
+    );
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Show Rotate Page Options").click();
+    cy.findByTestId("div-modal").contains("h2", "Save your redactions");
+    cy.findByTestId("div-modal")
+      .should("exist")
+      .contains(
+        "You cannot rotate pages as you have unsaved redactions and these will be lost."
+      );
+    cy.findByTestId("div-modal").contains(
+      "Remove or save your redactions and you will be able to continue."
+    );
+    cy.findByTestId("btn-modal-close").click();
+    cy.findByTestId("div-modal").should("not.exist");
+
+    cy.findByTestId(`delete-page-overlay-1`).should("exist");
+    cy.findByTestId(`delete-page-content-1`).contains(
+      "Page selected for deletion"
+    );
+    cy.findByTestId(`redaction-count-text-0`).should(
+      "have.text",
+      "There is 1 redaction"
+    );
+  });
+
+  it("should not show delete page feature for PCD document", () => {
+    cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-13").click();
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Hide Delete Page Options").should("not.exist");
+    cy.findByTestId(`page-number-text-1`).should("not.exist");
+    cy.findByTestId(`btn-delete-1`).should("not.exist");
+  });
 });

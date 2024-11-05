@@ -118,7 +118,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
           )}
         </div>
       }
-      {
+      {totalPages > 1 && (
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
             <div className={classes.pageNumberWrapper}>
@@ -162,7 +162,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
             )}
           </div>
         </div>
-      }
+      )}
       {isPageDeleted && (
         <div>
           <div
