@@ -68,7 +68,7 @@ export const PageRotationDeletionWarningModal: React.FC<Props> = ({
       isVisible={true}
       handleClose={handleCloseRotationDeletionWarningModal}
       className={classes.rotationDeletionWarningModal}
-      ariaLabel="Confirm redaction suggestions Modal"
+      ariaLabel={`${contentTexts.heading} warning modal`}
       ariaDescription={`${contentTexts.heading}${contentTexts.mainContent}${contentTexts.subContent}`}
       defaultLastFocusId="#active-tab-panel"
     >
