@@ -4,7 +4,7 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
-  
+
 jobs:
   - job: Pause_Pipeline
     dependsOn: Log_Start
@@ -64,7 +64,7 @@ jobs:
           webAppName: $(AppServiceName)
           PreserveVnet: true
 
-  - job: Swap_UI_Slot
+  - job: Swap_UI_Slots
     dependsOn: Pause_Pipeline
     condition: succeeded()
     strategy:
@@ -72,24 +72,6 @@ jobs:
         SPA:
           Name: "SPA"
           AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
-    displayName: Swap
-    steps:
-      - checkout: none
-      - task: AzureAppServiceManage@0
-        displayName: Swap slot
-        inputs:
-          action: "Swap Slots"
-          sourceSlot: "staging1"
-          azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-          webAppName: $(AppServiceName)
-          PreserveVnet: true
-
-  - job: Swap_Gateway_Slot
-    dependsOn: Pause_Pipeline
-    condition: succeeded()
-    strategy:
-      matrix:
         PolarisGateway:
           Name: "Polaris Gateway"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
@@ -100,7 +82,7 @@ jobs:
         displayName: Swap slot
         inputs:
           action: "Swap Slots"
-          sourceSlot: "deploy"
+          sourceSlot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
           resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)

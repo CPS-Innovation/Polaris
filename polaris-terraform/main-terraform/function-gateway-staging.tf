@@ -1,5 +1,5 @@
-resource "azurerm_linux_function_app_slot" "fa_polaris_deploy" {
-  name                          = "deploy"
+resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
+  name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_polaris.id
   storage_account_name          = azurerm_storage_account.sa_gateway.name
   storage_account_access_key    = azurerm_storage_account.sa_gateway.primary_access_key
@@ -30,7 +30,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_deploy" {
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
-    "HostType"                                        = "Deploy"
+    "HostType"                                        = "Staging1"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
@@ -39,7 +39,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_deploy" {
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
-    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sa_gateway_file_share_deploy.name
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sa_gateway_file_share_staging1.name
     "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
@@ -64,7 +64,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_deploy" {
         "https://as-web-${local.global_resource_name}.azurewebsites.net",
         "https://${local.global_resource_name}-cmsproxy.azurewebsites.net",
         "https://${local.global_resource_name}-notprod.cps.gov.uk",
-          var.env == "dev" ? "http://localhost:3000" : ""
+        var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true
     }
@@ -113,8 +113,8 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_deploy" {
 }
 
 # Create Private Endpoint
-resource "azurerm_private_endpoint" "polaris_gateway_deploy_pe" {
-  name                = "${azurerm_linux_function_app.fa_polaris.name}-deploy-pe"
+resource "azurerm_private_endpoint" "polaris_gateway_staging1_pe" {
+  name                = "${azurerm_linux_function_app.fa_polaris.name}-staging1-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
@@ -126,9 +126,9 @@ resource "azurerm_private_endpoint" "polaris_gateway_deploy_pe" {
   }
 
   private_service_connection {
-    name                           = "${azurerm_linux_function_app.fa_polaris.name}-deploy-psc"
+    name                           = "${azurerm_linux_function_app.fa_polaris.name}-staging1-psc"
     private_connection_resource_id = azurerm_linux_function_app.fa_polaris.id
     is_manual_connection           = false
-    subresource_names              = ["sites-deploy"]
+    subresource_names              = ["sites-staging1"]
   }
 }
