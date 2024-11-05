@@ -1,10 +1,6 @@
 import { PresentationDocumentProperties } from "../../app/features/cases/domain/gateway/PipelineDocument";
 import { DocumentsListDataSource } from "./types/DocumentsListDataSource";
 
-const dataSource: DocumentsListDataSource = () => getDocumentsListResult(5);
-
-export default dataSource;
-
 const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "1",
@@ -26,7 +22,7 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: true,
     hasNotes: true,
-    conversionStatus: "PdfEncrypted",
+    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -42,7 +38,7 @@ const documentsList: PresentationDocumentProperties[] = [
     versionId: 2,
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "CM01 Item 4 very long",
-    cmsFileCreatedDate: "2020-06-02T11:45:33Z",
+    cmsFileCreatedDate: "2020-06-02",
     categoryListOrder: null,
     cmsDocType: {
       documentTypeId: 1029,
@@ -453,3 +449,7 @@ const getDocumentsListResult = (resultsCount: number) => {
     );
   return resultsArray;
 };
+
+const dataSource: DocumentsListDataSource = getDocumentsListResult(5);
+
+export default dataSource;

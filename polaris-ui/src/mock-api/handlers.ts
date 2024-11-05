@@ -35,6 +35,7 @@ import { MockApiConfig } from "./MockApiConfig";
 import pdfStrings from "./data/pdfs/pdf-strings.json";
 import { UrnLookupDataSource } from "./data/types/UrnLookupDataSource";
 import devDocumentsListDataSource from "./data/getDocumentsList.dev";
+import cypressDocumentsListDataSource from "./data/getDocumentsList.cypress";
 
 const urnLookupDataSources: { [key: string]: UrnLookupDataSource } = {
   dev: devUrnLookupDataSource,
@@ -72,7 +73,7 @@ const documentListDataSources: {
   [key: string]: DocumentsListDataSource;
 } = {
   dev: devDocumentsListDataSource,
-  cypress: devDocumentsListDataSource,
+  cypress: cypressDocumentsListDataSource,
 };
 
 const searchCaseDataSources: { [key: string]: SearchCaseDataSource } = {
@@ -179,11 +180,11 @@ export const setupHandlers = ({
 
       const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];
 
-      // return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
-      return res(
-        ctx.status(403),
-        ctx.body(JSON.stringify({ pdfConversionStatus: "abc" }))
-      );
+      return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
+      // return res(
+      //   ctx.status(403),
+      //   ctx.body(JSON.stringify({ pdfConversionStatus: "abc" }))
+      // );
     }),
 
     rest.get(
@@ -267,7 +268,7 @@ export const setupHandlers = ({
     }),
 
     rest.get(makeApiPath(routes.GET_DOCUMENTS_LIST_ROUTE), (req, res, ctx) => {
-      const results = documentListDataSources[sourceName]()[0];
+      const results = documentListDataSources[sourceName][0];
       return res(delay(ctx), ctx.json(results));
     }),
   ];

@@ -31,7 +31,7 @@ const pipelinePdfResult: PipelineResults = {
       witnessId: null,
       hasFailedAttachments: true,
       hasNotes: true,
-      conversionStatus: "PdfEncrypted",
+      conversionStatus: "DocumentConverted",
       isUnused: false,
       isInbox: false,
       isOcrProcessed: false,
