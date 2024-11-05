@@ -388,4 +388,12 @@ describe("Feature Rotate Page", () => {
       "There is 1 rotation"
     );
   });
+
+  it("should not show rotate page feature for PCD document", () => {
+    cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-13").click();
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Show Rotate Page Options").should("not.exist");
+  });
 });

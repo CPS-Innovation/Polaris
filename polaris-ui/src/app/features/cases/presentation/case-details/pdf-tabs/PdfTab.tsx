@@ -121,12 +121,18 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   } = caseDocumentViewModel;
 
   const showDeletePage = useMemo(
-    () => featureFlags.pageDelete && documentType !== "DAC",
+    () =>
+      featureFlags.pageDelete &&
+      documentType !== "DAC" &&
+      documentType !== "PCD",
     [featureFlags.pageDelete, documentType]
   );
 
   const showRotatePage = useMemo(
-    () => featureFlags.pageRotate && documentType !== "DAC",
+    () =>
+      featureFlags.pageRotate &&
+      documentType !== "DAC" &&
+      documentType !== "PCD",
     [featureFlags.pageRotate, documentType]
   );
 

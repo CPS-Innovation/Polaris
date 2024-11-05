@@ -430,13 +430,13 @@ const pipelinePdfResult: PipelineResults = {
       documentId: "13",
       versionId: 13,
       status: "Indexed",
-      cmsOriginalFileName: "MG06_13june.pdf",
-      presentationTitle: "MG06_13june very long",
+      cmsOriginalFileName: "CM01.pdf",
+      presentationTitle: "PCD Document",
       cmsFileCreatedDate: "2020-06-02",
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1031,
-        documentType: "Statement",
+        documentType: "PCD",
         documentCategory: "Review",
       },
       presentationFlags: {

@@ -512,4 +512,14 @@ describe("Feature Delete Page", () => {
       "There is 1 redaction"
     );
   });
+
+  it("should not show delete page feature for PCD document", () => {
+    cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-13").click();
+    cy.findByTestId("document-actions-dropdown-0").click();
+    cy.contains("button", "Hide Delete Page Options").should("not.exist");
+    cy.findByTestId(`page-number-text-1`).should("not.exist");
+    cy.findByTestId(`btn-delete-1`).should("not.exist");
+  });
 });
