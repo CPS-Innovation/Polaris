@@ -33,13 +33,14 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "HostType"                                        = "Staging1"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
+    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sa_gateway_file_share_staging1.name
-    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"

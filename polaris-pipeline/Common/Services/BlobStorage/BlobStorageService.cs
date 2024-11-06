@@ -27,7 +27,7 @@ public class BlobStorageService : IBlobStorageService
 
     public async Task<T> TryGetObjectAsync<T>(string blobName)
     {
-        using var stream = await TryGetBlobAsync(blobName);
+        await using var stream = await TryGetBlobAsync(blobName);
         if (stream == null)
         {
             return default;
@@ -38,7 +38,7 @@ public class BlobStorageService : IBlobStorageService
 
     public async Task<Stream> GetBlob(string blobName)
     {
-        var stream = await TryGetBlobAsync(blobName, null);
+        var stream = await TryGetBlobAsync(blobName);
         return stream ?? throw new StorageException("Blob not found");
     }
 

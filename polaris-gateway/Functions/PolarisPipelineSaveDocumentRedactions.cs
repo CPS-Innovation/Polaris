@@ -41,7 +41,7 @@ namespace PolarisGateway.Functions
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
-            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient)); ;
+            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]

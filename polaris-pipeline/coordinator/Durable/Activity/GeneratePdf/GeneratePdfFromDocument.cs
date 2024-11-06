@@ -8,6 +8,10 @@ using coordinator.Durable.Payloads;
 using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
+using System;
+using coordinator.Durable.Activity.GeneratePdf;
+using Microsoft.Extensions.Configuration;
+
 namespace coordinator.Durable.Activity
 {
     public class GeneratePdfFromDocument : BaseGeneratePdf
@@ -16,8 +20,9 @@ namespace coordinator.Durable.Activity
             IPdfGeneratorClient pdfGeneratorCLient,
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
-            IPolarisBlobStorageService polarisBlobStorageService)
-            : base(ddeiClient, ddeiArgFactory, polarisBlobStorageService, pdfGeneratorCLient) { }
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
+            IConfiguration configuration)
+            : base(ddeiClient, ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorCLient, configuration) { }
 
         [FunctionName(nameof(GeneratePdfFromDocument))]
         public new async Task<(bool, PdfConversionStatus)> Run([ActivityTrigger] IDurableActivityContext context)

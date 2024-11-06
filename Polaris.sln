@@ -27,23 +27,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DdeiClient", "DdeiClient", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DdeiClient", "polaris-pipeline\DdeiClient\DdeiClient.csproj", "{46CA2F61-0283-43A0-BCEC-9A84766FE0DD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DdeiServer", "DdeiServer", "{21188A20-E627-4785-986E-6A9486D324D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-generator.test-harness", "polaris-pipeline\pdf-generator.test-harness\pdf-generator.test-harness.csproj", "{2B74B1CD-3739-48EF-AC63-9BCE6F5F3DB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator.test-harness", "polaris-pipeline\pdf-generator.test-harness\pdf-generator.test-harness.csproj", "{2B74B1CD-3739-48EF-AC63-9BCE6F5F3DB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DdeiClient.tests", "polaris-pipeline\DdeiClient.tests\DdeiClient.tests.csproj", "{D2C07576-2FCE-482B-AB22-D902E7282BDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DdeiClient.tests", "polaris-pipeline\DdeiClient.tests\DdeiClient.tests.csproj", "{D2C07576-2FCE-482B-AB22-D902E7282BDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway.tests", "polaris-gateway.tests\polaris-gateway.tests.csproj", "{DE6D023B-2169-4522-ABEE-B456A600B76F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway.tests", "polaris-gateway.tests\polaris-gateway.tests.csproj", "{DE6D023B-2169-4522-ABEE-B456A600B76F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway", "polaris-gateway\polaris-gateway.csproj", "{62EBAA3E-9787-491E-8B5C-78C981163E5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway", "polaris-gateway\polaris-gateway.csproj", "{62EBAA3E-9787-491E-8B5C-78C981163E5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-redactor", "polaris-pipeline\pdf-redactor\pdf-redactor.csproj", "{0911AA3D-D9BA-4F86-9AED-E0C176824455}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor", "polaris-pipeline\pdf-redactor\pdf-redactor.csproj", "{0911AA3D-D9BA-4F86-9AED-E0C176824455}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-redactor.tests", "polaris-pipeline\pdf-redactor.tests\pdf-redactor.tests.csproj", "{41925855-62F0-41F0-9213-65DFCD074924}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor.tests", "polaris-pipeline\pdf-redactor.tests\pdf-redactor.tests.csproj", "{41925855-62F0-41F0-9213-65DFCD074924}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-redactor.integration.tests", "polaris-pipeline\pdf-redactor.integration.tests\pdf-redactor.integration.tests.csproj", "{7CDF2DED-89D0-479F-9CC4-586451766FC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-redactor.integration.tests", "polaris-pipeline\pdf-redactor.integration.tests\pdf-redactor.integration.tests.csproj", "{7CDF2DED-89D0-479F-9CC4-586451766FC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-maintenance", "polaris-maintenance\polaris-maintenance.csproj", "{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-maintenance", "polaris-maintenance\polaris-maintenance.csproj", "{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-thumbnail-generator", "polaris-pipeline\pdf-thumbnail-generator\pdf-thumbnail-generator.csproj", "{6AC6EA92-93B5-4DFC-8913-634C33AE180F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -154,6 +154,12 @@ Global
 		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
 		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F2BA0CE-AF99-4BE6-87A1-860AD49D290F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AC6EA92-93B5-4DFC-8913-634C33AE180F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AC6EA92-93B5-4DFC-8913-634C33AE180F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AC6EA92-93B5-4DFC-8913-634C33AE180F}.Integration Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AC6EA92-93B5-4DFC-8913-634C33AE180F}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
+		{6AC6EA92-93B5-4DFC-8913-634C33AE180F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AC6EA92-93B5-4DFC-8913-634C33AE180F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +179,7 @@ Global
 		{0911AA3D-D9BA-4F86-9AED-E0C176824455} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{41925855-62F0-41F0-9213-65DFCD074924} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{7CDF2DED-89D0-479F-9CC4-586451766FC1} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{6AC6EA92-93B5-4DFC-8913-634C33AE180F} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CCE1AB69-A62F-420B-88D0-216C65C26EAD}

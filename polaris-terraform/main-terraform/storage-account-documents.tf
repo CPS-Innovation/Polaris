@@ -78,6 +78,14 @@ resource "azurerm_storage_container" "container" {
   depends_on            = [azurerm_storage_account.sa]
 }
 
+resource "azurerm_storage_container" "thumbnails" {
+  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
+  name                  = var.blob_thumbnails_container_name
+  storage_account_name  = azurerm_storage_account.sa.name
+  container_access_type = "private"
+  depends_on            = [azurerm_storage_account.sa]
+}
+
 # Create Private Endpoint for Blobs
 resource "azurerm_private_endpoint" "pipeline_sa_blob_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-pe"

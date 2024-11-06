@@ -1,10 +1,13 @@
+using System;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Dto.Response;
 using Common.Services.BlobStorage;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Payloads;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity
 {
@@ -13,9 +16,9 @@ namespace coordinator.Durable.Activity
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ITextExtractorClient _textExtractorClient;
 
-        public InitiateIndex(IPolarisBlobStorageService blobStorageService, ITextExtractorClient textExtractorClient)
+        public InitiateIndex(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, ITextExtractorClient textExtractorClient, IConfiguration configuration)
         {
-            _polarisBlobStorageService = blobStorageService;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _textExtractorClient = textExtractorClient;
         }
 
@@ -25,7 +28,7 @@ namespace coordinator.Durable.Activity
             var payload = context.GetInput<DocumentPayload>();
             var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
 
-            using var documentStream = await _polarisBlobStorageService.GetBlobAsync(blobId);
+            await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(blobId);
             return await _textExtractorClient.StoreCaseIndexesAsync(
                 payload.DocumentId,
                 payload.Urn,

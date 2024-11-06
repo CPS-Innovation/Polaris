@@ -1,14 +1,17 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
-using Common.Services.BlobStorage;
-using Ddei;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using coordinator.Durable.Payloads;
 using Common.Clients.PdfGenerator;
+using Common.Configuration;
 using Common.Constants;
+using Common.Services.BlobStorage;
+using coordinator.Durable.Payloads;
+using Ddei;
 using Ddei.Factories;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Configuration;
 
-namespace coordinator.Durable.Activity
+namespace coordinator.Durable.Activity.GeneratePdf
 {
     public abstract class BaseGeneratePdf
     {
@@ -17,16 +20,17 @@ namespace coordinator.Durable.Activity
         private readonly IPdfGeneratorClient _pdfGeneratorClient;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
 
-        public BaseGeneratePdf(
+        protected BaseGeneratePdf(
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
-            IPolarisBlobStorageService polarisBlobStorageService,
-            IPdfGeneratorClient pdfGeneratorClient)
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
+            IPdfGeneratorClient pdfGeneratorClient, 
+            IConfiguration configuration)
         {
             DdeiClient = ddeiClient;
             DdeiArgFactory = ddeiArgFactory;
             _pdfGeneratorClient = pdfGeneratorClient;
-            _polarisBlobStorageService = polarisBlobStorageService;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         }
 
         protected async Task<(bool, PdfConversionStatus)> Run(IDurableActivityContext context)
@@ -44,7 +48,7 @@ namespace coordinator.Durable.Activity
                 return (false, PdfConversionStatus.DocumentTypeUnsupported);
             }
 
-            using var documentStream = await GetDocumentStreamAsync(payload);
+            await using var documentStream = await GetDocumentStreamAsync(payload);
 
             var response = await _pdfGeneratorClient.ConvertToPdfAsync(
                         payload.CorrelationId,
@@ -61,7 +65,7 @@ namespace coordinator.Durable.Activity
             }
 
             await _polarisBlobStorageService.UploadBlobAsync(response.PdfStream, blobId, payload.IsOcredProcessedPreference);
-            response.PdfStream.Dispose();
+            await response.PdfStream.DisposeAsync();
 
             return (false, PdfConversionStatus.DocumentConverted);
         }

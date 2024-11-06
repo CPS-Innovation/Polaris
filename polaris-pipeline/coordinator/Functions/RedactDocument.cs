@@ -11,7 +11,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.PdfRedactor;
-using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Helpers;
 using Common.Configuration;
 using Common.Dto.Request;
@@ -22,6 +21,7 @@ using Common.Wrappers;
 using Ddei.Factories;
 using Ddei;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Functions
 {
@@ -31,7 +31,6 @@ namespace coordinator.Functions
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _redactionClient;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly ILogger<RedactDocument> _logger;
@@ -39,17 +38,16 @@ namespace coordinator.Functions
         public RedactDocument(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
                               IPdfRedactorClient redactionClient,
-                              IPolarisBlobStorageService polarisBlobStorageService,
-                              IUploadFileNameFactory uploadFileNameFactory,
+                              Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
                               IDdeiClient ddeiClient,
                               IDdeiArgFactory ddeiArgFactory,
-                              ILogger<RedactDocument> logger)
+                              ILogger<RedactDocument> logger,
+                              IConfiguration configuration)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _redactionClient = redactionClient;
-            _polarisBlobStorageService = polarisBlobStorageService;
-            _uploadFileNameFactory = uploadFileNameFactory;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
             _logger = logger;

@@ -4,7 +4,7 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
-  
+
 jobs:
   - job: Pause_Pipeline
     dependsOn: Log_Start
@@ -42,6 +42,9 @@ jobs:
         PDFGenerator:
           Name: "PDF Generator"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+        PDFThumbnailGenerator:
+          Name: "PDF Thumbnail Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumbnail-generator"
         PDFRedactor:
           Name: "PDF Redactor"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-redactor"
