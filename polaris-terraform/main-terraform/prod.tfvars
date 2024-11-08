@@ -4,10 +4,11 @@ environment_tag = "production"
 dns_server      = "10.7.204.164"
 
 ui_component_service_plans = {
-  gateway_service_plan_sku        = "P2mv3"
-  spa_service_plan_sku            = "P1v3"
-  proxy_service_plan_sku          = "P1v3"
-  maintenance_service_plan_sku    = "B1"
+  gateway_service_plan_sku     = "EP1"
+  gateway2_service_plan_sku    = "P2mv3"
+  spa_service_plan_sku         = "P1v3"
+  proxy_service_plan_sku       = "P1v3"
+  maintenance_service_plan_sku = "B1"
 }
 
 pipeline_component_service_plans = {
