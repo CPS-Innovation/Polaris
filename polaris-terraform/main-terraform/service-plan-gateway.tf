@@ -21,7 +21,6 @@ resource "azurerm_service_plan" "asp_polaris_gateway2" {
   os_type                      = "Linux"
   sku_name                     = var.ui_component_service_plans.gateway2_service_plan_sku
   tags                         = local.common_tags
-  maximum_elastic_worker_count = 10
 }
 
 resource "azurerm_monitor_autoscale_setting" "amas_polaris_gateway" {
