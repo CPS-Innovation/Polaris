@@ -36,8 +36,6 @@ variable "location" {
 variable "ui_component_service_plans" {
   type = object({
     gateway_service_plan_sku        = string
-    gateway_always_ready_instances  = number
-    gateway_maximum_scale_out_limit = number
     spa_service_plan_sku            = string
     proxy_service_plan_sku          = string
     maintenance_service_plan_sku    = string
@@ -97,13 +95,6 @@ variable "polaris_ui_sub_folder" {
 
 variable "terraform_service_principal_display_name" {
   type = string
-}
-
-variable "ui_logging" {
-  type = object({
-    gateway_scale_controller       = string
-    auth_handover_scale_controller = string
-  })
 }
 
 variable "cms_details" {

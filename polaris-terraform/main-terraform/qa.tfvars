@@ -4,9 +4,7 @@ environment_tag = "qa"
 dns_server      = "10.7.198.164"
 
 ui_component_service_plans = {
-  gateway_service_plan_sku        = "EP1"
-  gateway_always_ready_instances  = 1
-  gateway_maximum_scale_out_limit = 10
+  gateway_service_plan_sku        = "P1mv3"
   spa_service_plan_sku            = "P1v3"
   proxy_service_plan_sku          = "P1v3"
   maintenance_service_plan_sku    = "B1"
@@ -39,11 +37,6 @@ polaris_webapp_details = {
 }
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
-
-ui_logging = {
-  gateway_scale_controller       = "AppInsights:None"
-  auth_handover_scale_controller = "AppInsights:None"
-}
 
 pipeline_logging = {
   coordinator_scale_controller             = "AppInsights:None"
