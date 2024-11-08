@@ -18,7 +18,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobUserDelegationKeyExpirySecs"                 = 3600
-    "CallingAppValidAudience"                         = var.polaris_webapp_details.valid_audience
+    "CallingAppValidAudience"                         = module.azurerm_app_reg_as_web_polaris.client_id
     "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
     "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
@@ -100,11 +100,11 @@ resource "azurerm_linux_function_app" "fa_polaris" {
 
     # our default_provider:
     active_directory_v2 {
-      tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      tenant_auth_endpoint = "https://login.microsoftonline.com/${data.azurerm_client_config.current.tenant_id}/v2.0"
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_fa_polaris.client_id
-      allowed_audiences          = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.global_resource_name}-gateway"]
+      allowed_audiences          = [module.azurerm_app_reg_as_web_polaris.client_id]
     }
 
     login {
@@ -181,7 +181,7 @@ module "azurerm_app_reg_fa_polaris" {
   #use this code for adding scopes
   api = {
     mapped_claims_enabled          = true
-    requested_access_token_version = 1
+    requested_access_token_version = 2
     known_client_applications      = []
     oauth2_permission_scope = [{
       admin_consent_description  = "Allow the calling application to make requests of the ${local.global_resource_name} Gateway"
