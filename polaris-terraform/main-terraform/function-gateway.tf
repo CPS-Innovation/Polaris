@@ -18,7 +18,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobUserDelegationKeyExpirySecs"                 = 3600
-    "CallingAppValidAudience"                         = module.azurerm_app_reg_as_web_polaris.client_id
+    "CallingAppValidAudience"                         = module.azurerm_app_reg_fa_polaris.client_id
     "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
     "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
@@ -104,7 +104,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_fa_polaris.client_id
-      allowed_audiences          = [module.azurerm_app_reg_as_web_polaris.client_id]
+      allowed_audiences          = [module.azurerm_app_reg_fa_polaris.client_id]
     }
 
     login {
