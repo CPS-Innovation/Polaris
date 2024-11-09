@@ -10,7 +10,7 @@ namespace pdf_thumbnail_generator.Functions
     public class Status
     {
         [Function("Status")]
-        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Status)] HttpRequest req)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Status)] HttpRequest req)
         {
             return Assembly.GetExecutingAssembly().CurrentStatus();
         }
