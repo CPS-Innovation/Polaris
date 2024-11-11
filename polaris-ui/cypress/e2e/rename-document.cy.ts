@@ -1,8 +1,10 @@
 import {
   RENAME_DOCUMENT_ROUTE,
   TRACKER_ROUTE,
+  GET_DOCUMENTS_LIST_ROUTE,
 } from "../../src/mock-api/routes";
 import { refreshPipelineRenamedDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import { getRefreshRenamedDocuments } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Feature Rename Document", () => {
   it("Should show rename document option if the document 'canRename' is true and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
@@ -49,6 +51,11 @@ describe("Feature Rename Document", () => {
       "10",
       "PortraitLandscape_1",
       3
+    );
+    const documentList = getRefreshRenamedDocuments(
+      "10",
+      "PortraitLandscape_1",
+      1
     );
     cy.overrideRoute(TRACKER_ROUTE, {
       body: trackerResults[0],
@@ -109,7 +116,12 @@ describe("Feature Rename Document", () => {
     cy.waitUntil(() => cy.findByTestId("rename-text-input")).then(() =>
       cy.findByTestId("rename-text-input").type("_1")
     );
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("btn-save-rename").click();
+    cy.findByTestId("rename-panel").contains("Saving renamed document to CMS");
 
     //assertion on the add note request
     cy.waitUntil(() => {
@@ -118,26 +130,13 @@ describe("Feature Rename Document", () => {
       expect(saveRenameRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveRenamePayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
     });
-    cy.findByTestId("rename-panel").contains("Saving renamed document to CMS");
 
     cy.waitUntil(() => {
-      return trackerCounter.count === 2;
+      return trackerCounter.count > 1;
     }).then(() => {
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[2],
-      });
+      expect(refreshPipelineCounter.count).to.equal(2);
       expect(trackerCounter.count).to.equal(2);
-      expect(refreshPipelineCounter.count).to.equal(2);
-    });
-    cy.waitUntil(() => {
-      return trackerCounter.count > 2;
-    }).then(() => {
-      expect(refreshPipelineCounter.count).to.equal(2);
-      expect(trackerCounter.count).to.equal(3);
     });
     cy.findByTestId("rename-panel").contains(
       "Document renamed successfully saved to CMS"

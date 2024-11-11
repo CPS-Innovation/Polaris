@@ -22,8 +22,7 @@ import {
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
-import { isNewTime } from "../utils/refreshUtils";
-import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
+import { hasDocumentUpdated } from "../utils/refreshUtils";
 import { SaveStatus } from "../../domain/gateway/SaveStatus";
 import {
   RedactionLogLookUpsData,
@@ -415,6 +414,13 @@ export const reducer = (
         notificationState,
         documentsState,
         accordionState,
+        pipelineRefreshData: {
+          ...nextState.pipelineRefreshData,
+          savedDocumentDetails:
+            nextState.pipelineRefreshData.savedDocumentDetails.filter(
+              (document) => !hasDocumentUpdated(document, data)
+            ),
+        },
       };
 
       const openPdfsWeNeedToUpdate = data

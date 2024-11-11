@@ -343,15 +343,25 @@ const getDocumentsListResult = (resultsCount: number) => {
 };
 
 // This will create two results one with document id 2 and the second with document id 2 deleted.
-const getRefreshDeletedDocuments = () => {
-  const resultsArray = getDocumentsListResult(2);
-  return [
-    ...resultsArray,
-    [...resultsArray[1].filter(({ documentId }) => documentId !== "2")],
-  ];
+export const getRefreshDeletedDocuments = (
+  redactedDocumentId: string,
+  deletedDocumentId: string,
+  trackerCalls: number = 1
+) => {
+  const resultsArray = getRefreshRedactedDocument(
+    redactedDocumentId,
+    trackerCalls
+  );
+  return resultsArray.map((result, index) => {
+    const filteredDocs = resultsArray[index].filter(
+      ({ documentId }) => documentId !== deletedDocumentId
+    );
+
+    return [...filteredDocs];
+  });
 };
 
-const getRefreshRenamedDocuments = (
+export const getRefreshRenamedDocuments = (
   id: string,
   newName: string,
   trackerCalls: number
@@ -369,7 +379,7 @@ const getRefreshRenamedDocuments = (
   });
 };
 
-const getRefreshReclassifyDocuments = (
+export const getRefreshReclassifyDocuments = (
   id: string,
   newDocTypeId: number,
   trackerCalls: number
@@ -392,6 +402,26 @@ const getRefreshReclassifyDocuments = (
           documentTypeId: newDocTypeId,
         },
       },
+    ];
+  });
+};
+
+export const getRefreshRedactedDocument = (
+  id: string,
+  trackerCalls: number = 1
+): PresentationDocumentProperties[][] => {
+  const resultsArray = getDocumentsListResult(trackerCalls);
+
+  return resultsArray.map((result, index) => {
+    const filteredDocs = resultsArray[index].filter(
+      ({ documentId }) => documentId !== id
+    );
+    const selectedDoc = resultsArray[index].find(
+      ({ documentId }) => documentId === id
+    )!;
+    return [
+      ...filteredDocs,
+      { ...selectedDoc, versionId: selectedDoc.versionId + 1 },
     ];
   });
 };
@@ -797,22 +827,29 @@ const getRefreshReclassifyDocuments = (
 //   ],
 // };
 
-export const refreshPipelineDeletedDocuments: DocumentsListDataSource =
-  getRefreshDeletedDocuments();
+// export const refreshPipelineDeletedDocuments: (
+//   redactedDocumentId: string,
+//   deletedDocumentId: string,
+//   trackerCalls?: number
+// ) => DocumentsListDataSource = (
+//   redactedDocumentId,
+//   deletedDocumentId,
+//   trackerCalls
+// ) => getRefreshDeletedDocuments(redactedDocumentId, deletedDocumentId);
 
-export const refreshPipelineRenamedDocuments: (
-  documentId: string,
-  newName: string,
-  trackerCalls: number
-) => DocumentsListDataSource = (documentId, newName, trackerCalls) =>
-  getRefreshRenamedDocuments(documentId, newName, trackerCalls);
+// export const refreshPipelineRenamedDocuments: (
+//   documentId: string,
+//   newName: string,
+//   trackerCalls: number
+// ) => DocumentsListDataSource = (documentId, newName, trackerCalls) =>
+//   getRefreshRenamedDocuments(documentId, newName, trackerCalls);
 
-export const refreshPipelineReclassifyDocuments: (
-  documentId: string,
-  newDocTypeId: number,
-  trackerCalls: number
-) => DocumentsListDataSource = (documentId, newDocTypeId, trackerCalls) =>
-  getRefreshReclassifyDocuments(documentId, newDocTypeId, trackerCalls);
+// export const refreshPipelineReclassifyDocuments: (
+//   documentId: string,
+//   newDocTypeId: number,
+//   trackerCalls: number
+// ) => DocumentsListDataSource = (documentId, newDocTypeId, trackerCalls) =>
+//   getRefreshReclassifyDocuments(documentId, newDocTypeId, trackerCalls);
 
 const dataSource: DocumentsListDataSource = getDocumentsListResult(9);
 export default dataSource;

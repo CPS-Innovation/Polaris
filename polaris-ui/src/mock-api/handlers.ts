@@ -100,7 +100,7 @@ export const setupHandlers = ({
   // make sure we are reading a number not string from config
   //  also msw will not accept a delay of 0, so if 0 is passed then just set to 1ms
   const sanitisedMaxDelay = Number(maxDelayMs) || 1;
-  const callStack = { TRACKER_ROUTE: 0, INITIATE_PIPELINE_ROUTE: 0 };
+  const callStack = { TRACKER_ROUTE: 0, GET_DOCUMENTS_LIST_ROUTE: 0 };
 
   const makeApiPath = (path: string) => new URL(path, baseUrl).toString();
   const makeRedactionLogApiPath = (path: string) =>
@@ -268,8 +268,15 @@ export const setupHandlers = ({
     }),
 
     rest.get(makeApiPath(routes.GET_DOCUMENTS_LIST_ROUTE), (req, res, ctx) => {
-      const results = documentListDataSources[sourceName][0];
-      return res(delay(ctx), ctx.json(results));
+      callStack["GET_DOCUMENTS_LIST_ROUTE"]++;
+      const results = documentListDataSources[sourceName];
+      if (callStack["GET_DOCUMENTS_LIST_ROUTE"] > results.length) {
+        return res(ctx.delay(sanitisedMaxDelay), ctx.json(results[0]));
+      }
+      return res(
+        ctx.delay(sanitisedMaxDelay),
+        ctx.json(results[callStack["GET_DOCUMENTS_LIST_ROUTE"] - 1])
+      );
     }),
   ];
 };

@@ -3,15 +3,25 @@ import {
   SAVE_REDACTION_ROUTE,
   TRACKER_ROUTE,
   DOCUMENT_CHECKOUT_ROUTE,
+  GET_DOCUMENTS_LIST_ROUTE,
 } from "../../src/mock-api/routes";
 
 import { refreshPipelineDeletedDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import {
+  getRefreshRedactedDocument,
+  getRefreshDeletedDocuments,
+} from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("redaction refresh flow", () => {
   it("should successfully complete the redaction refresh flow for saving redaction of single document two times", () => {
+    const documentList = getRefreshRedactedDocument("1", 2);
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 1000,
+    });
     cy.findByTestId("div-pdfviewer-0")
       .should("exist")
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -29,6 +39,10 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-0").should("not.exist");
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[1],
+      timeMs: 1000,
+    });
 
     //saving for the second time
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -49,9 +63,14 @@ describe("redaction refresh flow", () => {
   });
 
   it("should successfully complete the redaction refresh flow for saving redaction of two different documents", () => {
+    const documentList = getRefreshRedactedDocument("1");
     cy.visit("/case-details/12AB1111111/13401?redactionLog");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 1000,
+    });
     cy.findAllByTestId("div-pdfviewer-0")
       .first()
       .should("exist")
@@ -88,16 +107,19 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");
     cy.findByTestId("btn-save-redaction-log").click();
-    cy.findByTestId("pdfTab-spinner-0").should("exist");
-    cy.findByTestId("div-pdfviewer-0").should("not.exist");
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
   });
 
   it("should call again the initiate pipeline, if the previous call return 423 status during redaction refresh flow and successfully complete the redaction refresh flow", () => {
+    const documentList = getRefreshRedactedDocument("1");
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 1000,
+    });
     cy.findByTestId("div-pdfviewer-0")
       .should("exist")
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -134,8 +156,9 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-0").should("not.exist");
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
-    cy.window().then(() => {
-      expect(initiatePipelineRequestCounter.count).to.equal(2);
+
+    cy.waitUntil(() => {
+      return expect(initiatePipelineRequestCounter.count).to.equal(2);
     });
   });
 
@@ -165,8 +188,8 @@ describe("redaction refresh flow", () => {
       .should("exist")
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-    cy.window().then(() => {
-      expect(initiatePipelineRequestCounter.count).to.equal(1);
+    cy.waitUntil(() => {
+      return expect(initiatePipelineRequestCounter.count).to.equal(1);
     });
   });
 
@@ -175,7 +198,7 @@ describe("redaction refresh flow", () => {
       SAVE_REDACTION_ROUTE,
       {
         type: "delay",
-        timeMs: 3000,
+        timeMs: 1000,
       },
       "put"
     );
@@ -245,10 +268,18 @@ describe("redaction refresh flow", () => {
     cy.overrideRoute(TRACKER_ROUTE, {
       body: refreshPipelineDeletedDocuments()[0],
     });
+
+    const documentList = getRefreshDeletedDocuments("1", "2");
+
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-2").click();
     cy.findByTestId("link-document-1").click();
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 1000,
+    });
+
     cy.findByTestId("div-pdfviewer-0").should("exist");
     cy.findByTestId("div-pdfviewer-1")
       .should("exist")
