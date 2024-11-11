@@ -82,7 +82,8 @@
     "ci:script": "./scripts/cy-ci.sh",
     "ci:script:win": ".\\scripts\\cy-ci.sh",
     "cy:ci": "npm run ci:script -- 'env-cmd -f .env.cypress cypress run'",
-    "cy:parallel:ci": "npm run ci:script:win -- 'env-cmd -f .\\.env.cypress cypress-parallel -s cy:run -t 4 -d .\\cypress\\e2e''",
+    "cy:parallel:ci": "npm run ci:script -- 'env-cmd -f .env.cypress cypress-parallel -s cy:run -t 4 -d ./cypress/e2e' ",
+    "cy:parallel:ci:win": "npm run ci:script:win -- 'env-cmd -f .\\.env.cypress cypress-parallel -s cy:run -t 4 -d .\\cypress\\e2e'",
     "coverage": "./scripts/combine-coverage.sh",
     "clean": "./scripts/clean.sh"
   },
