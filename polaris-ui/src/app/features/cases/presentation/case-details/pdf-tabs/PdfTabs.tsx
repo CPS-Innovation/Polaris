@@ -5,6 +5,7 @@ import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseD
 import { PdfTab } from "./PdfTab";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
+import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 
 type PdfTabsProps = {
   redactionTypesData: RedactionTypeData[];
@@ -28,6 +29,7 @@ type PdfTabsProps = {
   isOkToSave: boolean;
   showOverRedactionLog: boolean;
   searchPIIData: SearchPIIData[];
+  localDocumentState: LocalDocumentState;
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
@@ -61,8 +63,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   savedDocumentDetails,
   showOverRedactionLog,
   searchPIIData,
-  handleTabSelection,
   isOkToSave,
+  localDocumentState,
+  handleTabSelection,
   handleOpenPdf,
   handleClosePdf,
   handleLaunchSearchResults,
@@ -121,6 +124,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               documentWriteStatus={item.presentationFlags.write}
               headers={headers}
               isOkToSave={isOkToSave}
+              localDocumentState={localDocumentState}
               handleOpenPdf={handleOpenPdf}
               handleLaunchSearchResults={handleLaunchSearchResults}
               handleAddRedaction={handleAddRedaction}

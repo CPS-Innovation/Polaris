@@ -825,6 +825,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   savedDocumentDetails={
                     pipelineRefreshData.savedDocumentDetails
                   }
+                  localDocumentState={localDocumentState}
                   handleTabSelection={handleTabSelection}
                   handleClosePdf={handleClosePdf}
                   handleLaunchSearchResults={handleLaunchSearchResults}

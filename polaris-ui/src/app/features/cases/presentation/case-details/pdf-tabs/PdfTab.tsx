@@ -15,6 +15,7 @@ import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { SaveRotationModal } from "../modals/SaveRotationModal";
 import { PageRotationWarningModal } from "../modals/PageRotationWarningModal";
+import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   caseId: number;
@@ -39,6 +40,7 @@ type PdfTabProps = {
     showRotatePage: boolean;
   };
   isOkToSave: boolean;
+  localDocumentState: LocalDocumentState;
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
@@ -76,6 +78,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   contextData,
   isOkToSave,
   searchPIIDataItem,
+  localDocumentState,
   handleOpenPdf,
   handleLaunchSearchResults,
   handleAddRedaction,
@@ -228,138 +231,176 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     saveAllRedactionsCustomEvent();
   };
 
-  if (isDeleted) {
+  const documentUnAvailableReason = useMemo(() => {
+    if (isDeleted) return "This document has been deleted and is unavailable.";
+    if (
+      localDocumentState[documentId]?.conversionStatus ===
+      "EncryptionOrPasswordProtection"
+    )
+      return "This document has been encrypted or password protected and is unavailable.";
+    if (
+      localDocumentState[documentId]?.conversionStatus ===
+      "UnsupportedFileTypeOrContent"
+    )
+      return "This document has unsupported file type or content and is unavailable.";
+
+    return "This document is unavailable";
+  }, [isDeleted, documentId, localDocumentState]);
+
+  const isDocumentAvailable = useMemo(() => {
+    console.log("localDocumentState>>", localDocumentState);
+    return (
+      !isDeleted &&
+      (!localDocumentState[documentId]?.conversionStatus ||
+        localDocumentState[documentId].conversionStatus === "DocumentConverted")
+    );
+  }, [isDeleted, documentId, localDocumentState]);
+
+  const renderDocumentUnAvailable = () => {
     return (
       <div
-        className={classes.deletedDocument}
-        data-testid={`deleted-document-notification-${documentId}`}
+        className={classes.unAvailableDocument}
+        // data-testid={`deleted-document-notification-${documentId}`}
       >
-        <p>This document has been deleted and is unavailable.</p>
+        <p>{documentUnAvailableReason}</p>
       </div>
     );
-  }
+  };
+
+  const renderDocument = () => {
+    return (
+      <div>
+        {mode === "search" ? (
+          <HeaderSearchMode
+            caseDocumentViewModel={caseDocumentViewModel}
+            handleLaunchSearchResults={handleLaunchSearchResults}
+            focussedHighlightIndex={focussedHighlightIndex}
+            handleSetFocussedHighlightIndex={setFocussedHighlightIndex}
+          />
+        ) : (
+          <HeaderReadMode
+            showOverRedactionLog={showOverRedactionLog}
+            caseDocumentViewModel={caseDocumentViewModel}
+            handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
+            handleShowRedactionLogModal={handleShowRedactionLogModal}
+            handleAreaOnlyRedaction={handleAreaOnlyRedaction}
+            handleShowHideRedactionSuggestions={
+              localHandleShowHideRedactionSuggestions
+            }
+            handleShowHidePageRotation={localHandleShowHidePageRotation}
+            contextData={{
+              documentId: documentId,
+              tabIndex: tabIndex,
+              areaOnlyRedactionMode: areaOnlyRedactionMode,
+              isSearchPIIOn: isSearchPIIOn,
+              isSearchPIIDefaultOptionOn: !!searchPIIDataItem?.defaultOption,
+              showSearchPII: contextData.showSearchPII,
+              isRotatePageModeOn: rotatePageMode,
+              showRotatePage: contextData.showRotatePage,
+            }}
+          />
+        )}
+        {!!attachments.length && (
+          <HeaderAttachmentMode
+            caseDocumentViewModel={caseDocumentViewModel}
+            handleOpenPdf={handleOpenPdf}
+          />
+        )}
+        {isSearchPIIOn && (
+          <HeaderSearchPIIMode
+            activeSearchPIIHighlights={activeSearchPIIHighlights}
+            getSearchPIIStatus={searchPIIDataItem?.getSearchPIIStatus}
+          />
+        )}
+        {hasFailedAttachments && (
+          <div className={classes.attachmentHeaderContent}>
+            <span
+              className={classes.failedAttachmentWarning}
+              data-testid={`failed-attachment-warning-${documentId}`}
+            >
+              Attachments only available on CMS
+            </span>
+          </div>
+        )}
+
+        {url && !isDocumentRefreshing() ? (
+          <PdfViewer
+            redactionTypesData={redactionTypesData}
+            url={url}
+            tabIndex={tabIndex}
+            activeTabId={activeTabId}
+            tabId={tabId}
+            headers={headers}
+            searchHighlights={searchHighlights}
+            isSearchPIIOn={isSearchPIIOn}
+            isSearchPIIDefaultOptionOn={!!searchPIIDataItem?.defaultOption}
+            activeSearchPIIHighlights={activeSearchPIIHighlights}
+            documentWriteStatus={documentWriteStatus}
+            contextData={{
+              documentId,
+              documentType,
+              saveStatus: saveStatus,
+              caseId,
+              showDeletePage:
+                contextData.showDeletePage && documentType !== "DAC",
+            }}
+            isOkToSave={isOkToSave}
+            redactionHighlights={redactionHighlights}
+            pageDeleteRedactions={pageDeleteRedactions}
+            pageRotations={pageRotations}
+            focussedHighlightIndex={focussedHighlightIndex}
+            areaOnlyRedactionMode={areaOnlyRedactionMode}
+            rotatePageMode={rotatePageMode}
+            handleAddRedaction={handleAddRedaction}
+            handleRemoveRedaction={localHandleRemoveRedaction}
+            handleAddPageRotation={handleAddPageRotation}
+            handleRemovePageRotation={handleRemovePageRotation}
+            handleRemoveAllRedactions={localHandleRemoveAllRedactions}
+            handleSavedRedactions={localHandleSavedRedactions}
+            handleSearchPIIAction={handleSearchPIIAction}
+            handleRemoveAllRotations={handleRemoveAllRotations}
+            handleSaveRotations={handleSaveRotations}
+            handleUpdateConversionStatus={handleUpdateConversionStatus}
+          />
+        ) : (
+          <Wait
+            dataTestId={`pdfTab-spinner-${tabIndex}`}
+            ariaLabel="Refreshing document, please wait"
+          />
+        )}
+        {saveStatus.type === "rotation" && saveStatus.status !== "error" && (
+          <SaveRotationModal saveStatus={saveStatus.status} />
+        )}
+
+        {showRedactionWarning && (
+          <SearchPIIRedactionWarningModal
+            documentId={documentId}
+            documentType={documentType}
+            acceptedAllSearchPIIRedactionsCount={
+              acceptedAllSearchPIIRedactionsCount
+            }
+            handleContinue={handleContinue}
+            versionId={versionId!}
+            hideRedactionWarningModal={() => setShowRedactionWarning(false)}
+          />
+        )}
+        {showPageRotationWarning && (
+          <PageRotationWarningModal
+            hidePageRotationWarningModal={() =>
+              setShowPageRotationWarning(false)
+            }
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
-    <>
-      {mode === "search" ? (
-        <HeaderSearchMode
-          caseDocumentViewModel={caseDocumentViewModel}
-          handleLaunchSearchResults={handleLaunchSearchResults}
-          focussedHighlightIndex={focussedHighlightIndex}
-          handleSetFocussedHighlightIndex={setFocussedHighlightIndex}
-        />
-      ) : (
-        <HeaderReadMode
-          showOverRedactionLog={showOverRedactionLog}
-          caseDocumentViewModel={caseDocumentViewModel}
-          handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
-          handleShowRedactionLogModal={handleShowRedactionLogModal}
-          handleAreaOnlyRedaction={handleAreaOnlyRedaction}
-          handleShowHideRedactionSuggestions={
-            localHandleShowHideRedactionSuggestions
-          }
-          handleShowHidePageRotation={localHandleShowHidePageRotation}
-          contextData={{
-            documentId: documentId,
-            tabIndex: tabIndex,
-            areaOnlyRedactionMode: areaOnlyRedactionMode,
-            isSearchPIIOn: isSearchPIIOn,
-            isSearchPIIDefaultOptionOn: !!searchPIIDataItem?.defaultOption,
-            showSearchPII: contextData.showSearchPII,
-            isRotatePageModeOn: rotatePageMode,
-            showRotatePage: contextData.showRotatePage,
-          }}
-        />
-      )}
-      {!!attachments.length && (
-        <HeaderAttachmentMode
-          caseDocumentViewModel={caseDocumentViewModel}
-          handleOpenPdf={handleOpenPdf}
-        />
-      )}
-      {isSearchPIIOn && (
-        <HeaderSearchPIIMode
-          activeSearchPIIHighlights={activeSearchPIIHighlights}
-          getSearchPIIStatus={searchPIIDataItem?.getSearchPIIStatus}
-        />
-      )}
-      {hasFailedAttachments && (
-        <div className={classes.attachmentHeaderContent}>
-          <span
-            className={classes.failedAttachmentWarning}
-            data-testid={`failed-attachment-warning-${documentId}`}
-          >
-            Attachments only available on CMS
-          </span>
-        </div>
-      )}
-
-      {url && !isDocumentRefreshing() ? (
-        <PdfViewer
-          redactionTypesData={redactionTypesData}
-          url={url}
-          tabIndex={tabIndex}
-          activeTabId={activeTabId}
-          tabId={tabId}
-          headers={headers}
-          searchHighlights={searchHighlights}
-          isSearchPIIOn={isSearchPIIOn}
-          isSearchPIIDefaultOptionOn={!!searchPIIDataItem?.defaultOption}
-          activeSearchPIIHighlights={activeSearchPIIHighlights}
-          documentWriteStatus={documentWriteStatus}
-          contextData={{
-            documentId,
-            documentType,
-            saveStatus: saveStatus,
-            caseId,
-            showDeletePage:
-              contextData.showDeletePage && documentType !== "DAC",
-          }}
-          isOkToSave={isOkToSave}
-          redactionHighlights={redactionHighlights}
-          pageDeleteRedactions={pageDeleteRedactions}
-          pageRotations={pageRotations}
-          focussedHighlightIndex={focussedHighlightIndex}
-          areaOnlyRedactionMode={areaOnlyRedactionMode}
-          rotatePageMode={rotatePageMode}
-          handleAddRedaction={handleAddRedaction}
-          handleRemoveRedaction={localHandleRemoveRedaction}
-          handleAddPageRotation={handleAddPageRotation}
-          handleRemovePageRotation={handleRemovePageRotation}
-          handleRemoveAllRedactions={localHandleRemoveAllRedactions}
-          handleSavedRedactions={localHandleSavedRedactions}
-          handleSearchPIIAction={handleSearchPIIAction}
-          handleRemoveAllRotations={handleRemoveAllRotations}
-          handleSaveRotations={handleSaveRotations}
-          handleUpdateConversionStatus={handleUpdateConversionStatus}
-        />
-      ) : (
-        <Wait
-          dataTestId={`pdfTab-spinner-${tabIndex}`}
-          ariaLabel="Refreshing document, please wait"
-        />
-      )}
-      {saveStatus.type === "rotation" && saveStatus.status !== "error" && (
-        <SaveRotationModal saveStatus={saveStatus.status} />
-      )}
-
-      {showRedactionWarning && (
-        <SearchPIIRedactionWarningModal
-          documentId={documentId}
-          documentType={documentType}
-          acceptedAllSearchPIIRedactionsCount={
-            acceptedAllSearchPIIRedactionsCount
-          }
-          handleContinue={handleContinue}
-          versionId={versionId!}
-          hideRedactionWarningModal={() => setShowRedactionWarning(false)}
-        />
-      )}
-      {showPageRotationWarning && (
-        <PageRotationWarningModal
-          hidePageRotationWarningModal={() => setShowPageRotationWarning(false)}
-        />
-      )}
-    </>
+    <div>
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {isDocumentAvailable ? "" : documentUnAvailableReason}
+      </div>
+      {isDocumentAvailable ? renderDocument() : renderDocumentUnAvailable()}
+    </div>
   );
 };
