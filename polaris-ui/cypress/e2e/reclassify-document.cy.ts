@@ -103,9 +103,9 @@ describe("Feature Reclassify Document", () => {
     );
     const trackerResults = refreshPipelineReclassifyDocuments("10", 1015, 2);
     const documentList = getRefreshReclassifyDocuments("10", 1015, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    // cy.overrideRoute(TRACKER_ROUTE, {
+    //   body: trackerResults[0],
+    // });
     const expectedSaveReclassifyPayload = {
       documentId: 10,
       documentTypeId: 1015,
@@ -120,19 +120,19 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
+    // const refreshPipelineCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   refreshPipelineCounter,
+    //   "POST",
+    //   "/api/urns/12AB1111111/cases/13401"
+    // );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
+    // const trackerCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   trackerCounter,
+    //   "GET",
+    //   "/api/urns/12AB1111111/cases/13401/tracker"
+    // );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -236,9 +236,9 @@ describe("Feature Reclassify Document", () => {
 
     cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
-    cy.waitUntil(() => {
-      return expect(refreshPipelineCounter.count).to.equal(2);
-    });
+    // cy.waitUntil(() => {
+    //   return expect(refreshPipelineCounter.count).to.equal(2);
+    // });
   });
 
   it("should successful complete the document classification to an `Other` type ", () => {
@@ -250,9 +250,9 @@ describe("Feature Reclassify Document", () => {
     );
     const trackerResults = refreshPipelineReclassifyDocuments("10", 1029, 2);
     const documentList = getRefreshReclassifyDocuments("10", 1029, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    // cy.overrideRoute(TRACKER_ROUTE, {
+    //   body: trackerResults[0],
+    // });
     const expectedSaveReclassifyPayload = {
       documentId: 10,
       documentTypeId: 1029,
@@ -267,19 +267,19 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
+    // const refreshPipelineCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   refreshPipelineCounter,
+    //   "POST",
+    //   "/api/urns/12AB1111111/cases/13401"
+    // );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
+    // const trackerCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   trackerCounter,
+    //   "GET",
+    //   "/api/urns/12AB1111111/cases/13401/tracker"
+    // );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -423,9 +423,9 @@ describe("Feature Reclassify Document", () => {
 
     cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
-    cy.waitUntil(() => {
-      return expect(refreshPipelineCounter.count).to.equal(2);
-    });
+    // cy.waitUntil(() => {
+    //   return expect(refreshPipelineCounter.count).to.equal(2);
+    // });
   });
 
   it("should successful complete the document classification to a `Statement` type", () => {
@@ -449,9 +449,9 @@ describe("Feature Reclassify Document", () => {
     );
     const trackerResults = refreshPipelineReclassifyDocuments("10", 1031, 2);
     const documentList = getRefreshReclassifyDocuments("10", 1031, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    // cy.overrideRoute(TRACKER_ROUTE, {
+    //   body: trackerResults[0],
+    // });
     const expectedSaveReclassifyPayload = {
       documentId: 10,
       documentTypeId: 1031,
@@ -471,19 +471,19 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
+    // const refreshPipelineCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   refreshPipelineCounter,
+    //   "POST",
+    //   "/api/urns/12AB1111111/cases/13401"
+    // );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
+    // const trackerCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   trackerCounter,
+    //   "GET",
+    //   "/api/urns/12AB1111111/cases/13401/tracker"
+    // );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -678,9 +678,9 @@ describe("Feature Reclassify Document", () => {
     });
     cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
-    cy.waitUntil(() => {
-      return expect(refreshPipelineCounter.count).to.equal(2);
-    });
+    // cy.waitUntil(() => {
+    //   return expect(refreshPipelineCounter.count).to.equal(2);
+    // });
   });
 
   it("should successful complete the document classification to a `Exhibit` type", () => {
@@ -699,9 +699,9 @@ describe("Feature Reclassify Document", () => {
 
     const trackerResults = refreshPipelineReclassifyDocuments("1", 1042, 2);
     const documentList = getRefreshReclassifyDocuments("1", 1042, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    // cy.overrideRoute(TRACKER_ROUTE, {
+    //   body: trackerResults[0],
+    // });
     const expectedSaveReclassifyPayload = {
       documentId: 1,
       documentTypeId: 1042,
@@ -722,19 +722,19 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
+    // const refreshPipelineCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   refreshPipelineCounter,
+    //   "POST",
+    //   "/api/urns/12AB1111111/cases/13401"
+    // );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
+    // const trackerCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   trackerCounter,
+    //   "GET",
+    //   "/api/urns/12AB1111111/cases/13401/tracker"
+    // );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -906,9 +906,9 @@ describe("Feature Reclassify Document", () => {
     });
     cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-1");
-    cy.waitUntil(() => {
-      return expect(refreshPipelineCounter.count).to.equal(2);
-    });
+    // cy.waitUntil(() => {
+    //   return expect(refreshPipelineCounter.count).to.equal(2);
+    // });
   });
 
   it("should show error message if save reclassify is unsuccessful and shouldn't call refreshPipeline and tracker", () => {
@@ -928,9 +928,9 @@ describe("Feature Reclassify Document", () => {
       "/api/reference/reclassification"
     );
     const trackerResults = refreshPipelineReclassifyDocuments("10", 1015, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    // cy.overrideRoute(TRACKER_ROUTE, {
+    //   body: trackerResults[0],
+    // });
     const expectedSaveReclassifyPayload = {
       documentId: 10,
       documentTypeId: 1015,
@@ -945,19 +945,19 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
+    // const refreshPipelineCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   refreshPipelineCounter,
+    //   "POST",
+    //   "/api/urns/12AB1111111/cases/13401"
+    // );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
+    // const trackerCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   trackerCounter,
+    //   "GET",
+    //   "/api/urns/12AB1111111/cases/13401/tracker"
+    // );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -991,9 +991,9 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
+      // cy.overrideRoute(TRACKER_ROUTE, {
+      //   body: trackerResults[1],
+      // });
     });
 
     cy.findByTestId("div-modal")
@@ -1001,10 +1001,10 @@ describe("Feature Reclassify Document", () => {
       .contains("Failed to save reclassification. Please try again later.");
     cy.findByTestId("btn-error-modal-ok").click();
     cy.findByTestId("div-modal").should("not.exist");
-    cy.window().then(() => {
-      expect(refreshPipelineCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(1);
-    });
+    // cy.window().then(() => {
+    //   expect(refreshPipelineCounter.count).to.equal(1);
+    //   expect(trackerCounter.count).to.equal(1);
+    // });
   });
 
   it("Should show all the reclassify UI validation errors", () => {

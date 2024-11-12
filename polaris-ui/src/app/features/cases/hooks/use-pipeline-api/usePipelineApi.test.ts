@@ -34,8 +34,7 @@ describe("usePipelineApi", () => {
         "0",
         1,
         {
-          startRefresh: true,
-          savedDocumentDetails: [],
+          startPipelineRefresh: true,
           lastProcessingCompleted: "",
         },
         () => false

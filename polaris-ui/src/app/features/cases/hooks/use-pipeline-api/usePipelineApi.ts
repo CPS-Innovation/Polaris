@@ -28,7 +28,7 @@ export const usePipelineApi = (
   useEffect(() => {
     if (
       // the outside world is calling for a refresh...
-      pipelineRefreshData.startRefresh &&
+      pipelineRefreshData.startPipelineRefresh &&
       // ... and we are not already doing a refresh
       !pipelineBusy
     ) {

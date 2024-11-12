@@ -24,8 +24,7 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        startRefresh: false,
-        savedDocumentDetails: [],
+        startPipelineRefresh: false,
         lastProcessingCompleted: "",
       },
       "corId_1",
@@ -72,8 +71,7 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        startRefresh: false,
-        savedDocumentDetails: [],
+        startPipelineRefresh: false,
         lastProcessingCompleted: "",
       },
       "corId_1",
@@ -127,8 +125,8 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        startRefresh: false,
-        savedDocumentDetails: [],
+        startPipelineRefresh: false,
+
         lastProcessingCompleted: "",
       },
       "corId_1",
@@ -184,8 +182,8 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        startRefresh: false,
-        savedDocumentDetails: [],
+        startPipelineRefresh: false,
+
         lastProcessingCompleted: "",
       },
       "corId_1",
@@ -260,8 +258,8 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        startRefresh: false,
-        savedDocumentDetails: [],
+        startPipelineRefresh: false,
+
         lastProcessingCompleted: "",
       },
       "corId_1",

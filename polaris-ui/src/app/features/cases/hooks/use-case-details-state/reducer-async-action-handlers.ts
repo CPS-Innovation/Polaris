@@ -468,7 +468,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
             savedDocumentDetails: {
               documentId,
               versionId,
@@ -688,7 +688,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
           },
         });
       }
@@ -733,7 +733,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
           },
         });
       } catch (e) {
@@ -856,7 +856,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
             savedDocumentDetails: {
               documentId,
               versionId,

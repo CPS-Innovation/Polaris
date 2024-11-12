@@ -82,7 +82,7 @@ export const reducer = (
     | {
         type: "UPDATE_REFRESH_PIPELINE";
         payload: {
-          startRefresh: boolean;
+          startDocumentRefresh: boolean;
           savedDocumentDetails?: {
             documentId: string;
             versionId: number;
@@ -414,10 +414,10 @@ export const reducer = (
         notificationState,
         documentsState,
         accordionState,
-        pipelineRefreshData: {
-          ...nextState.pipelineRefreshData,
+        documentRefreshData: {
+          ...nextState.documentRefreshData,
           savedDocumentDetails:
-            nextState.pipelineRefreshData.savedDocumentDetails.filter(
+            nextState.documentRefreshData.savedDocumentDetails.filter(
               (document) => !hasDocumentUpdated(document, data)
             ),
         },
@@ -542,21 +542,21 @@ export const reducer = (
     case "UPDATE_REFRESH_PIPELINE": {
       const {
         savedDocumentDetails: payloadSavedDocumentDetails,
-        startRefresh,
+        startDocumentRefresh,
       } = action.payload;
 
       const savedDocumentDetails = payloadSavedDocumentDetails
         ? [
-            ...state.pipelineRefreshData.savedDocumentDetails,
+            ...state.documentRefreshData.savedDocumentDetails,
             payloadSavedDocumentDetails,
           ]
-        : state.pipelineRefreshData.savedDocumentDetails;
+        : state.documentRefreshData.savedDocumentDetails;
 
       return {
         ...state,
-        pipelineRefreshData: {
-          ...state.pipelineRefreshData,
-          startRefresh,
+        documentRefreshData: {
+          ...state.documentRefreshData,
+          startDocumentRefresh,
           savedDocumentDetails,
         },
       };

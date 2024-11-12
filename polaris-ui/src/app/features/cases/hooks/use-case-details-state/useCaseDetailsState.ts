@@ -411,7 +411,7 @@ export const useCaseDetailsState = (
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {
-          startRefresh: true,
+          startDocumentRefresh: true,
         },
       });
     },

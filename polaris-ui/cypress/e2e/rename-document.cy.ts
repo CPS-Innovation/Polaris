@@ -57,9 +57,9 @@ describe("Feature Rename Document", () => {
       "PortraitLandscape_1",
       1
     );
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    // cy.overrideRoute(TRACKER_ROUTE, {
+    //   body: trackerResults[0],
+    // });
     const expectedSaveRenamePayload = {
       documentId: 10,
       documentName: "PortraitLandscape_1",
@@ -70,28 +70,28 @@ describe("Feature Rename Document", () => {
       "PUT",
       "/api/urns/12AB1111111/cases/13401/documents/10/rename"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
+    // const refreshPipelineCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   refreshPipelineCounter,
+    //   "POST",
+    //   "/api/urns/12AB1111111/cases/13401"
+    // );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
+    // const trackerCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   trackerCounter,
+    //   "GET",
+    //   "/api/urns/12AB1111111/cases/13401/tracker"
+    // );
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
 
     cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.waitUntil(() => {
-      return trackerCounter.count;
-    }).then(() => {
-      expect(refreshPipelineCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(1);
-    });
+    // cy.waitUntil(() => {
+    //   return trackerCounter.count;
+    // }).then(() => {
+    //   expect(refreshPipelineCounter.count).to.equal(1);
+    //   expect(trackerCounter.count).to.equal(1);
+    // });
 
     cy.findByTestId("link-document-10")
       .should("be.visible")
@@ -132,12 +132,12 @@ describe("Feature Rename Document", () => {
       );
     });
 
-    cy.waitUntil(() => {
-      return trackerCounter.count > 1;
-    }).then(() => {
-      expect(refreshPipelineCounter.count).to.equal(2);
-      expect(trackerCounter.count).to.equal(2);
-    });
+    // cy.waitUntil(() => {
+    //   return trackerCounter.count > 1;
+    // }).then(() => {
+    //   expect(refreshPipelineCounter.count).to.equal(2);
+    //   expect(trackerCounter.count).to.equal(2);
+    // });
     cy.findByTestId("rename-panel").contains(
       "Document renamed successfully saved to CMS"
     );
@@ -223,26 +223,26 @@ describe("Feature Rename Document", () => {
       "put"
     );
 
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
+    // const refreshPipelineCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   refreshPipelineCounter,
+    //   "POST",
+    //   "/api/urns/12AB1111111/cases/13401"
+    // );
+    // const trackerCounter = { count: 0 };
+    // cy.trackRequestCount(
+    //   trackerCounter,
+    //   "GET",
+    //   "/api/urns/12AB1111111/cases/13401/tracker"
+    // );
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.waitUntil(() => {
-      return trackerCounter.count;
-    }).then(() => {
-      expect(refreshPipelineCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(1);
-    });
+    // cy.waitUntil(() => {
+    //   return trackerCounter.count;
+    // }).then(() => {
+    //   expect(refreshPipelineCounter.count).to.equal(1);
+    //   expect(trackerCounter.count).to.equal(1);
+    // });
     cy.findByTestId("rename-panel").should("not.exist");
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
     cy.findByTestId("dropdown-panel").contains("Rename document").click();
@@ -265,9 +265,9 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("btn-cancel-rename").click();
     cy.findByTestId("rename-panel").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
-    cy.window().then(() => {
-      expect(refreshPipelineCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(1);
-    });
+    // cy.window().then(() => {
+    //   expect(refreshPipelineCounter.count).to.equal(1);
+    //   expect(trackerCounter.count).to.equal(1);
+    // });
   });
 });

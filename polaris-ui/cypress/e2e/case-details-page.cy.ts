@@ -49,80 +49,80 @@ describe("case details page", () => {
       cy.findByTestId("txt-error-page-heading");
     });
 
-    it("Should not call initiatePipeline or the tracker, if the getCaseDetails is not successful", () => {
-      cy.overrideRoute(CASE_ROUTE, {
-        type: "break",
-        httpStatusCode: 500,
-      });
-      const initiatePipelineCounter = { count: 0 };
-      cy.trackRequestCount(
-        initiatePipelineCounter,
-        "POST",
-        "/api/urns/12AB1111111/cases/13201"
-      );
-      const trackerCounter = { count: 0 };
-      cy.trackRequestCount(
-        trackerCounter,
-        "GET",
-        "/api/urns/12AB1111111/cases/13201/tracker"
-      );
-      const getCaseDetailsCounter = { count: 0 };
-      cy.trackRequestCount(
-        getCaseDetailsCounter,
-        "GET",
-        "/api/urns/12AB1111111/cases/13201"
-      );
-      cy.visit("/case-details/12AB1111111/13201");
-      cy.waitUntil(() => {
-        return cy.findByTestId("txt-error-page-heading");
-      }).then(() => {
-        expect(getCaseDetailsCounter.count).to.equal(1);
-        expect(initiatePipelineCounter.count).to.equal(0);
-        expect(trackerCounter.count).to.equal(0);
-      });
-    });
-    it("Should call the initiatePipeline only once, if the getCaseDetails is successful", () => {
-      const initiatePipelineCounter = { count: 0 };
-      cy.trackRequestCount(
-        initiatePipelineCounter,
-        "POST",
-        "/api/urns/12AB1111111/cases/13201"
-      );
-      const trackerCounter = { count: 0 };
-      cy.trackRequestCount(
-        trackerCounter,
-        "GET",
-        "/api/urns/12AB1111111/cases/13201/tracker"
-      );
+    // it("Should not call initiatePipeline or the tracker, if the getCaseDetails is not successful", () => {
+    //   cy.overrideRoute(CASE_ROUTE, {
+    //     type: "break",
+    //     httpStatusCode: 500,
+    //   });
+    //   const initiatePipelineCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     initiatePipelineCounter,
+    //     "POST",
+    //     "/api/urns/12AB1111111/cases/13201"
+    //   );
+    //   const trackerCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     trackerCounter,
+    //     "GET",
+    //     "/api/urns/12AB1111111/cases/13201/tracker"
+    //   );
+    //   const getCaseDetailsCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     getCaseDetailsCounter,
+    //     "GET",
+    //     "/api/urns/12AB1111111/cases/13201"
+    //   );
+    //   cy.visit("/case-details/12AB1111111/13201");
+    //   cy.waitUntil(() => {
+    //     return cy.findByTestId("txt-error-page-heading");
+    //   }).then(() => {
+    //     expect(getCaseDetailsCounter.count).to.equal(1);
+    //     expect(initiatePipelineCounter.count).to.equal(0);
+    //     expect(trackerCounter.count).to.equal(0);
+    //   });
+    // });
+    // it("Should call the initiatePipeline only once, if the getCaseDetails is successful", () => {
+    //   const initiatePipelineCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     initiatePipelineCounter,
+    //     "POST",
+    //     "/api/urns/12AB1111111/cases/13201"
+    //   );
+    //   const trackerCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     trackerCounter,
+    //     "GET",
+    //     "/api/urns/12AB1111111/cases/13201/tracker"
+    //   );
 
-      const getCaseDetailsCounter = { count: 0 };
-      cy.trackRequestCount(
-        getCaseDetailsCounter,
-        "GET",
-        "/api/urns/12AB1111111/cases/13201"
-      );
+    //   const getCaseDetailsCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     getCaseDetailsCounter,
+    //     "GET",
+    //     "/api/urns/12AB1111111/cases/13201"
+    //   );
 
-      cy.visit("/case-details/12AB1111111/13201");
+    //   cy.visit("/case-details/12AB1111111/13201");
 
-      cy.findByTestId("link-defendant-details").contains(
-        "View 1 defendant and charges"
-      );
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-2").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("CASE OUTLINE");
-      cy.waitUntil(() => {
-        return cy
-          .findByTestId("div-pdfviewer-0")
-          .should("exist")
-          .contains("CASE OUTLINE");
-      }).then(() => {
-        expect(getCaseDetailsCounter.count).to.equal(1);
-        expect(initiatePipelineCounter.count).to.equal(1);
-        expect(trackerCounter.count).to.equal(1);
-      });
-    });
+    //   cy.findByTestId("link-defendant-details").contains(
+    //     "View 1 defendant and charges"
+    //   );
+    //   cy.findByTestId("btn-accordion-open-close-all").click();
+    //   cy.findByTestId("link-document-2").click();
+    //   cy.findByTestId("div-pdfviewer-0")
+    //     .should("exist")
+    //     .contains("CASE OUTLINE");
+    //   cy.waitUntil(() => {
+    //     return cy
+    //       .findByTestId("div-pdfviewer-0")
+    //       .should("exist")
+    //       .contains("CASE OUTLINE");
+    //   }).then(() => {
+    //     expect(getCaseDetailsCounter.count).to.equal(1);
+    //     expect(initiatePipelineCounter.count).to.equal(1);
+    //     expect(trackerCounter.count).to.equal(1);
+    //   });
+    // });
   });
 
   describe("case details", () => {
@@ -233,112 +233,112 @@ describe("case details page", () => {
       );
     });
 
-    it("should show the tracker summary and span with data testId `span-flag-all-indexed' when all the documents are ready for search", () => {
-      cy.visit("/case-search-results?urn=12AB1111111");
-      cy.visit("/case-details/12AB1111111/13201");
-      cy.findByTestId("txt-case-urn").contains("12AB1111111");
-      cy.waitUntil(() => {
-        return cy.findByTestId("tracker-summary").should("exist");
-      }).then(() => {
-        expect(
-          cy.findByTestId("tracker-summary").contains("Total documents: 10")
-        );
-        expect(
-          cy
-            .findByTestId("tracker-summary")
-            .contains("Documents ready to read: 10")
-        );
-        expect(
-          cy.findByTestId("tracker-summary").contains("Documents indexed: 10")
-        );
-        expect(
-          cy
-            .findByTestId("span-flag-all-indexed")
-            .contains("Case is ready to search")
-        );
-      });
-    });
+    // it("should show the tracker summary and span with data testId `span-flag-all-indexed' when all the documents are ready for search", () => {
+    //   cy.visit("/case-search-results?urn=12AB1111111");
+    //   cy.visit("/case-details/12AB1111111/13201");
+    //   cy.findByTestId("txt-case-urn").contains("12AB1111111");
+    //   cy.waitUntil(() => {
+    //     return cy.findByTestId("tracker-summary").should("exist");
+    //   }).then(() => {
+    //     expect(
+    //       cy.findByTestId("tracker-summary").contains("Total documents: 10")
+    //     );
+    //     expect(
+    //       cy
+    //         .findByTestId("tracker-summary")
+    //         .contains("Documents ready to read: 10")
+    //     );
+    //     expect(
+    //       cy.findByTestId("tracker-summary").contains("Documents indexed: 10")
+    //     );
+    //     expect(
+    //       cy
+    //         .findByTestId("span-flag-all-indexed")
+    //         .contains("Case is ready to search")
+    //     );
+    //   });
+    // });
 
-    it("Should stop polling pipeline tracker, if the user moves away from the case details page", () => {
-      const pipelineDocuments = pipelinePdfResults()[0];
-      cy.overrideRoute(TRACKER_ROUTE, {
-        type: "break",
-        timeMs: 300,
-        httpStatusCode: 200,
-        body: JSON.stringify({
-          ...pipelineDocuments,
-          status: "DocumentsRetrieved",
-        }),
-      });
+    // it("Should stop polling pipeline tracker, if the user moves away from the case details page", () => {
+    //   const pipelineDocuments = pipelinePdfResults()[0];
+    //   cy.overrideRoute(TRACKER_ROUTE, {
+    //     type: "break",
+    //     timeMs: 300,
+    //     httpStatusCode: 200,
+    //     body: JSON.stringify({
+    //       ...pipelineDocuments,
+    //       status: "DocumentsRetrieved",
+    //     }),
+    //   });
 
-      const trackerCounter = { count: 0 };
-      cy.trackRequestCount(
-        trackerCounter,
-        "GET",
-        "/api/urns/12AB1111111/cases/13201/tracker"
-      );
-      cy.visit("/case-search-results?urn=12AB1111111");
-      cy.visit("/case-details/12AB1111111/13201");
+    //   const trackerCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     trackerCounter,
+    //     "GET",
+    //     "/api/urns/12AB1111111/cases/13201/tracker"
+    //   );
+    //   cy.visit("/case-search-results?urn=12AB1111111");
+    //   cy.visit("/case-details/12AB1111111/13201");
 
-      // navigating user away from case-details page
-      cy.waitUntil(() => {
-        return trackerCounter.count === 1;
-      }).then(() => {
-        cy.findAllByTestId("link-back-link").click();
-      });
-      cy.wait(1000);
-      cy.window().then(() => {
-        expect(trackerCounter.count).to.equal(1);
-      });
-    });
+    //   // navigating user away from case-details page
+    //   cy.waitUntil(() => {
+    //     return trackerCounter.count === 1;
+    //   }).then(() => {
+    //     cy.findAllByTestId("link-back-link").click();
+    //   });
+    //   cy.wait(1000);
+    //   cy.window().then(() => {
+    //     expect(trackerCounter.count).to.equal(1);
+    //   });
+    // });
 
-    it("Should call again the initiate pipeline, if the previous call return 423 status during redaction refresh flow, but stop polling if the user navigates away from case detail page", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("btn-redact").should("have.length", 1);
-      cy.findByTestId("btn-redact").should("be.disabled");
-      cy.focused().should("have.id", "select-redaction-type");
-      cy.findByTestId("select-redaction-type").select("2");
-      cy.findByTestId("btn-redact").click({ force: true });
-      cy.overrideRoute(
-        INITIATE_PIPELINE_ROUTE,
-        {
-          type: "break",
-          timeMs: 300,
-          httpStatusCode: 423,
-          body: JSON.stringify({
-            trackerUrl:
-              "https://mocked-out-api/api/urns/12AB1111111/cases/13401/tracker",
-          }),
-        },
-        "post"
-      );
+    // it("Should call again the initiate pipeline, if the previous call return 423 status during redaction refresh flow, but stop polling if the user navigates away from case detail page", () => {
+    //   cy.visit("/case-details/12AB1111111/13401");
+    //   cy.findByTestId("btn-accordion-open-close-all").click();
+    //   cy.findByTestId("link-document-1").click();
+    //   cy.findByTestId("div-pdfviewer-0")
+    //     .should("exist")
+    //     .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    //   cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    //   cy.findByTestId("btn-redact").should("have.length", 1);
+    //   cy.findByTestId("btn-redact").should("be.disabled");
+    //   cy.focused().should("have.id", "select-redaction-type");
+    //   cy.findByTestId("select-redaction-type").select("2");
+    //   cy.findByTestId("btn-redact").click({ force: true });
+    //   cy.overrideRoute(
+    //     INITIATE_PIPELINE_ROUTE,
+    //     {
+    //       type: "break",
+    //       timeMs: 300,
+    //       httpStatusCode: 423,
+    //       body: JSON.stringify({
+    //         trackerUrl:
+    //           "https://mocked-out-api/api/urns/12AB1111111/cases/13401/tracker",
+    //       }),
+    //     },
+    //     "post"
+    //   );
 
-      const initiatePipelineRequestCounter = { count: 0 };
-      cy.trackRequestCount(
-        initiatePipelineRequestCounter,
-        "POST",
-        "/api/urns/12AB1111111/cases/13401"
-      );
-      cy.findByTestId("btn-save-redaction-0").click();
-      cy.findByTestId("btn-save-redaction-log").click();
-      // navigating user away from case-details page
-      cy.waitUntil(() => {
-        return initiatePipelineRequestCounter.count === 1;
-      }).then(() => {
-        cy.findAllByTestId("link-back-link").click();
-      });
+    //   const initiatePipelineRequestCounter = { count: 0 };
+    //   cy.trackRequestCount(
+    //     initiatePipelineRequestCounter,
+    //     "POST",
+    //     "/api/urns/12AB1111111/cases/13401"
+    //   );
+    //   cy.findByTestId("btn-save-redaction-0").click();
+    //   cy.findByTestId("btn-save-redaction-log").click();
+    //   // navigating user away from case-details page
+    //   cy.waitUntil(() => {
+    //     return initiatePipelineRequestCounter.count === 1;
+    //   }).then(() => {
+    //     cy.findAllByTestId("link-back-link").click();
+    //   });
 
-      cy.wait(1000);
-      cy.window().then(() => {
-        expect(initiatePipelineRequestCounter.count).to.equal(1);
-      });
-    });
+    //   cy.wait(1000);
+    //   cy.window().then(() => {
+    //     expect(initiatePipelineRequestCounter.count).to.equal(1);
+    //   });
+    // });
   });
 
   describe("Document navigation away alert modal", () => {

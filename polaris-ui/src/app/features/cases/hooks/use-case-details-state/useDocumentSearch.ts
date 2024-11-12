@@ -10,6 +10,11 @@ export const useDocumentSearch = (
   combinedState: CombinedState,
   dispatch: DispatchType
 ) => {
+  console.log(
+    "combinedState.searchState.submittedSearchTerm",
+    combinedState.searchState.submittedSearchTerm
+  );
+
   // Document search process
   const searchResults = useApi(
     searchCase,

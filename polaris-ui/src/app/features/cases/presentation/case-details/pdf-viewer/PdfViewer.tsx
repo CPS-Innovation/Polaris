@@ -61,7 +61,6 @@ type Props = {
   pageDeleteRedactions: IPageDeleteRedaction[];
   pageRotations: IPageRotation[];
   focussedHighlightIndex: number;
-  isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
   rotatePageMode: boolean;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
@@ -96,7 +95,6 @@ export const PdfViewer: React.FC<Props> = ({
   redactionHighlights,
   pageDeleteRedactions,
   pageRotations,
-  isOkToSave,
   areaOnlyRedactionMode,
   rotatePageMode,
   handleAddPageRotation,
@@ -463,7 +461,6 @@ export const PdfViewer: React.FC<Props> = ({
             totalRedactionsCount={
               redactionHighlights.length + pageDeleteRedactions.length
             }
-            isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
           />
@@ -473,7 +470,6 @@ export const PdfViewer: React.FC<Props> = ({
             contextData={contextData}
             tabIndex={tabIndex}
             totalRotationsCount={unSavedRotation.length}
-            isOkToSave={isOkToSave}
             handleRemoveAllRotations={handleRemoveAllRotations}
             handleSaveRotations={handleSaveRotations}
           />

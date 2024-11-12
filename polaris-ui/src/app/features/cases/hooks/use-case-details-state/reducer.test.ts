@@ -74,8 +74,8 @@ describe("useCaseDetailsState reducer", () => {
   //         pipelineState: {},
   //         tabsState: { items: [] },
   //         documentsState: { status: "loading" },
-  //         pipelineRefreshData: {
-  //           startRefresh: false,
+  //         documentRefreshData: {
+  //           startDocumentRefresh: false,
   //           savedDocumentDetails: [],
   //           lastProcessingCompleted: "",
   //         },
@@ -104,8 +104,8 @@ describe("useCaseDetailsState reducer", () => {
   //         pipelineState: {},
   //         tabsState: { items: [] },
   //         documentsState: { status: "loading" },
-  //         pipelineRefreshData: {
-  //           startRefresh: false,
+  //         documentRefreshData: {
+  //           startDocumentRefresh: false,
   //           savedDocumentDetails: [],
   //           lastProcessingCompleted: "",
   //         },
@@ -138,8 +138,8 @@ describe("useCaseDetailsState reducer", () => {
   //           data: { documentsRetrieved },
   //         },
   //         tabsState: { items: [] },
-  //         pipelineRefreshData: {
-  //           startRefresh: false,
+  //         documentRefreshData: {
+  //           startDocumentRefresh: false,
   //           savedDocumentDetails: [],
   //           lastProcessingCompleted: "",
   //         },
@@ -172,8 +172,8 @@ describe("useCaseDetailsState reducer", () => {
   //           haveData: false,
   //         },
   //         tabsState: { items: [] },
-  //         pipelineRefreshData: {
-  //           startRefresh: false,
+  //         documentRefreshData: {
+  //           startDocumentRefresh: false,
   //           savedDocumentDetails: [],
   //           lastProcessingCompleted: "",
   //         },
@@ -338,8 +338,8 @@ describe("useCaseDetailsState reducer", () => {
   //         },
   //       },
   //       tabsState: { items: [] },
-  //       pipelineRefreshData: {
-  //         startRefresh: false,
+  //       documentRefreshData: {
+  //         startDocumentRefresh: false,
   //         savedDocumentDetails: [{ documentId: "2", versionId: 1 }],
   //         lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
   //       },
@@ -352,8 +352,8 @@ describe("useCaseDetailsState reducer", () => {
   //         documentsState: {
   //           status: "succeeded",
   //         },
-  //         pipelineRefreshData: {
-  //           startRefresh: false,
+  //         documentRefreshData: {
+  //           startDocumentRefresh: false,
   //           savedDocumentDetails: [
   //             { documentId: "1", versionId: 1 },
   //             { documentId: "2", versionId: 1 },
@@ -396,8 +396,8 @@ describe("useCaseDetailsState reducer", () => {
   //         documentsState: {
   //           status: "succeeded",
   //         },
-  //         pipelineRefreshData: {
-  //           startRefresh: false,
+  //         documentRefreshData: {
+  //           startDocumentRefresh: false,
   //           savedDocumentDetails: [
   //             {
   //               documentId: "1",
@@ -2202,10 +2202,10 @@ describe("useCaseDetailsState reducer", () => {
   });
 
   describe("UPDATE_REFRESH_PIPELINE", () => {
-    it("can update pipelineRefreshData", () => {
+    it("can update documentRefreshData", () => {
       const existingState = {
-        pipelineRefreshData: {
-          startRefresh: false,
+        documentRefreshData: {
+          startDocumentRefresh: false,
           savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
@@ -2214,7 +2214,7 @@ describe("useCaseDetailsState reducer", () => {
       const result = reducer(existingState as CombinedState, {
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {
-          startRefresh: true,
+          startDocumentRefresh: true,
           savedDocumentDetails: {
             documentId: "2",
             versionId: 1,
@@ -2223,8 +2223,8 @@ describe("useCaseDetailsState reducer", () => {
       });
 
       expect(result).toEqual({
-        pipelineRefreshData: {
-          startRefresh: true,
+        documentRefreshData: {
+          startDocumentRefresh: true,
           savedDocumentDetails: [
             { documentId: "1", versionId: 1 },
             { documentId: "2", versionId: 1 },
@@ -2233,10 +2233,10 @@ describe("useCaseDetailsState reducer", () => {
         },
       });
     });
-    it("can update pipelineRefreshData if the payload doesn't have savedDocumentDetails ", () => {
+    it("can update documentRefreshData if the payload doesn't have savedDocumentDetails ", () => {
       const existingState = {
-        pipelineRefreshData: {
-          startRefresh: false,
+        documentRefreshData: {
+          startDocumentRefresh: false,
           savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
@@ -2245,13 +2245,13 @@ describe("useCaseDetailsState reducer", () => {
       const result = reducer(existingState as CombinedState, {
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {
-          startRefresh: true,
+          startDocumentRefresh: true,
         },
       });
 
       expect(result).toEqual({
-        pipelineRefreshData: {
-          startRefresh: true,
+        documentRefreshData: {
+          startDocumentRefresh: true,
           savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },

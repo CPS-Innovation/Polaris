@@ -23,13 +23,13 @@ export const useGetCaseData = (
   useGetDocumentsListApi(
     urn,
     caseId,
-    combinedState.pipelineRefreshData?.startRefresh,
+    combinedState.documentRefreshData?.startDocumentRefresh,
     combinedState.renameDocuments,
     combinedState.reclassifyDocuments,
     dispatch
   );
 
-  // Load the accordion on first load and also if a startRefresh flag is passed
+  // Load the accordion on first load and also if a startDocumentRefresh flag is passed
   const pipelineState = usePipelineApi(
     urn,
     caseId,
@@ -109,39 +109,55 @@ export const useGetCaseData = (
 
   // This triggers the first ever load of the pipeline
   useEffect(() => {
-    const { startRefresh } = combinedState.pipelineRefreshData;
+    const { startDocumentRefresh } = combinedState.documentRefreshData;
+    // if (
+    //   // if we have not started refresh...
+    //   !startDocumentRefresh &&
+    //   // ... and only if the case data has loaded ...
+    //   combinedState.caseState.status === "succeeded" &&
+    //   // ... the pipelineResults are not in an in-flight state...
+    //   combinedState.documentsState.status === "loading"
+    // ) {
+    //   // ... then lets start a refresh
+    //   dispatch({
+    //     type: "UPDATE_REFRESH_PIPELINE",
+    //     payload: {
+    //       startDocumentRefresh: true,
+    //     },
+    //   });
+    // }
 
-    if (
-      // if we have not started refresh...
-      !startRefresh &&
-      // ... and only if the case data has loaded ...
-      combinedState.caseState.status === "succeeded" &&
-      // ... the pipelineResults are not in an in-flight state...
-      pipelineState.pipelineResults.status === "initiating" &&
-      // ... and the pipeline has already been triggered ...
-      !pipelineState.pipelineBusy
-    ) {
-      // ... then lets start a refresh
-      dispatch({
-        type: "UPDATE_REFRESH_PIPELINE",
-        payload: {
-          startRefresh: true,
-        },
-      });
-    }
+    // if (
+    //   // if we have not started refresh...
+    //   !startDocumentRefresh &&
+    //   // ... and only if the case data has loaded ...
+    //   combinedState.caseState.status === "succeeded" &&
+    //   // ... the pipelineResults are not in an in-flight state...
+    //   pipelineState.pipelineResults.status === "initiating" &&
+    //   // ... and the pipeline has already been triggered ...
+    //   !pipelineState.pipelineBusy
+    // ) {
+    //   // ... then lets start a refresh
+    //   dispatch({
+    //     type: "UPDATE_REFRESH_PIPELINE",
+    //     payload: {
+    //       startDocumentRefresh: true,
+    //     },
+    //   });
+    // }
 
-    if (startRefresh) {
-      // Once startRefresh has been picked up by the reducer then we we will end up here
+    if (startDocumentRefresh) {
+      // Once startDocumentRefresh has been picked up by the reducer then we we will end up here
       //... and then we switch it off (I think)
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {
-          startRefresh: false,
+          startDocumentRefresh: false,
         },
       });
     }
   }, [
-    combinedState.pipelineRefreshData,
+    combinedState.documentRefreshData,
     combinedState.caseState.status,
     pipelineState.pipelineResults.status,
     pipelineState.pipelineBusy,

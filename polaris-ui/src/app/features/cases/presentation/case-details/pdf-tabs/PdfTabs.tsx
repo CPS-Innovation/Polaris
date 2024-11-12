@@ -26,7 +26,6 @@ type PdfTabsProps = {
     showRotatePage: boolean;
   };
   caseId: number;
-  isOkToSave: boolean;
   showOverRedactionLog: boolean;
   searchPIIData: SearchPIIData[];
   localDocumentState: LocalDocumentState;
@@ -63,7 +62,6 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   savedDocumentDetails,
   showOverRedactionLog,
   searchPIIData,
-  isOkToSave,
   localDocumentState,
   handleTabSelection,
   handleOpenPdf,
@@ -123,7 +121,6 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               savedDocumentDetails={savedDocumentDetails}
               documentWriteStatus={item.presentationFlags.write}
               headers={headers}
-              isOkToSave={isOkToSave}
               localDocumentState={localDocumentState}
               handleOpenPdf={handleOpenPdf}
               handleLaunchSearchResults={handleLaunchSearchResults}

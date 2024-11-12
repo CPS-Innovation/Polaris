@@ -12,7 +12,7 @@ export const usePipelineRefreshPolling = (
       setInterval(() => {
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
-          payload: { startRefresh: true },
+          payload: { startDocumentRefresh: true },
         });
       }, BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS);
     return () => {

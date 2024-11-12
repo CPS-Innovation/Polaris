@@ -132,7 +132,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     searchTerm,
     pipelineState,
     documentsState,
-    pipelineRefreshData,
+    documentRefreshData,
     errorModal,
     documentIssueModal,
     redactionLog,
@@ -820,10 +820,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                           .missedRedactions
                       : []
                   }
-                  isOkToSave={pipelineState.status === "complete"}
                   tabsState={tabsState}
                   savedDocumentDetails={
-                    pipelineRefreshData.savedDocumentDetails
+                    documentRefreshData.savedDocumentDetails
                   }
                   localDocumentState={localDocumentState}
                   handleTabSelection={handleTabSelection}

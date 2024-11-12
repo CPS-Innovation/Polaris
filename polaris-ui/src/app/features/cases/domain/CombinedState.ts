@@ -35,12 +35,15 @@ export type CombinedState = {
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
   localDocumentState: LocalDocumentState;
-  pipelineRefreshData: {
-    startRefresh: boolean;
+  documentRefreshData: {
+    startDocumentRefresh: boolean;
     savedDocumentDetails: {
       documentId: string;
       versionId: number;
     }[];
+  };
+  pipelineRefreshData: {
+    startPipelineRefresh: boolean;
     lastProcessingCompleted: string;
   };
   accordionState: AsyncResult<AccordionDocumentSection[]>;
@@ -98,9 +101,12 @@ export const initialState = {
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false, correlationId: "" },
   localDocumentState: {},
-  pipelineRefreshData: {
-    startRefresh: false,
+  documentRefreshData: {
+    startDocumentRefresh: true,
     savedDocumentDetails: [],
+  },
+  pipelineRefreshData: {
+    startPipelineRefresh: false,
     lastProcessingCompleted: "",
   },
   accordionState: { status: "loading" },

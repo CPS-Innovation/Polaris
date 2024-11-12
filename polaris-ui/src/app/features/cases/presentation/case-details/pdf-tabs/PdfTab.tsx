@@ -39,7 +39,6 @@ type PdfTabProps = {
     showDeletePage: boolean;
     showRotatePage: boolean;
   };
-  isOkToSave: boolean;
   localDocumentState: LocalDocumentState;
   handleOpenPdf: (caseDocument: {
     documentId: string;
@@ -76,7 +75,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   documentWriteStatus,
   savedDocumentDetails,
   contextData,
-  isOkToSave,
   searchPIIDataItem,
   localDocumentState,
   handleOpenPdf,
@@ -344,7 +342,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
               showDeletePage:
                 contextData.showDeletePage && documentType !== "DAC",
             }}
-            isOkToSave={isOkToSave}
             redactionHighlights={redactionHighlights}
             pageDeleteRedactions={pageDeleteRedactions}
             pageRotations={pageRotations}
