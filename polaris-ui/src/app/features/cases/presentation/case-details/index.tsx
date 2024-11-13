@@ -116,6 +116,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const unMounting = useRef(false);
   useEffect(() => {
+    unMounting.current = false;
     return () => {
       unMounting.current = true;
     };
