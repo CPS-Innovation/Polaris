@@ -466,7 +466,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
 
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
             startDocumentRefresh: true,
             savedDocumentDetails: {
@@ -686,7 +686,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       }
       if (successStatus) {
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
             startDocumentRefresh: true,
           },
@@ -731,7 +731,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
 
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
             startDocumentRefresh: true,
           },
@@ -854,7 +854,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
 
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
             startDocumentRefresh: true,
             savedDocumentDetails: {

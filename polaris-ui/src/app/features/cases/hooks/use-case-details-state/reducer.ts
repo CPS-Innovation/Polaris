@@ -80,7 +80,7 @@ export const reducer = (
         payload: AsyncPipelineResult<PipelineResults>;
       }
     | {
-        type: "UPDATE_REFRESH_PIPELINE";
+        type: "UPDATE_DOCUMENT_REFRESH";
         payload: {
           startDocumentRefresh: boolean;
           savedDocumentDetails?: {
@@ -539,7 +539,7 @@ export const reducer = (
       };
     }
 
-    case "UPDATE_REFRESH_PIPELINE": {
+    case "UPDATE_DOCUMENT_REFRESH": {
       const {
         savedDocumentDetails: payloadSavedDocumentDetails,
         startDocumentRefresh,

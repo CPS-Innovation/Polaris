@@ -11,7 +11,7 @@ export const usePipelineRefreshPolling = (
       isFeatureFlagOn &&
       setInterval(() => {
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: { startDocumentRefresh: true },
         });
       }, BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS);

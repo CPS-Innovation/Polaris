@@ -120,7 +120,7 @@ export const useGetCaseData = (
     // ) {
     //   // ... then lets start a refresh
     //   dispatch({
-    //     type: "UPDATE_REFRESH_PIPELINE",
+    //     type: "UPDATE_DOCUMENT_REFRESH",
     //     payload: {
     //       startDocumentRefresh: true,
     //     },
@@ -139,7 +139,7 @@ export const useGetCaseData = (
     // ) {
     //   // ... then lets start a refresh
     //   dispatch({
-    //     type: "UPDATE_REFRESH_PIPELINE",
+    //     type: "UPDATE_DOCUMENT_REFRESH",
     //     payload: {
     //       startDocumentRefresh: true,
     //     },
@@ -150,7 +150,7 @@ export const useGetCaseData = (
       // Once startDocumentRefresh has been picked up by the reducer then we we will end up here
       //... and then we switch it off (I think)
       dispatch({
-        type: "UPDATE_REFRESH_PIPELINE",
+        type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
           startDocumentRefresh: false,
         },

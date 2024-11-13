@@ -2201,7 +2201,7 @@ describe("useCaseDetailsState reducer", () => {
     it("can update saved state", () => {});
   });
 
-  describe("UPDATE_REFRESH_PIPELINE", () => {
+  describe("UPDATE_DOCUMENT_REFRESH", () => {
     it("can update documentRefreshData", () => {
       const existingState = {
         documentRefreshData: {
@@ -2212,7 +2212,7 @@ describe("useCaseDetailsState reducer", () => {
       } as unknown as CombinedState;
 
       const result = reducer(existingState as CombinedState, {
-        type: "UPDATE_REFRESH_PIPELINE",
+        type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
           startDocumentRefresh: true,
           savedDocumentDetails: {
@@ -2243,7 +2243,7 @@ describe("useCaseDetailsState reducer", () => {
       } as unknown as CombinedState;
 
       const result = reducer(existingState as CombinedState, {
-        type: "UPDATE_REFRESH_PIPELINE",
+        type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
           startDocumentRefresh: true,
         },

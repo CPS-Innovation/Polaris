@@ -409,7 +409,7 @@ export const useCaseDetailsState = (
       }
 
       dispatch({
-        type: "UPDATE_REFRESH_PIPELINE",
+        type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
           startDocumentRefresh: true,
         },
