@@ -36,7 +36,6 @@ variable "location" {
 variable "ui_component_service_plans" {
   type = object({
     gateway_service_plan_sku     = string
-    gateway2_service_plan_sku    = string
     spa_service_plan_sku         = string
     proxy_service_plan_sku       = string
     maintenance_service_plan_sku = string
