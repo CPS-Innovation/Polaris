@@ -29,7 +29,7 @@ export const useGetCaseData = (
     dispatch
   );
 
-  // Load the accordion on first load and also if a startDocumentRefresh flag is passed
+  // trigger the pipeline refresh when the  startPipelineRefresh is true
   const pipelineState = usePipelineApi(
     urn,
     caseId,
@@ -110,6 +110,7 @@ export const useGetCaseData = (
   // This triggers the first ever load of the pipeline
   useEffect(() => {
     const { startDocumentRefresh } = combinedState.documentRefreshData;
+    const { startPipelineRefresh } = combinedState.pipelineRefreshData;
     // if (
     //   // if we have not started refresh...
     //   !startDocumentRefresh &&
@@ -145,10 +146,18 @@ export const useGetCaseData = (
     //     },
     //   });
     // }
+    // Once startPipelineRefresh has been picked up by the reducer then we we will end up here and then we switch it off
+    if (startPipelineRefresh) {
+      dispatch({
+        type: "UPDATE_PIPELINE_REFRESH",
+        payload: {
+          startPipelineRefresh: false,
+        },
+      });
+    }
 
     if (startDocumentRefresh) {
-      // Once startDocumentRefresh has been picked up by the reducer then we we will end up here
-      //... and then we switch it off (I think)
+      // Once startDocumentRefresh has been picked up by the reducer then we we will end up here and then we switch it off
       dispatch({
         type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
@@ -158,9 +167,7 @@ export const useGetCaseData = (
     }
   }, [
     combinedState.documentRefreshData,
-    combinedState.caseState.status,
-    pipelineState.pipelineResults.status,
-    pipelineState.pipelineBusy,
+    combinedState.pipelineRefreshData,
     dispatch,
   ]);
 };

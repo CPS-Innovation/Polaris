@@ -90,6 +90,12 @@ export const reducer = (
         };
       }
     | {
+        type: "UPDATE_PIPELINE_REFRESH";
+        payload: {
+          startPipelineRefresh: boolean;
+        };
+      }
+    | {
         type: "OPEN_PDF";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
@@ -558,6 +564,17 @@ export const reducer = (
           ...state.documentRefreshData,
           startDocumentRefresh,
           savedDocumentDetails,
+        },
+      };
+    }
+    case "UPDATE_PIPELINE_REFRESH": {
+      const { startPipelineRefresh } = action.payload;
+
+      return {
+        ...state,
+        pipelineRefreshData: {
+          ...state.pipelineRefreshData,
+          startPipelineRefresh,
         },
       };
     }

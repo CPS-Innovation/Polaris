@@ -83,6 +83,12 @@ export const useCaseDetailsState = (
           searchTerm,
         },
       });
+      dispatch({
+        type: "UPDATE_PIPELINE_REFRESH",
+        payload: {
+          startPipelineRefresh: true,
+        },
+      });
     },
     [dispatch]
   );

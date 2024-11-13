@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
@@ -25,10 +25,15 @@ export const usePipelineApi = (
 
   const [pipelineBusy, setPipelineBusy] = useState(false);
 
+  const shouldTriggerPipelineRefresh = useCallback(() => {
+    return pipelineResults?.status !== "complete";
+  }, [pipelineResults?.status]);
+
   useEffect(() => {
     if (
       // the outside world is calling for a refresh...
       pipelineRefreshData.startPipelineRefresh &&
+      shouldTriggerPipelineRefresh() &&
       // ... and we are not already doing a refresh
       !pipelineBusy
     ) {
@@ -45,7 +50,14 @@ export const usePipelineApi = (
       );
       setPipelineBusy(true);
     }
-  }, [caseId, urn, pipelineRefreshData, pipelineBusy, isUnMounting]);
+  }, [
+    caseId,
+    urn,
+    pipelineRefreshData,
+    pipelineBusy,
+    isUnMounting,
+    shouldTriggerPipelineRefresh,
+  ]);
 
   useEffect(() => {
     if (pipelineResults.status !== "initiating") {

@@ -78,27 +78,27 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.checkA11y({ exclude: [".PdfHighlighter"] }, undefined, terminalLog);
     });
 
-    // it("Has no violations on search modal", () => {
-    //   cy.findByTestId("btn-accordion-open-close-all").click();
-    //   cy.findByTestId("link-document-1").click();
-    //   cy.findByTestId("div-pdfviewer-0")
-    //     .should("exist")
-    //     .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    it("Has no violations on search modal", () => {
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
-    //   cy.findByTestId("input-search-case").type("drink{enter}");
-    //   cy.findByTestId("div-search-result-1");
-    //   cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
-    // });
+      cy.findByTestId("input-search-case").type("drink{enter}");
+      cy.findByTestId("div-search-result-1");
+      cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
+    });
 
-    // it("Has no violations on viewing search results in the page", () => {
-    //   cy.findByTestId("input-search-case").type("drink{enter}");
-    //   cy.findByTestId("link-result-document-3").click();
-    //   cy.findByTestId("div-pdfviewer-0")
-    //     .should("exist")
-    //     .contains("Officer’s certification");
-    //   cy.wait(100);
-    //   cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
-    // });
+    it("Has no violations on viewing search results in the page", () => {
+      cy.findByTestId("input-search-case").type("drink{enter}");
+      cy.findByTestId("link-result-document-3").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Officer’s certification");
+      cy.wait(100);
+      cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
+    });
 
     it("Has no violations while redacting documents", () => {
       cy.findByTestId("btn-accordion-open-close-all").click();
