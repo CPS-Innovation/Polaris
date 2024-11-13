@@ -1,5 +1,5 @@
 import React, { PointerEventHandler, PureComponent } from "react";
-import ReactDom from "react-dom";
+import ReactDom from "react-dom/client";
 import debounce from "lodash.debounce";
 
 import {
@@ -367,7 +367,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       const highlightLayer = this.findOrCreateHighlightLayer(pageNumber);
 
       if (highlightLayer) {
-        ReactDom.render(
+        ReactDom.createRoot(highlightLayer).render(
           <div>
             {(highlightsByPage[String(pageNumber)] || []).map(
               ({ position, id, ...highlight }, index) => {
@@ -407,8 +407,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
                 );
               }
             )}
-          </div>,
-          highlightLayer
+          </div>
         );
       }
     }

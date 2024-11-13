@@ -22,7 +22,6 @@
     "@types/pdfjs-dist": "^2.7.4",
     "@types/qs": "^6.9.7",
     "@types/react": "^17.0.66",
-    "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.3.2",
     "@types/uuid": "^8.3.4",
     "cypress": "^12.5.1",
@@ -48,8 +47,8 @@
     "pdfjs-dist": "2.11.338",
     "prettier": "^2.8.8",
     "qs": "^6.10.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.48.2",
     "react-rnd": "^10.3.7",
@@ -126,6 +125,7 @@
     "outputDirectory": "report"
   },
   "devDependencies": {
+    "@types/react-dom": "^18.3.1",
     "@types/react-helmet": "^6.1.8",
     "@types/sinon": "^10.0.13",
     "cypress-axe": "^1.5.0",

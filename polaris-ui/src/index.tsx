@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import { App } from "./app/App";
 import "./styles.scss";
 
@@ -16,13 +16,15 @@ if (process.env.REACT_APP_MOCK_API_SOURCE === "dev") {
   });
 }
 
-ReactDOM.render(
+
+const element = document.getElementById('root');
+const root = ReactDOM.createRoot(element)
+root.render(
   <React.StrictMode>
     <div className="govuk-body">
       <App />
     </div>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
