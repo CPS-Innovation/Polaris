@@ -93,4 +93,8 @@ resource "azurerm_private_endpoint" "pipeline_pdf_generator_staging1_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites-staging1"]
   }
+
+  depends_on = [
+    azurerm_windows_function_app_slot.fa_pdf_generator_staging1
+  ]
 }
