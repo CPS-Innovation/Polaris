@@ -5,6 +5,7 @@ using Microsoft.DurableTask.Client;
 using pdf_thumbnail_generator.Durable.Providers;
 using Microsoft.Extensions.Configuration;
 using Common.Handlers;
+using Common.Services.BlobStorage;
 using Microsoft.Extensions.Logging;
 using pdf_thumbnail_generator;
 using Common.Telemetry;
@@ -38,6 +39,7 @@ var host = new HostBuilder()
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
+        services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
     })
     .ConfigureLogging(logging =>
     {
