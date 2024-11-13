@@ -3,7 +3,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   name                          = "fa-${local.global_resource_name}-gateway"
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
-  service_plan_id               = azurerm_service_plan.asp_polaris_gateway2.id
+  service_plan_id               = azurerm_service_plan.asp_polaris_gateway.id
   storage_account_name          = azurerm_storage_account.sa_gateway.name
   storage_account_access_key    = azurerm_storage_account.sa_gateway.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_gateway_subnet.id
