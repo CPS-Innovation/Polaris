@@ -724,10 +724,13 @@ describe("case details page", () => {
       });
     };
 
+    //Todo: add the test case delete page button is available and same with rotation page button is available
     it("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -832,6 +835,8 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -922,6 +927,8 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -982,6 +989,8 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");

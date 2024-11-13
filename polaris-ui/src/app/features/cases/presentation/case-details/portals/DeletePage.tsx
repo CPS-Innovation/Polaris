@@ -124,7 +124,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
             <div className={classes.pageNumberWrapper}>
               <p
                 className={classes.pageNumberText}
-                data-testid={`page-number-text-${pageNumber}`}
+                data-testid={`delete-page-number-text-${pageNumber}`}
               >
                 <span>Page:</span>
                 <span className={classes.pageNumber}>

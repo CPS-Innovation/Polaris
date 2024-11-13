@@ -14,7 +14,7 @@ describe("Feature Rotate Page", () => {
           return cy.wrap(pageDiv).scrollIntoView();
         }).then(() => {
           cy.wrap(pageDiv)
-            .findByTestId(`page-number-text-${pageNumber}`)
+            .findByTestId(`rotate-page-number-text-${pageNumber}`)
             .should("exist");
 
           cy.wrap(pageDiv)
@@ -37,7 +37,7 @@ describe("Feature Rotate Page", () => {
           return cy.wrap(pageDiv).scrollIntoView();
         }).then(() => {
           cy.wrap(pageDiv)
-            .findByTestId(`page-number-text-${pageNumber}`)
+            .findByTestId(`rotate-page-number-text-${pageNumber}`)
             .should("not.exist");
 
           cy.wrap(pageDiv)
@@ -68,7 +68,7 @@ describe("Feature Rotate Page", () => {
           return cy.wrap(pageDiv).scrollIntoView();
         }).then(() => {
           cy.wrap(pageDiv)
-            .findByTestId(`page-number-text-${pageNumber}`)
+            .findByTestId(`rotate-page-number-text-${pageNumber}`)
             .should("contain.text", `Page:${pageNumber}/${totalPages}`);
           cy.wrap(pageDiv)
             .findByTestId(`btn-rotate-${pageNumber}`)

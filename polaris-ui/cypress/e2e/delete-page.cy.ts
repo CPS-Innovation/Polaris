@@ -9,7 +9,7 @@ describe("Feature Delete Page", () => {
       cy.wrap(pages).each((pageDiv) => {
         const pageNumber = pageDiv.attr("data-page-number");
         cy.wrap(pageDiv)
-          .findByTestId(`page-number-text-${pageNumber}`)
+          .findByTestId(`delete-page-number-text-${pageNumber}`)
           .should("contain.text", `Page:${pageNumber}/${totalPages}`);
         cy.wrap(pageDiv)
           .findByTestId(`btn-delete-${pageNumber}`)
@@ -31,7 +31,7 @@ describe("Feature Delete Page", () => {
       cy.wrap(pages).each((pageDiv) => {
         const pageNumber = pageDiv.attr("data-page-number");
         cy.wrap(pageDiv)
-          .findByTestId(`page-number-text-${pageNumber}`)
+          .findByTestId(`delete-page-number-text-${pageNumber}`)
           .should("not.exist");
 
         cy.wrap(pageDiv)
@@ -49,7 +49,7 @@ describe("Feature Delete Page", () => {
       cy.wrap(pages).each((pageDiv) => {
         const pageNumber = pageDiv.attr("data-page-number");
         cy.wrap(pageDiv)
-          .findByTestId(`page-number-text-${pageNumber}`)
+          .findByTestId(`delete-page-number-text-${pageNumber}`)
           .should("exist");
 
         cy.wrap(pageDiv)
@@ -519,7 +519,7 @@ describe("Feature Delete Page", () => {
     cy.findByTestId("link-document-13").click();
     cy.findByTestId("document-actions-dropdown-0").click();
     cy.contains("button", "Hide Delete Page Options").should("not.exist");
-    cy.findByTestId(`page-number-text-1`).should("not.exist");
+    cy.findByTestId(`delete-page-number-text-1`).should("not.exist");
     cy.findByTestId(`btn-delete-1`).should("not.exist");
   });
 });
