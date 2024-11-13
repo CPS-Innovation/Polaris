@@ -126,4 +126,8 @@ resource "azurerm_private_endpoint" "polaris_gateway_staging1_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites-staging1"]
   }
+
+  depends_on = [
+    azurerm_linux_function_app_slot.fa_polaris_staging1
+  ]
 }

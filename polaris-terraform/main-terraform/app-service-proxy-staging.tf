@@ -164,6 +164,10 @@ resource "azurerm_private_endpoint" "polaris_proxy_staging1_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites-staging1"]
   }
+
+  depends_on = [
+    azurerm_linux_web_app_slot.polaris_proxy_staging1
+  ]
 }
 
 resource "azurerm_monitor_diagnostic_setting" "proxy_staging1_diagnostic_settings" {
