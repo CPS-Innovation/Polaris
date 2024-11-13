@@ -17,7 +17,7 @@ if (process.env.REACT_APP_MOCK_API_SOURCE === "dev") {
 }
 
 
-const element = document.getElementById('root');
+const element = document.getElementById('root')!;
 const root = ReactDOM.createRoot(element)
 root.render(
   <React.StrictMode>
