@@ -6,12 +6,7 @@ resources:
   pipelines:
     - pipeline: PolarisNetworkingBuild
       source: Polaris Networking Build - UAT
-      trigger:
-        branches:
-          include:
-            - refs/heads/main
-        stages:
-          - Publish_Artifacts
+      trigger: true
             
 variables:
   - group: kv-uat-terraform
