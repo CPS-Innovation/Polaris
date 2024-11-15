@@ -22,7 +22,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
+    "SearchClientIndexName"                           = "lines-index"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"

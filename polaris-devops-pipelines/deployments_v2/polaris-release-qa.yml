@@ -32,7 +32,8 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       targetPlanName: "qa"
       terraformStorageAccount: $(qa-terraform-storage-account)
-      terraformContainerName: $(main-terraform-container-name)
+      mainTerraformContainerName: $(main-terraform-container-name)
+      indexTerraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsqastorageterraform-key1)
       targetSuffix: "-qa"

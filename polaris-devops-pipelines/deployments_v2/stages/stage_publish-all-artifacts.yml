@@ -21,6 +21,15 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/main-terraform/"
               artifact: "main-terraform-files"
               publishLocation: "pipeline"
+              
+      - job: Build_Index_Terraform_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish index terraform artifact"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform/"
+              artifact: "index-terraform-files"
+              publishLocation: "pipeline"
 
       - job: Build_Coordinator_Artifact
         steps:
