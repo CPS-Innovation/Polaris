@@ -1,8 +1,5 @@
 trigger: none
 
-pool:
-  name: $(build-agent)
-
 schedules:
   # Switch off pre-midnight runs for now, devs still working/releasing
   #  and the e2e tests runs use up agents and otherwise confound releases
@@ -52,7 +49,7 @@ stages:
   - stage: Run_e2e_Tests
     displayName: Run e2e Tests
     jobs:
-      - job: Run_DotNet_Tests
+      - job: Prepare_DotNet_Tests
         displayName: Run DotNet Tests
         pool:
           vmImage: 'windows-latest'
@@ -89,7 +86,13 @@ stages:
               contents: Aspose.Total.NET.lic
               targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
             displayName: "Copy Aspose.Total.NET.lic"
-
+            
+      - job: Run_DotNet_Tests
+        displayName: Run DotNet Tests
+        dependsOn: Prepare_DotNet_Tests
+        pool:
+          name: $(build-agent)
+        steps:
           - task: PowerShell@2
             inputs:
               targetType: "inline"
@@ -101,6 +104,8 @@ stages:
 
       - job: Run_Cypress_Tests_A
         displayName: Run Cypress Tests A
+        pool:
+          name: $(build-agent)
         steps:
           - checkout: PolarisTagged
             clean: true
@@ -150,6 +155,8 @@ stages:
 
       - job: Run_Cypress_Tests_B
         displayName: Run Cypress Tests B
+        pool:
+          name: $(build-agent)
         steps:
           - checkout: PolarisTagged
             clean: true
