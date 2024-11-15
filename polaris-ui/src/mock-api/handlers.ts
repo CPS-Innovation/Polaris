@@ -174,8 +174,8 @@ export const setupHandlers = ({
     rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
       const { documentId } = req.params;
 
-      const blobName = pipelinePdfResultsDataSources[sourceName]()[0]
-        .documents.find((document) => document.documentId === documentId)
+      const blobName = documentListDataSources[sourceName][0]
+        .find((document) => document.documentId === documentId)
         ?.cmsOriginalFileName.split(".")[0];
 
       const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];

@@ -6,7 +6,6 @@ import {
   GET_DOCUMENTS_LIST_ROUTE,
 } from "../../src/mock-api/routes";
 
-import { refreshPipelineDeletedDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 import {
   getRefreshRedactedDocument,
   getRefreshDeletedDocuments,
@@ -265,10 +264,6 @@ describe("redaction refresh flow", () => {
   });
 
   it("Should handle the deleted document opened in a tab after the pipeline refresh and display document deleted message to user", () => {
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: refreshPipelineDeletedDocuments()[0],
-    });
-
     const documentList = getRefreshDeletedDocuments("1", "2");
 
     cy.visit("/case-details/12AB1111111/13401");
@@ -294,9 +289,6 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click();
     cy.findByTestId("btn-save-redaction-1").click();
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: refreshPipelineDeletedDocuments()[1],
-    });
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");
     cy.findByTestId("btn-save-redaction-log").click();

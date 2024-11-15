@@ -100,5 +100,4 @@ export type PresentationDocumentProperties = {
   reference: string | null;
 };
 
-export type PipelineDocument = PipelineDocumentProperties &
-  PresentationDocumentProperties;
+export type PipelineDocument = PipelineDocumentProperties;
