@@ -506,10 +506,16 @@ export const reducer = (
       }
 
       if (action.payload.status === "initiating") {
-        return state;
+        return {
+          ...state,
+          pipelineState: {
+            ...state.pipelineState,
+            status: "initiating",
+          },
+        };
       }
       let mappedData = {};
-      if (action.payload.haveData) {
+      if (action.payload?.data) {
         //temporary mapping until the mock data is cleaned
         mappedData = {
           ...action.payload,
@@ -800,6 +806,10 @@ export const reducer = (
       return {
         ...state,
         searchTerm: action.payload.searchTerm,
+        searchState: {
+          ...state.searchState,
+          lastSubmittedSearchTerm: state.searchState.submittedSearchTerm,
+        },
       };
     case "CLOSE_SEARCH_RESULTS":
       return {
@@ -821,6 +831,9 @@ export const reducer = (
           isResultsVisible: true,
           requestedSearchTerm,
           submittedSearchTerm,
+          lastSubmittedSearchTerm: state.searchState.submittedSearchTerm
+            ? state.searchState.submittedSearchTerm
+            : "",
         },
       };
 

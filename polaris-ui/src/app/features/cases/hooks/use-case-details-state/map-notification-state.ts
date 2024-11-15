@@ -75,7 +75,7 @@ export const mapNotificationState = (
   }
 
   if (incomingDocumentsState.status !== "succeeded") {
-    return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
+    return { ...notificationState, lastCheckedDateTime: incomingDateTime };
   }
 
   const existingDocuments =
@@ -199,7 +199,7 @@ export const mapNotificationState = (
 
   return {
     ...notificationState,
-    lastUpdatedDateTime: incomingDateTime,
+    lastCheckedDateTime: incomingDateTime,
     events,
     ignoreNextEvents,
   };

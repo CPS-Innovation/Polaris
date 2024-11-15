@@ -33,7 +33,6 @@ export const initiateAndPoll = (
       del({
         status: "complete",
         data: pipelineResult,
-        haveData: true,
         correlationId,
       });
       keepPolling = false;
@@ -45,7 +44,6 @@ export const initiateAndPoll = (
       del({
         status: "incomplete",
         data: pipelineResult,
-        haveData: true,
         correlationId,
       });
     }
@@ -57,7 +55,6 @@ export const initiateAndPoll = (
       status: "failed",
       error,
       httpStatusCode: error instanceof ApiError ? error.code : undefined,
-      haveData: false,
       correlationId,
     });
   };

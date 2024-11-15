@@ -30,20 +30,22 @@ export const useGetCaseData = (
   );
 
   // trigger the pipeline refresh when the  startPipelineRefresh is true
-  const pipelineState = usePipelineApi(
+  usePipelineApi(
     urn,
     caseId,
     combinedState.pipelineRefreshData,
-    isUnMounting
+    isUnMounting,
+    dispatch
   );
 
   // When pipeline results have changed, update our state
-  useEffect(() => {
-    dispatch({
-      type: "UPDATE_PIPELINE",
-      payload: pipelineState.pipelineResults,
-    });
-  }, [pipelineState.pipelineResults, dispatch]);
+  // useEffect(() => {
+  //   console.log("update pipeline....", pipelineState.pipelineResults);
+  //   dispatch({
+  //     type: "UPDATE_PIPELINE",
+  //     payload: pipelineState.pipelineResults,
+  //   });
+  // }, [pipelineState.pipelineResults, dispatch]);
 
   // On a pipeline update, deal with renamed docs
   // useEffect(() => {

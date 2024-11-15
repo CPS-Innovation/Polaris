@@ -74,6 +74,7 @@ const renderDocResults = (
       <span aria-live="polite">{getDocumentsSearchIndexText()}</span>
       <span
         aria-live="polite"
+        //this is needed for polaris-e2e test
         data-testid={
           isCaseCompleted && everyDocIndexed ? "span-flag-all-indexed" : ""
         }
@@ -85,7 +86,7 @@ const renderDocResults = (
   );
 };
 export const TrackerSummary: React.FC<Props> = ({ pipelineState }) => {
-  if (!pipelineState.haveData) {
+  if (!pipelineState?.data) {
     return null;
   }
 

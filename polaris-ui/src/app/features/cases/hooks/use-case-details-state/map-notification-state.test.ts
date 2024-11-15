@@ -50,7 +50,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
         }),
         { status: "loading" },
       ],
@@ -60,7 +60,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               id: 1,
@@ -81,14 +81,14 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
         }),
         { status: "succeeded", data: [doc({ documentId: "1" })] },
       ],
       incoming: [{ status: "loading" }, incomingDateTime],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
         }),
         0,
       ],
@@ -99,7 +99,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
         }),
         {
           status: "succeeded",
@@ -115,7 +115,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
         }),
         0,
       ],
@@ -126,7 +126,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [evt({ documentId: "0", id: 0 })],
         }),
         { status: "succeeded", data: [doc({ documentId: "0" })] },
@@ -152,7 +152,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -184,7 +184,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [evt({ documentId: "0", id: 0 })],
         }),
         {
@@ -210,7 +210,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -242,7 +242,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [evt({ documentId: "0", id: 0 })],
         }),
         {
@@ -283,7 +283,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -315,7 +315,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [evt({ documentId: "0", id: 0 })],
         }),
         {
@@ -360,7 +360,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -388,7 +388,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [evt({ documentId: "0", id: 0 })],
         }),
         {
@@ -425,7 +425,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -455,7 +455,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [evt({ documentId: "0", id: 0 })],
         }),
         {
@@ -508,7 +508,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -576,7 +576,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [
             evt({
               documentId: "0",
@@ -628,7 +628,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "4",
@@ -684,7 +684,7 @@ const scenarios: Scenario[] = [
     {
       existing: [
         state({
-          lastUpdatedDateTime: existingDateTime,
+          lastCheckedDateTime: existingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -720,7 +720,7 @@ const scenarios: Scenario[] = [
       ],
       expected: [
         state({
-          lastUpdatedDateTime: incomingDateTime,
+          lastCheckedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",

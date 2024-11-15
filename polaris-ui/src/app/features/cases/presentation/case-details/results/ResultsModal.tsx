@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Modal } from "../../../../../common/presentation/components";
 import { SucceededApiResult } from "../../../../../common/types/SucceededApiResult";
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";
@@ -32,6 +33,14 @@ export const ResultsModal: React.FC<Props> = ({
   ...restProps
 }) => {
   const { searchState } = restProps;
+  const percentageCompleted = useMemo(() => {
+    const docs = restProps.pipelineState.data
+      ? restProps.pipelineState.data.documents
+      : [];
+    const indexedDocs = docs.filter((doc) => doc.status === "Indexed");
+    if (!docs.length) return 0;
+    return Math.round(indexedDocs.length / docs.length) * 100;
+  }, [restProps.pipelineState]);
 
   const waitStatus = useMandatoryWaitPeriod(
     restProps.pipelineState.status === "complete" &&
@@ -46,8 +55,10 @@ export const ResultsModal: React.FC<Props> = ({
       ariaLabel="Search Modal"
       ariaDescription="Find your search results"
     >
-      {waitStatus === "wait" && searchState.submittedSearchTerm ? (
-        <PleaseWait />
+      {waitStatus === "wait" &&
+      searchState.submittedSearchTerm !==
+        searchState.lastSubmittedSearchTerm ? (
+        <PleaseWait percentageCompleted={percentageCompleted} />
       ) : (
         <Content {...restProps} />
       )}

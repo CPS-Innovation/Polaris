@@ -5,28 +5,26 @@ import { initiateAndPoll } from "./initiate-and-poll";
 import { PIPELINE_POLLING_DELAY } from "../../../../config";
 import { CombinedState } from "../../domain/CombinedState";
 import { generateGuid } from "../../../cases/api/generate-guid";
+import { DispatchType } from "../use-case-details-state/reducer";
 
 export const usePipelineApi = (
   urn: string,
   caseId: number,
   pipelineRefreshData: CombinedState["pipelineRefreshData"],
-  isUnMounting: () => boolean
-): {
-  pipelineResults: AsyncPipelineResult<PipelineResults>;
-  pipelineBusy: boolean;
-} => {
+  isUnMounting: () => boolean,
+  dispatch: DispatchType
+) => {
   const [pipelineResults, setPipelineResults] = useState<
     AsyncPipelineResult<PipelineResults>
   >({
     status: "initiating",
-    haveData: false,
     correlationId: "",
   });
 
   const [pipelineBusy, setPipelineBusy] = useState(false);
 
   const shouldTriggerPipelineRefresh = useCallback(() => {
-    return pipelineResults?.status !== "complete";
+    return true; //Note here we should compare with the last modified time
   }, [pipelineResults?.status]);
 
   useEffect(() => {
@@ -37,6 +35,10 @@ export const usePipelineApi = (
       // ... and we are not already doing a refresh
       !pipelineBusy
     ) {
+      setPipelineResults({
+        status: "initiating",
+        correlationId: "",
+      });
       const correlationId = generateGuid();
       //get correlationID here and add it to the setPipelineResults and remove it from gateway
       initiateAndPoll(
@@ -65,5 +67,11 @@ export const usePipelineApi = (
     }
   }, [pipelineResults]);
 
-  return { pipelineResults, pipelineBusy };
+  useEffect(() => {
+    console.log("update pipeline....", pipelineResults);
+    dispatch({
+      type: "UPDATE_PIPELINE",
+      payload: pipelineResults,
+    });
+  }, [pipelineResults, dispatch]);
 };

@@ -59,8 +59,9 @@ export type CombinedState = {
   searchTerm: string;
   searchState: {
     isResultsVisible: boolean;
-    requestedSearchTerm: undefined | string;
-    submittedSearchTerm: undefined | string;
+    requestedSearchTerm?: string;
+    submittedSearchTerm?: string;
+    lastSubmittedSearchTerm?: string;
     resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
     filterOptions: {
       docType: { [key: string]: FilterOption };
@@ -117,6 +118,7 @@ export const initialState = {
     isResultsVisible: false,
     requestedSearchTerm: undefined,
     submittedSearchTerm: undefined,
+    lastSubmittedSearchTerm: undefined,
     resultsOrder: "byDateDesc",
     filterOptions: {
       docType: {},

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
 import { getDocumentsList } from "../../api/gateway-api";
-import { DispatchType } from "./reducer";
+import { DispatchType } from "../use-case-details-state/reducer";
 import { RenameDocumentData } from "../../domain/gateway/RenameDocumentData";
 import { ReclassifyDocumentData } from "../../domain/gateway/ReclassifyDocumentData";
 import {

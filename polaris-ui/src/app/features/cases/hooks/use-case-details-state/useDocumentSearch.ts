@@ -10,10 +10,20 @@ export const useDocumentSearch = (
   combinedState: CombinedState,
   dispatch: DispatchType
 ) => {
-  console.log(
-    "combinedState.searchState.submittedSearchTerm",
-    combinedState.searchState.submittedSearchTerm
-  );
+  const shouldMakeCall = () => {
+    if (!combinedState.searchState.submittedSearchTerm) return false;
+
+    const newSubmittedTerm = combinedState.searchState.lastSubmittedSearchTerm
+      ? combinedState.searchState.submittedSearchTerm !==
+        combinedState.searchState.lastSubmittedSearchTerm
+      : true;
+
+    return !!(
+      combinedState.pipelineState.status === "complete" &&
+      combinedState.documentsState.status === "succeeded" &&
+      newSubmittedTerm
+    );
+  };
 
   // Document search process
   const searchResults = useApi(
@@ -39,11 +49,7 @@ export const useDocumentSearch = (
     //   the documents result, and we have to chase up fixing the full mapped objects at that later point.
     //   (Assumption: this is edge-casey stuff as the documents call should always really have come back unless
     //   the user is super quick to trigger a search).
-    !!(
-      combinedState.searchState.submittedSearchTerm &&
-      combinedState.pipelineState.status === "complete" &&
-      combinedState.documentsState.status === "succeeded"
-    )
+    shouldMakeCall()
   );
   useEffect(() => {
     if (searchResults.status !== "initial") {
