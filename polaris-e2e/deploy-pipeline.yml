@@ -50,7 +50,7 @@ stages:
     displayName: Run e2e Tests
     jobs:
       - job: Prepare_DotNet_Tests
-        displayName: Run DotNet Tests
+        displayName: Prepare DotNet Tests
         pool:
           vmImage: 'windows-latest'
         steps:
