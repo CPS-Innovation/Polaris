@@ -6,12 +6,11 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Services.DocumentToggle;
 using Ddei;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Durable.Activity
 {
@@ -37,11 +36,9 @@ namespace coordinator.Durable.Activity
             _configuration = configuration;
         }
 
-        [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
+        [Function(nameof(GetCaseDocuments))]
+        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] CasePayload payload)
         {
-            var payload = context.GetInput<CasePayload>();
-
             if (string.IsNullOrWhiteSpace(payload.Urn))
                 throw new ArgumentException("CaseUrn cannot be empty");
             if (payload.CaseId == 0)

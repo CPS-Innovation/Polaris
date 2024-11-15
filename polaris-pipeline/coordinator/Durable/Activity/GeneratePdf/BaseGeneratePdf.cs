@@ -8,7 +8,6 @@ using Common.Services.BlobStorage;
 using coordinator.Durable.Payloads;
 using Ddei;
 using Ddei.Factories;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity.GeneratePdf
@@ -33,9 +32,8 @@ namespace coordinator.Durable.Activity.GeneratePdf
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         }
 
-        protected async Task<(bool, PdfConversionStatus)> Run(IDurableActivityContext context)
+        protected async Task<(bool, PdfConversionStatus)> Run(DocumentPayload payload)
         {
-            var payload = context.GetInput<DocumentPayload>();
             var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
 
             if (await _polarisBlobStorageService.BlobExistsAsync(blobId, payload.IsOcredProcessedPreference))

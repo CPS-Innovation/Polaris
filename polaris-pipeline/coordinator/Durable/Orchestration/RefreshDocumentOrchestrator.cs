@@ -10,8 +10,9 @@ using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
 using text_extractor.coordinator;
 
@@ -28,10 +29,10 @@ namespace coordinator.Durable.Orchestration
         // Here we use CallActivityWithRetryAsync for the OCR service interaction as it has ben seen to hang in production when making Http requests.
         //  The service will cancel and timeout at N seconds and throw.  So lets use the durable framework's own retry mechanism.
         //  (During the great OCR meltdown incident at Microsoft, a MS engineer told us it was OK to just abandon operations within reasonable limits)
-        private readonly RetryOptions _durableActivityRetryOptions = new RetryOptions(
+        private readonly TaskOptions _durableActivityOptions = new (new TaskRetryOptions(new RetryPolicy(
             firstRetryInterval: TimeSpan.FromSeconds(5),
             maxNumberOfAttempts: 3
-        );
+        )));
 
         public static string GetKey(int caseId, string documentId)
         {
@@ -45,13 +46,11 @@ namespace coordinator.Durable.Orchestration
         }
 
         [FunctionName(nameof(RefreshDocumentOrchestrator))]
-        public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task Run([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var payload = context.GetInput<DocumentPayload>();
-            var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(
-                 CaseDurableEntity.GetEntityId(payload.CaseId)
-            );
+            var log = context.CreateReplaySafeLogger(nameof(RefreshDocumentOrchestrator));
+            var caseEntity = CaseDurableEntity.GetEntityId(payload.CaseId);
 
             var shouldProceed = await EnsurePdfExists(payload, context, caseEntity, log);
             if (!shouldProceed)
@@ -120,7 +119,7 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task<bool> EnsurePdfExists(DocumentPayload payload, IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, ILogger log)
+        private async Task<bool> EnsurePdfExists(DocumentPayload payload, TaskOrchestrationContext context, ICaseDurableEntity caseEntity, ILogger log)
         {
             try
             {
@@ -153,7 +152,7 @@ namespace coordinator.Durable.Orchestration
             return true;
         }
 
-        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> EnsureOcrExists(DocumentPayload payload, IDurableOrchestrationContext context, ILogger log)
+        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> EnsureOcrExists(DocumentPayload payload, TaskOrchestrationContext context, ILogger log)
         {
             var (blobAlreadyExists, ocrPollingResult) = await GetOcrResults(context, payload);
 
@@ -183,13 +182,12 @@ namespace coordinator.Durable.Orchestration
             return (false, ocrPollingResult);
         }
 
-        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> GetOcrResults(IDurableOrchestrationContext context, DocumentPayload payload)
+        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> GetOcrResults(TaskOrchestrationContext context, DocumentPayload payload)
         {
-            var (blobAlreadyExists, ocrOperationId) = await context.CallActivityWithRetryAsync<(bool, Guid)>(
+            var (blobAlreadyExists, ocrOperationId) = await context.CallActivityAsync<(bool, Guid)>(
                 nameof(InitiateOcr),
-                _durableActivityRetryOptions,
-                payload
-            );
+                payload,
+                _durableActivityOptions);
 
             if (blobAlreadyExists)
             {
@@ -204,14 +202,14 @@ namespace coordinator.Durable.Orchestration
                     prePollingDelayMs: _prePollingDelayMs,
                     pollingIntervalMs: _pollingIntervalMs,
                     maxPollingAttempts: _maxPollingAttempts,
-                    activityRetryOptions: _durableActivityRetryOptions
+                    activityOptions: _durableActivityOptions
                 )
            );
 
             return (false, pollingResult);
         }
 
-        private async Task<(DateTime IndexStoredTime, StoreCaseIndexesResult StoreCaseIndexesResult, PollingResult<long> PollingResult)> IndexDocument(IDurableOrchestrationContext context, DocumentPayload payload, ILogger log, IndexedDocumentEvent telemetryEvent)
+        private async Task<(DateTime IndexStoredTime, StoreCaseIndexesResult StoreCaseIndexesResult, PollingResult<long> PollingResult)> IndexDocument(TaskOrchestrationContext context, DocumentPayload payload, ILogger log, IndexedDocumentEvent telemetryEvent)
         {
             var indexStoredResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
             var indexStoredTime = context.CurrentUtcDateTime;
@@ -224,7 +222,7 @@ namespace coordinator.Durable.Orchestration
                     prePollingDelayMs: _prePollingDelayMs,
                     pollingIntervalMs: _pollingIntervalMs,
                     maxPollingAttempts: _maxPollingAttempts,
-                    activityRetryOptions: _durableActivityRetryOptions
+                    activityOptions: _durableActivityOptions
                 )
             );
 

@@ -4,14 +4,14 @@ using Common.Configuration;
 using Common.Extensions;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Entity;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
+using Microsoft.DurableTask.Client.Entities;
 
 namespace coordinator.Functions
 {
@@ -31,7 +31,7 @@ namespace coordinator.Functions
             _logger = logger;
         }
 
-        [FunctionName(nameof(GetTracker))]
+        [Function(nameof(GetTracker))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -39,7 +39,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req,
             string caseUrn,
             int caseId,
-            [DurableClient] IDurableEntityClient client)
+            [DurableClient] DurableTaskClient client)
         {
             Guid currentCorrelationId = default;
 
@@ -49,10 +49,10 @@ namespace coordinator.Functions
 
                 // todo: temporary code
                 var entityId = CaseDurableEntity.GetEntityId(caseId);
-                EntityStateResponse<CaseDurableEntity> caseEntity = default;
+                EntityMetadata<CaseDurableEntity> caseEntity = default;
                 try
                 {
-                    caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
+                    caseEntity = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId);
                 }
                 catch (Exception ex)
                 {
@@ -66,12 +66,12 @@ namespace coordinator.Functions
                     return new NotFoundObjectResult($"No Case Entity found with id '{caseId}' with exception '{ex.GetType().Name}: {ex.Message}");
                 }
 
-                if (!caseEntity.EntityExists)
+                if (caseEntity is null || caseEntity?.IncludesState != true)
                 {
                     return new NotFoundObjectResult($"No Case Entity found with id '{caseId}'");
                 }
 
-                var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity.EntityState);
+                var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity.State);
                 return new OkObjectResult(trackerDto);
             }
             catch (Exception ex)

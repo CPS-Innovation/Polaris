@@ -15,7 +15,6 @@ using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Orchestration;
 using FluentAssertions;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;

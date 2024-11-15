@@ -2,60 +2,68 @@
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using coordinator.Durable.Payloads.Domain;
 using Common.Constants;
+using Microsoft.Azure.Functions.Worker;
+using System.Text.Json.Serialization;
+using Microsoft.DurableTask.Entities;
 
 namespace coordinator.Durable.Entity
 {
     // n.b. Entity proxy interface methods must define at most one argument for operation input.
     // (A single tuple is acceptable)
-    [JsonObject(MemberSerialization.OptIn)]
+    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Skip)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
         public static string GetKey(int caseId) => $"[{caseId}]";
 
-        public static EntityId GetEntityId(int caseId) => new EntityId(nameof(CaseDurableEntity), GetKey(caseId));
+        public static EntityInstanceId GetEntityId(int caseId) => new (nameof(CaseDurableEntity), GetKey(caseId));
 
-        [FunctionName(nameof(CaseDurableEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext context)
+        [Function(nameof(CaseDurableEntity))]
+        public static Task Run([EntityTrigger] TaskEntityDispatcher taskEntityDispatcher)
         {
-            return context.DispatchAsync<CaseDurableEntity>();
+            return taskEntityDispatcher.DispatchAsync<CaseDurableEntity>();
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("status")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("status")]
+        [JsonInclude]
         public CaseRefreshStatus Status { get; set; }
 
-        [JsonProperty("running")]
+        [JsonPropertyName("running")]
+        [JsonInclude]
         public DateTime? Running { get; set; }
 
-        [JsonProperty("Retrieved")]
+        [JsonPropertyName("Retrieved")]
+        [JsonInclude]
         public float? Retrieved { get; set; }
 
-        [JsonProperty("completed")]
+        [JsonPropertyName("completed")]
+        [JsonInclude]
         public float? Completed { get; set; }
 
-        [JsonProperty("failed")]
+        [JsonPropertyName("failed")]
+        [JsonInclude]
         public float? Failed { get; set; }
 
-        [JsonProperty("failedReason")]
+        [JsonPropertyName("failedReason")]
+        [JsonInclude]
         public string FailedReason { get; set; }
 
-        [JsonProperty("documents")]
+        [JsonPropertyName("documents")]
+        [JsonInclude]
         public List<CmsDocumentEntity> CmsDocuments { get; set; } = new List<CmsDocumentEntity>();
 
-        [JsonProperty("pcdRequests")]
+        [JsonPropertyName("pcdRequests")]
+        [JsonInclude]
         public List<PcdRequestEntity> PcdRequests { get; set; } = new List<PcdRequestEntity>();
 
-        [JsonProperty("defendantsAndCharges")]
+        [JsonPropertyName("defendantsAndCharges")]
+        [JsonInclude]
         public DefendantsAndChargesEntity DefendantsAndCharges { get; set; } = null; // null is the default state (do not initialise to an empty object)
 
         public Task<DateTime> GetStartTime()

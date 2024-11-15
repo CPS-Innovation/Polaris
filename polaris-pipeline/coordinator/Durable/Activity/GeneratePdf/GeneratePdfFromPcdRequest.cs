@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Common.Services.BlobStorage;
 using Ddei;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using coordinator.Durable.Payloads;
 using Common.Clients.PdfGenerator;
 using Common.Constants;
@@ -12,6 +10,7 @@ using Common.Services.RenderHtmlService;
 using System;
 using coordinator.Durable.Activity.GeneratePdf;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Durable.Activity
 {
@@ -31,10 +30,10 @@ namespace coordinator.Durable.Activity
 
         }
 
-        [FunctionName(nameof(GeneratePdfFromPcdRequest))]
-        public new async Task<(bool, PdfConversionStatus)> Run([ActivityTrigger] IDurableActivityContext context)
+        [Function(nameof(GeneratePdfFromPcdRequest))]
+        public new async Task<(bool, PdfConversionStatus)> Run([ActivityTrigger] DocumentPayload payload)
         {
-            return await base.Run(context);
+            return await base.Run(payload);
         }
 
         protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)

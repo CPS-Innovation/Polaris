@@ -3,12 +3,11 @@ using System.Threading.Tasks;
 using Common.Services.BlobStorage;
 using Common.Wrappers;
 using Common.Services.OcrService;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Common.Domain.Ocr;
 using coordinator.Durable.Payloads;
 using Common.Configuration;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Durable.Activity
 {
@@ -23,10 +22,9 @@ namespace coordinator.Durable.Activity
             _ocrService = ocrService;
         }
 
-        [FunctionName(nameof(CompleteOcr))]
-        public async Task<(bool, AnalyzeResultsStats)> Run([ActivityTrigger] IDurableActivityContext context)
+        [Function(nameof(CompleteOcr))]
+        public async Task<(bool, AnalyzeResultsStats)> Run([ActivityTrigger] Guid operationId, DocumentPayload payload)
         {
-            var (operationId, payload) = context.GetInput<(Guid, DocumentPayload)>();
             var ocrOperationResult = await _ocrService.GetOperationResultsAsync(operationId, payload.CorrelationId);
 
             if (!ocrOperationResult.IsSuccess)

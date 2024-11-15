@@ -4,8 +4,7 @@ using Common.Configuration;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
 using coordinator.Durable.Payloads;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity
@@ -21,11 +20,10 @@ namespace coordinator.Durable.Activity
             _ocrService = ocrService;
         }
 
-        [FunctionName(nameof(InitiateOcr))]
+        [Function(nameof(InitiateOcr))]
 
-        public async Task<(bool, Guid)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(bool, Guid)> Run([ActivityTrigger] DocumentPayload payload)
         {
-            var payload = context.GetInput<DocumentPayload>();
             var ocrBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
             if (await _polarisBlobStorageService.BlobExistsAsync(ocrBlobId))
             {
