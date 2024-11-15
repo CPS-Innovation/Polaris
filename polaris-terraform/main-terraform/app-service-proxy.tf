@@ -237,8 +237,8 @@ module "azurerm_app_reg_polaris_proxy" {
 }
 
 resource "azuread_application_password" "asap_polaris_cms_proxy" {
-  application_id    = module.azurerm_app_reg_polaris_proxy.object_id
-  end_date_relative = "17520h"
+  application_object_id = module.azurerm_app_reg_polaris_proxy.object_id
+  end_date_relative     = "17520h"
 }
 
 module "azurerm_service_principal_sp_polaris_cms_proxy" {
