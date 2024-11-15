@@ -54,6 +54,8 @@ stages:
     jobs:
       - job: Run_DotNet_Tests
         displayName: Run DotNet Tests
+        pool:
+          vmImage: 'windows-latest'
         steps:
           - checkout: PolarisTagged
             clean: true
