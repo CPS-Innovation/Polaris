@@ -10,13 +10,13 @@ provider "restapi" {
   id_attribute = "name"
 }
 
-resource "restapi_object" "definition" {
-  provider     = restapi.restapi_headers
-  path         = "/indexes"
-  query_string = "api-version=2021-04-30-Preview"
-  data         = file("search-index-definition.json")
-  depends_on = [
-    azurerm_search_service.ss,
-    azurerm_private_endpoint.pipeline_search_service_pe
-  ]
-}
+#resource "restapi_object" "definition" {
+#  provider     = restapi.restapi_headers
+#  path         = "/indexes"
+#  query_string = "api-version=2021-04-30-Preview"
+#  data         = file("search-index-definition.json")
+#  depends_on = [
+#    azurerm_search_service.ss,
+#    azurerm_private_endpoint.pipeline_search_service_pe
+#  ]
+#}
