@@ -197,9 +197,15 @@ export const mapNotificationState = (
     ...existingEventsStillLive,
   ];
 
+  const lastModifiedDateTime =
+    !notificationState.lastModifiedDateTime || incomingEvents.length
+      ? incomingDateTime
+      : notificationState.lastModifiedDateTime;
+
   return {
     ...notificationState,
     lastUpdatedDateTime: incomingDateTime,
+    lastModifiedDateTime,
     events,
     ignoreNextEvents,
   };
