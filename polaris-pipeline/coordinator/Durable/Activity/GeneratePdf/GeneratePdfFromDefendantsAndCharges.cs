@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Common.Services.BlobStorage;
 using Ddei;
@@ -9,7 +10,6 @@ using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
 using Common.Services.RenderHtmlService;
-using Common.Dto.Response.Case;
 using coordinator.Durable.Activity.GeneratePdf;
 using Microsoft.Extensions.Configuration;
 
