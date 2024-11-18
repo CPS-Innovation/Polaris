@@ -22,6 +22,15 @@ stages:
               artifact: "main-terraform-files"
               publishLocation: "pipeline"
 
+      - job: Build_Index_Terraform_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish index terraform artifact"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform/"
+              artifact: "index-terraform-files"
+              publishLocation: "pipeline"
+
       - job: Build_Coordinator_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -93,6 +102,50 @@ stages:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
+
+      - job: Build_Pdf_Thumbnail_Generator_Artifact
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-thumbnail-generator'
+              OverWrite: true
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/pdf-thumbnail-generator/pdf-thumbnail-generator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Build PDF-Thumbnail-Generator artifact"
+
+          # Add build version
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/pdf-thumbnail-generator'
+              script: |
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"PDF Thumbnail Generator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
+            displayName: "Record version details"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-thumbnail-generator"
+              artifact: "polaris-pdf-thumbnail-generator-drop"
+            displayName: "Publish PDF-Thumbnail-Generator codebase artifact"
 
       - job: Build_Pdf_Redactor_Artifact
         pool:
@@ -193,7 +246,7 @@ stages:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway artifact"
-            
+
       - job: Build_Maintenance_Function_Artifact
         steps:
           - task: DotNetCoreCLI@2

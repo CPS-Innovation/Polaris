@@ -15,7 +15,7 @@ namespace PolarisGateway.Extensions
       if (int.TryParse(viaUidPattern.Match(cookieString).Groups["uid"].Value, out var userId))
       {
         return userId;
-      };
+      }
 
       var viaFallbackPattern = new Regex(@"CMSUSER(\d+)");
       if (int.TryParse(viaFallbackPattern.Match(cookieString).Groups[1].Value, out var userIdViaFallback))

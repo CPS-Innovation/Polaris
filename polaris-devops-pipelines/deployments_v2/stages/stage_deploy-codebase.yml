@@ -55,6 +55,20 @@ stages:
               targetSuffix: ${{ parameters.targetSuffix }}
               appInsightsKey: ${{ parameters.appInsightsKey }}
               azureSubscription: ${{ parameters.azureSubscription }}
+              
+      - job: Deploy_Pdf_Thumbnail_Generator
+        dependsOn: Log_Start_Codebase
+        displayName: Deploy PDF Thumbnail Generator
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_deploy-pdf-thumbnail-generator.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: "PDF Thumbnail Generator Deployment"
+              targetSuffix: ${{ parameters.targetSuffix }}
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              azureSubscription: ${{ parameters.azureSubscription }}
 
       - job: Deploy_Pdf_Redactor
         dependsOn: Log_Start_Codebase
@@ -132,6 +146,7 @@ stages:
         dependsOn:
           - Deploy_Coordinator
           - Deploy_Pdf_Generator
+          - Deploy_Pdf_Thumbnail_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
           - Deploy_Spa

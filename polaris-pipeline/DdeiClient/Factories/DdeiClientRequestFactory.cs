@@ -150,7 +150,6 @@ namespace Ddei.Factories.Contracts
         {
             var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
             {
-                DocumentId = arg.DocumentId,
                 DocumentTypeId = arg.DocumentTypeId,
                 Exhibit = arg.Exhibit,
                 Statement = arg.Statement,

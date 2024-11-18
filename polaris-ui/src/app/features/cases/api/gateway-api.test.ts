@@ -233,7 +233,6 @@ describe("gateway-apis", () => {
 
       const responseFlag = await (async () => {
         await saveRedactions("urn_123", 123, "documentID_1", {
-          documentId: "documentID_1",
           redactions: [],
           documentModifications: [],
         });
@@ -250,7 +249,6 @@ describe("gateway-apis", () => {
 
       expect(async () => {
         await saveRedactions("urn_123", 123, "documentID_1", {
-          documentId: "documentID_1",
           redactions: [],
           documentModifications: [],
         });

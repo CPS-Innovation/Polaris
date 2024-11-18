@@ -155,6 +155,7 @@ describe("useCaseDetailsState", () => {
         handleSaveRotations,
         handleClearAllNotifications,
         handleClearNotification,
+        handleShowHidePageDeletion,
         ...stateProperties
       } = result.current;
 

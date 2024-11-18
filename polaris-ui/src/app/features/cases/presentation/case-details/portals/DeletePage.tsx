@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { LinkButton } from "../../../../../common/presentation/components";
 import { DeleteModal } from "./DeleteModal";
 import { ReactComponent as DeleteIcon } from "../../../../../common/presentation/svgs/deleteIcon.svg";
@@ -37,6 +37,20 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     );
   }, [pageDeleteRedactions, pageNumber]);
 
+  //adding/removing any anchor links in the unsaved deleted page as tabbable, for accessibility
+  useEffect(() => {
+    const pages = document.querySelectorAll(".page");
+    const links = pages[pageNumber - 1]?.querySelectorAll("a");
+
+    links.forEach((link) => {
+      if (isPageDeleted) {
+        link.setAttribute("tabindex", "-1");
+        return;
+      }
+      link.setAttribute("tabindex", "0");
+    });
+  }, [isPageDeleted, pageNumber]);
+
   const mappedRedactionTypeValues = useMemo(() => {
     const defaultOption = {
       value: "",
@@ -57,7 +71,6 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     setShowModal(true);
   };
   const handleConfirmRedaction = () => {
-    setShowModal(false);
     const redactionType = redactionTypesData.find(
       (type) => type.id === deleteRedactionType
     )!;
@@ -67,6 +80,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
       pageNumber: pageNumber,
       reason: redactionType.name,
     });
+    setShowModal(false);
   };
   const handleRedactionTypeSelection = (value: string) => {
     setDeleteRedactionType(value);
@@ -92,26 +106,46 @@ export const DeletePage: React.FC<DeletePageProps> = ({
   return (
     <div>
       {
+        <div aria-live="polite" className={classes.visuallyHidden}>
+          {isPageDeleted && (
+            <span>
+              {`Page ${pageNumber} selected for deletion. Click save all redactions to remove
+              the page from the document.`}
+            </span>
+          )}
+          {!isPageDeleted && (
+            <span>{`Page ${pageNumber} unselected for deletion.`}</span>
+          )}
+        </div>
+      }
+      {totalPages > 1 && (
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
             <div className={classes.pageNumberWrapper}>
-              <p className={classes.pageNumberText}>
+              <p
+                className={classes.pageNumberText}
+                data-testid={`delete-page-number-text-${pageNumber}`}
+              >
                 <span>Page:</span>
                 <span className={classes.pageNumber}>
                   {pageNumber}/{totalPages}
                 </span>
               </p>
             </div>
-            {isPageDeleted ? (
+            {isPageDeleted && (
               <LinkButton
+                ariaLabel={`cancel page ${pageNumber} delete`}
                 className={classes.restoreBtn}
                 onClick={handleRestoreBtnClick}
                 data-pageNumber={pageNumber}
+                dataTestId={`btn-cancel-delete-${pageNumber}`}
               >
                 Cancel
               </LinkButton>
-            ) : (
+            )}
+            {!isPageDeleted && (
               <LinkButton
+                ariaLabel={`delete page ${pageNumber} out of ${totalPages} pages`}
                 ref={deleteButtonRef}
                 className={classes.deleteBtn}
                 onClick={handleDelete}
@@ -120,6 +154,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
                   totalPages === 1 ||
                   pageDeleteRedactions.length === totalPages - 1
                 }
+                dataTestId={`btn-delete-${pageNumber}`}
               >
                 <DeleteIcon className={classes.deleteBtnIcon} />
                 Delete
@@ -127,17 +162,23 @@ export const DeletePage: React.FC<DeletePageProps> = ({
             )}
           </div>
         </div>
-      }
+      )}
       {isPageDeleted && (
         <div>
-          <div className={classes.overlay}></div>
-          <div className={classes.overlayContent}>
+          <div
+            className={classes.overlay}
+            data-testid={`delete-page-overlay-${pageNumber}`}
+          />
+          <div
+            className={classes.overlayContent}
+            data-testid={`delete-page-content-${pageNumber}`}
+          >
             <DeleteIcon className={classes.overlayDeleteIcon} />
             <p className={classes.overlayMainText}>
               Page selected for deletion
             </p>
             <p className={classes.overlaySubText}>
-              Click "save and submit" to remove the page from the document
+              Click "save all redactions" to remove the page from the document
             </p>
           </div>
         </div>

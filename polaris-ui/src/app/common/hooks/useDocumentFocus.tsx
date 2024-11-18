@@ -5,8 +5,9 @@ import {
 } from "./useDocumentFocusHelpers";
 /**
  * This hook will take care of custom navigation and selection of starting letter of each word in each page
- * and making the focus trapped on the redact button if it is available. User can use key "," and "Shift" + key ","
- * to navigate forward and backward through the document words.
+ * User can use key "," and "Shift" + key ","
+ * to navigate forward and backward through the document words. Once the first letter is selected,
+ * further selection of letters in the word can be done by using Shift+ Right arrow.
  */
 const WORD_FOCUS_KEY = ",";
 const ESCAPE_KEY_CODE = 27;

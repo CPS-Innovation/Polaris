@@ -349,34 +349,22 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-redact").should("be.disabled");
     cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
-
-    cy.clock();
     cy.findByTestId("btn-redact").click({ force: true });
-    cy.clock().then((clock) => {
-      clock.restore();
-    });
-
     cy.selectPDFTextElement("MCLOVE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
     cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     //hovering over unsaved redaction to verify redaction tip is not removed.
-    cy.findByTestId("unsaved-redaction-0-0").trigger("mouseover");
+    cy.get('[data-testid^="unsaved-redaction-"]').eq(0).trigger("mouseover");
     cy.findByTestId("remove-btn").should("not.exist");
     cy.findByTestId("btn-redact").should("exist");
-
-    cy.clock();
-    cy.tick(1);
     cy.findByTestId("btn-redact").click({ force: true });
-    cy.clock().then((clock) => {
-      clock.restore();
-    });
     //after redaction verifying remove redaction tip appears on hovering over unsaved redaction
     cy.findByTestId("btn-redact").should("not.exist");
-    cy.findByTestId("unsaved-redaction-1-0").trigger("mouseover");
+    cy.get('[data-testid^="unsaved-redaction-"]').eq(1).trigger("mouseover");
     cy.findByTestId("remove-btn").should("exist");
-    cy.findByTestId("unsaved-redaction-0-0").trigger("mouseover");
+    cy.get('[data-testid^="unsaved-redaction-"]').eq(0).trigger("mouseover");
     cy.findByTestId("remove-btn").should("exist");
   });
 });

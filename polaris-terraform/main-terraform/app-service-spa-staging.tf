@@ -58,7 +58,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"                     = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                                      = "1"
     "WEBSITE_CONTENTSHARE"                                         = azapi_resource.polaris_sacpspolaris_ui_staging1_file_share.name
-    "WEBSITE_DNS_ALT_SERVER"                                       = "168.63.129.16"
+    "WEBSITE_DNS_ALT_SERVER"                                       = var.dns_alt_server
     "WEBSITE_DNS_SERVER"                                           = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                              = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"                 = "0"
@@ -141,4 +141,8 @@ resource "azurerm_private_endpoint" "polaris_ui_staging1_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites-staging1"]
   }
+
+  depends_on = [
+    azurerm_linux_web_app_slot.as_web_polaris_staging1
+  ]
 }

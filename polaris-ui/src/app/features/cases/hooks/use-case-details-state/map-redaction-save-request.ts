@@ -12,7 +12,6 @@ import {
 } from "../utils/redactionUtils";
 
 export const mapRedactionSaveRequest = (
-  documentId: string,
   redactionHighlights: IPdfHighlight[] | ISearchPIIHighlight[],
   pageDeleteRedactions: IPageDeleteRedaction[]
 ): RedactionSaveData => {
@@ -62,7 +61,6 @@ export const mapRedactionSaveRequest = (
   }));
 
   return {
-    documentId,
     redactions,
     documentModifications: pageDeletes,
   };

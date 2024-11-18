@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using coordinator.Durable.Providers;
-using coordinator.Services.CleardownService;
+using coordinator.Services.ClearDownService;
 using Common.Extensions;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
@@ -18,16 +18,16 @@ namespace coordinator.Functions.Maintenance
     {
         private readonly ILogger<DeleteCase> _logger;
         private readonly IOrchestrationProvider _orchestrationProvider;
-        private readonly ICleardownService _cleardownService;
+        private readonly IClearDownService _clearDownService;
 
         public DeleteCase(
             ILogger<DeleteCase> logger,
             IOrchestrationProvider orchestrationProvider,
-            ICleardownService cleardownService)
+            IClearDownService clearDownService)
         {
             _logger = logger;
             _orchestrationProvider = orchestrationProvider;
-            _cleardownService = cleardownService;
+            _clearDownService = clearDownService;
         }
 
         [FunctionName(nameof(DeleteCase))]
@@ -55,7 +55,7 @@ namespace coordinator.Functions.Maintenance
                     currentCorrelationId = Guid.NewGuid();
                 }
 
-                await _cleardownService.DeleteCaseAsync(orchestrationClient,
+                await _clearDownService.DeleteCaseAsync(orchestrationClient,
                      caseUrn,
                      caseId,
                      currentCorrelationId);

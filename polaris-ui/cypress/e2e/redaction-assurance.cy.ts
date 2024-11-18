@@ -378,7 +378,7 @@ describe("Redaction Assurance", () => {
         "PUT",
         "/api/urns/12AB1111111/cases/13401/documents/1"
       );
-      cy.visit("/case-details/12AB1111111/13401");
+      cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -434,7 +434,7 @@ describe("Redaction Assurance", () => {
         "PUT",
         "/api/urns/12AB1111111/cases/13401/documents/1"
       );
-      cy.visit("/case-details/12AB1111111/13401");
+      cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -490,7 +490,7 @@ describe("Redaction Assurance", () => {
         "PUT",
         "/api/urns/12AB1111111/cases/13401/documents/1"
       );
-      cy.visit("/case-details/12AB1111111/13401");
+      cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
@@ -546,7 +546,7 @@ describe("Redaction Assurance", () => {
         "PUT",
         "/api/urns/12AB1111111/cases/13401/documents/1"
       );
-      cy.visit("/case-details/12AB1111111/13401");
+      cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Common.Helpers;
 
 namespace Common.Services.BlobStorage;
 
@@ -33,9 +34,12 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
     public Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null)
         => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId), CreateMetaData(isOcred));
 
+    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null)
+        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId, pageIndex, maxDimensionPixel));
+
     public Task UploadObjectAsync<T>(T obj, BlobIdType blobId) => _blobStorageService.UploadObjectAsync(obj, GetBlobName(blobId));
 
-    private static string GetBlobName(BlobIdType blobId)
+    private static string GetBlobName(BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null)
     {
         var (caseId, documentId, versionId, blobType) = blobId;
         // Each case has only one defendants and charges (DAC) document.
@@ -53,6 +57,7 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
             BlobType.Pdf => $"{caseId}/pdfs/{documentId}-{versionId}.pdf",
             BlobType.Ocr => $"{caseId}/ocrs/{documentId}-{versionId}.json",
             BlobType.Pii => $"{caseId}/pii/{documentId}-{versionId}.json",
+            BlobType.Thumbnail => $"{caseId}/thumbnails/{documentId}-{versionId}/{maxDimensionPixel}px{pageIndex}.jpg",
             _ => throw new NotImplementedException()
         };
     }

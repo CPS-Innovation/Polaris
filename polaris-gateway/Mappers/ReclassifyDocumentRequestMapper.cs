@@ -8,7 +8,6 @@ namespace PolarisGateway.Mappers
         {
             return new ReclassifyDocumentDto
             {
-                DocumentId = documentReclassificationRequest.DocumentId,
                 DocumentTypeId = documentReclassificationRequest.DocumentTypeId,
                 Exhibit = documentReclassificationRequest.Exhibit,
                 Statement = documentReclassificationRequest.Statement,

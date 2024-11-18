@@ -2,6 +2,7 @@ env             = "qa"
 location        = "UK South"
 environment_tag = "qa"
 dns_server      = "10.7.198.164"
+dns_alt_server  = "168.63.129.16"
 
 ui_component_service_plans = {
   gateway_service_plan_sku        = "EP1"
@@ -13,19 +14,23 @@ ui_component_service_plans = {
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku           = "P1mv3"
-  pdf_generator_service_plan_sku         = "EP2"
-  pdf_generator_always_ready_instances   = 1
-  pdf_generator_maximum_scale_out_limit  = 10
-  pdf_generator_plan_maximum_burst       = 10
-  text_extractor_plan_sku                = "EP2"
-  text_extractor_always_ready_instances  = 1
-  text_extractor_maximum_scale_out_limit = 10
-  text_extractor_plan_maximum_burst      = 10
-  pdf_redactor_service_plan_sku          = "EP2"
-  pdf_redactor_always_ready_instances    = 1
-  pdf_redactor_maximum_scale_out_limit   = 10
-  pdf_redactor_plan_maximum_burst        = 10
+  coordinator_service_plan_sku                    = "P1mv3"
+  pdf_generator_service_plan_sku                  = "EP2"
+  pdf_generator_always_ready_instances            = 1
+  pdf_generator_maximum_scale_out_limit           = 10
+  pdf_generator_plan_maximum_burst                = 10
+  pdf_thumbnail_generator_service_plan_sku        = "EP2"
+  pdf_thumbnail_generator_always_ready_instances  = 1
+  pdf_thumbnail_generator_maximum_scale_out_limit = 10
+  pdf_thumbnail_generator_plan_maximum_burst      = 10
+  text_extractor_plan_sku                         = "EP2"
+  text_extractor_always_ready_instances           = 1
+  text_extractor_maximum_scale_out_limit          = 10
+  text_extractor_plan_maximum_burst               = 10
+  pdf_redactor_service_plan_sku                   = "EP2"
+  pdf_redactor_always_ready_instances             = 1
+  pdf_redactor_maximum_scale_out_limit            = 10
+  pdf_redactor_plan_maximum_burst                 = 10
 }
 
 polaris_webapp_details = {
@@ -42,10 +47,11 @@ ui_logging = {
 }
 
 pipeline_logging = {
-  coordinator_scale_controller    = "AppInsights:None"
-  pdf_generator_scale_controller  = "AppInsights:None"
-  text_extractor_scale_controller = "AppInsights:None"
-  pdf_redactor_scale_controller   = "AppInsights:None"
+  coordinator_scale_controller             = "AppInsights:None"
+  pdf_generator_scale_controller           = "AppInsights:None"
+  pdf_thumbnail_generator_scale_controller = "AppInsights:None"
+  text_extractor_scale_controller          = "AppInsights:None"
+  pdf_redactor_scale_controller            = "AppInsights:None"
 }
 
 cms_details = {
@@ -116,7 +122,7 @@ private_beta = {
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
 }
 
-case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/RedirectCW" 
+case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/RedirectCW"
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
@@ -147,6 +153,12 @@ sliding_clear_down = {
   protect_blobs   = false
   schedule        = "0 * * * * *"
   batch_size      = 5
+}
+
+thumbnail_generator_sliding_clear_down = {
+  batch_size  = 5
+  schedule    = "0 * * * * *"
+  input_hours = 12
 }
 
 hte_feature_flag = true

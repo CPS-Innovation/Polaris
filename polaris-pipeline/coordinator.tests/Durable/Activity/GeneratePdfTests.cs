@@ -17,7 +17,9 @@ using Common.Constants;
 using FluentAssertions;
 using Ddei.Factories;
 using Common.Clients.PdfGeneratorDomain.Domain;
+using Common.Configuration;
 using Common.Dto.Response.Document;
+using Microsoft.Extensions.Configuration;
 
 namespace pdf_generator.tests.Durable.Activity
 {
@@ -108,11 +110,18 @@ namespace pdf_generator.tests.Durable.Activity
                     FileType.DOCX))
                 .ReturnsAsync(new ConvertToPdfResponse() { PdfStream = _pdfStream, Status = PdfConversionStatus.DocumentConverted });
 
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(x => x[StorageKeys.BlobServiceContainerNameDocuments]).Returns("Documents");
+
+            var mockStorageDelegate = new Mock<Func<string, IPolarisBlobStorageService>>();
+            mockStorageDelegate.Setup(s => s("Documents")).Returns(_mockBlobStorageService.Object);
+
             _generatePdf = new GeneratePdfFromDocument(
                                 _mockPdfGeneratorClient.Object,
                                 _mockDDeiClient.Object,
                                 _mockDdeiArgFactory.Object,
-                                _mockBlobStorageService.Object);
+                                mockStorageDelegate.Object,
+                                mockConfiguration.Object);
         }
 
         [Fact]

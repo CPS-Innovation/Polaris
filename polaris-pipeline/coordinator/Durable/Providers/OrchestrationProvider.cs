@@ -149,7 +149,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             if (statuses.All(status => status.RuntimeStatus == OrchestrationRuntimeStatus.Terminated))
             {
                 return true;
-            };
+            }
 
             await Task.Delay(retryDelayMilliseconds);
             remainingRetryAttempts--;
