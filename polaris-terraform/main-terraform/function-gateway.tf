@@ -22,7 +22,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
     "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris.client_id
-    "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"        = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "PiiCategories"                                   = var.pii.categories
@@ -124,7 +124,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["CallingAppValidRoles"],
       app_settings["CallingAppValidScopes"],
       app_settings["ClientId"],
-      app_settings["ClientSecret"],
+      app_settings["MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"],
       app_settings["ComputerVisionClientServiceKey"],
       app_settings["ComputerVisionClientServiceUrl"],
       app_settings["PiiCategories"],
