@@ -21,7 +21,7 @@ export const mapRedactionSaveRequest = (
     getNormalizedRedactionHighlights(redactionHighlights);
 
   for (const redactionHighlight of normalizedHighlights) {
-    const { position, highlightType } = redactionHighlight;
+    const { position } = redactionHighlight;
     const { pageNumber: pageIndex } = position;
     const { height, width } = position.boundingRect;
 
@@ -42,8 +42,7 @@ export const mapRedactionSaveRequest = (
       (item) => item.pageIndex === position.pageNumber
     )!;
 
-    const rects =
-      highlightType === "area" ? [position.boundingRect] : position.rects;
+    const rects = [position.boundingRect] 
 
     redactionPage.redactionCoordinates.push(
       ...rects.map((item) => ({
@@ -174,7 +173,7 @@ const getAmendedRedactionsCount = (
       highlight.redactionStatus === "ignoredAll"
   );
   const normalizedHighlights = getNormalizedRedactionHighlights([
-    ...manualRedactionHighlights,
+    ...manualRedactionHighlights as any,
     ...ignoredHighlights,
   ]);
 

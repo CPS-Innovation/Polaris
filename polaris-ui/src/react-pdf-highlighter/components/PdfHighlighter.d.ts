@@ -8,6 +8,7 @@ import { type Root } from "react-dom/client";
 import type { IHighlight, LTWH, LTWHP, Position, Scaled, ScaledPosition } from "../types";
 export type T_ViewportHighlight<T_HT> = {
     position: Position;
+    highlightType?: any
 } & T_HT;
 interface State<T_HT> {
     ghostHighlight: {
@@ -38,6 +39,8 @@ interface Props<T_HT> {
     onSelectionFinished: (position: ScaledPosition, content: {
         text?: string;
         image?: string;
+        highlightType?: "search" | "searchPII" | "none";
+        highlightGroupId?: string;
     }, hideTipAndSelection: () => void, transformSelection: () => void) => JSX.Element | null;
     enableAreaSelection: (event: MouseEvent) => boolean;
 }

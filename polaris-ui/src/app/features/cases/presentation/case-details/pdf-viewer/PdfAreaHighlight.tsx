@@ -1,11 +1,10 @@
 import React from "react";
-import { T_ViewportHighlight } from "../../../../../../react-pdf-highlighter/src/components/PdfHighlighter";
+import { T_ViewportHighlight } from "@/../../polaris-ui/src/react-pdf-highlighter/components/PdfHighlighter.d";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import classes from "./PdfAreaHighlight.module.scss";
 
 interface Props {
-  highlight: T_ViewportHighlight<IPdfHighlight>;
-
+  highlight: T_ViewportHighlight<IPdfHighlight>;  
   isScrolledTo: boolean;
 }
 

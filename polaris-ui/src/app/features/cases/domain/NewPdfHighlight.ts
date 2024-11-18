@@ -5,6 +5,9 @@ export interface NewPdfHighlight extends NewHighlight {
   textContent?: string;
   redactionType?: RedactionTypeData;
   searchPIIId?: string;
+  content?: any,
+  comment?: any
+  highlightType?: any
 }
 
 export type PIIRedactionStatus =

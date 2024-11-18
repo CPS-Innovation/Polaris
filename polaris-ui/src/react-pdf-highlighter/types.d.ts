@@ -32,14 +32,14 @@ export interface Content {
     image?: string;
 }
 export interface HighlightContent {
-    content: Content;
+    content?: Content;
 }
 export interface Comment {
     text: string;
     emoji: string;
 }
 export interface HighlightComment {
-    comment: Comment;
+    comment?: Comment;
 }
 export interface NewHighlight extends HighlightContent, HighlightComment {
     position: ScaledPosition;

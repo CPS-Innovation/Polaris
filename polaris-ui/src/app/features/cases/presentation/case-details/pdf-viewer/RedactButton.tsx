@@ -11,6 +11,9 @@ type Props = {
     textContent: string;
     count: number;
     isSearchPIIDefaultOptionOn: boolean;
+    content?: {
+      highlightType: string
+    }
   };
   redactionTypesData: RedactionTypeData[];
   onConfirm: (

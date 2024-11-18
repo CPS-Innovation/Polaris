@@ -1,5 +1,6 @@
 import { Popup } from "../../../../../../react-pdf-highlighter";
-import { T_ViewportHighlight } from "../../../../../../react-pdf-highlighter/src/components/PdfHighlighter";
+// import { T_ViewportHighlight } from "../../../../../react-pdf-highlighter/components/PdfHighlighter";
+import type { T_ViewportHighlight } from "@/../../polaris-ui/src/react-pdf-highlighter/components/PdfHighlighter";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import { PdfAreaHighlight } from "./PdfAreaHighlight";
@@ -52,14 +53,15 @@ export const PdfHighlight: React.FC<Props> = ({
         />
       }
       onMouseOver={(popupContent) =>
-        setTip(highlight, (/*highlight*/) => popupContent)
-      }
-      onClick={(popupContent) =>
-        setTip(highlight, (/*highlight*/) => popupContent)
-      }
+        setTip(highlight, (/*highlight*/) => popupContent)}
+      
+      // onClick={(popupContent?: any) =>
+      //   setTip(highlight, (/*highlight*/) => popupContent)}
       onMouseOut={hideTip}
       key={index}
       children={component}
     />
   );
 };
+
+export { T_ViewportHighlight };

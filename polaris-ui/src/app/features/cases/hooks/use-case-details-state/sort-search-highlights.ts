@@ -10,7 +10,7 @@ export const sortSearchHighlights = <
   highlights
     .slice()
     .sort(
-      (a: IPdfHighlight, b: IPdfHighlight) =>
+      (a: any, b: any) =>
         a.position.pageNumber - b.position.pageNumber ||
         a.position.boundingRect.y1 - b.position.boundingRect.y1 ||
         a.position.boundingRect.x1 - b.position.boundingRect.x1

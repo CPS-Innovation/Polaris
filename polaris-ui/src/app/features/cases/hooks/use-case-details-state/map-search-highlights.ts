@@ -33,12 +33,14 @@ export const mapSearchHighlights = (
         //  are not in regular ascending order
         id: String(i++),
         type: "search",
-        highlightType: "linear",
         position: {
           pageNumber: pageIndex,
           boundingRect: rect,
           rects: [rect],
+          
         },
+        content: undefined,
+        comment: undefined
       });
     }
   }
