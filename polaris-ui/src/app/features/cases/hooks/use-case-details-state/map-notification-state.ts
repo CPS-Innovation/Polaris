@@ -70,9 +70,9 @@ export const mapNotificationState = (
   incomingDocumentsState: AsyncResult<MappedCaseDocument[]>,
   incomingDateTime: string
 ): NotificationState => {
-  if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
-    return notificationState;
-  }
+  // if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
+  //   return notificationState;
+  // }
 
   if (incomingDocumentsState.status !== "succeeded") {
     return { ...notificationState, lastCheckedDateTime: incomingDateTime };
