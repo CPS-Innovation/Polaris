@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
@@ -6,11 +6,13 @@ import { PIPELINE_POLLING_DELAY } from "../../../../config";
 import { CombinedState } from "../../domain/CombinedState";
 import { generateGuid } from "../../../cases/api/generate-guid";
 import { DispatchType } from "../use-case-details-state/reducer";
+import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
 
 export const usePipelineApi = (
   urn: string,
   caseId: number,
   pipelineRefreshData: CombinedState["pipelineRefreshData"],
+  lastModifiedDateTime: string | undefined,
   isUnMounting: () => boolean,
   dispatch: DispatchType
 ) => {
@@ -23,15 +25,18 @@ export const usePipelineApi = (
 
   const [pipelineBusy, setPipelineBusy] = useState(false);
 
-  const shouldTriggerPipelineRefresh = useCallback(() => {
-    return true; //Note here we should compare with the last modified time
-  }, [pipelineResults?.status]);
+  const triggerPipelineRefresh = useMemo(() => {
+    return shouldTriggerPipelineRefresh(
+      lastModifiedDateTime ?? "",
+      pipelineRefreshData.localLastRefreshTime
+    );
+  }, [lastModifiedDateTime, pipelineRefreshData.localLastRefreshTime]);
 
   useEffect(() => {
     if (
       // the outside world is calling for a refresh...
       pipelineRefreshData.startPipelineRefresh &&
-      shouldTriggerPipelineRefresh() &&
+      triggerPipelineRefresh &&
       // ... and we are not already doing a refresh
       !pipelineBusy
     ) {

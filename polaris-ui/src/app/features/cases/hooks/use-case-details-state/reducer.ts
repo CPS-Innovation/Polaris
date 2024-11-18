@@ -61,6 +61,7 @@ import {
   PresentationDocumentProperties,
   GroupedConversionStatus,
 } from "../../domain/gateway/PipelineDocument";
+import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -524,6 +525,7 @@ export const reducer = (
             documents: action.payload.data.documents.map((doc) => ({
               documentId: doc.documentId,
               status: doc.status,
+              conversionStatus: doc.conversionStatus,
             })),
           },
         };
@@ -546,6 +548,7 @@ export const reducer = (
         pipelineRefreshData: {
           ...state.pipelineRefreshData,
           lastProcessingCompleted: action.payload.data.processingCompleted,
+          localLastRefreshTime: new Date().toISOString(),
         },
         localDocumentState: newLocalDocumentState,
       };
@@ -820,6 +823,10 @@ export const reducer = (
         },
       };
     case "LAUNCH_SEARCH_RESULTS":
+      const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
+        state.notificationState.lastModifiedDateTime ?? "",
+        state.pipelineRefreshData.localLastRefreshTime
+      );
       const { searchState, searchTerm } = state;
       const requestedSearchTerm = searchTerm.trim();
       const submittedSearchTerm = sanitizeSearchTerm(requestedSearchTerm);
@@ -831,9 +838,9 @@ export const reducer = (
           isResultsVisible: true,
           requestedSearchTerm,
           submittedSearchTerm,
-          lastSubmittedSearchTerm: state.searchState.submittedSearchTerm
-            ? state.searchState.submittedSearchTerm
-            : "",
+          lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
+            ? ""
+            : state.searchState.submittedSearchTerm ?? "",
         },
       };
 

@@ -26,6 +26,7 @@ describe("initiateAndPoll", () => {
       {
         startPipelineRefresh: false,
         lastProcessingCompleted: "",
+        localLastRefreshTime: "",
       },
       "corId_1",
       mockCallback,
@@ -73,6 +74,7 @@ describe("initiateAndPoll", () => {
       {
         startPipelineRefresh: false,
         lastProcessingCompleted: "",
+        localLastRefreshTime: "",
       },
       "corId_1",
       mockCallback,
@@ -126,8 +128,8 @@ describe("initiateAndPoll", () => {
       POLLING_INTERVAL_MS,
       {
         startPipelineRefresh: false,
-
         lastProcessingCompleted: "",
+        localLastRefreshTime: "",
       },
       "corId_1",
       mockCallback,
@@ -183,8 +185,8 @@ describe("initiateAndPoll", () => {
       POLLING_INTERVAL_MS,
       {
         startPipelineRefresh: false,
-
         lastProcessingCompleted: "",
+        localLastRefreshTime: "",
       },
       "corId_1",
       mockCallback,
@@ -259,8 +261,8 @@ describe("initiateAndPoll", () => {
       POLLING_INTERVAL_MS,
       {
         startPipelineRefresh: false,
-
         lastProcessingCompleted: "",
+        localLastRefreshTime: "",
       },
       "corId_1",
       mockCallback,

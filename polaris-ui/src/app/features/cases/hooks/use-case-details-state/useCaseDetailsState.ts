@@ -93,13 +93,17 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
-  const handleLaunchSearchResults = useCallback(
-    () =>
-      dispatch({
-        type: "LAUNCH_SEARCH_RESULTS",
-      }),
-    [dispatch]
-  );
+  const handleLaunchSearchResults = useCallback(() => {
+    dispatch({
+      type: "UPDATE_PIPELINE_REFRESH",
+      payload: {
+        startPipelineRefresh: true,
+      },
+    });
+    dispatch({
+      type: "LAUNCH_SEARCH_RESULTS",
+    });
+  }, [dispatch]);
 
   const handleCloseSearchResults = useCallback(
     () =>

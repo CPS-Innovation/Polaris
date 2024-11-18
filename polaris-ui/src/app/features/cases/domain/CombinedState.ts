@@ -45,6 +45,7 @@ export type CombinedState = {
   pipelineRefreshData: {
     startPipelineRefresh: boolean;
     lastProcessingCompleted: string;
+    localLastRefreshTime: string;
   };
   accordionState: AsyncResult<AccordionDocumentSection[]>;
   notificationState: NotificationState;
@@ -109,6 +110,7 @@ export const initialState = {
   pipelineRefreshData: {
     startPipelineRefresh: false,
     lastProcessingCompleted: "",
+    localLastRefreshTime: "",
   },
   accordionState: { status: "loading" },
   tabsState: { items: [], headers: {}, activeTabId: undefined },

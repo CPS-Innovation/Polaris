@@ -61,6 +61,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               id: 1,
@@ -116,6 +117,62 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
+        }),
+        0,
+      ],
+    },
+  ],
+  [
+    "will set lastModifiedDateTime if there are no changes to the notifications list but lastModifiedDateTime is empty",
+    {
+      existing: [
+        state({
+          lastCheckedDateTime: existingDateTime,
+          events: [evt({ documentId: "0", id: 0 })],
+        }),
+        { status: "succeeded", data: [doc({ documentId: "0" })] },
+      ],
+      incoming: [
+        {
+          status: "succeeded",
+          data: [doc({ documentId: "0" })],
+        },
+        incomingDateTime,
+      ],
+      expected: [
+        state({
+          lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
+          events: [evt({ documentId: "0", id: 0 })],
+        }),
+        0,
+      ],
+    },
+  ],
+  [
+    "will not set lastModifiedDateTime if there are no changes to the notifications list",
+    {
+      existing: [
+        state({
+          lastCheckedDateTime: existingDateTime,
+          lastModifiedDateTime: existingDateTime,
+          events: [evt({ documentId: "0", id: 0 })],
+        }),
+        { status: "succeeded", data: [doc({ documentId: "0" })] },
+      ],
+      incoming: [
+        {
+          status: "succeeded",
+          data: [doc({ documentId: "0" })],
+        },
+        incomingDateTime,
+      ],
+      expected: [
+        state({
+          lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: existingDateTime,
+          events: [evt({ documentId: "0", id: 0 })],
         }),
         0,
       ],
@@ -153,6 +210,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -211,6 +269,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -284,6 +343,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -361,6 +421,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -426,6 +487,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -509,6 +571,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",
@@ -629,6 +692,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "4",
@@ -721,6 +785,7 @@ const scenarios: Scenario[] = [
       expected: [
         state({
           lastCheckedDateTime: incomingDateTime,
+          lastModifiedDateTime: incomingDateTime,
           events: [
             evt({
               documentId: "1",

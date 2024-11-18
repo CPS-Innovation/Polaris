@@ -34,6 +34,7 @@ export const useGetCaseData = (
     urn,
     caseId,
     combinedState.pipelineRefreshData,
+    combinedState.notificationState.lastModifiedDateTime,
     isUnMounting,
     dispatch
   );
