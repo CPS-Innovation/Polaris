@@ -27,7 +27,8 @@ stages:
       azureSubscription: $(uat-azure-subscription)
       targetPlanName: "uat"
       terraformStorageAccount: $(uat-terraform-storage-account)
-      terraformContainerName: $(main-terraform-container-name)
+      mainTerraformContainerName: $(main-terraform-container-name)
+      indexTerraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
       targetSuffix: "-uat"

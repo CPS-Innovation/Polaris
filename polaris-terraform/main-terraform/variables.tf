@@ -28,6 +28,11 @@ variable "env" {
   type = string
 }
 
+variable "search_index_name" {
+  type    = string
+  default = "lines-index"
+}
+
 variable "location" {
   description = "The location of this resource"
   type        = string
