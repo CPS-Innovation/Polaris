@@ -33,6 +33,27 @@ jobs:
           resourceGroupName: "rg-polaris-coordinator${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)
           PreserveVnet: true
+          
+  - job: Swap_Thumbnail_Generator_Slot
+    dependsOn: Pause_Pipeline
+    condition: succeeded()
+    strategy:
+      matrix:
+        PDFThumbnailGenerator:
+          Name: "PDF Thumbnail Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-thumb-gen"
+    displayName: Swap
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris-thumb-gen{{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true
 
   - job: Swap_Pipeline_Slots
     dependsOn: Pause_Pipeline
@@ -42,9 +63,6 @@ jobs:
         PDFGenerator:
           Name: "PDF Generator"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
-        PDFThumbnailGenerator:
-          Name: "PDF Thumbnail Generator"
-          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumb-gen"
         PDFRedactor:
           Name: "PDF Redactor"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-redactor"

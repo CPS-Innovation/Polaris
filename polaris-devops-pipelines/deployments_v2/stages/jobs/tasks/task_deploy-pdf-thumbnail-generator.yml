@@ -40,7 +40,7 @@ steps:
       appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumb-gen"
       package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-thumb-gen-drop
       deployToSlotOrASE: true
-      resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+      resourceGroupName: "rg-polaris-thumb-gen{{ parameters.targetSuffix }}"
       slotName: "staging1"
 
   # send custom event to AppInsights
