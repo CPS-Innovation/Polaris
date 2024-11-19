@@ -16,12 +16,8 @@ export const usePipelineApi = (
   isUnMounting: () => boolean,
   dispatch: DispatchType
 ) => {
-  const [pipelineResults, setPipelineResults] = useState<
-    AsyncPipelineResult<PipelineResults>
-  >({
-    status: "initiating",
-    correlationId: "",
-  });
+  const [pipelineResults, setPipelineResults] =
+    useState<AsyncPipelineResult<PipelineResults> | null>(null);
 
   const [pipelineBusy, setPipelineBusy] = useState(false);
 
@@ -68,15 +64,19 @@ export const usePipelineApi = (
   ]);
 
   useEffect(() => {
-    if (pipelineResults.status !== "initiating") {
+    if (
+      pipelineResults?.status === "failed" ||
+      pipelineResults?.status === "complete"
+    ) {
       setPipelineBusy(false);
     }
   }, [pipelineResults]);
 
   useEffect(() => {
-    dispatch({
-      type: "UPDATE_PIPELINE",
-      payload: pipelineResults,
-    });
+    if (pipelineResults)
+      dispatch({
+        type: "UPDATE_PIPELINE",
+        payload: pipelineResults,
+      });
   }, [pipelineResults, dispatch]);
 };
