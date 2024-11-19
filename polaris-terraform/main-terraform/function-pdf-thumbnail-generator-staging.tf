@@ -76,8 +76,8 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_thumbnail_generator_staging
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_pdf_thumbnail_generator_staging1_pe" {
   name                = "${azurerm_windows_function_app.fa_pdf_thumbnail_generator.name}-staging1-pe"
-  resource_group_name = azurerm_resource_group.rg_polaris_pipeline.name
-  location            = azurerm_resource_group.rg_polaris_pipeline.location
+  resource_group_name = azurerm_resource_group.rg_thumb_gen.name
+  location            = azurerm_resource_group.rg_thumb_gen.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
   tags                = local.common_tags
 
