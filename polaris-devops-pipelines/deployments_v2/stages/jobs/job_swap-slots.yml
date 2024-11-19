@@ -44,7 +44,7 @@ jobs:
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
         PDFThumbnailGenerator:
           Name: "PDF Thumbnail Generator"
-          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumbnail-generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumb-gen"
         PDFRedactor:
           Name: "PDF Redactor"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-redactor"

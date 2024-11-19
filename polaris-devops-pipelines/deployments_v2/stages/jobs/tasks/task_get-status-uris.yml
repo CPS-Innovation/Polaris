@@ -42,7 +42,7 @@ steps:
       subscriptionId: ${{ parameters.armSubscriptionId }}
       coordinatorAppName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
       pdfGeneratorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
-      pdfThumbnailGeneratorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumbnail-generator"
+      pdfThumbnailGeneratorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumb-gen"
       pdfRedactorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-redactor"
       textExtractorAppName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
       gatewayAppName: "fa-polaris${{ parameters.targetSuffix }}-gateway"

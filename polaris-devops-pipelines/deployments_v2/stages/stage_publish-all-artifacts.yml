@@ -144,7 +144,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-thumbnail-generator"
-              artifact: "polaris-pdf-thumbnail-generator-drop"
+              artifact: "polaris-pdf-thumb-gen-drop"
             displayName: "Publish PDF-Thumbnail-Generator codebase artifact"
 
       - job: Build_Pdf_Redactor_Artifact
