@@ -28,9 +28,6 @@ export const useGetDocumentsListApi = (
 
   useEffect(() => {
     if (documentsListState.status !== "succeeded") return;
-    if (!documentsListState?.data) {
-      return;
-    }
 
     const activeRenameDoc = renameDocuments.find(
       (doc) => doc.saveRenameRefreshStatus === "updating"
