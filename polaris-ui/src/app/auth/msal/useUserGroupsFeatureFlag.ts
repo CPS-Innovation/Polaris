@@ -16,7 +16,6 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
-  FEATURE_FLAG_EXPERIMENTAL_SYNC,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -81,7 +80,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
-    experimentalSync,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -149,12 +147,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
-      ),
-      experimentalSync: shouldShowFeature(
-        FEATURE_FLAG_EXPERIMENTAL_SYNC,
-        userDetails?.username,
-        experimentalSync
-        // { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
     []
