@@ -39,8 +39,7 @@ stages:
         condition: succeeded()
         displayName: Log End
         dependsOn:
-          - Swap_Coordinator_Slot
-          - Swap_Thumbnail_Generator_Slot
+          - Swap_Durable_App_Slots
           - Swap_Pipeline_Slots
           - Swap_UI_Slots
           - Swap_Proxy_Slot
