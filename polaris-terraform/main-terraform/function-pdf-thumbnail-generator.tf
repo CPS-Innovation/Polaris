@@ -17,6 +17,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_connection_string
+    "AzureWebJobs.SlidingClearDown.Disabled"          = var.thumbnail_generator_sliding_clear_down.disabled
     "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "SlidingClearDownBatchSize"                       = var.thumbnail_generator_sliding_clear_down.batch_size
@@ -27,7 +28,6 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.pdf_thumbnail_generator_scale_controller
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -47,22 +47,19 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
   }
 
   sticky_settings {
-    app_setting_names = ["ThumbnailGeneratorTaskHub", "HostType"]
+    app_setting_names = ["ThumbnailGeneratorTaskHub", "HostType", "AzureWebJobs.SlidingClearDown.Disabled"]
   }
 
   site_config {
     ftps_state                             = "FtpsOnly"
     http2_enabled                          = true
-    runtime_scale_monitoring_enabled       = true
     vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = var.pipeline_component_service_plans.pdf_thumbnail_generator_always_ready_instances
-    app_scale_limit                        = var.pipeline_component_service_plans.pdf_thumbnail_generator_maximum_scale_out_limit
-    pre_warmed_instance_count              = var.pipeline_component_service_plans.pdf_thumbnail_generator_always_ready_instances
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {
       dotnet_version = "v8.0"
     }
+    always_on                         = true
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
     use_32_bit_worker                 = false
@@ -81,6 +78,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
   lifecycle {
     ignore_changes = [
       app_settings["AzureWebJobsStorage"],
+      app_settings["AzureWebJobs.SlidingClearDown.Disabled"],
       app_settings["BlobServiceContainerName"],
       app_settings["BlobServiceUrl"],
       app_settings["SlidingClearDownBatchSize"],

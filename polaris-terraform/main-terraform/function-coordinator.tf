@@ -45,7 +45,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactorPdfBaseUrl"               = "https://fa-${local.global_resource_name}-pdf-redactor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_resource_name}-text-extractor.azurewebsites.net/api/"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
     "SlidingClearDownInputHours"                      = var.sliding_clear_down.look_back_hours
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
     "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
@@ -77,7 +76,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     vnet_route_all_enabled                 = true
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
-    runtime_scale_monitoring_enabled       = false
     always_on                              = true
     application_stack {
       dotnet_version = "6.0"
@@ -118,7 +116,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["PolarisPipelineRedactPdfBaseUrl"],
       app_settings["PolarisPipelineRedactorPdfBaseUrl"],
       app_settings["PolarisPipelineTextExtractorBaseUrl"],
-      app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["SlidingClearDownInputHours"],
       app_settings["SlidingClearDownProtectBlobs"],
       app_settings["SlidingClearDownSchedule"],
