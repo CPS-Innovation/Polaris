@@ -1,8 +1,11 @@
+// import React, { PointerEventHandler, PureComponent } from "react";
+import ReactDom from "react-dom/client";
+import debounce from "lodash.debounce";
 import "pdfjs-dist/web/pdf_viewer.css";
 import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import type { EventBus, PDFViewer } from "pdfjs-dist/legacy/web/pdf_viewer.mjs";
+import type { EventBus, PDFViewer, PDFLinkService } from "pdfjs-dist/legacy/web/pdf_viewer.mjs";
 import React, { type PointerEventHandler, PureComponent, type RefObject } from "react";
 import { type Root } from "react-dom/client";
 import type { IHighlight, LTWH, LTWHP, Position, Scaled, ScaledPosition } from "../types";
@@ -10,6 +13,40 @@ export type T_ViewportHighlight<T_HT> = {
     position: Position;
     highlightType?: any
 } & T_HT;
+
+
+import getBoundingRect from "../lib/get-bounding-rect";
+// page border width
+import getClientRects, { PAGE_BORDER_WIDTH } from "../lib/get-client-rects";
+import getAreaAsPng from "../lib/get-area-as-png";
+import TipContainer from "./TipContainer";
+import MouseSelection from "./MouseSelection";
+import { scaledToViewport, viewportToScaled } from "../lib/coordinates";
+
+// asElement
+import {
+  asElement,
+  getPagesFromRange,
+  getPageFromElement,
+  getWindow,
+  findOrCreateContainerLayer,
+  isHTMLElement,
+} from "../lib/pdfjs-dom";
+
+
+import type {
+  Position,
+  ScaledPosition,
+  IHighlight,
+  Scaled,
+  LTWH,
+  LTWHP,
+} from "../types";
+
+import type { PDFDocumentProxy } from "pdfjs-dist";
+
+export type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
+
 interface State<T_HT> {
     ghostHighlight: {
         position: ScaledPosition;
@@ -44,6 +81,7 @@ interface Props<T_HT> {
         highlightGroupId?: string;
     }, hideTipAndSelection: () => void, transformSelection: () => void) => JSX.Element | null;
     enableAreaSelection: (event: MouseEvent) => boolean;
+    onWheelDownwards?: () => void;
 }
 export declare class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<Props<T_HT>, State<T_HT>> {
     static defaultProps: {
