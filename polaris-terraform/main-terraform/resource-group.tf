@@ -18,7 +18,7 @@ resource "azurerm_resource_group" "rg_coordinator" {
 }
 
 resource "azurerm_resource_group" "rg_thumb_gen" {
-  name     = "rg-${var.resource_name_prefix}-thumb-gen{local.resource_suffix}"
+  name     = "rg-${var.resource_name_prefix}-thumb-gen${local.resource_suffix}"
   location = "UK South"
   tags     = local.common_tags
 }
