@@ -41,7 +41,7 @@ jobs:
       matrix:
         PDFThumbnailGenerator:
           Name: "PDF Thumbnail Generator"
-          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-thumb-gen"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}pdf-thumb-gen"
     displayName: Swap
     steps:
       - checkout: none
