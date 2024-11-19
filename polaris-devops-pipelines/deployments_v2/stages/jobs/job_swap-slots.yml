@@ -13,7 +13,7 @@ jobs:
     steps:
       - template: tasks/task_pause-pipeline.yml
 
-  - job: Swap_Coordinator_Slot
+  - job: Swap_Durable_App_Slots
     dependsOn: Pause_Pipeline
     condition: succeeded()
     strategy:
@@ -21,6 +21,9 @@ jobs:
         Coordinator:
           Name: "Coordinator"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+        PDFThumbnailGenerator:
+          Name: "PDF Thumbnail Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumb-gen"
     displayName: Swap
     steps:
       - checkout: none
@@ -33,28 +36,7 @@ jobs:
           resourceGroupName: "rg-polaris-coordinator${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)
           PreserveVnet: true
-          
-  - job: Swap_Thumbnail_Generator_Slot
-    dependsOn: Pause_Pipeline
-    condition: succeeded()
-    strategy:
-      matrix:
-        PDFThumbnailGenerator:
-          Name: "PDF Thumbnail Generator"
-          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}pdf-thumb-gen"
-    displayName: Swap
-    steps:
-      - checkout: none
-      - task: AzureAppServiceManage@0
-        displayName: Swap slot
-        inputs:
-          action: "Swap Slots"
-          sourceSlot: "staging1"
-          azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris-thumb-gen${{ parameters.targetSuffix }}"
-          webAppName: $(AppServiceName)
-          PreserveVnet: true
-
+        
   - job: Swap_Pipeline_Slots
     dependsOn: Pause_Pipeline
     condition: succeeded()
