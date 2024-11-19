@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using pdf_redactor.Services.DocumentRedaction.Aspose;

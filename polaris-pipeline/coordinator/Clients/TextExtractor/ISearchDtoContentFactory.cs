@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Net.Http;
-using Common.Domain.SearchIndex;
 
 namespace coordinator.Clients.TextExtractor
 {

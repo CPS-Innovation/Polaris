@@ -7,7 +7,6 @@ using Common.Domain.Document;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using pdf_generator.Extensions;
 using pdf_generator.Services.PdfService;
 
 namespace pdf_generator.Functions

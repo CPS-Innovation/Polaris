@@ -1,4 +1,3 @@
-using System;
 using Azure;
 using Azure.Core.Serialization;
 using Azure.Search.Documents;

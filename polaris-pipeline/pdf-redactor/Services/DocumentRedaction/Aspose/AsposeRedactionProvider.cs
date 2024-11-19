@@ -1,14 +1,9 @@
-﻿using System;
-using System.IO;
-using Aspose.Pdf;
+﻿using Aspose.Pdf;
 using Aspose.Pdf.Facades;
 using Common.Dto.Request;
 using Common.Telemetry;
 using pdf_redactor.TelemetryEvents;
-using Aspose.Pdf.Text;
-using System.Linq;
 using Common.Streaming;
-using System.Threading.Tasks;
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose
 {
@@ -30,7 +25,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
 
         public async Task<Stream> Redact(Stream stream, int caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
-            RedactedDocumentEvent telemetryEvent = default;
+            RedactedDocumentEvent? telemetryEvent = default;
             try
             {
                 var inputStream = await stream.EnsureSeekableAsync();

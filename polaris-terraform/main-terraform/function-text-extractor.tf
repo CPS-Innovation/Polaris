@@ -17,7 +17,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
@@ -38,6 +38,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
   }
 
   sticky_settings {
@@ -54,11 +55,13 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     pre_warmed_instance_count              = var.pipeline_component_service_plans.text_extractor_always_ready_instances
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    health_check_path                      = "/api/status"
+    health_check_eviction_time_in_min      = "2"
+    use_32_bit_worker                      = false
     application_stack {
-      dotnet_version = "6.0"
+      dotnet_version = "8.0"
+      use_dotnet_isolated_runtime       = true
     }
-    health_check_path                 = "/api/status"
-    health_check_eviction_time_in_min = "2"
   }
 
   identity {
@@ -93,7 +96,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
       app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
       app_settings["WEBSITE_WARMUP_PATH"],
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
+      app_settings["WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"]
     ]
   }
 }

@@ -10,9 +10,9 @@ using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
 using Common.Services.RenderHtmlService;
-using Common.Dto.Response.Case;
 using coordinator.Durable.Activity.GeneratePdf;
 using Microsoft.Extensions.Configuration;
+
 
 namespace coordinator.Durable.Activity
 {
