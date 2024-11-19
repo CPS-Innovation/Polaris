@@ -51,7 +51,7 @@ jobs:
           action: "Swap Slots"
           sourceSlot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris-thumb-gen{{ parameters.targetSuffix }}"
+          resourceGroupName: "rg-polaris-thumb-gen${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)
           PreserveVnet: true
 
