@@ -34,6 +34,7 @@ interface Props<T_HT> {
     highlights: Array<T_HT>;
     onScrollChange: () => void;
     scrollRef: (scrollTo: (highlight: T_HT) => void) => void;
+    onWheelDownwards: () => void;
     pdfDocument: PDFDocumentProxy;
     pdfScaleValue: string;
     onSelectionFinished: (position: ScaledPosition, content: {

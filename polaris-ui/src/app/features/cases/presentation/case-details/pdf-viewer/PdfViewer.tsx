@@ -52,7 +52,7 @@ type Props = {
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
-  searchHighlights: undefined | IPdfHighlight[];
+  searchHighlights:IPdfHighlight[];
   isSearchPIIOn: boolean;
   isSearchPIIDefaultOptionOn: boolean;
   activeSearchPIIHighlights: ISearchPIIHighlight[];
@@ -71,6 +71,7 @@ type Props = {
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
+  highlightType?: any
 };
 
 const ensureAllPdfInView = () =>
@@ -278,16 +279,16 @@ export const PdfViewer: React.FC<Props> = ({
             <>
               <LoaderUpdate textContent="pdf loaded" />
               <PdfHighlighter
-                onWheelDownwards={ensureAllPdfInView}
+              onWheelDownwards={ensureAllPdfInView}
                 pdfDocument={pdfDocument}
                 enableAreaSelection={enableAreaSelection}
                 onScrollChange={() => {}}
                 pdfScaleValue="page-width"
                 scrollRef={(scrollTo) => {
-                  scrollToFnRef.current = scrollTo;
+                  scrollToFnRef.current!(scrollTo as any)
                   // imperatively trigger as soon as we have reference to the scrollTo function
                   if (highlights.length) {
-                    scrollTo(highlights[0]);
+                    scrollTo(highlights[0])
                   }
                 }}
                 onSelectionFinished={(

@@ -70,7 +70,6 @@ export const Tabs: React.FC<TabsProps> = ({
     const panelId = itemId;
 
     const coreProps = {
-      key: panelId,
       role: "tabpanel",
       tabIndex: 0,
       "data-testid": `tab-content-${itemId}`,
@@ -84,7 +83,7 @@ export const Tabs: React.FC<TabsProps> = ({
             ? "document-panel-region-label"
             : `tab_${index}`
         }
-        {...coreProps}
+        key={`key-${itemId}`}
         className={`govuk-tabs__panel ${
           index !== activeTabIndex ? "govuk-tabs__panel--hidden" : ""
         }  ${classes.contentArea}`}

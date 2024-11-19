@@ -4,6 +4,7 @@ interface Props {
     /** See `GlobalWorkerOptionsType`. */
     workerSrc: string;
     url: string;
+    headers: HeadersInit;
     beforeLoad: JSX.Element;
     errorMessage?: JSX.Element;
     children: (pdfDocument: PDFDocumentProxy) => JSX.Element;
