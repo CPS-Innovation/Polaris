@@ -2,6 +2,7 @@ env             = "qa"
 location        = "UK South"
 environment_tag = "qa"
 dns_server      = "10.7.198.164"
+dns_alt_server  = "168.63.129.16"
 
 ui_component_service_plans = {
   gateway3_service_plan_sku    = "P1mv3"

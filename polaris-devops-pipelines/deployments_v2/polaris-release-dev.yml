@@ -12,7 +12,7 @@ resources:
             - refs/heads/main
         stages:
           - Publish_Artifacts
-            
+
 pool:
   name: $(dev-build-agent)
 
@@ -39,7 +39,7 @@ stages:
       targetSuffix: "-dev"
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
-                    
+
   - template: stages/stage_deploy-codebase.yml
     parameters:
       targetBuild: PolarisBuild
@@ -47,7 +47,7 @@ stages:
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       targetSuffix: "-dev"
       azureSubscription: $(dev-azure-subscription)
-  
+
   - template: stages/stage_swap-slots.yml
     parameters:
       targetBuild: PolarisBuild
@@ -55,7 +55,7 @@ stages:
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       targetSuffix: "-dev"
       azureSubscription: $(dev-azure-subscription)
-              
+
   - template: stages/stage_check-status.yml
     parameters:
       targetBuild: PolarisBuild
@@ -67,20 +67,20 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
-              
+
   - template: stages/stage_create-commit-report.yml
     parameters:
       targetBuild: PolarisBuild
       targetLabel: "DEV"
       targetLabelLower: "dev"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-  
+
   - template: stages/stage_update-git-hub-tag.yml
     parameters:
       targetBuild: PolarisBuild
       targetLabel: "DEV"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-  
+
   - template: stages/stage_run-e2e-tests.yml
     parameters:
       targetBuild: PolarisBuild

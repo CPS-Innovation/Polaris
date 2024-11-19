@@ -14,12 +14,14 @@ namespace Common.Handlers
 {
     public class ExceptionHandler : IExceptionHandler
     {
+        private const string MessageTemplate = "A {Source} exception has occurred";
+        
         public HttpResponseMessage HandleException(Exception exception, Guid correlationId, string source, ILogger logger)
         {
             BuildErrorMessage(exception, out var errorMessage, out var errorCode);
 
             logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A {Source} exception has occurred", source);
+            logger.LogError(exception, MessageTemplate, source);
 
             return ErrorResponse(errorMessage, exception, errorCode);
         }
@@ -29,19 +31,29 @@ namespace Common.Handlers
             BuildErrorMessage(exception, out var errorMessage, out var errorCode);
 
             logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A {Source} exception has occurred", source);
+            logger.LogError(exception, MessageTemplate, source);
 
             return ErrorResponse(errorMessage, exception, errorCode, obj);
         }
 
-        public ObjectResult HandleExceptionNew(Exception exception, Guid correlationId, string source, ILogger logger)
+        public JsonResult HandleExceptionNew(Exception exception, Guid correlationId, string source, ILogger logger)
         {
             BuildErrorMessage(exception, out var errorMessage, out var errorCode);
 
             logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A {Source} exception has occurred", source);
+            logger.LogError(exception, MessageTemplate, source);
 
             return ErrorResponseNew(errorMessage, exception, errorCode);
+        }
+        
+        public JsonResult HandleExceptionNew(Exception exception, Guid correlationId, string source, ILogger logger, object obj)
+        {
+            BuildErrorMessage(exception, out var errorMessage, out var errorCode);
+
+            logger.LogMethodError(correlationId, source, $"{errorMessage}: {exception.Message}", exception);
+            logger.LogError(exception, MessageTemplate, source);
+
+            return ErrorResponseNew(errorMessage, exception, errorCode, obj);
         }
 
         private static void BuildErrorMessage(Exception exception, out string errorMessage, out HttpStatusCode errorCode)
@@ -102,10 +114,26 @@ namespace Common.Handlers
             };
         }
 
-        private static ObjectResult ErrorResponseNew(string baseErrorMessage, Exception exception, HttpStatusCode httpStatusCode)
+        private static JsonResult ErrorResponseNew(string baseErrorMessage, Exception exception, HttpStatusCode httpStatusCode)
         {
             var errorMessage = $"{baseErrorMessage}. Base exception message: {exception.GetBaseException().Message}";
-            return new ObjectResult(errorMessage)
+            return new JsonResult(errorMessage)
+            {
+                StatusCode = (int)httpStatusCode
+            };
+        }
+        
+        private static JsonResult ErrorResponseNew(string baseErrorMessage, Exception exception, HttpStatusCode httpStatusCode, object obj)
+        {
+            var errorMessage = $"{baseErrorMessage}. Base exception message: {exception.GetBaseException().Message}";
+            var responseContent = new ExceptionContent
+            {
+                ErrorMessage = errorMessage,
+                Data = obj,
+                DataType = obj.GetType().Name
+            };
+            
+            return new JsonResult(responseContent)
             {
                 StatusCode = (int)httpStatusCode
             };

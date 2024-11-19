@@ -31,6 +31,15 @@ stages:
               artifact: "index-terraform-files"
               publishLocation: "pipeline"
 
+      - job: Build_Index_Terraform_Artifacts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish index terraform artifact"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform/"
+              artifact: "index-terraform-files"
+              publishLocation: "pipeline"
+
       - job: Build_Coordinator_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -102,7 +111,7 @@ stages:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
-            
+
       - job: Build_Pdf_Thumbnail_Generator_Artifact
         pool:
           vmImage: 'ubuntu-latest'
@@ -246,7 +255,7 @@ stages:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway artifact"
-            
+
       - job: Build_Maintenance_Function_Artifact
         steps:
           - task: DotNetCoreCLI@2

@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>pdf_redactor.tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+	<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Factories\" />
@@ -31,10 +32,6 @@
     <EmbeddedResource Include="TestResources\TestImage.png" />
     <EmbeddedResource Include="TestResources\TestPresentation.pptx" />
     <EmbeddedResource Include="TestResources\TestPdf.pdf" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Factories\" />
-    <Folder Include="Wrappers\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />

@@ -1,8 +1,8 @@
-using PolarisGateway.Extensions;
 using FluentAssertions;
+using PolarisGateway.Extensions;
 using Xunit;
 
-namespace Common.tests.Extensions;
+namespace PolarisGateway.Tests.Extensions;
 
 public class StringExtensionsTests
 {

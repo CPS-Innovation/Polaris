@@ -12,7 +12,7 @@ resources:
             - refs/heads/main
         stages:
           - Publish_Artifacts
-            
+
 pool:
   name: $(qa-build-agent)
 
