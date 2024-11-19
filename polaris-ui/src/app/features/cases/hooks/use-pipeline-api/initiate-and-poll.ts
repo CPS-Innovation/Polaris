@@ -102,7 +102,6 @@ export const initiateAndPoll = (
             trackerArgs.trackerUrl,
             trackerArgs.correlationId
           ),
-          //getDocuments(urn, caseId),
         ]);
 
         if (pipelineResults) {

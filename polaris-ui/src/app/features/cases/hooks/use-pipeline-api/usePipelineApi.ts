@@ -61,9 +61,10 @@ export const usePipelineApi = (
     caseId,
     urn,
     pipelineRefreshData,
-    pipelineBusy,
     isUnMounting,
-    shouldTriggerPipelineRefresh,
+    pipelineBusy,
+    triggerPipelineRefresh,
+    setPipelineResults,
   ]);
 
   useEffect(() => {

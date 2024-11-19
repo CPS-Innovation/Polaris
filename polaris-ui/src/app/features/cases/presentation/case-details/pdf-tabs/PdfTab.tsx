@@ -278,7 +278,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         ) : (
           <HeaderReadMode
             showOverRedactionLog={showOverRedactionLog}
-            caseDocumentViewModel={caseDocumentViewModel}
             handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
             handleShowRedactionLogModal={handleShowRedactionLogModal}
             handleAreaOnlyRedaction={handleAreaOnlyRedaction}

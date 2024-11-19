@@ -60,9 +60,9 @@ export type CombinedState = {
   searchTerm: string;
   searchState: {
     isResultsVisible: boolean;
-    requestedSearchTerm?: string;
-    submittedSearchTerm?: string;
-    lastSubmittedSearchTerm?: string;
+    requestedSearchTerm: string | undefined;
+    submittedSearchTerm: string | undefined;
+    lastSubmittedSearchTerm: string | undefined;
     resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
     filterOptions: {
       docType: { [key: string]: FilterOption };

@@ -41,7 +41,6 @@ describe("initiateAndPoll", () => {
         status: "failed",
         error: expectedError,
         httpStatusCode: 100,
-        haveData: false,
         correlationId: "corId_1",
       } as AsyncPipelineResult<PipelineResults>)
     );
@@ -93,7 +92,6 @@ describe("initiateAndPoll", () => {
         status: "failed",
         error: expectedError,
         httpStatusCode: 100,
-        haveData: false,
         correlationId: "corId_1",
       } as ApiResult<PipelineResults>)
     );
@@ -114,12 +112,7 @@ describe("initiateAndPoll", () => {
 
     const getPipelinePdfResultsSpy = jest
       .spyOn(api, "getPipelinePdfResults")
-      .mockImplementation((caseId) =>
-        Promise.resolve({
-          status: "Failed",
-          documents: [{ status: "PdfUploadedToBlob" }],
-        } as PipelineResults)
-      );
+      .mockImplementation((caseId) => Promise.reject({}));
 
     const mockCallback = jest.fn();
     const quitFn = initiateAndPoll(
@@ -148,11 +141,10 @@ describe("initiateAndPoll", () => {
     await waitFor(() =>
       expect(mockCallback).toHaveBeenCalledWith({
         status: "failed",
-        error: expect.any(Error),
+        error: {},
         httpStatusCode: undefined,
-        haveData: false,
         correlationId: "corId_1",
-      } as ApiResult<PipelineResults>)
+      })
     );
 
     quitFn();
@@ -209,7 +201,6 @@ describe("initiateAndPoll", () => {
     await waitFor(() =>
       expect(mockCallback).toHaveBeenCalledWith({
         status: "complete",
-        haveData: true,
         correlationId: "corId_1",
         data: expectedResults,
       })
@@ -282,7 +273,6 @@ describe("initiateAndPoll", () => {
     await waitFor(() =>
       expect(mockCallback).toHaveBeenNthCalledWith(1, {
         status: "incomplete",
-        haveData: true,
         correlationId: "corId_1",
         data: expectedInterimResults,
       })
@@ -293,7 +283,6 @@ describe("initiateAndPoll", () => {
     await waitFor(() =>
       expect(mockCallback).toHaveBeenNthCalledWith(2, {
         status: "complete",
-        haveData: true,
         correlationId: "corId_1",
         data: expectedFinalResults,
       })

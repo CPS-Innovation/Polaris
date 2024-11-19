@@ -675,7 +675,6 @@ export const reducer = (
       if (mode === "read") {
         item = {
           ...coreItem,
-          sasUrl: undefined,
           mode: "read",
           areaOnlyRedactionMode: false,
         };
@@ -729,7 +728,6 @@ export const reducer = (
         item = {
           ...coreItem,
           mode: "search",
-          sasUrl: undefined,
           searchTerm: state.searchState.submittedSearchTerm!,
           occurrencesInDocumentCount: foundDocumentSearchResult
             ? foundDocumentSearchResult.occurrencesInDocumentCount
@@ -824,8 +822,8 @@ export const reducer = (
       };
     case "LAUNCH_SEARCH_RESULTS":
       const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
-        state.notificationState.lastModifiedDateTime ?? "",
-        state.pipelineRefreshData.localLastRefreshTime
+        state.notificationState?.lastModifiedDateTime ?? "",
+        state.pipelineRefreshData?.localLastRefreshTime
       );
       const { searchState, searchTerm } = state;
       const requestedSearchTerm = searchTerm.trim();

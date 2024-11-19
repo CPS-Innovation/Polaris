@@ -18,6 +18,7 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { MemoryRouter } from "react-router-dom";
 import { initialState } from "../../domain/CombinedState";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
@@ -72,6 +73,17 @@ describe("useCaseDetailsState", () => {
             setTimeout(() => resolve([] as ApiTextSearchResult[]), 100)
           )
       );
+    const getDocumentsList = jest
+      .spyOn(api, "getDocumentsList")
+      .mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(
+              () => resolve([] as PresentationDocumentProperties[]),
+              100
+            )
+          )
+      );
 
     jest.spyOn(useApi, "useApi").mockImplementation((del, params) => {
       if (isSameRef(del, mockGetCaseDetails)) {
@@ -89,6 +101,12 @@ describe("useCaseDetailsState", () => {
         return {
           status: "succeeded",
           data: "searchCase",
+        };
+      }
+      if (isSameRef(del, getDocumentsList)) {
+        return {
+          status: "succeeded",
+          data: "getDocumentList",
         };
       }
       throw new Error("Should not be here");
@@ -155,6 +173,7 @@ describe("useCaseDetailsState", () => {
         handleSaveRotations,
         handleClearAllNotifications,
         handleClearNotification,
+        handleUpdateConversionStatus,
         ...stateProperties
       } = result.current;
 
@@ -174,10 +193,14 @@ describe("useCaseDetailsState", () => {
         type: "UPDATE_CASE_DETAILS",
         payload: { status: "succeeded", data: "getCaseDetails" },
       });
+      expect(reducerSpy).toBeCalledWith(expect.anything(), {
+        type: "UPDATE_CASE_DETAILS",
+        payload: { status: "succeeded", data: "getCaseDetails" },
+      });
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
-        type: "UPDATE_PIPELINE",
-        payload: {},
+        type: "UPDATE_DOCUMENTS",
+        payload: { status: "succeeded", data: "getDocumentList" },
       });
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
@@ -224,6 +247,7 @@ describe("useCaseDetailsState", () => {
     });
   });
 
+  //Note:Make sure all the handlers are added in the test case
   describe("synchronous action handlers", () => {
     it("can close a pdf", () => {
       const {

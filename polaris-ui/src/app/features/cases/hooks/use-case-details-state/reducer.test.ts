@@ -18,6 +18,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
+import * as shouldTriggerPipelineRefresh from "../utils/shouldTriggerPipelineRefresh";
 import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
 import {
@@ -750,7 +751,7 @@ describe("useCaseDetailsState reducer", () => {
 
       const existingDocumentsState = {
         status: "succeeded",
-        data: [{ documentId: "1" }],
+        data: [{ documentId: "1", versionId: 2 }],
       } as CombinedState["documentsState"];
 
       const existingPipelineState = {
@@ -759,6 +760,8 @@ describe("useCaseDetailsState reducer", () => {
 
       const nextState = reducer(
         {
+          urn: "abc-urn",
+          caseId: 123,
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
@@ -768,6 +771,7 @@ describe("useCaseDetailsState reducer", () => {
           type: "OPEN_PDF",
           payload: {
             documentId: "1",
+
             mode: "read",
             headers: {
               Authorization: "bar",
@@ -785,9 +789,10 @@ describe("useCaseDetailsState reducer", () => {
         items: [
           {
             documentId: "1",
+            versionId: 2,
             clientLockedState: "unlocked",
             areaOnlyRedactionMode: false,
-            url: undefined,
+            url: "http://localhost/api/urns/abc-urn/cases/123/documents/1/versions/2/pdf",
             isDeleted: false,
             saveStatus: {
               status: "initial",
@@ -1469,7 +1474,12 @@ describe("useCaseDetailsState reducer", () => {
   });
   describe("UPDATE_SEARCH_TERM", () => {
     it("can update search term", () => {
-      const existingState = { searchTerm: "foo" } as CombinedState;
+      const existingState = {
+        searchTerm: "foo",
+        searchState: {
+          submittedSearchTerm: "abc",
+        },
+      } as CombinedState;
 
       const nextState = reducer(existingState, {
         type: "UPDATE_SEARCH_TERM",
@@ -1478,6 +1488,10 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(nextState).toEqual({
         searchTerm: "bar",
+        searchState: {
+          lastSubmittedSearchTerm: "abc",
+          submittedSearchTerm: "abc",
+        },
       });
     });
   });
@@ -1504,21 +1518,18 @@ describe("useCaseDetailsState reducer", () => {
       jest
         .spyOn(sanitizeSearchTerm, "sanitizeSearchTerm")
         .mockImplementation((input) => {
-          if (input === "foo") {
-            return "bar";
-          }
-          throw new Error("Should not be here");
+          return "bar";
         });
     });
 
-    it("can open search results", () => {
+    it("Should match the state when search for the first time", () => {
       const existingSearchState = {
         isResultsVisible: false,
       } as CombinedState["searchState"];
 
       const nextState = reducer(
         {
-          searchTerm: "foo",
+          searchTerm: "foo ",
           searchState: existingSearchState,
         } as CombinedState,
         { type: "LAUNCH_SEARCH_RESULTS" }
@@ -1528,6 +1539,64 @@ describe("useCaseDetailsState reducer", () => {
         submittedSearchTerm: "bar",
         requestedSearchTerm: "foo",
         isResultsVisible: true,
+        lastSubmittedSearchTerm: "",
+      } as CombinedState["searchState"]);
+    });
+    it("Should match the state when search for any subsequent time", () => {
+      jest
+        .spyOn(shouldTriggerPipelineRefresh, "shouldTriggerPipelineRefresh")
+        .mockImplementation((a, b) => {
+          return false;
+        });
+      const existingSearchState = {
+        isResultsVisible: false,
+        requestedSearchTerm: "foo",
+        submittedSearchTerm: "foo",
+        lastSubmittedSearchTerm: "",
+      } as CombinedState["searchState"];
+
+      const nextState = reducer(
+        {
+          searchTerm: "abc",
+          searchState: existingSearchState,
+        } as CombinedState,
+        { type: "LAUNCH_SEARCH_RESULTS" }
+      );
+
+      expect(nextState.searchState).toEqual({
+        submittedSearchTerm: "bar",
+        requestedSearchTerm: "abc",
+        isResultsVisible: true,
+        lastSubmittedSearchTerm: "foo",
+      } as CombinedState["searchState"]);
+    });
+
+    it("Should match the state when search if a pipelineRefresh is needed", () => {
+      jest
+        .spyOn(shouldTriggerPipelineRefresh, "shouldTriggerPipelineRefresh")
+        .mockImplementation((a, b) => {
+          return true;
+        });
+      const existingSearchState = {
+        isResultsVisible: false,
+        requestedSearchTerm: "foo",
+        submittedSearchTerm: "bar",
+        lastSubmittedSearchTerm: "foo",
+      } as CombinedState["searchState"];
+
+      const nextState = reducer(
+        {
+          searchTerm: "abc",
+          searchState: existingSearchState,
+        } as CombinedState,
+        { type: "LAUNCH_SEARCH_RESULTS" }
+      );
+
+      expect(nextState.searchState).toEqual({
+        submittedSearchTerm: "bar",
+        requestedSearchTerm: "abc",
+        isResultsVisible: true,
+        lastSubmittedSearchTerm: "",
       } as CombinedState["searchState"]);
     });
 
@@ -1548,6 +1617,7 @@ describe("useCaseDetailsState reducer", () => {
         submittedSearchTerm: "bar",
         requestedSearchTerm: "foo",
         isResultsVisible: true,
+        lastSubmittedSearchTerm: "",
       } as CombinedState["searchState"]);
     });
   });
