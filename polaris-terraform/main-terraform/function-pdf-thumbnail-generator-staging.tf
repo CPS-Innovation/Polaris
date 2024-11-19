@@ -12,6 +12,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_thumbnail_generator_staging
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_connection_string
+    "AzureWebJobs.SlidingClearDown.Disabled"          = 1
     "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "SlidingClearDownBatchSize"                       = var.thumbnail_generator_sliding_clear_down.batch_size
@@ -22,7 +23,6 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_thumbnail_generator_staging
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Staging1"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.pdf_thumbnail_generator_scale_controller
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -44,11 +44,8 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_thumbnail_generator_staging
   site_config {
     ftps_state                             = "FtpsOnly"
     http2_enabled                          = true
-    runtime_scale_monitoring_enabled       = true
     vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = var.pipeline_component_service_plans.pdf_thumbnail_generator_always_ready_instances
-    app_scale_limit                        = var.pipeline_component_service_plans.pdf_thumbnail_generator_maximum_scale_out_limit
-    pre_warmed_instance_count              = var.pipeline_component_service_plans.pdf_thumbnail_generator_always_ready_instances
+    always_on                              = true
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {

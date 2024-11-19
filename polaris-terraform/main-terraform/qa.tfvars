@@ -14,23 +14,20 @@ ui_component_service_plans = {
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku                    = "P1mv3"
-  pdf_generator_service_plan_sku                  = "EP2"
-  pdf_generator_always_ready_instances            = 1
-  pdf_generator_maximum_scale_out_limit           = 10
-  pdf_generator_plan_maximum_burst                = 10
-  pdf_thumbnail_generator_service_plan_sku        = "EP2"
-  pdf_thumbnail_generator_always_ready_instances  = 1
-  pdf_thumbnail_generator_maximum_scale_out_limit = 10
-  pdf_thumbnail_generator_plan_maximum_burst      = 10
-  text_extractor_plan_sku                         = "EP2"
-  text_extractor_always_ready_instances           = 1
-  text_extractor_maximum_scale_out_limit          = 10
-  text_extractor_plan_maximum_burst               = 10
-  pdf_redactor_service_plan_sku                   = "EP2"
-  pdf_redactor_always_ready_instances             = 1
-  pdf_redactor_maximum_scale_out_limit            = 10
-  pdf_redactor_plan_maximum_burst                 = 10
+  coordinator_service_plan_sku             = "P1mv3"
+  pdf_generator_service_plan_sku           = "EP2"
+  pdf_generator_always_ready_instances     = 1
+  pdf_generator_maximum_scale_out_limit    = 10
+  pdf_generator_plan_maximum_burst         = 10
+  pdf_thumbnail_generator_service_plan_sku = "P1mv3"
+  text_extractor_plan_sku                  = "EP2"
+  text_extractor_always_ready_instances    = 1
+  text_extractor_maximum_scale_out_limit   = 10
+  text_extractor_plan_maximum_burst        = 10
+  pdf_redactor_service_plan_sku            = "EP2"
+  pdf_redactor_always_ready_instances      = 1
+  pdf_redactor_maximum_scale_out_limit     = 10
+  pdf_redactor_plan_maximum_burst          = 10
 }
 
 polaris_webapp_details = {
@@ -42,16 +39,13 @@ polaris_webapp_details = {
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
 
 ui_logging = {
-  gateway_scale_controller       = "AppInsights:None"
-  auth_handover_scale_controller = "AppInsights:None"
+  gateway_scale_controller = "AppInsights:None"
 }
 
 pipeline_logging = {
-  coordinator_scale_controller             = "AppInsights:None"
-  pdf_generator_scale_controller           = "AppInsights:None"
-  pdf_thumbnail_generator_scale_controller = "AppInsights:None"
-  text_extractor_scale_controller          = "AppInsights:None"
-  pdf_redactor_scale_controller            = "AppInsights:None"
+  pdf_generator_scale_controller  = "AppInsights:None"
+  text_extractor_scale_controller = "AppInsights:None"
+  pdf_redactor_scale_controller   = "AppInsights:None"
 }
 
 cms_details = {
@@ -156,6 +150,7 @@ sliding_clear_down = {
 }
 
 thumbnail_generator_sliding_clear_down = {
+  disabled    = 0
   batch_size  = 5
   schedule    = "0 * * * * *"
   input_hours = 12
