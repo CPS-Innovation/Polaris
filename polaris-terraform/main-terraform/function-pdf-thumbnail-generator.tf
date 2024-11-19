@@ -1,7 +1,7 @@
 #################### Functions ####################
 
 resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
-  name                          = "fa-${local.global_resource_name}-pdf-thumbnail-generator"
+  name                          = "fa-${local.global_resource_name}-pdf-thumb-gen"
   location                      = azurerm_resource_group.rg_polaris_pipeline.location
   resource_group_name           = azurerm_resource_group.rg_polaris_pipeline.name
   service_plan_id               = azurerm_service_plan.asp_polaris_pipeline_ep_pdf_thumbnail_generator.id
@@ -22,7 +22,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
     "SlidingClearDownBatchSize"                       = var.thumbnail_generator_sliding_clear_down.batch_size
     "SlidingClearDownSchedule"                        = var.thumbnail_generator_sliding_clear_down.schedule
     "SlidingClearDownInputHours"                      = var.thumbnail_generator_sliding_clear_down.input_hours
-    "ThumbnailGeneratorTaskHub"                       = "fapolaris${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator"
+    "ThumbnailGeneratorTaskHub"                       = "fapolaris${var.env != "prod" ? var.env : ""}pdfthumbgen"
     "BlobServiceContainerNameThumbnails"              = var.blob_thumbnails_container_name
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
@@ -111,8 +111,8 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
 
 module "azurerm_app_reg_fa_pdf_thumbnail_generator" {
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_resource_name}-pdf-thumbnail-generator-appreg"
-  identifier_uris         = ["api://fa-${local.global_resource_name}-pdf-thumbnail-generator"]
+  display_name            = "fa-${local.global_resource_name}-pdf-thumb-gen-appreg"
+  identifier_uris         = ["api://fa-${local.global_resource_name}-pdf-thumb-gen"]
   prevent_duplicate_names = true
   #use this code for adding app_roles
   /*app_role = [

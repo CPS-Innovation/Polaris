@@ -61,7 +61,7 @@ stages:
         displayName: Deploy PDF Thumbnail Generator
         condition: succeeded()
         steps:
-          - template: jobs/tasks/task_deploy-pdf-thumbnail-generator.yml
+          - template: jobs/tasks/task_deploy-pdf-thumb-gen.yml
             parameters:
               targetBuild: ${{ parameters.targetBuild }}
               targetLabel: ${{ parameters.targetLabel }}
