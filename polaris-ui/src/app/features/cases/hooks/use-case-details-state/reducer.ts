@@ -61,6 +61,7 @@ import {
   PresentationDocumentProperties,
   GroupedConversionStatus,
 } from "../../domain/gateway/PipelineDocument";
+import { LocalDocumentState } from "../../domain/LocalDocumentState";
 import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
@@ -515,21 +516,19 @@ export const reducer = (
           },
         };
       }
-      let mappedData = {};
-      if (action.payload?.data) {
-        //temporary mapping until the mock data is cleaned
-        mappedData = {
-          ...action.payload,
-          data: {
-            ...action.payload.data,
-            documents: action.payload.data.documents.map((doc) => ({
-              documentId: doc.documentId,
-              status: doc.status,
-              conversionStatus: doc.conversionStatus,
-            })),
-          },
-        };
-      }
+      //temporary mapping until the mock data is cleaned
+      const mappedData = {
+        ...action.payload,
+        data: {
+          ...action.payload.data,
+          documents: action.payload.data.documents.map((doc) => ({
+            documentId: doc.documentId,
+            status: doc.status,
+            conversionStatus: doc.conversionStatus,
+          })),
+        },
+      };
+
       const newLocalDocumentState = action.payload.data.documents.reduce(
         (acc, curr) => {
           acc[`${curr.documentId}`] = {
@@ -537,7 +536,7 @@ export const reducer = (
           };
           return acc;
         },
-        {} as any
+        {} as LocalDocumentState
       );
       return {
         ...state,
@@ -547,7 +546,7 @@ export const reducer = (
         },
         pipelineRefreshData: {
           ...state.pipelineRefreshData,
-          lastProcessingCompleted: action.payload.data.processingCompleted,
+          lastProcessingCompleted: action.payload.data.processingCompleted, //may be can use it from pipelineState
           localLastRefreshTime: new Date().toISOString(),
         },
         localDocumentState: newLocalDocumentState,

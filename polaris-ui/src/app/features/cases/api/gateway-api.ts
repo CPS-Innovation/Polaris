@@ -164,7 +164,6 @@ export const searchCase = async (
   caseId: number,
   searchTerm: string
 ) => {
-  console.log("searchCase>>>111", searchTerm);
   const path = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
   );

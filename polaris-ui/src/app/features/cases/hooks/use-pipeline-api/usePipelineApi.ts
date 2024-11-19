@@ -74,7 +74,6 @@ export const usePipelineApi = (
   }, [pipelineResults]);
 
   useEffect(() => {
-    console.log("update pipeline....", pipelineResults);
     dispatch({
       type: "UPDATE_PIPELINE",
       payload: pipelineResults,

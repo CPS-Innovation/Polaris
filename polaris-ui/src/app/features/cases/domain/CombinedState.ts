@@ -101,7 +101,7 @@ export type CombinedState = {
 export const initialState = {
   caseState: { status: "loading" },
   documentsState: { status: "loading" },
-  pipelineState: { status: "initiating", haveData: false, correlationId: "" },
+  pipelineState: { status: "initiating", correlationId: "" },
   localDocumentState: {},
   documentRefreshData: {
     startDocumentRefresh: true,

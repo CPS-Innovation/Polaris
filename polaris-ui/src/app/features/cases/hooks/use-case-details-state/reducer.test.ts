@@ -68,559 +68,280 @@ describe("useCaseDetailsState reducer", () => {
     });
   });
 
-  // describe("UPDATE_PIPELINE", () => {
-  //   describe("building documents state", () => {
-  //     it("should not build documents state if the documentRetrieved is not present", () => {
-  //       const existingState = {
-  //         pipelineState: {},
-  //         tabsState: { items: [] },
-  //         documentsState: { status: "loading" },
-  //         documentRefreshData: {
-  //           startDocumentRefresh: false,
-  //           savedDocumentDetails: [],
-  //           lastProcessingCompleted: "",
-  //         },
-  //       } as unknown as CombinedState;
+  describe("UPDATE_PIPELINE", () => {
+    it("throws if update pipelineState fails", () => {
+      expect(() =>
+        reducer({} as CombinedState, {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "failed",
+            error: ERROR,
+            httpStatusCode: undefined,
+            correlationId: "corId_1",
+          },
+        })
+      ).toThrowError(ERROR);
+    });
 
-  //       const nextState = reducer(existingState, {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "incomplete",
-  //           haveData: true,
-  //           data: {
-  //             status: "Completed",
-  //             processingCompleted: "",
-  //             documentsRetrieved: "",
-  //             documents: [],
-  //           },
-  //           correlationId: "corId_1",
-  //         } as AsyncPipelineResult<PipelineResults>,
-  //       });
+    it("should update the state if pipeline is initiating", () => {
+      const existingPipelineState = {
+        status: "complete",
+        data: {} as PipelineResults,
+        correlationId: "abc",
+      } as CombinedState["pipelineState"];
 
-  //       expect(nextState.documentsState).toBe(existingState.documentsState);
-  //     });
+      const nextState = reducer(
+        {
+          pipelineState: existingPipelineState,
+        } as CombinedState,
+        {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "initiating",
+            correlationId: "abc",
+          },
+        }
+      );
 
-  //     it("should not build documents state if the status is `Running` and documentRetrieved is present", () => {
-  //       const existingState = {
-  //         pipelineState: {},
-  //         tabsState: { items: [] },
-  //         documentsState: { status: "loading" },
-  //         documentRefreshData: {
-  //           startDocumentRefresh: false,
-  //           savedDocumentDetails: [],
-  //           lastProcessingCompleted: "",
-  //         },
-  //       } as unknown as CombinedState;
+      expect(nextState.pipelineState).toEqual({
+        status: "initiating",
+        data: {} as PipelineResults,
+        correlationId: "abc",
+      });
+    });
 
-  //       const nextState = reducer(existingState, {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "incomplete",
-  //           haveData: true,
-  //           data: {
-  //             status: "Running",
-  //             processingCompleted: "",
-  //             documentsRetrieved: new Date().toISOString(),
-  //             documents: [],
-  //           },
-  //           correlationId: "corId_1",
-  //         } as AsyncPipelineResult<PipelineResults>,
-  //       });
+    it("Should update the state if the pipeline is incomplete", () => {
+      const dateSpy = jest
+        .spyOn(Date.prototype, "toISOString")
+        .mockReturnValue("2023-01-01T00:00:00.000Z");
+      const existingPipelineState = {
+        status: "initiating",
+        data: {
+          processingCompleted: "time_pc1",
+          documentsRetrieved: "time_dc1",
+          status: "DocumentsRetrieved",
+          documents: [
+            {
+              documentId: "1",
+              conversionStatus: "PdfEncrypted",
+              status: "New",
+            },
+            {
+              documentId: "2",
+              conversionStatus: "DocumentConverted",
+              status: "Indexed",
+            },
+          ],
+        } as PipelineResults,
+        correlationId: "abc",
+      } as CombinedState["pipelineState"];
 
-  //       expect(nextState.documentsState).toBe(existingState.documentsState);
-  //     });
+      const existingLocalDocumentState = {
+        "1": { conversionStatus: "PdfEncrypted" },
+        "2": { conversionStatus: "DocumentConverted" },
+      } as CombinedState["localDocumentState"];
 
-  //     it("should not build documents state if the current documentsRetrieved timestamp is not greater than the current one", () => {
-  //       const documentsRetrieved = "2023-06-27T20:16:46.532Z";
+      const existingPipelineRefreshData = {
+        startPipelineRefresh: false,
+        lastProcessingCompleted: "time_lpc1",
+        localLastRefreshTime: "abc",
+      } as CombinedState["pipelineRefreshData"];
 
-  //       const existingState = {
-  //         pipelineState: {
-  //           haveData: true,
-  //           data: { documentsRetrieved },
-  //         },
-  //         tabsState: { items: [] },
-  //         documentRefreshData: {
-  //           startDocumentRefresh: false,
-  //           savedDocumentDetails: [],
-  //           lastProcessingCompleted: "",
-  //         },
-  //         documentsState: {
-  //           status: "succeeded",
-  //         },
-  //       } as unknown as CombinedState;
+      const nextStateIncompleteStatus = reducer(
+        {
+          pipelineState: existingPipelineState,
+          localDocumentState: existingLocalDocumentState,
+          pipelineRefreshData: existingPipelineRefreshData,
+        } as CombinedState,
+        {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            data: {
+              documents: [
+                {
+                  documentId: "1",
+                  conversionStatus: "DocumentConverted",
+                  status: "New",
+                },
+                {
+                  documentId: "2",
+                  conversionStatus: "DocumentConverted",
+                  status: "Indexed",
+                },
+                {
+                  documentId: "3",
+                  conversionStatus: "DocumentConverted",
+                  status: "Indexed",
+                },
+              ],
+              documentsRetrieved: "time_dc2",
+              processingCompleted: "time_pc2",
+              status: "DocumentsRetrieved",
+            },
+            correlationId: "abc",
+          },
+        }
+      );
 
-  //       const nextState = reducer(existingState, {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "incomplete",
-  //           haveData: true,
-  //           data: {
-  //             status: "Completed",
-  //             documentsRetrieved,
-  //             documents: [],
-  //           },
-  //         } as unknown as AsyncPipelineResult<PipelineResults>,
-  //       });
+      expect(nextStateIncompleteStatus).toEqual({
+        pipelineState: {
+          status: "incomplete",
+          data: {
+            documents: [
+              {
+                documentId: "1",
+                conversionStatus: "DocumentConverted",
+                status: "New",
+              },
+              {
+                documentId: "2",
+                conversionStatus: "DocumentConverted",
+                status: "Indexed",
+              },
+              {
+                documentId: "3",
+                conversionStatus: "DocumentConverted",
+                status: "Indexed",
+              },
+            ],
+            documentsRetrieved: "time_dc2",
+            processingCompleted: "time_pc2",
+            status: "DocumentsRetrieved",
+          },
+          correlationId: "abc",
+        },
+        pipelineRefreshData: {
+          startPipelineRefresh: false,
+          lastProcessingCompleted: "time_pc2",
+          localLastRefreshTime: "2023-01-01T00:00:00.000Z",
+        },
+        localDocumentState: {
+          "1": { conversionStatus: "DocumentConverted" },
+          "2": { conversionStatus: "DocumentConverted" },
+          "3": { conversionStatus: "DocumentConverted" },
+        },
+      });
 
-  //       expect(nextState.documentsState).toStrictEqual(
-  //         existingState.documentsState
-  //       );
-  //     });
+      dateSpy.mockRestore();
+    });
 
-  //     it("should build documents state if there is no current documentsRetrieved timestamp and incoming data has got documentsRetrieved ", () => {
-  //       const existingState = {
-  //         pipelineState: {
-  //           haveData: false,
-  //         },
-  //         tabsState: { items: [] },
-  //         documentRefreshData: {
-  //           startDocumentRefresh: false,
-  //           savedDocumentDetails: [],
-  //           lastProcessingCompleted: "",
-  //         },
-  //         documentsState: {
-  //           status: "succeeded",
-  //           data: [],
-  //         },
-  //         notificationState: {
-  //           ignoreNextEvents: [],
-  //           events: [],
-  //           liveNotificationCount: 0,
-  //           usersEvents: [],
-  //         } as NotificationState,
-  //       } as unknown as CombinedState;
+    it("Should update the state if the pipeline is complete", () => {
+      const dateSpy = jest
+        .spyOn(Date.prototype, "toISOString")
+        .mockReturnValue("2023-01-01T00:00:00.000Z");
+      const existingPipelineState = {
+        status: "initiating",
+        data: {
+          processingCompleted: "time_pc1",
+          documentsRetrieved: "time_dc1",
+          status: "DocumentsRetrieved",
+          documents: [
+            {
+              documentId: "1",
+              conversionStatus: "PdfEncrypted",
+              status: "New",
+            },
+            {
+              documentId: "2",
+              conversionStatus: "DocumentConverted",
+              status: "Indexed",
+            },
+          ],
+        } as PipelineResults,
+        correlationId: "abc",
+      } as CombinedState["pipelineState"];
 
-  //       const nextState = reducer(existingState, {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "incomplete",
-  //           haveData: true,
-  //           data: {
-  //             status: "Completed",
-  //             documentsRetrieved: new Date().toISOString(),
-  //             documents: [],
-  //           },
-  //         } as unknown as AsyncPipelineResult<PipelineResults>,
-  //       });
+      const existingLocalDocumentState = {
+        "1": { conversionStatus: "PdfEncrypted" },
+        "2": { conversionStatus: "DocumentConverted" },
+      } as CombinedState["localDocumentState"];
 
-  //       expect(nextState.documentsState).toStrictEqual({
-  //         ...existingState.documentsState,
-  //         data: [],
-  //       });
-  //     });
+      const existingPipelineRefreshData = {
+        startPipelineRefresh: false,
+        lastProcessingCompleted: "time_lpc1",
+        localLastRefreshTime: "abc",
+      } as CombinedState["pipelineRefreshData"];
 
-  //     it("should build documents state if there are are no documents in the payload and document state is not already built", () => {
-  //       const mockNewPdfDocuments = [{}] as PipelineDocument[];
-  //       const mockDocumentsState = {} as CombinedState["documentsState"];
-  //       const mockAccordionState = {} as CombinedState["accordionState"];
+      const nextStateCompleteStatus = reducer(
+        {
+          pipelineState: existingPipelineState,
+          localDocumentState: existingLocalDocumentState,
+          pipelineRefreshData: existingPipelineRefreshData,
+        } as CombinedState,
+        {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "complete",
+            data: {
+              documents: [
+                {
+                  documentId: "1",
+                  conversionStatus: "DocumentConverted",
+                  status: "New",
+                },
+                {
+                  documentId: "2",
+                  conversionStatus: "DocumentConverted",
+                  status: "Indexed",
+                },
+                {
+                  documentId: "3",
+                  conversionStatus: "DocumentConverted",
+                  status: "Indexed",
+                },
+              ],
+              documentsRetrieved: "time_dc2",
+              processingCompleted: "time_pc2",
+              status: "DocumentsRetrieved",
+            },
+            correlationId: "abc",
+          },
+        }
+      );
 
-  //       jest
-  //         .spyOn(documentsMapper, "mapDocumentsState")
-  //         .mockImplementation((documents) => {
-  //           if (documents !== mockNewPdfDocuments)
-  //             throw new Error("Unexpected mock documents array");
-  //           return mockDocumentsState;
-  //         });
+      expect(nextStateCompleteStatus).toEqual({
+        pipelineState: {
+          status: "complete",
+          data: {
+            documents: [
+              {
+                documentId: "1",
+                conversionStatus: "DocumentConverted",
+                status: "New",
+              },
+              {
+                documentId: "2",
+                conversionStatus: "DocumentConverted",
+                status: "Indexed",
+              },
+              {
+                documentId: "3",
+                conversionStatus: "DocumentConverted",
+                status: "Indexed",
+              },
+            ],
+            documentsRetrieved: "time_dc2",
+            processingCompleted: "time_pc2",
+            status: "DocumentsRetrieved",
+          },
+          correlationId: "abc",
+        },
+        pipelineRefreshData: {
+          startPipelineRefresh: false,
+          lastProcessingCompleted: "time_pc2",
+          localLastRefreshTime: "2023-01-01T00:00:00.000Z",
+        },
+        localDocumentState: {
+          "1": { conversionStatus: "DocumentConverted" },
+          "2": { conversionStatus: "DocumentConverted" },
+          "3": { conversionStatus: "DocumentConverted" },
+        },
+      });
 
-  //       jest
-  //         .spyOn(accordionMapper, "mapAccordionState")
-  //         .mockImplementation((documentState) => {
-  //           if (documentState !== mockDocumentsState)
-  //             throw new Error("Unexpected mock documents state");
-  //           return mockAccordionState;
-  //         });
-
-  //       const nextState = reducer(
-  //         {
-  //           pipelineState: {},
-  //           tabsState: { items: [] },
-  //           documentsState: { status: "loading" },
-  //         } as unknown as CombinedState,
-  //         {
-  //           type: "UPDATE_PIPELINE",
-  //           payload: {
-  //             status: "incomplete",
-  //             haveData: true,
-  //             data: {
-  //               status: "DocumentsRetrieved",
-  //               documents: mockNewPdfDocuments,
-  //               documentsRetrieved: new Date().toISOString(),
-  //             },
-  //           } as AsyncPipelineResult<PipelineResults>,
-  //         }
-  //       );
-
-  //       expect(nextState.documentsState).toBe(mockDocumentsState);
-  //       expect(nextState.accordionState).toBe(mockAccordionState);
-  //     });
-  //   });
-
-  //   it("throws if update pipelineState fails", () => {
-  //     expect(() =>
-  //       reducer({} as CombinedState, {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "failed",
-  //           error: ERROR,
-  //           httpStatusCode: undefined,
-  //           haveData: false,
-  //           correlationId: "corId_1",
-  //         },
-  //       })
-  //     ).toThrowError(ERROR);
-  //   });
-
-  //   it("should not update the state if  pipeline is initiating", () => {
-  //     const existingPipelineState = {
-  //       status: "initiating",
-  //     } as CombinedState["pipelineState"];
-
-  //     const nextState = reducer(
-  //       {
-  //         pipelineState: existingPipelineState,
-  //       } as CombinedState,
-  //       {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "initiating",
-  //           haveData: false,
-  //           correlationId: "",
-  //         },
-  //       }
-  //     );
-
-  //     expect(nextState.pipelineState).toEqual(existingPipelineState);
-  //   });
-
-  //   it("can update pipeline state from pipeline if succeeded", () => {
-  //     const expectedNextState = {
-  //       status: "incomplete",
-  //       haveData: true,
-  //       data: {
-  //         status: "Running",
-  //         documents: [{ documentId: "1" }],
-  //       },
-  //     } as AsyncPipelineResult<PipelineResults>;
-
-  //     const nextState = reducer(
-  //       {
-  //         pipelineState: {},
-  //         tabsState: { items: [] },
-  //         documentsState: { status: "succeeded" },
-  //       } as unknown as CombinedState,
-  //       {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "incomplete",
-  //           haveData: true,
-  //           data: {
-  //             status: "Running",
-  //             documents: [{ documentId: "1" }],
-  //           },
-  //         } as AsyncPipelineResult<PipelineResults>,
-  //       }
-  //     );
-
-  //     expect(nextState.pipelineState).toEqual(expectedNextState);
-  //   });
-
-  //   it("Should update the piplineRefreshData if succeeded and is now complete", () => {
-  //     const expectedNextState = {
-  //       documentsState: {
-  //         status: "succeeded",
-  //       },
-  //       pipelineState: {
-  //         status: "incomplete",
-  //         haveData: true,
-  //         data: {
-  //           status: "Completed",
-  //           processingCompleted: "2023-04-05T15:02:17.601Z",
-  //           documents: [{ documentId: "1", versionId: 2 }],
-  //         },
-  //       },
-  //       tabsState: { items: [] },
-  //       documentRefreshData: {
-  //         startDocumentRefresh: false,
-  //         savedDocumentDetails: [{ documentId: "2", versionId: 1 }],
-  //         lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
-  //       },
-  //     } as unknown as CombinedState;
-
-  //     const nextState = reducer(
-  //       {
-  //         pipelineState: {},
-  //         tabsState: { items: [] },
-  //         documentsState: {
-  //           status: "succeeded",
-  //         },
-  //         documentRefreshData: {
-  //           startDocumentRefresh: false,
-  //           savedDocumentDetails: [
-  //             { documentId: "1", versionId: 1 },
-  //             { documentId: "2", versionId: 1 },
-  //           ],
-  //           lastProcessingCompleted: "2023-04-05T15:01:17.601Z",
-  //         },
-  //       } as unknown as CombinedState,
-  //       {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "incomplete",
-  //           haveData: true,
-  //           data: {
-  //             status: "Completed",
-  //             processingCompleted: "2023-04-05T15:02:17.601Z",
-  //             documents: [{ documentId: "1", versionId: 2 }],
-  //           },
-  //         } as AsyncPipelineResult<PipelineResults>,
-  //       }
-  //     );
-
-  //     expect(nextState).toEqual(expectedNextState);
-  //   });
-
-  //   it("can update from pipeline if succeeded and is now complete", () => {
-  //     const expectedNextState = {
-  //       status: "complete",
-  //       haveData: true,
-
-  //       data: {
-  //         documents: [{ documentId: "1" }],
-  //         status: "Completed",
-  //       },
-  //     } as AsyncPipelineResult<PipelineResults>;
-
-  //     const nextState = reducer(
-  //       {
-  //         pipelineState: {},
-  //         tabsState: { items: [] },
-  //         documentsState: {
-  //           status: "succeeded",
-  //         },
-  //         documentRefreshData: {
-  //           startDocumentRefresh: false,
-  //           savedDocumentDetails: [
-  //             {
-  //               documentId: "1",
-  //               versionId: 1,
-  //             },
-  //           ],
-  //         },
-  //       } as unknown as CombinedState, // todo: remove the "as unkwon"
-  //       {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: {
-  //           status: "complete",
-  //           haveData: true,
-  //           data: {
-  //             documents: [{ documentId: "1" }],
-  //             status: "Completed",
-  //           },
-  //         } as AsyncPipelineResult<PipelineResults>,
-  //       }
-  //     );
-
-  //     expect(nextState.pipelineState).toEqual(expectedNextState);
-  //   });
-
-  //   it("can update from pipeline when no tabs are open", () => {
-  //     const newPipelineState = {
-  //       status: "complete",
-  //       haveData: true,
-  //       data: {
-  //         documents: [
-  //           {
-  //             documentId: "2",
-  //           },
-  //         ],
-  //       },
-  //     } as AsyncPipelineResult<PipelineResults>;
-
-  //     const existingPipelineState = {
-  //       status: "complete",
-  //       haveData: true,
-  //       data: {
-  //         documents: [
-  //           {
-  //             documentId: "1",
-  //           },
-  //         ],
-  //       },
-  //     };
-
-  //     const existingTabsState = {
-  //       activeTabId: "",
-  //       items: [],
-  //       headers: {},
-  //     } as CombinedState["tabsState"];
-
-  //     const nextState = reducer(
-  //       {
-  //         tabsState: existingTabsState,
-  //         pipelineState: existingPipelineState,
-  //         documentsState: { status: "succeeded" },
-  //       } as CombinedState,
-  //       {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: newPipelineState,
-  //       }
-  //     );
-
-  //     expect(nextState.tabsState).toBe(existingTabsState);
-  //   });
-
-  //   it("can update from pipeline tabs already open with pdf url", () => {
-  //     const newPipelineState = {
-  //       status: "complete",
-  //       haveData: true,
-  //       data: {
-  //         documents: [
-  //           {
-  //             documentId: "1",
-  //             versionId: 1,
-  //           },
-  //           {
-  //             documentId: "2",
-  //             versionId: 2,
-  //           },
-  //           {
-  //             documentId: "3",
-  //             versionId: 1,
-  //           },
-  //         ],
-  //       },
-  //     } as CombinedState["pipelineState"];
-  //     const existingPipelineState = {
-  //       status: "complete",
-  //       haveData: true,
-  //       data: {
-  //         documents: [
-  //           {
-  //             documentId: "2",
-  //           },
-  //         ],
-  //       },
-  //     };
-
-  //     const existingTabsState = {
-  //       items: [
-  //         { documentId: "1", url: "abc" },
-  //         { documentId: "2", url: "efg" },
-  //         { documentId: "3", url: undefined },
-  //       ],
-  //     } as CombinedState["tabsState"];
-
-  //     jest
-  //       .spyOn(apiGateway, "resolvePdfUrl")
-  //       .mockImplementation((urn, caseId, documentId) => {
-  //         if (urn !== "bar" || caseId !== 99) throw new Error();
-  //         return "baz";
-  //       });
-
-  //     const nextState = reducer(
-  //       {
-  //         tabsState: existingTabsState,
-  //         pipelineState: existingPipelineState,
-  //         documentsState: { status: "succeeded" },
-  //         urn: "bar",
-  //         caseId: 99,
-  //       } as CombinedState,
-  //       {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: newPipelineState,
-  //       }
-  //     );
-
-  //     expect(nextState.tabsState).toEqual({
-  //       items: [
-  //         {
-  //           documentId: "1",
-  //           url: "baz",
-  //           versionId: 1,
-  //         },
-  //         {
-  //           documentId: "2",
-  //           url: "baz",
-  //           versionId: 2,
-  //         },
-  //         {
-  //           documentId: "3",
-  //           url: "baz",
-  //           versionId: 1,
-  //         },
-  //       ],
-  //     });
-  //   });
-
-  //   it("can handle update from pipeline and update the tabsState of the deleted documents open in a tab ", () => {
-  //     const newPipelineState = {
-  //       status: "complete",
-  //       haveData: true,
-  //       data: {
-  //         documents: [
-  //           {
-  //             documentId: "2",
-
-  //             versionId: 2,
-  //           },
-  //         ],
-  //       },
-  //     } as CombinedState["pipelineState"];
-  //     const existingPipelineState = {
-  //       status: "complete",
-  //       haveData: true,
-  //       data: {
-  //         documents: [
-  //           {
-  //             documentId: "2",
-  //           },
-  //         ],
-  //       },
-  //     };
-
-  //     const existingTabsState = {
-  //       items: [
-  //         { documentId: "1", url: "abc" },
-  //         { documentId: "2", url: "efg" },
-  //       ],
-  //     } as CombinedState["tabsState"];
-
-  //     jest
-  //       .spyOn(apiGateway, "resolvePdfUrl")
-  //       .mockImplementation((urn, caseId, documentId) => {
-  //         return "baz";
-  //       });
-
-  //     const nextState = reducer(
-  //       {
-  //         tabsState: existingTabsState,
-  //         pipelineState: existingPipelineState,
-  //         documentsState: { status: "succeeded" },
-  //         urn: "bar",
-  //         caseId: 99,
-  //       } as CombinedState,
-  //       {
-  //         type: "UPDATE_PIPELINE",
-  //         payload: newPipelineState,
-  //       }
-  //     );
-
-  //     expect(nextState.tabsState).toEqual({
-  //       items: [
-  //         {
-  //           documentId: "1",
-  //           url: "abc",
-  //           isDeleted: true,
-  //         },
-  //         {
-  //           documentId: "2",
-  //           url: "baz",
-  //           versionId: 2,
-  //         },
-  //       ],
-  //     });
-  //   });
-  // });
+      dateSpy.mockRestore();
+    });
+  });
 
   describe("OPEN_PDF", () => {
     it("can try to open a tab when the documents are unknown", () => {
