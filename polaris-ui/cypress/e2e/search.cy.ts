@@ -2,7 +2,14 @@ import {
   allMissingDocsPipelinePdfResults,
   missingDocsPipelinePdfResults,
 } from "../../src/mock-api/data/pipelinePdfResults.cypress";
-import { TEXT_SEARCH_ROUTE, TRACKER_ROUTE } from "../../src/mock-api/routes";
+import {
+  TEXT_SEARCH_ROUTE,
+  TRACKER_ROUTE,
+  INITIATE_PIPELINE_ROUTE,
+  GET_DOCUMENTS_LIST_ROUTE,
+} from "../../src/mock-api/routes";
+import pipelinePdfResults from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import { getRefreshRedactedDocument } from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("Case Details Search", () => {
   describe("Search box", () => {
@@ -558,6 +565,364 @@ describe("Case Details Search", () => {
         cy.findByTestId("select-redaction-type").select("2");
         cy.findByTestId("btn-redact").click({ force: true });
         cy.findByTestId("btn-save-redaction-0").should("exist");
+      });
+    });
+  });
+
+  describe("Pipeline refresh", () => {
+    it("Should start pipeline refresh when the user starts typing in the search box", () => {
+      const initiatePipelineCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/tracker"
+      );
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("input-search-case").type("a");
+      cy.waitUntil(() => {
+        return trackerCounter.count > 0;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+    });
+
+    it("Should stop polling pipeline tracker, if the user moves away from the case details page", () => {
+      const pipelineDocuments = pipelinePdfResults()[0];
+      cy.overrideRoute(TRACKER_ROUTE, {
+        type: "break",
+        timeMs: 300,
+        httpStatusCode: 200,
+        body: JSON.stringify({
+          ...pipelineDocuments,
+          status: "DocumentsRetrieved",
+        }),
+      });
+
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/tracker"
+      );
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("input-search-case").type("a");
+
+      // navigating user away from case-details page
+      cy.waitUntil(() => {
+        return trackerCounter.count === 1;
+      }).then(() => {
+        cy.findAllByTestId("link-back-link").click();
+      });
+      cy.wait(1000);
+      cy.window().then(() => {
+        expect(trackerCounter.count).to.equal(1);
+      });
+    });
+
+    it("Should not call again the initiate pipeline, if the previous call return 423 status during pipeline refresh flow, and continue polling the tracker", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+
+      cy.overrideRoute(
+        INITIATE_PIPELINE_ROUTE,
+        {
+          type: "break",
+          timeMs: 300,
+          httpStatusCode: 423,
+          body: JSON.stringify({
+            trackerUrl:
+              "https://mocked-out-api/api/urns/12AB1111111/cases/13401/tracker",
+          }),
+        },
+        "post"
+      );
+
+      const initiatePipelineRequestCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineRequestCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/tracker"
+      );
+      cy.findByTestId("input-search-case").type("a");
+
+      cy.waitUntil(() => {
+        return trackerCounter.count === 1;
+      }).then(() => {
+        expect(initiatePipelineRequestCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+    });
+
+    it("Should  call the initiate pipeline, but stop polling if the user navigates away from case detail page", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+
+      const initiatePipelineRequestCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineRequestCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/tracker"
+      );
+      cy.findByTestId("input-search-case").type("a");
+
+      cy.findAllByTestId("link-back-link").click();
+
+      cy.window().then(() => {
+        expect(initiatePipelineRequestCounter.count <= 1);
+        expect(trackerCounter.count).to.equal(0);
+      });
+    });
+
+    it("Should not trigger a pipeline refresh after user typed the first letter in the search box until the user action cause update of a document", () => {
+      const documentList = getRefreshRedactedDocument("1", 2);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
+      });
+      const initiatePipelineCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/tracker"
+      );
+      const documentListCounter = { count: 0 };
+      cy.trackRequestCount(
+        documentListCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/documents"
+      );
+      cy.visit("/case-details/12AB1111111/13401");
+      //user typing first letter
+      cy.findByTestId("input-search-case").type("a");
+      cy.waitUntil(() => {
+        return trackerCounter.count > 0;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+      //user typing second letter
+      cy.findByTestId("input-search-case").type("b");
+      cy.window().then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+      //user clicking on search btn
+      cy.findByTestId("btn-search-case").click();
+      cy.window().then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+      //user typing in the search again
+      cy.findByTestId("input-results-search-case").type("c");
+      cy.window().then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+      //user clicking on search btn
+      cy.findByTestId("btn-results-search-case").click();
+      cy.window().then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("div-modal").should("not.exist");
+
+      //user doing a redaction for document update
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[1],
+      });
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.focused().should("have.id", "select-redaction-type");
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click({ force: true });
+      cy.findByTestId("btn-save-redaction-0").click();
+      cy.findByTestId("div-modal").should("be.visible");
+      cy.findByTestId("rl-under-redaction-content").should("be.visible");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.waitUntil(() => {
+        return cy
+          .findByTestId("div-modal")
+          .should("not.exist")
+          .then(() => true);
+      }).then(() => {
+        cy.wait(500);
+        cy.findByTestId("input-search-case").type("e");
+      });
+      cy.waitUntil(() => {
+        return initiatePipelineCounter.count > 1;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(2);
+        expect(trackerCounter.count).to.equal(2);
+      });
+      cy.findByTestId("input-search-case").type("d");
+      cy.wait(500);
+      cy.window().then(() => {
+        expect(initiatePipelineCounter.count).to.equal(2);
+        expect(trackerCounter.count).to.equal(2);
+      });
+    });
+
+    it("Should trigger a pipeline refresh if user typed in the search box then user action cause update of a document, then clicked on search button without updating the search text", () => {
+      const documentList = getRefreshRedactedDocument("1", 2);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
+      });
+      const initiatePipelineCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/tracker"
+      );
+      const documentListCounter = { count: 0 };
+      cy.trackRequestCount(
+        documentListCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/documents"
+      );
+      cy.visit("/case-details/12AB1111111/13401");
+      //user typing first letter
+      cy.findByTestId("input-search-case").type("a");
+      cy.waitUntil(() => {
+        return trackerCounter.count > 0;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+      });
+      //user doing a redaction for document update
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[1],
+      });
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.focused().should("have.id", "select-redaction-type");
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").click({ force: true });
+      cy.findByTestId("btn-save-redaction-0").click();
+      cy.findByTestId("div-modal").should("be.visible");
+      cy.findByTestId("rl-under-redaction-content").should("be.visible");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.waitUntil(() => {
+        return cy
+          .findByTestId("div-modal")
+          .should("not.exist")
+          .then(() => true);
+      }).then(() => {
+        cy.wait(500);
+        cy.findByTestId("btn-search-case").click();
+      });
+      cy.waitUntil(() => {
+        return initiatePipelineCounter.count > 1;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(2);
+        expect(trackerCounter.count).to.equal(2);
+        expect(documentListCounter.count).to.equal(2);
+      });
+      cy.findByTestId("input-results-search-case").type("d");
+      cy.wait(500);
+      cy.window().then(() => {
+        expect(initiatePipelineCounter.count).to.equal(2);
+        expect(trackerCounter.count).to.equal(2);
+        expect(documentListCounter.count).to.equal(2);
+      });
+    });
+
+    it("Should only call the search api after finishing the pipelineRefresh if it require one", () => {
+      const pipelineDocuments = pipelinePdfResults()[0];
+      cy.overrideRoute(TRACKER_ROUTE, {
+        type: "break",
+        timeMs: 300,
+        httpStatusCode: 200,
+        body: JSON.stringify({
+          ...pipelineDocuments,
+          status: "DocumentsRetrieved",
+        }),
+      });
+      const initiatePipelineCounter = { count: 0 };
+      cy.trackRequestCount(
+        initiatePipelineCounter,
+        "POST",
+        "/api/urns/12AB1111111/cases/13401"
+      );
+      const trackerCounter = { count: 0 };
+      cy.trackRequestCount(
+        trackerCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/tracker"
+      );
+      const searchCounter = { count: 0 };
+      cy.trackRequestCount(
+        searchCounter,
+        "GET",
+        "/api/urns/12AB1111111/cases/13401/search/"
+      );
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("input-search-case").type("a");
+      cy.findByTestId("btn-search-case").click();
+
+      cy.waitUntil(() => {
+        return initiatePipelineCounter.count > 0;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(0);
+        expect(searchCounter.count).to.equal(0);
+      });
+
+      cy.waitUntil(() => {
+        return trackerCounter.count > 0;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(1);
+        expect(searchCounter.count).to.equal(0);
+      });
+      //this makes sure the search api is been called after finishing the tracker calls(here 2)
+      cy.waitUntil(() => {
+        return searchCounter.count === 1;
+      }).then(() => {
+        expect(initiatePipelineCounter.count).to.equal(1);
+        expect(trackerCounter.count).to.equal(2);
+        expect(searchCounter.count).to.equal(1);
       });
     });
   });

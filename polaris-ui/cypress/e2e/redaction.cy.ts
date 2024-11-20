@@ -1,7 +1,5 @@
 import {
-  INITIATE_PIPELINE_ROUTE,
   SAVE_REDACTION_ROUTE,
-  TRACKER_ROUTE,
   DOCUMENT_CHECKOUT_ROUTE,
   GET_DOCUMENTS_LIST_ROUTE,
 } from "../../src/mock-api/routes";
@@ -109,88 +107,6 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
   });
-
-  // it("should call again the initiate pipeline, if the previous call return 423 status during redaction refresh flow and successfully complete the redaction refresh flow", () => {
-  //   const documentList = getRefreshRedactedDocument("1");
-  //   cy.visit("/case-details/12AB1111111/13401");
-  //   cy.findByTestId("btn-accordion-open-close-all").click();
-  //   cy.findByTestId("link-document-1").click();
-  //   cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
-  //     body: documentList[0],
-  //     timeMs: 1000,
-  //   });
-  //   cy.findByTestId("div-pdfviewer-0")
-  //     .should("exist")
-  //     .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-  //   cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-  //   cy.findByTestId("btn-redact").should("have.length", 1);
-  //   cy.findByTestId("btn-redact").should("be.disabled");
-  //   cy.focused().should("have.id", "select-redaction-type");
-  //   cy.findByTestId("select-redaction-type").select("2");
-  //   cy.findByTestId("btn-redact").click({ force: true });
-  //   cy.overrideRoute(
-  //     INITIATE_PIPELINE_ROUTE,
-  //     {
-  //       type: "break",
-  //       httpStatusCode: 423,
-  //       body: JSON.stringify({
-  //         trackerUrl:
-  //           "https://mocked-out-api/api/urns/12AB1111111/cases/13401/tracker",
-  //       }),
-  //     },
-  //     "post"
-  //   );
-
-  //   const initiatePipelineRequestCounter = { count: 0 };
-  //   cy.trackRequestCount(
-  //     initiatePipelineRequestCounter,
-  //     "POST",
-  //     "/api/urns/12AB1111111/cases/13401"
-  //   );
-  //   cy.findByTestId("btn-save-redaction-0").click();
-  //   cy.findByTestId("div-modal").should("be.visible");
-  //   cy.findByTestId("rl-under-redaction-content").should("be.visible");
-  //   cy.findByTestId("btn-save-redaction-log").click();
-  //   cy.findByTestId("pdfTab-spinner-0").should("exist");
-  //   cy.findByTestId("div-pdfviewer-0").should("not.exist");
-  //   cy.findByTestId("pdfTab-spinner-0").should("not.exist");
-  //   cy.findByTestId("div-pdfviewer-0").should("exist");
-
-  //   cy.waitUntil(() => {
-  //     return expect(initiatePipelineRequestCounter.count).to.equal(2);
-  //   });
-  // });
-
-  // it("should not call again the initiate pipeline, if the previous call return 423 status  and should successfully load the documents on the initial load", () => {
-  //   const initiatePipelineRequestCounter = { count: 0 };
-  //   cy.trackRequestCount(
-  //     initiatePipelineRequestCounter,
-  //     "POST",
-  //     "/api/urns/12AB1111111/cases/13401"
-  //   );
-  //   cy.overrideRoute(
-  //     INITIATE_PIPELINE_ROUTE,
-  //     {
-  //       type: "break",
-  //       httpStatusCode: 423,
-  //       body: JSON.stringify({
-  //         trackerUrl:
-  //           "https://mocked-out-api/api/urns/12AB1111111/cases/13401/tracker",
-  //       }),
-  //     },
-  //     "post"
-  //   );
-  //   cy.visit("/case-details/12AB1111111/13401");
-  //   cy.findByTestId("btn-accordion-open-close-all").click();
-  //   cy.findByTestId("link-document-1").click();
-  //   cy.findByTestId("div-pdfviewer-0")
-  //     .should("exist")
-  //     .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-  //   cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-  //   cy.waitUntil(() => {
-  //     return expect(initiatePipelineRequestCounter.count).to.equal(1);
-  //   });
-  // });
 
   it("Should disable saveRedaction and remove all redaction button, when saving a redaction", () => {
     cy.overrideRoute(

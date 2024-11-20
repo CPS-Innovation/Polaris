@@ -4,7 +4,7 @@ import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { getPipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
-import { isNewTime, LOCKED_STATUS_CODE } from "../utils/refreshUtils";
+import { isNewTime } from "../utils/refreshUtils";
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
 
@@ -73,13 +73,8 @@ export const initiateAndPoll = (
           break;
         }
         const trackerArgs = await initiatePipeline(urn, caseId, correlationId);
-        // If we get 423 keep polling initiate pipeline
-        const shouldKeepPollingInitiate =
-          trackerArgs.status === LOCKED_STATUS_CODE;
-        if (!shouldKeepPollingInitiate) {
-          startTrackerPolling(trackerArgs);
-          break;
-        }
+        startTrackerPolling(trackerArgs);
+        break;
       } catch (error) {
         handleApiCallError(error);
       }

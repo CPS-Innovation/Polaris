@@ -864,19 +864,7 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    // const refreshPipelineCounter = { count: 0 };
-    // cy.trackRequestCount(
-    //   refreshPipelineCounter,
-    //   "POST",
-    //   "/api/urns/12AB1111111/cases/13401"
-    // );
 
-    // const trackerCounter = { count: 0 };
-    // cy.trackRequestCount(
-    //   trackerCounter,
-    //   "GET",
-    //   "/api/urns/12AB1111111/cases/13401/tracker"
-    // );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -917,10 +905,6 @@ describe("Feature Reclassify Document", () => {
       .contains("Failed to save reclassification. Please try again later.");
     cy.findByTestId("btn-error-modal-ok").click();
     cy.findByTestId("div-modal").should("not.exist");
-    // cy.window().then(() => {
-    //   expect(refreshPipelineCounter.count).to.equal(1);
-    //   expect(trackerCounter.count).to.equal(1);
-    // });
   });
 
   it("Should show all the reclassify UI validation errors", () => {
