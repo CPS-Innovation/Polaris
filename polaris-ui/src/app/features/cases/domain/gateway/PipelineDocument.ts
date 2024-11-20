@@ -83,7 +83,6 @@ export type PresentationDocumentProperties = {
   witnessId: number | null;
   hasFailedAttachments: boolean;
   hasNotes: boolean;
-  conversionStatus: ConversionStatus;
   isOcrProcessed: boolean;
   isUnused: boolean;
   isInbox: boolean;

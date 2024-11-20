@@ -22,7 +22,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: true,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -36,11 +35,9 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "2",
     versionId: 2,
-
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "CM01",
     cmsFileCreatedDate: "2020-06-02",
-
     categoryListOrder: null,
     cmsDocType: {
       documentTypeId: 1019,
@@ -55,7 +52,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: true,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -69,7 +65,6 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "3",
     versionId: 3,
-
     cmsOriginalFileName: "MG05MCLOVE.pdf",
     presentationTitle: "Doc_3",
     cmsFileCreatedDate: "2020-06-03",
@@ -87,7 +82,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -101,7 +95,6 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "4",
     versionId: 4,
-
     cmsOriginalFileName: "MG06_3June.hte",
     presentationTitle: "Doc_4",
     cmsFileCreatedDate: "2020-06-04",
@@ -119,7 +112,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -133,7 +125,6 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "5",
     versionId: 5,
-
     cmsOriginalFileName: "MG06_10june.hte",
     presentationTitle: "Doc_5",
     cmsFileCreatedDate: "2020-06-10",
@@ -151,7 +142,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -165,11 +155,9 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "6",
     versionId: 6,
-
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "Test DAC",
     cmsFileCreatedDate: "2023-05-11",
-
     categoryListOrder: null,
     cmsDocType: {
       documentTypeId: 1029,
@@ -184,7 +172,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -198,7 +185,6 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "8",
     versionId: 8,
-
     cmsOriginalFileName: "MG06_3June.pdf",
     presentationTitle: "Doc_8",
     cmsFileCreatedDate: "2020-06-04",
@@ -216,7 +202,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -230,11 +215,9 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "9",
     versionId: 19,
-
     cmsOriginalFileName: "MG06_3June.pdf",
     presentationTitle: "Doc_9",
     cmsFileCreatedDate: "2020-06-10",
-
     categoryListOrder: null,
     cmsDocType: {
       documentTypeId: 7,
@@ -249,7 +232,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -263,11 +245,9 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "10",
     versionId: 10,
-
     cmsOriginalFileName: "PortraitLandscape.pdf",
     presentationTitle: "PortraitLandscape",
     cmsFileCreatedDate: "2020-06-02",
-
     categoryListOrder: null,
     cmsDocType: {
       documentTypeId: 1019,
@@ -282,7 +262,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -296,7 +275,6 @@ const documentsList: PresentationDocumentProperties[] = [
   {
     documentId: "12",
     versionId: 12,
-
     cmsOriginalFileName: "SearchPII.pdf",
     presentationTitle: "SearchPII",
     cmsFileCreatedDate: "2020-06-02",
@@ -314,7 +292,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: null,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
@@ -345,7 +322,6 @@ const documentsList: PresentationDocumentProperties[] = [
     witnessId: 2762766,
     hasFailedAttachments: false,
     hasNotes: false,
-    conversionStatus: "DocumentConverted",
     isUnused: false,
     isInbox: false,
     isOcrProcessed: false,
