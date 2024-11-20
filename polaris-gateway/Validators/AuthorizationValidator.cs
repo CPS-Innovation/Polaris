@@ -4,8 +4,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Common.Constants;
-using Common.Extensions;
 using Common.Logging;
 using PolarisGateway.Domain.Validation;
 using Microsoft.IdentityModel.Protocols;

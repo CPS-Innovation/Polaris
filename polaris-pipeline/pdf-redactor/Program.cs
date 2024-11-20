@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
-using Common.Services.BlobStorage;
 using Common.Telemetry;
 using Common.Wrappers;
 using FluentValidation;
@@ -51,7 +50,6 @@ var host = new HostBuilder()
         services.AddRedactionServices(context.Configuration);
         services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
-        services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
         services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
         services.AddScoped<IValidator<ModifyDocumentWithDocumentDto>, ModifyDocumentWithDocumentValidator>();

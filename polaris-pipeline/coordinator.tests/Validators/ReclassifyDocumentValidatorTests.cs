@@ -21,21 +21,10 @@ namespace coordinator.tests.Validators
         }
 
         [Fact]
-        public async Task Should_Throw_Exception_When_DocumentId_Is_Empty()
-        {
-            var request = new ReclassifyDocumentDto();
-            var result = await _validator.TestValidateAsync(request);
-
-            result.ShouldHaveValidationErrorFor(x => x.DocumentId);
-        }
-
-        [Fact]
         public async Task Should_Throw_Exception_When_DocumentTypeId_Is_Empty()
         {
-            var request = new ReclassifyDocumentDto
-            {
-                DocumentId = _fixture.Create<int>(),
-            };
+            var request = new ReclassifyDocumentDto();
+
             var result = await _validator.TestValidateAsync(request);
 
             result.ShouldHaveValidationErrorFor(x => x.DocumentTypeId);
@@ -46,7 +35,6 @@ namespace coordinator.tests.Validators
         {
             var request = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -64,7 +52,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -83,7 +70,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -109,7 +95,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -133,7 +118,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -154,7 +138,6 @@ namespace coordinator.tests.Validators
         {
             var request = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement()
             };
@@ -169,7 +152,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -187,7 +169,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -207,7 +188,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -233,7 +213,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -257,7 +236,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -278,7 +256,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -302,7 +279,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -326,7 +302,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Other = new ReclassificationOther
                 {
@@ -345,7 +320,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Other = new ReclassificationOther
                 {
@@ -364,7 +338,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate
                 {
@@ -382,7 +355,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate(),
                 Exhibit = new ReclassificationExhibit
@@ -403,7 +375,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate(),
                 Statement = new ReclassificationStatement
@@ -424,7 +395,6 @@ namespace coordinator.tests.Validators
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate(),
                 Other = new ReclassificationOther()

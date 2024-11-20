@@ -1,4 +1,5 @@
 using Common.Clients.PdfGenerator;
+using Common.Configuration;
 using Common.Domain.Ocr;
 using Common.Domain.Pii;
 using Common.Services.BlobStorage;
@@ -7,6 +8,7 @@ using Common.Services.PiiService;
 using Common.Services.RenderHtmlService;
 using Ddei;
 using Ddei.Factories;
+using Microsoft.Extensions.Configuration;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
 
@@ -18,18 +20,19 @@ public class CachingArtefactService : ArtefactService, ICachingArtefactService
 
 
     public CachingArtefactService(
-        IPolarisBlobStorageService polarisBlobStorageService,
+        Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IArtefactServiceResponseFactory artefactServiceResponseFactory,
         IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         IPdfGeneratorClient pdfGeneratorClient,
         IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IOcrService ocrService,
-        IPiiService piiService
+        IPiiService piiService,
+        IConfiguration configuration
         ) : base(artefactServiceResponseFactory, ddeiClient, ddeiArgFactory, pdfGeneratorClient, convertPcdRequestToHtmlService, ocrService, piiService)
     {
         _artefactServiceResponseFactory = artefactServiceResponseFactory ?? throw new ArgumentNullException(nameof(artefactServiceResponseFactory));
-        _polarisBlobStorageService = polarisBlobStorageService ?? throw new ArgumentNullException(nameof(polarisBlobStorageService));
+        _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
     }
 
     public new async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)

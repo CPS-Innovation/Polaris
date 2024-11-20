@@ -7,6 +7,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Common.Domain.Ocr;
 using coordinator.Durable.Payloads;
+using Common.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity
 {
@@ -15,9 +17,9 @@ namespace coordinator.Durable.Activity
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IOcrService _ocrService;
 
-        public CompleteOcr(IPolarisBlobStorageService polarisBlobStorageService, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper)
+        public CompleteOcr(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration)
         {
-            _polarisBlobStorageService = polarisBlobStorageService;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _ocrService = ocrService;
         }
 

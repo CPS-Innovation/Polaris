@@ -10,7 +10,7 @@ import {
 import { getRefreshReclassifyDocuments } from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("Feature Reclassify Document", () => {
-  it("Should show reclassify document option if the document 'canReclassify' is true and should not show if it is not ", () => {
+  it("Should show reclassify document option if the document 'canReclassify' is true and presentationFlags, write property is not 'isDispatched' and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click(); //12;
     cy.findByTestId("document-housekeeping-actions-dropdown-1").should("exist");
@@ -30,6 +30,11 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("dropdown-panel")
       .contains("Reclassify document")
       .should("not.exist");
+    cy.realPress("Escape");
+    //dispatched document
+    cy.findByTestId("document-housekeeping-actions-dropdown-9").should(
+      "not.exist"
+    );
   });
 
   it("Should show the re-classification content and be able to close reclassification if the user click back or cancel button and but back the focus correctly", () => {
@@ -103,7 +108,6 @@ describe("Feature Reclassify Document", () => {
     const documentList = getRefreshReclassifyDocuments("10", 1015, 2);
 
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1015,
       immediate: { documentName: null },
       other: null,
@@ -231,7 +235,6 @@ describe("Feature Reclassify Document", () => {
     const documentList = getRefreshReclassifyDocuments("10", 1029, 2);
 
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1029,
       immediate: null,
       other: { documentName: null, used: true },
@@ -412,7 +415,6 @@ describe("Feature Reclassify Document", () => {
     const documentList = getRefreshReclassifyDocuments("10", 1031, 2);
 
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1031,
       immediate: null,
       other: null,
@@ -623,7 +625,6 @@ describe("Feature Reclassify Document", () => {
         JSON.stringify(expectedSaveReclassifyPayload)
       );
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -642,7 +643,6 @@ describe("Feature Reclassify Document", () => {
     );
     const documentList = getRefreshReclassifyDocuments("1", 1042, 2);
     const expectedSaveReclassifyPayload = {
-      documentId: 1,
       documentTypeId: 1042,
       immediate: null,
       other: null,
@@ -831,7 +831,6 @@ describe("Feature Reclassify Document", () => {
         JSON.stringify(expectedSaveReclassifyPayload)
       );
     });
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-1");
   });
 
@@ -853,7 +852,6 @@ describe("Feature Reclassify Document", () => {
     );
 
     const expectedSaveReclassifyPayload = {
-      documentId: 10,
       documentTypeId: 1015,
       immediate: { documentName: null },
       other: null,
@@ -912,9 +910,6 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      // cy.overrideRoute(TRACKER_ROUTE, {
-      //   body: trackerResults[1],
-      // });
     });
 
     cy.findByTestId("div-modal")
@@ -936,7 +931,6 @@ describe("Feature Reclassify Document", () => {
       "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
     );
     const expectedSaveReclassifyPayload = {
-      documentId: 1,
       documentTypeId: 1042,
       immediate: null,
       other: null,

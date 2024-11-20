@@ -20,24 +20,10 @@ namespace PolarisGateway.Validators.Tests
         }
 
         [Fact]
-        public async Task ReclassifyDocument_WhenDocumentIdIsEmpty_ReturnsValidationError()
-        {
-            var saveRequest = new ReclassifyDocumentDto
-            {
-                DocumentId = 0
-            };
-
-            var validationResult = await _validator.TestValidateAsync(saveRequest);
-
-            validationResult.ShouldHaveValidationErrorFor(x => x.DocumentId);
-        }
-
-        [Fact]
         public async Task ReclassifyDocument_WhenDocumentTypeIdIsEmpty_ReturnsValidationError()
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = 0
             };
 
@@ -51,7 +37,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -69,7 +54,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -88,7 +72,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -114,7 +97,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -138,7 +120,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -159,7 +140,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement()
             };
@@ -174,7 +154,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -193,7 +172,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -213,7 +191,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -239,7 +216,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -263,7 +239,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -284,7 +259,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Statement = new ReclassificationStatement
                 {
@@ -308,7 +282,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Exhibit = new ReclassificationExhibit
                 {
@@ -332,7 +305,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Other = new ReclassificationOther
                 {
@@ -351,7 +323,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Other = new ReclassificationOther
                 {
@@ -370,7 +341,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate
                 {
@@ -388,7 +358,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate(),
                 Exhibit = new ReclassificationExhibit
@@ -409,7 +378,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate(),
                 Statement = new ReclassificationStatement
@@ -430,7 +398,6 @@ namespace PolarisGateway.Validators.Tests
         {
             var saveRequest = new ReclassifyDocumentDto
             {
-                DocumentId = _fixture.Create<int>(),
                 DocumentTypeId = _fixture.Create<int>(),
                 Immediate = new ReclassificationImmediate(),
                 Other = new ReclassificationOther()

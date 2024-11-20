@@ -1,6 +1,5 @@
 
 using Common.Constants;
-using Common.Domain.Ocr;
 using PolarisGateway.Services.Artefact.Domain;
 
 namespace PolarisGateway.Services.Artefact.Factories;

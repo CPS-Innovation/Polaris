@@ -325,6 +325,37 @@ const documentsList: PresentationDocumentProperties[] = [
     renameStatus: "IsStatement",
     reference: null,
   },
+  {
+    documentId: "13",
+    versionId: 13,
+    cmsOriginalFileName: "CM01.pdf",
+    presentationTitle: "PCD Document",
+    cmsFileCreatedDate: "2020-06-02",
+    categoryListOrder: null,
+    cmsDocType: {
+      documentTypeId: 1031,
+      documentType: "PCD",
+      documentCategory: "Review",
+    },
+    presentationFlags: {
+      read: "Ok",
+      write: "Ok",
+    },
+    parentDocumentId: null,
+    witnessId: 2762766,
+    hasFailedAttachments: false,
+    hasNotes: false,
+    conversionStatus: "DocumentConverted",
+    isUnused: false,
+    isInbox: false,
+    isOcrProcessed: false,
+    classification: null,
+    isWitnessManagement: false,
+    canReclassify: false,
+    canRename: false,
+    renameStatus: "CanRename",
+    reference: null,
+  },
 ];
 
 const getDocumentsListResult = (resultsCount: number) => {

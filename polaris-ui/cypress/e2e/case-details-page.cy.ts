@@ -241,15 +241,15 @@ describe("case details page", () => {
     //     return cy.findByTestId("tracker-summary").should("exist");
     //   }).then(() => {
     //     expect(
-    //       cy.findByTestId("tracker-summary").contains("Total documents: 10")
+    //       cy.findByTestId("tracker-summary").contains("Total documents: 11")
     //     );
     //     expect(
     //       cy
     //         .findByTestId("tracker-summary")
-    //         .contains("Documents ready to read: 10")
+    //         .contains("Documents ready to read: 11")
     //     );
     //     expect(
-    //       cy.findByTestId("tracker-summary").contains("Documents indexed: 10")
+    //       cy.findByTestId("tracker-summary").contains("Documents indexed: 11")
     //     );
     //     expect(
     //       cy
@@ -724,10 +724,13 @@ describe("case details page", () => {
       });
     };
 
+    //Todo: add the test case delete page button is available and same with rotation page button is available
     it("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -776,35 +779,53 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").click();
 
       cy.get("#document-actions-dropdown-0").focus();
-      cy.wait(5000);
+      cy.wait(500);
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
-      cy.realPress("Tab");
+      cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Escape");
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("NORTH MARSH");
-      cy.realPress("Tab");
+      cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Escape");
+      cy.realPress("Tab");
+      cy.realPress("Tab");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("EOIN MCLOVE");
-      cy.realPress("Tab");
+      cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Escape");
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("PC Blaynee");
-      cy.realPress("Tab");
+      cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Escape");
+      cy.realPress("Tab");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("Approved for referral to CPS:");
-      cy.realPress("Tab");
+      cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Escape");
+      cy.realPress("Tab");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
-      cy.realPress("Tab");
+      cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Escape");
+      cy.realPress("Tab");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       verifyAriaDescriptionTextContent("POCA case");
-      cy.realPress("Tab");
+      cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Escape");
+      cy.realPress("Tab");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-link-removeAll-0");
       cy.findByTestId("btn-link-removeAll-0").click();
@@ -814,6 +835,8 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -864,21 +887,31 @@ describe("case details page", () => {
       cy.realPress("Tab");
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
 
       verifyAriaDescriptionTextContent("POCA case");
-
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
 
       cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("Approved for referral to CPS:");
 
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("PC Blaynee");
 
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("EOIN MCLOVE");
 
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("NORTH MARSH");
 
@@ -894,6 +927,8 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -938,32 +973,24 @@ describe("case details page", () => {
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "remove-btn");
-      cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("Date of birth:");
-      cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("Dangerous offender:");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "remove-btn");
-      cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("Police incident log:");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "remove-btn");
-      cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("PC JONES");
-      cy.realPress(["Tab"]);
-      cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("NORTH MARSH");
       cy.findByTestId("btn-link-removeAll-0").click();
     });
 
-    it("When tabbing from an unsaved redaction button, it should move the focus to remove redaction button and (shift +tab ) from remove redaction button should focus corresponding unsaved redaction button", () => {
+    it("When pressing enter from an unsaved redaction button,should show the remove redaction modal alert and pressing escape should bring the focus corresponding unsaved redaction button", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.contains("button", "Hide Delete Page Options").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
@@ -975,13 +1002,13 @@ describe("case details page", () => {
       cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
-      cy.realPress(["Tab"]);
+      cy.realPress(["Enter"]);
       cy.focused().should("have.id", "remove-btn");
-      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Escape"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
-      cy.realPress(["Tab"]);
+      cy.realPress(["Enter"]);
       cy.focused().should("have.id", "remove-btn");
-      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Escape"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "document-actions-dropdown-0");

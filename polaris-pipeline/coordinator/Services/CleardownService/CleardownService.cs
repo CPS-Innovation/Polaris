@@ -1,4 +1,3 @@
-using Common.Helpers;
 using Common.Services.BlobStorage;
 using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
@@ -7,22 +6,26 @@ using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
+using Common.Configuration;
+using coordinator.Services.ClearDownService;
+using Microsoft.Extensions.Configuration;
 
-namespace coordinator.Services.CleardownService
+namespace coordinator.Services.ClearDownService
 {
-  public class CleardownService : ICleardownService
+  public class ClearDownService : IClearDownService
   {
     private readonly IPolarisBlobStorageService _polarisBlobStorageService;
     private readonly ITextExtractorClient _textExtractorClient;
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly ITelemetryClient _telemetryClient;
 
-    public CleardownService(IPolarisBlobStorageService polarisStorageService,
+    public ClearDownService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
       ITextExtractorClient textExtractorClient,
       IOrchestrationProvider orchestrationProvider,
-      ITelemetryClient telemetryClient)
+      ITelemetryClient telemetryClient,
+      IConfiguration configuration)
     {
-      _polarisBlobStorageService = polarisStorageService;
+      _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
       _textExtractorClient = textExtractorClient;
       _orchestrationProvider = orchestrationProvider;
       _telemetryClient = telemetryClient;

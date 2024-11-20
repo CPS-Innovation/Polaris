@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace text_extractor.Extensions
 {
     public static class ListExtensions

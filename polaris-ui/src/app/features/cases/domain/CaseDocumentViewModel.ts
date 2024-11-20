@@ -12,6 +12,7 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
   pageDeleteRedactions: IPageDeleteRedaction[];
   pageRotations: IPageRotation[];
   rotatePageMode: boolean;
+  deletePageMode: boolean;
   clientLockedState: // note: unlocked is just the state where the client doesn't know yet
   //  (might be locked on the server, we haven't interacted yet)
   ClientLockedState;

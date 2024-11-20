@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Common.Domain.SearchIndex;
 using text_extractor.Factories.Contracts;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;

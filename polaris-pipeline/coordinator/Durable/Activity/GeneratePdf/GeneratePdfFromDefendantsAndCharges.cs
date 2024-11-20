@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Common.Services.BlobStorage;
 using Ddei;
@@ -9,7 +10,10 @@ using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Ddei.Factories;
 using Common.Services.RenderHtmlService;
-using Common.Dto.Response.Case;
+using coordinator.Durable.Activity.GeneratePdf;
+using Microsoft.Extensions.Configuration;
+
+
 namespace coordinator.Durable.Activity
 {
     public class GeneratePdfFromDefendantsAndCharges : BaseGeneratePdf
@@ -18,10 +22,11 @@ namespace coordinator.Durable.Activity
         public GeneratePdfFromDefendantsAndCharges(
             IPdfGeneratorClient pdfGeneratorClient,
             IDdeiClient ddeiClient,
-            IPolarisBlobStorageService polarisBlobStorageService,
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             IDdeiArgFactory ddeiArgFactory,
-            IConvertModelToHtmlService convertPcdRequestToHtmlService)
-            : base(ddeiClient, ddeiArgFactory, polarisBlobStorageService, pdfGeneratorClient)
+            IConvertModelToHtmlService convertPcdRequestToHtmlService,
+            IConfiguration configuration)
+            : base(ddeiClient, ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration)
         {
             _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
 

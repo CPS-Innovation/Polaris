@@ -1,0 +1,37 @@
+.rotationDeletionWarningModal {
+  max-width: 35%;
+}
+.contentWrapper {
+  padding: 1rem 2rem;
+  position: relative;
+  & :global(.govuk-warning-text__icon) {
+    left: 0;
+    top: 0;
+  }
+}
+
+.modalHeader {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid #b1b4b6;
+  background: #f3f2f1;
+  padding: 0 2rem;
+}
+.headerText {
+  font-size: 1.5rem;
+}
+.contentText {
+  font-weight: bold;
+  margin-left: 2.5rem;
+}
+.subText {
+  margin-top: 0px;
+  font-weight: 1rem;
+}
+.actionWrapper {
+  margin-top: 2rem;
+}
+.mainText {
+  margin-bottom: 1rem;
+  position: relative;
+}

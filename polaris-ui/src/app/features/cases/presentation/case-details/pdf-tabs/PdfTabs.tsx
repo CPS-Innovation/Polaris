@@ -6,6 +6,7 @@ import { PdfTab } from "./PdfTab";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import { LocalDocumentState } from "../../../domain/LocalDocumentState";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 
 type PdfTabsProps = {
   redactionTypesData: RedactionTypeData[];
@@ -19,12 +20,7 @@ type PdfTabsProps = {
     documentId: string;
     versionId: number;
   }[];
-  contextData: {
-    correlationId: string;
-    showSearchPII: boolean;
-    showDeletePage: boolean;
-    showRotatePage: boolean;
-  };
+  featureFlags: FeatureFlagData;
   caseId: number;
   showOverRedactionLog: boolean;
   searchPIIData: SearchPIIData[];
@@ -47,6 +43,7 @@ type PdfTabsProps = {
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
   handleSearchPIIAction: CaseDetailsState["handleSearchPIIAction"];
   handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
+  handleShowHidePageDeletion: CaseDetailsState["handleShowHidePageDeletion"];
   handleAddPageRotation: CaseDetailsState["handleAddPageRotation"];
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
@@ -58,7 +55,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   redactionTypesData,
   caseId,
   tabsState: { items, headers, activeTabId },
-  contextData,
+  featureFlags,
   savedDocumentDetails,
   showOverRedactionLog,
   searchPIIData,
@@ -78,6 +75,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleShowHideRedactionSuggestions,
   handleSearchPIIAction,
   handleShowHidePageRotation,
+  handleShowHidePageDeletion,
   handleAddPageRotation,
   handleRemovePageRotation,
   handleRemoveAllRotations,
@@ -138,11 +136,12 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               }
               handleSearchPIIAction={handleSearchPIIAction}
               handleShowHidePageRotation={handleShowHidePageRotation}
+              handleShowHidePageDeletion={handleShowHidePageDeletion}
               handleAddPageRotation={handleAddPageRotation}
               handleRemovePageRotation={handleRemovePageRotation}
-              contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}
+              featureFlags={featureFlags}
               versionId={item.versionId}
               handleRemoveAllRotations={handleRemoveAllRotations}
               handleSaveRotations={handleSaveRotations}

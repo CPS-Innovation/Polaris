@@ -4,7 +4,7 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
-  
+
 jobs:
   - job: Pause_Pipeline
     dependsOn: Log_Start
@@ -13,7 +13,7 @@ jobs:
     steps:
       - template: tasks/task_pause-pipeline.yml
 
-  - job: Swap_Coordinator_Slot
+  - job: Swap_Durable_App_Slots
     dependsOn: Pause_Pipeline
     condition: succeeded()
     strategy:
@@ -21,6 +21,9 @@ jobs:
         Coordinator:
           Name: "Coordinator"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+        PDFThumbnailGenerator:
+          Name: "PDF Thumbnail Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumb-gen"
     displayName: Swap
     steps:
       - checkout: none
@@ -33,7 +36,7 @@ jobs:
           resourceGroupName: "rg-polaris-coordinator${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)
           PreserveVnet: true
-
+        
   - job: Swap_Pipeline_Slots
     dependsOn: Pause_Pipeline
     condition: succeeded()

@@ -1,10 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
 using coordinator.Durable.Payloads;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity
 {
@@ -13,9 +15,9 @@ namespace coordinator.Durable.Activity
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IOcrService _ocrService;
 
-        public InitiateOcr(IPolarisBlobStorageService polarisBlobStorageService, IOcrService ocrService)
+        public InitiateOcr(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOcrService ocrService, IConfiguration configuration)
         {
-            _polarisBlobStorageService = polarisBlobStorageService;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _ocrService = ocrService;
         }
 
@@ -31,7 +33,7 @@ namespace coordinator.Durable.Activity
             }
 
             var pdfBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
-            using var documentStream = await _polarisBlobStorageService.GetBlobAsync(pdfBlobId);
+            await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(pdfBlobId);
             return (false, await _ocrService.InitiateOperationAsync(documentStream, payload.CorrelationId));
         }
     }

@@ -14,7 +14,7 @@ using Common.Factories.ComputerVisionClientFactory;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
-using coordinator.Services.CleardownService;
+using coordinator.Services.ClearDownService;
 using Common.Services.DocumentToggle;
 using Common.Services.OcrService;
 using coordinator.Validators;
@@ -110,7 +110,7 @@ namespace coordinator
             services.AddScoped<IValidator<ReclassifyDocumentDto>, ReclassifyDocumentValidator>();
             services.AddScoped<IValidator<ModifyDocumentWithDocumentDto>, ModifyDocumentWithDocumentValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
-            services.AddSingleton<ICleardownService, CleardownService>();
+            services.AddSingleton<IClearDownService, ClearDownService>();
             services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
 

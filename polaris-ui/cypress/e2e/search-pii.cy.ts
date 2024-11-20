@@ -284,7 +284,6 @@ describe("Search PII", () => {
 
     it("Should have the correct redaction save request", () => {
       const expectedSaveRedactionPayload = {
-        documentId: "12",
         redactions: [
           {
             pageIndex: 1,

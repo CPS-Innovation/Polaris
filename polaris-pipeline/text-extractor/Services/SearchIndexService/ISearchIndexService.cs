@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Common.Domain.SearchIndex;
+﻿using Common.Domain.SearchIndex;
 using Common.Dto.Response;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 

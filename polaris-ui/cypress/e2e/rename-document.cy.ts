@@ -5,7 +5,7 @@ import {
 
 import { getRefreshRenamedDocuments } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Feature Rename Document", () => {
-  it("Should show rename document option if the document 'canRename' is true and should not show if it is not ", () => {
+  it("Should show rename document option if the document 'canRename' is true and presentationFlags, write property is not 'isDispatched'  and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
     cy.findByTestId("btn-accordion-open-close-all").click(); //12;
     cy.findByTestId("document-housekeeping-actions-dropdown-1").should("exist");
@@ -14,6 +14,10 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("document-housekeeping-actions-dropdown-2").click();
     cy.findByTestId("dropdown-panel").contains("Rename document");
     cy.findByTestId("document-housekeeping-actions-dropdown-12").should(
+      "not.exist"
+    );
+    //dispatched document
+    cy.findByTestId("document-housekeeping-actions-dropdown-9").should(
       "not.exist"
     );
   });
@@ -53,7 +57,6 @@ describe("Feature Rename Document", () => {
     );
 
     const expectedSaveRenamePayload = {
-      documentId: 10,
       documentName: "PortraitLandscape_1",
     };
     const saveRenameRequestObject = { body: "" };

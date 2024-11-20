@@ -22,6 +22,7 @@ using Common.Factories.ComputerVisionClientFactory;
 using Common.Clients.PdfGenerator;
 using Common.Services.BlobStorage;
 using Common.Services.PiiService;
+using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.DdeiOrchestration;
 
@@ -40,8 +41,6 @@ namespace PolarisGateway
         // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
         public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
         {
-            FunctionsHostBuilderContext context = builder.GetContext();
-
             var configurationBuilder = builder.ConfigurationBuilder
                 .AddEnvironmentVariables()
 #if DEBUG
@@ -57,18 +56,15 @@ namespace PolarisGateway
 #if DEBUG
             // https://stackoverflow.com/questions/54435551/invalidoperationexception-idx20803-unable-to-obtain-configuration-from-pii
             IdentityModelEventSource.ShowPII = true;
+            IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 #endif
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddSingleton(_ =>
-            {
-                // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager.
-                return new ConfigurationManager<OpenIdConnectConfiguration>(
-                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
-                    new OpenIdConnectConfigurationRetriever(),
-                    new HttpDocumentRetriever());
-            });
+            services.AddSingleton(_ => new ConfigurationManager<OpenIdConnectConfiguration>(
+                $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
+                new OpenIdConnectConfigurationRetriever(),
+                new HttpDocumentRetriever()));
             services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
             services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
 
@@ -99,6 +95,11 @@ namespace PolarisGateway
             services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            }).AddPolicyHandler(GetRetryPolicy());
+			services.AddHttpClient<IPdfThumbnailGeneratorClient, PdfThumbnailGeneratorClient>(client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, ConfigurationKeys.PdfThumbnailGeneratorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             }).AddPolicyHandler(GetRetryPolicy());
 

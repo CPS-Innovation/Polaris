@@ -5,6 +5,11 @@ variable "blob_service_container_name" {
   default = "documents"
 }
 
+variable "blob_thumbnails_container_name" {
+  type    = string
+  default = "thumbnails"
+}
+
 variable "resource_name_prefix" {
   type    = string
   default = "polaris"
@@ -21,6 +26,11 @@ variable "networking_resource_name_suffix" {
 
 variable "env" {
   type = string
+}
+
+variable "search_index_name" {
+  type    = string
+  default = "lines-index"
 }
 
 variable "location" {
@@ -41,19 +51,20 @@ variable "ui_component_service_plans" {
 
 variable "pipeline_component_service_plans" {
   type = object({
-    coordinator_service_plan_sku           = string
-    pdf_generator_service_plan_sku         = string
-    pdf_generator_always_ready_instances   = number
-    pdf_generator_maximum_scale_out_limit  = number
-    pdf_generator_plan_maximum_burst       = number
-    text_extractor_plan_sku                = string
-    text_extractor_always_ready_instances  = number
-    text_extractor_maximum_scale_out_limit = number
-    text_extractor_plan_maximum_burst      = number
-    pdf_redactor_service_plan_sku          = string
-    pdf_redactor_always_ready_instances    = number
-    pdf_redactor_maximum_scale_out_limit   = number
-    pdf_redactor_plan_maximum_burst        = number
+    coordinator_service_plan_sku             = string
+    pdf_generator_service_plan_sku           = string
+    pdf_generator_always_ready_instances     = number
+    pdf_generator_maximum_scale_out_limit    = number
+    pdf_generator_plan_maximum_burst         = number
+    pdf_thumbnail_generator_service_plan_sku = string
+    text_extractor_plan_sku                  = string
+    text_extractor_always_ready_instances    = number
+    text_extractor_maximum_scale_out_limit   = number
+    text_extractor_plan_maximum_burst        = number
+    pdf_redactor_service_plan_sku            = string
+    pdf_redactor_always_ready_instances      = number
+    pdf_redactor_maximum_scale_out_limit     = number
+    pdf_redactor_plan_maximum_burst          = number
   })
 }
 
@@ -74,6 +85,10 @@ variable "dns_server" {
   type = string
 }
 
+variable "dns_alt_server" {
+  type = string
+}
+
 variable "polaris_ui_sub_folder" {
   type = string
   // this value must match the PUBLIC_URL=... value
@@ -88,8 +103,7 @@ variable "terraform_service_principal_display_name" {
 
 variable "ui_logging" {
   type = object({
-    gateway_scale_controller       = string
-    auth_handover_scale_controller = string
+    gateway_scale_controller = string
   })
 }
 
@@ -292,7 +306,6 @@ variable "app_gateway_back_end_host_name" {
 
 variable "pipeline_logging" {
   type = object({
-    coordinator_scale_controller    = string
     pdf_generator_scale_controller  = string
     text_extractor_scale_controller = string
     pdf_redactor_scale_controller   = string
@@ -313,6 +326,15 @@ variable "sliding_clear_down" {
     protect_blobs   = bool
     schedule        = string
     batch_size      = number
+  })
+}
+
+variable "thumbnail_generator_sliding_clear_down" {
+  type = object({
+    disabled    = number
+    batch_size  = number
+    schedule    = string
+    input_hours = number
   })
 }
 

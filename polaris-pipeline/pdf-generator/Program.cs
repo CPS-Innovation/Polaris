@@ -1,7 +1,6 @@
 using System.IO;
 using System.Linq;
 using Common.Handlers;
-using Common.Services.BlobStorage;
 using Common.Telemetry;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
@@ -47,8 +46,6 @@ var host = new HostBuilder()
 
         services.AddSingleton(context.Configuration);
         services.AddPdfGenerator();
-
-        services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();

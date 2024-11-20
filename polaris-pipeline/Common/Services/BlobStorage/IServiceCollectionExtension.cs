@@ -2,15 +2,16 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
 using System;
+using System.Globalization;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using Common.Configuration;
 using Common.Wrappers;
 
 namespace Common.Services.BlobStorage
 {
     public static class IServiceCollectionExtension
     {
-        public const string BlobServiceContainerName = "BlobServiceContainerName";
         public const string BlobServiceUrl = nameof(BlobServiceUrl);
 
         public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfiguration configuration)
@@ -21,7 +22,7 @@ namespace Common.Services.BlobStorage
                 var credentials = new DefaultAzureCredential();
                 if (blobServiceUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
-                    // our config has a url
+                    // our config has an url
                     azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl)).WithCredential(credentials);
                 }
                 else
@@ -32,15 +33,18 @@ namespace Common.Services.BlobStorage
                 }
             });
 
-            services.AddTransient((Func<IServiceProvider, IBlobStorageService>)(serviceProvider =>
+            services.AddTransient<Func<string, IPolarisBlobStorageService>>(serviceProvider => key =>
             {
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                var blobServiceContainerName = GetValueFromConfig(configuration, BlobServiceContainerName);
                 var jsonConvertWrapper = serviceProvider.GetRequiredService<IJsonConvertWrapper>();
-                return new BlobStorageService(blobServiceClient, blobServiceContainerName, jsonConvertWrapper);
-            }));
-
-            services.AddSingleton<IPolarisBlobStorageService, PolarisBlobStorageService>();
+              
+                return key.ToLower(CultureInfo.InvariantCulture) switch
+                {
+                    "documents" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameDocuments), jsonConvertWrapper)),
+                    "thumbnails" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameThumbnails), jsonConvertWrapper)),
+                    _ => throw new ArgumentException($"Unknown key: {key}")
+                };
+            });
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

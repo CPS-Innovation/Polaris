@@ -133,8 +133,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       pageDelete: shouldShowFeature(
         FEATURE_FLAG_PAGE_DELETE,
         userDetails?.username,
-        pageDelete,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        pageDelete
       ),
       pageRotate: shouldShowFeature(
         FEATURE_FLAG_PAGE_ROTATE,
