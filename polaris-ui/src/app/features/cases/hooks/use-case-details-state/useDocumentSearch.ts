@@ -13,8 +13,8 @@ export const useDocumentSearch = (
 ) => {
   const shouldMakeCall = useMemo(() => {
     const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
-      combinedState.notificationState.lastModifiedDateTime ?? "",
-      combinedState.pipelineRefreshData.localLastRefreshTime
+      combinedState.notificationState?.lastModifiedDateTime ?? "",
+      combinedState.pipelineRefreshData?.localLastRefreshTime
     );
 
     if (!combinedState.searchState.submittedSearchTerm) return false;
@@ -35,8 +35,8 @@ export const useDocumentSearch = (
     combinedState.documentsState.status,
     combinedState.searchState.lastSubmittedSearchTerm,
     combinedState.searchState.submittedSearchTerm,
-    combinedState.notificationState.lastModifiedDateTime,
-    combinedState.pipelineRefreshData.localLastRefreshTime,
+    combinedState.notificationState?.lastModifiedDateTime,
+    combinedState.pipelineRefreshData?.localLastRefreshTime,
   ]);
 
   // Document search process
