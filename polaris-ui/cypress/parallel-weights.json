@@ -1,1 +1,19 @@
-{"cypress/e2e/a11y.cy.ts":{"time":19416,"weight":5},"cypress/e2e/auth.cy.ts":{"time":1226,"weight":0},"cypress/e2e/case-details-page.cy.ts":{"time":102081,"weight":29},"cypress/e2e/case-search-results.cy.ts":{"time":3811,"weight":1},"cypress/e2e/case-search.cy.ts":{"time":2506,"weight":0},"cypress/e2e/delete-page.cy.ts":{"time":28136,"weight":8},"cypress/e2e/landing-page.cy.ts":{"time":1217,"weight":0},"cypress/e2e/notes.cy.ts":{"time":20818,"weight":5},"cypress/e2e/reclassify-document.cy.ts":{"time":56703,"weight":16},"cypress/e2e/redaction-assurance.cy.ts":{"time":118915,"weight":34},"cypress/e2e/redaction.cy.ts":{"time":34825,"weight":10},"cypress/e2e/redactionLog.cy.ts":{"time":59860,"weight":17},"cypress/e2e/rename-document.cy.ts":{"time":10084,"weight":2},"cypress/e2e/rotate-page.cy.ts":{"time":29596,"weight":8},"cypress/e2e/saved-user-data.cy.ts":{"time":35842,"weight":10},"cypress/e2e/search-pii.cy.ts":{"time":19822,"weight":5},"cypress/e2e/search.cy.ts":{"time":45665,"weight":13}}
+{
+  "cypress/e2e/a11y.cy.ts": { "time": 19416, "weight": 5 },
+  "cypress/e2e/auth.cy.ts": { "time": 1226, "weight": 0 },
+  "cypress/e2e/case-details-page.cy.ts": { "time": 102081, "weight": 29 },
+  "cypress/e2e/case-search-results.cy.ts": { "time": 3811, "weight": 1 },
+  "cypress/e2e/case-search.cy.ts": { "time": 2506, "weight": 0 },
+  "cypress/e2e/delete-page.cy.ts": { "time": 28136, "weight": 8 },
+  "cypress/e2e/landing-page.cy.ts": { "time": 1217, "weight": 0 },
+  "cypress/e2e/notes.cy.ts": { "time": 20818, "weight": 5 },
+  "cypress/e2e/reclassify-document.cy.ts": { "time": 56703, "weight": 16 },
+  "cypress/e2e/redaction-assurance.cy.ts": { "time": 118915, "weight": 34 },
+  "cypress/e2e/redaction.cy.ts": { "time": 34825, "weight": 10 },
+  "cypress/e2e/redactionLog.cy.ts": { "time": 59860, "weight": 17 },
+  "cypress/e2e/rename-document.cy.ts": { "time": 10084, "weight": 2 },
+  "cypress/e2e/rotate-page.cy.ts": { "time": 29596, "weight": 8 },
+  "cypress/e2e/saved-user-data.cy.ts": { "time": 35842, "weight": 10 },
+  "cypress/e2e/search-pii.cy.ts": { "time": 19822, "weight": 5 },
+  "cypress/e2e/search.cy.ts": { "time": 45665, "weight": 13 }
+}
