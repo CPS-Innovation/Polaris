@@ -1,4 +1,4 @@
-import { CASE_ROUTE } from "../../src/mock-api/routes";
+import { CASE_ROUTE, FILE_ROUTE } from "../../src/mock-api/routes";
 import { parseISO, differenceInYears } from "date-fns";
 
 export const getAgeFromIsoDate = (isoDateString: string) =>
@@ -1245,6 +1245,71 @@ describe("case details page", () => {
       cy.findByTestId("link-document-1")
         .should("be.visible")
         .and("have.text", "MCLOVEMG3");
+    });
+  });
+
+  describe("Opening unavailable documents", () => {
+    it("Should handle opening of an unsupported fileType or content type document which returns statuscode 415", () => {
+      cy.overrideRoute(FILE_ROUTE, {
+        type: "break",
+        httpStatusCode: 415,
+      });
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("name-text-document-1").should("not.exist");
+      cy.findByTestId("view-warning-document-1").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tab-content-1").should(
+        "contain.text",
+        "This document has unsupported file type or content and is unavailable."
+      );
+      cy.findByTestId("link-document-1").should("not.exist");
+      cy.findByTestId("name-text-document-1").should("exist");
+      cy.findByTestId("view-warning-document-1")
+        .should("exist")
+        .should("contains.text", "Document only available on CMS");
+    });
+
+    it("Should handle opening of an encrypted or password protected document which returns statuscode 403", () => {
+      cy.overrideRoute(FILE_ROUTE, {
+        type: "break",
+        httpStatusCode: 403,
+      });
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("name-text-document-1").should("not.exist");
+      cy.findByTestId("view-warning-document-1").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tab-content-1").should(
+        "contain.text",
+        "This document has been encrypted or password protected and is unavailable."
+      );
+      cy.findByTestId("link-document-1").should("not.exist");
+      cy.findByTestId("name-text-document-1").should("exist");
+      cy.findByTestId("view-warning-document-1")
+        .should("exist")
+        .should("contains.text", "Document only available on CMS");
+    });
+
+    it("Should handle opening of a document for any other reason which returns statuscode other than 200", () => {
+      cy.overrideRoute(FILE_ROUTE, {
+        type: "break",
+        httpStatusCode: 500,
+      });
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("name-text-document-1").should("not.exist");
+      cy.findByTestId("view-warning-document-1").should("not.exist");
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tab-content-1").should(
+        "contain.text",
+        "This document is unavailable"
+      );
+      cy.findByTestId("link-document-1").should("not.exist");
+      cy.findByTestId("name-text-document-1").should("exist");
+      cy.findByTestId("view-warning-document-1")
+        .should("exist")
+        .should("contains.text", "Document only available on CMS");
     });
   });
 });
