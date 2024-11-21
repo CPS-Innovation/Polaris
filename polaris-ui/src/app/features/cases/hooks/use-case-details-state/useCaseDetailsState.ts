@@ -521,19 +521,19 @@ export const useCaseDetailsState = (
 
   return {
     ...combinedState,
-    handleOpenPdf, //a
-    handleClosePdf, //s
+    handleOpenPdf,
+    handleClosePdf,
     handleTabSelection,
-    handleSearchTermChange, //s
-    handleLaunchSearchResults, //s
-    handleCloseSearchResults, //s
-    handleChangeResultsOrder, //s
-    handleUpdateFilter, //s
-    handleAddRedaction, //a
-    handleRemoveRedaction, //a
-    handleRemoveAllRedactions, //a
-    handleSavedRedactions, //a
-    handleCloseErrorModal, //s
+    handleSearchTermChange,
+    handleLaunchSearchResults,
+    handleCloseSearchResults,
+    handleChangeResultsOrder,
+    handleUpdateFilter,
+    handleAddRedaction,
+    handleRemoveRedaction,
+    handleRemoveAllRedactions,
+    handleSavedRedactions,
+    handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
