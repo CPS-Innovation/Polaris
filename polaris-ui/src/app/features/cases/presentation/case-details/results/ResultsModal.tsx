@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Modal } from "../../../../../common/presentation/components";
 import { SucceededApiResult } from "../../../../../common/types/SucceededApiResult";
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";
@@ -32,6 +32,11 @@ export const ResultsModal: React.FC<Props> = ({
   handleCloseSearchResults,
   ...restProps
 }) => {
+  //this is just to show the loading percentage only when the first pipeline refresh.
+  const [showLoadingPercentage, setShowLoadingPercentage] = useState(
+    !restProps.pipelineState?.data
+  );
+
   const { searchState } = restProps;
   const percentageCompleted = useMemo(() => {
     const docs = restProps.pipelineState.data
@@ -48,6 +53,21 @@ export const ResultsModal: React.FC<Props> = ({
     PAUSE_PERIOD_MS,
     MANDATORY_WAIT_PERIOD
   );
+
+  useEffect(() => {
+    if (
+      showLoadingPercentage &&
+      waitStatus !== "wait" &&
+      restProps.pipelineState?.data?.status === "Completed"
+    ) {
+      setShowLoadingPercentage(false);
+    }
+  }, [
+    restProps.pipelineState?.data?.status,
+    showLoadingPercentage,
+    setShowLoadingPercentage,
+    waitStatus,
+  ]);
   return (
     <Modal
       isVisible={searchState.isResultsVisible}
@@ -58,7 +78,10 @@ export const ResultsModal: React.FC<Props> = ({
       {waitStatus === "wait" &&
       searchState.submittedSearchTerm !==
         searchState.lastSubmittedSearchTerm ? (
-        <PleaseWait percentageCompleted={percentageCompleted} />
+        <PleaseWait
+          percentageCompleted={percentageCompleted}
+          showLoadingPercentage={showLoadingPercentage}
+        />
       ) : (
         <Content {...restProps} />
       )}
