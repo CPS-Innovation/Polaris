@@ -53,7 +53,7 @@ stages:
 
               sudo rm /etc/resolv.conf
               echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: /s/polaris-devops-pipelines/templates
+            workingDirectory: $(Pipeline.Workspace)/s/polaris-devops-pipelines/templates
             env:
               PRESHAREDKEY: $(dev_pre-shared_key)
               PRIVATEKEY: $(dev_private_key)
