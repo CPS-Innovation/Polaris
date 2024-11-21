@@ -925,6 +925,30 @@ describe("Case Details Search", () => {
         expect(searchCounter.count).to.equal(1);
       });
     });
+
+    it("Should show the loading percentage only on the first pipeline refresh call", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("input-search-case").type("a");
+      cy.findByTestId("btn-search-case").click();
+      cy.findByTestId("loading-percentage").should("exist");
+      cy.findByTestId("loading-percentage").should(
+        "contain.text",
+        "Loading... 0%"
+      );
+      cy.waitUntil(() => {
+        return cy
+          .findByTestId("loading-percentage")
+          .should("contain.text", "Loading... 100%");
+      });
+      cy.findByTestId("input-results-search-case").type("d");
+      cy.findByTestId("btn-results-search-case").click();
+      cy.findByTestId("loading-percentage").should("not.exist");
+      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("input-search-case").type("e");
+      cy.findByTestId("btn-search-case").click();
+      cy.findByTestId("loading-percentage").should("not.exist");
+    });
   });
 });
 

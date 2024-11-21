@@ -19,7 +19,10 @@ export const PleaseWait: React.FC<PleaseWaitProps> = ({
           ariaLabel="Loading search results, please wait"
         />
         {showLoadingPercentage && (
-          <div className={classes.loadingPercentage}>
+          <div
+            className={classes.loadingPercentage}
+            data-testid="loading-percentage"
+          >
             {" "}
             {`Loading... ${percentageCompleted}%`}
           </div>
