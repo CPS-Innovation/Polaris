@@ -70,6 +70,15 @@ export const Routes: FC = () => {
         </Route>
         <Route path={casePath}>
           <Layout isWide>
+            {/* <div
+              id="navatron"
+              className="nav-a-tron"
+              style={{
+                height: "5.3em",
+                background: "#f3f2f1",
+              }}
+            /> */}
+            <global-navigation></global-navigation>
             <Helmet>
               <title>Casework App case details page</title>
             </Helmet>
@@ -101,3 +110,11 @@ export const Routes: FC = () => {
     </HelmetProvider>
   );
 };
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "global-navigation": any;
+    }
+  }
+}

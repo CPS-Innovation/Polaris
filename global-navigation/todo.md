@@ -1,0 +1,7 @@
+- Michael Young, expose custom event
+- context awareness (from url)
+- get styling including dropdown menus done
+- read case details (defendant name) with auth
+- flyout
+- global search box
+- slot for notifications

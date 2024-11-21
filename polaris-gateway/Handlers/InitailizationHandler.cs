@@ -28,11 +28,11 @@ public class InitializationHandler : IInitializationHandler
         var correlationId = req.Headers.GetCorrelationId();
         _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-        var username = await AuthenticateRequest(req, correlationId);
-        // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.
-        //  We are adding our user identity in to the AppInsights logs, so best to do this before
-        //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
-        _telemetryAugmentationWrapper.RegisterUserName(username);
+        // var username = await AuthenticateRequest(req, correlationId);
+        // // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.
+        // //  We are adding our user identity in to the AppInsights logs, so best to do this before
+        // //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
+        // _telemetryAugmentationWrapper.RegisterUserName(username);
 
         var cmsAuthValues = EstablishCmsAuthValues(req);
         var cmsUserId = cmsAuthValues.ExtractCmsUserId();
