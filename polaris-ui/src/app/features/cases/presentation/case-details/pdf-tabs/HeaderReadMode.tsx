@@ -1,5 +1,4 @@
 import { useMemo, useCallback } from "react";
-import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
 import {

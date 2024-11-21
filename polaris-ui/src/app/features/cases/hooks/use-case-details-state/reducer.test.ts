@@ -2002,7 +2002,7 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as unknown as CombinedState;
 
-      const result = reducer(existingState as CombinedState, {
+      const result = reducer(existingState, {
         type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
           startDocumentRefresh: true,
@@ -2033,7 +2033,7 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as unknown as CombinedState;
 
-      const result = reducer(existingState as CombinedState, {
+      const result = reducer(existingState, {
         type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
           startDocumentRefresh: true,
@@ -2060,7 +2060,7 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as unknown as CombinedState;
 
-      const result = reducer(existingState as CombinedState, {
+      const result = reducer(existingState, {
         type: "UPDATE_PIPELINE_REFRESH",
         payload: {
           startPipelineRefresh: true,
@@ -2084,7 +2084,7 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as unknown as CombinedState;
 
-      const result = reducer(existingState as CombinedState, {
+      const result = reducer(existingState, {
         type: "UPDATE_CONVERSION_STATUS",
         payload: {
           documentId: "1",
@@ -2105,7 +2105,7 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as unknown as CombinedState;
 
-      const result = reducer(existingState as CombinedState, {
+      const result = reducer(existingState, {
         type: "UPDATE_CONVERSION_STATUS",
         payload: {
           documentId: "2",
@@ -2132,7 +2132,7 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as unknown as CombinedState;
 
-      const result = reducer(existingState as CombinedState, {
+      const result = reducer(existingState, {
         type: "SHOW_ERROR_MODAL",
         payload: {
           type: "saveredaction",
@@ -2161,7 +2161,7 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as unknown as CombinedState;
 
-      const result = reducer(existingState as CombinedState, {
+      const result = reducer(existingState, {
         type: "HIDE_ERROR_MODAL",
       });
 

@@ -10,7 +10,10 @@ import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
 import { RedactionWarning } from "./RedactionWarning";
-import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
+import {
+  PresentationFlags,
+  GroupedConversionStatus,
+} from "../../../domain/gateway/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import {
@@ -33,7 +36,6 @@ import { PagePortal } from "../portals/PagePortal";
 import { RotatePage } from "../portals/RotatePage";
 import { IPageRotation } from "../../../domain/IPageRotation";
 import { RotationFooter } from "./RotationFooter";
-import { GroupedConversionStatus } from "../../../domain/gateway/PipelineDocument";
 
 const SCROLL_TO_OFFSET = 120;
 

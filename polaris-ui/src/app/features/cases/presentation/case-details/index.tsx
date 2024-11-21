@@ -31,10 +31,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
-import {
-  PipelineDocument,
-  Classification,
-} from "../../domain/gateway/PipelineDocument";
+import { Classification } from "../../domain/gateway/PipelineDocument";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   BULK_UM_REDIRECT_URL,

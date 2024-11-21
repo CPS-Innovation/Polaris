@@ -1,6 +1,4 @@
 import { isNewTime } from "./refreshUtils";
-import { PipelineResults } from "../../domain/gateway/PipelineResults";
-import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 describe("refreshUtils", () => {
   describe("isNewTime", () => {
     it("it should return true if the lasttime is empty and currentime is non empty", () => {
