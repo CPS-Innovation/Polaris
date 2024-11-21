@@ -435,6 +435,7 @@ export const reducer = (
         },
       };
 
+      //Todo: Move this whole update of the open tabs into its own util function
       const openPdfsWeNeedToUpdate = data
         .filter((item) =>
           state.tabsState.items.some(

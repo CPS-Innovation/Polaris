@@ -1,7 +1,8 @@
-import { CombinedState, initialState } from "../../domain/CombinedState";
+import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import * as accordionMapper from "./map-accordion-state";
 import * as documentsMapper from "./map-documents-state";
+import * as notificationMapper from "./map-notification-state";
 import * as apiGateway from "../../api/gateway-api";
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
@@ -338,6 +339,114 @@ describe("useCaseDetailsState reducer", () => {
       });
 
       dateSpy.mockRestore();
+    });
+  });
+
+  describe("UPDATE_DOCUMENTS", () => {
+    it("throws error if update documents fails", () => {
+      expect(() =>
+        reducer({} as CombinedState, {
+          type: "UPDATE_DOCUMENTS",
+          payload: {
+            status: "failed",
+            error: ERROR,
+            httpStatusCode: undefined,
+          },
+        })
+      ).toThrowError(ERROR);
+    });
+    it("returns the currentState if the payload.status is loading", () => {
+      const existingState = {} as CombinedState;
+      const nextState = reducer(existingState, {
+        type: "UPDATE_DOCUMENTS",
+        payload: {
+          status: "loading",
+        },
+      });
+      expect(nextState).toStrictEqual(existingState);
+    });
+
+    it("should update the states correctly if there are no open document tabs", () => {
+      const expectedDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+      const mockDocumentsState = {} as CombinedState["documentsState"];
+      const mockNotificationState = {
+        name: "mock_notification",
+      } as unknown as CombinedState["notificationState"];
+      const mockAccordionState = {
+        name: "mock_accordion",
+      } as unknown as CombinedState["accordionState"];
+
+      jest
+        .spyOn(
+          mapNotificationToDocumentsState,
+          "mapNotificationToDocumentsState"
+        )
+        .mockImplementation(() => {
+          return expectedDocumentsState;
+        });
+
+      jest
+        .spyOn(documentsMapper, "mapDocumentsState")
+        .mockImplementation(() => {
+          return mockDocumentsState;
+        });
+      jest
+        .spyOn(notificationMapper, "mapNotificationState")
+        .mockImplementation(() => {
+          return mockNotificationState;
+        });
+      jest
+        .spyOn(accordionMapper, "mapAccordionState")
+        .mockImplementation(() => {
+          return mockAccordionState;
+        });
+      const existingState = {
+        notificationState: {},
+        documentsState: {},
+        caseState: { name: "caseState" },
+        documentRefreshData: { savedDocumentDetails: [] },
+      } as unknown as CombinedState;
+      const nextState = reducer(existingState, {
+        type: "UPDATE_DOCUMENTS",
+        payload: {
+          status: "succeeded",
+          data: [],
+        },
+      });
+
+      expect(documentsMapper.mapDocumentsState).toHaveBeenCalledTimes(1);
+      expect(documentsMapper.mapDocumentsState).toHaveBeenCalledWith([], []);
+      expect(notificationMapper.mapNotificationState).toHaveBeenCalledTimes(1);
+      expect(
+        mapNotificationToDocumentsState.mapNotificationToDocumentsState
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mapNotificationToDocumentsState.mapNotificationToDocumentsState
+      ).toHaveBeenCalledWith(
+        {
+          name: "mock_notification",
+        },
+        {}
+      );
+      expect(accordionMapper.mapAccordionState).toHaveBeenCalledTimes(1);
+      expect(accordionMapper.mapAccordionState).toHaveBeenCalledWith({
+        data: [],
+        status: "succeeded",
+      });
+
+      expect(nextState).toStrictEqual({
+        accordionState: { name: "mock_accordion" },
+        caseState: { name: "caseState" },
+        documentRefreshData: { savedDocumentDetails: [] },
+        documentsState: {
+          data: [],
+          status: "succeeded",
+        },
+        notificationState: { name: "mock_notification" },
+      });
     });
   });
 
@@ -1986,10 +2095,6 @@ describe("useCaseDetailsState reducer", () => {
         },
       });
     });
-  });
-
-  describe("UPDATE_SAVED_STATE", () => {
-    it("can update saved state", () => {});
   });
 
   describe("UPDATE_DOCUMENT_REFRESH", () => {
