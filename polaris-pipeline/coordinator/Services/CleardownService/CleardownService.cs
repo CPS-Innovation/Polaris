@@ -3,16 +3,14 @@ using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
 using coordinator.TelemetryEvents;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
 using Common.Configuration;
-using coordinator.Services.ClearDownService;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Services.ClearDownService
 {
-  public class ClearDownService : IClearDownService
+    public class ClearDownService : IClearDownService
   {
     private readonly IPolarisBlobStorageService _polarisBlobStorageService;
     private readonly ITextExtractorClient _textExtractorClient;

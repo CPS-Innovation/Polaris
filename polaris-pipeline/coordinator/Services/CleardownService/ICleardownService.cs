@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 namespace coordinator.Services.ClearDownService
 {
