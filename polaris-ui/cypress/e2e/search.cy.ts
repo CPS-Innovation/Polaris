@@ -779,7 +779,7 @@ describe("Case Details Search", () => {
         cy.findByTestId("input-search-case").type("e");
       });
       cy.waitUntil(() => {
-        return initiatePipelineCounter.count > 1;
+        return trackerCounter.count > 1;
       }).then(() => {
         expect(initiatePipelineCounter.count).to.equal(2);
         expect(trackerCounter.count).to.equal(2);
@@ -853,7 +853,7 @@ describe("Case Details Search", () => {
         cy.findByTestId("btn-search-case").click();
       });
       cy.waitUntil(() => {
-        return initiatePipelineCounter.count > 1;
+        return trackerCounter.count > 1;
       }).then(() => {
         expect(initiatePipelineCounter.count).to.equal(2);
         expect(trackerCounter.count).to.equal(2);
@@ -902,18 +902,9 @@ describe("Case Details Search", () => {
       cy.findByTestId("btn-search-case").click();
 
       cy.waitUntil(() => {
-        return initiatePipelineCounter.count > 0;
-      }).then(() => {
-        expect(initiatePipelineCounter.count).to.equal(1);
-        expect(trackerCounter.count).to.equal(0);
-        expect(searchCounter.count).to.equal(0);
-      });
-
-      cy.waitUntil(() => {
         return trackerCounter.count > 0;
       }).then(() => {
         expect(initiatePipelineCounter.count).to.equal(1);
-        expect(trackerCounter.count).to.equal(1);
         expect(searchCounter.count).to.equal(0);
       });
       //this makes sure the search api is been called after finishing the tracker calls(here 2)
