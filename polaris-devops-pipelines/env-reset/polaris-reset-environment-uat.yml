@@ -59,7 +59,7 @@ stages:
               
           # Terraform Apply
           - bash: |
-              terraform apply -destroy -auto-approve
+              terraform apply -destroy -auto-approve -var-file="uat.tfvars"
             displayName: Terraform > Destroy
             workingDirectory: $(System.DefaultWorkingDirectory)/polaris-terraform/search-index-terraform
             env:
