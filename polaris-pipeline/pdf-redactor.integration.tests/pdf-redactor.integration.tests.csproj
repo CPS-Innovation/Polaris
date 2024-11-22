@@ -6,6 +6,7 @@
     <RootNamespace>pdf_redactor.integration.tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\pdf-redactor\pdf-redactor.csproj" />

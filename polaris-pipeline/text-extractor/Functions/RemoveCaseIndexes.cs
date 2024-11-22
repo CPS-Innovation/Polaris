@@ -1,39 +1,33 @@
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
 using Common.Handlers;
 using text_extractor.Services.CaseSearchService;
 using Common.Telemetry;
-using Common.Wrappers;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace text_extractor.Functions
 {
-    public class RemoveCaseIndexes
+    public class RemoveCaseIndexes : BaseFunction
     {
         private readonly ILogger<RemoveCaseIndexes> _log;
         private readonly ISearchIndexService _searchIndexService;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IExceptionHandler _exceptionHandler;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private const string loggingName = nameof(RemoveCaseIndexes);
+        private const string LoggingName = nameof(RemoveCaseIndexes);
 
-        public RemoveCaseIndexes(ILogger<RemoveCaseIndexes> logger, ISearchIndexService searchIndexService, ITelemetryAugmentationWrapper telemetryAugmentationWrapper, IExceptionHandler exceptionHandler, IJsonConvertWrapper jsonConvertWrapper)
+        public RemoveCaseIndexes(ILogger<RemoveCaseIndexes> logger, ISearchIndexService searchIndexService, ITelemetryAugmentationWrapper telemetryAugmentationWrapper, IExceptionHandler exceptionHandler)
         {
             _log = logger ?? throw new ArgumentNullException(nameof(logger));
             _searchIndexService = searchIndexService ?? throw new ArgumentNullException(nameof(searchIndexService));
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
-            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        [FunctionName(nameof(RemoveCaseIndexes))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequestMessage request, int caseId)
+        [Function(nameof(RemoveCaseIndexes))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequest request, int caseId)
         {
             Guid correlationId = default;
 
@@ -44,15 +38,11 @@ namespace text_extractor.Functions
 
                 var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
 
-                return new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(result))
-                };
+                return CreateJsonResult(result);
             }
             catch (Exception exception)
             {
-                return _exceptionHandler.HandleException(exception, correlationId, loggingName, _log);
+                return _exceptionHandler.HandleExceptionNew(exception, correlationId, LoggingName, _log);
             }
         }
     }

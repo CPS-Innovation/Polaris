@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>text_extractor.tests</RootNamespace>
+	<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
 
   <ItemGroup>
@@ -45,6 +46,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Handlers\" />
-    <Folder Include="Functions\" />
   </ItemGroup>
 </Project>

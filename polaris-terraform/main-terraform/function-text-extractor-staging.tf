@@ -13,12 +13,12 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Staging1"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
+    "SearchClientIndexName"                           = var.search_index_name
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -34,6 +34,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
   }
 
   site_config {
@@ -46,11 +47,13 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     pre_warmed_instance_count              = var.pipeline_component_service_plans.text_extractor_always_ready_instances
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    health_check_path                      = "/api/status"
+    health_check_eviction_time_in_min      = "2"
+    use_32_bit_worker                      = false
     application_stack {
-      dotnet_version = "6.0"
+      dotnet_version              = "8.0"
+      use_dotnet_isolated_runtime = true
     }
-    health_check_path                 = "/api/status"
-    health_check_eviction_time_in_min = "2"
   }
 
   identity {

@@ -1,4 +1,3 @@
-using Common.Helpers;
 using Common.Services.BlobStorage;
 using Common.Telemetry;
 using coordinator.Clients.TextExtractor;

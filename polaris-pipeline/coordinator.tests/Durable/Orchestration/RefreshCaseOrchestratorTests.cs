@@ -11,7 +11,6 @@ using Common.Dto.Response.Document;
 using Common.Dto.Response;
 using Common.Dto.Response.Documents;
 using coordinator.Constants;
-using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Orchestration;
 using FluentAssertions;

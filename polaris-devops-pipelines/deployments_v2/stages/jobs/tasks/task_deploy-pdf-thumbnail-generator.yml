@@ -29,7 +29,7 @@ steps:
   # download pdf-generator build artifact
   - download: ${{ parameters.targetBuild }}
     displayName: Deploy > Download PDF Thumbnail Generator Codebase Build
-    artifact: "polaris-pdf-thumbnail-generator-drop"
+    artifact: "polaris-pdf-thumb-gen-drop"
 
   # Deploy Related Codebase to Env
   - task: AzureFunctionApp@1
@@ -37,10 +37,10 @@ steps:
     inputs:
       azureSubscription: ${{ parameters.azureSubscription }}
       appType: functionApp
-      appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumbnail-generator"
-      package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-thumbnail-generator-drop
+      appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-thumb-gen"
+      package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-thumb-gen-drop
       deployToSlotOrASE: true
-      resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+      resourceGroupName: "rg-polaris-coordinator${{ parameters.targetSuffix }}"
       slotName: "staging1"
 
   # send custom event to AppInsights

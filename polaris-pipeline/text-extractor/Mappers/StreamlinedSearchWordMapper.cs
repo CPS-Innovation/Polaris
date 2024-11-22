@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Common.Domain.SearchIndex;
 using text_extractor.Mappers.Contracts;
 using FuzzySharp;
@@ -20,9 +19,8 @@ namespace text_extractor.Mappers
             };
         }
 
-        private SearchTermResult SearchTermIncluded(string wordText, string searchTerm)
+        private static SearchTermResult SearchTermIncluded(string wordText, string searchTerm)
         {
-
             var tidiedText = wordText.Replace(" ", "");
             if (searchTerm.Equals(tidiedText, StringComparison.CurrentCultureIgnoreCase))
                 return new SearchTermResult(true, StreamlinedMatchType.Exact);

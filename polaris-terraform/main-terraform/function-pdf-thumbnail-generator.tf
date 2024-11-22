@@ -1,9 +1,9 @@
 #################### Functions ####################
 
 resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
-  name                          = "fa-${local.global_resource_name}-pdf-thumbnail-generator"
-  location                      = azurerm_resource_group.rg_polaris_pipeline.location
-  resource_group_name           = azurerm_resource_group.rg_polaris_pipeline.name
+  name                          = "fa-${local.global_resource_name}-pdf-thumb-gen"
+  location                      = azurerm_resource_group.rg_coordinator.location
+  resource_group_name           = azurerm_resource_group.rg_coordinator.name
   service_plan_id               = azurerm_service_plan.asp_polaris_pipeline_ep_pdf_thumbnail_generator.id
   storage_account_name          = azurerm_storage_account.sa_pdf_thumbnail_generator.name
   storage_account_access_key    = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_access_key
@@ -17,17 +17,17 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_connection_string
+    "AzureWebJobs.SlidingClearDown.Disabled"          = var.thumbnail_generator_sliding_clear_down.disabled
     "BlobServiceContainerName"                        = var.blob_service_container_name
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "SlidingClearDownBatchSize"                       = var.thumbnail_generator_sliding_clear_down.batch_size
     "SlidingClearDownSchedule"                        = var.thumbnail_generator_sliding_clear_down.schedule
     "SlidingClearDownInputHours"                      = var.thumbnail_generator_sliding_clear_down.input_hours
-    "ThumbnailGeneratorTaskHub"                       = "fapolaris${var.env != "prod" ? var.env : ""}pdfthumbnailgenerator"
+    "ThumbnailGeneratorTaskHub"                       = "fapolaris${var.env != "prod" ? var.env : ""}pdfthumbgen"
     "BlobServiceContainerNameThumbnails"              = var.blob_thumbnails_container_name
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.pdf_thumbnail_generator_scale_controller
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_pdf_thumbnail_generator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -47,22 +47,19 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
   }
 
   sticky_settings {
-    app_setting_names = ["ThumbnailGeneratorTaskHub", "HostType"]
+    app_setting_names = ["ThumbnailGeneratorTaskHub", "HostType", "AzureWebJobs.SlidingClearDown.Disabled"]
   }
 
   site_config {
     ftps_state                             = "FtpsOnly"
     http2_enabled                          = true
-    runtime_scale_monitoring_enabled       = true
     vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = var.pipeline_component_service_plans.pdf_thumbnail_generator_always_ready_instances
-    app_scale_limit                        = var.pipeline_component_service_plans.pdf_thumbnail_generator_maximum_scale_out_limit
-    pre_warmed_instance_count              = var.pipeline_component_service_plans.pdf_thumbnail_generator_always_ready_instances
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {
       dotnet_version = "v8.0"
     }
+    always_on                         = true
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
     use_32_bit_worker                 = false
@@ -81,6 +78,7 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
   lifecycle {
     ignore_changes = [
       app_settings["AzureWebJobsStorage"],
+      app_settings["AzureWebJobs.SlidingClearDown.Disabled"],
       app_settings["BlobServiceContainerName"],
       app_settings["BlobServiceUrl"],
       app_settings["SlidingClearDownBatchSize"],
@@ -111,8 +109,8 @@ resource "azurerm_windows_function_app" "fa_pdf_thumbnail_generator" {
 
 module "azurerm_app_reg_fa_pdf_thumbnail_generator" {
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_resource_name}-pdf-thumbnail-generator-appreg"
-  identifier_uris         = ["api://fa-${local.global_resource_name}-pdf-thumbnail-generator"]
+  display_name            = "fa-${local.global_resource_name}-pdf-thumb-gen-appreg"
+  identifier_uris         = ["api://fa-${local.global_resource_name}-pdf-thumb-gen"]
   prevent_duplicate_names = true
   #use this code for adding app_roles
   /*app_role = [
@@ -163,8 +161,8 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_thu
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_pdf_thumbnail_generator_pe" {
   name                = "${azurerm_windows_function_app.fa_pdf_thumbnail_generator.name}-pe"
-  resource_group_name = azurerm_resource_group.rg_polaris_pipeline.name
-  location            = azurerm_resource_group.rg_polaris_pipeline.location
+  resource_group_name = azurerm_resource_group.rg_coordinator.name
+  location            = azurerm_resource_group.rg_coordinator.location
   subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
   tags                = local.common_tags
 

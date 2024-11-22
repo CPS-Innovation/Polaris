@@ -6,7 +6,6 @@ using text_extractor.Mappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using System.Linq;
