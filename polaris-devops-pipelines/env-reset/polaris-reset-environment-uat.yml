@@ -28,7 +28,7 @@ stages:
                     
   - stage: Reset_Polaris_Index
     displayName: Reset Polaris Index
-    dependsOn: Checkout_Repos
+    dependsOn: Wait_For_Running_Pipelines
     jobs:
       - job:
         steps:
