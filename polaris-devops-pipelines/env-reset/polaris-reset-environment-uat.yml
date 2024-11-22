@@ -29,7 +29,7 @@ stages:
   - stage: Check_Repos
     displayName: Checkout Repos
     jobs:
-      - jobs:
+      - job:
           steps:
             - checkout: self
             - checkout: git://Information%20Management/PolarisDDEI
