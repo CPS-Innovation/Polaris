@@ -30,47 +30,48 @@ stages:
     displayName: "Reset Casework App Index"
     dependsOn: Wait_For_Running_Pipelines
     jobs:
-      steps:
-        - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-          displayName: Terraform > Install
-          inputs:
-            terraformVersion: latest
-                    
-        - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-          parameters:
-            azureSubscription: $(uat-azure-subscription)
-            
-        - task: Bash@3
-          displayName: List all Folders in $(System.DefaultWorkingDirectory)
-          inputs:
-            targetType: 'inline'
-            script: |
-              tree $(System.DefaultWorkingDirectory)
-            
-        # Terraform Init
-        - bash: |
-            terraform init \
-              -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-              -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-              -backend-config="key=$TF_STATE_KEY" \
-              -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-          displayName: Terraform > Init
-          workingDirectory: $(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform
-          env:
-            TF_STATE_ACCOUNT_NAME: $(uat-terraform-storage-account)
-            TF_STATE_CONTAINER_NAME: $(index-terraform-container-name)
-            TF_STATE_KEY: $(terraform-key)
-            TF_STATE_ACCESS_KEY: $(cpsuatstorageterraform-key1)
-            TF_LOG: "ERROR"
-            
-        # Terraform Apply
-        - bash: |
-            terraform apply -destroy -auto-approve
-          displayName: Terraform > Destroy
-          workingDirectory: $(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform
-          env:
-            ARM_CLIENT_ID: $(clientId)
-            ARM_CLIENT_SECRET: $(clientSecret)
-            ARM_TENANT_ID: $(tenantId)
-            ARM_SUBSCRIPTION_ID: $(subscriptionId)
-            TF_LOG: "ERROR"
+      job:
+        steps:
+          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: latest
+                      
+          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+            parameters:
+              azureSubscription: $(uat-azure-subscription)
+              
+          - task: Bash@3
+            displayName: List all Folders in $(System.DefaultWorkingDirectory)
+            inputs:
+              targetType: 'inline'
+              script: |
+                tree $(System.DefaultWorkingDirectory)
+              
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform
+            env:
+              TF_STATE_ACCOUNT_NAME: $(uat-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(index-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsuatstorageterraform-key1)
+              TF_LOG: "ERROR"
+              
+          # Terraform Apply
+          - bash: |
+              terraform apply -destroy -auto-approve
+            displayName: Terraform > Destroy
+            workingDirectory: $(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform
+            env:
+              ARM_CLIENT_ID: $(clientId)
+              ARM_CLIENT_SECRET: $(clientSecret)
+              ARM_TENANT_ID: $(tenantId)
+              ARM_SUBSCRIPTION_ID: $(subscriptionId)
+              TF_LOG: "ERROR"
