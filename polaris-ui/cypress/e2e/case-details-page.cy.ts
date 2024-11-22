@@ -994,6 +994,7 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-2").click();
+      cy.wait(500);
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
