@@ -57,6 +57,7 @@ stages:
               subscriptionId: $(subscriptionId)
               workingDirectory: Polaris/polaris-terraform/search-index-terraform
               targetArea: Search Index
+              targetVarFile: uat
               
           - template: task_reset.yml
             parameters:
@@ -70,6 +71,7 @@ stages:
               subscriptionId: $(subscriptionId)
               workingDirectory: Polaris/polaris-terraform/main-terraform
               targetArea: Casework App
+              targetVarFile: uat
               
           - template: task_reset.yml
             parameters:
@@ -83,6 +85,7 @@ stages:
               subscriptionId: $(subscriptionId)
               workingDirectory: redaction-logger/terraform-redaction-logger
               targetArea: Redaction Logger
+              targetVarFile: uat
               
           - template: task_reset.yml
             parameters:
@@ -96,6 +99,7 @@ stages:
               subscriptionId: $(subscriptionId)
               workingDirectory: polarisDDEI/terraform
               targetArea: Polaris DDEI
+              targetVarFile: uat
               
           - template: task_reset.yml
             parameters:
@@ -109,6 +113,7 @@ stages:
               subscriptionId: $(subscriptionId)
               workingDirectory: Polaris/polaris-terraform/alerting-terraform
               targetArea: Alerting Framework
+              targetVarFile: uat
               
           - template: task_reset.yml
             parameters:
@@ -122,3 +127,4 @@ stages:
               subscriptionId: $(subscriptionId)
               workingDirectory: Polaris/polaris-terraform/networking-terraform
               targetArea: Networking Components
+              targetVarFile: uat
