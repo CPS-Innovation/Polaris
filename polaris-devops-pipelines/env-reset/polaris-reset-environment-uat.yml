@@ -14,7 +14,7 @@ variables:
   
 stages:
   - stage: Wait_For_Running_Pipelines
-    displayName: "Wait For Running Pipelines"
+    displayName: Check Run Status
     jobs:
       - deployment: Wait_For_Running_Pipelines
         environment: $(target-env)
@@ -26,22 +26,16 @@ stages:
                   parameters:
                     devOpsPatToken: $(System.AccessToken)
                     
-  - stage: Checkout_Repos
-    displayName: Checkout Repos
-    dependsOn: Wait_For_Running_Pipelines
+  - stage: Reset_Polaris_Index
+    displayName: Reset Polaris Index
+    dependsOn: Checkout_Repos
     jobs:
       - job:
         steps:
           - checkout: self
           - checkout: git://Information Management/PolarisDDEI
-          - checkout: git://Innovation Delivery/redaction-logger    
-  
-  - stage: Reset_Polaris_Index
-    displayName: "Reset Polaris Index"
-    dependsOn: Checkout_Repos
-    jobs:
-      - job:
-        steps:
+          - checkout: git://Innovation Delivery/redaction-logger
+            
           - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
             displayName: Terraform > Install
             inputs:
@@ -67,7 +61,7 @@ stages:
                 -backend-config="key=$TF_STATE_KEY" \
                 -backend-config="access_key=$TF_STATE_ACCESS_KEY"
             displayName: Terraform > Init
-            workingDirectory: $(System.DefaultWorkingDirectory)/polaris-terraform/search-index-terraform
+            workingDirectory: $(System.DefaultWorkingDirectory)/Polaris/polaris-terraform/search-index-terraform
             env:
               TF_STATE_ACCOUNT_NAME: $(uat-terraform-storage-account)
               TF_STATE_CONTAINER_NAME: $(index-terraform-container-name)
@@ -79,7 +73,7 @@ stages:
           - bash: |
               terraform apply -destroy -auto-approve -var-file="uat.tfvars"
             displayName: Terraform > Destroy
-            workingDirectory: $(System.DefaultWorkingDirectory)/polaris-terraform/search-index-terraform
+            workingDirectory: $(System.DefaultWorkingDirectory)/Polaris/polaris-terraform/search-index-terraform
             env:
               ARM_CLIENT_ID: $(clientId)
               ARM_CLIENT_SECRET: $(clientSecret)
