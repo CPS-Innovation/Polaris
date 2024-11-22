@@ -26,8 +26,8 @@ stages:
                   parameters:
                     devOpsPatToken: $(System.AccessToken)
   
-  - stage: Reset_Casework_App_Index
-    displayName: "Reset Casework App Index"
+  - stage: Reset_Polaris_Index
+    displayName: "Reset Polaris Index"
     dependsOn: Wait_For_Running_Pipelines
     jobs:
       - job:
@@ -41,12 +41,13 @@ stages:
             parameters:
               azureSubscription: $(uat-azure-subscription)
               
-          - task: Bash@3
+          - task: PowerShell@2
             displayName: List all Folders in $(System.DefaultWorkingDirectory)
             inputs:
               targetType: 'inline'
+              pwsh: true
               script: |
-                tree $(System.DefaultWorkingDirectory)
+                Get-ChildItem -path $(System.DefaultWorkingDirectory) -recurse
               
           # Terraform Init
           - bash: |
