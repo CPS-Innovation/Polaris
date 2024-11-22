@@ -30,7 +30,7 @@ steps:
         -backend-config="key=$TF_STATE_KEY" \
         -backend-config="access_key=$TF_STATE_ACCESS_KEY"
     displayName: Init > ${{ parameters.targetArea }} Terraform
-    workingDirectory: $(System.DefaultWorkingDirectory)/Polaris/polaris-terraform/search-index-terraform
+    workingDirectory: $(System.DefaultWorkingDirectory)/${{ parameters.workingDirectory }}
     env:
       TF_STATE_ACCOUNT_NAME: ${{ parameters.terraformStorageAccount }}
       TF_STATE_CONTAINER_NAME: ${{ parameters.terraformContainerName }}
@@ -42,7 +42,7 @@ steps:
   - bash: |
       terraform apply -destroy -auto-approve -var-file="$ARM_VAR_FILE.tfvars"
     displayName: Destroy > ${{ parameters.targetArea }}
-    workingDirectory: $(System.DefaultWorkingDirectory)/Polaris/polaris-terraform/search-index-terraform
+    workingDirectory: $(System.DefaultWorkingDirectory)/${{ parameters.workingDirectory }}
     env:
       ARM_CLIENT_ID: ${{ parameters.clientId }}
       ARM_CLIENT_SECRET: ${{ parameters.clientSecret }}
