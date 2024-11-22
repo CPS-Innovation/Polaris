@@ -30,7 +30,7 @@ stages:
     displayName: "Reset Casework App Index"
     dependsOn: Wait_For_Running_Pipelines
     jobs:
-      job:
+      - job:
         steps:
           - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
             displayName: Terraform > Install
