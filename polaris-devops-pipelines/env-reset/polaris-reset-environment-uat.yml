@@ -32,8 +32,8 @@ stages:
       - job:
         steps:
           - checkout: self
-          - checkout: git://Information%20Management/PolarisDDEI
-          - checkout: git://Innovation%20Delivery/redaction-logger    
+          - checkout: git://Information Management/PolarisDDEI
+          - checkout: git://Innovation Delivery/redaction-logger    
   
   - stage: Reset_Polaris_Index
     displayName: "Reset Polaris Index"
