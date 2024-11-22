@@ -185,6 +185,7 @@ describe("redaction refresh flow", () => {
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-2").click();
+    cy.wait(500);
     cy.findByTestId("link-document-1").click();
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],
