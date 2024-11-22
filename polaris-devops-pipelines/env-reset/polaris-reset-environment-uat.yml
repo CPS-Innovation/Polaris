@@ -22,7 +22,7 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: ../stages/jobs/tasks/task_wait-for-running-releases.yml
+                - template: ../deployments_v2/stages/jobs/tasks/task_wait-for-running-releases.yml
                   parameters:
                     devOpsPatToken: $(System.AccessToken)
                     
@@ -42,7 +42,7 @@ stages:
                   inputs:
                     terraformVersion: latest
                     
-                - template: ../stages/jobs/tasks/task_get-credentials.yml
+                - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
                   parameters:
                     azureSubscription: $(uat-azure-subscription)
                     
