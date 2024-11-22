@@ -26,8 +26,9 @@ stages:
                   parameters:
                     devOpsPatToken: $(System.AccessToken)
                     
-  - stage: Check_Repos
+  - stage: Checkout_Repos
     displayName: Checkout Repos
+    dependsOn: Wait_For_Running_Pipelines
     jobs:
       - job:
         steps:
@@ -37,7 +38,7 @@ stages:
   
   - stage: Reset_Polaris_Index
     displayName: "Reset Polaris Index"
-    dependsOn: Wait_For_Running_Pipelines
+    dependsOn: Checkout_Repos
     jobs:
       - job:
         steps:
