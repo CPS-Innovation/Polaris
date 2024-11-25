@@ -202,38 +202,6 @@ stages:
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
 
-      - deployment: Apply_Index_Terraform
-        condition: succeeded()
-        dependsOn: Log_Start_Terraform
-        displayName: Apply Index Terraform
-        environment: "Prod"
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: stages/jobs/tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscription: $(prod-azure-subscription)
-
-                - template: stages/jobs/tasks/task_apply-and-record-terraform.yml
-                  parameters:
-                    targetBuild: PolarisBuild
-                    targetTerraformArtifact: "index-terraform-files"
-                    targetLabel: "PROD"
-                    targetName: "Index Terraform CI Deployment"
-                    targetPlanName: "prod"
-                    appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-                    terraformStorageAccount: $(prod-terraform-storage-account)
-                    terraformContainerName: $(index-terraform-container-name)
-                    terraformStateKey: $(terraform-key)
-                    terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
-
       - deployment: Log_Result_Terraform_Ended
         condition: succeeded()
         displayName: Log End

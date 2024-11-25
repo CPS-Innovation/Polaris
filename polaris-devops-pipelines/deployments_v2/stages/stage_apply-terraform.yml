@@ -150,38 +150,6 @@ stages:
                     armTenantId: $(tenantId)
                     armSubscriptionId: $(subscriptionId)
 
-      - deployment: Apply_Index_Terraform
-        condition: succeeded()
-        dependsOn: Set_Log_Analytics_Archival_Periods
-        displayName: Apply Index Terraform
-        environment: ${{ parameters.targetEnv }}
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: jobs/tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscription: ${{ parameters.azureSubscription }}
-
-                - template: jobs/tasks/task_apply-and-record-terraform.yml
-                  parameters:
-                    targetBuild: ${{ parameters.targetBuild }}
-                    targetTerraformArtifact: "index-terraform-files"
-                    targetLabel: ${{ parameters.targetLabel }}
-                    targetName: "Index Terraform CI Deployment"
-                    targetPlanName: ${{ parameters.targetPlanName }}
-                    appInsightsKey: ${{ parameters.appInsightsKey }}
-                    terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-                    terraformContainerName: ${{ parameters.indexTerraformContainerName }}
-                    terraformStateKey: ${{ parameters.terraformStateKey }}
-                    terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
-
       - deployment: Log_Result_Terraform_Ended
         condition: succeeded()
         displayName: Log End

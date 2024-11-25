@@ -62,7 +62,7 @@ namespace PolarisGateway
 
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton(_ => new ConfigurationManager<OpenIdConnectConfiguration>(
-                $"https://login.microsoftonline.com/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/v2.0/.well-known/openid-configuration",
+                $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
                 new OpenIdConnectConfigurationRetriever(),
                 new HttpDocumentRetriever()));
             services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
