@@ -213,7 +213,7 @@ describe("useCaseDetailsState reducer", () => {
         pipelineRefreshData: {
           startPipelineRefresh: false,
           lastProcessingCompleted: "time_pc2",
-          localLastRefreshTime: "2023-01-01T00:00:00.000Z",
+          localLastRefreshTime: "abc",
         },
         localDocumentState: {
           "1": { conversionStatus: "DocumentConverted" },
@@ -225,7 +225,7 @@ describe("useCaseDetailsState reducer", () => {
       dateSpy.mockRestore();
     });
 
-    it("Should update the state if the pipeline is complete", () => {
+    it("Should update the state if the pipeline is complete and pipelineresult status is Completed", () => {
       const dateSpy = jest
         .spyOn(Date.prototype, "toISOString")
         .mockReturnValue("2023-01-01T00:00:00.000Z");
@@ -292,7 +292,7 @@ describe("useCaseDetailsState reducer", () => {
               ],
               documentsRetrieved: "time_dc2",
               processingCompleted: "time_pc2",
-              status: "DocumentsRetrieved",
+              status: "Completed",
             },
             correlationId: "abc",
           },
@@ -322,7 +322,7 @@ describe("useCaseDetailsState reducer", () => {
             ],
             documentsRetrieved: "time_dc2",
             processingCompleted: "time_pc2",
-            status: "DocumentsRetrieved",
+            status: "Completed",
           },
           correlationId: "abc",
         },

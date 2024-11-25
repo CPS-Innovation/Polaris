@@ -160,7 +160,6 @@ describe("useCaseDetailsState", () => {
         handleAddNote,
         handleGetNotes,
         handleShowHideRedactionSuggestions,
-        handleGetSearchPIIData,
         handleSearchPIIAction,
         handleResetRenameData,
         handleSaveRename,

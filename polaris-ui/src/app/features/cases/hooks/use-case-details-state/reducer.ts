@@ -552,7 +552,10 @@ export const reducer = (
         pipelineRefreshData: {
           ...state.pipelineRefreshData,
           lastProcessingCompleted: action.payload.data.processingCompleted, //may be can use it from pipelineState
-          localLastRefreshTime: new Date().toISOString(),
+          localLastRefreshTime:
+            action.payload.data.status === "Completed"
+              ? new Date().toISOString()
+              : state.pipelineRefreshData.localLastRefreshTime,
         },
         localDocumentState: newLocalDocumentState,
       };

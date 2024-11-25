@@ -333,15 +333,6 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
-  const handleGetSearchPIIData = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"], versionId: number) =>
-      dispatch({
-        type: "GET_SEARCH_PII_DATA",
-        payload: { documentId, versionId },
-      }),
-    [dispatch]
-  );
-
   const handleSearchPIIAction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
@@ -545,7 +536,6 @@ export const useCaseDetailsState = (
     handleAddNote,
     handleSaveRename,
     handleShowHideRedactionSuggestions,
-    handleGetSearchPIIData,
     handleSearchPIIAction,
     handleResetRenameData,
     handleReclassifySuccess,
