@@ -84,7 +84,7 @@ export const assembleRedirectUrl = ({
   outboundUrl +
   "?r=" +
   encodeURIComponent(
-    `${inboundUrl}?fail-correlation-id=${correlationId}&polaris-ui-url=${encodeURIComponent(
+    `${inboundUrl}?${FAIL_CORRELATION_ID_QUERY_PARAM}=${correlationId}&polaris-ui-url=${encodeURIComponent(
       terminationUrl
     )}`
   );
