@@ -16,7 +16,7 @@ import { useLoadAppLevelLookups } from "./useLoadAppLevelLookups";
 import { useGetCaseData } from "./useGetCaseData";
 import { useDocumentSearch } from "./useDocumentSearch";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
-import { usePipelineRefreshPolling } from "./usePipelineRefreshPolling";
+import { useDocumentRefreshPolling } from "./useDocumentRefreshPolling";
 import { useHydrateFromLocalStorage } from "./useHydrateFromLocalStorage";
 import { PageRotation } from "../../domain/IPageRotation";
 import {
@@ -47,7 +47,7 @@ export const useCaseDetailsState = (
   );
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
-  usePipelineRefreshPolling(dispatch, combinedState.featureFlags.notifications);
+  useDocumentRefreshPolling(dispatch, combinedState.featureFlags.notifications);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {

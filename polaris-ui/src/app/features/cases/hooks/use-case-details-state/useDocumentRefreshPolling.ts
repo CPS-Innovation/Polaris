@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { DispatchType } from "./reducer";
 import { BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS } from "../../../../config";
 
-export const usePipelineRefreshPolling = (
+export const useDocumentRefreshPolling = (
   dispatch: DispatchType,
   isFeatureFlagOn: boolean
 ) =>

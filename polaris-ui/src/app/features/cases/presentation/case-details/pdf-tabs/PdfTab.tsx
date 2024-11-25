@@ -313,7 +313,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   }, [isDeleted, documentId, localDocumentState]);
 
   const isDocumentAvailable = useMemo(() => {
-    console.log("localDocumentState>>", localDocumentState);
     return (
       !isDeleted &&
       (!localDocumentState[documentId]?.conversionStatus ||
