@@ -5,7 +5,7 @@ dns_server      = "10.7.200.68"
 dns_alt_server  = "168.63.129.16"
 
 ui_component_service_plans = {
-  gateway_service_plan_sku     = "P1mv3"
+  gateway_service_plan_sku     = "P1v3"
   spa_service_plan_sku         = "P1v3"
   proxy_service_plan_sku       = "P1v3"
   maintenance_service_plan_sku = "B1"
