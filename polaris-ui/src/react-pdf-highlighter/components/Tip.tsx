@@ -39,6 +39,7 @@ export class Tip extends Component<Props, State> {
         {compact ? (
           <div
             className="Tip__compact"
+            role=""
             onClick={() => {
               onOpen();
               this.setState({ compact: false });
@@ -57,9 +58,16 @@ export class Tip extends Component<Props, State> {
             <div>
               <textarea
                 placeholder="Your comment"
+                role="textbox"
+                aria-placeholder="Your comment"
+                aria-labelledby="yourcommentlabel"
                 // biome-ignore lint/a11y/noAutofocus: This is an example app
-                autoFocus
+                //disable autofocus as it can reduce usability and accessibility for users
+                // autoFocus
                 value={text}
+                onKeyDown={(event)=> {
+                  console.log()
+                }}
                 onChange={(event) =>
                   this.setState({ text: event.target.value })
                 }

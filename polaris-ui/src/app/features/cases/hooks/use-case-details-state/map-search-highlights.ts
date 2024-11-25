@@ -40,7 +40,8 @@ export const mapSearchHighlights = (
           
         },
         content: undefined,
-        comment: undefined
+        comment: undefined,
+        highlightType: undefined
       });
     }
   }

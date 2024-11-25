@@ -7,7 +7,7 @@ export interface NewPdfHighlight extends NewHighlight {
   searchPIIId?: string;
   content?: any,
   comment?: any
-  highlightType?: any
+  highlightType: any  
 }
 
 export type PIIRedactionStatus =
@@ -25,4 +25,5 @@ export interface ISearchPIIHighlight extends NewHighlight {
   piiCategory: string;
   redactionType: RedactionTypeData;
   groupId: string;
+  highlightType?: any
 }

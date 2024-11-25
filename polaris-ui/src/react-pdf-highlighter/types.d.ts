@@ -43,6 +43,7 @@ export interface HighlightComment {
 }
 export interface NewHighlight extends HighlightContent, HighlightComment {
     position: ScaledPosition;
+    highlightType?: "linear" | "area" 
 }
 export interface IHighlight extends NewHighlight {
     id: string;

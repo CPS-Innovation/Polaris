@@ -34,7 +34,7 @@ import { HighlightLayer } from "./HighlightLayer";
 import MouseSelection from "./MouseSelection";
 import TipContainer from "./TipContainer";
 
-export type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
+export type T_ViewportHighlight<T_HT> = { position: Position; highlightType?: any } & T_HT;
 
 interface State<T_HT> {
   ghostHighlight: {
@@ -62,6 +62,7 @@ interface Props<T_HT> {
       callback: (highlight: T_ViewportHighlight<T_HT>) => JSX.Element,
     ) => void,
     hideTip: () => void,
+    onWheelDownwards: () => void,
     viewportToScaled: (rect: LTWHP) => Scaled,
     screenshot: (position: LTWH) => string,
     isScrolledTo: boolean,

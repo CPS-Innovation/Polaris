@@ -39,6 +39,7 @@ describe("useNavigationAlert hook", () => {
           content: undefined,
           comment: undefined,
           redactionType: { id: "1", name: "Address" },
+          highlightType: "linear"
         },
       ],
       pageDeleteRedactions: [],
@@ -95,7 +96,8 @@ describe("useNavigationAlert hook", () => {
           position: {} as any,
           redactionType: { id: "1", name: "Address" },
           content: undefined,
-          comment: undefined
+          comment: undefined,
+          highlightType: "linear"
         },
       ],
       pageDeleteRedactions: [],
