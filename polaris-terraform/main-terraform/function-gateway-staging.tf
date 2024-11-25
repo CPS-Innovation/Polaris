@@ -34,6 +34,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumbnail-generator.azurewebsites.net/api/"
+    "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumb-gen.azurewebsites.net/api/"
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
@@ -88,7 +89,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
 
     # our default_provider:
     active_directory_v2 {
-      tenant_auth_endpoint = "https://login.microsoftonline.com/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_fa_polaris.client_id

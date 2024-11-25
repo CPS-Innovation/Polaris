@@ -12,23 +12,20 @@ ui_component_service_plans = {
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku                    = "P3mv3"
-  pdf_generator_service_plan_sku                  = "EP3"
-  pdf_generator_always_ready_instances            = 3
-  pdf_generator_maximum_scale_out_limit           = 15
-  pdf_generator_plan_maximum_burst                = 15
-  pdf_thumbnail_generator_service_plan_sku        = "EP3"
-  pdf_thumbnail_generator_always_ready_instances  = 3
-  pdf_thumbnail_generator_maximum_scale_out_limit = 15
-  pdf_thumbnail_generator_plan_maximum_burst      = 15
-  text_extractor_plan_sku                         = "EP3"
-  text_extractor_always_ready_instances           = 3
-  text_extractor_maximum_scale_out_limit          = 10
-  text_extractor_plan_maximum_burst               = 10
-  pdf_redactor_service_plan_sku                   = "EP2"
-  pdf_redactor_always_ready_instances             = 3
-  pdf_redactor_maximum_scale_out_limit            = 15
-  pdf_redactor_plan_maximum_burst                 = 15
+  coordinator_service_plan_sku             = "P3mv3"
+  pdf_generator_service_plan_sku           = "EP3"
+  pdf_generator_always_ready_instances     = 3
+  pdf_generator_maximum_scale_out_limit    = 15
+  pdf_generator_plan_maximum_burst         = 15
+  pdf_thumbnail_generator_service_plan_sku = "P3mv3"
+  text_extractor_plan_sku                  = "EP3"
+  text_extractor_always_ready_instances    = 3
+  text_extractor_maximum_scale_out_limit   = 10
+  text_extractor_plan_maximum_burst        = 10
+  pdf_redactor_service_plan_sku            = "EP2"
+  pdf_redactor_always_ready_instances      = 3
+  pdf_redactor_maximum_scale_out_limit     = 15
+  pdf_redactor_plan_maximum_burst          = 15
 }
 
 polaris_webapp_details = {
@@ -40,11 +37,9 @@ polaris_webapp_details = {
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 
 pipeline_logging = {
-  coordinator_scale_controller             = "AppInsights:Verbose"
-  pdf_generator_scale_controller           = "AppInsights:Verbose"
-  pdf_thumbnail_generator_scale_controller = "AppInsights:Verbose"
-  text_extractor_scale_controller          = "AppInsights:Verbose"
-  pdf_redactor_scale_controller            = "AppInsights:Verbose"
+  pdf_generator_scale_controller  = "AppInsights:Verbose"
+  text_extractor_scale_controller = "AppInsights:Verbose"
+  pdf_redactor_scale_controller   = "AppInsights:Verbose"
 }
 
 cms_details = {
@@ -148,6 +143,7 @@ sliding_clear_down = {
 }
 
 thumbnail_generator_sliding_clear_down = {
+  disabled    = 0
   batch_size  = 5
   schedule    = "0 * * * * *"
   input_hours = 12

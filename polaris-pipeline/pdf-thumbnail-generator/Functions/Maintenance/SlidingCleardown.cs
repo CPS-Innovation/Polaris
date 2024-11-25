@@ -36,7 +36,7 @@ namespace pdf_thumbnail_generator.Functions.Maintenance
     [Function(nameof(SlidingClearDown))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task Run([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = true)] TimerInfo myTimer)
+    public async Task Run([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = false)] TimerInfo myTimer)
     {
       var correlationId = Guid.NewGuid();
       try
