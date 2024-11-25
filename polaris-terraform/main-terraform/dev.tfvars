@@ -5,12 +5,10 @@ dns_server      = "10.7.197.20"
 dns_alt_server  = "168.63.129.16"
 
 ui_component_service_plans = {
-  gateway_service_plan_sku        = "EP1"
-  gateway_always_ready_instances  = 1
-  gateway_maximum_scale_out_limit = 10
-  spa_service_plan_sku            = "P1v3"
-  proxy_service_plan_sku          = "P1v3"
-  maintenance_service_plan_sku    = "B1"
+  gateway_service_plan_sku     = "P1mv3"
+  spa_service_plan_sku         = "P1v3"
+  proxy_service_plan_sku       = "P1v3"
+  maintenance_service_plan_sku = "B1"
 }
 
 pipeline_component_service_plans = {
@@ -37,10 +35,6 @@ polaris_webapp_details = {
 }
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Development"
-
-ui_logging = {
-  gateway_scale_controller = "AppInsights:Verbose"
-}
 
 pipeline_logging = {
   pdf_generator_scale_controller  = "AppInsights:Verbose"

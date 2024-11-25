@@ -169,7 +169,7 @@ stages:
                     armSubscriptionId: $(subscriptionId)
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
-
+                    
       - deployment: Apply_Index_Terraform
         condition: succeeded()
         dependsOn: Log_Start_Terraform

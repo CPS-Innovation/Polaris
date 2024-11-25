@@ -37,7 +37,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumb-gen.azurewebsites.net/api/"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
@@ -61,7 +60,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   }
 
   site_config {
-    always_on                              = false
+    always_on                              = true
     ftps_state                             = "FtpsOnly"
     http2_enabled                          = true
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
@@ -76,10 +75,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       support_credentials = true
     }
     vnet_route_all_enabled            = true
-    runtime_scale_monitoring_enabled  = true
-    elastic_instance_minimum          = var.ui_component_service_plans.gateway_always_ready_instances
-    app_scale_limit                   = var.ui_component_service_plans.gateway_maximum_scale_out_limit
-    pre_warmed_instance_count         = var.ui_component_service_plans.gateway_always_ready_instances
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
     application_stack {
@@ -137,7 +132,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
       app_settings["PolarisPipelineRedactPdfBaseUrl"],
       app_settings["PolarisPdfThumbnailGeneratorBaseUrl"],
-      app_settings["SCALE_CONTROLLER_LOGGING_ENABLED"],
       app_settings["TenantId"],
       app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
       app_settings["WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"],
