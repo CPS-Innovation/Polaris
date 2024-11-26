@@ -33,8 +33,8 @@ export const mapAccordionState = (
       docs: getCategorySort(section)(
         nonDACDocuments
           .filter((doc) => doc.presentationCategory === section.sectionId)
-          .map((doc) => ({ ...doc })) as MappedCaseDocument[]
-      ),
+          .map((doc) => ({ ...doc }))
+      ).map((doc) => ({ documentId: doc.documentId })),
     })) as AccordionDocumentSection[];
 
   return { status: "succeeded", data };

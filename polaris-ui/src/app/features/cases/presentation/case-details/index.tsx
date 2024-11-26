@@ -207,8 +207,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       const unCategorisedDocs = accordionState.data.find(
         (accordionState) => accordionState.sectionId === "Uncategorised"
       );
-      if (unCategorisedDocs) {
-        unCategorisedDocs.docs.forEach((doc: MappedCaseDocument) => {
+
+      if (unCategorisedDocs && documentsState.status === "succeeded") {
+        const mappedUnCategorisedDocs = unCategorisedDocs.docs.map(
+          ({ documentId }) =>
+            documentsState.data.find((doc) => doc.documentId === documentId)!
+        );
+        mappedUnCategorisedDocs.forEach((doc: MappedCaseDocument) => {
           trackEvent("Uncategorised Document", {
             documentId: doc.documentId,
             documentTypeId: doc.cmsDocType.documentTypeId,
@@ -683,6 +688,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     <Accordion
                       ref={accordionRef}
                       initialState={accordionOldState}
+                      documentsState={
+                        documentsState.status === "succeeded"
+                          ? documentsState.data
+                          : []
+                      }
                       readUnreadData={
                         storedUserData.status === "succeeded"
                           ? storedUserData.data.readUnread

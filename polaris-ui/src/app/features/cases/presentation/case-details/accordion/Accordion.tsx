@@ -10,9 +10,11 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 import { Classification } from "../../../domain/gateway/PipelineDocument";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 import { LocalDocumentState } from "../../../domain/LocalDocumentState";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 
 type Props = {
   initialState: AccordionReducerState | null;
+  documentsState: MappedCaseDocument[];
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
@@ -45,6 +47,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
     {
       initialState,
       activeDocumentId,
+      documentsState,
       accordionState: sections,
       readUnreadData,
       featureFlags,
@@ -116,6 +119,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             key={sectionId}
             sectionId={sectionId}
             sectionLabel={sectionLabel}
+            documentsState={documentsState}
             docs={docs}
             isOpen={state.sections[sectionId]}
             readUnreadData={readUnreadData}
