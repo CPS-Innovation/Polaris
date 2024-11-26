@@ -172,7 +172,7 @@ stages:
                     
       - deployment: Apply_Index_Terraform
         condition: succeeded()
-        dependsOn: Log_Start_Terraform
+        dependsOn: Set_Log_Analytics_Archival_Periods
         displayName: Apply Index Terraform
         environment: "Prod"
         workspace:
