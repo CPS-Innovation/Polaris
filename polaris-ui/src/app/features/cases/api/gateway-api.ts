@@ -20,7 +20,7 @@ import { StatementWitness } from "../presentation/case-details/reclassify/data/S
 import { StatementWitnessNumber } from "../presentation/case-details/reclassify/data/StatementWitnessNumber";
 import { ReclassifySaveData } from "../presentation/case-details/reclassify/data/ReclassifySaveData";
 import { UrnLookupResult } from "../domain/gateway/UrnLookupResult";
-import { fetchWithFullWindowReauth } from "./auth/fetch-with-full-window-reauth-2";
+import { fetchWithFullWindowReauth } from "./auth/fetch-with-full-window-reauth";
 import {
   fetchWithInSituReauth,
   fetchWithProactiveInSituReauth,
