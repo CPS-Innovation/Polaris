@@ -94,7 +94,9 @@ stages:
           - bash: |
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
-              az keyvault purge --name "kv-redaction-logger-$(targetSuffix)"
+              if [ $(az group exists --name "rg-redaction-logger$targetSuffix") = true ]; then
+                az keyvault delete --name "kv-redaction-logger$targetSuffix" --resource-group "rg-redaction-logger$targetSuffix"
+              fi
             displayName: Run Script
             env:
               clientId: $(clientId)
