@@ -42,6 +42,7 @@ type ReclassifyStagesProps = {
     name: string,
     properties: Record<string, any>
   ) => void;
+  handleLookUpDataError: (errorMessage: string) => void;
 };
 
 const MAX_LENGTH = 252;
@@ -58,6 +59,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getWitnessStatementNumbers,
   handleSubmitReclassify,
   handleReclassifyTracking,
+  handleLookUpDataError
 }) => {
   const continueButtonRef = useRef(null);
   const acceptAndSaveButtonRef = useRef(null);
@@ -301,30 +303,30 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     return saveData;
   };
 
-  const handleContinueBtnClick = () => {
-    const validData = validateData();
-    if (!validData) return;
-    if (continueButtonRef.current)
-      (continueButtonRef.current as HTMLButtonElement).blur();
-    if (state.reClassifyStage === "stage1") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage2" },
-      });
-      dispatch({
-        type: "RESET_FORM_DATA",
-        payload: { presentationTitle: presentationTitle },
-      });
-      return;
-    }
+  // const handleContinueBtnClick = () => {
+  //   const validData = validateData();
+  //   if (!validData) return;
+  //   if (continueButtonRef.current)
+  //     (continueButtonRef.current as HTMLButtonElement).blur();
+  //   if (state.reClassifyStage === "stage1") {
+  //     dispatch({
+  //       type: "UPDATE_CLASSIFY_STAGE",
+  //       payload: { newStage: "stage2" },
+  //     });
+  //     dispatch({
+  //       type: "RESET_FORM_DATA",
+  //       payload: { presentationTitle: presentationTitle },
+  //     });
+  //     return;
+  //   }
 
-    if (state.reClassifyStage === "stage2") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage3" },
-      });
-    }
-  };
+  //   if (state.reClassifyStage === "stage2") {
+  //     dispatch({
+  //       type: "UPDATE_CLASSIFY_STAGE",
+  //       payload: { newStage: "stage3" },
+  //     });
+  //   }
+  // };
 
   const handleBackBtnClick = () => {
     if (state.reClassifyStage === "stage1") {
@@ -384,7 +386,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       (acceptAndSaveButtonRef.current as HTMLButtonElement).focus();
   };
 
-  const handleLookUpDataError = (errorMessage: string) => {
+  const handleLookUpDataErrorFn = (errorMessage: string) => {
     setLookupDataError(errorMessage);
   };
 
@@ -398,7 +400,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         <>
           <Button
             ref={continueButtonRef}
-            onClick={handleContinueBtnClick}
+            // onClick={handleContinueBtnClick}
             disabled={
               state.reClassifyStage === "stage2" &&
               state.reclassifyVariant === "Statement" &&
@@ -479,6 +481,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               presentationTitle={presentationTitle}
               formDataErrors={formDataErrors}
               handleBackBtnClick={handleBackBtnClick}
+              getExhibitProducers={getExhibitProducers}
+              getStatementWitnessDetails={getStatementWitnessDetails}
+              getWitnessStatementNumbers={getWitnessStatementNumbers}
+              handleLookUpDataError={handleLookUpDataError}
             />
           )}
           {state.reClassifyStage === "stage2" && (

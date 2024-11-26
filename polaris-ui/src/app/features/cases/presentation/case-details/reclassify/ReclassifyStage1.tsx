@@ -4,15 +4,28 @@ import {
   Select,
   ErrorSummary,
 } from "../../../../../common/presentation/components";
-import { useReClassifyContext } from "./context/ReClassifyProvider";
-import { FormDataErrors } from "./data/FormDataErrors";
 import classes from "./Reclassify.module.scss";
+import { ReclassifyStage2} from './ReclassifyStage2'
+
+import { useReClassifyContext } from "./context/ReClassifyProvider";
+import { ReclassifyVariant } from "./data/MaterialType";
+import { ExhibitProducer } from "./data/ExhibitProducer";
+import { StatementWitness } from "./data/StatementWitness";
+import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
+import { statementNumberText } from "./utils/statementNumberText";
+import { FormDataErrors } from "./data/FormDataErrors";
 
 type ReclassifyStage1Props = {
   formDataErrors: FormDataErrors;
   presentationTitle: string;
   currentDocTypeId: number | null;
   handleBackBtnClick: () => void;
+  getExhibitProducers: () => Promise<ExhibitProducer[]>;
+  getStatementWitnessDetails: () => Promise<StatementWitness[]>;
+  getWitnessStatementNumbers: (
+    witnessId: number
+  ) => Promise<StatementWitnessNumber[]>;
+  handleLookUpDataError: (errorMessage: string) => void;
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
@@ -20,6 +33,10 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   formDataErrors,
   currentDocTypeId,
   handleBackBtnClick,
+  getExhibitProducers,
+  getStatementWitnessDetails,
+  getWitnessStatementNumbers,
+  handleLookUpDataError
 }) => {
   const reclassifyContext = useReClassifyContext()!;
   const errorSummaryRef = useRef(null);
@@ -124,6 +141,15 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         items={docTypesValues}
         value={state.newDocTypeId}
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
+      />
+      <ReclassifyStage2 
+        presentationTitle={presentationTitle}
+        formDataErrors={formDataErrors}
+        getExhibitProducers={getExhibitProducers}
+        getStatementWitnessDetails={getStatementWitnessDetails}
+        getWitnessStatementNumbers={getWitnessStatementNumbers}
+        handleBackBtnClick={handleBackBtnClick}
+        handleLookUpDataError={handleLookUpDataError}
       />
     </div>
   );

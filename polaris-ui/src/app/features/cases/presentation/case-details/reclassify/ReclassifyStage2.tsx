@@ -373,7 +373,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   if (loading) {
     return <div>loading data</div>;
   }
-  if (
+  if (    
     state.reclassifyVariant === "Statement" &&
     !state.statementWitness?.length
   ) {
@@ -381,8 +381,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       <>
         <h1> There is a problem</h1>
         <p>
-          Cannot continue with reclassification as the statement does not have
-          any witness
+          Cannot continue with reclassification as the statement does not have any witness
         </p>
       </>
     );
