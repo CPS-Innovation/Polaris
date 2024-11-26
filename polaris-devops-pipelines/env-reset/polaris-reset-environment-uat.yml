@@ -60,11 +60,13 @@ stages:
               targetVarFile: uat
 
           - bash: |
-              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
-              az account set --subscription $subscriptionId
-              az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
-              az storage account delete -name $uiStorageAccount --resource-group "rg-polaris$targetSuffix"
-              az storage account delete -name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix"
+              if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
+                az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+                az account set --subscription $subscriptionId
+                az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
+                az storage account delete -name $uiStorageAccount --resource-group "rg-polaris$targetSuffix"
+                az storage account delete -name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix"
+              fi
             displayName: Run Script
             env:
               clientId: $(clientId)
