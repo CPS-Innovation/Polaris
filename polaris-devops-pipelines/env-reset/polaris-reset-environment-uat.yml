@@ -125,7 +125,7 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              workingDirectory: polarisDDEI/terraform
+              workingDirectory: PolarisDDEI/terraform
               targetArea: Polaris DDEI
               targetVarFile: uat
               
