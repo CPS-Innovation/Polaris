@@ -1,3 +1,4 @@
+import appInitialisationError from "../../../../app-initialisation-error";
 import { CmsAuthRedirectingError } from "../../../../common/errors/CmsAuthRedirectingError";
 import {
   REAUTH_REDIRECT_URL_INBOUND,
@@ -123,10 +124,12 @@ export const handleAuthRelatedReload = (window: Window) => {
     // Yes, there is another outbound url to try
     navigateAndStopExecution(nextRedirectUrl);
   } else {
-    // No, there are no more outbound urls to try, so let's throw the final error to the user
-    //cleanRefreshIndicators(window);
-    throw buildCmsAuthError(authFailReasonParam);
+    cleanRefreshIndicatorsFromAddress(window);
+    // No, there are no more outbound urls to try, so let's show the final error to the user
+    // We do not throw an error.  This is executing immediately on app load and outside of the react app.
+    //  If we throw an error here the app never renders and so have no (natural) way to feed back to the
+    //  user that we have not managed to get auth.
+    appInitialisationError.error = buildCmsAuthError(authFailReasonParam);
   }
 };
-
 handleAuthRelatedReload(window);
