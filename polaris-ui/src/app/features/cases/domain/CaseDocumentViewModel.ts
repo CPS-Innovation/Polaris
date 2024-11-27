@@ -3,7 +3,8 @@ import { MappedCaseDocument } from "./MappedCaseDocument";
 import { IPageDeleteRedaction } from "./IPageDeleteRedaction";
 import { IPageRotation } from "./IPageRotation";
 import { SaveStatus } from "./gateway/SaveStatus";
-export type CaseDocumentViewModel = MappedCaseDocument & {
+export type CaseDocumentViewModel = {
+  documentId: string;
   saveStatus: SaveStatus;
   isDeleted: boolean;
   url: string | undefined;
@@ -17,14 +18,14 @@ export type CaseDocumentViewModel = MappedCaseDocument & {
   //  (might be locked on the server, we haven't interacted yet)
   ClientLockedState;
 } & (
-    | { mode: "read" }
-    | {
-        mode: "search";
-        searchTerm: string;
-        occurrencesInDocumentCount: number;
-        searchHighlights: IPdfHighlight[];
-      }
-  );
+  | { mode: "read" }
+  | {
+      mode: "search";
+      searchTerm: string;
+      occurrencesInDocumentCount: number;
+      searchHighlights: IPdfHighlight[];
+    }
+);
 
 export type ClientLockedState =
   | "unlocked"

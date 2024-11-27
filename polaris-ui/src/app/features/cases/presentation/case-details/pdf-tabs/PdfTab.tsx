@@ -20,9 +20,11 @@ import {
   RotationDeletionWarningModal,
 } from "../modals/PageRotationDeletionWarningModal";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import classes from "./PdfTab.module.scss";
 
 type PdfTabProps = {
+  mappedDocument: MappedCaseDocument;
   caseId: number;
   redactionTypesData: RedactionTypeData[];
   tabIndex: number;
@@ -32,9 +34,7 @@ type PdfTabProps = {
   featureFlags: FeatureFlagData;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
-  documentWriteStatus: PresentationFlags["write"];
   searchPIIDataItem: SearchPIIData | undefined;
-  versionId: number;
   savedDocumentDetails: {
     documentId: string;
     versionId: number;
@@ -64,16 +64,15 @@ type PdfTabProps = {
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
+  mappedDocument,
   tabIndex,
   caseId,
   redactionTypesData,
   activeTabId,
   tabId,
-  versionId,
   showOverRedactionLog,
   caseDocumentViewModel,
   headers,
-  documentWriteStatus,
   savedDocumentDetails,
   featureFlags,
   searchPIIDataItem,
@@ -116,12 +115,18 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     areaOnlyRedactionMode,
     isDeleted,
     saveStatus,
-    cmsDocType: { documentType },
-    attachments,
-    hasFailedAttachments,
+
     rotatePageMode,
     deletePageMode,
   } = caseDocumentViewModel;
+
+  const {
+    cmsDocType: { documentType = "" } = {},
+    attachments,
+    hasFailedAttachments,
+    presentationFlags: { write: documentWriteStatus = "Ok" } = {},
+    versionId,
+  } = mappedDocument ?? {};
 
   const showDeletePage = useMemo(
     () =>
@@ -336,6 +341,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       <div>
         {mode === "search" ? (
           <HeaderSearchMode
+            mappedDocument={mappedDocument}
             caseDocumentViewModel={caseDocumentViewModel}
             handleLaunchSearchResults={handleLaunchSearchResults}
             focussedHighlightIndex={focussedHighlightIndex}
@@ -368,6 +374,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         )}
         {!!attachments.length && (
           <HeaderAttachmentMode
+            mappedDocument={mappedDocument}
             caseDocumentViewModel={caseDocumentViewModel}
             handleOpenPdf={handleOpenPdf}
           />

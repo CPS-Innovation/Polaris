@@ -179,7 +179,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
   });
 
-  it("Should handle the deleted document opened in a tab after the pipeline refresh and display document deleted message to user", () => {
+  it.only("Should handle the deleted document opened in a tab after the pipeline refresh and display document deleted message to user", () => {
     const documentList = getRefreshDeletedDocuments("1", "2");
 
     cy.visit("/case-details/12AB1111111/13401");

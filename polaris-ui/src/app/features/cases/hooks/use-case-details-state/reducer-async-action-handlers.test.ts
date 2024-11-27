@@ -88,7 +88,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", versionId: 11, clientLockedState },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -161,7 +161,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", versionId: 11, clientLockedState },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -232,7 +232,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", versionId: 11, clientLockedState },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -466,7 +466,6 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
-                versionId: 11,
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [] as any,
@@ -585,7 +584,6 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
-                versionId: 11,
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [{}],
@@ -709,7 +707,7 @@ describe("reducerAsyncActionHandlers", () => {
         caseId: 99,
         tabsState: {
           items: [
-            { documentId: "1", versionId: 11 },
+            { documentId: "1" },
             { documentId: "2", versionId: 22 },
             { documentId: "3", versionId: 33 },
           ] as CaseDocumentViewModel[],

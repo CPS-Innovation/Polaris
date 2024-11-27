@@ -1412,9 +1412,16 @@ export const reducer = (
         getData,
         defaultOption = true,
       } = action.payload;
-      const versionId = state.tabsState.items.find(
-        (data) => data.documentId === documentId
-      )?.versionId!;
+      // const versionId = state.tabsState.items.find(
+      //   (data) => data.documentId === documentId
+      // )?.versionId!;
+      const mappedDocuments =
+        state.documentsState.status === "succeeded"
+          ? state.documentsState.data
+          : [];
+      const { versionId } = mappedDocuments.find(
+        (item) => item.documentId === documentId
+      )!;
       const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );

@@ -1,5 +1,6 @@
 import { Reducer } from "react";
 import { AsyncActionHandlers } from "use-reducer-async";
+import { AsyncResult } from "../../../../common/types/AsyncResult";
 import {
   cancelCheckoutDocument,
   checkoutDocument,
@@ -25,6 +26,7 @@ import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 import { addToLocalStorage } from "../../presentation/case-details/utils/localStorageUtils";
+import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -131,6 +133,15 @@ export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
 export const DOCUMENT_TOO_LARGE_STATUS_CODE = 413;
 
+const getMappedDocument = (
+  documentsState: AsyncResult<MappedCaseDocument[]>,
+  documentId: string
+) => {
+  const documentList =
+    documentsState.status === "succeeded" ? documentsState.data : [];
+  return documentList.find((item) => item.documentId === documentId)!;
+};
+
 export const reducerAsyncActionHandlers: AsyncActionHandlers<
   Reducer<State, Action>,
   AsyncActions
@@ -171,9 +182,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = action;
       const {
         tabsState: { items },
+        documentsState,
         caseId,
         urn,
       } = getState();
+
+      const { versionId } = getMappedDocument(documentsState, documentId);
 
       const addRedaction = () => {
         if (pageDeleteRedactions) {
@@ -206,7 +220,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             },
           });
       };
-      const { clientLockedState, versionId } = items.find(
+
+      const { clientLockedState } = items.find(
         (item) => item.documentId === documentId
       )!;
 
@@ -281,6 +296,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const {
         tabsState: { items },
+        documentsState,
         caseId,
         urn,
       } = getState();
@@ -291,8 +307,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         clientLockedState: lockedState,
         pageDeleteRedactions,
         pageRotations,
-        versionId,
       } = document;
+      const { versionId } = getMappedDocument(documentsState, documentId);
+
       if (redactionId) {
         const isRestorePage = pageDeleteRedactions.some(
           (redaction) => redaction.id === redactionId
@@ -354,12 +371,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const {
         tabsState: { items },
         caseId,
+        documentsState,
         urn,
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { clientLockedState: lockedState, versionId } = document;
+      const { clientLockedState: lockedState } = document;
+      const { versionId } = getMappedDocument(documentsState, documentId);
 
       const requiresCheckIn =
         LOCKED_STATES_REQUIRING_UNLOCK.includes(lockedState);
@@ -395,13 +414,15 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const {
         tabsState: { items },
+        documentsState,
         caseId,
         urn,
         searchPII,
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const { redactionHighlights, versionId, pageDeleteRedactions } = document;
+      const { redactionHighlights, pageDeleteRedactions } = document;
+      const { versionId } = getMappedDocument(documentsState, documentId);
       let piiData: any = {};
       if (searchPIIOn) {
         const suggestedHighlights =
@@ -521,11 +542,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentIds },
       } = action;
 
-      const {
-        caseId,
-        urn,
-        tabsState: { items },
-      } = getState();
+      const { caseId, urn, documentsState } = getState();
+
+      const items =
+        documentsState.status === "succeeded" ? documentsState.data : [];
 
       const caseIdentifiers = items
         .filter((item) => documentIds.includes(item.documentId))
@@ -810,12 +830,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const {
         tabsState: { items },
+        documentsState,
         caseId,
         urn,
       } = getState();
 
       const document = items.find((item) => item.documentId === documentId)!;
-      const { versionId, pageRotations } = document;
+      const { pageRotations } = document;
+      const { versionId } = getMappedDocument(documentsState, documentId);
 
       const rotationRequestData: RotationSaveRequest = {
         documentModifications: pageRotations

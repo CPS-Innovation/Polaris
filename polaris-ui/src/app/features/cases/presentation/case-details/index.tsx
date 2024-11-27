@@ -185,7 +185,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     newPath,
     navigationUnblockHandle,
     unSavedRedactionDocs,
-  } = useNavigationAlert(tabsState.items);
+  } = useNavigationAlert(tabsState.items, documentsState);
 
   useSwitchContentArea();
   useDocumentFocus(tabsState.activeTabId);
@@ -242,7 +242,15 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     }
   }, [actionsSidePanel.open]);
 
-  const getActiveTabDocument = useMemo(() => {
+  const activeTabMappedDocument = useMemo(() => {
+    const mappedDocuments =
+      documentsState.status === "succeeded" ? documentsState.data : [];
+    return mappedDocuments.find(
+      (item) => item.documentId === tabsState.activeTabId
+    )!;
+  }, [tabsState.activeTabId, documentsState]);
+
+  const activeTabItem = useMemo(() => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
     )!;
@@ -468,7 +476,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   errorModal.type === "addnote" ||
                   errorModal.type === "saverenamedocument"
                     ? actionsSidePanel.documentId
-                    : getActiveTabDocument?.documentId,
+                    : activeTabMappedDocument?.documentId,
               }}
             />
           </Modal>
@@ -505,10 +513,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
         {documentIssueModal.show && (
           <ReportAnIssueModal
-            documentTypeId={getActiveTabDocument?.cmsDocType?.documentTypeId}
-            documentId={getActiveTabDocument?.documentId!}
-            presentationTitle={getActiveTabDocument?.presentationTitle!}
-            versionId={getActiveTabDocument?.versionId!}
+            documentTypeId={activeTabMappedDocument?.cmsDocType?.documentTypeId}
+            documentId={activeTabMappedDocument?.documentId!}
+            presentationTitle={activeTabMappedDocument?.presentationTitle!}
+            versionId={activeTabMappedDocument?.versionId!}
             correlationId={pipelineState?.correlationId}
             handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
           />
@@ -539,16 +547,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               caseUrn={caseState.data.uniqueReferenceNumber}
               isCaseCharged={caseState.data.isCaseCharged}
               owningUnit={caseState.data.owningUnit}
-              documentName={getActiveTabDocument.presentationTitle}
-              cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
+              documentName={activeTabMappedDocument.presentationTitle}
+              cmsDocumentTypeId={
+                activeTabMappedDocument.cmsDocType.documentTypeId
+              }
               additionalData={{
-                originalFileName: getActiveTabDocument.cmsOriginalFileName,
-                documentId: getActiveTabDocument.documentId,
-                documentType: getActiveTabDocument.cmsDocType.documentType,
-                fileCreatedDate: getActiveTabDocument.cmsFileCreatedDate,
+                originalFileName: activeTabMappedDocument.cmsOriginalFileName,
+                documentId: activeTabMappedDocument.documentId,
+                documentType: activeTabMappedDocument.cmsDocType.documentType,
+                fileCreatedDate: activeTabMappedDocument.cmsFileCreatedDate,
               }}
               savedRedactionTypes={redactionLog.savedRedactionTypes}
-              saveStatus={getActiveTabDocument.saveStatus}
+              saveStatus={activeTabItem.saveStatus}
               redactionLogLookUpsData={
                 redactionLog.redactionLogLookUpsData.data
               }
@@ -702,7 +712,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleOpenPdf={(caseDoc) => {
                         handleOpenPdf({ ...caseDoc, mode: "read" });
                       }}
-                      activeDocumentId={getActiveTabDocument?.documentId ?? ""}
+                      activeDocumentId={
+                        activeTabMappedDocument?.documentId ?? ""
+                      }
                       handleOpenPanel={handleOpenPanel}
                       featureFlags={featureFlags}
                       accordionStateChangeCallback={
@@ -738,7 +750,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationTitle}.`}
                       </span>
                       <NotesPanel
-                        activeDocumentId={getActiveTabDocument?.documentId}
+                        activeDocumentId={activeTabMappedDocument?.documentId}
                         documentName={actionsSidePanel.presentationTitle}
                         documentCategory={actionsSidePanel.documentCategory}
                         documentId={actionsSidePanel.documentId}
@@ -790,12 +802,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     onClick={() => {
                       if (inFullScreen) {
                         trackEvent("Exit Full Screen", {
-                          documentId: getActiveTabDocument.documentId,
+                          documentId: activeTabMappedDocument.documentId,
                         });
                         setInFullScreen(false);
                       } else {
                         trackEvent("View Full Screen", {
-                          documentId: getActiveTabDocument.documentId,
+                          documentId: activeTabMappedDocument.documentId,
                         });
                         setInFullScreen(true);
                       }
@@ -821,6 +833,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                 />
               ) : (
                 <PdfTabs
+                  documentsState={documentsState}
                   searchPIIData={searchPII}
                   redactionTypesData={
                     redactionLog.redactionLogLookUpsData.status === "succeeded"

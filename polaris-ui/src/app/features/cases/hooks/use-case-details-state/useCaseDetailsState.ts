@@ -307,7 +307,7 @@ export const useCaseDetailsState = (
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      versionId: CaseDocumentViewModel["versionId"],
+      versionId: number,
       showSuggestion: boolean,
       getData: boolean,
       defaultOption: boolean
