@@ -38,7 +38,7 @@ export const useNavigationAlert = (
     const mappedDocuments =
       documentsState.status === "succeeded" ? documentsState.data : [];
     const redactedDocs = mappedDocuments
-      .filter((doc) => unsavedRedactedItems.some((id) => id === doc.documentId))
+      .filter((doc) => unsavedRedactedItems.includes(doc.documentId))
       .map((item) => ({
         documentId: item.documentId!,
         presentationTitle: item.presentationTitle!,
