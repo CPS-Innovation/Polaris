@@ -250,6 +250,15 @@ variable "private_beta" {
 
 variable "polaris_ui_reauth" {
   type = object({
+    # outbound_live_url takes a comma-delimited list of endpoints where auth could be found for this deployment.
+    #  Especially in the "full window" reauth flow (which will hopefully be retired once IE mode to Edge mode cookie copying
+    #  is enabled for PROD cms) try to put the most used cms endpoint first and any more exotic environments last
+    #  e.g. in QA this setting could be "https://cin3.cps.gov.uk/polaris,/polaris,https://cin4.cps.gov.uk/polaris,https://cin2.cps.gov.uk/polaris,https://cin5.cps.gov.uk/polaris"
+    #  We try cin3 first as that is the "main" environment we hook on to.  Then try /polaris which will pick up auth 
+    #  from the proxied cin3 cms.  Then add other cin environments to try after that.  Other than being most efficient
+    #  the rationale is that if an exotic environment /polaris endpoint is off line then the full page reauth flow
+    #  will hang and stall at a broken /polaris endpoint.  So put lesser used ones last to try to avoid ruining the mechanism
+    #  for the commonly used environments environments.
     outbound_live_url       = string
     outbound_e2e_url        = string
     inbound_url             = string
