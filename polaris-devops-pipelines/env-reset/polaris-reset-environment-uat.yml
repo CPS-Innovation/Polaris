@@ -146,17 +146,3 @@ stages:
               workingDirectory: Polaris/polaris-terraform/alerting-terraform
               targetArea: Alerting Framework
               targetVarFile: uat
-              
-          - template: task_reset.yml
-            parameters:
-              terraformStorageAccount: $(uat-terraform-storage-account)
-              terraformContainerName: $(networking-terraform-container-name)
-              terraformStateKey: $(terraform-key)
-              terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              workingDirectory: Polaris/polaris-terraform/networking-terraform
-              targetArea: Networking Components
-              targetVarFile: uat
