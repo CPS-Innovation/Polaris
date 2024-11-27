@@ -26,8 +26,8 @@ stages:
                   parameters:
                     devOpsPatToken: $(System.AccessToken)
                     
-  - stage: Reset_Polaris_Index
-    displayName: Reset Polaris Index
+  - stage: Reset_Polaris_Environment
+    displayName: Reset UAT Polaris Environment
     dependsOn: Wait_For_Running_Pipelines
     jobs:
       - job:
