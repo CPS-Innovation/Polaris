@@ -487,7 +487,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               handleLookUpDataError={handleLookUpDataError}
             />
           )}
-          {state.reClassifyStage === "stage2" && (
+          {/* {state.reClassifyStage === "stage2" && (
             <ReclassifyStage2
               presentationTitle={presentationTitle}
               formDataErrors={formDataErrors}
@@ -505,7 +505,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
               handleBackBtnClick={handleBackBtnClick}
             />
-          )}
+          )} */}
 
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>
         </div>

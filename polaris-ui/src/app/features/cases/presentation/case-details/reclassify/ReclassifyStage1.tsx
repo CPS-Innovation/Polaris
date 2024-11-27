@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import {
   LinkButton,
   Select,
@@ -87,6 +87,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   }, [state.materialTypeList, currentDocTypeId, currentClassificationVariant]);
 
   const handleDocTypeChange = (value: string) => {
+
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
   return (
@@ -98,7 +99,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
       >
         Back
       </LinkButton>
-      <h1 id="main-description">What type of document is this?</h1>
+      <h1 id="main-description" className="govuk-heading-l">What type of document is this?</h1>
       {formDataErrors.documentTypeErrorText && (
         <div
           ref={errorSummaryRef}
@@ -127,15 +128,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
               }
             : undefined
         }
-        label={{
-          htmlFor: "reclassify-document-type",
-          children: (
-            <span>
-              Select the document type for{" "}
-              <strong className={classes.highlight}>{presentationTitle}</strong>
-            </span>
-          ),
-        }}
+
         id="reclassify-document-type"
         data-testid="reclassify-document-type"
         items={docTypesValues}
