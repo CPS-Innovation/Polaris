@@ -133,17 +133,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     return [defaultValue, ...mappedValues, otherOption];
   }, [state.exhibitProducers]);
 
-  // const getHeaderText = (variant: ReclassifyVariant) => {
-  //   switch (variant) {
-  //     case "Statement":
-  //       return "Enter the statement details";
-  //     case "Exhibit":
-  //       return "Enter the exhibit details";
-  //     default:
-  //       return "Enter the document details";
-  //   }
-  // };
-
   const getSubHeading = (type: ReclassifyVariant) => {
     switch (type) {
       case "Statement":
@@ -371,7 +360,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   }, [errorSummaryList]);
 
   if (loading) {
-    return <div>loading data</div>;
+    return <div>loading data...</div>;
   }
 
    if (
@@ -380,7 +369,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   ) {
     return (
       <>
-        <h1> There is a problem</h1>
+        <h1>There is a problem</h1>
         <p>
           Cannot continue with reclassification as the statement does not have any witness
         </p>
@@ -683,6 +672,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
           />
         )}
       </div>
+      <p>&nbsp;</p>
     </div>
   );
 };

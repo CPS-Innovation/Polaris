@@ -87,7 +87,6 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   }, [state.materialTypeList, currentDocTypeId, currentClassificationVariant]);
 
   const handleDocTypeChange = (value: string) => {
-
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
   return (
@@ -135,15 +134,17 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         value={state.newDocTypeId}
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
       />
-      <ReclassifyStage2 
-        presentationTitle={presentationTitle}
-        formDataErrors={formDataErrors}
-        getExhibitProducers={getExhibitProducers}
-        getStatementWitnessDetails={getStatementWitnessDetails}
-        getWitnessStatementNumbers={getWitnessStatementNumbers}
-        handleBackBtnClick={handleBackBtnClick}
-        handleLookUpDataError={handleLookUpDataError}
-      />
+      {state?.newDocTypeId ? (
+        <ReclassifyStage2 
+          presentationTitle={presentationTitle}
+          formDataErrors={formDataErrors}
+          getExhibitProducers={getExhibitProducers}
+          getStatementWitnessDetails={getStatementWitnessDetails}
+          getWitnessStatementNumbers={getWitnessStatementNumbers}
+          handleBackBtnClick={handleBackBtnClick}
+          handleLookUpDataError={handleLookUpDataError}
+        />
+      ) : ''}
     </div>
   );
 };
