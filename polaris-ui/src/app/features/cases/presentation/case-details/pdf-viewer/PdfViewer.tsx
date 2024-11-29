@@ -491,11 +491,13 @@ export const PdfViewer: React.FC<Props> = ({
             handleSaveRotations={handleSaveRotations}
           />
         )}
-        <UnsavedRedactionModal
-          documentId={contextData.documentId}
-          caseId={contextData.caseId}
-          handleAddRedaction={handleAddRedaction}
-        />
+        {!(redactionHighlights.length + pageDeleteRedactions.length) && (
+          <UnsavedRedactionModal
+            documentId={contextData.documentId}
+            caseId={contextData.caseId}
+            handleAddRedaction={handleAddRedaction}
+          />
+        )}
       </div>
     </div>
   );

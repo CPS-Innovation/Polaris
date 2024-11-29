@@ -190,7 +190,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const { versionId } = getMappedDocument(documentsState, documentId);
 
       const addRedaction = () => {
-        if (pageDeleteRedactions) {
+        if (pageDeleteRedactions?.length) {
           dispatch({
             type: "ADD_PAGE_DELETE_REDACTION",
             payload: {
@@ -199,7 +199,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             },
           });
         }
-        if (redactions) {
+        if (redactions?.length) {
           dispatch({
             type: "ADD_REDACTION",
             payload: {

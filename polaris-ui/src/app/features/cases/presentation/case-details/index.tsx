@@ -61,6 +61,7 @@ import {
   isTaggedTriageContext,
   TaggedContext,
 } from "../../../../inbound-handover/context";
+import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
@@ -122,25 +123,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   }, []);
 
   const {
-    caseState,
-    accordionState,
-    tabsState,
-    searchState,
-    searchTerm,
-    pipelineState,
-    documentsState,
-    documentRefreshData,
-    errorModal,
-    documentIssueModal,
-    redactionLog,
-    featureFlags,
-    storedUserData,
-    notes,
-    searchPII,
-    renameDocuments,
-    reclassifyDocuments,
-    notificationState,
-    localDocumentState,
+    combinedState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -178,6 +161,31 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
+
+  const {
+    caseState,
+    accordionState,
+    tabsState,
+    searchState,
+    searchTerm,
+    pipelineState,
+    documentsState,
+    documentRefreshData,
+    errorModal,
+    documentIssueModal,
+    redactionLog,
+    featureFlags,
+    storedUserData,
+    notes,
+    searchPII,
+    renameDocuments,
+    reclassifyDocuments,
+    notificationState,
+    localDocumentState,
+  } = combinedState;
+  useEffect(() => {
+    saveStateToSessionStorage(combinedState);
+  }, [combinedState]);
 
   const {
     showAlert,

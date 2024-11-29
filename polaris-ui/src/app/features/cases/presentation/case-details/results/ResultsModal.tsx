@@ -5,6 +5,7 @@ import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { Content } from "./Content";
 import { useMandatoryWaitPeriod } from "../../../hooks/useMandatoryWaitPeriod";
+import { CombinedState } from "../../../domain/CombinedState";
 import { PleaseWait } from "./PleaseWait";
 
 type Props = {
@@ -12,9 +13,9 @@ type Props = {
   //  the Api result and means we do not have to check for the "loading" case
   //  from here onwards.
   caseState: SucceededApiResult<CaseDetails>;
-  searchTerm: CaseDetailsState["searchTerm"];
-  searchState: CaseDetailsState["searchState"];
-  pipelineState: CaseDetailsState["pipelineState"];
+  searchTerm: CombinedState["searchTerm"];
+  searchState: CombinedState["searchState"];
+  pipelineState: CombinedState["pipelineState"];
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
   handleCloseSearchResults: CaseDetailsState["handleCloseSearchResults"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
