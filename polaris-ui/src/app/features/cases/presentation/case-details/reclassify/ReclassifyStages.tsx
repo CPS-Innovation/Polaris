@@ -327,23 +327,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       closeReclassify();
       return;
     }
-
-    if (state.reClassifyStage === "stage2") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage1" },
-      });
-      return;
-    }
-    if (state.reClassifyStage === "stage3") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage2" },
-      });
-    }
   };
 
   const handleAcceptAndSave = async () => {
+    // call method to check entries against errors
+    handleContinueBtnClick();
+    
     const saveData: ReclassifySaveData = getMappedSaveData();
     dispatch({
       type: "UPDATE_RECLASSIFY_SAVE_STATUS",
@@ -394,7 +383,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         <>
           <Button
             ref={continueButtonRef}
-            onClick={handleContinueBtnClick}
+            onClick={handleAcceptAndSave}
             disabled={
               state.reClassifyStage === "stage2" &&
               state.reclassifyVariant === "Statement" &&
@@ -402,7 +391,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             }
             data-testid="reclassify-continue-btn"
           >
-            Continue
+             Accept and save
           </Button>
           <LinkButton
             className={classes.btnCancel}
@@ -415,17 +404,8 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       );
     }
     return (
-      <Button
-        ref={acceptAndSaveButtonRef}
-        onClick={handleAcceptAndSave}
-        data-testid="reclassify-save-btn"
-        disabled={
-          state.reClassifySaveStatus === "saving" ||
-          state.reClassifySaveStatus === "success"
-        }
-      >
-        Accept and save
-      </Button>
+      <>
+      </>      
     );
   };
 
@@ -493,7 +473,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             />
           )}
           */}
-
+{/* 
           {state.reClassifyStage === "stage3" && (
             <ReclassifyStage3
               presentationTitle={presentationTitle}
@@ -505,7 +485,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
                 })
               }
             />
-          )} 
+          )}  */}
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>
         </div>
       </div>

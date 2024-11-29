@@ -89,6 +89,25 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   const handleDocTypeChange = (value: string) => {
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
+
+
+    // const getStatementWitnessDetailsFn = async (v?:any) => {
+    //   const result = await getStatementWitnessDetails();
+    //   console.log("wd: ", result, 'v id: ', v)
+    //   dispatch({
+    //     type: "ADD_STATEMENT_WITNESSS",
+    //     payload: { statementWitness: result }
+    //   });
+    //   dispatch({
+    //     type: "UPDATE_STATEMENT_WITNESS_ID",
+    //     payload: { value: v },
+    //   });
+    //   dispatch({
+    //     type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
+    //     payload: { witnessId: +v, statementNumbers: [] },
+    //   });
+    // }
+
   return (
     <div role="main" aria-labelledby="main-description">
       <LinkButton

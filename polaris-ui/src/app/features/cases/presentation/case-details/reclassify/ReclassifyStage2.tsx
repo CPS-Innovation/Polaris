@@ -37,6 +37,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   handleBackBtnClick,
   handleLookUpDataError,
 }) => {
+
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext();
 
@@ -68,7 +69,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         }
         if (state.reclassifyVariant === "Statement") {
           setLoading(true);
-          const result = await getStatementWitnessDetails();
+          const result =  await getStatementWitnessDetails();
+          console.log('result: ', result)
           dispatch({
             type: "ADD_STATEMENT_WITNESSS",
             payload: { statementWitness: result },
@@ -206,6 +208,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   };
 
   const handleUpdateExhibitProducerId = (value: string) => {
+  
     dispatch({
       type: "UPDATE_EXHIBIT_PRODUCER_ID",
       payload: { value: value },
@@ -224,6 +227,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   };
 
   const handleUpdateStatementWitnessId = async (value: string) => {
+    console.log('ex: ', value)
     dispatch({
       type: "UPDATE_STATEMENT_WITNESS_ID",
       payload: { value: value },
@@ -232,6 +236,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
       payload: { witnessId: +value, statementNumbers: [] },
     });
+    console.log('witness id: ', value)
     try {
       const data = await getWitnessStatementNumbers(+value);
       const numbers = (
