@@ -33,7 +33,7 @@ stages:
         pool:
           vmImage: 'windows-latest'
         steps:
-          - checkout: PolarisTagged
+          - checkout: PolarisBranch
             clean: true
             persistCredentials: true
             fetchDepth: 1
