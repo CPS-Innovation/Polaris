@@ -1,10 +1,11 @@
 import { AsyncPipelineResult } from "../hooks/use-pipeline-api/AsyncPipelineResult";
 import { AsyncResult } from "../../../common/types/AsyncResult";
+import { AsyncDataResult } from "../presentation/case-details/accordion/types";
 import { CaseDetails } from "./gateway/CaseDetails";
 import { CaseDocumentViewModel } from "./CaseDocumentViewModel";
 import { PipelineResults } from "./gateway/PipelineResults";
 import { MappedTextSearchResult } from "./MappedTextSearchResult";
-import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
+import { AccordionData } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
 import { LocalDocumentState } from "./LocalDocumentState";
 import { FeatureFlagData } from "./FeatureFlagData";
@@ -47,7 +48,7 @@ export type CombinedState = {
     lastProcessingCompleted: string;
     localLastRefreshTime: string;
   };
-  accordionState: AsyncResult<AccordionDocumentSection[]>;
+  accordionState: AsyncResult<AccordionData>;
   notificationState: NotificationState;
   tabsState: {
     items: CaseDocumentViewModel[];

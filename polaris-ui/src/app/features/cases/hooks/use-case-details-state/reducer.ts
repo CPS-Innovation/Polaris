@@ -354,6 +354,11 @@ export const reducer = (
           status: GroupedConversionStatus;
         };
       }
+    | {
+        type: "ACCORDION_OPEN_CLOSE";
+        payload: { id: string; open: boolean };
+      }
+    | { type: "ACCORDION_OPEN_CLOSE_ALL"; payload: boolean }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -419,7 +424,10 @@ export const reducer = (
         coreDocumentsState
       );
 
-      const accordionState = mapAccordionState(documentsState);
+      const accordionState = mapAccordionState(
+        documentsState,
+        state.accordionState
+      );
 
       nextState = {
         ...nextState,
@@ -1581,13 +1589,11 @@ export const reducer = (
         notificationState,
         state.documentsState
       );
-      const accordionState = mapAccordionState(documentsState);
 
       return {
         ...state,
         notificationState,
         documentsState,
-        accordionState,
       };
     }
 
@@ -1600,13 +1606,11 @@ export const reducer = (
         notificationState,
         state.documentsState
       );
-      const accordionState = mapAccordionState(documentsState);
 
       return {
         ...state,
         notificationState,
         documentsState,
-        accordionState,
       };
     }
     case "CLEAR_DOCUMENT_NOTIFICATIONS": {
@@ -1618,13 +1622,11 @@ export const reducer = (
         notificationState,
         state.documentsState
       );
-      const accordionState = mapAccordionState(documentsState);
 
       return {
         ...state,
         notificationState,
         documentsState,
-        accordionState,
       };
     }
 
@@ -1763,6 +1765,51 @@ export const reducer = (
         },
       };
       return newState;
+    }
+    case "ACCORDION_OPEN_CLOSE": {
+      const { id, open } = action.payload;
+      if (state.accordionState.status !== "succeeded") return state;
+      const { sectionsOpenStatus } = state.accordionState.data;
+      const nextSections = {
+        ...sectionsOpenStatus,
+        [id]: open,
+      };
+      return {
+        ...state,
+        accordionState: {
+          ...state.accordionState,
+          data: {
+            ...state.accordionState.data,
+            sectionsOpenStatus: nextSections,
+            isAllOpen: Object.values(nextSections).every(
+              (value) => value === true
+            ),
+          },
+        },
+      };
+    }
+    case "ACCORDION_OPEN_CLOSE_ALL": {
+      if (state.accordionState.status !== "succeeded") return state;
+      const { sectionsOpenStatus } = state.accordionState.data;
+
+      const nextSections = Object.keys(sectionsOpenStatus).reduce(
+        (accumulator, current) => {
+          accumulator[current] = action.payload;
+          return accumulator;
+        },
+        {} as any
+      );
+      return {
+        ...state,
+        accordionState: {
+          ...state.accordionState,
+          data: {
+            ...state.accordionState.data,
+            sectionsOpenStatus: nextSections,
+            isAllOpen: action.payload,
+          },
+        },
+      };
     }
     default:
       throw new Error("Unknown action passed to case details reducer");

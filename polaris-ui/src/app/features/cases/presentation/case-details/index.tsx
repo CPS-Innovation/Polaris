@@ -38,7 +38,6 @@ import {
   CASE_REVIEW_APP_REDIRECT_URL,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
-import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
@@ -103,9 +102,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const accordionRef = useRef<AccordionRef>(null);
 
-  const [accordionOldState, setAccordionOldState] =
-    useState<AccordionReducerState | null>(null);
-
   const actionsSidePanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
@@ -160,6 +156,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
+    handleAccordionOpenClose,
+    handleAccordionOpenCloseAll,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -200,7 +198,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {
-      const categorisedData = accordionState.data.reduce(
+      const categorisedData = accordionState.data.sections.reduce(
         (acc: { [key: string]: number }, curr) => {
           acc[`${curr.sectionId}`] = curr.docs.length;
           return acc;
@@ -212,7 +210,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
         ...categorisedData,
       });
 
-      const unCategorisedDocs = accordionState.data.find(
+      const unCategorisedDocs = accordionState.data.sections.find(
         (accordionState) => accordionState.sectionId === "Uncategorised"
       );
 
@@ -274,12 +272,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     [reclassifyDocuments]
   );
 
-  const accordionStateChangeCallback = useCallback(
-    (state: AccordionReducerState) => {
-      setAccordionOldState(state);
-    },
-    []
-  );
   const handleClosePanel = useCallback(() => {
     setActionsSidePanel({
       ...actionsSidePanel,
@@ -705,7 +697,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   ) : (
                     <Accordion
                       ref={accordionRef}
-                      initialState={accordionOldState}
+                      // initialState={accordionOldState}
                       documentsState={
                         documentsState.status === "succeeded"
                           ? documentsState.data
@@ -725,13 +717,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       }
                       handleOpenPanel={handleOpenPanel}
                       featureFlags={featureFlags}
-                      accordionStateChangeCallback={
-                        accordionStateChangeCallback
-                      }
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
                       localDocumentState={localDocumentState}
+                      handleAccordionOpenClose={handleAccordionOpenClose}
+                      handleAccordionOpenCloseAll={handleAccordionOpenCloseAll}
                     />
                   )}
                 </div>

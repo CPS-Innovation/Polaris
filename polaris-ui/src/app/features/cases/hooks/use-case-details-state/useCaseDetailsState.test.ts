@@ -174,6 +174,8 @@ describe("useCaseDetailsState", () => {
         handleClearNotification,
         handleUpdateConversionStatus,
         handleShowHidePageDeletion,
+        handleAccordionOpenClose,
+        handleAccordionOpenCloseAll,
         ...stateProperties
       } = result.current;
 

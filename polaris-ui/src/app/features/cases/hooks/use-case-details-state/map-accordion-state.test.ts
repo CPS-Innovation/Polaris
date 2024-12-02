@@ -35,7 +35,7 @@ describe("mapAccordionState", () => {
       status: "loading",
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({ status: "loading" });
   });
@@ -47,7 +47,7 @@ describe("mapAccordionState", () => {
       httpStatusCode: undefined,
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({ status: "loading" });
   });

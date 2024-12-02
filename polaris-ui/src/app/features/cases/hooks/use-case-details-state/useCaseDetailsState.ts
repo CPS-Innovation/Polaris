@@ -521,6 +521,24 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleAccordionOpenClose = useCallback(
+    (id: string, open: boolean) =>
+      dispatch({
+        type: "ACCORDION_OPEN_CLOSE",
+        payload: { id, open },
+      }),
+    [dispatch]
+  );
+
+  const handleAccordionOpenCloseAll = useCallback(
+    (value: boolean) =>
+      dispatch({
+        type: "ACCORDION_OPEN_CLOSE_ALL",
+        payload: value,
+      }),
+    [dispatch]
+  );
+
   return {
     combinedState,
     handleOpenPdf,
@@ -560,5 +578,7 @@ export const useCaseDetailsState = (
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
+    handleAccordionOpenClose,
+    handleAccordionOpenCloseAll,
   };
 };
