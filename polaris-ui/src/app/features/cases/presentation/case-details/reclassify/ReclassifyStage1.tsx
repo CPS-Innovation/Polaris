@@ -105,13 +105,13 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
       </LinkButton>      
       <div aria-live="polite" className={classes.visuallyHidden}>
         {(
-          (state.reClassifySaveStatus === "success" &&
+          ( (state.reClassifySaveStatus === 'saving') || (state.reClassifySaveStatus === "success") &&
             !reclassifiedDocumentUpdate)) && (
           <span>Saving to CMS. Please wait</span>
         )}
         {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
       </div>
-      {(
+      {( state.reClassifySaveStatus === 'saving' ||
         state.reClassifySaveStatus === "success") && (
         <NotificationBanner className={classes.notificationBanner}>
           <div

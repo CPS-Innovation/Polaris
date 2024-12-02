@@ -69,7 +69,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         }
         if (state.reclassifyVariant === "Statement") {
           setLoading(true);
-          const result =  await getStatementWitnessDetails();
+          const result = await getStatementWitnessDetails();
           console.log('result: ', result)
           dispatch({
             type: "ADD_STATEMENT_WITNESSS",
@@ -208,7 +208,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   };
 
   const handleUpdateExhibitProducerId = (value: string) => {
-  
     dispatch({
       type: "UPDATE_EXHIBIT_PRODUCER_ID",
       payload: { value: value },
@@ -368,7 +367,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     return <div>loading data...</div>;
   }
 
-   if (
+  if (
     state.reclassifyVariant === "Statement" &&
     !state.statementWitness?.length
   ) {
@@ -440,22 +439,32 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                         errorMessage={
                           formDataErrors.documentNewNameErrorText
                             ? {
-                                children: formDataErrors.documentNewNameErrorText,
-                              }
+                              children: formDataErrors.documentNewNameErrorText,
+                            }
                             : undefined
                         }
                         name="reclassify-document-new-name"
                         type="text"
                         value={state.formData.documentNewName}
                         onChange={handleDocumentNewName}
+                        disabled={
+                          (state.reClassifySaveStatus === 'saving' ||
+                            state.reClassifySaveStatus === "success") ? true : false
+                        }
                       />,
                     ],
                   },
                   value: "YES",
+                  disabled:
+                    (state.reClassifySaveStatus === 'saving' ||
+                      state.reClassifySaveStatus === "success") ? true : false
                 },
                 {
                   children: "No",
                   value: "NO",
+                  disabled:
+                    (state.reClassifySaveStatus === 'saving' ||
+                      state.reClassifySaveStatus === "success") ? true : false
                 },
               ]}
               data-testid="reclassify-rename"
@@ -471,8 +480,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               errorMessage={
                 formDataErrors.exhibitItemNameErrorText
                   ? {
-                      children: formDataErrors.exhibitItemNameErrorText,
-                    }
+                    children: formDataErrors.exhibitItemNameErrorText,
+                  }
                   : undefined
               }
               label={{
@@ -482,6 +491,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               type="text"
               value={state.formData.exhibitItemName}
               onChange={handleUpdateExhibitItemName}
+              disabled={
+                (state.reClassifySaveStatus === 'saving' ||
+                  state.reClassifySaveStatus === "success") ? true : false
+              }
             />
             <Input
               id="reclassify-exhibit-reference"
@@ -489,8 +502,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               errorMessage={
                 formDataErrors.exhibitReferenceErrorText
                   ? {
-                      children: formDataErrors.exhibitReferenceErrorText,
-                    }
+                    children: formDataErrors.exhibitReferenceErrorText,
+                  }
                   : undefined
               }
               className="govuk-input--width-20"
@@ -501,6 +514,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               type="text"
               value={state.formData.exhibitReference}
               onChange={handleUpdateExhibitReference}
+              disabled={
+                (state.reClassifySaveStatus === 'saving' ||
+                  state.reClassifySaveStatus === "success") ? true : false
+              }
             />
 
             <div className={classes.producerSelectWrapper}>
@@ -514,6 +531,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 name="reclassify-exhibit-producer"
                 value={state.formData.exhibitProducerId}
                 onChange={(ev) => handleUpdateExhibitProducerId(ev.target.value)}
+                disabled={
+                  (state.reClassifySaveStatus === 'saving' ||
+                    state.reClassifySaveStatus === "success") ? true : false
+                }
               />
 
               {state.formData.exhibitProducerId === "other" && (
@@ -522,7 +543,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                     formDataErrors.otherExhibitProducerErrorText
                       ? classes.otherProducerNameError
                       : classes.otherProducerWrapper
-                  }`}
+                    }`}
                 >
                   <Input
                     id="reclassify-exhibit-other-producer-name"
@@ -535,15 +556,19 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                     errorMessage={
                       formDataErrors.otherExhibitProducerErrorText
                         ? {
-                            children:
-                              formDataErrors.otherExhibitProducerErrorText,
-                          }
+                          children:
+                            formDataErrors.otherExhibitProducerErrorText,
+                        }
                         : undefined
                     }
                     name="reclassify-exhibit-other-producer-name"
                     type="text"
                     value={state.formData.exhibitOtherProducerValue}
                     onChange={handleUpdateOtherProducerName}
+                    disabled={
+                      (state.reClassifySaveStatus === 'saving' ||
+                        state.reClassifySaveStatus === "success") ? true : false
+                    }
                   />
                 </div>
               )}
@@ -559,8 +584,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               errorMessage={
                 formDataErrors.statementWitnessErrorText
                   ? {
-                      children: formDataErrors.statementWitnessErrorText,
-                    }
+                    children: formDataErrors.statementWitnessErrorText,
+                  }
                   : undefined
               }
               items={statementWitnessValues}
@@ -570,13 +595,17 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               name="reclassify-statement-witness"
               value={state.formData.statementWitnessId}
               onChange={(ev) => handleUpdateStatementWitnessId(ev.target.value)}
+              disabled={
+                (state.reClassifySaveStatus === 'saving' ||
+                  state.reClassifySaveStatus === "success") ? true : false
+              }
             />
             <DateInput
               errorMessage={
                 formDataErrors.statementDateErrorText
                   ? {
-                      children: formDataErrors.statementDateErrorText,
-                    }
+                    children: formDataErrors.statementDateErrorText,
+                  }
                   : undefined
               }
               fieldset={{
@@ -595,9 +624,12 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                     formDataErrors.statementDayErrorText
                       ? "govuk-input--error"
                       : ""
-                  }`,
+                    }`,
                   name: "day",
                   value: state.formData.statementDay,
+                  disabled:
+                    state.reClassifySaveStatus === 'saving' ||
+                      state.reClassifySaveStatus === "success" ? true : false
                 },
                 {
                   id: "reclassify-statement-month",
@@ -605,23 +637,29 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                     formDataErrors.statementMonthErrorText
                       ? "govuk-input--error"
                       : ""
-                  }`,
+                    }`,
                   name: "month",
                   value: state.formData.statementMonth,
+                  disabled:
+                    state.reClassifySaveStatus === 'saving' ||
+                      state.reClassifySaveStatus === "success" ? true : false
                 },
                 {
                   id: "reclassify-statement-year",
-                  className: `govuk-input--width-4 ${
-                    formDataErrors.statementYearErrorText
+                  className: `govuk-input--width-4 ${formDataErrors.statementYearErrorText
                       ? "govuk-input--error"
                       : ""
-                  }`,
+                    }`,
                   name: "year",
                   value: state.formData.statementYear,
+                  disabled:
+                    state.reClassifySaveStatus === 'saving' ||
+                      state.reClassifySaveStatus === "success" ? true : false
                 },
               ]}
               namePrefix="reclassify-statement-date"
               onChange={handleStatementDateChange}
+             
             />
 
             <Input
@@ -630,8 +668,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               errorMessage={
                 formDataErrors.statementNumberErrorText
                   ? {
-                      children: formDataErrors.statementNumberErrorText,
-                    }
+                    children: formDataErrors.statementNumberErrorText,
+                  }
                   : undefined
               }
               className="govuk-input--width-10"
@@ -641,7 +679,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               hint={{
                 children: statementNumberText(
                   state.statementWitnessNumbers[
-                    state.formData.statementWitnessId
+                  state.formData.statementWitnessId
                   ] ?? []
                 ),
               }}
@@ -649,6 +687,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               type="number"
               value={state.formData.statementNumber}
               onChange={handleUpdateStatementNumber}
+              disabled={
+                (state.reClassifySaveStatus === 'saving' ||
+                  state.reClassifySaveStatus === "success") ? true : false
+              }
             />
           </div>
         )}
@@ -668,11 +710,17 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 children: "Used",
 
                 value: "YES",
+                disabled:
+                  (state.reClassifySaveStatus === 'saving' ||
+                    state.reClassifySaveStatus === "success") ? true : false
               },
               {
                 children: "Unused",
                 value: "NO",
-              },
+                disabled:
+                  (state.reClassifySaveStatus === 'saving' ||
+                    state.reClassifySaveStatus === "success") ? true : false
+              }
             ]}
           />
         )}
