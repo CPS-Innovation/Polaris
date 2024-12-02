@@ -23,6 +23,15 @@ resource "azurerm_key_vault" "kv_polaris" {
       data.azurerm_subnet.polaris_gateway_subnet.id
     ]
   }
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azurerm_client_config.current.object_id
+
+    key_permissions    = ["Get", "List", "Update", "Delete", "Purge"]
+    secret_permissions = ["Get", "List", "Set", "Delete", "Purge"]
+  }
+  
   tags = local.common_tags
 }
 

@@ -63,7 +63,6 @@ stages:
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
-                az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
                 az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix"
               fi
               if [ $(az group exists --name "rg-polaris-pipeline$targetSuffix") = true ]; then
@@ -92,20 +91,6 @@ stages:
               workingDirectory: Polaris/polaris-terraform/main-terraform
               targetArea: Casework App
               targetVarFile: uat
-              
-          - bash: |
-              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
-              az account set --subscription $subscriptionId
-              if [ $(az group exists --name "rg-redaction-logger$targetSuffix") = true ]; then
-                az keyvault delete --name "kv-redaction-logger$targetSuffix" --resource-group "rg-redaction-logger$targetSuffix"
-              fi
-            displayName: Run Script
-            env:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              targetSuffix: uat
               
           - template: task_reset.yml
             parameters:
