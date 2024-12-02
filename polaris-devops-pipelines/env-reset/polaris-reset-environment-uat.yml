@@ -106,8 +106,6 @@ stages:
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
               targetSuffix: "-uat"
-              uiStorageAccount: "sacpsuatpolaris"
-              pipelineStorageAccount: "sacpsuatpolarispipeline"
               
           - template: task_reset.yml
             parameters:
