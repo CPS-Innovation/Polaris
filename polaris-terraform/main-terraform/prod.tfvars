@@ -74,7 +74,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/WorkManagementApp/,https://cps.outsystemsenterprise.com/CaseReview/"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/WorkManagementApp/,https://cps.outsystemsenterprise.com/CaseReview/,https://housekeeping-fn.cps.gov.uk/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -109,7 +109,7 @@ private_beta = {
 }
 
 case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/RedirectCW"
-bulk_um_redirect_url         = ""
+bulk_um_redirect_url         = "https://housekeeping-fn.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
   outbound_live_url       = "/auth-refresh-outbound"
