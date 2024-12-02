@@ -34,7 +34,7 @@ export const mapAccordionState = (
         nonDACDocuments
           .filter((doc) => doc.presentationCategory === section.sectionId)
           .map((doc) => ({ ...doc }))
-      ).map((doc) => ({ documentId: doc.documentId })),
+      ),
     })) as AccordionDocumentSection[];
 
   return { status: "succeeded", data };
