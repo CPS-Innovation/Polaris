@@ -64,8 +64,10 @@ stages:
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
                 az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
-                az storage account delete -name $uiStorageAccount --resource-group "rg-polaris$targetSuffix"
-                az storage account delete -name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix"
+                az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix" --yes
+              fi
+              if [ $(az group exists --name "rg-polaris-pipeline$targetSuffix") = true ]; then
+                az storage account delete --name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix" --yes
               fi
             displayName: Run Script
             env:
@@ -75,7 +77,7 @@ stages:
               subscriptionId: $(subscriptionId)
               targetSuffix: "-uat"
               uiStorageAccount: "sacpsuatpolaris"
-              pipelineStorageAcocunt: "sacpsuatpolarispipeline"
+              pipelineStorageAccount: "sacpsuatpolarispipeline"
               
           - template: task_reset.yml
             parameters:
@@ -94,8 +96,8 @@ stages:
           - bash: |
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
-              if [ $(az group exists --name "rg-redaction-logger$targetSuffix") = true ]; then
-                az keyvault delete --name "kv-redaction-logger$targetSuffix" --resource-group "rg-redaction-logger$targetSuffix"
+              if [ $(az group exists --name "rg-redaction-log$targetSuffix") = true ]; then
+                az keyvault delete --name "kv-redaction-log$targetSuffix" --resource-group "rg-redaction-log$targetSuffix"
               fi
             displayName: Run Script
             env:
@@ -103,7 +105,7 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              targetSuffix: uat
+              targetSuffix: "-uat"
               
           - template: task_reset.yml
             parameters:
