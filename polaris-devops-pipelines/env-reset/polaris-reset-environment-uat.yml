@@ -76,7 +76,7 @@ stages:
               subscriptionId: $(subscriptionId)
               targetSuffix: "-uat"
               uiStorageAccount: "sacpsuatpolaris"
-              pipelineStorageAcocunt: "sacpsuatpolarispipeline"
+              pipelineStorageAccount: "sacpsuatpolarispipeline"
               
           - template: task_reset.yml
             parameters:
