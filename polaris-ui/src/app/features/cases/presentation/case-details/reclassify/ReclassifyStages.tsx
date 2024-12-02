@@ -86,9 +86,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const { state, dispatch } = reclassifyContext;
 
   const validateData = () => {
-    if (state.reClassifyStage === "stage3") {
-      return true;
-    }
     const {
       reclassifyVariant,
       statementWitnessNumbers,
@@ -238,7 +235,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const validErrors = Object.keys(errorTexts).filter(
       (key) => errorTexts[key as keyof FormDataErrors]
     );
-
     return !validErrors.length;
   };
 
@@ -303,24 +299,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     return saveData;
   };
 
-  const handleContinueBtnClick = () => {
-    const validData = validateData();
-
-    if (!validData) return;
-    if (continueButtonRef.current)
-      (continueButtonRef.current as HTMLButtonElement).blur();
-    if (state.reClassifyStage === "stage1") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage3" },
-      });
-      dispatch({
-        type: "RESET_FORM_DATA",
-        payload: { presentationTitle: presentationTitle },
-      });
-      return;
-    }
-  };
 
   const handleBackBtnClick = () => {
     if (state.reClassifyStage === "stage1") {
@@ -330,8 +308,11 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   };
 
   const handleAcceptAndSave = async () => {
-    // call method to check entries against errors
-    handleContinueBtnClick();
+    const validData = validateData();
+
+    if (!validData) return false;
+    if (continueButtonRef.current)
+      (continueButtonRef.current as HTMLButtonElement).blur();
     
     const saveData: ReclassifySaveData = getMappedSaveData();
     dispatch({
@@ -339,6 +320,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       payload: { value: "saving" },
     });
     handleReclassifyTracking("Save Reclassify", saveData);
+   
     const result = await handleSubmitReclassify(documentId, saveData);
     if (result) {
       dispatch({

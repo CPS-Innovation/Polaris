@@ -3,6 +3,8 @@ import {
   LinkButton,
   Select,
   ErrorSummary,
+  Spinner,
+  NotificationBanner
 } from "../../../../../common/presentation/components";
 import classes from "./Reclassify.module.scss";
 import { ReclassifyStage2} from './ReclassifyStage2'
@@ -26,6 +28,7 @@ type ReclassifyStage1Props = {
     witnessId: number
   ) => Promise<StatementWitnessNumber[]>;
   handleLookUpDataError: (errorMessage: string) => void;
+  reclassifiedDocumentUpdate?: boolean
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
@@ -36,7 +39,8 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   getExhibitProducers,
   getStatementWitnessDetails,
   getWitnessStatementNumbers,
-  handleLookUpDataError
+  handleLookUpDataError,
+  reclassifiedDocumentUpdate
 }) => {
   const reclassifyContext = useReClassifyContext()!;
   const errorSummaryRef = useRef(null);
@@ -90,24 +94,6 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
 
-
-    // const getStatementWitnessDetailsFn = async (v?:any) => {
-    //   const result = await getStatementWitnessDetails();
-    //   console.log("wd: ", result, 'v id: ', v)
-    //   dispatch({
-    //     type: "ADD_STATEMENT_WITNESSS",
-    //     payload: { statementWitness: result }
-    //   });
-    //   dispatch({
-    //     type: "UPDATE_STATEMENT_WITNESS_ID",
-    //     payload: { value: v },
-    //   });
-    //   dispatch({
-    //     type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
-    //     payload: { witnessId: +v, statementNumbers: [] },
-    //   });
-    // }
-
   return (
     <div role="main" aria-labelledby="main-description">
       <LinkButton
@@ -116,8 +102,32 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         ref={backButtonRef}
       >
         Back
-      </LinkButton>
-      <h1 id="main-description" className="govuk-heading-l">What type of document is this?</h1>
+      </LinkButton>      
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {(
+          (state.reClassifySaveStatus === "success" &&
+            !reclassifiedDocumentUpdate)) && (
+          <span>Saving to CMS. Please wait</span>
+        )}
+        {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
+      </div>
+      {(
+        state.reClassifySaveStatus === "success") && (
+        <NotificationBanner className={classes.notificationBanner}>
+          <div
+            className={classes.bannerContent}
+            data-testid="div-notification-banner"
+          >
+            <div className={classes.spinnerWrapper}>
+              <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+            </div>
+            <p className={classes.notificationBannerText}>
+              Saving to CMS. Please wait.
+            </p>
+          </div>
+        </NotificationBanner>
+      )}
+  <h1 id="main-description" className="govuk-heading-l">What type of document is this?</h1>
       {formDataErrors.documentTypeErrorText && (
         <div
           ref={errorSummaryRef}
