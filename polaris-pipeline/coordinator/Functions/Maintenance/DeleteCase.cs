@@ -1,7 +1,5 @@
 ﻿using Common.Configuration;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -10,6 +8,8 @@ using coordinator.Services.ClearDownService;
 using Common.Extensions;
 using Microsoft.AspNetCore.Http;
 using coordinator.Helpers;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.Functions.Maintenance
 {
@@ -29,7 +29,7 @@ namespace coordinator.Functions.Maintenance
             _clearDownService = clearDownService;
         }
 
-        [FunctionName(nameof(DeleteCase))]
+        [Function(nameof(DeleteCase))]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run
@@ -37,7 +37,7 @@ namespace coordinator.Functions.Maintenance
                 [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req,
                 string caseUrn,
                 int caseId,
-                [DurableClient] IDurableOrchestrationClient orchestrationClient
+                [DurableClient] DurableTaskClient orchestrationClient
             )
         {
             Guid currentCorrelationId = default;

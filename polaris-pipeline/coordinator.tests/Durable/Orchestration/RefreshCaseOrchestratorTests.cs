@@ -23,7 +23,7 @@ using Common.Telemetry;
 using coordinator.Validators;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using Newtonsoft.Json;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.tests.Durable.Orchestration
 {
@@ -38,7 +38,7 @@ namespace coordinator.tests.Durable.Orchestration
         private readonly string _transactionId;
         private readonly List<(CmsDocumentEntity, DocumentDeltaType)> _trackerCmsDocuments;
         private readonly CaseDeltasEntity _deltaDocuments;
-        private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
+        private readonly Mock<DurableTaskClient> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
         private readonly Mock<ICmsDocumentsResponseValidator> _mockCmsDocumentsResponseValidator;
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;

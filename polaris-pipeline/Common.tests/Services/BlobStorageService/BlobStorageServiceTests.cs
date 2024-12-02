@@ -5,7 +5,6 @@ using Azure.Storage.Blobs.Models;
 using Common.Services.BlobStorage;
 using Common.Wrappers;
 using FluentAssertions;
-using Microsoft.WindowsAzure.Storage;
 using Moq;
 using Xunit;
 

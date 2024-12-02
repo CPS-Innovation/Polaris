@@ -4,12 +4,12 @@ using Common.Services.BlobStorage;
 using Ddei;
 using coordinator.Durable.Payloads;
 using Common.Clients.PdfGenerator;
-using Common.Constants;
 using Ddei.Factories;
 using System;
 using coordinator.Durable.Activity.GeneratePdf;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Functions.Worker;
+using coordinator.Domain;
 
 namespace coordinator.Durable.Activity
 {
@@ -24,7 +24,7 @@ namespace coordinator.Durable.Activity
             : base(ddeiClient, ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorCLient, configuration) { }
 
         [Function(nameof(GeneratePdfFromDocument))]
-        public new async Task<(bool, PdfConversionStatus)> Run([ActivityTrigger] DocumentPayload payload)
+        public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
         {
             return await base.Run(payload);
         }

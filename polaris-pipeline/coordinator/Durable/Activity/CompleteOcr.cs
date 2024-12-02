@@ -4,10 +4,11 @@ using Common.Services.BlobStorage;
 using Common.Wrappers;
 using Common.Services.OcrService;
 using Common.Domain.Ocr;
-using coordinator.Durable.Payloads;
 using Common.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Functions.Worker;
+using coordinator.Domain;
+using coordinator.Durable.Orchestration;
 
 namespace coordinator.Durable.Activity
 {
@@ -23,19 +24,27 @@ namespace coordinator.Durable.Activity
         }
 
         [Function(nameof(CompleteOcr))]
-        public async Task<(bool, AnalyzeResultsStats)> Run([ActivityTrigger] Guid operationId, DocumentPayload payload)
+        public async Task<PollingActivityResult<CompleteOcrResponse>> Run([ActivityTrigger] CompleteOcrPayload completeOcrPayload)
         {
-            var ocrOperationResult = await _ocrService.GetOperationResultsAsync(operationId, payload.CorrelationId);
+            var ocrOperationResult = await _ocrService.GetOperationResultsAsync(completeOcrPayload.OcrOperationId, completeOcrPayload.Payload.CorrelationId);
 
             if (!ocrOperationResult.IsSuccess)
             {
-                return (false, null);
+                return new PollingActivityResult<CompleteOcrResponse>
+                {
+                    Result = new CompleteOcrResponse { BlobAlreadyExists = false },
+                    IsCompleted = false,
+                };
             }
 
-            var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
+            var blobId = new BlobIdType(completeOcrPayload.Payload.CaseId, completeOcrPayload.Payload.DocumentId, completeOcrPayload.Payload.VersionId, BlobType.Ocr);
             await _polarisBlobStorageService.UploadObjectAsync(ocrOperationResult.AnalyzeResults, blobId);
 
-            return (true, AnalyzeResultsStats.FromAnalyzeResults(ocrOperationResult.AnalyzeResults));
+            return new PollingActivityResult<CompleteOcrResponse>
+            {
+                Result = new CompleteOcrResponse { BlobAlreadyExists = true, OcrResult = AnalyzeResultsStats.FromAnalyzeResults(ocrOperationResult.AnalyzeResults) },
+                IsCompleted = true
+            };
         }
     }
 }

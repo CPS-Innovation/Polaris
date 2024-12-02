@@ -3,12 +3,11 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Helpers;
 using Microsoft.AspNetCore.Http;
 using coordinator.Clients.TextExtractor;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions.Maintenance
 {
@@ -25,7 +24,7 @@ namespace coordinator.Functions.Maintenance
             _logger = logger;
         }
 
-        [FunctionName(nameof(GetCaseSearchIndexCount))]
+        [Function(nameof(GetCaseSearchIndexCount))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(

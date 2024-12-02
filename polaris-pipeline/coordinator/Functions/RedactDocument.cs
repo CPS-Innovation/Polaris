@@ -1,13 +1,9 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.PdfRedactor;
 using coordinator.Helpers;
@@ -21,6 +17,8 @@ using Ddei.Factories;
 using Ddei;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
+using Microsoft.DurableTask.Client;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions
 {
@@ -52,17 +50,17 @@ namespace coordinator.Functions
             _logger = logger;
         }
 
-        [FunctionName(nameof(RedactDocument))]
+        [Function(nameof(RedactDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)]
-            HttpRequestMessage req,
+            HttpRequest req,
             string caseUrn,
             int caseId,
             string documentId,
-            [DurableClient] IDurableEntityClient client)
+            [DurableClient] DurableTaskClient client)
         {
             Guid currentCorrelationId = default;
 
@@ -73,8 +71,7 @@ namespace coordinator.Functions
                 var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(RedactDocument));
                 var document = response.CmsDocument;
 
-                var content = await req.Content.ReadAsStringAsync();
-                var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
+                var redactPdfRequest = await req.ReadFromJsonAsync<RedactPdfRequestDto>();
 
                 using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
 
@@ -84,7 +81,7 @@ namespace coordinator.Functions
 
                 Stream redactedDocumentStream = null;
 
-                if (redactPdfRequest.RedactionDefinitions.Any())
+                if (redactPdfRequest.RedactionDefinitions.Count != 0)
                 {
                     var base64Document = Convert.ToBase64String(bytes);
 
@@ -97,7 +94,9 @@ namespace coordinator.Functions
 
                     var validationResult = await _requestValidator.ValidateAsync(redactionRequest);
                     if (!validationResult.IsValid)
+                    {
                         throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
+                    }
 
                     redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, documentId, redactionRequest, currentCorrelationId);
                     if (redactedDocumentStream == null)
@@ -109,7 +108,7 @@ namespace coordinator.Functions
 
                 Stream modifiedDocumentStream = null;
 
-                if (redactPdfRequest.DocumentModifications.Any())
+                if (redactPdfRequest.DocumentModifications.Count != 0)
                 {
                     byte[] bytesToModify = null;
 

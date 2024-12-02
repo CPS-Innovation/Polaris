@@ -18,29 +18,31 @@ public class OrchestrationProvider : IOrchestrationProvider
 {
     private readonly IConfiguration _configuration;
     private readonly IQueryConditionFactory _queryConditionFactory;
-    private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = {
+    private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = 
+    [
         OrchestrationRuntimeStatus.Running,
         OrchestrationRuntimeStatus.Pending,
         OrchestrationRuntimeStatus.Suspended,
-        OrchestrationRuntimeStatus.ContinuedAsNew
-    };
+        OrchestrationRuntimeStatus.ContinuedAsNew,
+    ];
 
-    private static readonly OrchestrationRuntimeStatus[] _completedStatuses = {
+    private static readonly OrchestrationRuntimeStatus[] _completedStatuses =
+    [
         OrchestrationRuntimeStatus.Completed,
         OrchestrationRuntimeStatus.Canceled,
         OrchestrationRuntimeStatus.Failed,
         OrchestrationRuntimeStatus.Terminated
-    };
+    ];
 
-    private static readonly OrchestrationRuntimeStatus[] _entityStatuses = {
+    private static readonly OrchestrationRuntimeStatus[] _entityStatuses =
+    [
         // entities are eternally running orchestrations
         OrchestrationRuntimeStatus.Running,
-    };
+    ];
 
     public OrchestrationProvider(
             IConfiguration configuration,
-            IQueryConditionFactory queryConditionFactory
-    )
+            IQueryConditionFactory queryConditionFactory)
     {
         _configuration = configuration;
         _queryConditionFactory = queryConditionFactory;
@@ -53,13 +55,8 @@ public class OrchestrationProvider : IOrchestrationProvider
             shouldFollowContinuation: false
         );
 
-        static int getCaseIdFromInstanceId(string instanceId) => int.Parse(
-            Regex.Match(instanceId, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1))
-            .Value
-        );
-
         return instanceIds
-            .Select(getCaseIdFromInstanceId)
+            .Select(GetCaseIdFromInstanceId)
             .ToList();
     }
 
@@ -101,9 +98,13 @@ public class OrchestrationProvider : IOrchestrationProvider
             var orchestratorPurgeInstanceIds = await GetInstanceIdsAsync(client,
                  _queryConditionFactory.Create(_completedStatuses, CaseDurableEntity.GetKey(caseId))
             );
-            var entityPurgeInstanceIds = await GetInstanceIdsAsync(client,
-                 _queryConditionFactory.Create(_entityStatuses, $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}")
-            );
+
+            var entityPurgeInstanceIds = new List<string>();
+            await foreach (var page in client.Entities.GetAllEntitiesAsync(new Microsoft.DurableTask.Client.Entities.EntityQuery { InstanceIdStartsWith = $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}", }).AsPages())
+            {
+                entityPurgeInstanceIds.AddRange(page.Values.Select(o => o.Id.ToString()));
+            }
+
             result.GotPurgeInstancesDateTime = DateTime.UtcNow;
             var instancesToPurge = Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds);
             result.PurgeInstancesCount = instancesToPurge.Count();
@@ -160,4 +161,9 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         return false;
     }
+
+    static int GetCaseIdFromInstanceId(string instanceId) => int.Parse(
+        Regex.Match(instanceId, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1))
+        .Value
+    );
 }

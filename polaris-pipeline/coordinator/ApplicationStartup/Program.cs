@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using System.Text.Json;
+using Azure.Core.Serialization;
 using coordinator.ApplicationStartup;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
@@ -10,6 +12,17 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(o =>
     {
+        o.Services.Configure<WorkerOptions>(workerOptions =>
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true,
+            };
+
+            workerOptions.Serializer = new JsonObjectSerializer(options);
+        });
+
         //o.UseMiddleware<ExceptionHandlingMiddleware>();
         //o.UseMiddleware<RequestValidationMiddleware>();
     })
@@ -34,15 +47,18 @@ var host = new HostBuilder()
                 options.Rules.Remove(toRemove);
             }
         });
+
+        services.AddMvc().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        });
     })
     .Build();
+
 host.Run();
 
-#pragma warning disable SA1300 // Element should begin with upper-case letter
 namespace ApplicationStartup
-#pragma warning restore SA1300 // Element should begin with upper-case letter
 {
-#pragma warning disable SA1106 // Code should not contain empty statements
     public partial class Program;
-#pragma warning restore SA1106 // Code should not contain empty statements
 }

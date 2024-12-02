@@ -1,8 +1,6 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -14,6 +12,8 @@ using coordinator.Helpers;
 using coordinator.Domain;
 using Ddei;
 using Ddei.Factories;
+using Microsoft.DurableTask.Client;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions
 {
@@ -39,7 +39,7 @@ namespace coordinator.Functions
             _ddeiClient = ddeiClient;
         }
 
-        [FunctionName(nameof(RefreshCase))]
+        [Function(nameof(RefreshCase))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status423Locked)]
@@ -49,7 +49,7 @@ namespace coordinator.Functions
                 [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req,
                 string caseUrn,
                 int caseId,
-                [DurableClient] IDurableOrchestrationClient orchestrationClient
+                [DurableClient] DurableTaskClient orchestrationClient
             )
         {
             Guid currentCorrelationId = default;

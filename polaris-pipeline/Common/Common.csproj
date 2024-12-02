@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -9,7 +9,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Wrappers\" />
-    <None Remove="Newtonsoft.Json" />
     <None Remove="Domain\" />
     <None Remove="Domain\Exceptions\" />
     <None Remove="Handlers\" />
@@ -18,26 +17,23 @@
     <Folder Include="Domain\Exceptions\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
+    <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
     <PackageReference Include="Azure.AI.TextAnalytics" Version="5.3.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
-    <PackageReference Include="Azure.Storage.Common" Version="12.18.1" />
-    <PackageReference Include="FluentValidation" Version="11.9.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageReference Include="Azure.Storage.Common" Version="12.22.0" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision"
-      Version="7.0.1" />
-    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.8.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
     <PackageReference Include="RazorLight" Version="2.3.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />

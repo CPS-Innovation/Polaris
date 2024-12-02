@@ -1,12 +1,9 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.PdfRedactor;
 using coordinator.Helpers;
@@ -20,6 +17,8 @@ using Ddei.Factories;
 using Ddei;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
+using Microsoft.DurableTask.Client;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions
 {
@@ -52,17 +51,17 @@ namespace coordinator.Functions
             _logger = logger;
         }
 
-        [FunctionName(nameof(ModifyDocument))]
+        [Function(nameof(ModifyDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)]
-            HttpRequestMessage req,
+            HttpRequest req,
             string caseUrn,
             int caseId,
             string documentId,
-            [DurableClient] IDurableEntityClient client)
+            [DurableClient] DurableTaskClient client)
         {
             Guid currentCorrelationId = default;
 
@@ -73,8 +72,7 @@ namespace coordinator.Functions
                 var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ModifyDocument));
                 var document = response.CmsDocument;
 
-                var content = await req.Content.ReadAsStringAsync();
-                var modifyDocumentRequest = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
+                var modifyDocumentRequest = await req.ReadFromJsonAsync<ModifyDocumentRequestDto>();
 
                 await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
 

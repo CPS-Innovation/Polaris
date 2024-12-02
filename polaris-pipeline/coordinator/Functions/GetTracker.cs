@@ -24,7 +24,10 @@ namespace coordinator.Functions
         private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
         private readonly ILogger<GetTracker> _logger;
 
-        public GetTracker(IJsonConvertWrapper jsonConvertWrapper, ICaseDurableEntityMapper caseDurableEntityMapper, ILogger<GetTracker> logger)
+        public GetTracker(
+            IJsonConvertWrapper jsonConvertWrapper,
+            ICaseDurableEntityMapper caseDurableEntityMapper,
+            ILogger<GetTracker> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _caseDurableEntityMapper = caseDurableEntityMapper;

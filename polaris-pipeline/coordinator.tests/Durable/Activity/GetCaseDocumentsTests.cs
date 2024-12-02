@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;

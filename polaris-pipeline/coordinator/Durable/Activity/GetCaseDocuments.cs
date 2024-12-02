@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
+using coordinator.Domain;
 
 namespace coordinator.Durable.Activity
 {
@@ -37,7 +38,7 @@ namespace coordinator.Durable.Activity
         }
 
         [Function(nameof(GetCaseDocuments))]
-        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] CasePayload payload)
+        public async Task<GetCaseDocumentsResponse> Run([ActivityTrigger] CasePayload payload)
         {
             if (string.IsNullOrWhiteSpace(payload.Urn))
                 throw new ArgumentException("CaseUrn cannot be empty");
@@ -61,18 +62,18 @@ namespace coordinator.Durable.Activity
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
             var cmsDocuments = getDocumentsTask.Result
-                .Select(doc => MapPresentationFlags(doc))
+                .Select(MapPresentationFlags)
                 .ToArray();
 
 
             var pcdRequests = getPcdRequestsTask.Result
-                .Select(corePcd => MapPresentationFlags(corePcd))
+                .Select(MapPresentationFlags)
                 .ToArray();
 
             var defendantsAndCharges = getDefendantsAndChargesTask.Result;
             MapPresentationFlags(defendantsAndCharges);
 
-            return (cmsDocuments, pcdRequests, defendantsAndCharges);
+            return new (cmsDocuments, pcdRequests, defendantsAndCharges);
         }
 
         private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 using Moq.Protected;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System;
 using System.Net.Http;
@@ -16,6 +15,7 @@ using Common.Configuration;
 using Common.Streaming;
 using System.IO;
 using Common.Clients.PdfGenerator;
+using System.Text.Json;
 
 namespace coordinator.Tests.Clients.PdfGenerator
 {
@@ -58,7 +58,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
       var response = _fixture.Create<RedactPdfResponse>();
       _httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
       {
-        Content = new StringContent(JsonConvert.SerializeObject(response))
+          Content = new StringContent(JsonSerializer.Serialize(response))
       };
 
       var mockHttpMessageHandler = new Mock<HttpMessageHandler>();

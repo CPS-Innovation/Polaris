@@ -8,7 +8,6 @@ using Common.Dto.Response.Documents;
 using Common.Services.BlobStorage;
 using coordinator.Durable.Activity;
 using Ddei;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Moq;
 using Xunit;
 using coordinator.Durable.Payloads;

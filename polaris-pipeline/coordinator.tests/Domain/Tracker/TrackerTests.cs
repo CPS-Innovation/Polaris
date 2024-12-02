@@ -6,7 +6,6 @@ using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -17,10 +16,10 @@ using Common.Dto.Response.Documents;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Case;
-using Newtonsoft.Json;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
+using System.Text.Json;
 
 namespace coordinator.tests.Domain.Response.Documents
 {
@@ -104,8 +103,8 @@ namespace coordinator.tests.Domain.Response.Documents
         [Fact]
         public void Tracker_Serialised_And_Deserialises()
         {
-            var serialisedTracker = JsonConvert.SerializeObject(_caseEntity);
-            var deserialisedTracker = JsonConvert.DeserializeObject<CaseDurableEntity>(serialisedTracker);
+            var serialisedTracker = JsonSerializer.Serialize(_caseEntity);
+            var deserialisedTracker = JsonSerializer.Deserialize<CaseDurableEntity>(serialisedTracker);
 
             _caseEntity.CmsDocuments[0].DocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].DocumentId);
             _caseEntity.PcdRequests[0].DocumentId.Should().Be(deserialisedTracker.PcdRequests[0].DocumentId);

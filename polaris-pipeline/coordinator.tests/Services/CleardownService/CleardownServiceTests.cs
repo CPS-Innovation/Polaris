@@ -9,12 +9,11 @@ using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
 using coordinator.Services.ClearDownService;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.tests.Services.CleardownServiceTests
 {
-  public class ClearDownServiceTests
+    public class ClearDownServiceTests
   {
     private readonly string _caseUrn;
     private readonly int _caseId;

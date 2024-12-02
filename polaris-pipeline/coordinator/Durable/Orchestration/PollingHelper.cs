@@ -23,20 +23,20 @@ public class PollingHelper
             // Note the two types of retry in this method:
             //  1. The activity itself is retried according to the RetryOptions passed in the PollingArgs (transient HTTP errors)
             //  2. The entire polling loop is retried until a positive flag is returned from the activity
-            var (isCompleted, result) = await context.CallActivityAsync<(bool, T)>(
+            var pollingActivityResult = await context.CallActivityAsync<PollingActivityResult<T>>(
                 pollingArgs.ActivityName,
                 pollingArgs.ActivityInput,
                 pollingArgs.ActivityOptions ?? DefaultActivityOptions);
 
-            results.Add(result);
+            results.Add(pollingActivityResult.Result);
 
-            if (isCompleted)
+            if (pollingActivityResult.IsCompleted)
             {
                 return new PollingResult<T>
                 {
                     IsCompleted = true,
                     Results = results,
-                    FinalResult = result
+                    FinalResult = pollingActivityResult.Result,
                 };
             }
 
@@ -46,7 +46,7 @@ public class PollingHelper
                 {
                     IsCompleted = false,
                     Results = results,
-                    FinalResult = result
+                    FinalResult = pollingActivityResult.Result,
                 };
             }
 
@@ -80,6 +80,14 @@ public class PollingResult<T>
     public bool IsCompleted { get; set; }
     public List<T> Results { get; set; }
     public T FinalResult { get; set; }
+}
+
+
+public class PollingActivityResult<T>
+{
+    public bool IsCompleted { get; set; }
+
+    public T Result { get; set; }
 }
 
 public class PollingArgs

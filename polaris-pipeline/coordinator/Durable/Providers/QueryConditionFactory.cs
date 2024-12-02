@@ -19,7 +19,7 @@ public class QueryConditionFactory : IQueryConditionFactory
         // each case has a single entity, so if we target entities via @ prefix and use PageSize,
         //  this should be an efficient way to get unique cases that satisfy the createdTimeTo condition.
 
-        InstanceIdPrefix = "@",
+        InstanceIdPrefix = "[",
         CreatedTo = createdTimeTo,
         PageSize = batchSize,
     };

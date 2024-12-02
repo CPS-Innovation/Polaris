@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry;
 using coordinator.TelemetryEvents;
@@ -15,6 +13,8 @@ using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
 using coordinator.Clients.TextExtractor;
+using Microsoft.DurableTask.Client;
+using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions
 {
@@ -38,7 +38,7 @@ namespace coordinator.Functions
             _logger = logger;
         }
 
-        [FunctionName(nameof(SearchCase))]
+        [Function(nameof(SearchCase))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -46,7 +46,7 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req,
             string caseUrn,
             int caseId,
-            [DurableClient] IDurableEntityClient client)
+            [DurableClient] DurableTaskClient client)
         {
             Guid currentCorrelationId = default;
 
@@ -62,41 +62,46 @@ namespace coordinator.Functions
                 var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
                 var entityId = CaseDurableEntity.GetEntityId(caseId);
-                var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
+                var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId);
 
-                var entityState = trackerState.EntityState;
-                // todo: temporary code, need an AllDocuments method as per first refactor
-                var documents =
-                    entityState.CmsDocuments.OfType<BaseDocumentEntity>()
-                        .Concat(entityState.PcdRequests)
-                        .Append(entityState.DefendantsAndCharges)
-                        .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
+                if (stateResponse is not null && stateResponse?.IncludesState == true)
+                {
+                    var entityState = stateResponse.State;
+                    // todo: temporary code, need an AllDocuments method as per first refactor
+                    var documents =
+                        entityState.CmsDocuments.OfType<BaseDocumentEntity>()
+                            .Concat(entityState.PcdRequests)
+                            .Append(entityState.DefendantsAndCharges)
+                            .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
+                            .ToList();
+
+                    var filteredSearchResults = searchResults
+                        .Where(result => documents.Any(doc => doc.DocumentId == result.DocumentId && doc.VersionId == result.VersionId))
                         .ToList();
 
-                var filteredSearchResults = searchResults
-                    .Where(result => documents.Any(doc => doc.DocumentId == result.DocumentId && doc.VersionId == result.VersionId))
-                    .ToList();
+                    var documentIds = filteredSearchResults
+                        .Select(result => result.DocumentId)
+                        .Distinct()
+                        .ToList();
 
-                var documentIds = filteredSearchResults
-                    .Select(result => result.DocumentId)
-                    .Distinct()
-                    .ToList();
+                    // the max string length of Application Insights custom properties is 8192
+                    // so we chunk the docIds and create multiple events as some cases could exceed this limit
+                    var chunkedDocumentIds = ChunkHelper.ChunkStringListByMaxCharacterCount(documentIds, 8192);
 
-                // the max string length of Application Insights custom properties is 8192
-                // so we chunk the docIds and create multiple events as some cases could exceed this limit
-                var chunkedDocumentIds = ChunkHelper.ChunkStringListByMaxCharacterCount(documentIds, 8192);
+                    foreach (var documentIdsChunk in chunkedDocumentIds)
+                    {
+                        var telemetryEvent = new SearchCaseEvent(
+                            correlationId: currentCorrelationId,
+                            caseId,
+                            documentIds: documentIdsChunk
+                        );
+                        _telemetryClient.TrackEvent(telemetryEvent);
+                    }
 
-                foreach (var documentIdsChunk in chunkedDocumentIds)
-                {
-                    var telemetryEvent = new SearchCaseEvent(
-                        correlationId: currentCorrelationId,
-                        caseId,
-                        documentIds: documentIdsChunk
-                    );
-                    _telemetryClient.TrackEvent(telemetryEvent);
+                    return new OkObjectResult(filteredSearchResults);
                 }
 
-                return new OkObjectResult(filteredSearchResults);
+                return new BadRequestObjectResult("Could not get entity state.");
             }
             catch (Exception ex)
             {

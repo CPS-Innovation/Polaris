@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Microsoft.Extensions.Configuration;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.Services.ClearDownService
 {
@@ -29,7 +30,7 @@ namespace coordinator.Services.ClearDownService
       _telemetryClient = telemetryClient;
     }
 
-    public async Task DeleteCaseAsync(IDurableOrchestrationClient client, string caseUrn, int caseId, Guid correlationId)
+    public async Task DeleteCaseAsync(DurableTaskClient client, string caseUrn, int caseId, Guid correlationId)
     {
       var telemetryEvent = new DeletedCaseEvent(
           correlationId: correlationId,

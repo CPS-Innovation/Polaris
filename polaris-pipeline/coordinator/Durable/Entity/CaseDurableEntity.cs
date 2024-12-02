@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using coordinator.Durable.Payloads.Domain;
-using Common.Constants;
 using Microsoft.Azure.Functions.Worker;
 using System.Text.Json.Serialization;
 using Microsoft.DurableTask.Entities;
+using coordinator.Domain;
 
 namespace coordinator.Durable.Entity
 {
@@ -66,10 +66,7 @@ namespace coordinator.Durable.Entity
         [JsonInclude]
         public DefendantsAndChargesEntity DefendantsAndCharges { get; set; } = null; // null is the default state (do not initialise to an empty object)
 
-        public Task<DateTime> GetStartTime()
-        {
-            return Task.FromResult(Running.GetValueOrDefault());
-        }
+        public Task<DateTime> GetStartTime() => Task.FromResult(Running.GetValueOrDefault());
 
         public void Reset()
         {
@@ -81,9 +78,11 @@ namespace coordinator.Durable.Entity
             FailedReason = null;
         }
 
-        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges(GetCaseDocumentsResponse getCaseDocumentsResponse)
         {
-            var (cmsDocuments, pcdRequests, defendantsAndCharges) = args;
+            var cmsDocuments = getCaseDocumentsResponse.CmsDocuments;
+            var pcdRequests = getCaseDocumentsResponse.PcdRequests;
+            var defendantsAndCharges = getCaseDocumentsResponse.DefendantAndCharges;
 
             var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(cmsDocuments.ToList());
             var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
@@ -187,14 +186,13 @@ namespace coordinator.Durable.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<(CmsDocumentEntity, DocumentDeltaType)> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
+        private List<DocumentDelta> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
         {
-            var newDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
+            var newDocuments = new List<DocumentDelta>();
 
             foreach (var newDocument in createdDocuments)
             {
-                var trackerDocument
-                    = new CmsDocumentEntity
+                var trackerDocument = new CmsDocumentEntity
                     (
                         cmsDocumentId: newDocument.DocumentId,
                         versionId: newDocument.VersionId,
@@ -222,15 +220,15 @@ namespace coordinator.Durable.Entity
                     );
 
                 CmsDocuments.Add(trackerDocument);
-                newDocuments.Add((trackerDocument, DocumentDeltaType.RequiresIndexing));
+                newDocuments.Add(new DocumentDelta { Document = trackerDocument, DeltaType = DocumentDeltaType.RequiresIndexing });
             }
 
             return newDocuments;
         }
 
-        private List<(CmsDocumentEntity, DocumentDeltaType)> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
+        private List<DocumentDelta> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
         {
-            var changedDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
+            var changedDocuments = new List<DocumentDelta>();
 
             foreach (var updatedDocument in updatedDocuments)
             {
@@ -269,11 +267,11 @@ namespace coordinator.Durable.Entity
                     caseDeltaType = DocumentDeltaType.RequiresIndexing;
                 }
 
-                changedDocuments.Add((trackerDocument, caseDeltaType));
+                changedDocuments.Add(new DocumentDelta { Document = trackerDocument, DeltaType = caseDeltaType });
             }
 
             return changedDocuments
-                .Where(d => d.Item2 != DocumentDeltaType.DoesNotRequireRefresh)
+                .Where(d => d.DeltaType != DocumentDeltaType.DoesNotRequireRefresh)
                 .ToList();
         }
 
@@ -395,33 +393,31 @@ namespace coordinator.Durable.Entity
             return null;
         }
 
-        public void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args)
+        public void SetCaseStatus(SetCaseStatusPayload payload)
         {
-            var (t, status, info) = args;
+            Status = payload.Status;
 
-            Status = status;
-
-            switch (status)
+            switch (Status)
             {
                 case CaseRefreshStatus.Running:
-                    Running = t;
+                    Running = payload.UpdatedAt;
                     break;
 
                 case CaseRefreshStatus.DocumentsRetrieved:
                     if (Running != null)
-                        Retrieved = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                        Retrieved = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Completed:
                     if (Running != null)
-                        Completed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                        Completed = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Failed:
                     if (Running != null)
                     {
-                        Failed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
-                        FailedReason = info;
+                        Failed = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
+                        FailedReason = payload.FailedReason;
                     }
                     break;
             }
@@ -433,11 +429,11 @@ namespace coordinator.Durable.Entity
             document.Status = DocumentStatus.PdfUploadedToBlob;
         }
 
-        public void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg)
+        public void SetDocumentPdfConversionFailed(SetDocumentPdfConversionFailedPayload payload)
         {
-            var document = GetDocument(arg.DocumentId);
+            var document = GetDocument(payload.DocumentId);
             document.Status = DocumentStatus.UnableToConvertToPdf;
-            document.ConversionStatus = arg.PdfConversionStatus;
+            document.ConversionStatus = payload.PdfConversionStatus;
         }
 
         public void SetDocumentIndexingSucceeded(string documentId)
