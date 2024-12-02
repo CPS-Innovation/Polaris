@@ -93,6 +93,22 @@ stages:
               targetArea: Casework App
               targetVarFile: uat
               
+          - bash: |
+              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+              az account set --subscription $subscriptionId
+              if [ $(az group exists --name "rg-redaction-log$targetSuffix") = true ]; then
+                az keyvault delete --name "kv-redaction-log$targetSuffix" --resource-group "rg-redaction-log$targetSuffix"
+              fi
+            displayName: Run Script
+            env:
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              targetSuffix: "-uat"
+              uiStorageAccount: "sacpsuatpolaris"
+              pipelineStorageAccount: "sacpsuatpolarispipeline"
+              
           - template: task_reset.yml
             parameters:
               terraformStorageAccount: $(uat-terraform-storage-account)
