@@ -63,10 +63,10 @@ stages:
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
-                az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix"
+                az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix" --yes
               fi
               if [ $(az group exists --name "rg-polaris-pipeline$targetSuffix") = true ]; then
-                az storage account delete --name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix"
+                az storage account delete --name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix" --yes
               fi
             displayName: Run Script
             env:
