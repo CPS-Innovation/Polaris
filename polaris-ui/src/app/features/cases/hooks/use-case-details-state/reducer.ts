@@ -595,7 +595,7 @@ export const reducer = (
       };
     }
 
-    case "OPEN_PDF":
+    case "OPEN_PDF": {
       const { documentId, mode, headers } = action.payload;
 
       const coreNewState = {
@@ -786,6 +786,7 @@ export const reducer = (
             }
           : {}),
       };
+    }
 
     case "CLOSE_PDF": {
       const { pdfId } = action.payload;
@@ -828,7 +829,7 @@ export const reducer = (
           isResultsVisible: false,
         },
       };
-    case "LAUNCH_SEARCH_RESULTS":
+    case "LAUNCH_SEARCH_RESULTS": {
       const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
         state.notificationState?.lastModifiedDateTime ?? "",
         state.pipelineRefreshData?.localLastRefreshTime
@@ -849,8 +850,9 @@ export const reducer = (
             : state.searchState.submittedSearchTerm ?? "",
         },
       };
+    }
 
-    case "UPDATE_SEARCH_RESULTS":
+    case "UPDATE_SEARCH_RESULTS": {
       if (action.payload.status === "failed") {
         throw action.payload.error;
       }
@@ -908,6 +910,7 @@ export const reducer = (
       }
 
       return state;
+    }
 
     case "CHANGE_RESULTS_ORDER":
       return {
@@ -930,7 +933,7 @@ export const reducer = (
         },
       };
 
-    case "UPDATE_FILTER":
+    case "UPDATE_FILTER": {
       const { isSelected, filter, id } = action.payload;
 
       const nextState = {
@@ -995,6 +998,7 @@ export const reducer = (
           },
         },
       };
+    }
     case "ADD_REDACTION": {
       const { documentId, redactions } = action.payload;
 
