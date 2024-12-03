@@ -602,9 +602,8 @@ describe("Feature Reclassify Document", () => {
             cy.get(`label[for="${Id}"]`).should("have.text", "Unused");
           });
       });
-    cy.findByTestId("reclassify-cancel-btn").click();
 
-//END
+    //cy.findByTestId("reclassify-cancel-btn").click();
 
     // // cy.findByTestId("div-reclassify")
     // //   .find("h1")
