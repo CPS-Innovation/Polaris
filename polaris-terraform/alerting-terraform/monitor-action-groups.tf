@@ -6,24 +6,12 @@
   short_name          = "ag-polaris"
 
   email_receiver {
-    email_address = "lee.spratt@cps.gov.uk"
-    name          = "lee_-EmailAction-"
-  }
-  email_receiver {
     email_address = "rhys.williams@cps.gov.uk"
     name          = "rhys_-EmailAction-"
   }
   email_receiver {
-    email_address = "joshua.king@cps.gov.uk"
-    name          = "josh_-EmailAction-"
-  }
-  email_receiver {
     email_address = "stefan.stachow@cps.gov.uk"
     name          = "stef_-EmailAction-"
-  }
-  email_receiver {
-    email_address = "vijay.patel@cps.gov.uk"
-    name          = "vijay_-EmailAction-"
   }
   email_receiver {
     email_address = "mark.jones3@cps.gov.uk"
@@ -42,24 +30,12 @@ resource "azurerm_monitor_action_group" "multi_dest_polaris_action_group" {
   resource_group_name = "rg-polaris-analytics"
   short_name          = "ag-polaris"
   email_receiver {
-    email_address = "lee.spratt@cps.gov.uk"
-    name          = "lee_-EmailAction-"
-  }
-  email_receiver {
     email_address = "rhys.williams@cps.gov.uk"
     name          = "rhys_-EmailAction-"
   }
   email_receiver {
-    email_address = "joshua.king@cps.gov.uk"
-    name          = "josh_-EmailAction-"
-  }
-  email_receiver {
     email_address = "stefan.stachow@cps.gov.uk"
     name          = "stef_-EmailAction-"
-  }
-  email_receiver {
-    email_address = "vijay.patel@cps.gov.uk"
-    name          = "vijay_-EmailAction-"
   }
   email_receiver {
     email_address = "mark.jones3@cps.gov.uk"

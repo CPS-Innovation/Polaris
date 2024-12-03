@@ -164,6 +164,10 @@ resource "azurerm_private_endpoint" "polaris_proxy_staging1_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites-staging1"]
   }
+
+  depends_on = [
+    azurerm_linux_web_app_slot.polaris_proxy_staging1
+  ]
 }
 
 resource "azurerm_monitor_diagnostic_setting" "proxy_staging1_diagnostic_settings" {
@@ -178,3 +182,11 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_staging1_diagnostic_setting
 
   depends_on = [azurerm_linux_web_app_slot.polaris_proxy_staging1]
 }
+
+
+resource "azurerm_role_assignment" "ra_proxy_slot_container_registry" {
+  principal_id                     =  azurerm_linux_web_app_slot.polaris_proxy_staging1.identity[0].principal_id
+  role_definition_name             = "AcrPull"
+  scope                            = data.azurerm_container_registry.polaris_container_registry.id
+  skip_service_principal_aad_check = true
+}  

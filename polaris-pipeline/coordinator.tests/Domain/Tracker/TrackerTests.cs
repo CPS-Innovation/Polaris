@@ -15,7 +15,6 @@ using coordinator.Durable.Entity;
 using coordinator.Functions;
 using Common.Dto.Response.Documents;
 using Common.Dto.Response.Document;
-using Common.Dto.Response.Document.FeatureFlags;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Case;
 using Newtonsoft.Json;

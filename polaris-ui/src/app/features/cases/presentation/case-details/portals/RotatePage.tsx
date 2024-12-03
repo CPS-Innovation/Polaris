@@ -87,7 +87,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             <div className={classes.pageNumberWrapper}>
               <p
                 className={classes.pageNumberText}
-                data-testId={`page-number-text-${pageNumber}`}
+                data-testid={`rotate-page-number-text-${pageNumber}`}
               >
                 <span>Page:</span>
                 <span className={classes.pageNumber}>

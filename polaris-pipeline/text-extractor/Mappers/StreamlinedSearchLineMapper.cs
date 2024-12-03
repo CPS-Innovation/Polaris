@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Common.Domain.SearchIndex;
+﻿using Common.Domain.SearchIndex;
 using text_extractor.Mappers.Contracts;
 
 namespace text_extractor.Mappers

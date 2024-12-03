@@ -11,7 +11,7 @@ resources:
           include:
             - refs/heads/main
         stages:
-          - Publish_Artifacts  
+          - Publish_Artifacts
 
 pool:
   name: $(prod-build-agent)
@@ -80,7 +80,7 @@ stages:
                     targetLabel: "PROD"
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-                    
+
       - job: Send_Start_Message
         displayName: Send Message to Teams
         condition: succeeded()
@@ -125,7 +125,7 @@ stages:
                 - template: stages/jobs/tasks/task_get-credentials.yml
                   parameters:
                     azureSubscription: $(prod-azure-subscription)
-                    
+
                 - template: stages/jobs/tasks/task_apply-and-record-terraform.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -155,7 +155,7 @@ stages:
                 - template: stages/jobs/tasks/task_get-credentials.yml
                   parameters:
                     azureSubscription: $(prod-azure-subscription)
-                    
+
                 - template: stages/jobs/tasks/task_set-log-analytics-archival-periods.yml
                   parameters:
                     targetBuild: PolarisBuild
@@ -169,6 +169,38 @@ stages:
                     armSubscriptionId: $(subscriptionId)
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
+                    
+      - deployment: Apply_Index_Terraform
+        condition: succeeded()
+        dependsOn: Set_Log_Analytics_Archival_Periods
+        displayName: Apply Index Terraform
+        environment: "Prod"
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: stages/jobs/tasks/task_get-credentials.yml
+                  parameters:
+                    azureSubscription: $(prod-azure-subscription)
+
+                - template: stages/jobs/tasks/task_apply-and-record-terraform.yml
+                  parameters:
+                    targetBuild: PolarisBuild
+                    targetTerraformArtifact: "index-terraform-files"
+                    targetLabel: "PROD"
+                    targetName: "Index Terraform CI Deployment"
+                    targetPlanName: "prod"
+                    appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
+                    terraformStorageAccount: $(prod-terraform-storage-account)
+                    terraformContainerName: $(index-terraform-container-name)
+                    terraformStateKey: $(terraform-key)
+                    terraformStateAccessKey: $(cpsprodstorageterraform-key1)
+                    armClientId: $(clientId)
+                    armClientSecret: $(clientSecret)
+                    armTenantId: $(tenantId)
+                    armSubscriptionId: $(subscriptionId)
 
       - deployment: Log_Result_Terraform_Ended
         condition: succeeded()
@@ -176,6 +208,7 @@ stages:
         dependsOn:
           - Apply_Main_Terraform
           - Set_Log_Analytics_Archival_Periods
+          - Apply_Index_Terraform
         environment: "Prod"
         strategy:
           runOnce:
@@ -188,7 +221,7 @@ stages:
                     targetName: "Terraform CI Deployment"
                     appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
                     devOpsPatToken: $(System.AccessToken)
-                    
+
   - template: stages/stage_deploy-codebase.yml
     parameters:
       targetBuild: PolarisBuild
@@ -237,7 +270,7 @@ stages:
       appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
       buildDefinitionId: 240
       stageDependsOn: Update_GitHub_Tag
-              
+
   - stage: Send_Success_Report
     displayName: Send Success Report
     dependsOn:
@@ -284,7 +317,7 @@ stages:
               messageTitle: "✔ Polaris Release to PROD Completed!"
               buildResultsTitle: "View Release Commits"
               buildResultsUrl: "https://dev.azure.com/CPSDTS/Information%20Management/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
-              
+
   - stage: Send_Failure_Report
     displayName: Send Failure Report
     dependsOn:

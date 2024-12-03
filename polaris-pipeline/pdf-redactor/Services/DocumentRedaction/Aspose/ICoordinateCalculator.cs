@@ -1,5 +1,4 @@
-﻿using System;
-using Aspose.Pdf.Facades;
+﻿using Aspose.Pdf.Facades;
 using Common.Dto.Request.Redaction;
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose

@@ -1,7 +1,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Exceptions;
@@ -10,6 +9,7 @@ using Common.Handlers;
 using Common.Telemetry;
 using Common.Wrappers;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Functions;
@@ -18,11 +18,10 @@ using Xunit;
 
 namespace text_extractor.tests.Functions
 {
-    public class CaseIndexCountTests
+    public class CaseIndexCountTests : BaseTestClass
     {
         private readonly Fixture _fixture;
-        private readonly HttpRequestMessage _httpRequestMessage;
-        private HttpResponseMessage _errorHttpResponseMessage;
+        private JsonResult _errorResult;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<ILogger<CaseIndexCount>> _mockLogger;
@@ -36,7 +35,6 @@ namespace text_extractor.tests.Functions
         {
             _fixture = new Fixture();
 
-            _httpRequestMessage = new HttpRequestMessage();
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
@@ -52,7 +50,6 @@ namespace text_extractor.tests.Functions
             _caseIndexCount = new CaseIndexCount(
                 _mockLogger.Object,
                 _mockSearchIndexService.Object,
-                _mockJsonConvertWrapper.Object,
                 _mockTelemetryAugmentationWrapper.Object,
                 _mockExceptionHandler.Object
             );
@@ -61,96 +58,86 @@ namespace text_extractor.tests.Functions
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(null, null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(null, null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndJsonConvertWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, _mockTelemetryAugmentationWrapper.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockTelemetryAugmentationWrapper.Object, null));
         }
 
         [Fact]
         public async Task Run_ReturnsExceptionWhenCorrelationIdIsMissing()
         {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<CaseIndexCount>>()))
-                .Returns(_errorHttpResponseMessage);
-            _httpRequestMessage.Content = new StringContent(" ");
+            var mockRequest = CreateMockRequest(new StringContent("{}"), null);
+            _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.Unauthorized };
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<CaseIndexCount>>()))
+                .Returns(_errorResult);
+            
+            var response = await _caseIndexCount.Run(mockRequest.Object, _caseId);
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
-
-            response.Should().Be(_errorHttpResponseMessage);
+            response.Should().Be(_errorResult);
         }
 
         [Fact]
         public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
         {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
-            _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
+            var mockRequest = CreateMockRequest(new StringContent("{}"), Guid.Empty);
+            _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.BadRequest };
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+                .Returns(_errorResult);
+            
+            var response = await _caseIndexCount.Run(mockRequest.Object, _caseId);
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
-
-            response.Should().Be(_errorHttpResponseMessage);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
-        {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
-            _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
-
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
-
-            response.Should().Be(_errorHttpResponseMessage);
+            response.Should().Be(_errorResult);
         }
 
         [Fact]
         public async Task Run_ReturnsOk()
         {
-            _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestMessage.Content = new StringContent("", Encoding.UTF8, "application/json");
+            var mockRequest = CreateMockRequest(new StringContent("{}"), _correlationId);
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<SearchIndexCountResult>()))
                 .Returns(string.Empty);
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
+            var response = await _caseIndexCount.Run(mockRequest.Object, _caseId);
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = response as JsonResult;
+            result.Should().NotBeNull();
+            result?.StatusCode.Should().Be((int)HttpStatusCode.OK);
         }
 
         [Fact]
         public async Task Run_ReturnsResponseWhenExceptionOccurs()
         {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-            var exception = new Exception();
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
+            var mockRequest = CreateMockRequest(new StringContent("{}"), _correlationId);
+            _errorResult = new JsonResult(_fixture.Create<string>());
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
+                .Returns(_errorResult);
+            _mockSearchIndexService.Setup(s => s.GetCaseIndexCount(It.IsAny<int>(), It.IsAny<Guid>()))
+                .ThrowsAsync(new Exception("Test exception"));
 
-            var response = await _caseIndexCount.Run(_httpRequestMessage, _caseId);
+            var response = await _caseIndexCount.Run(mockRequest.Object, _caseId);
 
-            response.Should().Be(_errorHttpResponseMessage);
+            response.Should().Be(_errorResult);
         }
     }
 }

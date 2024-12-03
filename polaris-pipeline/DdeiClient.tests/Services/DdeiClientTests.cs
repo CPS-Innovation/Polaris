@@ -2,7 +2,6 @@ using System.Net;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
-using System.Linq;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;

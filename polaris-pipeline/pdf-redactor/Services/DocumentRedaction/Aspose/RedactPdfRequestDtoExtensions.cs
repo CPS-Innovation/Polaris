@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Common.Dto.Request;
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose

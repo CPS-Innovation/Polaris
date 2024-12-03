@@ -1,4 +1,3 @@
-using System;
 using pdf_redactor.Domain.Exceptions;
 
 namespace pdf_redactor

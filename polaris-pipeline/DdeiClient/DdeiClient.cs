@@ -1,4 +1,3 @@
-using System.IO;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Common.Dto.Response.Case;

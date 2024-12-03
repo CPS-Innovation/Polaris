@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Factories.Contracts;
 using text_extractor.Mappers.Contracts;
-using text_extractor.Services.CaseSearchService;
+using text_extractor.Services.SearchIndexService;
 using Xunit;
 
 namespace text_extractor.tests.Services
@@ -22,26 +22,17 @@ namespace text_extractor.tests.Services
         private const int ResultCaseId = 1234;
         private const int NoResultCaseId = 9999;
         private readonly Guid _correlationId;
-        private readonly Fixture _fixture;
-        private readonly Mock<IAzureSearchClientFactory> _searchClientFactory;
-        private readonly Mock<SearchClient> _azureSearchClient;
-        private readonly Mock<ISearchLineFactory> _searchLineFactory;
-        private readonly Mock<ISearchIndexingBufferedSenderFactory> _searchIndexingBufferedSenderFactory;
-        private readonly Mock<IStreamlinedSearchResultFactory> _streamlinedSearchResultFactory;
-        private readonly Mock<SearchIndexingBufferedSender<ISearchable>> _searchIndexingBufferedSender;
-        private readonly Mock<ILineMapper> _lineMapper;
-        private readonly Mock<ILogger<SearchIndexService>> _logger;
         private readonly SearchIndexService _searchIndexService;
 
         public SearchIndexServiceTests()
         {
             var responseMock = new Mock<Response>();
 
-            _fixture = new Fixture();
-            _correlationId = _fixture.Create<Guid>();
+            var fixture = new Fixture();
+            _correlationId = fixture.Create<Guid>();
 
-            _azureSearchClient = new Mock<SearchClient>(() => new SearchClient(new Uri("https://localhost"), "index", new AzureKeyCredential("key")));
-            _azureSearchClient.Setup(x => x.SearchAsync<SearchLineId>(It.IsAny<string>(), It.IsAny<SearchOptions>(), It.IsAny<CancellationToken>()))
+            var azureSearchClient = new Mock<SearchClient>(() => new SearchClient(new Uri("https://localhost"), "index", new AzureKeyCredential("key")));
+            azureSearchClient.Setup(x => x.SearchAsync<SearchLineId>(It.IsAny<string>(), It.IsAny<SearchOptions>(), It.IsAny<CancellationToken>()))
                 .Returns(
                     Task.FromResult(
                         Response.FromValue(
@@ -56,14 +47,13 @@ namespace text_extractor.tests.Services
                         ),
                         responseMock.Object))
                     );
-            _azureSearchClient.Setup(x => x.SearchAsync<SearchLineId>(It.IsAny<string>(), It.Is<SearchOptions>(s => s.Filter == $"caseId eq {NoResultCaseId}"), default))
+            azureSearchClient.Setup(x => x.SearchAsync<SearchLineId>(It.IsAny<string>(), It.Is<SearchOptions>(s => s.Filter == $"caseId eq {NoResultCaseId}"), default))
                 .Returns(
                     Task.FromResult(
                         Response.FromValue(
-                            SearchModelFactory.SearchResults(new[]
-                            {
-                                SearchModelFactory.SearchResult(new SearchLineId(), 0.9, null),
-                            },
+                            SearchModelFactory.SearchResults([
+                                    SearchModelFactory.SearchResult(new SearchLineId(), 0.9, null)
+                                ],
                             0,
                             null,
                             null,
@@ -73,19 +63,19 @@ namespace text_extractor.tests.Services
                     );
 
 
-            _searchClientFactory = new Mock<IAzureSearchClientFactory>();
-            _searchClientFactory.Setup(x => x.Create()).Returns(_azureSearchClient.Object);
+            var searchClientFactory = new Mock<IAzureSearchClientFactory>();
+            searchClientFactory.Setup(x => x.Create()).Returns(azureSearchClient.Object);
 
-            _searchLineFactory = new Mock<ISearchLineFactory>();
-            _searchIndexingBufferedSender = new Mock<SearchIndexingBufferedSender<ISearchable>>();
-            _searchIndexingBufferedSenderFactory = new Mock<ISearchIndexingBufferedSenderFactory>();
-            _searchIndexingBufferedSenderFactory.Setup(x => x.Create(_azureSearchClient.Object)).Returns(_searchIndexingBufferedSender.Object);
-            _streamlinedSearchResultFactory = new Mock<IStreamlinedSearchResultFactory>();
-            _lineMapper = new Mock<ILineMapper>();
+            var searchLineFactory = new Mock<ISearchLineFactory>();
+            var searchIndexingBufferedSender = new Mock<SearchIndexingBufferedSender<ISearchable>>();
+            var searchIndexingBufferedSenderFactory = new Mock<ISearchIndexingBufferedSenderFactory>();
+            searchIndexingBufferedSenderFactory.Setup(x => x.Create(azureSearchClient.Object)).Returns(searchIndexingBufferedSender.Object);
+            var streamlinedSearchResultFactory = new Mock<IStreamlinedSearchResultFactory>();
+            var lineMapper = new Mock<ILineMapper>();
 
-            _logger = new Mock<ILogger<SearchIndexService>>();
+            var logger = new Mock<ILogger<SearchIndexService>>();
 
-            _searchIndexService = new SearchIndexService(_searchClientFactory.Object, _searchLineFactory.Object, _searchIndexingBufferedSenderFactory.Object, _streamlinedSearchResultFactory.Object, _lineMapper.Object, _logger.Object);
+            _searchIndexService = new SearchIndexService(searchClientFactory.Object, searchLineFactory.Object, searchIndexingBufferedSenderFactory.Object, streamlinedSearchResultFactory.Object, lineMapper.Object, logger.Object);
         }
 
         [Fact]

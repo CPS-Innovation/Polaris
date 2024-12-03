@@ -1,11 +1,8 @@
-using System.Reflection.Metadata;
-using System.Text.RegularExpressions;
 using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Ocr;
 using Common.Domain.Pii;
-using Common.Dto.Response.Case;
 using Common.Services.OcrService;
 using Common.Services.PiiService;
 using Common.Services.RenderHtmlService;

@@ -1,7 +1,3 @@
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Exceptions;
 using Common.Dto.Request.Search;
@@ -9,12 +5,13 @@ using Common.Extensions;
 using text_extractor.Services.CaseSearchService;
 using Common.Telemetry;
 using Common.Wrappers;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 
 namespace text_extractor.Functions
 {
-    public class SearchText
+    public class SearchText : BaseFunction
     {
         private readonly ISearchIndexService _searchIndexService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
@@ -30,28 +27,24 @@ namespace text_extractor.Functions
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
-        [FunctionName(nameof(SearchText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CaseSearch)] HttpRequestMessage request, string caseUrn, int caseId)
+        [Function(nameof(SearchText))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CaseSearch)] HttpRequest request, string caseUrn, int caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
             _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
-            if (request.Content == null)
+            if (request.Body == null)
             {
                 throw new BadRequestException("Request body has no content", nameof(request));
             }
-            var content = await request.Content.ReadAsStringAsync();
+            var content = await request.GetRawBodyStringAsync();
             var searchDto = _jsonConvertWrapper.DeserializeObject<SearchRequestDto>(content);
 
             var searchResults = await _searchIndexService.QueryAsync(
                 caseId,
                 searchDto.SearchTerm);
 
-            return new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(_jsonConvertWrapper.SerializeObject(searchResults))
-            };
+            return CreateJsonResult(searchResults);
         }
     }
 }

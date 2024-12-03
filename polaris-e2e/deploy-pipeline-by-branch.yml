@@ -1,8 +1,6 @@
 pr: none
 trigger: none
 
-pool:
-  name: $(build-agent)
 
 # schedules:
 #   # Switch off pre-midnight runs for now, devs still working/releasing
@@ -30,14 +28,16 @@ stages:
   - stage: Run_e2e_Tests
     displayName: Run e2e Tests
     jobs:
-      - job: Run_DotNet_Tests
-        displayName: Run DotNet Tests
+      - job: Prepare_DotNet_Tests
+        displayName: Prepare DotNet Tests
+        pool:
+          vmImage: 'windows-latest'
         steps:
           - checkout: PolarisBranch
             clean: true
             persistCredentials: true
             fetchDepth: 1
-            displayName: "Checkout polaris-e2e"
+            displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
 
           - task: DownloadSecureFile@1
             name: licence
@@ -66,10 +66,26 @@ stages:
               targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
             displayName: "Copy Aspose.Total.NET.lic"
 
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+              artifact: "pdf-redactor-tests-drop"
+            displayName: "Publish PDF Redactor tests artifact"
+            
+      - job: Run_DotNet_Tests
+        displayName: Run DotNet Tests
+        dependsOn: Prepare_DotNet_Tests
+        pool:
+          name: $(build-agent)
+        steps:
+          - download: current
+            displayName: Download PDF Redactor Tests
+            artifact: "pdf-redactor-tests-drop"
+
           - task: PowerShell@2
             inputs:
               targetType: "inline"
-              workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+              workingDirectory: "$(Pipeline.Workspace)/pdf-redactor-tests-drop"
               script: |
                 dotnet ./pdf-redactor.integration.tests.dll
               failOnStderr: true
@@ -77,6 +93,8 @@ stages:
 
       - job: Run_Cypress_Tests_A
         displayName: Run Cypress Tests A
+        pool:
+          name: $(build-agent)
         steps:
           - checkout: PolarisBranch
             clean: true
@@ -125,6 +143,8 @@ stages:
 
       - job: Run_Cypress_Tests_B
         displayName: Run Cypress Tests B
+        pool:
+          name: $(build-agent)
         steps:
           - checkout: PolarisBranch
             clean: true
