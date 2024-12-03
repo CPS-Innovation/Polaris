@@ -113,29 +113,32 @@ export const RotatePage: React.FC<RotatePageProps> = ({
 
   return (
     <div>
-      {
-        <div aria-live="polite" className={classes.visuallyHidden}>
-          {pageRotateData && (
-            <>
-              <span>
-                {`Page ${pageNumber} selected for rotation. Click rotate page left or rotate page right button to rotate the page.`}
-              </span>
-              <span>
-                {`Current page rotation is ${pageRotateData.rotationAngle} degree`}
-              </span>
-              <span>
-                {pageRotateData.rotationAngle !== 0
-                  ? `Click save all rotations button to submit changes to CMS`
-                  : ""}
-              </span>
-            </>
-          )}
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {pageRotateData && (
+          <span>
+            {`Page ${pageNumber} selected for rotation. Click rotate page left or rotate page right button to rotate the page.`}
+          </span>
+        )}
 
-          {!pageRotateData && (
-            <span>{`Page ${pageNumber} unselected for rotation.`}</span>
-          )}
-        </div>
-      }
+        {!pageRotateData && (
+          <span>{`Page ${pageNumber} unselected for rotation.`}</span>
+        )}
+      </div>
+
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {pageRotateData && (
+          <>
+            <span>
+              {`Current page rotation is ${pageRotateData.rotationAngle} degree`}
+            </span>
+            <span>
+              {pageRotateData.rotationAngle !== 0
+                ? `Click save all rotations button to submit changes to CMS`
+                : ""}
+            </span>
+          </>
+        )}
+      </div>
       {
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
