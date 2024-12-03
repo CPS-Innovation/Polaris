@@ -23,6 +23,15 @@ resource "azurerm_key_vault" "kv_polaris" {
       data.azurerm_subnet.polaris_gateway_subnet.id
     ]
   }
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azurerm_client_config.current.object_id
+
+    key_permissions    = ["Get", "List", "Update", "Delete", "Purge"]
+    secret_permissions = ["Get", "List", "Set", "Delete", "Purge"]
+  }
+  
   tags = local.common_tags
 }
 
@@ -54,8 +63,7 @@ resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
   value        = azuread_application_password.faap_polaris_app_service.value
   key_vault_id = azurerm_key_vault.kv_polaris.id
   depends_on = [
-    azurerm_role_assignment.kv_role_terraform_sp,
-    azurerm_key_vault_access_policy.kvap_terraform_sp
+    azurerm_role_assignment.kv_role_terraform_sp
   ]
 }
 
@@ -63,19 +71,6 @@ resource "azurerm_role_assignment" "kv_role_terraform_sp" {
   scope                = azurerm_key_vault.kv_polaris.id
   role_definition_name = "Key Vault Administrator"
   principal_id         = data.azuread_service_principal.terraform_service_principal.object_id
-}
-
-resource "azurerm_key_vault_access_policy" "kvap_terraform_sp" {
-  key_vault_id = azurerm_key_vault.kv_polaris.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azuread_service_principal.terraform_service_principal.object_id
-
-  secret_permissions = [
-    "Get",
-    "Set",
-    "Delete",
-    "Purge"
-  ]
 }
 
 resource "azurerm_role_assignment" "kv_role_fa_gateway_crypto_user" {
