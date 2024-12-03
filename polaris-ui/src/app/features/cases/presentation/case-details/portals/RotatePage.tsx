@@ -92,7 +92,8 @@ export const RotatePage: React.FC<RotatePageProps> = ({
     }
   };
 
-  const handleKeyDown = (event: KeyboardEvent): void => {
+  // this is to bring the rotate page buttons in view for a11y
+  const handleKeyUp = (event: KeyboardEvent): void => {
     const focusedElement = document.activeElement as HTMLElement;
     if (focusedElement && focusedElement.tagName === "BUTTON") {
       focusedElement.scrollIntoView({
@@ -104,10 +105,10 @@ export const RotatePage: React.FC<RotatePageProps> = ({
   };
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
@@ -129,7 +130,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
         {pageRotateData && (
           <>
             <span>
-              {`Current page rotation is ${pageRotateData.rotationAngle} degree`}
+              {`Current page ${pageNumber} rotation is ${pageRotateData.rotationAngle} degree`}
             </span>
             <span>
               {pageRotateData.rotationAngle !== 0
@@ -191,7 +192,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
           >
             <div className={classes.rotateControlWrapper}>
               <LinkButton
-                ariaLabel={`rotate page ${pageNumber} left 90 degree`}
+                ariaLabel={`rotate page ${pageNumber} left`}
                 className={classes.rotateLeftBtn}
                 onClick={handleRotateLeft}
                 data-pageNumber={pageNumber}
@@ -209,7 +210,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
                 }}
               />
               <LinkButton
-                ariaLabel={`rotate page ${pageNumber} right 90 degree`}
+                ariaLabel={`rotate page ${pageNumber} right`}
                 className={classes.rotateRightBtn}
                 onClick={handleRotateRight}
                 data-pageNumber={pageNumber}
@@ -224,7 +225,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             <p className={classes.overlayMainText}>
               {`Rotate page ${pageRotateData?.rotationAngle}°`}
             </p>
-            {pageRotateData?.rotationAngle && (
+            {!!pageRotateData?.rotationAngle && (
               <p
                 className={classes.overlaySubText}
                 data-testid="rotation-overlay-save-content"
