@@ -70,7 +70,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         if (state.reclassifyVariant === "Statement") {
           setLoading(true);
           const result = await getStatementWitnessDetails();
-          console.log('result: ', result)
           dispatch({
             type: "ADD_STATEMENT_WITNESSS",
             payload: { statementWitness: result },
@@ -98,7 +97,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   const statementWitnessValues = useMemo(() => {
     const defaultValue = {
       value: "",
-      children: "Select a Witness",
+      children: "Select a witness",
       disabled: true,
     };
     if (!state.statementWitness) {
@@ -539,10 +538,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
               {state.formData.exhibitProducerId === "other" && (
                 <div
-                  className={`${
-                    formDataErrors.otherExhibitProducerErrorText
-                      ? classes.otherProducerNameError
-                      : classes.otherProducerWrapper
+                  className={`${formDataErrors.otherExhibitProducerErrorText
+                    ? classes.otherProducerNameError
+                    : classes.otherProducerWrapper
                     }`}
                 >
                   <Input
@@ -620,10 +618,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               items={[
                 {
                   id: "reclassify-statement-day",
-                  className: `govuk-input--width-2 ${
-                    formDataErrors.statementDayErrorText
-                      ? "govuk-input--error"
-                      : ""
+                  className: `govuk-input--width-2 ${formDataErrors.statementDayErrorText
+                    ? "govuk-input--error"
+                    : ""
                     }`,
                   name: "day",
                   value: state.formData.statementDay,
@@ -633,10 +630,9 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 },
                 {
                   id: "reclassify-statement-month",
-                  className: `govuk-input--width-2 ${
-                    formDataErrors.statementMonthErrorText
-                      ? "govuk-input--error"
-                      : ""
+                  className: `govuk-input--width-2 ${formDataErrors.statementMonthErrorText
+                    ? "govuk-input--error"
+                    : ""
                     }`,
                   name: "month",
                   value: state.formData.statementMonth,
@@ -647,8 +643,8 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 {
                   id: "reclassify-statement-year",
                   className: `govuk-input--width-4 ${formDataErrors.statementYearErrorText
-                      ? "govuk-input--error"
-                      : ""
+                    ? "govuk-input--error"
+                    : ""
                     }`,
                   name: "year",
                   value: state.formData.statementYear,
@@ -659,7 +655,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               ]}
               namePrefix="reclassify-statement-date"
               onChange={handleStatementDateChange}
-             
             />
 
             <Input

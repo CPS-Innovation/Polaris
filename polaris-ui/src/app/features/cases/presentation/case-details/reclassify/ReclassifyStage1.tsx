@@ -7,7 +7,7 @@ import {
   NotificationBanner
 } from "../../../../../common/presentation/components";
 import classes from "./Reclassify.module.scss";
-import { ReclassifyStage2} from './ReclassifyStage2'
+import { ReclassifyStage2 } from './ReclassifyStage2'
 
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyVariant } from "./data/MaterialType";
@@ -102,32 +102,32 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         ref={backButtonRef}
       >
         Back
-      </LinkButton>      
+      </LinkButton>
       <div aria-live="polite" className={classes.visuallyHidden}>
         {(
-          ( (state.reClassifySaveStatus === 'saving') || (state.reClassifySaveStatus === "success") &&
+          ((state.reClassifySaveStatus === 'saving' || state.reClassifySaveStatus === "success") &&
             !reclassifiedDocumentUpdate)) && (
-          <span>Saving to CMS. Please wait</span>
-        )}
+            <span>Saving to CMS. Please wait</span>
+          )}
         {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
       </div>
-      {( state.reClassifySaveStatus === 'saving' ||
+      {(state.reClassifySaveStatus === 'saving' ||
         state.reClassifySaveStatus === "success") && (
-        <NotificationBanner className={classes.notificationBanner}>
-          <div
-            className={classes.bannerContent}
-            data-testid="div-notification-banner"
-          >
-            <div className={classes.spinnerWrapper}>
-              <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+          <NotificationBanner className={classes.notificationBanner}>
+            <div
+              className={classes.bannerContent}
+              data-testid="div-notification-banner"
+            >
+              <div className={classes.spinnerWrapper}>
+                <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+              </div>
+              <p className={classes.notificationBannerText}>
+                Saving to CMS. Please wait.
+              </p>
             </div>
-            <p className={classes.notificationBannerText}>
-              Saving to CMS. Please wait.
-            </p>
-          </div>
-        </NotificationBanner>
-      )}
-  <h1 id="main-description" className="govuk-heading-l">What type of document is this?</h1>
+          </NotificationBanner>
+        )}
+      <h1 id="main-description" className="govuk-heading-l">What type of document is this?</h1>
       {formDataErrors.documentTypeErrorText && (
         <div
           ref={errorSummaryRef}
@@ -152,8 +152,8 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         errorMessage={
           formDataErrors.documentTypeErrorText
             ? {
-                children: formDataErrors.documentTypeErrorText,
-              }
+              children: formDataErrors.documentTypeErrorText,
+            }
             : undefined
         }
 
@@ -164,7 +164,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
       />
       {state?.newDocTypeId ? (
-        <ReclassifyStage2 
+        <ReclassifyStage2
           presentationTitle={presentationTitle}
           formDataErrors={formDataErrors}
           getExhibitProducers={getExhibitProducers}

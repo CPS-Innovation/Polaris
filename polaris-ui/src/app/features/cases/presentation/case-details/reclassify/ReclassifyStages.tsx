@@ -351,9 +351,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       (acceptAndSaveButtonRef.current as HTMLButtonElement).focus();
   };
 
-  const handleLookUpDataErrorFn = (errorMessage: string) => {
-    setLookupDataError(errorMessage);
-  };
+  // const handleLookUpDataErrorFn = (errorMessage: string) => {
+  //   setLookupDataError(errorMessage);
+  // };
 
   const closeReclassify = useCallback(() => {
     handleCloseReclassify(documentId);
@@ -443,31 +443,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               handleLookUpDataError={handleLookUpDataError}
             />
           )}
-          {/* {state.reClassifyStage === "stage2" && (
-            <ReclassifyStage2
-              presentationTitle={presentationTitle}
-              formDataErrors={formDataErrors}
-              getExhibitProducers={getExhibitProducers}
-              getStatementWitnessDetails={getStatementWitnessDetails}
-              getWitnessStatementNumbers={getWitnessStatementNumbers}
-              handleBackBtnClick={handleBackBtnClick}
-              handleLookUpDataError={handleLookUpDataError}
-            />
-          )}
-          */}
-{/* 
-          {state.reClassifyStage === "stage3" && (
-            <ReclassifyStage3
-              presentationTitle={presentationTitle}
-              reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
-              handleBackBtnClick={()=>
-                dispatch({
-                  type: "UPDATE_CLASSIFY_STAGE",
-                  payload: { newStage: "stage3" },
-                })
-              }
-            />
-          )}  */}
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>
         </div>
       </div>
