@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   SaveBanner,
   Modal,
@@ -7,24 +6,19 @@ import classes from "./SaveRotationModal.module.scss";
 
 type Props = {
   saveStatus: "saving" | "saved";
+  handleCloseSaveRotationModal: () => void;
 };
-export const SaveRotationModal: React.FC<Props> = ({ saveStatus }) => {
-  const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    if (saveStatus === "saving") {
-      setShowModal(true);
-    }
-  }, [saveStatus]);
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-  };
+export const SaveRotationModal: React.FC<Props> = ({
+  saveStatus,
+  handleCloseSaveRotationModal,
+}) => {
   return (
     <Modal
-      isVisible={showModal}
+      isVisible={true}
       className={classes.savingModal}
-      handleClose={saveStatus === "saved" ? handleCloseModal : undefined}
+      handleClose={
+        saveStatus === "saved" ? handleCloseSaveRotationModal : undefined
+      }
       type="data"
       ariaLabel="Saving document alert modal"
       ariaDescription={

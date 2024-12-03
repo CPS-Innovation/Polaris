@@ -141,7 +141,7 @@ export const reducer = (
         };
       }
     | {
-        type: "SAVING_DOCUMENT";
+        type: "UPDATE_DOCUMENT_SAVE_STATUS";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           saveStatus: SaveStatus;
@@ -1033,7 +1033,7 @@ export const reducer = (
       }
       return newState;
     }
-    case "SAVING_DOCUMENT": {
+    case "UPDATE_DOCUMENT_SAVE_STATUS": {
       const { documentId, saveStatus } = action.payload;
 
       return {
