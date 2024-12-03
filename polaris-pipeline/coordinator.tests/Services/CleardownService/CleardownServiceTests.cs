@@ -10,6 +10,7 @@ using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
 using coordinator.Services.ClearDownService;
 using Microsoft.Extensions.Configuration;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.tests.Services.CleardownServiceTests
 {
@@ -22,7 +23,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
     private readonly Mock<ITextExtractorClient> _mockTextExtractorClient;
     private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
     private readonly Mock<ITelemetryClient> _mockTelemetryClient;
-    private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
+    private readonly Mock<DurableTaskClient> _mockDurableOrchestrationClient;
 
     private readonly IClearDownService _clearDownService;
 
@@ -33,7 +34,7 @@ namespace coordinator.tests.Services.CleardownServiceTests
       _caseUrn = fixture.Create<string>();
       _correlationId = fixture.Create<Guid>();
 
-      _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
+      _mockDurableOrchestrationClient = new Mock<DurableTaskClient>("name");
       _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
       _mockTextExtractorClient = new Mock<ITextExtractorClient>();
       _mockTextExtractorClient.Setup(m => m.RemoveCaseIndexesAsync(_caseUrn, _caseId, _correlationId))

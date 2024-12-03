@@ -55,7 +55,7 @@ namespace coordinator.Functions
                 EntityMetadata<CaseDurableEntity> caseEntity = default;
                 try
                 {
-                    caseEntity = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId);
+                    caseEntity = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId, true);
                 }
                 catch (Exception ex)
                 {

@@ -113,12 +113,12 @@ namespace coordinator.Durable.Orchestration
 
         private async Task<GetCaseDocumentsResponse> GetDocuments(TaskOrchestrationContext context, CasePayload payload)
         {
-       
             var documents = await context.CallActivityAsync<GetCaseDocumentsResponse>(nameof(GetCaseDocuments), payload);
             if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
             {
                 throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
             }
+
             return documents;
         }
 

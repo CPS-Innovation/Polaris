@@ -63,7 +63,7 @@ namespace Common.tests.Services.BlobStorageService
         {
             _mockBlobClient.Setup(s => s.ExistsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue(false, _responseMock.Object));
 
-            await Assert.ThrowsAsync<StorageException>(() => _blobStorageService.GetBlob(_blobName));
+            await Assert.ThrowsAsync<RequestFailedException>(() => _blobStorageService.GetBlob(_blobName));
         }
 
         [Fact(Skip = "Not possible to adequately mock BlobDownloadStreamingResult")]
