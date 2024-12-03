@@ -1,7 +1,6 @@
 ﻿echo '==== Install dependencies ===='
 DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
-
 echo '==== Update package sources ===='
 sudo apt-get update
 
