@@ -1,6 +1,11 @@
 ﻿echo '==== Install dependencies ===='
 DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
+Invoke-WebRequest -Uri https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -OutFile ./packages-microsoft-prod.deb -UseBasicParsing ; `
+echo 'Register the Microsoft repository GPG keys'
+dpkg -i ./packages-microsoft-prod.deb ; `
+rm ./packages-microsoft-prod.deb
+
 echo '==== Update package sources ===='
 sudo apt-get update
 
