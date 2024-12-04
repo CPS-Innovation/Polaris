@@ -26,7 +26,7 @@ namespace coordinator.tests.Validators
         [Fact]
         public void Should_Throw_Exception_When_DocumentName_Is_Empty()
         {
-            var request = new RenameDocumentDto { DocumentId = "123" };
+            var request = new RenameDocumentDto { };
             var result = _validator.TestValidate(request);
 
             result.ShouldHaveValidationErrorFor(x => x.DocumentName);
@@ -37,7 +37,6 @@ namespace coordinator.tests.Validators
         {
             var request = new RenameDocumentDto
             {
-                DocumentId = "123",
                 DocumentName = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras quis auctor nisl. Morbi porta, turpis id ornare vestibulum, quam est tincidunt velit, in tempus dui justo a felis. Sed quis bibendum magna, id dictum ligula. Proin porttitor mauris tortor, eu pretium erat commodo et. Proin vitae ipsum mi. Phasellus maximus ligula tellus, vel scelerisque diam rutrum ut. Vivamus quis maximus massa. Ut sollicitudin arcu non orci malesuada condimentum. Nullam vitae eros ut mi bibendum pellentesque posuere."
             };
             var result = _validator.TestValidate(request);
@@ -50,7 +49,6 @@ namespace coordinator.tests.Validators
         {
             var request = new RenameDocumentDto
             {
-                DocumentId = "123",
                 DocumentName = "New document name"
             };
             var result = _validator.TestValidate(request);

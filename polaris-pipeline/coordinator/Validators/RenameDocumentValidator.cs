@@ -7,7 +7,6 @@ namespace coordinator.Validators
     {
         public RenameDocumentValidator()
         {
-            RuleFor(x => x.DocumentId).NotEmpty();
             RuleFor(x => x.DocumentName).NotEmpty().MaximumLength(255);
         }
     }
