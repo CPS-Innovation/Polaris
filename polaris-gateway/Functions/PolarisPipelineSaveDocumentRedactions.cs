@@ -46,7 +46,7 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string documentId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
         {
             var telemetryEvent = new RedactionRequestEvent(caseId, documentId);
 
@@ -82,6 +82,7 @@ namespace PolarisGateway.Functions
                     caseUrn,
                     caseId,
                     documentId,
+                    versionId,
                     redactPdfRequest,
                     context.CmsAuthValues,
                     context.CorrelationId);

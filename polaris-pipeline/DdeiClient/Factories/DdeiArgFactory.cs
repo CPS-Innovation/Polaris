@@ -173,23 +173,7 @@ namespace Ddei.Factories
             };
         }
 
-        private static long ConvertToDdeiDocumentId(string documentId)
-        {
-            if (string.IsNullOrWhiteSpace(documentId))
-            {
-                throw new ArgumentNullException(nameof(documentId));
-            }
-
-            var match = Regex.Match(
-                documentId,
-                $@"{DocumentNature.DocumentPrefix}-(\d+)",
-                RegexOptions.None,
-                TimeSpan.FromSeconds(1));
-
-            return match.Success
-                ? long.Parse(match.Groups[1].Value)
-                : throw new ArgumentException($"Invalid document id: {documentId}. Expected format e.g.: '{DocumentNature.DocumentPrefix}-123456'");
-        }
+        private static long ConvertToDdeiDocumentId(string documentId) => DocumentNature.RemoveStringPrefix(documentId);
 
         private static int ConvertToDdeiPcdId(string documentId)
         {

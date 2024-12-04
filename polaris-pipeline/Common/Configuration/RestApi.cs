@@ -15,7 +15,7 @@
         public const string Documents = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
         public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}";
         public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
-        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact";
+        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/redact";
         public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/modify";
         public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/rename";
         public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/reclassify";
@@ -52,9 +52,9 @@
             return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
         }
 
-        public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId)
+        public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId, long versionId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, int caseId, string documentId, long versionId)
@@ -77,9 +77,9 @@
             return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
-        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId)
+        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId, long versionId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact-pdf";
         }
 
         public static string GetCaseIndexCountResultsPath(string caseUrn, int caseId)
@@ -92,9 +92,9 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
         }
 
-        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId)
+        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId, long versionId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/modify";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/modify";
         }
 
         public static string CaseSearchCountPath(string caseUrn, int caseId)

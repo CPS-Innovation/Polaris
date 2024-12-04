@@ -42,7 +42,12 @@ namespace PolarisGateway.Functions
 
         [FunctionName(nameof(PolarisPipelineModifyDocument))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
+        public async Task<HttpResponseMessage> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req,
+            string caseUrn,
+            int caseId,
+            string documentId,
+            long versionId)
         {
             var telemetryEvent = new DocumentModifiedEvent(caseId, documentId);
 
@@ -78,6 +83,7 @@ namespace PolarisGateway.Functions
                     caseUrn,
                     caseId,
                     documentId,
+                    versionId,
                     modifyDocumentDto,
                     context.CmsAuthValues,
                     context.CorrelationId);
