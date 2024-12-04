@@ -23,13 +23,11 @@ public class OrchestrationProvider : IOrchestrationProvider
         OrchestrationRuntimeStatus.Running,
         OrchestrationRuntimeStatus.Pending,
         OrchestrationRuntimeStatus.Suspended,
-        OrchestrationRuntimeStatus.ContinuedAsNew,
     ];
 
     private static readonly OrchestrationRuntimeStatus[] _completedStatuses =
     [
         OrchestrationRuntimeStatus.Completed,
-        OrchestrationRuntimeStatus.Canceled,
         OrchestrationRuntimeStatus.Failed,
         OrchestrationRuntimeStatus.Terminated
     ];

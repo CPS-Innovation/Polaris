@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using PolarisGateway.Validators;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 

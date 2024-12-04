@@ -19,7 +19,7 @@ public class BaseFunction(ITelemetryClient telemetryClient)
     }
 
     protected static Guid EstablishCorrelation(HttpRequest req) =>
-        req.Headers.TryGetValue("Correlation-Id", out var correlationId) &&
+        req.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationId) &&
         Guid.TryParse(correlationId, out var parsedCorrelationId) ?
             parsedCorrelationId :
             Guid.NewGuid();

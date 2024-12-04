@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response;
@@ -23,14 +20,9 @@ using Common.Telemetry;
 using coordinator.Validators;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using Microsoft.DurableTask.Client;
 using coordinator.Domain;
-using Microsoft.Azure.Functions.Worker.Extensions.DurableTask.Http;
 using Microsoft.DurableTask;
-using System.Text.Json;
 using Microsoft.DurableTask.Entities;
-using Polly;
-using DurableTask.Core.Entities;
 
 namespace coordinator.tests.Durable.Orchestration
 {
@@ -72,7 +64,7 @@ namespace coordinator.tests.Durable.Orchestration
             // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
             //  matches the regex attribute that decorates it.
             fixture.Customize<CmsDocumentEntity>(c =>
-                c.With(doc => doc.CmsOriginalFileName, $"{fixture.Create<string>()}.{fixture.Create<string>().Substring(0, 3)}"));
+                c.With(doc => doc.CmsOriginalFileName, $"{fixture.Create<string>()}.{fixture.Create<string>()[..3]}"));
 
             _trackerCmsDocuments = fixture.CreateMany<DocumentDelta>(11)
                 .ToList();
@@ -80,8 +72,8 @@ namespace coordinator.tests.Durable.Orchestration
             _deltaDocuments = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = _trackerCmsDocuments.Where(d => d.Document.Status == DocumentStatus.New).ToList(),
-                UpdatedCmsDocuments = fixture.Create<DocumentDelta[]>().ToList(),
-                DeletedCmsDocuments = fixture.Create<CmsDocumentEntity[]>().ToList(),
+                UpdatedCmsDocuments = [.. fixture.Create<DocumentDelta[]>()],
+                DeletedCmsDocuments = [.. fixture.Create<CmsDocumentEntity[]>()],
                 CreatedPcdRequests = [],
                 UpdatedPcdRequests = [],
                 DeletedPcdRequests = [],
@@ -101,7 +93,7 @@ namespace coordinator.tests.Durable.Orchestration
             _mockCmsDocumentsResponseValidator = new Mock<ICmsDocumentsResponseValidator>();
 
             _mockTaskOrchestrationEntityFeature.Setup(f => f.CallEntityAsync<CaseDeltasEntity>(
-                It.Is<EntityInstanceId>(e => e.Name == nameof(CaseDurableEntity).ToLower() && e.Key == _transactionId),
+                It.Is<EntityInstanceId>(e => e.Name.Equals(nameof(CaseDurableEntity), StringComparison.CurrentCultureIgnoreCase) && e.Key == _transactionId),
                 nameof(CaseDurableEntity.GetCaseDocumentChanges),
                 It.IsAny<GetCaseDocumentsResponse>(),
                 default))
@@ -159,7 +151,7 @@ namespace coordinator.tests.Durable.Orchestration
             await _coordinatorOrchestrator.Run(_mockTaskOrchestrationContext.Object);
 
             _mockTaskOrchestrationEntityFeature.Verify(f => f.SignalEntityAsync(
-                It.Is<EntityInstanceId>(e => e.Name == nameof(CaseDurableEntity).ToLower() && e.Key == _transactionId),
+                It.Is<EntityInstanceId>(e => e.Name.Equals(nameof(CaseDurableEntity), StringComparison.CurrentCultureIgnoreCase) && e.Key == _transactionId),
                 nameof(CaseDurableEntity.Reset),
                 default,
                 default));
@@ -219,7 +211,7 @@ namespace coordinator.tests.Durable.Orchestration
             var arg = new SetCaseStatusPayload { UpdatedAt = It.IsAny<DateTime>(), Status = CaseRefreshStatus.Completed, FailedReason = null };
 
             _mockTaskOrchestrationEntityFeature.Verify(f => f.SignalEntityAsync(
-                It.Is<EntityInstanceId>(e => e.Name == nameof(CaseDurableEntity).ToLower() && e.Key == _transactionId),
+                It.Is<EntityInstanceId>(e => e.Name.Equals(nameof(CaseDurableEntity), StringComparison.CurrentCultureIgnoreCase) && e.Key == _transactionId),
                 nameof(CaseDurableEntity.SetCaseStatus),
                 It.Is<SetCaseStatusPayload>(p => p.Status == arg.Status),
                 default));
@@ -255,7 +247,7 @@ namespace coordinator.tests.Durable.Orchestration
                 var arg = new SetCaseStatusPayload { UpdatedAt = It.IsAny<DateTime>(), Status = CaseRefreshStatus.Failed, FailedReason = "Test Exception" };
 
                 _mockTaskOrchestrationEntityFeature.Verify(f => f.SignalEntityAsync(
-                    It.Is<EntityInstanceId>(e => e.Name == nameof(CaseDurableEntity).ToLower() && e.Key == _transactionId),
+                    It.Is<EntityInstanceId>(e => e.Name.Equals(nameof(CaseDurableEntity), StringComparison.CurrentCultureIgnoreCase) && e.Key == _transactionId),
                     nameof(CaseDurableEntity.SetCaseStatus),
                     It.Is<SetCaseStatusPayload>(p => p.Status == arg.Status && p.FailedReason.Equals(arg.FailedReason)),
                     default));

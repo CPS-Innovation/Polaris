@@ -2,7 +2,6 @@
 using Common.Telemetry;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
-using PolarisGateway.Extensions;
 using PolarisGateway.Validators;
 using System;
 using System.Linq;
@@ -10,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Http;
 using Common.Exceptions;
 using Common.Configuration;
+using Common.Constants;
 
 namespace PolarisGateway.Middleware;
 
@@ -59,7 +59,7 @@ public sealed partial class RequestValidationMiddleware(
 
         await next(context);
 
-        context.GetHttpResponseData()?.Headers.Add("Correlation-Id", correlationId.ToString());
+        context.GetHttpResponseData()?.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
     }
 
     private async Task<string> AuthenticateRequest(HttpRequestData req, Guid correlationId)

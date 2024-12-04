@@ -34,6 +34,7 @@ public class SlidingCaseClearDown
     public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%")] TimerInfo myTimer, [DurableClient] DurableTaskClient client)
     {
         var correlationId = Guid.NewGuid();
+
         try
         {
             var hoursBackNumber = double.Parse(_configuration[ConfigKeys.SlidingClearDownInputHours]);

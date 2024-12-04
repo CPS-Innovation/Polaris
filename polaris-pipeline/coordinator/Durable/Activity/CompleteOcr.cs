@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Common.Services.BlobStorage;
-using Common.Wrappers;
 using Common.Services.OcrService;
 using Common.Domain.Ocr;
 using Common.Configuration;
@@ -17,7 +16,7 @@ namespace coordinator.Durable.Activity
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IOcrService _ocrService;
 
-        public CompleteOcr(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration)
+        public CompleteOcr(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOcrService ocrService, IConfiguration configuration)
         {
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _ocrService = ocrService;

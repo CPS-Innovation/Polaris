@@ -32,15 +32,15 @@ namespace coordinator.tests.Durable.Activity
             var fixture = new Fixture();
             _payload = fixture.Create<CasePayload>();
             _case = fixture.Create<CaseDto>();
-            _caseDocuments = new[] {
+            _caseDocuments = [
               fixture.Create<CmsDocumentDto>(),
               fixture.Create<CmsDocumentDto>()
-            };
+            ];
 
-            _presentationFlags = new[] {
+            _presentationFlags = [
               fixture.Create<PresentationFlagsDto>(),
               fixture.Create<PresentationFlagsDto>()
-            };
+            ];
 
             var mockDdeiClient = new Mock<IDdeiClient>();
 

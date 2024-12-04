@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace coordinator.ApplicationStartup;
+namespace Common.Extensions;
 
 public static class ConfigurationBuilderExtensions
 {

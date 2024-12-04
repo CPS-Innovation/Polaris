@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.PdfRedactor;
-using coordinator.Helpers;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Exceptions;
@@ -63,67 +62,60 @@ namespace coordinator.Functions
             string documentId,
             [DurableClient] DurableTaskClient client)
         {
-            Guid currentCorrelationId = default;
+            var currentCorrelationId = req.Headers.GetCorrelationId();
 
-            try
+            var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ModifyDocument));
+            var document = response.CmsDocument;
+
+            var modifyDocumentRequest = await req.ReadFromJsonAsync<ModifyDocumentRequestDto>();
+
+            await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
+
+            using var memoryStream = new MemoryStream();
+            await documentStream.CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
+
+            var base64Document = Convert.ToBase64String(bytes);
+
+            var modificationRequest = new ModifyDocumentWithDocumentDto
             {
-                currentCorrelationId = req.Headers.GetCorrelationId();
+                Document = base64Document,
+                DocumentModifications = modifyDocumentRequest.DocumentModifications,
+                VersionId = modifyDocumentRequest.VersionId
+            };
 
-                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ModifyDocument));
-                var document = response.CmsDocument;
-
-                var modifyDocumentRequest = await req.ReadFromJsonAsync<ModifyDocumentRequestDto>();
-
-                await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
-
-                using var memoryStream = new MemoryStream();
-                await documentStream.CopyToAsync(memoryStream);
-                var bytes = memoryStream.ToArray();
-
-                var base64Document = Convert.ToBase64String(bytes);
-
-                var modificationRequest = new ModifyDocumentWithDocumentDto
-                {
-                    Document = base64Document,
-                    DocumentModifications = modifyDocumentRequest.DocumentModifications,
-                    VersionId = modifyDocumentRequest.VersionId
-                };
-
-                var validationResult = await _requestValidator.ValidateAsync(modificationRequest);
-                if (!validationResult.IsValid)
-                    throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
-
-                await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
-                if (modifiedDocumentStream == null)
-                {
-                    var error = $"Error modifying document for {caseId}, documentId {documentId}";
-                    throw new Exception(error);
-                }
-
-                var cmsAuthValues = req.Headers.GetCmsAuthValues();
-                var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
-                (
-                    cmsAuthValues: cmsAuthValues,
-                    correlationId: currentCorrelationId,
-                    urn: caseUrn,
-                    caseId: caseId,
-                    documentId: document.CmsDocumentId,
-                    versionId: document.VersionId
-                );
-
-                var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
-
-                if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
-                {
-                    return new StatusCodeResult((int)ddeiResult.StatusCode);
-                }
-
-                return new OkResult();
-            }
-            catch (Exception ex)
+            var validationResult = await _requestValidator.ValidateAsync(modificationRequest);
+            if (!validationResult.IsValid)
             {
-                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(ModifyDocument), currentCorrelationId, ex);
+                throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
             }
+
+            await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
+            if (modifiedDocumentStream == null)
+            {
+                var error = $"Error modifying document for {caseId}, documentId {documentId}";
+                throw new Exception(error);
+            }
+
+            var cmsAuthValues = req.Headers.GetCmsAuthValues();
+            var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
+            (
+                cmsAuthValues: cmsAuthValues,
+                correlationId: currentCorrelationId,
+                urn: caseUrn,
+                caseId: caseId,
+                documentId: document.CmsDocumentId,
+                versionId: document.VersionId
+            );
+
+            var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
+
+            if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+            {
+                return new StatusCodeResult((int)ddeiResult.StatusCode);
+            }
+
+            return new OkResult();
         }
     }
 }

@@ -19,7 +19,6 @@ public class GetPdf : BaseFunction
     private const string isOcrProcessedParamName = "isOcrProcessed";
     private readonly ILogger<GetPdf> _logger;
     private readonly IArtefactService _cachingArtefactService;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GetPdf(
         ILogger<GetPdf> logger,

@@ -24,6 +24,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask;
 using Common.Exceptions;
+using Common.Constants;
 
 namespace coordinator.tests.Functions
 {
@@ -70,8 +71,8 @@ namespace coordinator.tests.Functions
             _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
             _mockCleardownService = new Mock<IClearDownService>();
 
-            _httpRequestHeaders.Append("Correlation-Id", _correlationId.ToString());
-            _httpRequestHeaders.Append("cms-auth-values", cmsAuthValues);
+            _httpRequestHeaders.Append(HttpHeaderKeys.CorrelationId, _correlationId.ToString());
+            _httpRequestHeaders.Append(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
 
             mockBlobStorageClient.Setup(s => s.DeleteBlobsByPrefixAsync(It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
@@ -101,11 +102,14 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ReturnsBadRequestWhenCorrelationIdIsMissing()
         {
+            // Arrange
             _httpRequestHeaders.Clear();
 
-            var result = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+            // Act
+            var exception = await Assert.ThrowsAsync<BadRequestException>(() => _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object));
 
-            (result as StatusCodeResult).StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            // Assert
+            exception.Message.Should().Be("Invalid correlationId. A valid GUID is required. (Parameter 'headers')");
         }
 
         [Fact]
@@ -144,7 +148,6 @@ namespace coordinator.tests.Functions
         [InlineData(OrchestrationRuntimeStatus.Completed)]
         [InlineData(OrchestrationRuntimeStatus.Terminated)]
         [InlineData(OrchestrationRuntimeStatus.Failed)]
-        [InlineData(OrchestrationRuntimeStatus.Canceled)]
         public async Task Run_StartsOrchestratorWhenOrchestrationHasConcluded(OrchestrationRuntimeStatus runtimeStatus)
         {
             _mockDurableOrchestrationClient.Setup(client => client.GetInstanceAsync(_instanceId, default))
@@ -170,7 +173,6 @@ namespace coordinator.tests.Functions
                     OrchestrationRuntimeStatus.Completed,
                     OrchestrationRuntimeStatus.Terminated,
                     OrchestrationRuntimeStatus.Failed,
-                    OrchestrationRuntimeStatus.Canceled
                 ]);
 
             foreach (var runtimeStatus in notStartingRuntimeStatuses)
@@ -203,12 +205,14 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_Returns401HttpResponseMessage_WhenCmsAuthIsNotValid()
         {
+            // Arrange
             _mockDdeiClient.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg)).ThrowsAsync(new DdeiClientException(HttpStatusCode.Unauthorized, null));
+
             // Act
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
+            var exception =    await Assert.ThrowsAsync<DdeiClientException>(() => _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object));
 
             // Assert
-            httpResponseMessage.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be((int)HttpStatusCode.Unauthorized);
+            exception.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
     }
 }

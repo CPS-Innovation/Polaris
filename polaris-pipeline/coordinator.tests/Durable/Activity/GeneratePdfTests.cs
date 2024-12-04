@@ -19,7 +19,6 @@ using Common.Clients.PdfGeneratorDomain.Domain;
 using Common.Configuration;
 using Common.Dto.Response.Document;
 using Microsoft.Extensions.Configuration;
-using Microsoft.DurableTask.Entities;
 using coordinator.Domain;
 
 namespace pdf_generator.tests.Durable.Activity

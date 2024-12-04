@@ -6,7 +6,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Extensions;
-using System;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;

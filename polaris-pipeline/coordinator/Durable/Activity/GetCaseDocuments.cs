@@ -41,13 +41,24 @@ namespace coordinator.Durable.Activity
         public async Task<GetCaseDocumentsResponse> Run([ActivityTrigger] CasePayload payload)
         {
             if (string.IsNullOrWhiteSpace(payload.Urn))
+            {
                 throw new ArgumentException("CaseUrn cannot be empty");
+            }
+
             if (payload.CaseId == 0)
+            {
                 throw new ArgumentException("CaseId cannot be zero");
+            }
+
             if (string.IsNullOrWhiteSpace(payload.CmsAuthValues))
+            {
                 throw new ArgumentException("Cms Auth Token cannot be null");
+            }
+
             if (payload.CorrelationId == Guid.Empty)
+            {
                 throw new ArgumentException("CorrelationId must be valid GUID");
+            }
 
             var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
                 payload.CmsAuthValues,

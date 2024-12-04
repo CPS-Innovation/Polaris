@@ -5,7 +5,6 @@ using Common.Configuration;
 using PolarisGateway.Clients.Coordinator;
 using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
-using System;
 using PolarisGateway.Extensions;
 using Common.Telemetry;
 

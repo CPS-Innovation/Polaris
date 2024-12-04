@@ -56,11 +56,11 @@ namespace coordinator.Durable.Entity
 
         [JsonPropertyName("documents")]
         [JsonInclude]
-        public List<CmsDocumentEntity> CmsDocuments { get; set; } = new List<CmsDocumentEntity>();
+        public List<CmsDocumentEntity> CmsDocuments { get; set; } = [];
 
         [JsonPropertyName("pcdRequests")]
         [JsonInclude]
-        public List<PcdRequestEntity> PcdRequests { get; set; } = new List<PcdRequestEntity>();
+        public List<PcdRequestEntity> PcdRequests { get; set; } = [];
 
         [JsonPropertyName("defendantsAndCharges")]
         [JsonInclude]
@@ -84,8 +84,8 @@ namespace coordinator.Durable.Entity
             var pcdRequests = getCaseDocumentsResponse.PcdRequests;
             var defendantsAndCharges = getCaseDocumentsResponse.DefendantAndCharges;
 
-            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(cmsDocuments.ToList());
-            var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
+            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments([.. cmsDocuments]);
+            var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests([.. pcdRequests]);
             var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges) = GetDeltaDefendantsAndCharges(defendantsAndCharges);
 
             var deltas = new CaseDeltasEntity
@@ -173,12 +173,16 @@ namespace coordinator.Durable.Entity
             DefendantsAndChargesListDto newDefendantsAndCharges = null, updatedDefendantsAndCharges = null;
 
             if (DefendantsAndCharges == null && incomingDefendantsAndCharges != null)
+            {
                 newDefendantsAndCharges = incomingDefendantsAndCharges;
+            }
 
             if (DefendantsAndCharges != null && incomingDefendantsAndCharges != null)
             {
                 if (DefendantsAndCharges.VersionId != incomingDefendantsAndCharges.VersionId)
+                {
                     updatedDefendantsAndCharges = incomingDefendantsAndCharges;
+                }
             }
 
             var deletedDefendantsAndCharges = DefendantsAndCharges != null && incomingDefendantsAndCharges == null;
@@ -388,7 +392,9 @@ namespace coordinator.Durable.Entity
             }
 
             if (DefendantsAndCharges != null)
+            {
                 return DefendantsAndCharges;
+            }
 
             return null;
         }
@@ -405,12 +411,18 @@ namespace coordinator.Durable.Entity
 
                 case CaseRefreshStatus.DocumentsRetrieved:
                     if (Running != null)
+                    {
                         Retrieved = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
+                    }
+
                     break;
 
                 case CaseRefreshStatus.Completed:
                     if (Running != null)
+                    {
                         Completed = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
+                    }
+
                     break;
 
                 case CaseRefreshStatus.Failed:

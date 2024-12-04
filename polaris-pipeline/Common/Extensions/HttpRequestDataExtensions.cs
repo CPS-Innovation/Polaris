@@ -33,4 +33,12 @@ public static class HttpRequestDataExtensions
         var cmsAuthValues = req.Cookies.FirstOrDefault(c => c.Name.Equals(HttpHeaderKeys.CmsAuthValues));
         return cmsAuthValues?.Value;
     }
+
+    public static string EstablishCmsAuthValuesFromHeaders(this HttpRequestData req)
+    {
+        ArgumentNullException.ThrowIfNull(req.Headers);
+
+        _ = req.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values);
+        return values.First();
+    }
 }

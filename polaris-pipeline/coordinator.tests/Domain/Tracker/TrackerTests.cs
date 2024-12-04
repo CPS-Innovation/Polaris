@@ -25,6 +25,7 @@ using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Client.Entities;
 using coordinator.Domain;
 using Microsoft.Azure.Functions.Worker;
+using Common.Constants;
 
 namespace coordinator.tests.Domain.Response.Documents
 {
@@ -61,7 +62,7 @@ namespace coordinator.tests.Domain.Response.Documents
             // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
             //  matches the regex attribute that decorates it.
             _fixture.Customize<CmsDocumentEntity>(c =>
-                c.With(doc => doc.CmsOriginalFileName, $"{_fixture.Create<string>()}.{_fixture.Create<string>().Substring(0, 3)}"));
+                c.With(doc => doc.CmsOriginalFileName, $"{_fixture.Create<string>()}.{_fixture.Create<string>()[..3]}"));
             _trackerCmsDocuments = _fixture.Create<List<CmsDocumentEntity>>();
 
             _trackerPcdRequests = _fixture.Create<List<PcdRequestEntity>>();
@@ -71,7 +72,7 @@ namespace coordinator.tests.Domain.Response.Documents
 
             _pdfBlobName = _fixture.Create<string>();
 
-            _synchroniseDocumentsArg = new (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
+            _synchroniseDocumentsArg = new ([.. _cmsDocuments], _pcdRequests.ToArray(), _defendantsAndChargesList);
             _entityStateResponse = new EntityMetadata<CaseDurableEntity>(CaseDurableEntity.GetEntityId(_caseId), new CaseDurableEntity());
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
 
@@ -88,16 +89,18 @@ namespace coordinator.tests.Domain.Response.Documents
                     client =>
                         client.GetEntityAsync<CaseDurableEntity>
                         (
-                            It.Is<EntityInstanceId>(e => e.Name == nameof(CaseDurableEntity).ToLower() && e.Key == $"[{_caseId}]"),
+                            It.Is<EntityInstanceId>(e => e.Name.Equals(nameof(CaseDurableEntity), StringComparison.CurrentCultureIgnoreCase) && e.Key == $"[{_caseId}]"),
                             true,
                             default
                         )
                 )
                 .ReturnsAsync(_entityStateResponse);
 
-            _caseEntity = new CaseDurableEntity();
-            _caseEntity.CmsDocuments = _trackerCmsDocuments;
-            _caseEntity.PcdRequests = _trackerPcdRequests;
+            _caseEntity = new CaseDurableEntity
+            {
+                CmsDocuments = _trackerCmsDocuments,
+                PcdRequests = _trackerPcdRequests,
+            };
             _trackerStatus = new GetTracker(_jsonConvertWrapper, new CaseDurableEntityMapper(), _mockLogger.Object);
         }
 
@@ -169,7 +172,7 @@ namespace coordinator.tests.Domain.Response.Documents
         {
             // Arrange
             var message = new DefaultHttpContext().Request;
-            message.Headers.Append("Correlation-Id", _correlationId.ToString());
+            message.Headers.Append(HttpHeaderKeys.CorrelationId, _correlationId.ToString());
 
             // Act
             var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableTaskClient.Object);
@@ -182,7 +185,7 @@ namespace coordinator.tests.Domain.Response.Documents
         public async Task HttpStart_TrackerStatus_ReturnsTrackerDto()
         {
             var message = new DefaultHttpContext().Request;
-            message.Headers.Append("Correlation-Id", _correlationId.ToString());
+            message.Headers.Append(HttpHeaderKeys.CorrelationId, _correlationId.ToString());
             var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableTaskClient.Object);
 
             var okObjectResult = response as OkObjectResult;
@@ -200,7 +203,7 @@ namespace coordinator.tests.Domain.Response.Documents
                     (
                         client => client.GetEntityAsync<CaseDurableEntity>
                         (
-                            It.Is<EntityInstanceId>(e => e.Name == nameof(CaseDurableEntity).ToLower() && e.Key == $"[{_caseId}]"),
+                            It.Is<EntityInstanceId>(e => e.Name.Equals(nameof(CaseDurableEntity), StringComparison.CurrentCultureIgnoreCase) && e.Key == $"[{_caseId}]"),
                             true,
                             default
                         )
@@ -208,27 +211,10 @@ namespace coordinator.tests.Domain.Response.Documents
                 .ReturnsAsync(entityStateResponse);
 
             var message = new DefaultHttpContext().Request;
-            message.Headers.Append("Correlation-Id", _correlationId.ToString());
+            message.Headers.Append(HttpHeaderKeys.CorrelationId, _correlationId.ToString());
             var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableTaskClient.Object);
 
             response.Should().BeOfType<NotFoundObjectResult>();
-        }
-
-        [Fact]
-        public async Task HttpStart_TrackerStatus_ReturnsBadRequestIfCorrelationIdNotFound()
-        {
-            var entityStateResponse = new EntityMetadata<CaseDurableEntity>(CaseDurableEntity.GetEntityId(_caseId));
-            _mockDurableEntityClient.Setup(
-                    client => client.GetEntityAsync<CaseDurableEntity>(
-                        It.Is<EntityInstanceId>(e => e.Name == nameof(CaseDurableEntity).ToLower() && e.Key == _caseId.ToString()),
-                        false, default))
-                .ReturnsAsync(entityStateResponse);
-
-            var message = new DefaultHttpContext().Request;
-            //message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId, _mockDurableTaskClient.Object);
-
-            response.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(400);
         }
 
         #region SynchroniseDocument
@@ -237,7 +223,7 @@ namespace coordinator.tests.Domain.Response.Documents
         public async Task SynchroniseDocument_CreatesNewDocumentsAndPcdRequests()
         {
             // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
+            var tracker = new CaseDurableEntity();
             tracker.Reset();
 
             // Act
@@ -257,7 +243,7 @@ namespace coordinator.tests.Domain.Response.Documents
         public async Task SynchroniseDocument_NoChangesWithExistingDocumentAndVersionIds()
         {
             // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
+            var tracker = new CaseDurableEntity();
             tracker.Reset();
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
@@ -277,7 +263,7 @@ namespace coordinator.tests.Domain.Response.Documents
         public async Task SynchroniseDocument_IndexedCmsDocumentAreRetained()
         {
             // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
+            var tracker = new CaseDurableEntity();
             tracker.Reset();
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
@@ -297,7 +283,7 @@ namespace coordinator.tests.Domain.Response.Documents
         public async Task SynchroniseDocument_ChangesWithUpdatedDocumentAndVersionIds()
         {
             // Arrange
-            CaseDurableEntity tracker = new CaseDurableEntity();
+            var tracker = new CaseDurableEntity();
             tracker.Reset();
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
@@ -370,7 +356,7 @@ namespace coordinator.tests.Domain.Response.Documents
             var newDaysDocuments = new List<CmsDocumentDto> { _cmsDocuments.First() };
             ////only one document in today's run, the next two should be removed from the tracker and in the evaluation results
 
-            var newDaysDocumentIdsArg = new GetCaseDocumentsResponse(newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
+            var newDaysDocumentIdsArg = new GetCaseDocumentsResponse([.. newDaysDocuments], Array.Empty<PcdRequestDto>(), null);
 
             _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);
@@ -426,7 +412,7 @@ namespace coordinator.tests.Domain.Response.Documents
             var unmodifiedDocumentId = newDaysDocuments[1].DocumentId;
             var unmodifiedDocumentVersionId = newDaysDocuments[1].VersionId;
 
-            var newDaysDocumentIdsArg = new GetCaseDocumentsResponse(newDaysDocuments.ToArray(), _pcdRequests.ToArray(), null);
+            var newDaysDocumentIdsArg = new GetCaseDocumentsResponse([.. newDaysDocuments], _pcdRequests.ToArray(), null);
 
             _caseEntity.Reset();
             await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);
