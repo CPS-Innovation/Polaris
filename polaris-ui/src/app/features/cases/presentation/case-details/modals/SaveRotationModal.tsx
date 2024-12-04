@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   SaveBanner,
   Modal,
@@ -12,16 +13,17 @@ export const SaveRotationModal: React.FC<Props> = ({
   saveStatus,
   handleCloseSaveRotationModal,
 }) => {
+  const [ariaLiveStatusText, setAriaLiveStatusText] = useState("");
+  useEffect(() => {
+    if (saveStatus === "saving")
+      setAriaLiveStatusText("Saving updated document to CMS");
+    if (saveStatus === "saved")
+      setAriaLiveStatusText("Document updated successfully saved to CMS");
+  }, [saveStatus]);
   return (
     <div>
       <div aria-live="polite" className={classes.visuallyHidden}>
-        {saveStatus === "saving" && (
-          <span>Saving updated document to CMS.</span>
-        )}
-
-        {saveStatus === "saved" && (
-          <span>Document updated successfully saved to CMS</span>
-        )}
+        <span>{ariaLiveStatusText}</span>
       </div>
       {saveStatus === "saving" && (
         <Modal
