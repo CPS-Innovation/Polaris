@@ -32,7 +32,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
@@ -53,6 +53,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
+    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
@@ -82,8 +83,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     pre_warmed_instance_count         = var.ui_component_service_plans.gateway_always_ready_instances
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
+    use_32_bit_worker                 = false
     application_stack {
-      dotnet_version = "6.0"
+      dotnet_version              = "8.0"
+      use_dotnet_isolated_runtime = true
     }
   }
 
@@ -153,7 +156,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
       app_settings["WEBSITE_WARMUP_PATH"],
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
+      app_settings["WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"]
     ]
   }
 
