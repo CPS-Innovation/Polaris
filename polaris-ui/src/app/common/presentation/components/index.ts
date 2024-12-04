@@ -29,4 +29,3 @@ export { Tag } from "./Tag";
 export { DateInput } from "./DateInput";
 export { Table } from "./Table";
 export { NotificationBanner } from "./NotificationBanner";
-export { SaveBanner } from "./SaveBanner";
