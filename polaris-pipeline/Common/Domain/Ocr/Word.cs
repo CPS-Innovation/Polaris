@@ -1,24 +1,27 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
-namespace Common.Domain.Ocr
+namespace Common.Domain.Ocr;
+
+public class Word
 {
-  public class Word
-  {
-    public Word(IList<double?> boundingBox, string text, double confidence)
+    public Word()
     {
-      BoundingBox = boundingBox;
-      Text = text;
-      Confidence = confidence;
     }
 
-    [JsonProperty(PropertyName = "boundingBox")]
+    public Word(IList<double?> boundingBox, string text, double confidence)
+    {
+        BoundingBox = boundingBox;
+        Text = text;
+        Confidence = confidence;
+    }
+
+    [JsonPropertyName("boundingBox")]
     public IList<double?> BoundingBox { get; set; }
 
-    [JsonProperty(PropertyName = "text")]
+    [JsonPropertyName("text")]
     public string Text { get; set; }
 
-    [JsonProperty(PropertyName = "confidence")]
+    [JsonPropertyName("confidence")]
     public double Confidence { get; set; }
-  }
 }

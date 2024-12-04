@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
@@ -7,6 +6,7 @@ using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.Extensions.Logging;
 using Common.Logging;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.Functions
 {
@@ -26,7 +26,7 @@ namespace coordinator.Functions
 
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
-                IDurableEntityClient client,
+                DurableTaskClient client,
                 int caseId,
                 string documentId,
                 ILogger logger,
@@ -41,12 +41,14 @@ namespace coordinator.Functions
 
             try
             {
-                var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
-                if (!stateResponse.EntityExists)
+                var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId);
+
+                if (stateResponse is null || stateResponse?.IncludesState != true)
                 {
                     throw new Exception($"No pipeline tracker found with id '{caseId}'");
                 }
-                entityState = stateResponse.EntityState;
+
+                entityState = stateResponse.State;
             }
             catch (Exception ex)
             {

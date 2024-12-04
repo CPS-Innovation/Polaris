@@ -27,11 +27,6 @@ var host = new HostBuilder()
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-        
-        services.Configure<WorkerOptions>(o =>
-        {
-            o.EnableUserCodeException = true;
-        });
 
         // bugfix: override .net core limitation of disallowing Synchronous IO for this function only
         services.Configure<KestrelServerOptions>(options =>

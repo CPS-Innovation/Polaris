@@ -20,7 +20,7 @@ namespace coordinator.tests.Services.PiiServiceTests.AllowedWords
         [Fact]
         public void WhenCheckingPiiAllowedList_AndTheValueDoesNotExist_FalseIsReturned()
         {
-            _piiAllowedList.Setup(x => x.GetWords()).Returns(new List<PiiAllowedWord>());
+            _piiAllowedList.Setup(x => x.GetWords()).Returns([]);
 
             var result = _piiAllowedListService.Contains("witness", "PersonType");
 
@@ -30,10 +30,10 @@ namespace coordinator.tests.Services.PiiServiceTests.AllowedWords
         [Fact]
         public void WhenCheckingPiiAllowedList_AndTheValueDoesExist_TrueIsReturned()
         {
-            _piiAllowedList.Setup(x => x.GetWords()).Returns(new List<PiiAllowedWord>
-            {
+            _piiAllowedList.Setup(x => x.GetWords()).Returns(
+            [
                 new("witness", "PersonType")
-            });
+            ]);
 
             var result = _piiAllowedListService.Contains("witness", "PersonType");
 

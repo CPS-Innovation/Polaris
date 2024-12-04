@@ -1,4 +1,6 @@
 using Common.Telemetry;
+using System;
+using System.Collections.Generic;
 
 namespace PolarisGateway.TelemetryEvents
 {

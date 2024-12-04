@@ -11,9 +11,9 @@ using pdf_redactor.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
 using AppInsights = Microsoft.ApplicationInsights;
-using Newtonsoft.Json;
 using Common.Clients.PdfGenerator;
 using Common.Constants;
+using System.Text.Json;
 
 namespace pdf_generator.test_harness;
 
@@ -107,7 +107,7 @@ internal static class Program
 
           // Deserialize JSON data
           var jsonData = File.ReadAllText(jsonFilePath);
-          var redactionData = JsonConvert.DeserializeObject<RedactionData>(jsonData) ?? throw new Exception("Redaction data is required, pass a json file");
+          var redactionData = JsonSerializer.Deserialize<RedactionData>(jsonData) ?? throw new Exception("Redaction data is required, pass a json file");
 
           var redactionDefinitions = new List<RedactionDefinitionDto>();
 

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 using Moq.Protected;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System;
 using System.Net.Http;
@@ -15,6 +14,7 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Configuration;
 using coordinator.Clients.PdfRedactor;
+using System.Text.Json;
 
 namespace coordinator.Tests.Clients.PdfRedactor
 {
@@ -53,12 +53,12 @@ namespace coordinator.Tests.Clients.PdfRedactor
             var response = _fixture.Create<RedactPdfResponse>();
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(response))
+                Content = new StringContent(JsonSerializer.Serialize(response))
             };
 
             var stringContent = httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent)).Returns(response);
-            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestWithDocumentDto>())).Returns(JsonConvert.SerializeObject(_request));
+            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestWithDocumentDto>())).Returns(JsonSerializer.Serialize(_request));
 
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();

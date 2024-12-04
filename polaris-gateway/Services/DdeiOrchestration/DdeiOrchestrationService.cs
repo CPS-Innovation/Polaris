@@ -7,6 +7,10 @@ using Ddei;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using PolarisGateway.Services.DdeiOrchestration.Mappers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
@@ -43,11 +47,11 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
         var defendantAndCharges = getDefendantsAndChargesTask.Result;
 
         return Enumerable.Empty<DocumentDto>()
-            .Concat(cmsDocuments.Select(doc => MapDocument(doc)))
-            .Concat(pcdRequests.Select(pcd => MapPcdRequest(pcd)))
+            .Concat(cmsDocuments.Select(MapDocument))
+            .Concat(pcdRequests.Select(MapPcdRequest))
             .Concat(defendantAndCharges.DefendantsAndCharges.Count() > 1
-                ? new[] { MapDefendantAndCharges(defendantAndCharges) }
-                : Enumerable.Empty<DocumentDto>()
+                ? [MapDefendantAndCharges(defendantAndCharges)]
+                : []
             );
     }
 

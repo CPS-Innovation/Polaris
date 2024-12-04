@@ -3,16 +3,15 @@ using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
 using coordinator.TelemetryEvents;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
 using Common.Configuration;
-using coordinator.Services.ClearDownService;
 using Microsoft.Extensions.Configuration;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.Services.ClearDownService
 {
-  public class ClearDownService : IClearDownService
+    public class ClearDownService : IClearDownService
   {
     private readonly IPolarisBlobStorageService _polarisBlobStorageService;
     private readonly ITextExtractorClient _textExtractorClient;
@@ -31,7 +30,7 @@ namespace coordinator.Services.ClearDownService
       _telemetryClient = telemetryClient;
     }
 
-    public async Task DeleteCaseAsync(IDurableOrchestrationClient client, string caseUrn, int caseId, Guid correlationId)
+    public async Task DeleteCaseAsync(DurableTaskClient client, string caseUrn, int caseId, Guid correlationId)
     {
       var telemetryEvent = new DeletedCaseEvent(
           correlationId: correlationId,

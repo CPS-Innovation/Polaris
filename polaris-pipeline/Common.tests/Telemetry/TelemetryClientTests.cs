@@ -17,8 +17,8 @@ namespace Common.tests.Telemetry
         Mock<BaseTelemetryEvent> _mockEvent;
 
         MockTelemetryChannel _mockTelemetryChannel;
-        Dictionary<string, string> _mockEventProperties = new Dictionary<string, string>();
-        Dictionary<string, double?> _mockEventMetrics = new Dictionary<string, double?>();
+        Dictionary<string, string> _mockEventProperties = [];
+        Dictionary<string, double?> _mockEventMetrics = [];
         public TelemetryClientTests()
         {
             _mockTelemetryChannel = new MockTelemetryChannel();
@@ -130,7 +130,7 @@ namespace Common.tests.Telemetry
 
     public class MockTelemetryChannel : ITelemetryChannel
     {
-        public ConcurrentBag<ITelemetry> SentTelemetries = new ConcurrentBag<ITelemetry>();
+        public ConcurrentBag<ITelemetry> SentTelemetries = [];
 
         public MockTelemetryChannel()
         {

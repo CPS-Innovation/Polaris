@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Validators
 {
@@ -9,8 +9,9 @@ namespace PolarisGateway.Validators
     {
         public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(HttpRequest request) where V : AbstractValidator<T>, new()
         {
-            var requestJson = await request.ReadAsStringAsync();
-            var requestObject = JsonConvert.DeserializeObject<T>(requestJson);
+            request.Headers.Remove("Content-Type");
+            request.Headers.Append("Content-Type", "application/json");
+            var requestObject = await request.ReadFromJsonAsync<T>();
 
             var validator = new V();
             var validationResult = await validator.ValidateAsync(requestObject);
@@ -19,7 +20,7 @@ namespace PolarisGateway.Validators
             {
                 Value = requestObject,
                 IsValid = validationResult.IsValid,
-                RequestJson = requestJson
+                RequestJson = JsonSerializer.Serialize(validationResult),
             };
         }
     }

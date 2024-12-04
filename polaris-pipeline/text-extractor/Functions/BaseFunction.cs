@@ -24,6 +24,7 @@ public abstract class BaseFunction
             StatusCode = (int)HttpStatusCode.OK,
             SerializerSettings = _jsonSerializerOptions
         };
+
         return result;
     }
 }

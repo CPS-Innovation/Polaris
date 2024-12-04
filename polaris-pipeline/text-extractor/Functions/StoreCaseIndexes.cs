@@ -60,14 +60,12 @@ namespace text_extractor.Functions
                 var content = await streamReader.ReadToEndAsync();
                 var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(content);
 
-                var storedLinesCount = await _searchIndexService.SendStoreResultsAsync
-                    (
+                var storedLinesCount = await _searchIndexService.SendStoreResultsAsync(
                         ocrResults,
                         caseId,
                         documentId,
                         versionId,
-                        currentCorrelationId
-                    );
+                        currentCorrelationId);
 
                 var result = new StoreCaseIndexesResult
                 {
