@@ -407,14 +407,12 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           ariaLabel="Refreshing document, please wait"
         />
       )}
-      {saveStatus.type === "rotation" && saveStatus.status !== "error" && (
-        <SaveRotationModal
-          saveStatus={saveStatus.status}
-          handleCloseSaveRotationModal={() =>
-            handleHideSaveRotationModal(documentId)
-          }
-        />
-      )}
+      <SaveRotationModal
+        saveStatus={saveStatus}
+        handleCloseSaveRotationModal={() =>
+          handleHideSaveRotationModal(documentId)
+        }
+      />
 
       {showRedactionWarning && (
         <SearchPIIRedactionWarningModal
