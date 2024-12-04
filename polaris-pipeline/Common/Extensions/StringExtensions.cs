@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Common.Extensions;
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
     public static long ExtractCmsUserId(this string cookieString)
     {
@@ -13,13 +13,13 @@ public static class StringExtensions
             return 0;
         }
 
-        var viaUidPattern = new Regex(@"UID=(?<uid>-?\d+)");
+        var viaUidPattern = ViaUidRegex();
         if (int.TryParse(viaUidPattern.Match(cookieString).Groups["uid"].Value, out var userId))
         {
             return userId;
         }
 
-        var viaFallbackPattern = new Regex(@"CMSUSER(\d+)");
+        var viaFallbackPattern = ViaFallbackRegex();
         if (int.TryParse(viaFallbackPattern.Match(cookieString).Groups[1].Value, out var userIdViaFallback))
         {
             return userIdViaFallback;
@@ -42,4 +42,10 @@ public static class StringExtensions
         var cookies = matches.ToList().Select(m => m.Value);
         return string.Join("; ", cookies);
     }
+
+    [GeneratedRegex(@"UID=(?<uid>-?\d+)")]
+    private static partial Regex ViaUidRegex();
+
+    [GeneratedRegex(@"CMSUSER(\d+)")]
+    private static partial Regex ViaFallbackRegex();
 }
