@@ -295,7 +295,12 @@ stages:
               projects: "polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Gateway"
-            
+        
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: 'echo $PATH'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
