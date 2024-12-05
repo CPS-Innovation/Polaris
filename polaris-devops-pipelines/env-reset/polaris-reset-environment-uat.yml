@@ -34,6 +34,7 @@ stages:
         steps:
           - checkout: self
           - checkout: git://Information Management/PolarisDDEI
+          - checkout: git://Innovation Delivery/redaction-logger
             
           - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
             displayName: Terraform > Install
@@ -90,6 +91,34 @@ stages:
               subscriptionId: $(subscriptionId)
               workingDirectory: Polaris/polaris-terraform/main-terraform
               targetArea: Casework App
+              targetVarFile: uat
+              
+          - bash: |
+              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+              az account set --subscription $subscriptionId
+              if [ $(az group exists --name "rg-redaction-log$targetSuffix") = true ]; then
+                az keyvault purge --name "kv-redaction-log$targetSuffix"
+              fi
+            displayName: CD Script > Redaction Logger
+            env:
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              targetSuffix: "-uat"
+              
+          - template: task_reset.yml
+            parameters:
+              terraformStorageAccount: $(uat-terraform-storage-account)
+              terraformContainerName: $(redaction-logger-terraform-container-name)
+              terraformStateKey: $(terraform-key)
+              terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              workingDirectory: redaction-logger/terraform-redaction-logger
+              targetArea: Redaction Logger
               targetVarFile: uat
               
           - template: task_reset.yml
