@@ -15,7 +15,7 @@ parameters:
   
 stages:
   - stage: Reset_Alerting_Framework
-    displayName: Reset > Alerting Framework
+    displayName: Reset > Alerting
     dependsOn: Reset_DDEI
     jobs:
       - job:
