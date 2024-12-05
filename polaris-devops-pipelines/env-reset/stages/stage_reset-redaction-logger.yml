@@ -1,0 +1,63 @@
+﻿---
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: terraformStorageAccount
+    type: string
+  - name: terraformContainerName
+    type: string
+  - name: terraformStateKey
+    type: string
+  - name: terraformStateAccessKey
+    type: string
+  - name: targetVarFile
+    type: string
+  - name: targetSuffix
+    type: string
+  
+stages:
+  - stage: Reset_Redaction_Logger
+    displayName: Reset > Polaris Redaction Logger
+    dependsOn: Reset_Polaris_Main
+    jobs:
+      steps:
+        - checkout: git://Innovation Delivery/redaction-logger
+          
+        - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+          displayName: Terraform > Install
+          inputs:
+            terraformVersion: latest
+            
+        - template: ../../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+          parameters:
+            azureSubscription: ${{ parameters.azureSubscription }}
+            
+        - bash: |
+            az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+            az account set --subscription $subscriptionId
+            if [ $(az group exists --name "rg-redaction-log$targetSuffix") = true ]; then
+              az keyvault delete --name "kv-redaction-log$targetSuffix" --resource-group "rg-redaction-log$targetSuffix"
+              az keyvault purge --name "kv-redaction-log$targetSuffix"
+            fi
+          displayName: CD Script > Redaction Logger
+          env:
+            clientId: $(clientId)
+            clientSecret: $(clientSecret)
+            tenantId: $(tenantId)
+            subscriptionId: $(subscriptionId)
+            targetSuffix: ${{ parameters.targetSuffix }}
+            
+        - template: jobs/tasks/task_reset.yml
+          parameters:
+            terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+            terraformContainerName: ${{ parameters.terraformContainerName }}
+            terraformStateKey: ${{ parameters.terraformStateKey }}
+            terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+            clientId: $(clientId)
+            clientSecret: $(clientSecret)
+            tenantId: $(tenantId)
+            subscriptionId: $(subscriptionId)
+            workingDirectory: redaction-logger/terraform-redaction-logger
+            targetArea: Redaction Logger
+            targetVarFile: ${{ parameters.targetVarFile }}
+        

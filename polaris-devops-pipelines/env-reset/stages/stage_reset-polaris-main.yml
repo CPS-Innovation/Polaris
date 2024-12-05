@@ -1,0 +1,73 @@
+﻿---
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: terraformStorageAccount
+    type: string
+  - name: terraformContainerName
+    type: string
+  - name: terraformStateKey
+    type: string
+  - name: terraformStateAccessKey
+    type: string
+  - name: targetVarFile
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: targetUiStorageAccount
+    type: string
+  - name: targetPipelineStorageAccount
+    type: string
+  
+stages:
+  - stage: Reset_Polaris_Main
+    displayName: Reset > Polaris Main
+    dependsOn: Reset_Polaris_Search_Index
+    jobs:
+      steps:
+        - checkout: self
+          
+        - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+          displayName: Terraform > Install
+          inputs:
+            terraformVersion: latest
+            
+        - template: ../../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+          parameters:
+            azureSubscription: ${{ parameters.azureSubscription }}
+            
+        - bash: |
+            az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+            az account set --subscription $subscriptionId
+            if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
+              az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
+              az keyvault purge --name "kv-polaris$targetSuffix"
+              az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix" --yes
+            fi
+            if [ $(az group exists --name "rg-polaris-pipeline$targetSuffix") = true ]; then
+              az storage account delete --name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix" --yes
+            fi
+          displayName: CD Script > Polaris
+          env:
+            clientId: $(clientId)
+            clientSecret: $(clientSecret)
+            tenantId: $(tenantId)
+            subscriptionId: $(subscriptionId)
+            targetSuffix: ${{ parameters.targetSuffix }}
+            uiStorageAccount: ${{ parameters.targetUiStorageAccount }}
+            pipelineStorageAccount: ${{ parameters.targetPipelineStorageAccount }}
+            
+        - template: jobs/tasks/task_reset.yml
+          parameters:
+            terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+            terraformContainerName: ${{ parameters.terraformContainerName }}
+            terraformStateKey: ${{ parameters.terraformStateKey }}
+            terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+            clientId: $(clientId)
+            clientSecret: $(clientSecret)
+            tenantId: $(tenantId)
+            subscriptionId: $(subscriptionId)
+            workingDirectory: Polaris/polaris-terraform/main-terraform
+            targetArea: Polaris Main
+            targetVarFile: ${{ parameters.targetVarFile }}
+        
