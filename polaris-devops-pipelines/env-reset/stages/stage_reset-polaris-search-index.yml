@@ -15,7 +15,7 @@ parameters:
   
 stages:
   - stage: Reset_Polaris_Search_Index
-    displayName: Reset > Polaris Search Index
+    displayName: Reset > Search Index
     dependsOn: Wait_For_Running_Pipelines
     jobs:
       - job:

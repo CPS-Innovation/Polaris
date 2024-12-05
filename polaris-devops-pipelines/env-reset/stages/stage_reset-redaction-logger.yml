@@ -17,7 +17,7 @@ parameters:
   
 stages:
   - stage: Reset_Redaction_Logger
-    displayName: Reset > Polaris Redaction Logger
+    displayName: Reset > Redaction Log
     dependsOn: Reset_Polaris_Main
     jobs:
       - job: 
