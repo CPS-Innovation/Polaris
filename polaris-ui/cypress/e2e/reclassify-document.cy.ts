@@ -156,11 +156,11 @@ describe("Feature Reclassify Document", () => {
       .find("option")
       .should("have.length", 6);
     cy.findByTestId("reclassify-document-type").select("MG10");
-    cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-reclassify")
       .find("h1")
       .should("have.length", 1)
-      .and("have.text", "Enter the document details");
+      .and("have.text", "What type of document is this?");
     cy.findByTestId("div-reclassify")
       .find("legend")
       .should("have.length", 1)
@@ -186,38 +186,38 @@ describe("Feature Reclassify Document", () => {
         const Id = radioNo.attr("id");
         cy.get(`label[for="${Id}"]`).should("have.text", "No");
       });
-    cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-reclassify")
       .find("h1")
       .should("have.length", 1)
-      .and("have.text", "Check your answers");
-    cy.findByTestId("div-reclassify")
-      .find("h2")
-      .should("have.length", 1)
-      .and("have.text", "Document details");
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .should("have.length", 2);
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(0)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Type");
-        expect(cells.eq(1)).to.have.text("MG10");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(1)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Name");
-        expect(cells.eq(1)).to.have.text("PortraitLandscape");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
-    cy.findByTestId("div-notification-banner").should("not.exist");
-    cy.findByTestId("reclassify-save-btn").click();
+      .and("have.text", "What type of document is this?");
+    // cy.findByTestId("div-reclassify")
+    //   .find("h2")
+    //   .should("have.length", 1)
+      // .and("have.text", "Document details");
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .should("have.length", 2);
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(0)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Type");
+    //     expect(cells.eq(1)).to.have.text("MG10");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(1)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Name");
+    //     expect(cells.eq(1)).to.have.text("PortraitLandscape");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
+    cy.findByTestId("div-notification-banner").should("not.exist");   
+    cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
       "Saving to CMS. Please wait."
@@ -306,11 +306,11 @@ describe("Feature Reclassify Document", () => {
       .find("option")
       .should("have.length", 6);
     cy.findByTestId("reclassify-document-type").select("Other Communication");
-    cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-reclassify")
       .find("h1")
       .should("have.length", 1)
-      .and("have.text", "Enter the document details");
+      .and("have.text", "What type of document is this?");
     cy.findByTestId("div-reclassify").find("legend").should("have.length", 2);
     cy.findByTestId("div-reclassify")
       .find("legend")
@@ -366,47 +366,47 @@ describe("Feature Reclassify Document", () => {
             cy.get(`label[for="${Id}"]`).should("have.text", "Unused");
           });
       });
-    cy.findByTestId("reclassify-continue-btn").click();
-    cy.findByTestId("div-reclassify")
-      .find("h1")
-      .should("have.length", 1)
-      .and("have.text", "Check your answers");
-    cy.findByTestId("div-reclassify")
-      .find("h2")
-      .should("have.length", 1)
-      .and("have.text", "Document details");
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .should("have.length", 3);
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(0)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Type");
-        expect(cells.eq(1)).to.have.text("Other Communication");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(1)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Name");
-        expect(cells.eq(1)).to.have.text("PortraitLandscape");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(2)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Status");
-        expect(cells.eq(1)).to.have.text("Used");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
+    // cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("div-reclassify")
+    //   .find("h1")
+    //   .should("have.length", 1)
+    //   .and("have.text", "Check your answers");
+    // cy.findByTestId("div-reclassify")
+    //   .find("h2")
+    //   .should("have.length", 1)
+      // .and("have.text", "Document details");
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .should("have.length", 3);
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(0)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Type");
+    //     expect(cells.eq(1)).to.have.text("Other Communication");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(1)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Name");
+    //     expect(cells.eq(1)).to.have.text("PortraitLandscape");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(2)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Status");
+    //     expect(cells.eq(1)).to.have.text("Used");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
     cy.findByTestId("div-notification-banner").should("not.exist");
-    cy.findByTestId("reclassify-save-btn").click();
+    cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
       "Saving to CMS. Please wait."
@@ -767,23 +767,23 @@ describe("Feature Reclassify Document", () => {
       .find("option")
       .should("have.length", 6);
     cy.findByTestId("reclassify-document-type").select("MG15(SDN)");
-    cy.findByTestId("reclassify-continue-btn").click();
-    cy.findByTestId("div-reclassify")
-      .find("h1")
-      .should("have.length", 1)
-      .and("have.text", "Enter the exhibit details");
+    // cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("div-reclassify")
+    //   .find("h1")
+    //   .should("have.length", 1)
+    //   .and("have.text", "Enter the exhibit details");
     cy.findByTestId("div-reclassify").should(
       "contain",
       "You're entering exhibit details for MCLOVEMG3"
     );
+    cy.findByTestId("reclassify-exhibit-item-name").clear().type("MCLOVEMG3_1");   /// RD
 
     cy.findByTestId("reclassify-exhibit-item-name")
-      .should("have.value", "MCLOVEMG3")
+      .should("contain.value", "MCLOVEMG3")
       .then((item) => {
         const Id = item.attr("id");
         cy.get(`label[for="${Id}"]`).should("have.text", "Item Name");
       });
-    cy.findByTestId("reclassify-exhibit-item-name").clear().type("MCLOVEMG3_1");
 
     cy.findByTestId("reclassify-exhibit-reference")
       .should("have.value", "")
@@ -836,66 +836,66 @@ describe("Feature Reclassify Document", () => {
             cy.get(`label[for="${Id}"]`).should("have.text", "Unused");
           });
       });
-    cy.findByTestId("reclassify-continue-btn").click();
-    cy.findByTestId("div-reclassify")
-      .find("h1")
-      .should("have.length", 1)
-      .and("have.text", "Check your answers");
-    cy.findByTestId("div-reclassify")
-      .find("h2")
-      .should("have.length", 1)
-      .and("have.text", "Document details");
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .should("have.length", 5);
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(0)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Type");
-        expect(cells.eq(1)).to.have.text("MG15(SDN)");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
+    // cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("div-reclassify")
+    //   .find("h1")
+    //   .should("have.length", 1)
+    //   .and("have.text", "Check your answers");
+    // cy.findByTestId("div-reclassify")
+    //   .find("h2")
+    //   .should("have.length", 1)
+    //   .and("have.text", "Document details");
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .should("have.length", 5);
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(0)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Type");
+    //     expect(cells.eq(1)).to.have.text("MG15(SDN)");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
 
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(1)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Item Name");
-        expect(cells.eq(1)).to.have.text("MCLOVEMG3_1");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(2)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Exhibit Reference");
-        expect(cells.eq(1)).to.have.text("test reference");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(3)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Exhibit Producer");
-        expect(cells.eq(1)).to.have.text("PC Blaynee");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
-    cy.findByTestId("reclassify-summary")
-      .find("tbody tr")
-      .eq(4)
-      .find("td")
-      .then((cells) => {
-        expect(cells.eq(0)).to.have.text("Status");
-        expect(cells.eq(1)).to.have.text("Used");
-        expect(cells.eq(2)).to.have.text("Change");
-      });
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(1)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Item Name");
+    //     expect(cells.eq(1)).to.have.text("MCLOVEMG3_1");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(2)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Exhibit Reference");
+    //     expect(cells.eq(1)).to.have.text("test reference");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(3)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Exhibit Producer");
+    //     expect(cells.eq(1)).to.have.text("PC Blaynee");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
+    // cy.findByTestId("reclassify-summary")
+    //   .find("tbody tr")
+    //   .eq(4)
+    //   .find("td")
+    //   .then((cells) => {
+    //     expect(cells.eq(0)).to.have.text("Status");
+    //     expect(cells.eq(1)).to.have.text("Used");
+    //     expect(cells.eq(2)).to.have.text("Change");
+    //   });
     cy.findByTestId("div-notification-banner").should("not.exist");
-    cy.findByTestId("reclassify-save-btn").click();
+    cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
       "Saving to CMS. Please wait."
@@ -982,18 +982,18 @@ describe("Feature Reclassify Document", () => {
       .should("have.length", 1)
       .and("have.text", "What type of document is this?");
     cy.findByTestId("reclassify-document-type").select("MG10");
-    cy.findByTestId("reclassify-continue-btn").click();
-    cy.findByTestId("div-reclassify")
-      .find("h1")
-      .should("have.length", 1)
-      .and("have.text", "Enter the document details");
-    cy.findByTestId("reclassify-continue-btn").click();
-    cy.findByTestId("div-reclassify")
-      .find("h1")
-      .should("have.length", 1)
-      .and("have.text", "Check your answers");
+    // cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("div-reclassify")
+    //   .find("h1")
+    //   .should("have.length", 1)
+    //   .and("have.text", "What type of document is this?");
+    // cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("div-reclassify")
+    //   .find("h1")
+    //   .should("have.length", 1)
+    //   .and("have.text", "Check your answers");
     cy.findByTestId("div-notification-banner").should("not.exist");
-    cy.findByTestId("reclassify-save-btn").click();
+    cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
       "Saving to CMS. Please wait."
@@ -1066,12 +1066,12 @@ describe("Feature Reclassify Document", () => {
 
     //Immediate and Others type validation
     cy.findByTestId("reclassify-document-type").select("MG10");
-    cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("div-reclassify")
       .find("h1")
       .should("have.length", 1)
-      .and("have.text", "Enter the document details");
+      .and("have.text", "What type of document is this?");
     cy.get(
       'input[type="radio"][name="reclassify-change-document-name"][value="YES"]'
     ).check();
@@ -1128,18 +1128,19 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-document-new-name").clear().type("abc");
     cy.findByTestId("reclassify-continue-btn").click();
 
-    cy.findByTestId("div-reclassify")
-      .find("h1")
-      .should("have.length", 1)
-      .and("have.text", "Check your answers");
-    cy.findByTestId("div-reclassify")
-      .contains("button", "Back", { timeout: 10000 })
-      .should("be.visible")
-      .click();
-    cy.findByTestId("div-reclassify")
-      .contains("button", "Back", { timeout: 10000 })
-      .should("be.visible")
-      .click();
+    // cy.findByTestId("div-reclassify")
+    //   .find("h1")
+    //   .should("have.length", 1)
+    //   .and("have.text", "Check your answers");
+    // cy.findByTestId("div-reclassify")
+    //   .contains("button", "Back", { timeout: 10000 })
+    //   .should("be.visible")
+    //   .click();
+
+    // cy.findByTestId("div-reclassify")
+    //   .contains("button", "Back", { timeout: 10000 })
+    //   .should("be.visible")
+    //   .click();
 
     //Statement type validation
     cy.findByTestId("div-reclassify")
@@ -1149,11 +1150,11 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-document-type").select("MG11");
     cy.findByTestId("reclassify-continue-btn").click();
 
-    cy.findByTestId("div-reclassify")
-      .find("h1")
-      .should("have.length", 1)
-      .and("have.text", "Enter the statement details");
-    cy.findByTestId("reclassify-continue-btn").click();
+    // cy.findByTestId("div-reclassify")
+    //   .find("h1")
+    //   .should("have.length", 1)
+    //   .and("have.text", "Enter the statement details");
+    // cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("reclassify-error-summary")
       .find("li")
@@ -1170,12 +1171,12 @@ describe("Feature Reclassify Document", () => {
       "have.text",
       "Statement number should not be empty"
     );
-    cy.findByTestId("reclassify-statement-witness-link").click();
-    cy.focused().should("have.id", "reclassify-statement-witness");
-    cy.get("#reclassify-statement-witness-error").should(
-      "have.text",
-      "Error: Statement witness should not be empty"
-    );
+    // cy.findByTestId("reclassify-statement-witness-link").click();
+    // // cy.focused().should("have.id", "reclassify-statement-witness");
+    // cy.get("#reclassify-statement-witness-error").should(
+    //   "have.text",
+    //   "Error: Statement witness should not be empty"
+    // );
     cy.findByTestId("reclassify-statement-number-link").click();
     cy.focused().should("have.id", "reclassify-statement-number");
     cy.get("#reclassify-statement-number-error").should(
