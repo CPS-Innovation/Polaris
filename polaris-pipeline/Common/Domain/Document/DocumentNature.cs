@@ -5,9 +5,9 @@ namespace Common.Domain.Document;
 
 public static class DocumentNature
 {
-    public const string DocumentPrefix = "CMS";
-    public const string PreChargeDecisionRequestPrefix = "PCD";
-    public const string DefendantsAndChargesPrefix = "DAC";
+    private const string DocumentPrefix = "CMS";
+    private const string PreChargeDecisionRequestPrefix = "PCD";
+    private const string DefendantsAndChargesPrefix = "DAC";
 
     public enum Types
     {
@@ -27,32 +27,34 @@ public static class DocumentNature
         };
     }
 
-    public static long RemoveStringPrefix(string documentId)
+    public static long ToNumericDocumentId(string documentId, Types type)
     {
         if (string.IsNullOrWhiteSpace(documentId))
         {
             throw new ArgumentNullException(nameof(documentId));
         }
 
+        var prefix = GetStringPrefix(type);
         var match = Regex.Match(
                    documentId,
-                   $@"(?:{DocumentPrefix}|{PreChargeDecisionRequestPrefix}|{DefendantsAndChargesPrefix})-(\d+)",
+                   $@"{prefix}-(\d+)",
                    RegexOptions.None,
                    TimeSpan.FromSeconds(1));
 
         return match.Success
             ? long.Parse(match.Groups[1].Value)
-            : throw new ArgumentException($"Invalid document id: {documentId}. Expected format with a three letter prefix e.g.: '{DocumentPrefix}-123456'");
+            : throw new ArgumentException($"Invalid document id: {documentId}. Expected format with a three letter prefix e.g.: '{prefix}-123456'");
     }
 
-    public static Types GetType(string prefix)
+    public static string ToQualifiedStringDocumentId(long documentId, Types type) => ToQualifiedStringDocumentId(documentId.ToString(), type);
+
+    public static string ToQualifiedStringDocumentId(string documentId, Types type) => $"{GetStringPrefix(type)}-{documentId}";
+
+    public static Types GetType(string prefix) => prefix switch
     {
-        return prefix switch
-        {
-            DocumentPrefix => Types.Document,
-            PreChargeDecisionRequestPrefix => Types.PreChargeDecisionRequest,
-            DefendantsAndChargesPrefix => Types.DefendantsAndCharges,
-            _ => throw new ArgumentOutOfRangeException(nameof(prefix), prefix, null),
-        };
-    }
+        DocumentPrefix => Types.Document,
+        PreChargeDecisionRequestPrefix => Types.PreChargeDecisionRequest,
+        DefendantsAndChargesPrefix => Types.DefendantsAndCharges,
+        _ => throw new ArgumentOutOfRangeException(nameof(prefix), prefix, null),
+    };
 }

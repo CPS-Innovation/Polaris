@@ -27,6 +27,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
         private readonly string _caseUrn;
         private readonly int _caseId;
         private readonly string _documentId;
+        private readonly long _versionId;
         private readonly IPdfRedactorClient _pdfRedactorClient;
 
         public ClientTests()
@@ -39,6 +40,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
+            _versionId = _fixture.Create<long>();
 
             var mockConfiguration = new Mock<IConfiguration>();
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
@@ -48,7 +50,7 @@ namespace coordinator.Tests.Clients.PdfRedactor
                 Method = HttpMethod.Put
             };
 
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}", It.IsAny<Guid>(), null)).Returns(httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.IsAny<Guid>(), null)).Returns(httpRequestMessage);
 
             var response = _fixture.Create<RedactPdfResponse>();
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -76,17 +78,17 @@ namespace coordinator.Tests.Clients.PdfRedactor
         [Fact]
         public async Task RedactPdf_CreatesTheRequestCorrectly()
         {
-            await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
+            await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _versionId, _request, _correlationId);
 
-            _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}", _correlationId, null));
+            _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", _correlationId, null));
         }
 
         [Fact]
         public async Task RedactPdf_WhenHttpRequestExceptionThrown_IsCaughtAsException()
         {
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}", It.IsAny<Guid>(), null)).Throws<Exception>();
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.IsAny<Guid>(), null)).Throws<Exception>();
 
-            var results = async () => await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
+            var results = async () => await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _versionId, _request, _correlationId);
 
             await results.Should().ThrowAsync<Exception>();
         }
@@ -95,9 +97,9 @@ namespace coordinator.Tests.Clients.PdfRedactor
         public async Task RedactPdf_WhenHttpRequestExceptionThrownAsNotFound_ReturnsNullResponse()
         {
             var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.NotFound);
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}", It.IsAny<Guid>(), null)).Throws(specificException);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.IsAny<Guid>(), null)).Throws(specificException);
 
-            var results = await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
+            var results = await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _versionId, _request, _correlationId);
 
             results.Should().BeNull();
         }
@@ -106,9 +108,9 @@ namespace coordinator.Tests.Clients.PdfRedactor
         public async Task RedactPdf_WhenHttpRequestExceptionThrownAsSomethingOtherThanNotFound_IsRethrownAsException()
         {
             var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.UnprocessableEntity);
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}", It.IsAny<Guid>(), null)).Throws(specificException);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.IsAny<Guid>(), null)).Throws(specificException);
 
-            var results = async () => await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _request, _correlationId);
+            var results = async () => await _pdfRedactorClient.RedactPdfAsync(_caseUrn, _caseId, _documentId, _versionId, _request, _correlationId);
 
             await results.Should().ThrowAsync<Exception>();
         }

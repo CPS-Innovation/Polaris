@@ -39,7 +39,6 @@ public class RedactionHelper
     return new RedactPdfRequestWithDocumentDto
     {
       Document = base64Document,
-      VersionId = 1,
       RedactionDefinitions = redactionDefinitions
     };
   }
