@@ -1,0 +1,45 @@
+﻿---
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: terraformStorageAccount
+    type: string
+  - name: terraformContainerName
+    type: string
+  - name: terraformStateKey
+    type: string
+  - name: terraformStateAccessKey
+    type: string
+  - name: targetVarFile
+    type: string
+  
+stages:
+  - stage: Reset_Alerting_Framework
+    displayName: Reset > Alerting Framework
+    dependsOn: Reset_DDEI
+    jobs:
+      steps:
+        - checkout: self
+          
+        - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+          displayName: Terraform > Install
+          inputs:
+            terraformVersion: latest
+            
+        - template: ../../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+          parameters:
+            azureSubscription: ${{ parameters.azureSubscription }}
+            
+        - template: jobs/tasks/task_reset.yml
+          parameters:
+            terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+            terraformContainerName: ${{ parameters.terraformContainerName }}
+            terraformStateKey: ${{ parameters.terraformStateKey }}
+            terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+            clientId: $(clientId)
+            clientSecret: $(clientSecret)
+            tenantId: $(tenantId)
+            subscriptionId: $(subscriptionId)
+            workingDirectory: Polaris/polaris-terraform/alerting-terraform
+            targetArea: Alerting Framework 
+            targetVarFile: ${{ parameters.targetVarFile }}
