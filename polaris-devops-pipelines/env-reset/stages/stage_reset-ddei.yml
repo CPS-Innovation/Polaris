@@ -43,6 +43,6 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              workingDirectory: PolarisDDEI/terraform
+              workingDirectory: terraform
               targetArea: DDEI
               targetVarFile: ${{ parameters.targetVarFile }}
