@@ -70,7 +70,7 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              workingDirectory: Polaris/polaris-terraform/main-terraform
+              workingDirectory: polaris-terraform/main-terraform
               targetArea: Polaris Main
               targetVarFile: ${{ parameters.targetVarFile }}
         
