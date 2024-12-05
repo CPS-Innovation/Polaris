@@ -110,16 +110,6 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   return (await response.json()) as CaseDetails;
 };
 
-export const getDocuments = async (urn: string, caseId: number) => {
-  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
-
-  const response = await fetchImplementation("reauth", url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  return (await response.json()) as PresentationDocumentProperties[];
-};
-
 export const initiatePipeline = async (
   urn: string,
   caseId: number,
@@ -509,6 +499,20 @@ export const saveDocumentReclassify = async (
   });
 
   return response.ok;
+};
+
+export const getDocumentsList = async (urn: string, caseId: number) => {
+  const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
+
+  const response = await fetchImplementation("reauth", path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Documents List failed", path, response);
+  }
+
+  return (await response.json()) as PresentationDocumentProperties[];
 };
 
 const fetchImplementation = (

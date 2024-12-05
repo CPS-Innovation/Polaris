@@ -1,5 +1,4 @@
-import { PipelineResults } from "../../domain/gateway/PipelineResults";
-
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 export const LOCKED_STATUS_CODE = 423;
 
 export const isNewTime = (incomingIsoTime: string, existingIsoTime: string) =>
@@ -7,9 +6,9 @@ export const isNewTime = (incomingIsoTime: string, existingIsoTime: string) =>
 
 export const hasDocumentUpdated = (
   document: { documentId: string; versionId: number },
-  newData: PipelineResults
+  newData: PresentationDocumentProperties[]
 ) =>
-  newData.documents.some(
+  newData.some(
     (newDocument) =>
       newDocument.documentId === document.documentId &&
       newDocument.versionId !== document.versionId

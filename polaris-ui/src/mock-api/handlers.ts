@@ -26,6 +26,7 @@ import cypressSearchPIIData from "./data/searchPII.cypress";
 import { NotesDataSource } from "./data/types/NotesDataSource";
 import { SearchPIIDataSource } from "./data/types/SearchPIIDataSource";
 import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
+import { DocumentsListDataSource } from "./data/types/DocumentsListDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
 import * as routes from "./routes";
 import { MockApiConfig } from "./MockApiConfig";
@@ -33,6 +34,8 @@ import { MockApiConfig } from "./MockApiConfig";
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import pdfStrings from "./data/pdfs/pdf-strings.json";
 import { UrnLookupDataSource } from "./data/types/UrnLookupDataSource";
+import devDocumentsListDataSource from "./data/getDocumentsList.dev";
+import cypressDocumentsListDataSource from "./data/getDocumentsList.cypress";
 
 const urnLookupDataSources: { [key: string]: UrnLookupDataSource } = {
   dev: devUrnLookupDataSource,
@@ -66,6 +69,13 @@ const pipelinePdfResultsDataSources: {
   cypress: cypresspipelinePdfResultsDataSource,
 };
 
+const documentListDataSources: {
+  [key: string]: DocumentsListDataSource;
+} = {
+  dev: devDocumentsListDataSource,
+  cypress: cypressDocumentsListDataSource,
+};
+
 const searchCaseDataSources: { [key: string]: SearchCaseDataSource } = {
   dev: devSearchCaseDataSource,
   cypress: cypressSearchCaseDataSource,
@@ -90,7 +100,7 @@ export const setupHandlers = ({
   // make sure we are reading a number not string from config
   //  also msw will not accept a delay of 0, so if 0 is passed then just set to 1ms
   const sanitisedMaxDelay = Number(maxDelayMs) || 1;
-  const callStack = { TRACKER_ROUTE: 0, INITIATE_PIPELINE_ROUTE: 0 };
+  const callStack = { TRACKER_ROUTE: 0, GET_DOCUMENTS_LIST_ROUTE: 0 };
 
   const makeApiPath = (path: string) => new URL(path, baseUrl).toString();
   const makeRedactionLogApiPath = (path: string) =>
@@ -164,13 +174,17 @@ export const setupHandlers = ({
     rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
       const { documentId } = req.params;
 
-      const blobName = pipelinePdfResultsDataSources[sourceName]()[0]
-        .documents.find((document) => document.documentId === documentId)
+      const blobName = documentListDataSources[sourceName][0]
+        .find((document) => document.documentId === documentId)
         ?.cmsOriginalFileName.split(".")[0];
 
       const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];
 
       return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
+      // return res(
+      //   ctx.status(403),
+      //   ctx.body(JSON.stringify({ pdfConversionStatus: "abc" }))
+      // );
     }),
 
     rest.get(
@@ -251,6 +265,18 @@ export const setupHandlers = ({
 
     rest.post(makeApiPath(routes.SAVE_ROTATION_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
+    }),
+
+    rest.get(makeApiPath(routes.GET_DOCUMENTS_LIST_ROUTE), (req, res, ctx) => {
+      callStack["GET_DOCUMENTS_LIST_ROUTE"]++;
+      const results = documentListDataSources[sourceName];
+      if (callStack["GET_DOCUMENTS_LIST_ROUTE"] > results.length) {
+        return res(ctx.delay(sanitisedMaxDelay), ctx.json(results[0]));
+      }
+      return res(
+        ctx.delay(sanitisedMaxDelay),
+        ctx.json(results[callStack["GET_DOCUMENTS_LIST_ROUTE"] - 1])
+      );
     }),
   ];
 };

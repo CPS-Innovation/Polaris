@@ -1,5 +1,4 @@
 import { useMemo, useCallback } from "react";
-import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
 import {
@@ -18,7 +17,6 @@ import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
   showOverRedactionLog: boolean;
-  caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
@@ -45,7 +43,6 @@ type Props = {
 
 export const HeaderReadMode: React.FC<Props> = ({
   showOverRedactionLog,
-  caseDocumentViewModel: { sasUrl },
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
