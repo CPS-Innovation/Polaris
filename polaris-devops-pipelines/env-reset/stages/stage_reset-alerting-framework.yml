@@ -15,31 +15,34 @@ parameters:
   
 stages:
   - stage: Reset_Alerting_Framework
-    displayName: Reset > Alerting Framework
+    displayName: Reset > Alerting
     dependsOn: Reset_DDEI
     jobs:
-      steps:
-        - checkout: self
-          
-        - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-          displayName: Terraform > Install
-          inputs:
-            terraformVersion: latest
+      - job:
+        displayName: Process Reset
+        condition: succeeded()
+        steps:
+          - checkout: self
             
-        - template: ../../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-          parameters:
-            azureSubscription: ${{ parameters.azureSubscription }}
-            
-        - template: jobs/tasks/task_reset.yml
-          parameters:
-            terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-            terraformContainerName: ${{ parameters.terraformContainerName }}
-            terraformStateKey: ${{ parameters.terraformStateKey }}
-            terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
-            clientId: $(clientId)
-            clientSecret: $(clientSecret)
-            tenantId: $(tenantId)
-            subscriptionId: $(subscriptionId)
-            workingDirectory: Polaris/polaris-terraform/alerting-terraform
-            targetArea: Alerting Framework 
-            targetVarFile: ${{ parameters.targetVarFile }}
+          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: latest
+              
+          - template: ../../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+            parameters:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              
+          - template: jobs/tasks/task_reset.yml
+            parameters:
+              terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+              terraformContainerName: ${{ parameters.terraformContainerName }}
+              terraformStateKey: ${{ parameters.terraformStateKey }}
+              terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              workingDirectory: polaris-terraform/alerting-terraform
+              targetArea: Alerting Framework 
+              targetVarFile: ${{ parameters.targetVarFile }}

@@ -18,28 +18,31 @@ stages:
     displayName: Reset > DDEI
     dependsOn: Reset_Redaction_Logger
     jobs:
-      steps:
-        - checkout: git://Information Management/PolarisDDEI
-          
-        - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-          displayName: Terraform > Install
-          inputs:
-            terraformVersion: latest
+      - job: 
+        displayName: Process Reset
+        condition: succeeded()
+        steps:
+          - checkout: git://Information Management/PolarisDDEI
             
-        - template: ../../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-          parameters:
-            azureSubscription: ${{ parameters.azureSubscription }}
-            
-        - template: jobs/tasks/task_reset.yml
-          parameters:
-            terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-            terraformContainerName: ${{ parameters.terraformContainerName }}
-            terraformStateKey: ${{ parameters.terraformStateKey }}
-            terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
-            clientId: $(clientId)
-            clientSecret: $(clientSecret)
-            tenantId: $(tenantId)
-            subscriptionId: $(subscriptionId)
-            workingDirectory: PolarisDDEI/terraform
-            targetArea: DDEI
-            targetVarFile: ${{ parameters.targetVarFile }}
+          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: latest
+              
+          - template: ../../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+            parameters:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              
+          - template: jobs/tasks/task_reset.yml
+            parameters:
+              terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+              terraformContainerName: ${{ parameters.terraformContainerName }}
+              terraformStateKey: ${{ parameters.terraformStateKey }}
+              terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+              clientId: $(clientId)
+              clientSecret: $(clientSecret)
+              tenantId: $(tenantId)
+              subscriptionId: $(subscriptionId)
+              workingDirectory: terraform
+              targetArea: DDEI
+              targetVarFile: ${{ parameters.targetVarFile }}
