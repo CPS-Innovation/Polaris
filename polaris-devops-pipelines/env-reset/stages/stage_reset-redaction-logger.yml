@@ -39,8 +39,10 @@ stages:
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-redaction-log$targetSuffix") = true ]; then
-                az keyvault delete --name "kv-redaction-log$targetSuffix" --resource-group "rg-redaction-log$targetSuffix"
-                az keyvault purge --name "kv-redaction-log$targetSuffix"
+                if [ $(az keyvault check-name --name "kv-redaction-log$targetSuffix" --query="nameAvailable" -o tsv) = false ]; then
+                  az keyvault delete --name "kv-redaction-log$targetSuffix" --resource-group "rg-redaction-log$targetSuffix"
+                  az keyvault purge --name "kv-redaction-log$targetSuffix"
+                fi
               fi
             displayName: CD Script > Redaction Logger
             env:

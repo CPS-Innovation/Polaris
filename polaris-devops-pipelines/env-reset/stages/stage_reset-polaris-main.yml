@@ -43,12 +43,18 @@ stages:
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
-                az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
-                az keyvault purge --name "kv-polaris$targetSuffix"
-                az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix" --yes
+                if [ $(az keyvault check-name --name "kv-polaris$targetSuffix" --query="nameAvailable" -o tsv) = false ]; then
+                  az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
+                  az keyvault purge --name "kv-polaris$targetSuffix"
+                fi
+                if [ $(az storage account check-name --name $uiStorageAccount --query="nameAvailable" -o tsv) = false ]; then
+                  az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix" --yes
+                fi
               fi
               if [ $(az group exists --name "rg-polaris-pipeline$targetSuffix") = true ]; then
-                az storage account delete --name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix" --yes
+                if [ $(az storage account check-name --name $pipelineStorageAccount --query="nameAvailable" -o tsv) = false ]; then
+                  az storage account delete --name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix" --yes
+                fi
               fi
             displayName: CD Script > Polaris
             env:
