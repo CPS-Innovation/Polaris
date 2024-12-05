@@ -63,6 +63,7 @@ stages:
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
+                az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
                 az keyvault purge --name "kv-polaris$targetSuffix"
                 az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix" --yes
               fi
@@ -97,6 +98,7 @@ stages:
               az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-redaction-log$targetSuffix") = true ]; then
+                az keyvault delete --name "kv-redaction-log$targetSuffix" --resource-group "rg-redaction-log$targetSuffix"
                 az keyvault purge --name "kv-redaction-log$targetSuffix"
               fi
             displayName: CD Script > Redaction Logger
