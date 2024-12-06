@@ -39,7 +39,7 @@ stages:
     parameters:
       azureSubscription: $(uat-azure-subscription)
       terraformStorageAccount: $(uat-terraform-storage-account)
-      terraformContainerName: $(index-terraform-container-name)
+      terraformContainerName: $(main-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
       targetVarFile: "uat"
@@ -51,7 +51,7 @@ stages:
     parameters:
       azureSubscription: $(uat-azure-subscription)
       terraformStorageAccount: $(uat-terraform-storage-account)
-      terraformContainerName: $(index-terraform-container-name)
+      terraformContainerName: $(redaction-logger-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
       targetVarFile: "uat"
@@ -61,7 +61,7 @@ stages:
     parameters:
       azureSubscription: $(uat-azure-subscription)
       terraformStorageAccount: $(uat-terraform-storage-account)
-      terraformContainerName: $(index-terraform-container-name)
+      terraformContainerName: $(ddei-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
       targetVarFile: "uat"
@@ -70,7 +70,7 @@ stages:
     parameters:
       azureSubscription: $(uat-azure-subscription)
       terraformStorageAccount: $(uat-terraform-storage-account)
-      terraformContainerName: $(index-terraform-container-name)
+      terraformContainerName: $(alerting-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
       targetVarFile: "uat"
