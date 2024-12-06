@@ -62,7 +62,7 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              workingDirectory: terraform-redaction-logger
-              targetArea: Redaction Logger
+              workingDirectory: "terraform-redaction-logger"
+              targetArea: "Redaction Logger"
               targetVarFile: ${{ parameters.targetVarFile }}
         

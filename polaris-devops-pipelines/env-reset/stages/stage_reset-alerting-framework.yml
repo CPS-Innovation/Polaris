@@ -43,6 +43,6 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              workingDirectory: polaris-terraform/alerting-terraform
-              targetArea: Alerting Framework 
+              workingDirectory: "polaris-terraform/alerting-terraform"
+              targetArea: "Alerting Framework"
               targetVarFile: ${{ parameters.targetVarFile }}
