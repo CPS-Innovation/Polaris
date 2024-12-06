@@ -43,7 +43,7 @@ stages:
               clientSecret: $(clientSecret)
               tenantId: $(tenantId)
               subscriptionId: $(subscriptionId)
-              workingDirectory: polaris-terraform/search-index-terraform
-              targetArea: Search Index
+              workingDirectory: "polaris-terraform/search-index-terraform"
+              targetArea: "Search Index"
               targetVarFile: ${{ parameters.targetVarFile }}
         

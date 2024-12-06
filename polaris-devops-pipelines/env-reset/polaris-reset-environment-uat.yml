@@ -33,7 +33,7 @@ stages:
       terraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-      targetVarFile: uat
+      targetVarFile: "uat"
 
   - template: stages/stage_reset-polaris-main.yml
     parameters:
@@ -42,7 +42,7 @@ stages:
       terraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-      targetVarFile: uat
+      targetVarFile: "uat"
       targetSuffix: "-uat"
       targetUiStorageAccount: "sacpsuatpolaris"
       targetPipelineStorageAccount: "sacpsuatpolarispipeline"
@@ -54,7 +54,7 @@ stages:
       terraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-      targetVarFile: uat
+      targetVarFile: "uat"
       targetSuffix: "-uat"
       
   - template: stages/stage_reset-ddei.yml
@@ -64,7 +64,7 @@ stages:
       terraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-      targetVarFile: uat
+      targetVarFile: "uat"
       
   - template: stages/stage_reset-alerting-framework.yml
     parameters:
@@ -73,4 +73,4 @@ stages:
       terraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-      targetVarFile: uat
+      targetVarFile: "uat"
