@@ -29,9 +29,13 @@ stages:
   - stage: Wait_For_Running_PRs
     displayName: Wait for running PRs
     jobs:
-      - template: stages/jobs/tasks/task_wait-for-running-releases.yml
-        parameters:
-          devOpsPatToken: $(System.AccessToken)
+      - job:
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - template: stages/jobs/tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: $(System.AccessToken)
       
   - stage: Determine_Changes
     displayName: Determine Changes
