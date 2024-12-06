@@ -180,7 +180,7 @@ resource "azurerm_private_endpoint" "pipeline_pdf_thumbnail_generator_pe" {
 }
 
 # Storage Account Permissions
-resource "azurerm_role_assignment" "ra_blob_delegator_pdf_generator" {
+resource "azurerm_role_assignment" "ra_blob_delegator_sa_pdf_thumbnail_generator" {
   scope                = azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Delegator"
   principal_id         = azurerm_windows_function_app.fa_pdf_thumbnail_generator.identity[0].principal_id
