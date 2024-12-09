@@ -241,7 +241,7 @@ export const saveRedactions = async (
   redactionSaveRequest: RedactionSaveRequest
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/redact`
   );
 
   const response = await fetchImplementation("proactive-reauth", url, {
