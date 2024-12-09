@@ -100,6 +100,10 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         className={classes.backBtn}
         onClick={handleBackBtnClick}
         ref={backButtonRef}
+        disabled={
+          state.reClassifySaveStatus === 'saving' ||
+            state.reClassifySaveStatus === "success" ? true : false
+        }
       >
         Back
       </LinkButton>
@@ -172,6 +176,9 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         items={docTypesValues}
         value={state.newDocTypeId}
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
+        disabled={
+          state.reClassifySaveStatus === 'saving' || state.reClassifySaveStatus === "success" ? true : false
+        }
       />
       {state?.newDocTypeId ? (
         <ReclassifyStage2

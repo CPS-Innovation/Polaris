@@ -313,14 +313,14 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     if (!validData) return false;
     if (continueButtonRef.current)
       (continueButtonRef.current as HTMLButtonElement).blur();
-    
+
     const saveData: ReclassifySaveData = getMappedSaveData();
     dispatch({
       type: "UPDATE_RECLASSIFY_SAVE_STATUS",
       payload: { value: "saving" },
     });
     handleReclassifyTracking("Save Reclassify", saveData);
-   
+
     const result = await handleSubmitReclassify(documentId, saveData);
     if (result) {
       dispatch({
@@ -367,13 +367,12 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             ref={continueButtonRef}
             onClick={handleAcceptAndSave}
             disabled={
-              state.reClassifyStage === "stage2" &&
-              state.reclassifyVariant === "Statement" &&
-              !state.statementWitness?.length
+              state.reClassifySaveStatus === "saving" ||
+                state.reClassifySaveStatus === "success" ? true : false
             }
             data-testid="reclassify-continue-btn"
           >
-             Accept and save
+            Accept and save
           </Button>
           <LinkButton
             className={classes.btnCancel}
@@ -387,7 +386,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
     return (
       <>
-      </>      
+      </>
     );
   };
 
@@ -419,6 +418,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       }, 2000);
     }
   }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
+
+  useEffect(() => {
+    dispatch({
+      type: "RESET_FORM_DATA",
+      payload: { presentationTitle: presentationTitle },
+    });
+  }, [presentationTitle])
 
   if (lookupError) {
     throw Error(lookupError);

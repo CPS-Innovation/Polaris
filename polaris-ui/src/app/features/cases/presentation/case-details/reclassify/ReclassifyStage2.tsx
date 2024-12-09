@@ -527,6 +527,14 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 label={{
                   children: "Select existing producer or witness",
                 }}
+                errorMessage={
+                  formDataErrors.otherExhibitProducerErrorText
+                    ? {
+                      children:
+                        formDataErrors.otherExhibitProducerErrorText,
+                    }
+                    : undefined
+                }
                 name="reclassify-exhibit-producer"
                 value={state.formData.exhibitProducerId}
                 onChange={(ev) => handleUpdateExhibitProducerId(ev.target.value)}
