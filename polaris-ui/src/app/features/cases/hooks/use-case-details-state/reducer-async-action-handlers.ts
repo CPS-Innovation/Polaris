@@ -633,7 +633,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             documentId,
             notesData,
             addNoteStatus: "initial",
-            getNoteStatus: "initial",
+            getNoteStatus: "success",
           },
         });
       } catch (e) {

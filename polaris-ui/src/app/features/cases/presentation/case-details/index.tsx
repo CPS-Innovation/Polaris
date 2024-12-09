@@ -68,7 +68,7 @@ type Props = BackLinkingPageProps & {
 };
 
 export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
-  const [reclassifyDetails, setInReclassifyDetails] = useState<{
+  const [reclassifyDetails, setReclassifyDetails] = useState<{
     open: boolean;
     documentId: string;
     presentationTitle: string;
@@ -324,7 +324,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     if (selectedDocument) {
       handleResetReclassifyData(documentId);
 
-      setInReclassifyDetails({
+      setReclassifyDetails({
         open: true,
         documentId,
         presentationTitle: selectedDocument.presentationTitle,
@@ -341,7 +341,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   };
 
   const handleCloseReclassify = (documentId: string) => {
-    setInReclassifyDetails({
+    setReclassifyDetails({
       open: false,
       documentId: "",
       presentationTitle: "",

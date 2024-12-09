@@ -251,7 +251,7 @@ export const reducer = (
               documentId: string;
               notesData: Note[];
               addNoteStatus: "initial";
-              getNoteStatus: "initial" | "loading" | "failure";
+              getNoteStatus: "initial" | "success" | "loading" | "failure";
             };
       }
     | {
@@ -274,12 +274,17 @@ export const reducer = (
     | {
         type: "UPDATE_RECLASSIFY_DATA";
         payload: {
-          properties: {
-            documentId: string;
-            newDocTypeId?: number;
-            reclassified?: boolean;
-            saveReclassifyRefreshStatus: "initial" | "updating" | "updated";
-          };
+          properties:
+            | {
+                documentId: string;
+                saveReclassifyRefreshStatus: "initial" | "updated";
+              }
+            | {
+                documentId: string;
+                newDocTypeId: number;
+                reclassified: boolean;
+                saveReclassifyRefreshStatus: "updating";
+              };
         };
       }
     | {
@@ -1233,6 +1238,7 @@ export const reducer = (
         },
       };
     }
+
     case "SHOW_ERROR_MODAL": {
       const { message, title, type } = action.payload;
       return {
@@ -1256,6 +1262,7 @@ export const reducer = (
         },
       };
     }
+
     case "SHOW_HIDE_DOCUMENT_ISSUE_MODAL": {
       return {
         ...state,
@@ -1316,6 +1323,7 @@ export const reducer = (
         storedUserData: { status: "succeeded", data: storedUserData },
       };
     }
+
     case "UPDATE_NOTES_DATA": {
       const { documentId, addNoteStatus, getNoteStatus } = action.payload;
       const filteredNotes = state.notes.filter(
