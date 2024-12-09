@@ -50,11 +50,26 @@ public static class DocumentNature
 
     public static string ToQualifiedStringDocumentId(string documentId, Types type) => $"{GetStringPrefix(type)}-{documentId}";
 
-    public static Types GetType(string prefix) => prefix switch
+    public static Types GetDocumentNatureType(string documentId)
     {
-        DocumentPrefix => Types.Document,
-        PreChargeDecisionRequestPrefix => Types.PreChargeDecisionRequest,
-        DefendantsAndChargesPrefix => Types.DefendantsAndCharges,
-        _ => throw new ArgumentOutOfRangeException(nameof(prefix), prefix, null),
-    };
+        if (string.IsNullOrWhiteSpace(documentId))
+        {
+            throw new ArgumentNullException(nameof(documentId));
+        }
+
+        if (!documentId.Contains('-'))
+        {
+            throw new ArgumentException($"Invalid document id: {documentId}. Expected format with a three letter prefix e.g.: 'CMS-123456'");
+        }
+
+        var prefix = documentId[..3];
+
+        return prefix switch
+        {
+            DocumentPrefix => Types.Document,
+            PreChargeDecisionRequestPrefix => Types.PreChargeDecisionRequest,
+            DefendantsAndChargesPrefix => Types.DefendantsAndCharges,
+            _ => throw new ArgumentOutOfRangeException(nameof(documentId), documentId, null),
+        };
+    }
 }

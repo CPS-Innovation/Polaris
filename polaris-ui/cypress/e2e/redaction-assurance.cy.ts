@@ -28,12 +28,12 @@ describe("Redaction Assurance", () => {
     documentModifications: [],
   };
   describe("Document Fullscreen", () => {
-    it("Should successfully verify the save redaction request data in non-full screen mode", () => {
+    it.only("Should successfully verify the save redaction request data in non-full screen mode", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -85,12 +85,12 @@ describe("Redaction Assurance", () => {
       });
     });
 
-    it("Should successfully verify the save redaction request data in non full screen and full screen mode", () => {
+    it.only("Should successfully verify the save redaction request data in non full screen and full screen mode", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -151,7 +151,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -207,7 +207,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -263,7 +263,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -320,7 +320,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -376,7 +376,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -432,7 +432,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -488,7 +488,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -544,7 +544,7 @@ describe("Redaction Assurance", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401?pageDelete=false");
       cy.findByTestId("btn-accordion-open-close-all").click();

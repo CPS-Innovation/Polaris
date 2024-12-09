@@ -295,7 +295,7 @@ describe("Save User Data", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/4/redact"
       );
       cy.clearLocalStorage();
       const doc1CheckoutCounter = { count: 0 };
@@ -383,9 +383,7 @@ describe("Save User Data", () => {
       });
       cy.findByTestId("btn-save-redaction-0").click();
       //assertion on the redaction save request
-      cy.waitUntil(() => {
-        return saveRequestObject.body;
-      }).then(() => {
+      cy.waitUntil(() => saveRequestObject.body).then(() => {
         redactionRequestAssertionValidator(
           expectedSaveRedactionPayload,
           JSON.parse(saveRequestObject.body)

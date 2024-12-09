@@ -383,7 +383,7 @@ describe("Search PII", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/12"
+        "/api/urns/12AB1111111/cases/13401/documents/12/versions/16/redact"
       );
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -444,9 +444,7 @@ describe("Search PII", () => {
       cy.findByTestId("div-modal").contains("li", "1 - Email address");
 
       //assertion on the redaction save request
-      cy.waitUntil(() => {
-        return saveRequestObject.body;
-      }).then(() => {
+      cy.waitUntil(() => saveRequestObject.body).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedSaveRedactionPayload)
         );
