@@ -9,6 +9,7 @@ import { AccordionDocumentSection } from "./types";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { Classification } from "../../../domain/gateway/PipelineDocument";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 
 type Props = {
   initialState: AccordionReducerState | null;
@@ -33,6 +34,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
+  localDocumentState: LocalDocumentState;
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -47,6 +49,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       readUnreadData,
       featureFlags,
       notesData,
+      localDocumentState,
       handleOpenPdf,
       handleOpenPanel,
       accordionStateChangeCallback,
@@ -124,6 +127,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             handleGetNotes={handleGetNotes}
             handleReclassifyDocument={handleReclassifyDocument}
             notesData={notesData}
+            localDocumentState={localDocumentState}
           />
         ))}
       </div>

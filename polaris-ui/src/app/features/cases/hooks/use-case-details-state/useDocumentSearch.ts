@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
 import { searchCase } from "../../api/gateway-api";
 import { CombinedState } from "../../domain/CombinedState";
 import { DispatchType } from "./reducer";
+import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
 
 export const useDocumentSearch = (
   urn: string,
@@ -10,6 +11,34 @@ export const useDocumentSearch = (
   combinedState: CombinedState,
   dispatch: DispatchType
 ) => {
+  const shouldMakeCall = useMemo(() => {
+    const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
+      combinedState.notificationState?.lastModifiedDateTime ?? "",
+      combinedState.pipelineRefreshData?.localLastRefreshTime
+    );
+
+    if (!combinedState.searchState.submittedSearchTerm) return false;
+
+    const newSubmittedTerm = combinedState.searchState.lastSubmittedSearchTerm
+      ? combinedState.searchState.submittedSearchTerm !==
+        combinedState.searchState.lastSubmittedSearchTerm
+      : true;
+
+    return !!(
+      !shouldWaitForNewPipelineRefresh &&
+      combinedState.pipelineState.status === "complete" &&
+      combinedState.documentsState.status === "succeeded" &&
+      newSubmittedTerm
+    );
+  }, [
+    combinedState.pipelineState.status,
+    combinedState.documentsState.status,
+    combinedState.searchState.lastSubmittedSearchTerm,
+    combinedState.searchState.submittedSearchTerm,
+    combinedState.notificationState?.lastModifiedDateTime,
+    combinedState.pipelineRefreshData?.localLastRefreshTime,
+  ]);
+
   // Document search process
   const searchResults = useApi(
     searchCase,
@@ -34,11 +63,7 @@ export const useDocumentSearch = (
     //   the documents result, and we have to chase up fixing the full mapped objects at that later point.
     //   (Assumption: this is edge-casey stuff as the documents call should always really have come back unless
     //   the user is super quick to trigger a search).
-    !!(
-      combinedState.searchState.submittedSearchTerm &&
-      combinedState.pipelineState.status === "complete" &&
-      combinedState.documentsState.status === "succeeded"
-    )
+    shouldMakeCall
   );
   useEffect(() => {
     if (searchResults.status !== "initial") {

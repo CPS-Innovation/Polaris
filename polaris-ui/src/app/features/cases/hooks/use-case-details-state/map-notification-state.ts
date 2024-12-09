@@ -70,12 +70,8 @@ export const mapNotificationState = (
   incomingDocumentsState: AsyncResult<MappedCaseDocument[]>,
   incomingDateTime: string
 ): NotificationState => {
-  if (!FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH) {
-    return notificationState;
-  }
-
   if (incomingDocumentsState.status !== "succeeded") {
-    return { ...notificationState, lastUpdatedDateTime: incomingDateTime };
+    return { ...notificationState, lastCheckedDateTime: incomingDateTime };
   }
 
   const existingDocuments =
@@ -197,9 +193,15 @@ export const mapNotificationState = (
     ...existingEventsStillLive,
   ];
 
+  const lastModifiedDateTime =
+    !notificationState.lastModifiedDateTime || incomingEvents.length
+      ? incomingDateTime
+      : notificationState.lastModifiedDateTime;
+
   return {
     ...notificationState,
-    lastUpdatedDateTime: incomingDateTime,
+    lastCheckedDateTime: incomingDateTime,
+    lastModifiedDateTime,
     events,
     ignoreNextEvents,
   };

@@ -16,9 +16,13 @@ import { useLoadAppLevelLookups } from "./useLoadAppLevelLookups";
 import { useGetCaseData } from "./useGetCaseData";
 import { useDocumentSearch } from "./useDocumentSearch";
 import { PageDeleteRedaction } from "../../domain/IPageDeleteRedaction";
-import { usePipelineRefreshPolling } from "./usePipelineRefreshPolling";
+import { useDocumentRefreshPolling } from "./useDocumentRefreshPolling";
 import { useHydrateFromLocalStorage } from "./useHydrateFromLocalStorage";
 import { PageRotation } from "../../domain/IPageRotation";
+import {
+  PresentationDocumentProperties,
+  GroupedConversionStatus,
+} from "../../domain/gateway/PipelineDocument";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -43,7 +47,7 @@ export const useCaseDetailsState = (
   );
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
-  usePipelineRefreshPolling(dispatch, combinedState.featureFlags.notifications);
+  useDocumentRefreshPolling(dispatch, combinedState.featureFlags.notifications);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {
@@ -79,17 +83,27 @@ export const useCaseDetailsState = (
           searchTerm,
         },
       });
+      dispatch({
+        type: "UPDATE_PIPELINE_REFRESH",
+        payload: {
+          startPipelineRefresh: true,
+        },
+      });
     },
     [dispatch]
   );
 
-  const handleLaunchSearchResults = useCallback(
-    () =>
-      dispatch({
-        type: "LAUNCH_SEARCH_RESULTS",
-      }),
-    [dispatch]
-  );
+  const handleLaunchSearchResults = useCallback(() => {
+    dispatch({
+      type: "UPDATE_PIPELINE_REFRESH",
+      payload: {
+        startPipelineRefresh: true,
+      },
+    });
+    dispatch({
+      type: "LAUNCH_SEARCH_RESULTS",
+    });
+  }, [dispatch]);
 
   const handleCloseSearchResults = useCallback(
     () =>
@@ -319,15 +333,6 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
-  const handleGetSearchPIIData = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"], versionId: number) =>
-      dispatch({
-        type: "GET_SEARCH_PII_DATA",
-        payload: { documentId, versionId },
-      }),
-    [dispatch]
-  );
-
   const handleSearchPIIAction = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
@@ -405,9 +410,9 @@ export const useCaseDetailsState = (
       }
 
       dispatch({
-        type: "UPDATE_REFRESH_PIPELINE",
+        type: "UPDATE_DOCUMENT_REFRESH",
         payload: {
-          startRefresh: true,
+          startDocumentRefresh: true,
         },
       });
     },
@@ -493,6 +498,18 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleUpdateConversionStatus = useCallback(
+    (
+      documentId: PresentationDocumentProperties["documentId"],
+      status: GroupedConversionStatus
+    ) =>
+      dispatch({
+        type: "UPDATE_CONVERSION_STATUS",
+        payload: { documentId, status },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -519,7 +536,6 @@ export const useCaseDetailsState = (
     handleAddNote,
     handleSaveRename,
     handleShowHideRedactionSuggestions,
-    handleGetSearchPIIData,
     handleSearchPIIAction,
     handleResetRenameData,
     handleReclassifySuccess,
@@ -531,6 +547,7 @@ export const useCaseDetailsState = (
     handleRemoveAllRotations,
     handleClearAllNotifications,
     handleClearNotification,
+    handleUpdateConversionStatus,
     handleShowHidePageDeletion,
   };
 };
