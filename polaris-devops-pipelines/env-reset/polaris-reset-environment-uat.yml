@@ -26,125 +26,51 @@ stages:
                   parameters:
                     devOpsPatToken: $(System.AccessToken)
                     
-  - stage: Reset_Polaris_Environment
-    displayName: Reset UAT Polaris Environment
-    dependsOn: Wait_For_Running_Pipelines
-    jobs:
-      - job:
-        steps:
-          - checkout: self
-          - checkout: git://Information Management/PolarisDDEI
-          - checkout: git://Innovation Delivery/redaction-logger
-            
-          - task: JasonBJohnson.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@1
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: latest
-                      
-          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(uat-azure-subscription)
-              
-          - template: task_reset.yml
-            parameters:
-              terraformStorageAccount: $(uat-terraform-storage-account)
-              terraformContainerName: $(index-terraform-container-name)
-              terraformStateKey: $(terraform-key)
-              terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              workingDirectory: Polaris/polaris-terraform/search-index-terraform
-              targetArea: Search Index
-              targetVarFile: uat
+  - template: stages/stage_reset-polaris-search-index.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(index-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
 
-          - bash: |
-              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
-              az account set --subscription $subscriptionId
-              if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
-                az keyvault delete --name "kv-polaris$targetSuffix" --resource-group "rg-polaris$targetSuffix"
-                az storage account delete --name $uiStorageAccount --resource-group "rg-polaris$targetSuffix" --yes
-              fi
-              if [ $(az group exists --name "rg-polaris-pipeline$targetSuffix") = true ]; then
-                az storage account delete --name $pipelineStorageAccount --resource-group "rg-polaris-pipeline$targetSuffix" --yes
-              fi
-            displayName: Run Script
-            env:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              targetSuffix: "-uat"
-              uiStorageAccount: "sacpsuatpolaris"
-              pipelineStorageAccount: "sacpsuatpolarispipeline"
-              
-          - template: task_reset.yml
-            parameters:
-              terraformStorageAccount: $(uat-terraform-storage-account)
-              terraformContainerName: $(main-terraform-container-name)
-              terraformStateKey: $(terraform-key)
-              terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              workingDirectory: Polaris/polaris-terraform/main-terraform
-              targetArea: Casework App
-              targetVarFile: uat
-              
-          - bash: |
-              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
-              az account set --subscription $subscriptionId
-              if [ $(az group exists --name "rg-redaction-log$targetSuffix") = true ]; then
-                az keyvault delete --name "kv-redaction-log$targetSuffix" --resource-group "rg-redaction-log$targetSuffix"
-              fi
-            displayName: Run Script
-            env:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              targetSuffix: "-uat"
-              
-          - template: task_reset.yml
-            parameters:
-              terraformStorageAccount: $(uat-terraform-storage-account)
-              terraformContainerName: $(redaction-logger-terraform-container-name)
-              terraformStateKey: $(terraform-key)
-              terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              workingDirectory: redaction-logger/terraform-redaction-logger
-              targetArea: Redaction Logger
-              targetVarFile: uat
-              
-          - template: task_reset.yml
-            parameters:
-              terraformStorageAccount: $(uat-terraform-storage-account)
-              terraformContainerName: $(ddei-terraform-container-name)
-              terraformStateKey: $(terraform-key)
-              terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              workingDirectory: PolarisDDEI/terraform
-              targetArea: Polaris DDEI
-              targetVarFile: uat
-              
-          - template: task_reset.yml
-            parameters:
-              terraformStorageAccount: $(uat-terraform-storage-account)
-              terraformContainerName: $(alerting-terraform-container-name)
-              terraformStateKey: $(terraform-key)
-              terraformStateAccessKey: $(cpsuatstorageterraform-key1)
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              workingDirectory: Polaris/polaris-terraform/alerting-terraform
-              targetArea: Alerting Framework
-              targetVarFile: uat
+  - template: stages/stage_reset-polaris-main.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(main-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
+      targetSuffix: "-uat"
+      targetUiStorageAccount: "sacpsuatpolaris"
+      targetPipelineStorageAccount: "sacpsuatpolarispipeline"
+      
+  - template: stages/stage_reset-redaction-logger.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(redaction-logger-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
+      targetSuffix: "-uat"
+      
+  - template: stages/stage_reset-ddei.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(ddei-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
+      
+  - template: stages/stage_reset-alerting-framework.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(alerting-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
