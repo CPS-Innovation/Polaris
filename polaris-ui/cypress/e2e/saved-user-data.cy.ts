@@ -1,7 +1,14 @@
+import { TRACKER_ROUTE } from "../../src/mock-api/routes";
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
-
+import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 describe("Save User Data", () => {
   describe("Read/Unread Documents", () => {
+    beforeEach(() => {
+      const trackerResults = getPipelinePdfResults(1);
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[0],
+      });
+    });
     it("Should identify the document as read if the user has opened the document and should persist that state when user comes back and clear it if we clear local storage", () => {
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
@@ -70,7 +77,13 @@ describe("Save User Data", () => {
     });
   });
 
-  describe.only("unsaved redactions", () => {
+  describe("unsaved redactions", () => {
+    beforeEach(() => {
+      const trackerResults = getPipelinePdfResults(1);
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[0],
+      });
+    });
     it("Should be able to apply and ignore unsaved redaction data if the user chose to refresh the page or close the document tab in the middle of redaction", () => {
       cy.clearLocalStorage();
       const doc10CheckoutCounter = { count: 0 };
@@ -295,7 +308,7 @@ describe("Save User Data", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/1/versions/4/redact"
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
       cy.clearLocalStorage();
       const doc1CheckoutCounter = { count: 0 };

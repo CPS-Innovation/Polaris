@@ -2,7 +2,7 @@ import { PipelineResults } from "../../app/features/cases/domain/gateway/Pipelin
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 //the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
 
-const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(2);
 
 export default dataSource;
 
@@ -45,7 +45,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "2",
-      versionId: 2,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "CM01",
@@ -78,7 +78,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "3",
-      versionId: 3,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "MG05MCLOVE.pdf",
       presentationTitle: "Doc_3",
@@ -110,7 +110,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "4",
-      versionId: 4,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June.hte",
       presentationTitle: "Doc_4",
@@ -142,7 +142,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "5",
-      versionId: 5,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june.hte",
       presentationTitle: "Doc_5",
@@ -174,7 +174,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "6",
-      versionId: 6,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "Test DAC",
@@ -207,7 +207,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "8",
-      versionId: 8,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June.pdf",
       presentationTitle: "Doc_8",
@@ -239,7 +239,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "9",
-      versionId: 19,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June.pdf",
       presentationTitle: "Doc_9",
@@ -272,7 +272,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "10",
-      versionId: 10,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "PortraitLandscape.pdf",
       presentationTitle: "PortraitLandscape",
@@ -305,7 +305,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "12",
-      versionId: 12,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "SearchPII.pdf",
       presentationTitle: "SearchPII",
@@ -337,7 +337,7 @@ const pipelinePdfResult: PipelineResults = {
     },
     {
       documentId: "13",
-      versionId: 13,
+      versionId: 1,
       status: "Indexed",
       cmsOriginalFileName: "CM01.pdf",
       presentationTitle: "PCD Document",
@@ -371,7 +371,7 @@ const pipelinePdfResult: PipelineResults = {
 };
 
 // this will return updated tracker data with updated versionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow
-const getPipelinePdfResults = (resultsCount: number) => {
+export const getPipelinePdfResults = (resultsCount: number) => {
   let resultsArray = Array(resultsCount)
     .fill({})
     .map((value, index) => ({

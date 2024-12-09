@@ -1,6 +1,13 @@
-import { version } from "process";
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
+import { TRACKER_ROUTE } from "../../src/mock-api/routes";
+import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 describe("Feature Delete Page", () => {
+  beforeEach(() => {
+    const trackerResults = getPipelinePdfResults(1);
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[0],
+    });
+  });
   it("Should show page delete button and page number correctly in each page", () => {
     cy.visit("/case-details/12AB1111111/13401?pageDelete=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
