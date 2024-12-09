@@ -16,10 +16,7 @@ namespace coordinator.Durable.Payloads.Domain
             CmsFileCreatedDate = pcdRequest.DecisionRequested;
         }
 
-        public override string DocumentId
-        {
-            get => $"{DocumentNature.PreChargeDecisionRequestPrefix}-{CmsDocumentId}";
-        }
+        public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.PreChargeDecisionRequest);
 
         public string PresentationTitle
         {

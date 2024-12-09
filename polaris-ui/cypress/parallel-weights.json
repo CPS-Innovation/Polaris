@@ -10,7 +10,7 @@
   "cypress/e2e/reclassify-document.cy.ts": { "time": 55969, "weight": 16 },
   "cypress/e2e/redaction-assurance.cy.ts": { "time": 113446, "weight": 33 },
   "cypress/e2e/redaction.cy.ts": { "time": 33567, "weight": 9 },
-  "cypress/e2e/redactionLog.cy.ts": { "time": 65799, "weight": 19 },
+  "cypress/e2e/redaction-log.cy.ts": { "time": 65799, "weight": 19 },
   "cypress/e2e/rename-document.cy.ts": { "time": 12375, "weight": 3 },
   "cypress/e2e/rotate-page.cy.ts": { "time": 23922, "weight": 7 },
   "cypress/e2e/saved-user-data.cy.ts": { "time": 33799, "weight": 9 },

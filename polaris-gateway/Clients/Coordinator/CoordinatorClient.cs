@@ -55,11 +55,11 @@ namespace PolarisGateway.Clients.Coordinator
             return response;
         }
 
-        public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string documentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
+        public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string documentId, long versionId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Put,
-                RestApi.GetRedactDocumentPath(caseUrn, caseId, documentId),
+                RestApi.GetRedactDocumentPath(caseUrn, caseId, documentId, versionId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(redactPdfRequest), Encoding.UTF8, ContentType.Json));
@@ -81,11 +81,11 @@ namespace PolarisGateway.Clients.Coordinator
                 correlationId);
         }
 
-        public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string documentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId)
+        public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string documentId, long versionId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId)
         {
             return await SendRequestAsync(
                 HttpMethod.Post,
-                RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId),
+                RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId, versionId),
                 correlationId,
                 cmsAuthValues,
                 new StringContent(JsonConvert.SerializeObject(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));

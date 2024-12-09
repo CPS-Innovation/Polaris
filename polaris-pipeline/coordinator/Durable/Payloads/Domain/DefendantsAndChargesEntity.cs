@@ -17,28 +17,16 @@ namespace coordinator.Durable.Payloads.Domain
             HasMultipleDefendants = defendantsAndCharges?.DefendantsAndCharges.Count() > 1;
         }
 
-        public override string DocumentId
-        {
-            get => $"{DocumentNature.DefendantsAndChargesPrefix}-{CmsDocumentId}";
-        }
+        public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.DefendantsAndCharges);
 
         public bool HasMultipleDefendants { get; set; }
 
-        public string PresentationTitle
-        {
-            get => DocumentId;
-        }
+        public string PresentationTitle => DocumentId;
 
-        public string CmsOriginalFileName
-        {
-            get => $"{DocumentId}.pdf";
-        }
+        public string CmsOriginalFileName => $"{DocumentId}.pdf";
 
-        public static string CmsFileCreatedDate
-        {
-            // this date is never displayed, and is not used for any logic
-            get => new DateTime(1970, 1, 1).ToString("yyyy-MM-dd");
-        }
+        // this date is never displayed, and is not used for any logic
+        public static string CmsFileCreatedDate => new DateTime(1970, 1, 1).ToString("yyyy-MM-dd");
 
         public DocumentTypeDto CmsDocType { get; } = new DocumentTypeDto("DAC", null, "Review");
     }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.PdfRedactor;
@@ -21,6 +20,7 @@ using Ddei.Factories;
 using Ddei;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
+using Common.Domain.Document;
 
 namespace coordinator.Functions
 {
@@ -63,7 +63,7 @@ namespace coordinator.Functions
             string caseUrn,
             int caseId,
             string documentId,
-            [DurableClient] IDurableEntityClient client)
+            long versionId)
         {
             Guid currentCorrelationId = default;
 
@@ -71,13 +71,10 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(ModifyDocument));
-                var document = response.CmsDocument;
-
                 var content = await req.Content.ReadAsStringAsync();
                 var modifyDocumentRequest = _jsonConvertWrapper.DeserializeObject<ModifyDocumentRequestDto>(content);
 
-                await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
+                await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, versionId, BlobType.Pdf));
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
@@ -96,7 +93,7 @@ namespace coordinator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
 
-                await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
+                await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, versionId, modificationRequest, currentCorrelationId);
                 if (modifiedDocumentStream == null)
                 {
                     var error = $"Error modifying document for {caseId}, documentId {documentId}";
@@ -106,12 +103,12 @@ namespace coordinator.Functions
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
                 var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
                 (
-                    cmsAuthValues: cmsAuthValues,
-                    correlationId: currentCorrelationId,
-                    urn: caseUrn,
-                    caseId: caseId,
-                    documentId: document.CmsDocumentId,
-                    versionId: document.VersionId
+                    cmsAuthValues,
+                    currentCorrelationId,
+                    caseUrn,
+                    caseId,
+                    DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
+                    versionId
                 );
 
                 var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
