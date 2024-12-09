@@ -92,7 +92,7 @@ describe("Feature Delete Page", () => {
     cy.trackRequestBody(
       saveRequestObject,
       "PUT",
-      "/api/urns/12AB1111111/cases/13401/documents/1/versions/2/redact"
+      "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
     );
     const expectedRedactionLogRequest = {
       urn: "99ZZ9999999",
@@ -277,7 +277,7 @@ describe("Feature Delete Page", () => {
     cy.trackRequestBody(
       saveRequestObject,
       "PUT",
-      "/api/urns/12AB1111111/cases/13401/documents/1/versions/2/redact"
+      "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
     );
     cy.visit("/case-details/12AB1111111/13401?pageDelete=true");
     cy.findByTestId("btn-accordion-open-close-all").click();

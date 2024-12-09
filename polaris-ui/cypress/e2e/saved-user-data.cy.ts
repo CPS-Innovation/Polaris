@@ -317,6 +317,10 @@ describe("Save User Data", () => {
         "POST",
         /\/api\/urns\/12AB1111111\/cases\/13401\/documents\/1\/versions\/(\d+)\/checkout/
       );
+      const trackerResults = getPipelinePdfResults(2);
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[0],
+      });
 
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -340,6 +344,9 @@ describe("Save User Data", () => {
       );
       cy.window().then(() => {
         expect(doc1CheckoutCounter.count).to.equal(1);
+      });
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[0],
       });
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -393,6 +400,9 @@ describe("Save User Data", () => {
       );
       cy.window().then(() => {
         expect(doc1CheckoutCounter.count).to.equal(3);
+      });
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[1],
       });
       cy.findByTestId("btn-save-redaction-0").click();
       //assertion on the redaction save request
