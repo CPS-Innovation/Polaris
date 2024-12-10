@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using coordinator.Clients.PdfRedactor;
@@ -22,6 +21,7 @@ using Ddei.Factories;
 using Ddei;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
+using Common.Domain.Document;
 
 namespace coordinator.Functions
 {
@@ -63,7 +63,7 @@ namespace coordinator.Functions
             string caseUrn,
             int caseId,
             string documentId,
-            [DurableClient] IDurableEntityClient client)
+            long versionId)
         {
             Guid currentCorrelationId = default;
 
@@ -71,13 +71,10 @@ namespace coordinator.Functions
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(RedactDocument));
-                var document = response.CmsDocument;
-
                 var content = await req.Content.ReadAsStringAsync();
                 var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
-                using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, document.VersionId, BlobType.Pdf));
+                using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, versionId, BlobType.Pdf));
 
                 using var memoryStream = new MemoryStream();
                 await documentStream.CopyToAsync(memoryStream);
@@ -93,14 +90,13 @@ namespace coordinator.Functions
                     {
                         Document = base64Document,
                         RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
-                        VersionId = redactPdfRequest.VersionId
                     };
 
                     var validationResult = await _requestValidator.ValidateAsync(redactionRequest);
                     if (!validationResult.IsValid)
                         throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
 
-                    redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, documentId, redactionRequest, currentCorrelationId);
+                    redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, documentId, versionId, redactionRequest, currentCorrelationId);
                     if (redactedDocumentStream == null)
                     {
                         string error = $"Error Saving redaction details to the document for {caseId}, documentId {documentId}";
@@ -134,7 +130,7 @@ namespace coordinator.Functions
                         VersionId = redactPdfRequest.VersionId
                     };
 
-                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, documentId, modificationRequest, currentCorrelationId);
+                    modifiedDocumentStream = await _redactionClient.ModifyDocument(caseUrn, caseId, documentId, versionId, modificationRequest, currentCorrelationId);
                     if (modifiedDocumentStream == null)
                     {
                         string error = $"Error modifying document for {caseId}, documentId {documentId}";
@@ -145,12 +141,12 @@ namespace coordinator.Functions
                 var cmsAuthValues = req.Headers.GetCmsAuthValues();
                 var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
                 (
-                    cmsAuthValues: cmsAuthValues,
-                    correlationId: currentCorrelationId,
-                    urn: caseUrn,
-                    caseId: caseId,
-                    documentId: document.CmsDocumentId,
-                    versionId: document.VersionId
+                    cmsAuthValues,
+                    currentCorrelationId,
+                    caseUrn,
+                    caseId,
+                    DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
+                    versionId
                 );
 
                 var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);

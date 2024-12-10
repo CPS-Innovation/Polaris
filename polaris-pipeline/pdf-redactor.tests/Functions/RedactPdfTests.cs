@@ -30,6 +30,7 @@ namespace pdf_redactor.tests.Functions
         private readonly string _caseUrn;
         private readonly int _caseId;
         private readonly string _documentId;
+        private readonly long _versionId;
         private readonly string _serializedRedactPdfRequest;
 
         public RedactPdfTests()
@@ -56,6 +57,7 @@ namespace pdf_redactor.tests.Functions
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
+            _versionId = _fixture.Create<long>();
 
             var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _pdfRedactor = new RedactPdf(
@@ -79,7 +81,7 @@ namespace pdf_redactor.tests.Functions
 
             var mockRequest = CreateMockRequest(new StringContent("{}"), null);
 
-            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
+            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -94,7 +96,7 @@ namespace pdf_redactor.tests.Functions
 
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, null);
 
-            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
+            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -109,7 +111,7 @@ namespace pdf_redactor.tests.Functions
 
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.Empty);
 
-            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
+            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -130,7 +132,7 @@ namespace pdf_redactor.tests.Functions
 
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());
 
-            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
+            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().Be(errorHttpResponseMessage);
         }
@@ -140,7 +142,7 @@ namespace pdf_redactor.tests.Functions
         {
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());
 
-            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
+            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().BeOfType<FileStreamResult>();
         }
@@ -150,7 +152,7 @@ namespace pdf_redactor.tests.Functions
         {
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());
 
-            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId);
+            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);
 
             response.Should().BeOfType<FileStreamResult>();
 

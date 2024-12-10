@@ -65,13 +65,7 @@ namespace coordinator.Durable.Payloads.Domain
             RenameStatus = renameStatus;
             Reference = reference;
         }
-        public override string DocumentId
-        {
-            get
-            {
-                return $"{DocumentNature.DocumentPrefix}-{CmsDocumentId}";
-            }
-        }
+        public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.Document);
 
         [JsonProperty("path")]
         public string Path { get; set; }
@@ -99,12 +93,9 @@ namespace coordinator.Durable.Payloads.Domain
         [JsonProperty("parentDocumentId")]
         public string ParentDocumentId
         {
-            get
-            {
-                return string.IsNullOrWhiteSpace(CmsParentDocumentId)
-                    ? null
-                    : $"{DocumentNature.DocumentPrefix}-{CmsParentDocumentId}";
-            }
+            get => string.IsNullOrWhiteSpace(CmsParentDocumentId)
+                ? null
+                : DocumentNature.ToQualifiedStringDocumentId(CmsParentDocumentId, DocumentNature.Types.Document);
         }
 
         [JsonProperty("cmsParentDocumentId")]

@@ -150,6 +150,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
               REFRESH_TARGET_URN,
               REFRESH_TARGET_CASE_ID,
               documentId,
+              versionId,
               "PHASE_2"
             )
           )
@@ -287,6 +288,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
               REFRESH_TARGET_URN,
               REFRESH_TARGET_CASE_ID,
               documentId,
+              versionId,
               "PHASE_3"
             )
           )

@@ -61,8 +61,8 @@ public class ArtefactService : IArtefactService
 
     protected async Task<ArtefactResult<Stream>> GetPdfInternalAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
-        var prefix = documentId.Split('-')[0];
-        var documentNature = DocumentNature.GetType(prefix);
+        var documentNature = DocumentNature.GetDocumentNatureType(documentId);
+
         (PdfConversionStatus Status, Stream Stream) pdfResult = documentNature switch
         {
             DocumentNature.Types.PreChargeDecisionRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId),

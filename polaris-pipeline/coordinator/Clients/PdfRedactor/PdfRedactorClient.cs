@@ -25,13 +25,13 @@ namespace coordinator.Clients.PdfRedactor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<Stream> RedactPdfAsync(string caseUrn, int caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+        public async Task<Stream> RedactPdfAsync(string caseUrn, int caseId, string documentId, long versionId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
         {
             try
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId, versionId)}", correlationId);
                 request.Content = requestMessage;
 
                 var response = await _httpClient.SendAsync(request);
@@ -51,13 +51,13 @@ namespace coordinator.Clients.PdfRedactor
             }
         }
 
-        public async Task<Stream> ModifyDocument(string caseUrn, int caseId, string documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId)
+        public async Task<Stream> ModifyDocument(string caseUrn, int caseId, string documentId, long versionId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId)
         {
             try
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(modifyDocumentDto), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId)}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId, versionId)}", correlationId);
                 request.Content = requestMessage;
 
                 var response = await _httpClient.SendAsync(request);

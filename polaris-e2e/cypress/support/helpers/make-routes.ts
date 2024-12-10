@@ -104,9 +104,10 @@ export const makeApiRoutes = (headers: any) => {
     urn: string,
     caseId: number,
     documentId: string,
+    versionId: number,
     correlationId: CorrelationId = "BLANK"
   ) => ({
-    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}`,
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/redact`,
     headers: makeHeaders(headers, correlationId),
     method: "PUT",
     body: {
