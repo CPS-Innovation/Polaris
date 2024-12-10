@@ -22,8 +22,7 @@ import {
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
-import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
-import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
+import { hasDocumentUpdated } from "../utils/refreshUtils";
 import { SaveStatus } from "../../domain/gateway/SaveStatus";
 import {
   RedactionLogLookUpsData,
@@ -58,6 +57,12 @@ import {
 } from "../../domain/IPageDeleteRedaction";
 import { PageRotation, IPageRotation } from "../../domain/IPageRotation";
 import { mapNotificationToDocumentsState } from "./map-notification-to-documents-state";
+import {
+  PresentationDocumentProperties,
+  GroupedConversionStatus,
+} from "../../domain/gateway/PipelineDocument";
+import { LocalDocumentState } from "../../domain/LocalDocumentState";
+import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -69,17 +74,27 @@ export const reducer = (
         payload: ApiResult<CaseDetails>;
       }
     | {
+        type: "UPDATE_DOCUMENTS";
+        payload: ApiResult<PresentationDocumentProperties[]>;
+      }
+    | {
         type: "UPDATE_PIPELINE";
         payload: AsyncPipelineResult<PipelineResults>;
       }
     | {
-        type: "UPDATE_REFRESH_PIPELINE";
+        type: "UPDATE_DOCUMENT_REFRESH";
         payload: {
-          startRefresh: boolean;
+          startDocumentRefresh: boolean;
           savedDocumentDetails?: {
             documentId: string;
             versionId: number;
           };
+        };
+      }
+    | {
+        type: "UPDATE_PIPELINE_REFRESH";
+        payload: {
+          startPipelineRefresh: boolean;
         };
       }
     | {
@@ -332,6 +347,13 @@ export const reducer = (
           documentId: CaseDocumentViewModel["documentId"];
         };
       }
+    | {
+        type: "UPDATE_CONVERSION_STATUS";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          status: GroupedConversionStatus;
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -365,92 +387,56 @@ export const reducer = (
         },
       };
 
-    case "UPDATE_PIPELINE": {
-      if (action.payload.status === "failed") {
-        throw action.payload.error;
+    case "UPDATE_DOCUMENTS": {
+      const { payload } = action;
+      if (payload.status === "failed") {
+        throw payload.error;
       }
 
-      if (action.payload.status === "initiating") {
+      if (payload.status === "loading") {
         return state;
       }
 
+      const { data } = payload;
       let nextState = { ...state };
 
-      if (action.payload.data.status === "Completed") {
-        const newPipelineData = action.payload.data;
+      const coreDocumentsState = mapDocumentsState(
+        data,
+        (state.caseState?.status === "succeeded" &&
+          state.caseState.data.witnesses) ||
+          []
+      );
 
-        nextState = {
-          ...nextState,
-          pipelineRefreshData: {
-            ...nextState.pipelineRefreshData,
-            // If a document that is lined up to be saved and has been updated
-            //  then we need to drop it - no sense in updating it.
-            savedDocumentDetails:
-              nextState.pipelineRefreshData.savedDocumentDetails.filter(
-                (document) => !hasDocumentUpdated(document, newPipelineData)
-              ),
-            lastProcessingCompleted: newPipelineData.processingCompleted,
-          },
-        };
-      }
+      const notificationState = mapNotificationState(
+        state.notificationState,
+        state.documentsState,
+        coreDocumentsState,
+        new Date().toISOString()
+      );
 
-      const shouldBuildDocumentsState =
-        isDocumentsPresentStatus(action.payload.data.status) &&
-        isNewTime(
-          action.payload.data.documentsRetrieved,
-          (state.pipelineState.haveData &&
-            state.pipelineState.data.documentsRetrieved) ||
-            ""
-        );
+      const documentsState = mapNotificationToDocumentsState(
+        notificationState,
+        coreDocumentsState
+      );
 
-      if (shouldBuildDocumentsState) {
-        const coreDocumentsState = mapDocumentsState(
-          action.payload.data.documents,
-          (state.caseState &&
-            state.caseState.status === "succeeded" &&
-            state.caseState.data.witnesses) ||
-            []
-        );
+      const accordionState = mapAccordionState(documentsState);
 
-        const notificationState = mapNotificationState(
-          state.notificationState,
-          state.documentsState,
-          coreDocumentsState,
-          action.payload.data.documentsRetrieved
-        );
-
-        const documentsState = mapNotificationToDocumentsState(
-          notificationState,
-          coreDocumentsState
-        );
-
-        const accordionState = mapAccordionState(documentsState);
-
-        nextState = {
-          ...nextState,
-          notificationState,
-          documentsState,
-          accordionState,
-        };
-      }
-
-      const newPipelineResults = action.payload;
-
-      const coreNextPipelineState = {
+      nextState = {
         ...nextState,
-        pipelineState: {
-          ...newPipelineResults,
+        notificationState,
+        documentsState,
+        accordionState,
+        documentRefreshData: {
+          ...nextState.documentRefreshData,
+          savedDocumentDetails:
+            nextState.documentRefreshData.savedDocumentDetails.filter(
+              (document) => !hasDocumentUpdated(document, data)
+            ),
         },
       };
 
-      const deletedOpenPDfsTabs = state.tabsState.items.filter(
-        (item) =>
-          !newPipelineResults.data.documents.some(
-            (document) => document.documentId === item.documentId
-          )
-      );
-
-      const openPdfsWeNeedToUpdate = newPipelineResults.data.documents
+      //Todo: Move this whole update of the open tabs into its own util function
+      const openPdfsWeNeedToUpdate = data
         .filter((item) =>
           state.tabsState.items.some(
             (tabItem) => tabItem.documentId === item.documentId
@@ -465,17 +451,20 @@ export const reducer = (
           })
         );
       if (!openPdfsWeNeedToUpdate.length) {
-        return coreNextPipelineState;
+        return nextState;
       }
 
-      /*
-        Note: if we are looking for open tabs that do not yet know their url (i.e. the
-          user has opened a document from the accordion before the pipeline has given us
-          the blob name for that document), it can only be after the document has been
-          launched from the accordion.  This means we don't have to worry about search
-          highlighting from this point on, only setting the URL (i.e. the document will be in 
-          "read" mode, not "search" mode)
-      */
+      const deletedOpenPDfsTabs = state.tabsState.items.filter(
+        (item) =>
+          !data.some((document) => document.documentId === item.documentId)
+      );
+
+      // Note: if we are looking for open tabs that do not yet know their url (i.e. the
+      // user has opened a document from the accordion before the pipeline has given us
+      // the blob name for that document), it can only be after the document has been
+      // launched from the accordion.  This means we don't have to worry about search
+      // highlighting from this point on, only setting the URL (i.e. the document will be in
+      // "read" mode, not "search" mode)
 
       const nextOpenTabs = state.tabsState.items.reduce((prev, curr) => {
         const matchingFreshPdfRecord = openPdfsWeNeedToUpdate.find(
@@ -513,35 +502,100 @@ export const reducer = (
       }, [] as CaseDocumentViewModel[]);
 
       return {
-        ...coreNextPipelineState,
+        ...nextState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
       };
     }
 
-    case "UPDATE_REFRESH_PIPELINE": {
+    case "UPDATE_PIPELINE": {
+      if (action.payload.status === "failed") {
+        throw action.payload.error;
+      }
+
+      if (action.payload.status === "initiating") {
+        return {
+          ...state,
+          pipelineState: {
+            ...state.pipelineState,
+            status: "initiating",
+          },
+        };
+      }
+      //temporary mapping until the mock data is cleaned
+      const mappedData = {
+        ...action.payload,
+        data: {
+          ...action.payload.data,
+          documents: action.payload.data.documents.map((doc) => ({
+            documentId: doc.documentId,
+            status: doc.status,
+            conversionStatus: doc.conversionStatus,
+          })),
+        },
+      };
+
+      const newLocalDocumentState = action.payload.data.documents.reduce(
+        (acc, curr) => {
+          acc[`${curr.documentId}`] = {
+            conversionStatus: curr.conversionStatus,
+          };
+          return acc;
+        },
+        {} as LocalDocumentState
+      );
+      return {
+        ...state,
+        pipelineState: {
+          ...state.pipelineState,
+          ...(mappedData as AsyncPipelineResult<PipelineResults>),
+        },
+        pipelineRefreshData: {
+          ...state.pipelineRefreshData,
+          lastProcessingCompleted: action.payload.data.processingCompleted, //may be can use it from pipelineState
+          localLastRefreshTime:
+            action.payload.data.status === "Completed"
+              ? new Date().toISOString()
+              : state.pipelineRefreshData.localLastRefreshTime,
+        },
+        localDocumentState: newLocalDocumentState,
+      };
+    }
+
+    case "UPDATE_DOCUMENT_REFRESH": {
       const {
         savedDocumentDetails: payloadSavedDocumentDetails,
-        startRefresh,
+        startDocumentRefresh,
       } = action.payload;
 
       const savedDocumentDetails = payloadSavedDocumentDetails
         ? [
-            ...state.pipelineRefreshData.savedDocumentDetails,
+            ...state.documentRefreshData.savedDocumentDetails,
             payloadSavedDocumentDetails,
           ]
-        : state.pipelineRefreshData.savedDocumentDetails;
+        : state.documentRefreshData.savedDocumentDetails;
+
+      return {
+        ...state,
+        documentRefreshData: {
+          ...state.documentRefreshData,
+          startDocumentRefresh,
+          savedDocumentDetails,
+        },
+      };
+    }
+    case "UPDATE_PIPELINE_REFRESH": {
+      const { startPipelineRefresh } = action.payload;
 
       return {
         ...state,
         pipelineRefreshData: {
           ...state.pipelineRefreshData,
-          startRefresh,
-          savedDocumentDetails,
+          startPipelineRefresh,
         },
       };
     }
 
-    case "OPEN_PDF":
+    case "OPEN_PDF": {
       const { documentId, mode, headers } = action.payload;
 
       const coreNewState = {
@@ -595,20 +649,20 @@ export const reducer = (
         (item) => item.documentId === documentId
       )!;
 
-      const pipelineDocument = state.pipelineState.haveData
-        ? state.pipelineState.data.documents.find(
+      const document = !!state.documentsState.data
+        ? state.documentsState.data.find(
             (item) => item.documentId === documentId
           )
         : undefined;
 
       const url =
-        pipelineDocument &&
+        document &&
         resolvePdfUrl(
           state.urn,
           state.caseId,
-          pipelineDocument.documentId,
-          pipelineDocument.versionId,
-          pipelineDocument.isOcrProcessed
+          document.documentId,
+          document.versionId,
+          document.isOcrProcessed
         );
 
       let item: CaseDocumentViewModel;
@@ -629,7 +683,6 @@ export const reducer = (
       if (mode === "read") {
         item = {
           ...coreItem,
-          sasUrl: undefined,
           mode: "read",
           areaOnlyRedactionMode: false,
         };
@@ -683,7 +736,6 @@ export const reducer = (
         item = {
           ...coreItem,
           mode: "search",
-          sasUrl: undefined,
           searchTerm: state.searchState.submittedSearchTerm!,
           occurrencesInDocumentCount: foundDocumentSearchResult
             ? foundDocumentSearchResult.occurrencesInDocumentCount
@@ -734,6 +786,7 @@ export const reducer = (
             }
           : {}),
       };
+    }
 
     case "CLOSE_PDF": {
       const { pdfId } = action.payload;
@@ -763,6 +816,10 @@ export const reducer = (
       return {
         ...state,
         searchTerm: action.payload.searchTerm,
+        searchState: {
+          ...state.searchState,
+          lastSubmittedSearchTerm: state.searchState.submittedSearchTerm,
+        },
       };
     case "CLOSE_SEARCH_RESULTS":
       return {
@@ -772,7 +829,11 @@ export const reducer = (
           isResultsVisible: false,
         },
       };
-    case "LAUNCH_SEARCH_RESULTS":
+    case "LAUNCH_SEARCH_RESULTS": {
+      const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
+        state.notificationState?.lastModifiedDateTime ?? "",
+        state.pipelineRefreshData?.localLastRefreshTime
+      );
       const { searchState, searchTerm } = state;
       const requestedSearchTerm = searchTerm.trim();
       const submittedSearchTerm = sanitizeSearchTerm(requestedSearchTerm);
@@ -784,10 +845,14 @@ export const reducer = (
           isResultsVisible: true,
           requestedSearchTerm,
           submittedSearchTerm,
+          lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
+            ? ""
+            : state.searchState.submittedSearchTerm ?? "",
         },
       };
+    }
 
-    case "UPDATE_SEARCH_RESULTS":
+    case "UPDATE_SEARCH_RESULTS": {
       if (action.payload.status === "failed") {
         throw action.payload.error;
       }
@@ -845,6 +910,7 @@ export const reducer = (
       }
 
       return state;
+    }
 
     case "CHANGE_RESULTS_ORDER":
       return {
@@ -867,7 +933,7 @@ export const reducer = (
         },
       };
 
-    case "UPDATE_FILTER":
+    case "UPDATE_FILTER": {
       const { isSelected, filter, id } = action.payload;
 
       const nextState = {
@@ -932,6 +998,7 @@ export const reducer = (
           },
         },
       };
+    }
     case "ADD_REDACTION": {
       const { documentId, redactions } = action.payload;
 
@@ -1679,6 +1746,19 @@ export const reducer = (
         },
       };
 
+      return newState;
+    }
+    case "UPDATE_CONVERSION_STATUS": {
+      const { documentId, status } = action.payload;
+      const newState = {
+        ...state,
+        localDocumentState: {
+          ...state.localDocumentState,
+          [`${documentId}`]: {
+            conversionStatus: status,
+          },
+        },
+      };
       return newState;
     }
     default:

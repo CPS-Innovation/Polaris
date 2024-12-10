@@ -10,7 +10,10 @@ import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
 import { RedactionWarning } from "./RedactionWarning";
-import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
+import {
+  PresentationFlags,
+  GroupedConversionStatus,
+} from "../../../domain/gateway/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
 import {
@@ -60,7 +63,6 @@ type Props = {
   pageDeleteRedactions: IPageDeleteRedaction[];
   pageRotations: IPageRotation[];
   focussedHighlightIndex: number;
-  isOkToSave: boolean;
   areaOnlyRedactionMode: boolean;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: (id: string) => void;
@@ -71,6 +73,7 @@ type Props = {
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
+  handleUpdateConversionStatus: CaseDetailsState["handleUpdateConversionStatus"];
 };
 
 const ensureAllPdfInView = () =>
@@ -93,7 +96,6 @@ export const PdfViewer: React.FC<Props> = ({
   redactionHighlights,
   pageDeleteRedactions,
   pageRotations,
-  isOkToSave,
   areaOnlyRedactionMode,
   handleAddPageRotation,
   handleRemovePageRotation,
@@ -105,6 +107,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleSearchPIIAction,
   handleRemoveAllRotations,
   handleSaveRotations,
+  handleUpdateConversionStatus,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
@@ -259,6 +262,14 @@ export const PdfViewer: React.FC<Props> = ({
     return className;
   };
 
+  const handlePdfLoaderError = (error: any) => {
+    if (!error?.status) return;
+    let status: GroupedConversionStatus = "OtherReasons";
+    if (error.status === 403) status = "EncryptionOrPasswordProtection";
+    if (error.status === 415) status = "UnsupportedFileTypeOrContent";
+    handleUpdateConversionStatus(contextData.documentId, status);
+  };
+
   return (
     <div>
       <div
@@ -273,6 +284,7 @@ export const PdfViewer: React.FC<Props> = ({
           // To avoid reaching out to an internet-hosted asset we have taken a local copy
           //  of the library that PdfHighlighter links to and put that in our `public` folder.
           workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.11.338.js`}
+          onError={handlePdfLoaderError}
         >
           {(pdfDocument) => (
             <>
@@ -466,7 +478,6 @@ export const PdfViewer: React.FC<Props> = ({
             totalRedactionsCount={
               redactionHighlights.length + pageDeleteRedactions.length
             }
-            isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
           />
@@ -476,7 +487,6 @@ export const PdfViewer: React.FC<Props> = ({
             contextData={contextData}
             tabIndex={tabIndex}
             totalRotationsCount={unSavedRotation.length}
-            isOkToSave={isOkToSave}
             handleRemoveAllRotations={handleRemoveAllRotations}
             handleSaveRotations={handleSaveRotations}
           />

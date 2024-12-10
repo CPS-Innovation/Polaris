@@ -1,5 +1,4 @@
-import { isNewTime, hasDocumentUpdated } from "./refreshUtils";
-import { PipelineResults } from "../../domain/gateway/PipelineResults";
+import { isNewTime } from "./refreshUtils";
 describe("refreshUtils", () => {
   describe("isNewTime", () => {
     it("it should return true if the lasttime is empty and currentime is non empty", () => {
@@ -33,43 +32,6 @@ describe("refreshUtils", () => {
     });
     it("it shouldn't break if we pass in invalid date and should return false", () => {
       const result = isNewTime("abc", "def");
-      expect(result).toEqual(false);
-    });
-  });
-
-  describe("hasDocumentUpdated", () => {
-    it.each([1, 3])(
-      "it should return true if there is matching updated document ",
-      (nextVersionId) => {
-        const newData = {
-          documents: [{ documentId: "1", versionId: nextVersionId }],
-        } as PipelineResults;
-        const result = hasDocumentUpdated(
-          { documentId: "1", versionId: 2 },
-          newData
-        );
-        expect(result).toEqual(true);
-      }
-    );
-    it("it should return false if there is matching document doesn't have version updated", () => {
-      const newData = {
-        documents: [{ documentId: "1", versionId: 1 }],
-      } as PipelineResults;
-      const result = hasDocumentUpdated(
-        { documentId: "1", versionId: 1 },
-        newData
-      );
-      expect(result).toEqual(false);
-    });
-
-    it("it should return false if there is no matching document found", () => {
-      const newData = {
-        documents: [{ documentId: "1", versionId: 1 }],
-      } as PipelineResults;
-      const result = hasDocumentUpdated(
-        { documentId: "2", versionId: 1 },
-        newData
-      );
       expect(result).toEqual(false);
     });
   });

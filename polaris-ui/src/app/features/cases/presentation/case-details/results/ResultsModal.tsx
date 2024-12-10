@@ -1,3 +1,4 @@
+import { useMemo, useState, useEffect } from "react";
 import { Modal } from "../../../../../common/presentation/components";
 import { SucceededApiResult } from "../../../../../common/types/SucceededApiResult";
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";
@@ -31,7 +32,20 @@ export const ResultsModal: React.FC<Props> = ({
   handleCloseSearchResults,
   ...restProps
 }) => {
+  //this is just to show the loading percentage only when the first pipeline refresh.
+  const [showLoadingPercentage, setShowLoadingPercentage] = useState(
+    !restProps.pipelineState?.data
+  );
+
   const { searchState } = restProps;
+  const percentageCompleted = useMemo(() => {
+    const docs = restProps.pipelineState.data
+      ? restProps.pipelineState.data.documents
+      : [];
+    const indexedDocs = docs.filter((doc) => doc.status === "Indexed");
+    if (!docs.length) return 0;
+    return Math.round(indexedDocs.length / docs.length) * 100;
+  }, [restProps.pipelineState]);
 
   const waitStatus = useMandatoryWaitPeriod(
     restProps.pipelineState.status === "complete" &&
@@ -39,6 +53,21 @@ export const ResultsModal: React.FC<Props> = ({
     PAUSE_PERIOD_MS,
     MANDATORY_WAIT_PERIOD
   );
+
+  useEffect(() => {
+    if (
+      showLoadingPercentage &&
+      waitStatus !== "wait" &&
+      restProps.pipelineState?.data?.status === "Completed"
+    ) {
+      setShowLoadingPercentage(false);
+    }
+  }, [
+    restProps.pipelineState?.data?.status,
+    showLoadingPercentage,
+    setShowLoadingPercentage,
+    waitStatus,
+  ]);
   return (
     <Modal
       isVisible={searchState.isResultsVisible}
@@ -46,8 +75,13 @@ export const ResultsModal: React.FC<Props> = ({
       ariaLabel="Search Modal"
       ariaDescription="Find your search results"
     >
-      {waitStatus === "wait" && searchState.submittedSearchTerm ? (
-        <PleaseWait />
+      {waitStatus === "wait" &&
+      searchState.submittedSearchTerm !==
+        searchState.lastSubmittedSearchTerm ? (
+        <PleaseWait
+          percentageCompleted={percentageCompleted}
+          showLoadingPercentage={showLoadingPercentage}
+        />
       ) : (
         <Content {...restProps} />
       )}

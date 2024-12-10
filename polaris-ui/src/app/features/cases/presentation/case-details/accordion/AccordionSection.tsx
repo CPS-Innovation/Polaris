@@ -3,6 +3,7 @@ import { AccordionDocument } from "./AccordionDocument";
 import classes from "./Accordion.module.scss";
 import { ReactComponent as EmailIcon } from "../../../../../common/presentation/svgs/email.svg";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
+import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import { Classification } from "../../../domain/gateway/PipelineDocument";
@@ -13,6 +14,7 @@ type Props = {
   sectionId: string;
   sectionLabel: string;
   docs: MappedCaseDocument[];
+  localDocumentState: LocalDocumentState;
   readUnreadData: string[];
   isOpen: boolean;
   featureFlags: FeatureFlagData;
@@ -45,6 +47,7 @@ export const AccordionSection: React.FC<Props> = ({
   sectionId,
   sectionLabel,
   docs,
+  localDocumentState,
   isOpen,
   readUnreadData,
   featureFlags,
@@ -102,6 +105,10 @@ export const AccordionSection: React.FC<Props> = ({
                   <AccordionDocument
                     key={caseDocument.documentId}
                     caseDocument={caseDocument}
+                    conversionStatus={
+                      localDocumentState[caseDocument.documentId]
+                        ?.conversionStatus
+                    }
                     readUnreadData={readUnreadData}
                     activeDocumentId={activeDocumentId}
                     handleOpenPdf={handleOpenPdf}

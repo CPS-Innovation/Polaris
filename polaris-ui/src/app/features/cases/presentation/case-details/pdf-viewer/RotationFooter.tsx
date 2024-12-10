@@ -13,7 +13,6 @@ type RotationFooterProps = {
   };
   tabIndex: number;
   totalRotationsCount: number;
-  isOkToSave: boolean;
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
 };
@@ -22,7 +21,6 @@ export const RotationFooter: React.FC<RotationFooterProps> = ({
   contextData,
   tabIndex,
   totalRotationsCount,
-  isOkToSave,
   handleRemoveAllRotations,
   handleSaveRotations,
 }) => {
@@ -72,7 +70,7 @@ export const RotationFooter: React.FC<RotationFooterProps> = ({
         className={classes.saveButton}
         onClick={handleSaveRotationsClick}
         data-testid={`btn-save-rotations-${tabIndex}`}
-        disabled={!isOkToSave || saveStatus.status === "saving"}
+        disabled={saveStatus.status === "saving"}
       >
         Save all rotations
       </Button>

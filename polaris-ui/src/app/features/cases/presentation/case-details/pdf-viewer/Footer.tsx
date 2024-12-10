@@ -12,7 +12,6 @@ type Props = {
   };
   tabIndex: number;
   totalRedactionsCount: number;
-  isOkToSave: boolean;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
 };
@@ -21,7 +20,6 @@ export const Footer: React.FC<Props> = ({
   contextData,
   tabIndex,
   totalRedactionsCount,
-  isOkToSave,
   handleRemoveAllRedactions,
   handleSavedRedactions,
 }) => {
@@ -66,7 +64,7 @@ export const Footer: React.FC<Props> = ({
         className={classes.saveButton}
         onClick={handleSaveAllRedactionsClick}
         data-testid={`btn-save-redaction-${tabIndex}`}
-        disabled={!isOkToSave || saveStatus.status === "saving"}
+        disabled={saveStatus.status === "saving"}
       >
         Save all redactions
       </Button>

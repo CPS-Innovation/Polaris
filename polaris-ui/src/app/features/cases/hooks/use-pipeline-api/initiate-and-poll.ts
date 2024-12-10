@@ -1,35 +1,12 @@
 import { ApiError } from "../../../../common/errors/ApiError";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
-import {
-  getDocuments,
-  getPipelinePdfResults,
-  initiatePipeline,
-} from "../../api/gateway-api";
+import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { getPipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
-import {
-  isNewTime,
-  hasDocumentUpdated,
-  LOCKED_STATUS_CODE,
-} from "../utils/refreshUtils";
+import { isNewTime } from "../utils/refreshUtils";
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
-
-const hasAnyDocumentUpdated = (
-  savedDocumentDetails: {
-    documentId: string;
-    versionId: number;
-  }[],
-  pipelineResult: PipelineResults
-) => {
-  return (
-    !savedDocumentDetails.length ||
-    savedDocumentDetails.some((document) =>
-      hasDocumentUpdated(document, pipelineResult)
-    )
-  );
-};
 
 export const initiateAndPoll = (
   urn: string,
@@ -43,7 +20,7 @@ export const initiateAndPoll = (
   let keepPolling = true;
   let trackingCallCount = 0;
 
-  const { lastProcessingCompleted, savedDocumentDetails } = pipelineRefreshData;
+  const { lastProcessingCompleted } = pipelineRefreshData;
 
   const handleApiCallSuccess = (pipelineResult: PipelineResults) => {
     trackingCallCount += 1;
@@ -51,14 +28,11 @@ export const initiateAndPoll = (
     const completionStatus = getPipelineCompletionStatus(pipelineResult.status);
     if (
       completionStatus === "Completed" &&
-      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted) &&
-      // todo: not sure about this
-      hasAnyDocumentUpdated(savedDocumentDetails, pipelineResult)
+      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted)
     ) {
       del({
         status: "complete",
         data: pipelineResult,
-        haveData: true,
         correlationId,
       });
       keepPolling = false;
@@ -70,7 +44,6 @@ export const initiateAndPoll = (
       del({
         status: "incomplete",
         data: pipelineResult,
-        haveData: true,
         correlationId,
       });
     }
@@ -82,7 +55,6 @@ export const initiateAndPoll = (
       status: "failed",
       error,
       httpStatusCode: error instanceof ApiError ? error.code : undefined,
-      haveData: false,
       correlationId,
     });
   };
@@ -101,14 +73,8 @@ export const initiateAndPoll = (
           break;
         }
         const trackerArgs = await initiatePipeline(urn, caseId, correlationId);
-        // If we get 423 and there are redacted documents, keep polling initiate pipeline
-        const shouldKeepPollingInitiate =
-          trackerArgs.status === LOCKED_STATUS_CODE &&
-          savedDocumentDetails.length; // I'm not sure about this, what about notes?
-        if (!shouldKeepPollingInitiate) {
-          startTrackerPolling(trackerArgs);
-          break;
-        }
+        startTrackerPolling(trackerArgs);
+        break;
       } catch (error) {
         handleApiCallError(error);
       }
@@ -131,7 +97,6 @@ export const initiateAndPoll = (
             trackerArgs.trackerUrl,
             trackerArgs.correlationId
           ),
-          //getDocuments(urn, caseId),
         ]);
 
         if (pipelineResults) {

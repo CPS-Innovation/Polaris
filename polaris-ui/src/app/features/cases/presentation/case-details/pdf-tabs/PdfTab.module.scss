@@ -1,4 +1,4 @@
-.deletedDocument {
+.unAvailableDocument {
   min-height: 84vh;
   display: flex;
   justify-content: center;
@@ -22,4 +22,13 @@
 .failedAttachmentWarning {
   color: #d4351c;
   font-style: italic;
+}
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
