@@ -117,7 +117,7 @@ stages:
                     armSubscriptionId: $(subscriptionId)
                     logRetentionTime: ${{ parameters.logRetentionTime }}
                     totalLogRetentionTime: ${{ parameters.totalLogRetentionTime }}
-
+                    
       - deployment: Apply_Index_Terraform
         condition: succeeded()
         dependsOn: Set_Log_Analytics_Archival_Periods

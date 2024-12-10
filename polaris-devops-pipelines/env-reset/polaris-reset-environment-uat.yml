@@ -1,0 +1,76 @@
+---
+trigger: none
+pr: none
+
+pool:
+  name: $(uat-build-agent)
+  
+variables:
+  - group: kv-uat-terraform
+  - group: polaris-global
+  - group: terraform-containers
+  - name: target-env
+    value: "UAT"
+  
+stages:
+  - stage: Wait_For_Running_Pipelines
+    displayName: Check Run Status
+    jobs:
+      - deployment: Wait_For_Running_Pipelines
+        environment: $(target-env)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../deployments_v2/stages/jobs/tasks/task_wait-for-running-releases.yml
+                  parameters:
+                    devOpsPatToken: $(System.AccessToken)
+                    
+  - template: stages/stage_reset-polaris-search-index.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(index-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
+
+  - template: stages/stage_reset-polaris-main.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(main-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
+      targetSuffix: "-uat"
+      targetUiStorageAccount: "sacpsuatpolaris"
+      targetPipelineStorageAccount: "sacpsuatpolarispipeline"
+      
+  - template: stages/stage_reset-redaction-logger.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(redaction-logger-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
+      targetSuffix: "-uat"
+      
+  - template: stages/stage_reset-ddei.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(ddei-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"
+      
+  - template: stages/stage_reset-alerting-framework.yml
+    parameters:
+      azureSubscription: $(uat-azure-subscription)
+      terraformStorageAccount: $(uat-terraform-storage-account)
+      terraformContainerName: $(alerting-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsuatstorageterraform-key1)
+      targetVarFile: "uat"

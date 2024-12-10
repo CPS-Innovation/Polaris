@@ -628,7 +628,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                           className={`${classes.newWindowBtn} govuk-button--secondary`}
                           name="secondary"
                         >
-                          Case Review App <NewWindow />
+                          Case Review <NewWindow />
                         </Button>
                       )}
 
