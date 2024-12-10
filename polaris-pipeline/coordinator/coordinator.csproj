@@ -3,14 +3,27 @@
     <TargetFramework>net8.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <RootNamespace>coordinator</RootNamespace>
-	<OutputType>Exe</OutputType>	  	
-    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>	  	
+    <OutputType>Exe</OutputType>
+    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
     <DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
   </PropertyGroup>
+  <!-- See for reason why we need this
+  https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
+  <Target Name="CopyGrpcNativeAssetsToOutDir" AfterTargets="Build">
+    <ItemGroup>
+      <NativeAssetToCopy Condition="$([MSBuild]::IsOSPlatform('OSX'))"
+        Include="$(OutDir)runtimes/osx-arm64/native/*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeAssetToCopy)"
+      DestinationFolder="$(OutDir).azurefunctions/runtimes/osx-arm64/native" />
+  </Target>
   <ItemGroup>
+    <!-- See for reason why we need version 2.41.0 explicitly
+    https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
+    <PackageReference Include="Contrib.Grpc.Core.M1" Version="2.46.7" />
     <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="Azure.AI.TextAnalytics" Version="5.3.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
@@ -22,10 +35,12 @@
     <PackageReference Include="Microsoft.Azure.DurableTask.AzureStorage" Version="2.0.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore"
+      Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask"
+      Version="1.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.8.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
