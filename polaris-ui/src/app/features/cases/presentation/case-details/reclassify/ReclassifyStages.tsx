@@ -59,7 +59,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getWitnessStatementNumbers,
   handleSubmitReclassify,
   handleReclassifyTracking,
-  handleLookUpDataError
+  handleLookUpDataError,
 }) => {
   const continueButtonRef = useRef(null);
   const acceptAndSaveButtonRef = useRef(null);
@@ -84,6 +84,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const reclassifyContext = useReClassifyContext()!;
 
   const { state, dispatch } = reclassifyContext;
+
+  const handleResetFormDataErrors = useCallback(() => {
+    setFormDataErrors(errorTextsInitialValue);
+  }, []);
 
   const validateData = () => {
     const {
@@ -250,55 +254,54 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       immediate:
         state.reclassifyVariant === "Immediate"
           ? {
-            documentName:
-              formData.documentRenameStatus === "YES"
-                ? formData.documentNewName
-                : null,
-          }
+              documentName:
+                formData.documentRenameStatus === "YES"
+                  ? formData.documentNewName
+                  : null,
+            }
           : null,
       other:
         state.reclassifyVariant === "Other"
           ? {
-            documentName:
-              formData.documentRenameStatus === "YES"
-                ? formData.documentNewName
-                : null,
-            used,
-          }
+              documentName:
+                formData.documentRenameStatus === "YES"
+                  ? formData.documentNewName
+                  : null,
+              used,
+            }
           : null,
       statement:
         state.reclassifyVariant === "Statement"
           ? {
-            used,
-            witnessId: +formData.statementWitnessId!,
-            statementNo: +formData.statementNumber!,
-            date:
-              reclassificationType === "Statement"
-                ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
-                : "",
-          }
+              used,
+              witnessId: +formData.statementWitnessId!,
+              statementNo: +formData.statementNumber!,
+              date:
+                reclassificationType === "Statement"
+                  ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
+                  : "",
+            }
           : null,
       exhibit:
         state.reclassifyVariant === "Exhibit"
           ? {
-            used,
-            existingProducerOrWitnessId:
-              formData.exhibitProducerId &&
+              used,
+              existingProducerOrWitnessId:
+                formData.exhibitProducerId &&
                 formData.exhibitProducerId !== "other"
-                ? +formData.exhibitProducerId
-                : null,
-            newProducer:
-              formData.exhibitProducerId === "other"
-                ? formData.exhibitOtherProducerValue
-                : null,
-            item: formData.exhibitItemName,
-            reference: formData.exhibitReference,
-          }
+                  ? +formData.exhibitProducerId
+                  : null,
+              newProducer:
+                formData.exhibitProducerId === "other"
+                  ? formData.exhibitOtherProducerValue
+                  : null,
+              item: formData.exhibitItemName,
+              reference: formData.exhibitReference,
+            }
           : null,
     };
     return saveData;
   };
-
 
   const handleBackBtnClick = () => {
     if (state.reClassifyStage === "stage1") {
@@ -368,7 +371,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             onClick={handleAcceptAndSave}
             disabled={
               state.reClassifySaveStatus === "saving" ||
-                state.reClassifySaveStatus === "success" ? true : false
+              state.reClassifySaveStatus === "success"
+                ? true
+                : false
             }
             data-testid="reclassify-continue-btn"
           >
@@ -384,10 +389,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         </>
       );
     }
-    return (
-      <>
-      </>
-    );
+    return <></>;
   };
 
   useEffect(() => {
@@ -424,7 +426,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       type: "RESET_FORM_DATA",
       payload: { presentationTitle: presentationTitle },
     });
-  }, [presentationTitle])
+  }, [presentationTitle]);
 
   if (lookupError) {
     throw Error(lookupError);
@@ -447,6 +449,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               getStatementWitnessDetails={getStatementWitnessDetails}
               getWitnessStatementNumbers={getWitnessStatementNumbers}
               handleLookUpDataError={handleLookUpDataError}
+              handleResetFormDataErrors={handleResetFormDataErrors}
             />
           )}
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>
