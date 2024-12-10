@@ -213,7 +213,7 @@ module "azurerm_app_reg_as_web_polaris" {
       }]
     },
     {
-      resource_app_id = data.azuread_application.fa_redaction_log_reporting.application_id
+      resource_app_id = data.azuread_application.fa_redaction_log_reporting.client_id
       resource_access = [{
         id   = data.azuread_application.fa_redaction_log_reporting.oauth2_permission_scope_ids["user_impersonation"]
         type = "Scope"

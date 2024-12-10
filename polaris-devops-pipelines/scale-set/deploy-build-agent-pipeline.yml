@@ -3,7 +3,7 @@ trigger: none
 pr: none
 
 schedules:
-  - cron: "0 0 * * 0"  # Weekly at Sunday night - ensure the build agent image is up-to-date
+  - cron: "0 07 * * 0"  # Weekly on a Sunday morning at 6am - ensure the build agent image is up-to-date
     displayName: Weekly Sunday night build-agent refresh
     branches:
       include:
@@ -13,6 +13,8 @@ schedules:
 variables:
   - group: polaris-build-agent
   - group: polaris-global
+  - name: base-agent-image
+    value: "Canonical:ubuntu-24_04-lts:server-gen1:linux"
 
 pool:
   vmImage: ubuntu-latest
@@ -37,10 +39,14 @@ stages:
       - job: build
         displayName: DEV - Build Image
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
-
+              
           - template: steps/create-build-agent-image.yml
             parameters:
               clientId: $(clientId)
@@ -51,7 +57,7 @@ stages:
               resourceGroup: $(innovation-development-build-agent-resource-group)
               storageAccount: $(innovation-development-build-agent-storage-account)
               versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+              baseImage: $(base-agent-image)
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: image_builder_qa
@@ -65,10 +71,14 @@ stages:
       - job: build
         displayName: QA - Build Image
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(qa-azure-subscription)
-
+              
           - template: steps/create-build-agent-image.yml
             parameters:
               clientId: $(clientId)
@@ -79,7 +89,7 @@ stages:
               resourceGroup: $(innovation-qa-build-agent-resource-group)
               storageAccount: $(innovation-qa-build-agent-storage-account)
               versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+              baseImage: $(base-agent-image)
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: image_builder_uat
@@ -93,10 +103,14 @@ stages:
       - job: build
         displayName: UAT - Build Image
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(uat-azure-subscription)
-
+              
           - template: steps/create-build-agent-image.yml
             parameters:
               clientId: $(clientId)
@@ -107,7 +121,7 @@ stages:
               resourceGroup: $(innovation-uat-build-agent-resource-group)
               storageAccount: $(innovation-uat-build-agent-storage-account)
               versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+              baseImage: $(base-agent-image)
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-uat","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: image_builder_prod
@@ -121,10 +135,14 @@ stages:
       - job: build
         displayName: PROD - Build Image
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(prod-azure-subscription)
-
+              
           - template: steps/create-build-agent-image.yml
             parameters:
               clientId: $(clientId)
@@ -135,7 +153,7 @@ stages:
               resourceGroup: $(innovation-prod-build-agent-resource-group)
               storageAccount: $(innovation-prod-build-agent-storage-account)
               versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+              baseImage: $(base-agent-image)
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-production","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
   - stage: update_scale_set_dev
@@ -149,6 +167,10 @@ stages:
       - job: update
         displayName: Update Resources
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Re-Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(dev-azure-subscription)
@@ -174,6 +196,10 @@ stages:
       - job: update
         displayName: Update QA
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Re-Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(qa-azure-subscription)
@@ -199,6 +225,10 @@ stages:
       - job: update
         displayName: Update UAT
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Re-Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(uat-azure-subscription)
@@ -224,6 +254,10 @@ stages:
       - job: update
         displayName: Update PROD
         steps:
+          - template: steps/check-package-sources.yml
+            parameters:
+              taskDisplayName: 'Re-Check Package Sources'
+              
           - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
             parameters:
               azureSubscription: $(prod-azure-subscription)
