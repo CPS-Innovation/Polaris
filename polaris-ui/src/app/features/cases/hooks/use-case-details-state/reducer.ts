@@ -31,11 +31,7 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
-import {
-  addToLocalStorage,
-  deleteFromLocalStorage,
-} from "../../presentation/case-details/utils/localStorageUtils";
-import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
+import { handleSaveRedactionsLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
@@ -1034,14 +1030,12 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      if (redactionsToSave.length) {
-        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
-      }
+
       return newState;
     }
     case "ADD_PAGE_DELETE_REDACTION": {
@@ -1099,14 +1093,11 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      if (redactionsToSave.length) {
-        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
-      }
       return newState;
     }
     case "SAVING_DOCUMENT": {
@@ -1147,14 +1138,11 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionsToSave.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
-        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }
@@ -1179,14 +1167,11 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionsToSave.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
-        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }
@@ -1209,14 +1194,11 @@ export const reducer = (
         },
       };
       //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionHighlights.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
-        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }
