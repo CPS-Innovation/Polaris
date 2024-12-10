@@ -3011,7 +3011,587 @@ describe("useCaseDetailsState reducer", () => {
     });
   });
 
-  describe("SHOW_HIDE_PAGE_DELETION", () => {});
+  describe("SHOW_HIDE_PAGE_DELETION", () => {
+    it("should update correctly when the deletePageMode is set to true", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "SHOW_HIDE_PAGE_DELETION",
+        payload: {
+          documentId: "1",
+          deletePageMode: true,
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: true,
+              rotatePageMode: false,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      });
+    });
+    it("should update correctly when the deletePageMode is set to false", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: true,
+              rotatePageMode: true,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "SHOW_HIDE_PAGE_DELETION",
+        payload: {
+          documentId: "1",
+          deletePageMode: false,
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      });
+    });
+  });
+
+  describe("SHOW_HIDE_PAGE_ROTATION", () => {
+    it("should update correctly when the rotatePageMode is set to true", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: true,
+              rotatePageMode: false,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "SHOW_HIDE_PAGE_ROTATION",
+        payload: {
+          documentId: "1",
+          rotatePageMode: true,
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: true,
+              rotatePageMode: true,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      });
+    });
+    it("should update correctly when the rotatePageMode is set to false", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: true,
+              rotatePageMode: true,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "SHOW_HIDE_PAGE_ROTATION",
+        payload: {
+          documentId: "1",
+          rotatePageMode: false,
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              deletePageMode: true,
+              rotatePageMode: false,
+            },
+            {
+              documentId: "2",
+              deletePageMode: false,
+              rotatePageMode: true,
+            },
+          ],
+        },
+      });
+    });
+  });
+
+  describe("ADD_PAGE_ROTATION", () => {
+    it("should update correctly rotation angle of an already page existing rotation", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [{ id: "12", pageNumber: 1, rotationAngle: 0 }],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ADD_PAGE_ROTATION",
+        payload: {
+          documentId: "1",
+          pageRotations: [{ pageNumber: 1, rotationAngle: 90 }],
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [{ id: "12", pageNumber: 1, rotationAngle: 90 }],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      });
+    });
+    it("should update correctly rotation angle of a new page rotation", () => {
+      const mockDate = new Date(123);
+      jest.spyOn(global, "Date").mockImplementation(() => mockDate as any);
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [{ id: "12", pageNumber: 1, rotationAngle: 0 }],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ADD_PAGE_ROTATION",
+        payload: {
+          documentId: "1",
+          pageRotations: [{ pageNumber: 3, rotationAngle: 180 }],
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [
+                { id: "12", pageNumber: 1, rotationAngle: 0 },
+                { id: "123-0", pageNumber: 3, rotationAngle: 180 },
+              ],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      });
+      jest.spyOn(global, "Date").mockRestore();
+    });
+  });
+
+  describe("REMOVE_PAGE_ROTATION", () => {
+    it("should successfully remove the last page rotation available for that document", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [{ id: "12", pageNumber: 1, rotationAngle: 0 }],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "REMOVE_PAGE_ROTATION",
+        payload: {
+          documentId: "1",
+          rotationId: "12",
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      });
+    });
+    it("should successfully remove the page rotation", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [
+                { id: "12", pageNumber: 1, rotationAngle: 0 },
+                { id: "13", pageNumber: 2, rotationAngle: 90 },
+              ],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "REMOVE_PAGE_ROTATION",
+        payload: {
+          documentId: "1",
+          rotationId: "13",
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [{ id: "12", pageNumber: 1, rotationAngle: 0 }],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      });
+    });
+  });
+
+  describe("REMOVE_ALL_ROTATIONS", () => {
+    it("should successfully remove all the page rotations for a document", () => {
+      const existingState = {
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [
+                { id: "12", pageNumber: 1, rotationAngle: 0 },
+                { id: "123-0", pageNumber: 3, rotationAngle: 180 },
+              ],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "REMOVE_ALL_ROTATIONS",
+        payload: {
+          documentId: "1",
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        tabsState: {
+          items: [
+            {
+              documentId: "1",
+              pageRotations: [],
+            },
+            {
+              documentId: "2",
+              pageRotations: [{ id: "13", pageNumber: 2, rotationAngle: 0 }],
+            },
+          ],
+        },
+      });
+    });
+  });
+
+  describe("ACCORDION_OPEN_CLOSE", () => {
+    it("should return the state without any update", () => {
+      const existingState = {
+        accordionState: {
+          status: "loading",
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ACCORDION_OPEN_CLOSE",
+        payload: {
+          id: "foo",
+          open: true,
+        } as any,
+      });
+
+      expect(nextState).toEqual({
+        accordionState: {
+          status: "loading",
+        },
+      });
+    });
+    it("Should open a section, leaving a mix of open and closed sections ", () => {
+      const existingState = {
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: false, bar: false },
+            isAllOpen: false,
+            sections: [],
+          },
+        },
+      } as unknown as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ACCORDION_OPEN_CLOSE",
+        payload: {
+          id: "foo",
+          open: true,
+        } as any,
+      });
+      expect(nextState).toEqual({
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: true, bar: false },
+            isAllOpen: false,
+            sections: [],
+          },
+        },
+      });
+    });
+    it("Should open a section, leaving all sections opened if that is the last section to open", () => {
+      const existingState = {
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: false, bar: true },
+            isAllOpen: false,
+            sections: [],
+          },
+        },
+      } as unknown as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ACCORDION_OPEN_CLOSE",
+        payload: {
+          id: "foo",
+          open: true,
+        } as any,
+      });
+      expect(nextState).toEqual({
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: true, bar: true },
+            isAllOpen: true,
+            sections: [],
+          },
+        },
+      });
+    });
+    it("Should close a section, leaving a mix of open and closed sections ", () => {
+      const existingState = {
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: true, bar: true },
+            isAllOpen: true,
+            sections: [],
+          },
+        },
+      } as unknown as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ACCORDION_OPEN_CLOSE",
+        payload: {
+          id: "foo",
+          open: false,
+        } as any,
+      });
+      expect(nextState).toEqual({
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: false, bar: true },
+            isAllOpen: false,
+            sections: [],
+          },
+        },
+      });
+    });
+  });
+
+  describe("ACCORDION_OPEN_CLOSE_ALL", () => {
+    it("should return the state without any update", () => {
+      const existingState = {
+        accordionState: {
+          status: "loading",
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ACCORDION_OPEN_CLOSE_ALL",
+        payload: true,
+      });
+
+      expect(nextState).toEqual({
+        accordionState: {
+          status: "loading",
+        },
+      });
+    });
+    it("Should open all section", () => {
+      const existingState = {
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: false, bar: false },
+            isAllOpen: false,
+            sections: [],
+          },
+        },
+      } as unknown as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ACCORDION_OPEN_CLOSE_ALL",
+        payload: true,
+      });
+      expect(nextState).toEqual({
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: true, bar: true },
+            isAllOpen: true,
+            sections: [],
+          },
+        },
+      });
+    });
+    it("Should close all sections", () => {
+      const existingState = {
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: true, bar: true },
+            isAllOpen: true,
+            sections: [],
+          },
+        },
+      } as unknown as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "ACCORDION_OPEN_CLOSE_ALL",
+        payload: false,
+      });
+      expect(nextState).toEqual({
+        accordionState: {
+          status: "succeeded",
+          data: {
+            sectionsOpenStatus: { foo: false, bar: false },
+            isAllOpen: false,
+            sections: [],
+          },
+        },
+      });
+    });
+  });
 
   describe("UPDATE_CONVERSION_STATUS", () => {
     it("can update conversion status of already existing document in the localDocumentState", () => {
