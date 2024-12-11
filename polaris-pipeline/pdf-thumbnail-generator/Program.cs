@@ -1,7 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.DurableTask.Client;
 using pdf_thumbnail_generator.Durable.Providers;
 using Microsoft.Extensions.Configuration;
 using Common.Handlers;
@@ -29,8 +28,6 @@ var host = new HostBuilder()
 
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-
-        services.AddDurableTaskClient(b => b.UseGrpc());
 
         services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
         services.AddSingleton<IThumbnailGenerationService, ThumbnailGenerationService>();
