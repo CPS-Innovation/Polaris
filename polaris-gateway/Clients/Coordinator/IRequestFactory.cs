@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-
-namespace PolarisGateway.Clients.Coordinator
+﻿namespace PolarisGateway.Clients.Coordinator
 {
     public interface IRequestFactory
     {

@@ -1,47 +1,62 @@
 ﻿using Common.Configuration;
-using Common.Telemetry;
 using Ddei;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
+using PolarisGateway.Handlers;
 
-namespace PolarisGateway.Functions;
-
-public class GetCase : BaseFunction
+namespace PolarisGateway.Functions
 {
-    private readonly ILogger<GetCase> _logger;
-    private readonly IDdeiClient _ddeiClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
-
-    public GetCase(
-        ILogger<GetCase> logger,
-        IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+    public class GetCase
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient;
-    }
+        private readonly ILogger<GetCase> _logger;
+        private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-    [Function(nameof(GetCase))]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
-    {
-        var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        public GetCase(
+            ILogger<GetCase> logger,
+            IDdeiClient ddeiClient,
+            IDdeiArgFactory ddeiArgFactory,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
+            _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
+            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
+        }
 
-        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var result = await _ddeiClient.GetCaseAsync(arg);
+        [FunctionName(nameof(GetCase))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        {
+            (Guid CorrelationId, string CmsAuthValues) context = default;
+            try
+            {
+                context = await _initializationHandler.Initialize(req);
 
-        return new OkObjectResult(result);
+                var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId);
+                var result = await _ddeiClient.GetCaseAsync(arg);
+
+                return new OkObjectResult(result);
+            }
+            catch (Exception ex)
+            {
+                return _unhandledExceptionHandler.HandleUnhandledExceptionActionResult(
+                  _logger,
+                  nameof(GetCase),
+                  context.CorrelationId,
+                  ex
+                );
+            }
+        }
     }
 }
+

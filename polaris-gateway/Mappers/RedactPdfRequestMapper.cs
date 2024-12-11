@@ -1,27 +1,23 @@
 ﻿using Common.Dto.Request;
 using Common.Dto.Request.DocumentManipulation;
 using Common.Dto.Request.Redaction;
-using System;
-using System.Linq;
 
 namespace PolarisGateway.Mappers
 {
     public class RedactPdfRequestMapper : IRedactPdfRequestMapper
     {
-        public RedactPdfRequestMapper()
-        {
-        }
+        public RedactPdfRequestMapper() { }
 
         public RedactPdfRequestDto Map(DocumentRedactionSaveRequestDto saveRequest)
         {
-            ArgumentNullException.ThrowIfNull(saveRequest);
+            if (saveRequest == null) throw new ArgumentNullException(nameof(saveRequest));
 
             var result = new RedactPdfRequestDto
             {
                 // FileName - not known yet, picked up later in the durable world
                 // VersionId - not passed in previous code, possibly get set as 0->1 in Blob metadata, but as not used this isn't a problem
-                RedactionDefinitions = [],
-                DocumentModifications = []
+                RedactionDefinitions = new List<RedactionDefinitionDto>(),
+                DocumentModifications = new List<DocumentModificationDto>()
             };
 
             foreach (var item in saveRequest.Redactions)
@@ -31,7 +27,7 @@ namespace PolarisGateway.Mappers
                     PageIndex = item.PageIndex,
                     Height = item.Height,
                     Width = item.Width,
-                    RedactionCoordinates = []
+                    RedactionCoordinates = new List<RedactionCoordinatesDto>()
                 };
                 foreach (var redactionCoordinates in item.RedactionCoordinates.Select(coordinates => new RedactionCoordinatesDto
                 {

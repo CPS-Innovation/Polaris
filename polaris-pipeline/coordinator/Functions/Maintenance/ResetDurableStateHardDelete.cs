@@ -1,10 +1,11 @@
+using System.Net.Http;
 using System.Threading.Tasks;
 using DurableTask.AzureStorage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.DurableTask.Client;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 
 namespace coordinator.Functions.Maintenance;
 
@@ -18,31 +19,33 @@ namespace coordinator.Functions.Maintenance;
 // [1]: https://github.com/Azure/azure-functions-durable-extension/discussions/2029#discussioncomment-1760004
 public class ResetDurableStateHardDelete
 {
-    readonly IConfiguration _configuration;
+    readonly INameResolver _nameResolver;
 
     // INameResolver is a service of the Functions host that can
     // be used to look up app settings.
-    public ResetDurableStateHardDelete(IConfiguration configuration)
+    public ResetDurableStateHardDelete(INameResolver nameResolver)
     {
-        _configuration = configuration;
+        _nameResolver = nameResolver;
     }
 
-    [Function(nameof(ResetDurableStateHardDelete))]
+    [FunctionName(nameof(ResetDurableStateHardDelete))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ResetDurableState(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req,
-        [DurableClient] DurableTaskClient client)
+    public async Task<HttpResponseMessage> ResetDurableState(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestMessage req,
+        [DurableClient] IDurableClient client)
     {
+        var connString = _nameResolver.Resolve("AzureWebJobsStorage");
         var settings = new AzureStorageOrchestrationServiceSettings
         {
-            TaskHubName = _configuration.GetValue<string>("CoordinatorTaskHub"),
+            StorageConnectionString = connString,
+            TaskHubName = client.TaskHubName,
         };
 
         var storageService = new AzureStorageOrchestrationService(settings);
 
         await storageService.DeleteAsync();
 
-        return new OkResult();
+        return req.CreateResponse(System.Net.HttpStatusCode.OK);
     }
 }

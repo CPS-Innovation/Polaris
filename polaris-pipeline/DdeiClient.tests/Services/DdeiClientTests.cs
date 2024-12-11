@@ -6,6 +6,7 @@ using Common.Wrappers;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using Ddei.Mappers;
+using Ddei.Exceptions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,6 @@ using Moq;
 using Moq.Protected;
 using Xunit;
 using Ddei.Domain.Response.Document;
-using Common.Exceptions;
 
 namespace Ddei.tests.Services;
 

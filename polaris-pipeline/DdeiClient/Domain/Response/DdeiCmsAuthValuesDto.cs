@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Ddei.Domain.Response
 {
@@ -8,7 +8,7 @@ namespace Ddei.Domain.Response
 
         public string UserIpAddress { get; set; }
 
-        [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string PreferredLoadBalancerTarget { get; set; }
 
         public string Token { get; set; }
