@@ -30,7 +30,7 @@ type ReclassifyStage1Props = {
   handleLookUpDataError: (errorMessage: string) => void;
   handleResetFormDataErrors: () => void;
   reclassifiedDocumentUpdate?: boolean;
-  handleCheckContentLoaded: (value: number) => void
+  handleCheckContentLoaded: (value: boolean) => void
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
@@ -200,7 +200,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
           getWitnessStatementNumbers={getWitnessStatementNumbers}
           handleBackBtnClick={handleBackBtnClick}
           handleLookUpDataError={handleLookUpDataError}
-          handleCheckContentLoaded={(value) => handleCheckContentLoaded(value)}
+          handleCheckContentLoaded={handleCheckContentLoaded}
         />
       ) : (
         ""

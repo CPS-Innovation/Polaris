@@ -59,7 +59,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   getWitnessStatementNumbers,
   handleSubmitReclassify,
   handleReclassifyTracking,
-  handleLookUpDataError,
 }) => {
   const continueButtonRef = useRef(null);
   const acceptAndSaveButtonRef = useRef(null);
@@ -84,13 +83,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const reclassifyContext = useReClassifyContext()!;
 
   const { state, dispatch } = reclassifyContext;
-  const [contentLoaded, setContentLoaded] = useState<number>(0);
+  const [contentLoaded, setContentLoaded] = useState<boolean>(false);
 
   const handleResetFormDataErrors = useCallback(() => {
     setFormDataErrors(errorTextsInitialValue);
   }, []);
 
-  const handleCheckContentLoaded = useCallback((value: number) => {
+  const handleCheckContentLoaded = useCallback((value: boolean) => {
     setContentLoaded(value)
   }, []);
 
@@ -360,9 +359,10 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       (acceptAndSaveButtonRef.current as HTMLButtonElement).focus();
   };
 
-  // const handleLookUpDataErrorFn = (errorMessage: string) => {
-  //   setLookupDataError(errorMessage);
-  // };
+  const handleLookUpDataError = (errorMessage: string) => {
+    setLookupDataError(errorMessage);
+  };
+
 
   const closeReclassify = useCallback(() => {
     handleCloseReclassify(documentId);
@@ -375,7 +375,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           <Button
             ref={continueButtonRef}
             onClick={handleAcceptAndSave}
-            disabled={contentLoaded > 0 ? false : true}
+            disabled={contentLoaded}
             data-testid="reclassify-continue-btn"
           >
             Accept and save
