@@ -35,7 +35,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
   const handleChangeBtnClick = () => {
     dispatch({
       type: "UPDATE_CLASSIFY_STAGE",
-      payload: { newStage: "stage2" },
+      payload: { newStage: "stage1" },
     });
   };
 
@@ -133,7 +133,7 @@ export const ReclassifyStage3: React.FC<ReclassifyStage3Props> = ({
     <div role="main" aria-labelledby="main-description">
       <LinkButton
         className={classes.backBtn}
-        onClick={handleBackBtnClick}
+        onClick={handleChangeBtnClick}
         disabled={
           state.reClassifySaveStatus === "saving" ||
           state.reClassifySaveStatus === "success"
